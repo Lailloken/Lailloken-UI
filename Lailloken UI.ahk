@@ -1,6 +1,7 @@
 ﻿#NoEnv
 #SingleInstance, Force
 #KeyHistory 0
+#InstallMouseHook
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 SetKeyDelay, 200
 CoordMode, Mouse, Screen
@@ -351,7 +352,7 @@ While InStr(favorite_recipes, ",,")
 Return
 
 MainLoop:
-If !WinActive("ahk_group poe_window") && !WinActive("ahk_exe AutoHotkey.exe")
+If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 {
 	inactive_counter += 1
 	If (inactive_counter>4)
