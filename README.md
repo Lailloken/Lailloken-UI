@@ -4,6 +4,7 @@ A collection of Path of Exile user interface improvements that focus on simplici
 # Motivation & Philosophy
 
 My goal with this overlay is to bring several QoL features to the archnemesis game mechanic (and more in the future) while staying as close to a natural in-game interface as possible, both from a design and user-friendliness point-of-view. This includes an easy and straight-forward setup, visual clarity, and a lack of required extra hotkeys and alt-tabbing.
+That being said, I am not a programmer, and this is a merely a fun project and learning experience for me that I decided to share. This means I'll not be taking code input or optimizations from people unless critical bugs need to be fixed or I am hard-stuck.
 
 # Features
 
@@ -37,4 +38,4 @@ This tool is an AHK script and thus requires AutoHotkey to be installed on your 
 
 ## Setup
 
-Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you through a very short first-time-setup.
+Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you through a very short first-time-setup, and you're good to go.
