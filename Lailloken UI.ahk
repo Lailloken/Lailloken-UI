@@ -11,7 +11,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 SetBatchLines, -1
 OnExit, Exit
-Menu, Tray, Tip, Lailloken UI v1.14.1-beta
+Menu, Tray, Tip, Lailloken UI v1.14.2-beta
 #Include Class_CustomFont.ahk
 font1 := New CustomFont("Fontin-SmallCaps.ttf")
 
@@ -33,7 +33,7 @@ If !WinExist("ahk_group poe_window")
 }
 
 global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, yWindow, width_letters, recal_hide := 1, fSize0, fSize1
-global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, available_recipes, archnemesis_inventory, arch_recipes, prio_recipes, unwanted_recipes, favorite_recipes
+global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, available_recipes, archnemesis_inventory, arch_recipes, prio_recipes, unwanted_recipes, favorite_recipes, arch_inventory := []
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 Loop, Parse, all_nemesis, `n,`n
 {
@@ -46,10 +46,11 @@ Sort, all_nemesis, C D`n
 IniRead, archnemesis_inventory, ini\config.ini, Archnemesis, inventory
 If (archnemesis_inventory != "") && (archnemesis_inventory != "ERROR")
 {
-	arch_inventory := []
 	Loop, Parse, archnemesis_inventory, `,,`,
 		arch_inventory.Push(A_LoopField)
 }
+If (arch_inventory.Length() < 64) || (arch_inventory.Length() > 64)
+	arch_inventory := []
 IniRead, archnemesis1_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord1
 IniRead, archnemesis2_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord2
 IniRead, archnemesis1_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord1
@@ -608,7 +609,7 @@ sleep, 500
 archnemesis_inventory := ""
 xGrid := []
 yGrid := []
-progress := 1
+progress := 0
 ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", xLetters, yLetters+50, 17
 Loop, Parse, xScan, `,,`,
 	xGrid.Push(A_LoopField)
@@ -621,6 +622,7 @@ Loop, % xGrid.Length()
 	xBitMap := xGrid[A_Index]-(dBitMap-1)//2
 	Loop, % yGrid.Length()
 	{
+		progress += 1
 		comparison := 1
 		MouseGetPos, outX
 		ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", outX-60, yLetters+50, 17
@@ -639,13 +641,13 @@ Loop, % xGrid.Length()
 					Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\%compare%*.png
 					{
 						ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *50 %A_LoopFilePath%
+						comparison := ErrorLevel
 						If (ErrorLevel = 0)
 							break
 					}
-					comparison := ErrorLevel
 				}
 			}
-			If (comparison = 1)
+			If (comparison != 0)
 			{
 				match := ""
 				Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\*.png
@@ -669,7 +671,6 @@ Loop, % xGrid.Length()
 			If (match0 = "")
 				GoSub, Recalibrate
 			else	archnemesis_inventory := (archnemesis_inventory = "") ? match : archnemesis_inventory "," match
-			progress += 1
 		}
 	}
 }
