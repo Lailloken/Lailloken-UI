@@ -11,7 +11,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 SetBatchLines, -1
 OnExit, Exit
-Menu, Tray, Tip, Lailloken UI v1.14.2-beta
+Menu, Tray, Tip, Lailloken UI v1.14.3-beta
 #Include Class_CustomFont.ahk
 font1 := New CustomFont("Fontin-SmallCaps.ttf")
 
@@ -101,7 +101,6 @@ If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || !InStr(resolut
 WinWaitActive, ahk_group poe_window
 SoundBeep, 100
 
-;GoSub, Favored_recipes
 GoSub, GUI
 GoSub, Favored_recipes
 SetTimer, MainLoop, 100
@@ -394,9 +393,9 @@ Return
 
 Max_recipe:
 clipboard := "!used"
+KeyWait, LButton
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-KeyWait, LButton
 sleep, 500
 SendInput, ^{f}^{v}{Enter}
 Return
@@ -584,7 +583,9 @@ Gui, recipe_tree: Margin, 20, 6
 Gui, recipe_tree: Show, Hide
 WinGetPos,,, width
 ;GuiControl, MoveDraw, header, % "w"width
-Gui, recipe_tree: Show, % "NA x"xWindow-10-width " y0"
+If (width > xWindow)
+	Gui, recipe_tree: Show, NA x0 y0
+Else Gui, recipe_tree: Show, % "NA x"xWindow-width-10 " y0"
 KeyWait, LButton
 Gui, recipe_tree: Destroy
 WinActivate, ahk_group poe_window
@@ -598,11 +599,11 @@ If (xScan = "") || (xScan = "ERROR")
 	Return
 }
 hwnd_archnemesis_window := ""
-WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
 Gui, archnemesis_list: Destroy
 Gui, archnemesis_window: Destroy
 KeyWait, LButton
+WinActivate, ahk_group poe_window
+WinWaitActive, ahk_group poe_window
 sleep, 500
 SendInput, ^{f}{ESC}
 sleep, 500
