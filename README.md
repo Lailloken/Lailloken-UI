@@ -14,11 +14,13 @@ Using image recognition, this tool keeps track of the archnemesis inventory, is 
 
 
 # User Interface
-![Screenshot (217)](https://user-images.githubusercontent.com/61888437/153939802-6d49401c-2203-46c2-a94d-3c31794652f8.png)
+![screenshot_new](https://user-images.githubusercontent.com/61888437/154561700-032f3e19-4fcc-48f2-aa8e-d038f09ee346.jpg)
+
 
 The tool's UI consists of a letter bar and two small recipe windows: one that contains priority (favorite/bookmarked) recipes and one that shows recipes that are ready to be completed.
 
-![Untitled 3](https://user-images.githubusercontent.com/61888437/153942215-1d2760da-29ba-438f-85ee-0425b9362847.jpg) ![Untitled 4](https://user-images.githubusercontent.com/61888437/153942471-57b03552-a652-4d27-9b5d-ee6845e4db45.jpg)
+![Untitled 3](https://user-images.githubusercontent.com/61888437/153942215-1d2760da-29ba-438f-85ee-0425b9362847.jpg) ![ready_new](https://user-images.githubusercontent.com/61888437/154561864-2bd6c5c2-ba1e-477c-b734-4ac75b9c9c80.jpg)
+
 
 The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The 'MAX' button will search for recipes that are maxed out and cannot be upgraded. The 'SCAN' button will scan your inventory.
 
@@ -26,8 +28,8 @@ The letter bar is used to navigate a sort of glossary of the available recipes i
 
 The second window is divided into two parts – priority recipes and non-priority recipes: The first part shows the recipes from your priority list that are ready, the second shows recipes that are ready and do not use components from priority recipes. In PoE terms, they can be referred to as the 'juice' and the 'alch and go' list. Clicking on a recipe will perform an in-game search in the inventory.
 
+![tree_new](https://user-images.githubusercontent.com/61888437/154561985-147a14d6-3985-4554-a6fa-76e076bbeb50.png)
 
-![tree view](https://user-images.githubusercontent.com/61888437/153939902-f61d18d4-7bb6-49bd-9e3c-d3ac10e0a1cc.png)
 
 Hold-click a recipe in the priority list to see a tree-view schematic of its components and their progress.
 
