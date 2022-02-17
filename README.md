@@ -19,7 +19,7 @@ Using image recognition, this tool keeps track of the archnemesis inventory, is 
 
 The tool's UI consists of a letter bar and two small recipe windows: one that contains priority (favorite/bookmarked) recipes and one that shows recipes that are ready to be completed.
 
-![Untitled 3](https://user-images.githubusercontent.com/61888437/153942215-1d2760da-29ba-438f-85ee-0425b9362847.jpg) ![ready_new](https://user-images.githubusercontent.com/61888437/154561864-2bd6c5c2-ba1e-477c-b734-4ac75b9c9c80.jpg)
+![Untitled 3](https://user-images.githubusercontent.com/61888437/153942215-1d2760da-29ba-438f-85ee-0425b9362847.jpg) ![prio_new](https://user-images.githubusercontent.com/61888437/154562174-0352b820-66d8-4049-96cc-cf6d94420cb9.jpg)
 
 
 The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The 'MAX' button will search for recipes that are maxed out and cannot be upgraded. The 'SCAN' button will scan your inventory.
