@@ -961,8 +961,12 @@ LLK_Recipes(x := 0)
 	{
 		search_term := ""
 		IniRead, read, ini\db_archnemesis.ini, %x%, components
-		Loop, Parse, read, `,,`,
-			search_term := (search_term = "") ? SubStr(A_LoopField, 1, 8) : search_term "|" SubStr(A_LoopField, 1, 8)
+		If (read != "ERROR")
+		{
+			Loop, Parse, read, `,,`,
+				search_term := (search_term = "") ? SubStr(A_LoopField, 1, 8) : search_term "|" SubStr(A_LoopField, 1, 8)
+		}
+		Else search_term := A_GuiControl
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
 		search_term := StrReplace(search_term, A_Space, ".")
