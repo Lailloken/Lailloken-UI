@@ -1018,7 +1018,7 @@ LLK_Recipes(x := 0)
 	If (unwanted_recipes != "")
 	{
 		Gui, archnemesis_window: Font, s%fSize0% norm
-		Gui, archnemesis_window: Add, Text, xs y+20 cRed BackgroundTrans, ready (not prioritized):
+		Gui, archnemesis_window: Add, Text, xs y+20 cRed BackgroundTrans, ready (burn pile):
 		Loop, Parse, unwanted_recipes, `,,`,
 		{
 			If (A_LoopField = "")
