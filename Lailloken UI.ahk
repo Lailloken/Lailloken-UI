@@ -33,7 +33,7 @@ If !WinExist("ahk_group poe_window")
 	ExitApp
 }
 
-global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, xWindow1, yWindow, width_letters, recal_hide := 1, fSize0, fSize1
+global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, recal_hide := 1, fSize0, fSize1
 global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, available_recipes, archnemesis_inventory, arch_recipes, arch_bases, prio_list, prio_list0, unwanted_recipes, favorite_recipes, arch_inventory := []
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 Loop, Parse, all_nemesis, `n,`n
@@ -56,20 +56,18 @@ If (arch_inventory.Length() < 64) || (arch_inventory.Length() > 64)
 	arch_inventory := []
 IniRead, archnemesis1_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord1
 IniRead, archnemesis2_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord2
-IniRead, archnemesis1_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord1
-IniRead, archnemesis2_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord2
+IniRead, archnemesis1_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord
+IniRead, archnemesis2_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord
 IniRead, fSize0, ini\resolutions.ini, %A_ScreenHeight%p, font-size0
 IniRead, fSize1, ini\resolutions.ini, %A_ScreenHeight%p, font-size1
-IniRead, width_letters, ini\resolutions.ini, %A_ScreenHeight%p, width
 IniRead, archnemesis1_color, ini\config.ini, PixelSearch, color1
 IniRead, archnemesis2_color, ini\config.ini, PixelSearch, color2
+IniRead, game_version, ini\config.ini, PixelSearch, game-version
 IniRead, resolution, ini\config.ini, PixelSearch, resolution
 IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes
 favorite_recipes := (favorite_recipes = "ERROR") ? "" : favorite_recipes
-IniRead, xLetters, ini\resolutions.ini, %A_ScreenHeight%p, xLetters
 IniRead, yLetters, ini\resolutions.ini, %A_ScreenHeight%p, yLetters
 IniRead, xWindow, ini\resolutions.ini, %A_ScreenHeight%p, xWindow
-IniRead, yWindow, ini\resolutions.ini, %A_ScreenHeight%p, yWindow
 IniRead, xScan, ini\resolutions.ini, %A_ScreenHeight%p, xScan
 IniRead, yScan, ini\resolutions.ini, %A_ScreenHeight%p, yScan
 IniRead, dBitMap, ini\resolutions.ini, %A_ScreenHeight%p, dBitMap
@@ -77,17 +75,17 @@ IniRead, scanOffset, ini\resolutions.ini, %A_ScreenHeight%p, scanOffset
 
 If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 {
-	MsgBox, %A_ScreenHeight%p is not supported in this version. Please request it on GitHub and provide a screenshot with the archnemesis inventory open. 
+	MsgBox, %A_ScreenHeight%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
 	ExitApp
 }
 
 SetTimer, Loop, 1000
 
-If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || !InStr(resolution, A_ScreenWidth) && !InStr(resolution, A_ScreenHeight)
+If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != A_ScreenWidth "x" A_ScreenHeight) || (game_version = "ERROR") || (game_version < "31710")
 {
 	If (archnemesis1_color = "ERROR") || (archnemesis1_color = "")
-		MsgBox, This seems to be the first time this script has been started. Please follow the upcoming instructions.`n`n`nINFO: If you ever need to go through this first-time setup again, delete the config.ini file and restart the script.
-	Else	MsgBox, Your resolution has changed since last launch. First-time setup is required. 
+		MsgBox, This seems to be the first time this script has been started. Please follow the upcoming instructions.`n`n`nINFO: If you ever need to go through this first-time setup again, delete the ini\config.ini file and restart the script.
+	Else	MsgBox, Your resolution has changed since last launch, or the game has been updated. First-time setup is required. 
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
 	ToolTip, 1) Open the archnemesis inventory.`n2) Keep the cursor away from the archnemesis inventory.`n3) Hold the 7-key until this tooltip disappears., % A_ScreenWidth//2, A_ScreenHeight//2, 1
@@ -97,6 +95,7 @@ If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || !InStr(resolut
 	IniWrite, %archnemesis1_color%, ini\config.ini, PixelSearch, color1
 	IniWrite, %archnemesis2_color%, ini\config.ini, PixelSearch, color2
 	IniWrite, %A_ScreenWidth%x%A_ScreenHeight%, ini\config.ini, PixelSearch, resolution
+	IniWrite, 31710, ini\config.ini, PixelSearch, game-version
 	ToolTip,,,, 1
 	KeyWait, 7
 }
@@ -880,7 +879,8 @@ archnemesis_inventory := ""
 xGrid := []
 yGrid := []
 progress := 0
-ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", xLetters, yLetters+50, 17
+MouseGetPos, outX
+ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", outX-60, yLetters+50, 17
 Loop, Parse, xScan, `,,`,
 	xGrid.Push(A_LoopField)
 Loop, Parse, yScan, `,,`,
