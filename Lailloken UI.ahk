@@ -11,7 +11,7 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 SetBatchLines, -1
 OnExit, Exit
-Menu, Tray, Tip, Lailloken UI v1.16.0-beta
+Menu, Tray, Tip, Lailloken UI
 #Include Class_CustomFont.ahk
 font1 := New CustomFont("Fontin-SmallCaps.ttf")
 
