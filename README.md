@@ -46,7 +46,7 @@ Hold-clicking the 'prio'-label gives you an overview of your surplus in archneme
 ### Optimal drop locations:
 ![base info](https://user-images.githubusercontent.com/61888437/154804196-1524117f-52e4-43ec-9091-3845ea89a37c.png)
 ![optimal location](https://user-images.githubusercontent.com/61888437/154804267-9f64bbe3-1fdc-4e50-83e6-9e9511eebd04.png)
-You can hold-click on the individual bases' icons to show where they more commonly drop, and you can hold-click on the 'missing'-label to see which location drops the most missing mod bases. ([source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
+You can hold-click the individual bases' icons to show where they more commonly drop, and you can hold-click the 'missing'-label to see which location drops the most missing mod bases. ([source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
 <br>
 
 ### On-the-fly recipe suggestions:
