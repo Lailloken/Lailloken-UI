@@ -696,7 +696,7 @@ Loop, Parse, favorite_recipes, `,,`,
 	;	Gui, favored_recipes: Add, Text, cSilver BackgroundTrans xs, % modifiers
 	Gui, favored_recipes: Font, s%fSize0% norm
 }
-If (list_remaining != "")
+If (list_remaining != "") && (arch_inventory.Length() = 64)
 {
 	/*
 	list_remaining_final := list_remaining
@@ -1049,14 +1049,13 @@ Loop, % xGrid.Length()
 				}
 			}
 			Else match := compare
-			match0 := ""
-			Loop, Parse, match
+			Loop, 10
 			{
-				If A_LoopField is number
-					break
-				match0 := (match0 = "") ? A_LoopField : match0 A_LoopField
+				If (A_Index = 10)
+					match := StrReplace(match, "0", "")
+				Else match := StrReplace(match, A_Index, "")
 			}
-			If (match0 = "")
+			If (match = "")
 				GoSub, Recalibrate
 			else	archnemesis_inventory := (archnemesis_inventory = "") ? match : archnemesis_inventory "," match
 		}
