@@ -47,6 +47,14 @@ Loop, Parse, all_nemesis, `n,`n
 }
 Sort, all_nemesis, C D`n
 IniRead, archnemesis_inventory, ini\config.ini, Archnemesis, inventory
+Loop, 9
+{
+	If InStr(archnemesis_inventory, A_Index)
+	{
+		archnemesis_inventory := ""
+		break
+	}
+}
 If (archnemesis_inventory != "") && (archnemesis_inventory != "ERROR")
 {
 	Loop, Parse, archnemesis_inventory, `,,`,
