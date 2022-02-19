@@ -60,8 +60,11 @@ If (archnemesis_inventory != "") && (archnemesis_inventory != "ERROR")
 	Loop, Parse, archnemesis_inventory, `,,`,
 		arch_inventory.Push(A_LoopField)
 }
-If (arch_inventory.Length() < 64) || (arch_inventory.Length() > 64)
+If (arch_inventory.Length() != 64)
+{
+	archnemesis_inventory := ""
 	arch_inventory := []
+}
 IniRead, archnemesis1_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord1
 IniRead, archnemesis2_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord2
 IniRead, archnemesis1_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord
@@ -209,7 +212,6 @@ Loop, Parse, maps, `,,`,
 }
 Gui, base_info: Show, Hide
 WinGetPos,,, width
-GuiControl, MoveDraw, header0, % "w"width*0.9
 MouseGetPos, outX
 Gui, base_info: Show, % "Hide x"outX-width//2 " y"yTree
 WinGetPos, outxx,
@@ -261,7 +263,53 @@ WinGetPos,,, guiwidth,
 Gui, archnemesis_letters: Show, % "Hide x" (xWindow*0.96)//2-guiwidth//2 " y"yLetters
 Return
 
-Inventory_surplus:
+Surplus:
+If (arch_surplus != "")
+{
+	Sort, arch_surplus, D`,
+	check := ""
+	surplus_list := ""
+	count := 0
+	Loop, Parse, arch_surplus, `,,`,
+	{
+		If (A_LoopField = "")
+			break
+		If (A_Index = 1) || (check = A_LoopField)
+		{
+			check := A_LoopField
+			count += 1
+		}
+		If (A_Index != 1) && (check != A_LoopField)
+		{
+			surplus_list := (surplus_list = "") ? count "x " check "," : surplus_list count "x " check ","
+			check := A_LoopField
+			count := 1
+		}
+	}
+	Sort, surplus_list, N R D`,
+	Gui, surplus_view: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+	Gui, surplus_view: Margin, 20, 0
+	Gui, surplus_view: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, surplus_view: Font, cWhite s%fSize0%, Fontin SmallCaps
+	Gui, surplus_view: Add, Text, BackgroundTrans Section HWNDmain_text vheader3 Center, current prio surplus:
+	Gui, surplus_view: Font, s%fSize1%
+	Loop, Parse, surplus_list, `,,`,
+	{
+		If (A_LoopField = "")
+			break
+		If (A_Index = 1)
+		{
+			Gui, surplus_view: Add, Text, BackgroundTrans y+6 xs Section Center, % A_LoopField
+			clipboard := SubStr(A_LoopField, InStr(A_LoopField, A_Space,, 1, 1)+1)
+		}
+		Else	Gui, surplus_view: Add, Text, BackgroundTrans xs Center, % A_LoopField
+	}
+	Gui, surplus_view: Show, x0 y%yTree%
+}
+KeyWait, LButton
+Gui, surplus_view: Destroy
+WinActivate, ahk_group poe_window
 
 Return
 
@@ -364,7 +412,6 @@ WinSet, Transparent, %trans%
 Gui, map_suggestions: Font, cWhite s%fSize0%, Fontin SmallCaps
 Gui, map_suggestions: Add, Text, Center Section BackgroundTrans vheader01, maps with drop overlaps:
 Gui, map_suggestions: Font, s%fSize1%
-Gui, map_suggestions: Margin, 20, 6
 Loop, Parse, optimal_maps, `,,`,
 {
 	If (A_LoopField = "") || (A_Index > 10)
@@ -372,10 +419,7 @@ Loop, Parse, optimal_maps, `,,`,
 	If !InStr(A_LoopField, "1 mods") ; && !InStr(A_LoopField, "2 mods")
 	{
 		If (A_Index = 1)
-		{
-			Gui, map_suggestions: Margin, 20, 0
-			Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Section Center, % A_LoopField
-		}
+			Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text y+6 xs Section Center, % A_LoopField
 		Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center, % A_LoopField
 	}
 }
@@ -479,8 +523,19 @@ If (favor_choice != "")
 prio_list := ""
 prio_list_recipes := ""
 list_remaining := ""
+fav_in_inv :=
+fav_not_inv :=
 If (favorite_recipes != "")
 {
+	Loop, Parse, favorite_recipes, `,,`,
+	{
+		If (A_LoopField = "")
+			break
+		If InStr(archnemesis_inventory, A_LoopField)
+			fav_in_inv := (fav_in_inv = "") ? A_LoopField "," : fav_in_inv A_LoopField ","
+		Else	fav_not_inv := (fav_not_inv = "") ? A_LoopField "," : fav_not_inv A_LoopField ","
+	}
+	favorite_recipes := fav_not_inv fav_in_inv
 	Loop, Parse, favorite_recipes, `,,`,
 	{
 		If (A_LoopField = "")
@@ -576,6 +631,14 @@ If (favorite_recipes != "")
 			Else	archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
 		}
 	}
+	arch_surplus := ""
+	Loop, Parse, archnemesis_inventory_leftover, `,,`,
+	{
+		If (A_LoopField = "")
+			break
+		If InStr(prio_list, A_LoopField) && !InStr(favorite_recipes, A_LoopField)
+			arch_surplus := (arch_surplus = "") ? A_LoopField "," : arch_surplus A_LoopField ","
+	}
 	archnemesis_inventory_surplus := archnemesis_inventory
 	prio_list_leftover := prio_list
 	prio_list_recipes_leftover := prio_list_recipes
@@ -659,12 +722,12 @@ Gui, favored_recipes: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindo
 Gui, favored_recipes: Margin, 10, 2
 Gui, favored_recipes: Color, Black
 WinSet, Transparent, %trans%
-Gui, favored_recipes: Font, s%fSize0% cWhite, Fontin SmallCaps
+Gui, favored_recipes: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 ;arch_recipes_favor := arch_recipes
 ;Sort, arch_recipes_favor, C D`,
 ;arch_recipes_favor := StrReplace(arch_recipes_favor, ",", "|")
-Gui, favored_recipes: Add, Text, cYellow BackgroundTrans Section HWNDmain_text Center, prio:
-Gui, favored_recipes: Font, s10
+Gui, favored_recipes: Add, Text, cYellow BackgroundTrans Section HWNDmain_text Center gSurplus, prio:
+Gui, favored_recipes: Font, s10 norm
 ControlGetPos,, ypos,, height,, ahk_id %main_text%
 Gui, favored_recipes: Add, Button, gFavored_recipes h%height% ys y%ypos%, clr
 /*
