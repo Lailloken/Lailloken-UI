@@ -34,7 +34,7 @@ The letter bar is used to navigate a sort of glossary of the available recipes i
 
 ### The priority list:
 ![prio_new](https://user-images.githubusercontent.com/61888437/154803573-6c43fde9-7785-4fb1-9ddd-40e7da123e17.png)
-The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression. Green highlighting indicates that your inventory contains at least one mod. In addition, it calculates the missing base mods required to finish this list and displays them underneath.
+The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression. Green highlighting indicates that your inventory contains at least one assembled version of the recipe. In addition, it calculates the missing base mods required to finish this list and displays them underneath.
 
 ![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)
 Hold-clicking a recipe in the priority list will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
