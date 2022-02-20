@@ -79,10 +79,14 @@ IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes
 favorite_recipes := (favorite_recipes = "ERROR") ? "" : favorite_recipes
 IniRead, yLetters, ini\resolutions.ini, %A_ScreenHeight%p, yLetters
 IniRead, xWindow, ini\resolutions.ini, %A_ScreenHeight%p, xWindow
+IniRead, invBox, ini\resolutions.ini, %A_ScreenHeight%p, invBox
 IniRead, xScan, ini\resolutions.ini, %A_ScreenHeight%p, xScan
 IniRead, yScan, ini\resolutions.ini, %A_ScreenHeight%p, yScan
 IniRead, dBitMap, ini\resolutions.ini, %A_ScreenHeight%p, dBitMap
 IniRead, scanOffset, ini\resolutions.ini, %A_ScreenHeight%p, scanOffset
+
+Loop, Parse, invBox, `,,`,
+	invBox%A_Index% := A_LoopField
 
 If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 {
@@ -116,7 +120,7 @@ SoundBeep, 100
 
 GoSub, GUI
 GoSub, Favored_recipes
-SetTimer, MainLoop, 100
+SetTimer, MainLoop, 200
 Return
 /*
 Archnemesis:
@@ -337,12 +341,16 @@ If WinActive("ahk_group poe_window")
 	LLK_PixelSearch("archnemesis")
 	If (archnemesis=1)
 	{
+		MouseGetPos, mouseXpos, mouseYpos
+		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4) ;mouseXpos between %invBox1% and %invBox2% && mouseYpos between %invBox3% and %invBox4%
+			LLK_Overlay("favored_recipes", 2)
 		If !WinExist("ahk_id " hwnd_archnemesis_letters)
 			LLK_Overlay("archnemesis_letters", 1)
 		;If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
 		;	LLK_Overlay("archnemesis_window", 1)
 		If !WinExist("ahk_id " hwnd_favored_recipes) && (hwnd_favored_recipes != "") && (favorite_recipes != "")
-			LLK_Overlay("favored_recipes", 1)
+			If !(invBox1 < mouseXpos && mouseXpos < invBox2 && invBox3 < mouseYpos && mouseYpos < invBox4) ;&& (mouseXpos not between invBox1 and inBox2) && (mouseYpos not between invBox3 and invBox4)
+				LLK_Overlay("favored_recipes", 1)
 	}
 	If (archnemesis=0)
 	{
@@ -419,7 +427,10 @@ Loop, Parse, optimal_maps, `,,`,
 	If !InStr(A_LoopField, "1 mods") ; && !InStr(A_LoopField, "2 mods")
 	{
 		If (A_Index = 1)
+		{
 			Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text y+6 xs Section Center, % A_LoopField
+			clipboard := SubStr(A_LoopField, InStr(A_LoopField, "mods in ",,, 1)+8)
+		}
 		Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center, % A_LoopField
 	}
 }
