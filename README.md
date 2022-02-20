@@ -19,17 +19,29 @@ The tool's UI consists of a letter bar and two small recipe windows: one that co
 
 ## Features
 
-Using image recognition, this tool keeps track of the archnemesis inventory, is able to monitor your progression for specific recipes, and highlights recipes that are ready to be assembled. Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and reliability in the long run. Think of it as 'tailored' to your system and settings.
+Using image recognition, this tool scans the contents of your archnemesis inventory, which enables a multitude of features not found in the game:
+- creating a user-configurable list of favorite/chase recipes
+- monitoring the progress of your list by breaking down recipes in a tree-view schematic
+- highlighting recipes connected to your list that are ready to be assembled
+- highlighting irrelevant mods and recipes that can be safely 'burned' without interfering with your list
+- calculating which and how many base mods you need in order to complete your recipe list
+- calculating your surplus in archnemesis mods for easy inventory management
+- showing were the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
+
+Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and reliability in the long run. Think of it as 'tailored' to your system and settings.
+<br>
 <br>
 
 ### 'Training' the tool to recognize archnemesis icons:
-![Untitled 6](https://user-images.githubusercontent.com/61888437/153947382-ff7abc3d-06c6-49fc-b1c9-351265e53d5d.jpg)
+![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)
 The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down in columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. My plan is to optimize this system to the extend that every icon (63 in total) has to be specified only once and is from that point onwards recognized with 100% accuracy.
+<br>
 <br>
 
 ### Navigating the UI:
 ![letter_new](https://user-images.githubusercontent.com/61888437/154803454-5ed1928e-bc56-436f-bc1f-05c31a5fbf3f.jpg)
 The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The MAX button will search for recipes that are maxed out and cannot be upgraded, and the SCAN button will scan your inventory.
+<br>
 <br>
 
 ### The priority list:
@@ -41,6 +53,7 @@ Hold-clicking a recipe in the priority list will show a tree-view schematic and 
 
 ![surplus](https://user-images.githubusercontent.com/61888437/154805163-401b44ac-7638-474b-bc95-c6a56e193773.png)
 Hold-clicking the 'prio'-label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can CTRL-F-V immediately after releasing the mouse button. Use this as a last resort to make room in your inventory in case nothing else can be burned.
+<br>
 <br>
 
 ### Optimal drop locations:
