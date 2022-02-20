@@ -267,6 +267,41 @@ WinGetPos,,, guiwidth,
 Gui, archnemesis_letters: Show, % "Hide x" (xWindow*0.96)//2-guiwidth//2 " y"yLetters
 Return
 
+Recalibrate_letter:
+letter_clicked := A_GuiControl
+Gui, recalibrate_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+global hwnd_recalibrate_list := WinExist()
+Gui, recalibrate_list: Margin, 6, 2
+Gui, recalibrate_list: Color, Black
+WinSet, Transparent, %trans%
+Gui, recalibrate_list: Font, s%fSize0% cWhite underline, Fontin SmallCaps
+no_letter := 1
+section := 0
+Loop, Parse, all_nemesis, `n, `n
+{
+	If (SubStr(A_LoopField, 1, 1) = A_GuiControl)
+	{
+		If (section = 0)
+		{
+			Gui, recalibrate_list: Add, Text, Section gRecalibrate_UI, % A_LoopField
+			section := 1
+		}
+		Else	Gui, recalibrate_list: Add, Text, xs y+6 Section gRecalibrate_UI, % A_LoopField
+		no_letter := 0
+	}
+}
+If (no_letter=0)
+{
+	MouseGetPos, mouseX, mouseY
+	Gui, recalibrate_list: Show, Hide
+	WinGetPos,,,, height
+	WinGetPos,, outY,,, ahk_id %recalibration%
+	Gui, recalibrate_list: Show, % "NA x"mouseX-30 " y"outY-10-height
+}
+;LLK_Overlay("archnemesis_window", 2)
+;WinActivate, ahk_group poe_window
+Return
+
 Surplus:
 If (arch_surplus != "")
 {
@@ -342,14 +377,14 @@ If WinActive("ahk_group poe_window")
 	If (archnemesis=1)
 	{
 		MouseGetPos, mouseXpos, mouseYpos
-		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4) ;mouseXpos between %invBox1% and %invBox2% && mouseYpos between %invBox3% and %invBox4%
+		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4)
 			LLK_Overlay("favored_recipes", 2)
 		If !WinExist("ahk_id " hwnd_archnemesis_letters)
 			LLK_Overlay("archnemesis_letters", 1)
 		;If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
 		;	LLK_Overlay("archnemesis_window", 1)
 		If !WinExist("ahk_id " hwnd_favored_recipes) && (hwnd_favored_recipes != "") && (favorite_recipes != "")
-			If !(invBox1 < mouseXpos && mouseXpos < invBox2 && invBox3 < mouseYpos && mouseYpos < invBox4) ;&& (mouseXpos not between invBox1 and inBox2) && (mouseYpos not between invBox3 and invBox4)
+			If !(invBox1 < mouseXpos && mouseXpos < invBox2 && invBox3 < mouseYpos && mouseYpos < invBox4)
 				LLK_Overlay("favored_recipes", 1)
 	}
 	If (archnemesis=0)
@@ -457,7 +492,7 @@ GoSub, Recalibrate_UI
 Gui, recal_arrow: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow
 Gui, recal_arrow: Color, Black
 WinSet, TransColor, Black
-Gui, recal_arrow: Add, Picture, BackgroundTrans h64 w-1, img\GUI\arrow_red.png
+Gui, recal_arrow: Add, Picture, BackgroundTrans h%dBitMap% w-1, img\GUI\arrow_red.png
 Gui, recal_arrow: Show, Hide
 WinGetPos,,, width, height
 Gui, recal_arrow: Show, % "NA x"xArrow-width//2 " y"yArrow-height*1.2
@@ -483,33 +518,49 @@ Gui, recalibration: Destroy
 Return
 
 Recalibrate_UI:
-If (A_GuiControl = "abort")
+If InStr(A_GuiControl, "cancel")
 	Reload
-Gui, recalibration: Submit
-all_nemesis_recalibrate := "-empty-|" StrReplace(all_nemesis, "`n", "|") "|"
-/*
-If FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\*.png") && (recal_hide = 1)
+If InStr(A_GuiControl, "empty")
 {
-	Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\*.png
-	{
-		SplitPath, A_LoopFileName, , , , ready,
-		all_nemesis_recalibrate := StrReplace(all_nemesis_recalibrate, ready "|", "")
-	}
+	recal_choice := "-empty-"
+	Gui, recalibrate_list: Destroy
+	Gui, recalibration: Destroy
+	Return
 }
-If (all_nemesis_recalibrate = "")
-	return
-*/
-Gui, recalibration: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+If (A_Gui = "recalibrate_list")
+{
+	recal_choice := A_GuiControl
+	Gui, recalibrate_list: Destroy
+	Gui, recalibration: Destroy
+	WinActivate, ahk_group poe_window
+	Return
+}
+Gui, recalibration: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDrecalibration
 global hwnd_recalibration := WinExist()
 Gui, recalibration: Margin, 6, 2
 Gui, recalibration: Color, Black
 WinSet, Transparent, %trans%
-Gui, recalibration: Font, cWhite s%fSize1%, Fontin SmallCaps
+Gui, recalibration: Font, cWhite s%fSize0%, Fontin SmallCaps
 Gui, recalibration: Add, Text, BackgroundTrans, Please specify the indicated mod type.
-Gui, recalibration: Add, DDL, w250 r10 gRecalibrate_ddl vrecal_choice Section, % all_nemesis_recalibrate
-Gui, recalibration: Add, Button, h29 ys gRecalibrate_UI, abort
-;Gui, recalibration: Add, Checkbox, xs gRecalibrate_UI vrecal_hide Checked%recal_hide%, hide previously-scanned mods
-
+letter := ""
+Gui, recalibration: Add, Text, x6 Section Center gRecalibrate_UI Border, % " empty "
+Gui, recalibration: Add, Text, xs wp Center gRecalibrate_UI Border, % "cancel"
+Gui, recalibration: Add, Text, ys x-5 Center BackgroundTrans, % "     "
+Loop, Parse, all_nemesis, `n, `n
+{
+	If (letter != SubStr(A_LoopField, 1, 1))
+	{
+		If (A_Index = 1)
+			Gui, recalibration: Add, Text, ys wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		else
+		{
+			If (SubStr(A_LoopField, 1, 1) != "k")
+				Gui, recalibration: Add, Text, ys wp gRecalibrate_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+			Else	Gui, recalibration: Add, Text, xs wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		}
+		letter := SubStr(A_LoopField, 1, 1)
+	}
+}
 Gui, recalibration: Show, x%xWindow% yCenter
 Return
 
@@ -1070,9 +1121,9 @@ Gui, archnemesis_window: Destroy
 KeyWait, LButton
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-sleep, 250
+sleep, 200
 SendInput, ^{f}{ESC}
-sleep, 250
+sleep, 200
 archnemesis_inventory := ""
 xGrid := []
 yGrid := []
@@ -1085,10 +1136,10 @@ Loop, Parse, yScan, `,,`,
 	yGrid.Push(A_LoopField)
 Loop, % xGrid.Length()
 {
-	xArrow := xGrid[A_Index]
-	xGridScan0 := xGrid[A_Index] - scanOffset
-	xGridScan1 := xGrid[A_Index] + scanOffset
-	xBitMap := xGrid[A_Index]-(dBitMap-1)//2
+	xArrow := xGrid[A_Index] + dBitMap//2
+	xGridScan0 := xGrid[A_Index]
+	xGridScan1 := xGrid[A_Index] + dBitMap - 1
+	xBitMap := xGridScan0
 	Loop, % yGrid.Length()
 	{
 		progress += 1
@@ -1096,9 +1147,9 @@ Loop, % xGrid.Length()
 		MouseGetPos, outX
 		ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", outX-60, yLetters+50, 17
 		yArrow := yGrid[A_Index]
-		yGridScan0 := yGrid[A_Index] - scanOffset
-		yGridScan1 := yGrid[A_Index] + scanOffset
-		yBitMap := yGrid[A_Index]-(dBitMap-1)//2
+		yGridScan0 := yGrid[A_Index]
+		yGridScan1 := yGrid[A_Index] + dBitMap - 1
+		yBitMap := yGridScan0
 		If !FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\*.png")
 			GoSub, Recalibrate
 		Else
@@ -1151,6 +1202,10 @@ ToolTip,,,,17
 GoSub, Favored_recipes
 GoSub, Recipes
 Return
+
+
+
+
 
 LLK_Recipes(x := 0)
 {
