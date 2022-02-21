@@ -81,6 +81,6 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 
 ### Known issues
 - Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
-- 768p resolutions have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
-   - the only way to circumvent this issue is to lower (e.g. to 720p) or increase your desktop resolution (if possible).
-   - the tool is still usable at 768p and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
+- Uncommon resolutions (768p, 1024p, and 1050p) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
+   - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
+   - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
