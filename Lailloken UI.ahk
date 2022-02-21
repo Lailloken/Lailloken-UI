@@ -75,6 +75,9 @@ IniRead, archnemesis1_color, ini\config.ini, PixelSearch, color1
 IniRead, archnemesis2_color, ini\config.ini, PixelSearch, color2
 IniRead, game_version, ini\config.ini, PixelSearch, game-version
 IniRead, resolution, ini\config.ini, PixelSearch, resolution
+IniRead, fSize_offset, ini\config.ini, PixelSearch, font-offset, 0
+fSize0 += fSize_offset
+fSize1 += fSize_offset
 IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes
 favorite_recipes := (favorite_recipes = "ERROR") ? "" : favorite_recipes
 IniRead, yLetters, ini\resolutions.ini, %A_ScreenHeight%p, yLetters
@@ -83,7 +86,6 @@ IniRead, invBox, ini\resolutions.ini, %A_ScreenHeight%p, invBox
 IniRead, xScan, ini\resolutions.ini, %A_ScreenHeight%p, xScan
 IniRead, yScan, ini\resolutions.ini, %A_ScreenHeight%p, yScan
 IniRead, dBitMap, ini\resolutions.ini, %A_ScreenHeight%p, dBitMap
-IniRead, scanOffset, ini\resolutions.ini, %A_ScreenHeight%p, scanOffset
 
 Loop, Parse, invBox, `,,`,
 	invBox%A_Index% := A_LoopField
@@ -122,15 +124,13 @@ GoSub, GUI
 GoSub, Favored_recipes
 SetTimer, MainLoop, 200
 Return
-/*
-Archnemesis:
-LLK_Overlay("archnemesis_list", 2)
-LLK_Archnemesis(A_GuiControl)
-Return
-*/
 
-Archnemesis_new:
-LLK_Recipes(A_GuiControl)
+Archnemesis:
+LLK_Recipes(A_GuiControl, 1)
+Return
+
+Archnemesis2:
+LLK_Recipes(A_GuiControl, 2)
 Return
 
 Archnemesis_letter:
@@ -182,9 +182,7 @@ If (no_letter=0)
 	WinGetPos,,,, height
 	Gui, archnemesis_list: Show, % "NA x"mouseX-30 " y"yLetters-10-height
 }
-;LLK_Overlay("archnemesis_window", 2)
 WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
 Return
 
 Base_info:
@@ -197,15 +195,11 @@ Gui, base_info: Color, Black
 WinSet, Transparent, %trans%
 Gui, base_info: Font, cWhite s%fSize0%, Fontin SmallCaps
 Gui, base_info: Add, Text, Center Section BackgroundTrans vheader0, % mod_base ":"
-Gui, base_info: Margin, 20, 6
 Gui, base_info: Font, s%fSize1%
 Loop, Parse, maps, `,,`,
 {
 	If (A_Index = 1)
-	{
-		Gui, base_info: Add, Text, Center xs Section BackgroundTrans, % A_LoopField
-		Gui, base_info: Margin, 20, 0
-	}
+		Gui, base_info: Add, Text, Center xs y+6 Section BackgroundTrans, % A_LoopField
 	Else
 	{
 		If (Mod(A_Index-1, 4) = 0) && (A_Index > 3)
@@ -249,22 +243,58 @@ Gui, archnemesis_letters: Color, Black
 WinSet, Transparent, %trans%
 Gui, archnemesis_letters: Font, s%fSize0% cWhite, Fontin SmallCaps
 letter := ""
-Gui, archnemesis_letters: Add, Text, x6 Section Center gMax_recipe, % "max "
-Gui, archnemesis_letters: Add, Text, ys x-5 Center BackgroundTrans, % "     "
+Gui, archnemesis_letters: Add, Text, x0 Center BackgroundTrans, % "    "
 Loop, Parse, all_nemesis, `n, `n
 {
 	IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
 	If (read != "ERROR") && (letter != SubStr(A_LoopField, 1, 1))
 	{
-		Gui, archnemesis_letters: Add, Text, ys wp gArchnemesis_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		If (SubStr(A_LoopField, 1, 1) = "a")	
+			Gui, archnemesis_letters: Add, Text, x6 y2 wp Section gArchnemesis_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		Else	Gui, archnemesis_letters: Add, Text, ys x+2 wp gArchnemesis_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
 		letter := SubStr(A_LoopField, 1, 1)
 	}
 }
-Gui, archnemesis_letters: Add, Text, Center ys x+10 gScan, % "scan"
+Gui, archnemesis_letters: Add, Text, ys x+6 Center gFont_offset Border, % " – "
+Gui, archnemesis_letters: Add, Text, ys x+2 wp Section Center gFont_offset Border, % "+"
+Gui, archnemesis_letters: Add, Text, Center ys x+6 gScan Border, % " scan "
 Gui, archnemesis_letters: Margin, 6, 2
 Gui, archnemesis_letters: Show, Hide
 WinGetPos,,, guiwidth,
 Gui, archnemesis_letters: Show, % "Hide x" (xWindow*0.96)//2-guiwidth//2 " y"yLetters
+Return
+
+Recalibrate_letter:
+letter_clicked := A_GuiControl
+Gui, recalibrate_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+global hwnd_recalibrate_list := WinExist()
+Gui, recalibrate_list: Margin, 6, 2
+Gui, recalibrate_list: Color, Black
+WinSet, Transparent, %trans%
+Gui, recalibrate_list: Font, s%fSize0% cWhite underline, Fontin SmallCaps
+no_letter := 1
+section := 0
+Loop, Parse, all_nemesis, `n, `n
+{
+	If (SubStr(A_LoopField, 1, 1) = A_GuiControl)
+	{
+		If (section = 0)
+		{
+			Gui, recalibrate_list: Add, Text, Section gRecalibrate_UI, % A_LoopField
+			section := 1
+		}
+		Else	Gui, recalibrate_list: Add, Text, xs y+6 Section gRecalibrate_UI, % A_LoopField
+		no_letter := 0
+	}
+}
+If (no_letter=0)
+{
+	MouseGetPos, mouseX, mouseY
+	Gui, recalibrate_list: Show, Hide
+	WinGetPos,,,, height
+	WinGetPos,, outY,,, ahk_id %recalibration%
+	Gui, recalibrate_list: Show, % "NA x"mouseX-30 " y"outY-10-height
+}
 Return
 
 Surplus:
@@ -276,8 +306,6 @@ If (arch_surplus != "")
 	count := 0
 	Loop, Parse, arch_surplus, `,,`,
 	{
-		If (A_LoopField = "")
-			break
 		If (A_Index = 1) || (check = A_LoopField)
 		{
 			check := A_LoopField
@@ -311,10 +339,10 @@ If (arch_surplus != "")
 	}
 	Gui, surplus_view: Show, x0 y%yTree%
 }
+KeyWait, LButton, D
 KeyWait, LButton
 Gui, surplus_view: Destroy
 WinActivate, ahk_group poe_window
-
 Return
 
 Loop:
@@ -342,15 +370,15 @@ If WinActive("ahk_group poe_window")
 	If (archnemesis=1)
 	{
 		MouseGetPos, mouseXpos, mouseYpos
-		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4) ;mouseXpos between %invBox1% and %invBox2% && mouseYpos between %invBox3% and %invBox4%
+		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4)
 			LLK_Overlay("favored_recipes", 2)
 		If !WinExist("ahk_id " hwnd_archnemesis_letters)
 			LLK_Overlay("archnemesis_letters", 1)
-		;If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
-		;	LLK_Overlay("archnemesis_window", 1)
 		If !WinExist("ahk_id " hwnd_favored_recipes) && (hwnd_favored_recipes != "") && (favorite_recipes != "")
-			If !(invBox1 < mouseXpos && mouseXpos < invBox2 && invBox3 < mouseYpos && mouseYpos < invBox4) ;&& (mouseXpos not between invBox1 and inBox2) && (mouseYpos not between invBox3 and invBox4)
+			If !(invBox1 < mouseXpos && mouseXpos < invBox2 && invBox3 < mouseYpos && mouseYpos < invBox4)
 				LLK_Overlay("favored_recipes", 1)
+		If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
+			LLK_Overlay("archnemesis_window", 1)
 	}
 	If (archnemesis=0)
 	{
@@ -439,7 +467,6 @@ KeyWait, LButton, D
 KeyWait, LButton
 Gui, map_suggestions: Destroy
 WinActivate, ahk_group poe_window
-;WinWaitActive, ahk_group poe_window
 Return
 
 Max_recipe:
@@ -457,7 +484,7 @@ GoSub, Recalibrate_UI
 Gui, recal_arrow: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow
 Gui, recal_arrow: Color, Black
 WinSet, TransColor, Black
-Gui, recal_arrow: Add, Picture, BackgroundTrans h64 w-1, img\GUI\arrow_red.png
+Gui, recal_arrow: Add, Picture, BackgroundTrans w%dBitMap% h-1, img\GUI\arrow_red.png
 Gui, recal_arrow: Show, Hide
 WinGetPos,,, width, height
 Gui, recal_arrow: Show, % "NA x"xArrow-width//2 " y"yArrow-height*1.2
@@ -477,50 +504,62 @@ Gdip_SaveBitmapToFile(Gdip_BitmapFromScreen(xBitMap "|" yBitMap "|" dBitMap "|" 
 archnemesis_inventory := (archnemesis_inventory = "") ? recal_choice : archnemesis_inventory "," recal_choice
 Return
 
-Recalibrate_ddl:
-Gui, recalibration: Submit, NoHide
-Gui, recalibration: Destroy
-Return
-
 Recalibrate_UI:
-If (A_GuiControl = "abort")
+If InStr(A_GuiControl, "cancel")
 	Reload
-Gui, recalibration: Submit
-all_nemesis_recalibrate := "-empty-|" StrReplace(all_nemesis, "`n", "|") "|"
-/*
-If FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\*.png") && (recal_hide = 1)
+If InStr(A_GuiControl, "empty")
 {
-	Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\*.png
-	{
-		SplitPath, A_LoopFileName, , , , ready,
-		all_nemesis_recalibrate := StrReplace(all_nemesis_recalibrate, ready "|", "")
-	}
+	recal_choice := "-empty-"
+	Gui, recalibrate_list: Destroy
+	Gui, recalibration: Destroy
+	Return
 }
-If (all_nemesis_recalibrate = "")
-	return
-*/
-Gui, recalibration: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+If (A_Gui = "recalibrate_list")
+{
+	recal_choice := A_GuiControl
+	Gui, recalibrate_list: Destroy
+	Gui, recalibration: Destroy
+	WinActivate, ahk_group poe_window
+	Return
+}
+Gui, recalibration: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDrecalibration
 global hwnd_recalibration := WinExist()
 Gui, recalibration: Margin, 6, 2
 Gui, recalibration: Color, Black
 WinSet, Transparent, %trans%
-Gui, recalibration: Font, cWhite s%fSize1%, Fontin SmallCaps
+Gui, recalibration: Font, cWhite s%fSize0%, Fontin SmallCaps
 Gui, recalibration: Add, Text, BackgroundTrans, Please specify the indicated mod type.
-Gui, recalibration: Add, DDL, w250 r10 gRecalibrate_ddl vrecal_choice Section, % all_nemesis_recalibrate
-Gui, recalibration: Add, Button, h29 ys gRecalibrate_UI, abort
-;Gui, recalibration: Add, Checkbox, xs gRecalibrate_UI vrecal_hide Checked%recal_hide%, hide previously-scanned mods
-
+letter := ""
+Gui, recalibration: Add, Text, x6 Section Center gRecalibrate_UI Border, % " empty "
+Gui, recalibration: Add, Text, xs wp Center gRecalibrate_UI Border, % "cancel"
+Gui, recalibration: Add, Text, ys x-5 Center BackgroundTrans, % "     "
+Loop, Parse, all_nemesis, `n, `n
+{
+	If (letter != SubStr(A_LoopField, 1, 1))
+	{
+		If (A_Index = 1)
+			Gui, recalibration: Add, Text, ys wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		else
+		{
+			If (SubStr(A_LoopField, 1, 1) != "k")
+				Gui, recalibration: Add, Text, ys wp gRecalibrate_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+			Else	Gui, recalibration: Add, Text, xs wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
+		}
+		letter := SubStr(A_LoopField, 1, 1)
+	}
+}
 Gui, recalibration: Show, x%xWindow% yCenter
 Return
 
 Favored_recipes:
+Gui, archnemesis_window: Destroy
 Gui, archnemesis_list: Hide
-If (A_GuiControl = "clr")
+If InStr(A_GuiControl, "clr")
 {
 	Gui, favored_recipes: Destroy
 	favorite_recipes := ""
 }
-favor_choice := (A_GuiControl = "scan") || (A_GuiControl = "clr") ? "" : A_GuiControl
+favor_choice := (InStr(A_GuiControl, "scan") || InStr(A_GuiControl, "clr")) ? "" : A_GuiControl
 {
 	hwnd_favored_recipes := ""
 	LLK_Overlay("favored_recipes", 2)
@@ -552,7 +591,6 @@ If (favorite_recipes != "")
 		If (A_LoopField = "")
 			break
 		prio_list := (prio_list = "") ? A_LoopField "," : prio_list A_LoopField ","
-		;prio_list_recipes := (prio_list_recipes = "") ? A_LoopField "," : prio_list_recipes A_LoopField ","
 		IniRead, components0, ini\db_archnemesis.ini, %A_LoopField%, components
 		If (components0 != "ERROR")
 		{
@@ -578,13 +616,9 @@ If (favorite_recipes != "")
 								{
 									prio_list_recipes := (prio_list_recipes = "") ? A_LoopField "," : prio_list_recipes A_LoopField ","
 									prio_list := prio_list components3 ","
-									Loop, Parse, components3, `,,`,
-										list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
 								}
-								Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
 							}
 						}
-						Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
 					}
 				}
 			}
@@ -621,9 +655,7 @@ If (favorite_recipes != "")
 											Loop, Parse, recipe2, `,,`,
 											{
 												If !InStr(archnemesis_inventory_leftover, A_LoopField)
-												{
 													list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-												}
 												Else archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
 											}
 										}
@@ -664,10 +696,7 @@ If (favorite_recipes != "")
 		If (A_LoopField = "")
 			break
 		If InStr(prio_list_leftover, A_LoopField)
-		{
-			;archnemesis_inventory_surplus := StrReplace(archnemesis_inventory_surplus, A_LoopField ",", "",, 1)
 			prio_list_leftover := StrReplace(prio_list_leftover, A_LoopField ",", "",, 1)
-		}
 	}
 	Loop, Parse, archnemesis_inventory, `,,`,
 	{
@@ -679,120 +708,32 @@ If (favorite_recipes != "")
 			prio_list_recipes_leftover := StrReplace(prio_list_recipes_leftover, A_LoopField ",", "",, 1)
 		}
 	}
-	/*
-	list_remaining := ""
-	Loop, Parse, prio_list_recipes_leftover, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		Loop, Parse, recipe, `,,`,
-		{
-			IniRead, recipe1, ini\db_archnemesis.ini, %A_LoopField%, components
-			If (recipe1 != "ERROR")
-			{
-				Loop, Parse, recipe1, `,,`,
-				{
-					IniRead, recipe2, ini\db_archnemesis.ini, %A_LoopField%, components
-					If (recipe2 != "ERROR")
-					{
-						Loop, Parse, recipe2, `,,`,
-						{
-							IniRead, recipe3, ini\db_archnemesis.ini, %A_LoopField%, components
-							If (recipe3 != "ERROR")
-							{
-								Loop, Parse, recipe3, `,,`,
-								{
-									list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-								}
-							}
-							else
-							{
-								list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-							}
-						}
-					}
-					else
-					{
-						list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-					}
-				}
-			}
-			else
-			{
-				list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-			}
-		}
-	}
-	*/
 	Sort, list_remaining, C D`,
 }
-;favorite_recipes := (SubStr(favorite_recipes, 0) = ",") ? StrReplace(favorite_recipes, ",", "") : favorite_recipes
 favor_choice := ""
 Gui, favored_recipes: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 Gui, favored_recipes: Margin, 10, 2
 Gui, favored_recipes: Color, Black
 WinSet, Transparent, %trans%
 Gui, favored_recipes: Font, s%fSize0% cWhite underline, Fontin SmallCaps
-;arch_recipes_favor := arch_recipes
-;Sort, arch_recipes_favor, C D`,
-;arch_recipes_favor := StrReplace(arch_recipes_favor, ",", "|")
 Gui, favored_recipes: Add, Text, cYellow BackgroundTrans Section HWNDmain_text Center gSurplus, prio:
-Gui, favored_recipes: Font, s10 norm
+Gui, favored_recipes: Font, % "s"fSize1-2 "norm"
 ControlGetPos,, ypos,, height,, ahk_id %main_text%
 Gui, favored_recipes: Add, Button, gFavored_recipes h%height% ys y%ypos%, clr
-/*
-Gui, favored_recipes: Font, s%fSize1% norm
-recipe_count := 0
-Loop, Parse, arch_recipes_favor, |, |
-	recipe_count += 1
-Gui, favored_recipes: Font, s12 norm
-Gui, favored_recipes: Add, DDL, xs y+10 gFavored_recipes vfavor_choice r%recipe_count% w250, % arch_recipes_favor
-*/
-;Gui, favored_recipes: Font, s10 norm
-;Gui, favored_recipes: Add, Text, xs BackgroundTrans, (to remove single recipes,`nre-select them on the letter bar)
+
 Loop, Parse, favorite_recipes, `,,`,
 {
 	If (A_LoopField = "") || (favorite_recipes = "")
 		break
 	Gui, favored_recipes: Font, s%fSize0% underline
-	/*
-	IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-	some_components := 1
-	If (components != "ERROR")
-		Loop, Parse, components, `,,`,
-			some_components *= InStr(archnemesis_inventory, A_LoopField)
-	*/
-	;color := (some_components != 0) ? "Lime" : "White"
 	color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
-	;If (A_Index = 1)
-		Gui, favored_recipes: Add, Text, c%color% ys BackgroundTrans HWNDmain_text gRecipe_tree, % A_LoopField
-	;Else	Gui, favored_recipes: Add, Text, c%color% ys BackgroundTrans HWNDmain_text gRecipe_tree Section, % A_LoopField
+	Gui, favored_recipes: Add, Text, c%color% ys BackgroundTrans HWNDmain_text gRecipe_tree, % A_LoopField
 	IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
 	ControlGetPos,, ypos,, height,, ahk_id %main_text%
-	;IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-	;Loop, Parse, rewards, `,,`,
-	;	Gui, favored_recipes: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
-	;Gui, favored_recipes: Font, s%fSize1% norm
-	;If (modifiers != "") && (modifiers != "ERROR")
-	;	Gui, favored_recipes: Add, Text, cSilver BackgroundTrans xs, % modifiers
 	Gui, favored_recipes: Font, s%fSize0% norm
 }
 If (list_remaining != "") && (arch_inventory.Length() = 64)
 {
-	/*
-	list_remaining_final := list_remaining
-	Gui, favored_recipes: Margin, 6, 2
-	Gui, favored_recipes: Add, Text, xs BackgroundTrans Section, required:
-	Loop, Parse, archnemesis_inventory, `,,`,
-	{
-		If InStr(list_remaining, A_LoopField)
-		{
-			list_remaining_final := StrReplace(list_remaining_final, A_LoopField ",", "",, 1)
-		}
-	}
-	MsgBox, % list_remaining_final
-	*/
 	Gui, favored_recipes: Margin, 6, 2
 	Gui, favored_recipes: Font, underline
 	Gui, favored_recipes: Add, Text, xs BackgroundTrans Section gMap_suggestion, missing:
@@ -821,15 +762,24 @@ If (list_remaining != "") && (arch_inventory.Length() = 64)
 Gui, favored_recipes: Show, Hide x0 y0
 WinGetPos,,, width, height
 global yTree := height + 10
-;Gui, favored_recipes: Show, % "Hide x"A_ScreenWidth//2-width//2 " y0"
 hwnd_favored_recipes := WinExist()
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 Return
 
+Font_offset:
+If InStr(A_GuiControl, "–")
+	fSize_offset -= 1
+If InStr(A_GuiControl, "+")
+	fSize_offset += 1
+IniWrite, %fSize_offset%, ini\config.ini, PixelSearch, font-offset
+Reload
+Return
+
 Recipes:
-available_recipes := ""
-unwanted_recipes := ""
+global available_recipes := ""
+global unwanted_recipes := ""
+global unwanted_mods := ""
 leftover_recipes := all_nemesis_inverted
 If (prio_list != "")
 {
@@ -857,7 +807,7 @@ If (prio_list != "")
 			recipe_match := 1
 			Loop, Parse, recipe, `,,`,
 				recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-			If (recipe_match != 0) && !InStr(available_recipes, A_LoopField) ;|| InStr(archnemesis_inventory, A_LoopField)
+			If (recipe_match != 0) && !InStr(available_recipes, A_LoopField)
 				available_recipes := (available_recipes = "") ? A_LoopField "," : available_recipes A_LoopField ","
 		}
 	}
@@ -883,19 +833,12 @@ If (prio_list != "")
 				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
 		}	
 	}
-	If (unwanted_recipes = "")
+	Loop, Parse, all_nemesis_inverted, `,,`,
 	{
-		Loop, Parse, all_nemesis_inverted, `,,`,
-		{
-			If (A_LoopField = "")
-				break
-			recipe_match := 1
-			If !InStr(prio_list, A_LoopField)
-				recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-			Else recipe_match := 0
-			If (recipe_match != 0)
-				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","	
-		}
+		If (A_LoopField = "")
+			break
+		If !InStr(prio_list, A_LoopField) && InStr(archnemesis_inventory, A_LoopField)
+			unwanted_mods := (unwanted_mods = "") ? A_LoopField "," : unwanted_mods A_LoopField ","	
 	}
 }
 Else
@@ -917,7 +860,6 @@ Return
 
 Recipe_tree:
 Gui, recipe_tree: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-;Gui, recipe_tree: Margin, 6, 0
 Gui, recipe_tree: Color, Black
 WinSet, Transparent, %trans%
 Gui, recipe_tree: Font, cWhite s%fSize0%, Fontin SmallCaps
@@ -941,7 +883,6 @@ Loop
 count := (count = 0) ? "" : " (" count ")"
 */
 color := InStr(archnemesis_inventory, A_GuiControl) ? "Lime" : "White"
-;Gui, recipe_tree: Add, Text, BackgroundTrans c%color% Section HWNDmain_text0 vheader Center, %A_GuiControl%
 ControlGetPos,, ypos,, height,, ahk_id %main_text0%
 Gui, recipe_tree: Font, cWhite s%fSize1%
 IniRead, components, ini\db_archnemesis.ini, %A_GuiControl%, components
@@ -962,11 +903,7 @@ Loop, Parse, components, `,,`,
 	If (A_Index = 1)
 		Gui, recipe_tree: Add, Text, BackgroundTrans c%color% HWNDmain_text Section Center, % A_LoopField count
 	Else	Gui, recipe_tree: Add, Text, BackgroundTrans c%color% ys HWNDmain_text Section Center, % A_LoopField count
-	;IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
 	IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-	;ControlGetPos,, ypos,, height,, ahk_id %main_text%
-	;Loop, Parse, rewards, `,,`,
-	;	Gui, recipe_tree: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 	If (components != "ERROR") && (components != "")
 	{
 		Loop, Parse, components, `,,`,
@@ -983,11 +920,7 @@ Loop, Parse, components, `,,`,
 			count := (count = 0) ? "" : " (" count ")"
 			color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
 			Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |–" A_LoopField count
-			;IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
 			IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-			;ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			;Loop, Parse, rewards, `,,`,
-			;	Gui, recipe_tree: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 			If (components != "ERROR") && (components != "")
 			{
 				Loop, Parse, components, `,,`,
@@ -1004,11 +937,7 @@ Loop, Parse, components, `,,`,
 					count := (count = 0) ? "" : " (" count ")"
 					color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
 					Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |     |–" A_LoopField count
-					;IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
 					IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-					;ControlGetPos,, ypos,, height,, ahk_id %main_text%
-					;Loop, Parse, rewards, `,,`,
-					;	Gui, recipe_tree: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 					If (components != "ERROR") && (components != "")
 					{
 						Loop, Parse, components, `,,`,
@@ -1025,11 +954,7 @@ Loop, Parse, components, `,,`,
 							count := (count = 0) ? "" : " (" count ")"
 							color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
 								Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |     |     |–" A_LoopField count
-							;IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
 							IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-							;ControlGetPos,, ypos,, height,, ahk_id %main_text%
-							;Loop, Parse, rewards, `,,`,
-							;	Gui, recipe_tree: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 						}
 					}
 				}
@@ -1037,25 +962,18 @@ Loop, Parse, components, `,,`,
 		}
 	}
 }
-Gui, recipe_tree: Margin, 20, 6
 Gui, recipe_tree: Show, Hide
 WinGetPos,,, width
 MouseGetPos, outx
 Gui, recipe_tree: Show, % "Hide x"outx-width//2
 WinGetPos, winx
-;GuiControl, MoveDraw, header, % "w"width
-;If (width > xWindow)
-;	Gui, recipe_tree: Show, x0 y0
 If (winx < 0)
 	Gui, recipe_tree: Show, % "x0 y"yTree
 Else	Gui, recipe_tree: Show, % "x"outx-width//2 " y"yTree
-;KeyWait, LButton, D
-;KeyWait, LButton
-while GetKeyState("LButton", "P")
-	sleep, 50
+KeyWait, LButton, D
+KeyWait, LButton
 Gui, recipe_tree: Destroy
 WinActivate, ahk_group poe_window
-;WinWaitActive, ahk_group poe_window
 Return
 
 Scan:
@@ -1070,9 +988,9 @@ Gui, archnemesis_window: Destroy
 KeyWait, LButton
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-sleep, 250
+sleep, 200
 SendInput, ^{f}{ESC}
-sleep, 250
+sleep, 200
 archnemesis_inventory := ""
 xGrid := []
 yGrid := []
@@ -1085,10 +1003,10 @@ Loop, Parse, yScan, `,,`,
 	yGrid.Push(A_LoopField)
 Loop, % xGrid.Length()
 {
-	xArrow := xGrid[A_Index]
-	xGridScan0 := xGrid[A_Index] - scanOffset
-	xGridScan1 := xGrid[A_Index] + scanOffset
-	xBitMap := xGrid[A_Index]-(dBitMap-1)//2
+	xArrow := xGrid[A_Index] + dBitMap//2
+	xGridScan0 := xGrid[A_Index]
+	xGridScan1 := xGrid[A_Index] + dBitMap - 1
+	xBitMap := xGridScan0
 	Loop, % yGrid.Length()
 	{
 		progress += 1
@@ -1096,9 +1014,9 @@ Loop, % xGrid.Length()
 		MouseGetPos, outX
 		ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", outX-60, yLetters+50, 17
 		yArrow := yGrid[A_Index]
-		yGridScan0 := yGrid[A_Index] - scanOffset
-		yGridScan1 := yGrid[A_Index] + scanOffset
-		yBitMap := yGrid[A_Index]-(dBitMap-1)//2
+		yGridScan0 := yGrid[A_Index]
+		yGridScan1 := yGrid[A_Index] + dBitMap - 1
+		yBitMap := yGridScan0
 		If !FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\*.png")
 			GoSub, Recalibrate
 		Else
@@ -1152,14 +1070,15 @@ GoSub, Favored_recipes
 GoSub, Recipes
 Return
 
-LLK_Recipes(x := 0)
+LLK_Recipes(x := 0, y := 0)
 {
+	hwnd_archnemesis_window := ""
 	If (x != 0)
 	{
 		search_term := ""
-		If InStr(archnemesis_inventory, A_GuiControl) && !Instr(prio_list, A_GuiControl)
+		If (y = 2)
 			search_term := A_GuiControl
-		Else
+		If (y = 1)
 		{
 			IniRead, read, ini\db_archnemesis.ini, %x%, components
 			If (read != "ERROR")
@@ -1167,15 +1086,14 @@ LLK_Recipes(x := 0)
 				Loop, Parse, read, `,,`,
 					search_term := (search_term = "") ? SubStr(A_LoopField, 1, 8) : search_term "|" SubStr(A_LoopField, 1, 8)
 			}
-			Else search_term := A_GuiControl
 		}
-		WinActivate, ahk_group poe_window
-		WinWaitActive, ahk_group poe_window
-		search_term := StrReplace(search_term, A_Space, ".")
-		clipboard := "^(" search_term ")"
-		KeyWait, LButton
-		sleep, 250
-		SendInput, ^{f}^{v}{Enter}
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
+	search_term := StrReplace(search_term, A_Space, ".")
+	clipboard := "^(" search_term ")"
+	KeyWait, LButton
+	sleep, 250
+	SendInput, ^{f}^{v}{Enter}
 	}
 	Gui, archnemesis_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 	Gui, archnemesis_window: Margin, 6, 2
@@ -1183,78 +1101,94 @@ LLK_Recipes(x := 0)
 	WinSet, Transparent, %trans%
 	Gui, archnemesis_window: Font, s%fSize0% cWhite, Fontin SmallCaps
 	window_text := (prio_list != "") ? "ready (prioritized):" : "ready:"
-	Gui, archnemesis_window: Add, Text, cYellow BackgroundTrans, %window_text%
+	Gui, archnemesis_window: Add, Text, cYellow BackgroundTrans Section, %window_text%
+	Gui, archnemesis_window: Margin, 6, 2
 	listed_recipes := ""
 	Loop, Parse, available_recipes, `,,`,
 	{
 		If (A_LoopField = "")
 			break
 		style := (x = A_LoopField) ? "Border" : ""
-		;If !InStr(listed_recipes, A_LoopField)
-
-			Gui, archnemesis_window: Font, s%fSize0% underline
-			If (A_Index = 1)
-			{
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans y+5 Section HWNDmain_text gArchnemesis_new %style%, % A_LoopField
-				listed_recipes := A_LoopField ","
-			}
-			Else
-			{
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs y+5 Section HWNDmain_text gArchnemesis_new %style%, % A_LoopField
-				listed_recipes := listed_recipes A_LoopField ","
-			}
-			IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
-			comp_no := 0
-			Loop, Parse, read, `,,`,
-				comp_no += 1
-			Gui, archnemesis_window: Font, s%fSize0% norm
-			Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (%comp_no%)
-			IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			Loop, Parse, read, `,,`,
-				Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
-
-		/*
-		IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-		Gui, archnemesis_window: Font, s%fSize1% norm cSilver
-		If (read != "") && (read != "ERROR")
-			Gui, archnemesis_window: Add, Text, BackgroundTrans xs+20, % read
-		*/
-	}
-	Gui, archnemesis_window: Font, s%fSize0% norm
-	Gui, archnemesis_window: Add, Text, xs y+20 cRed BackgroundTrans, ready (burn pile):
-	If (unwanted_recipes != "")
-	{
-		Loop, Parse, unwanted_recipes, `,,`,
+		Gui, archnemesis_window: Font, s%fSize0% underline
+		If (A_Index = 1)
 		{
-			If (A_LoopField = "")
-				break
-			Gui, archnemesis_window: Font, s%fSize0% underline
-			style := (x = A_LoopField) ? "Border" : ""
-			If (A_Index = 1)
+			Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs Section HWNDmain_text gArchnemesis %style%, % A_LoopField
+			listed_recipes := A_LoopField ","
+		}
+		Else
+		{
+			Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs y+5 Section HWNDmain_text gArchnemesis %style%, % A_LoopField
+			listed_recipes := listed_recipes A_LoopField ","
+		}
+		IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
+		comp_no := 0
+		Loop, Parse, read, `,,`,
+			comp_no += 1
+		Gui, archnemesis_window: Font, s%fSize0% norm
+		Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (%comp_no%)
+		IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
+		ControlGetPos,, ypos,, height,, ahk_id %main_text%
+		Loop, Parse, read, `,,`,
+			Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
+	}
+	If (favorite_recipes != "")
+	{
+		Gui, archnemesis_window: Font, s%fSize0% norm
+		Gui, archnemesis_window: Add, Text, xs y+20 Section cRed BackgroundTrans, available burn recipes:
+		Gui, archnemesis_window: Margin, 6, 2
+		If (unwanted_recipes != "")
+		{
+			Loop, Parse, unwanted_recipes, `,,`,
 			{
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans y+5 Section HWNDmain_text gArchnemesis_new %style%, % A_LoopField
-				Gui, archnemesis_window: Margin, 6, 2
-			}
-			Else Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs y+5 Section HWNDmain_text gArchnemesis_new %style%, % A_LoopField
-			If !InStr(archnemesis_inventory, A_LoopField)
-			{
-				IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
-				comp_no := 0
+				If (A_LoopField = "")
+					break
+				Gui, archnemesis_window: Font, s%fSize0% underline
+				style := (x = A_LoopField) ? "Border" : ""
+				;If (A_Index = 1)
+				{
+					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans Section xs HWNDmain_text gArchnemesis %style%, % A_LoopField
+				}
+				;Else Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs y+6 Section HWNDmain_text gArchnemesis %style%, % A_LoopField
+				;If !InStr(archnemesis_inventory, A_LoopField)
+				;{
+					IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
+					comp_no := 0
+					Loop, Parse, read, `,,`,
+						comp_no += 1
+					Gui, archnemesis_window: Font, s%fSize0% norm
+					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (%comp_no%)
+					
+					
+				;}
+				/*
+				Else
+				{
+					Gui, archnemesis_window: Font, s%fSize0% norm
+					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (1)
+				}
+				*/
+				IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
+				ControlGetPos,, ypos,, height,, ahk_id %main_text%
 				Loop, Parse, read, `,,`,
-					comp_no += 1
-				Gui, archnemesis_window: Font, s%fSize0% norm
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (%comp_no%)
+					Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 			}
-			Else
+		}
+		Gui, archnemesis_window: Font, s%fSize0% norm
+		Gui, archnemesis_window: Add, Text, xs y+20 Section cRed BackgroundTrans, available burn mods:
+		If (unwanted_mods != "")
+		{
+			Loop, Parse, unwanted_mods, `,,`,
 			{
-				Gui, archnemesis_window: Font, s%fSize0% norm
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (1)
+				If (A_LoopField = "") || (A_Index > 7)
+					break
+				Gui, archnemesis_window: Font, s%fSize0% underline
+				style := (x = A_LoopField) ? "Border" : ""
+				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs Section HWNDmain_text gArchnemesis2 %style%, % A_LoopField
+				IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
+				ControlGetPos,, ypos,, height,, ahk_id %main_text%
+				Loop, Parse, read, `,,`,
+					Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 			}
-			IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			Loop, Parse, read, `,,`,
-				Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
 		}
 	}
 	Gui, archnemesis_window: Margin, 6, 2
@@ -1263,79 +1197,7 @@ LLK_Recipes(x := 0)
 	Gui, archnemesis_window: Show, % "NA x"xWindow " y"A_ScreenHeight-height
 	hwnd_archnemesis_window := WinExist()
 }
-/*
-LLK_Archnemesis(x)
-{
-	hwnd_archnemesis_window := ""
-	search_term := SubStr(x, 1, 8)
-	IniRead, components, ini\db_archnemesis.ini, %x%, components
-	IniRead, rewards, ini\db_archnemesis.ini, %x%, rewards
-	IniRead, modifiers, ini\db_archnemesis.ini, %x%, modifiers
-	Gui, archnemesis_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-	Gui, archnemesis_window: Margin, 6, 2
-	Gui, archnemesis_window: Color, Black
-	WinSet, Transparent, %trans%
-	Gui, archnemesis_window: Font, s%fSize1% cWhite, Fontin SmallCaps
-	Gui, archnemesis_window: Add, Text, y-8 BackgroundTrans Section,
-	
-	If (components != "") && (components != "ERROR")
-	{
-		Loop, Parse, components, `,,`,
-		{
-			search_term := search_term "|" SubStr(A_LoopField, 1, 8)
-			IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-			Gui, archnemesis_window: Font, s%fSize0% underline
-			Gui, archnemesis_window: Add, Text, BackgroundTrans xs Section gArchnemesis, % A_LoopField
-			Gui, archnemesis_window: Font, s%fSize1% norm
-			If (rewards != "") && (rewards != "ERROR")
-				Loop, Parse, rewards, `,,`,
-					Gui, archnemesis_window: Add, Picture, BackgroundTrans w36 h36 ys, img\rewards\%A_LoopField%.png
-			If (modifiers != "") && (modifiers != "ERROR")
-				Gui, archnemesis_window: Add, Text, BackgroundTrans xs cSilver Section, % modifiers
-		}
-		Gui, archnemesis_window: Add, Picture, x90 BackgroundTrans w48 h48, img\GUI\arrow.png
-	}
-	
-	Gui, archnemesis_window: Font, s%fSize0% underline
-	IniRead, rewards, ini\db_archnemesis.ini, %x%, rewards
-	IniRead, modifiers, ini\db_archnemesis.ini, %x%, modifiers
-	Gui, archnemesis_window: Add, Text, BackgroundTrans xs Section cLime gArchnemesis, %x%
-	Gui, archnemesis_window: Font, s%fSize1% norm
-	
-	If (rewards != "") && (rewards != "ERROR")
-		Loop, Parse, rewards, `,,`,
-			Gui, archnemesis_window: Add, Picture, BackgroundTrans w36 h36 ys, img\rewards\%A_LoopField%.png
-	If (modifiers != "") && (modifiers != "ERROR")
-		Gui, archnemesis_window: Add, Text, BackgroundTrans xs Section cSilver, %modifiers%
-	
-	Gui, archnemesis_window: Add, Picture, x90 BackgroundTrans w48 h48, img\GUI\arrow.png
-	Loop, Parse, all_nemesis, `n, `n
-	{
-		IniRead, used_in, ini\db_archnemesis.ini, %A_LoopField%, components
-		If InStr(used_in, x)
-		{
-			Gui, archnemesis_window: Font, s%fSize0% underline
-			Gui, archnemesis_window: Add, Text, BackgroundTrans Center xs Section gArchnemesis, % A_LoopField
-			IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-			Gui, archnemesis_window: Font, s%fSize1% norm
-			If (rewards != "") && (rewards != "ERROR")
-				Loop, Parse, rewards, `,,`,
-					Gui, archnemesis_window: Add, Picture, BackgroundTrans w36 h36 ys, img\rewards\%A_LoopField%.png
-			If (modifiers != "") && (modifiers != "ERROR")
-				Gui, archnemesis_window: Add, Text, BackgroundTrans Center cSilver xs, %modifiers%
-		}
-	}
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	search_term := StrReplace(search_term, A_Space, ".")
-	clipboard := "^(" search_term ")"
-	SendInput, ^{f}^{v}{Enter}
-	Gui, archnemesis_window: Show, NA x%xWindow% y%yWindow%
-	hwnd_archnemesis_window := WinExist()
-}
-*/
+
 LLK_Overlay(x, y:=0)
 {
 	global
