@@ -39,8 +39,8 @@ The tool scans your archnemesis inventory slot by slot, starting from the top le
 <br>
 
 ### Navigating the UI:
-![letter_new](https://user-images.githubusercontent.com/61888437/154803454-5ed1928e-bc56-436f-bc1f-05c31a5fbf3f.jpg)
-The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The MAX button will search for recipes that are maxed out and cannot be upgraded, and the SCAN button will scan your inventory.
+![letter_new](https://user-images.githubusercontent.com/61888437/155020590-223c2f87-d75e-48fc-b66e-0025fd2c7d9e.png)
+The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The - and + buttons will resize all interfaces, and the SCAN button will scan your inventory.
 <br>
 <br>
 
@@ -63,8 +63,8 @@ You can hold-click the individual bases' icons to show where they more commonly 
 <br>
 
 ### On-the-fly recipe suggestions:
-![ready_new](https://user-images.githubusercontent.com/61888437/154805018-065c29cf-7bda-403f-9e13-6663a73d6fc6.png)
-The second window is divided into two parts – priority recipes and non-priority recipes/mods: The first part shows the recipes that are ready and lead to the priority set, the second shows irrelevant mods and recipes that are ready and do not use components from priority recipes. In PoE terms, they can be referred to as the 'chase' and the 'burner' list. Clicking on an item on the list will perform an in-game search in the inventory.
+![ready_new](https://user-images.githubusercontent.com/61888437/155020962-a8fcbd8e-2ae6-4a64-9147-b3dcbfd17349.png)
+The second window is divided into three parts – priority recipes, non-priority recipes, and non-priority mods: The first part shows the recipes that are ready and lead to the priority set, the second and third show irrelevant recipes and mods, respectively, that are ready and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
 <br>
 <br>
 
