@@ -85,7 +85,10 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 
 ### Known issues
 - Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
-- Uncommon resolutions (768p, 1024p, and 1050p) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
+- A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
+   - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
+   - the img\Recognition\XXXXp\Archnemesis folder contains image files that clearly show parts of the archnemesis icons and have coherent file names
+- Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
    - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
    - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
 ![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
