@@ -983,6 +983,11 @@ If (xScan = "") || (xScan = "ERROR")
 	MsgBox, Scanning the archnemesis inventory at this resolution is not yet supported.
 	Return
 }
+If GetKeyState("Shift", "P")
+{
+	Run, explore img\Recognition\%A_ScreenHeight%p\Archnemesis
+	Return
+}
 hwnd_archnemesis_window := ""
 Gui, archnemesis_list: Destroy
 Gui, archnemesis_window: Destroy
