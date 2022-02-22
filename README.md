@@ -27,14 +27,13 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 - calculating which and how many base mods you need in order to complete your recipe list
 - calculating your surplus in archnemesis mods for easy inventory management
 - showing where the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
-
-Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and reliability in the long run. Think of it as 'tailored' to your system and settings.
 <br>
 <br>
 
 ### 'Training' the tool to recognize archnemesis icons:
 ![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)
-The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down in columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. My plan is to optimize this system to the extend that every icon (63 in total) has to be specified only once and is from that point onwards recognized with 100% accuracy.
+Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and reliability in the long run. Think of it as 'tailored' to your system and settings.
+The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down in columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. This has to be done only once per icon for the vast majority of users (see 'known issues' at the end of this page).
 <br>
 <br>
 
@@ -47,6 +46,8 @@ The letter bar is used to navigate a sort of glossary of the available recipes i
 ### The priority list:
 ![prio_new](https://user-images.githubusercontent.com/61888437/154803573-6c43fde9-7785-4fb1-9ddd-40e7da123e17.png)
 The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression. Green highlighting indicates that your inventory contains at least one assembled version of the recipe. In addition, it calculates the missing base mods required to finish this list and displays them underneath.
+
+**Note**: You only need to add the end-point of a recipe chain to the list (e.g. Innocence-touched), the tool will calculate everything leading up to that. So there is no need to put the whole chain into the list (I specify this here because there had been some confusion in the past). Also, the priority system currently only calculates the route to complete one set of the priority list, i.e. every part in the chain will only be completed once in order to more efficiently allocate resources. I will look into implementing user-definable set sizes.
 
 ![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)
 Hold-clicking a recipe in the priority list will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
@@ -84,3 +85,6 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 - Uncommon resolutions (768p, 1024p, and 1050p) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
    - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
    - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
+![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
+(Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
+
