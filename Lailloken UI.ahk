@@ -25,6 +25,7 @@ GroupAdd, poe_window, ahk_exe PathOfExile.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64.exe
 GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
+GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
 If !WinExist("ahk_group poe_window")
 {
