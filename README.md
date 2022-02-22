@@ -76,7 +76,9 @@ The second window is divided into three parts – priority recipes, non-priority
 Download the latest release here: [releases](https://github.com/Lailloken/Lailloken-UI/releases)
 
 ### Requirements
-This tool is an AHK script and thus requires AutoHotkey to be installed on your system. Like most PoE overlays, it needs the PoE client to run in windowed fullscreen. Windowed support is planned for the future but low-priority at the moment.
+- This tool is an AHK script and thus requires AutoHotkey to be installed on your system
+- Like most PoE overlays, it needs the PoE client to run in windowed fullscreen
+- You have to disable the in-game filters introduced in patch 3.17.1
 
 ### Setup
 Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you through a very short first-time-setup, and you're good to go.
