@@ -85,6 +85,9 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 
 ### Known issues
 - Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
+- Multi-monitor setups: This tool is currently not able to detect multi-monitor setups
+   - make sure the PoE client runs on the monitor that is set up as the primary display on your system
+   - make sure a vertically set up monitor is not set as the primary display on your system
 - A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
    - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
    - the img\Recognition\XXXXp\Archnemesis folder contains image files that clearly show parts of the archnemesis icons and have coherent file names
