@@ -78,6 +78,7 @@ Download the latest release here: [releases](https://github.com/Lailloken/Laillo
 ### Requirements
 - This tool is an AHK script and thus requires AutoHotkey to be installed on your system
 - Like most PoE overlays, it needs the PoE client to run in windowed fullscreen
+![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)
 - You have to disable the in-game filters introduced in patch 3.17.1
 
 ### Setup
