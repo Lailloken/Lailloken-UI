@@ -77,6 +77,12 @@ IniRead, archnemesis2_color, ini\config.ini, PixelSearch, color2
 IniRead, game_version, ini\config.ini, PixelSearch, game-version
 IniRead, resolution, ini\config.ini, PixelSearch, resolution
 IniRead, fSize_offset, ini\config.ini, PixelSearch, font-offset, 0
+IniRead, fallback, ini\config.ini, PixelSearch, fallback,
+If (fallback = "ERROR")
+{
+	IniWrite, 0, ini\config.ini, PixelSearch, fallback
+	fallback := 0
+}
 fSize0 += fSize_offset
 fSize1 += fSize_offset
 IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes
@@ -223,6 +229,11 @@ Gui, base_info: Destroy
 WinActivate, ahk_group poe_window
 Return
 
+Base_lootGuiClose:
+LLK_Overlay("base_loot", 2)
+base_loot_toggle := 0
+Return
+
 Exit:
 Gdip_Shutdown(pToken)
 IniWrite, %favorite_recipes%, ini\config.ini, Settings, favorite recipes
@@ -235,6 +246,7 @@ GUI:
 Gui, archnemesis_letters: -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 global hwnd_archnemesis_letters := WinExist()
 guilist := "archnemesis_letters"
+guilist := guilist "|base_loot"
 guilist := guilist "|archnemesis_list"
 guilist := guilist "|archnemesis_window"
 guilist := guilist "|favored_recipes"
@@ -346,6 +358,8 @@ Gui, surplus_view: Destroy
 WinActivate, ahk_group poe_window
 Return
 
+#Include Fallback.ahk
+
 Loop:
 If !WinExist("ahk_group poe_window")
 	ExitApp
@@ -355,7 +369,7 @@ MainLoop:
 If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 {
 	inactive_counter += 1
-	If (inactive_counter>4)
+	If (inactive_counter>3)
 	{
 		LLK_Overlay("hide")
 		inactive := 1
@@ -367,8 +381,9 @@ If WinActive("ahk_group poe_window")
 {
 	inactive := 0
 	inactive_counter := 0
-	LLK_PixelSearch("archnemesis")
-	If (archnemesis=1)
+	If (fallback = 0) || (fallback_override = 1)
+		LLK_PixelSearch("archnemesis")
+	If (archnemesis = 1)
 	{
 		MouseGetPos, mouseXpos, mouseYpos
 		If (invBox1 < mouseXpos && mouseXpos < invBox2 && invbox3 < mouseYpos && mouseYpos < invBox4)
@@ -381,7 +396,7 @@ If WinActive("ahk_group poe_window")
 		If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
 			LLK_Overlay("archnemesis_window", 1)
 	}
-	If (archnemesis=0)
+	If (archnemesis = 0)
 	{
 		If WinExist("ahk_id " hwnd_archnemesis_letters)
 			LLK_Overlay("archnemesis_letters", 2)
@@ -391,11 +406,37 @@ If WinActive("ahk_group poe_window")
 			LLK_Overlay("archnemesis_window", 2)
 		If WinExist("ahk_id " hwnd_favored_recipes)
 			LLK_Overlay("favored_recipes", 2)
+		fallback_override := 0
 	}
 }
 Return
 
+Map_highlight:
+WinActivate, ahk_group poe_window
+WinWaitActive, ahk_group poe_window
+Clipboard := StrReplace(SubStr(A_GuiControl, InStr(A_GuiControl, "mods in ")+8), A_Space, ".")
+SendInput, ^{f}^{a}^{v}
+Return
+
 Map_suggestion:
+/*
+If GetKeyState("Shift", "P")
+{
+	If !WinExist("ahk_id " hwnd_base_loot)
+	{
+		LLK_Overlay("base_loot", 1)
+		base_loot_toggle := 1
+	}
+	Else
+	{
+		LLK_Overlay("base_loot", 2)
+		base_loot_toggle := 0
+	}
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
+	Return
+}
+*/
 If (list_remaining = "")
 	Return
 map_list := []
@@ -411,6 +452,7 @@ Loop, Parse, list_remaining, `,,`,
 	If !InStr(list_remaining_single, A_LoopField)
 		list_remaining_single := (list_remaining_single = "") ? A_LoopField "," : list_remaining_single A_LoopField ","
 }
+
 Loop, Parse, list_remaining_single, `,,`,
 {
 	If (A_LoopField = "")
@@ -418,6 +460,7 @@ Loop, Parse, list_remaining_single, `,,`,
 	IniRead, maps, ini\db_archnemesis.ini, %A_LoopField%, maps
 	map_pool := (map_pool = "") ? maps "," : map_pool maps ","
 }
+
 Loop, Parse, map_pool, `,,`,
 {
 	If (A_LoopField = "")
@@ -442,13 +485,16 @@ Loop, Parse, all_maps, `,,`,
 Loop, % map_list.Length()
 	optimal_maps := (optimal_maps = "") ? map_counter[A_Index] " mods in " map_list[A_Index] "," : optimal_maps map_counter[A_Index] " mods in " map_list[A_Index] ","
 Sort, optimal_maps, N R D`,
-Gui, map_suggestions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+Gui, map_suggestions: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border, Use this for map tab searches
+;Else	Gui, map_suggestions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 Gui, map_suggestions: Margin, 20, 0
 Gui, map_suggestions: Color, Black
 WinSet, Transparent, %trans%
 Gui, map_suggestions: Font, cWhite s%fSize0%, Fontin SmallCaps
 Gui, map_suggestions: Add, Text, Center Section BackgroundTrans vheader01, maps with drop overlaps:
-Gui, map_suggestions: Font, s%fSize1%
+Gui, map_suggestions: Font, s%fSize1% underline
+
+search_term := ""
 Loop, Parse, optimal_maps, `,,`,
 {
 	If (A_LoopField = "") || (A_Index > 10)
@@ -456,18 +502,16 @@ Loop, Parse, optimal_maps, `,,`,
 	If !InStr(A_LoopField, "1 mods") ; && !InStr(A_LoopField, "2 mods")
 	{
 		If (A_Index = 1)
-		{
-			Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text y+6 xs Section Center, % A_LoopField
-			clipboard := SubStr(A_LoopField, InStr(A_LoopField, "mods in ",,, 1)+8)
-		}
-		Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center, % A_LoopField
+			Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text y+6 xs Section Center gMap_highlight, % A_LoopField
+		Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center gMap_highlight, % A_LoopField
 	}
 }
-Gui, map_suggestions: Show, x0 y%yTree%
-KeyWait, LButton, D
-KeyWait, LButton
-Gui, map_suggestions: Destroy
+Gui, map_suggestions: Show, NA Center
 WinActivate, ahk_group poe_window
+Return
+
+Map_suggestionsGUIClose:
+Gui, map_suggestions: Destroy
 Return
 
 Max_recipe:
@@ -550,6 +594,18 @@ Loop, Parse, all_nemesis, `n, `n
 	}
 }
 Gui, recalibration: Show, x%xWindow% yCenter
+Return
+
+Fallback:
+hotkey0 := StrReplace(A_ThisHotkey, "$", "")
+;LLK_Overlay("archnemesis")
+LLK_PixelSearch("archnemesis")
+If (archnemesis = 0)
+{
+	SendInput, {%hotkey0%}
+	fallback_override := 1
+}
+else fallback_override := 1
 Return
 
 Favored_recipes:
@@ -711,6 +767,29 @@ If (favorite_recipes != "")
 	}
 	Sort, list_remaining, C D`,
 }
+list_remaining_single := ""
+Loop, Parse, list_remaining, `,,`,
+{
+	If !InStr(list_remaining_single, A_LoopField)
+		list_remaining_single := (list_remaining_single = "") ? A_LoopField "," : list_remaining_single A_LoopField ","
+}
+Gui, base_loot: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_base_loot, Missing base mods:
+Gui, base_loot: Margin, 15, 0
+Gui, base_loot: Color, Black
+WinSet, Transparent, 200
+Gui, base_loot: Font, cWhite s%fSize1%, Fontin SmallCaps
+Loop, Parse, list_remaining_single, `,,`,
+{
+	If (A_LoopField = "")
+		break
+	If (A_Index = 1)
+		Gui, base_loot: Add, Text, Center Section BackgroundTrans, % A_LoopField
+	Else	Gui, base_loot: Add, Text, Center ys BackgroundTrans, % A_LoopField
+}
+Gui, base_loot: Show, Hide x0 y0
+WinGetPos,,, width, height
+style := (base_loot_toggle = 1) ? "NA" : "Hide"
+Gui, base_loot: Show, % style "y0 x"A_ScreenWidth//2-width//2
 favor_choice := ""
 Gui, favored_recipes: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 Gui, favored_recipes: Margin, 10, 2
@@ -1249,9 +1328,9 @@ LLK_Overlay(x, y:=0)
 
 LLK_PixelSearch(x)
 {
-	PixelSearch, OutputVarX, OutputVarY, %x%1_x, %x%1_y, %x%1_x, %x%1_y, %x%1_color, 0, RGB
+	PixelSearch, OutputVarX, OutputVarY, %x%1_x, %x%1_y, %x%1_x, %x%1_y, %x%1_color, 0, Fast RGB
 		If (ErrorLevel=0)
-			PixelSearch, OutputVarX, OutputVarY, %x%2_x, %x%2_y, %x%2_x, %x%2_y, %x%2_color, 0, RGB
+			PixelSearch, OutputVarX, OutputVarY, %x%2_x, %x%2_y, %x%2_x, %x%2_y, %x%2_color, 0, Fast RGB
 	%x% := (ErrorLevel=0) ? 1 : 0
 	value := %x%
 	Return value
