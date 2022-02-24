@@ -86,6 +86,15 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 
 ### Known issues
 - Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
+- An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
+   - v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
+   - open the Fallback.ahk file in a text editor and follow the instructions inside; save it afterwards
+   - open the ini\config.ini file and change fallback=0 to fallback=1 (add the line in the PixelSearch section if the value doesn't exist yet); save it afterwards
+   - from now on, the overlay will behave as follows:
+      - whenever you open the archnemesis inventory by using the in-game hotkey, the overlay will automatically show up
+      - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
+      - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
+      - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
 - Multi-monitor setups: This tool is currently not able to detect multi-monitor setups
    - make sure the PoE client runs on the monitor that is set up as the primary display on your system
    - make sure a vertically set up monitor is not set as the primary display on your system
