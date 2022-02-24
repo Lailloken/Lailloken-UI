@@ -28,7 +28,6 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 - calculating your surplus in archnemesis mods for easy inventory management
 - showing where the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
 <br>
-<br>
 
 ### 'Training' the tool to recognize archnemesis icons:
 ![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)
@@ -58,10 +57,13 @@ Hold-clicking the 'prio'-label gives you an overview of your surplus in archneme
 <br>
 <br>
 
-### Optimal drop locations:
+### Optimal drop locations ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/)):
 ![base info](https://user-images.githubusercontent.com/61888437/154804196-1524117f-52e4-43ec-9091-3845ea89a37c.png)
-![optimal location](https://user-images.githubusercontent.com/61888437/154804267-9f64bbe3-1fdc-4e50-83e6-9e9511eebd04.png)
-You can hold-click the individual bases' icons to show where they more commonly drop, and you can hold-click the 'missing'-label to see which location drops the most missing mod bases. ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/)). This will also copy the topmost item on the list to the clipboard for easier filtering in map tabs.
+You can hold-click the individual bases' icons to show where they more commonly drop.
+
+![optimal_maps](https://user-images.githubusercontent.com/61888437/155491602-946470ef-403e-4da4-b574-cb50e43f7959.png)
+You can click the 'missing'-label to open a movable window with a list of locations that drop the most missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
+<br>
 <br>
 
 ### On-the-fly recipe suggestions:
@@ -74,15 +76,21 @@ The second window is divided into three parts – priority recipes, non-priority
 
 ### Download
 Download the latest release here: [releases](https://github.com/Lailloken/Lailloken-UI/releases)
+<br>
+<br>
 
 ### Requirements
 - This tool is an AHK script and thus requires AutoHotkey to be installed on your system
 - Like most PoE overlays, it needs the PoE client to run in windowed fullscreen
 ![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)
 - You have to disable the in-game filters introduced in patch 3.17.1
+<br>
+<br>
 
 ### Setup
 Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you through a very short first-time-setup, and you're good to go.
+<br>
+<br>
 
 ### Known issues
 - Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
@@ -100,7 +108,7 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
    - make sure a vertically set up monitor is not set as the primary display on your system
 - A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
    - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
-   - the img\Recognition\XXXXp\Archnemesis folder contains image files that clearly show parts of the archnemesis icons and have coherent file names
+   - the img\Recognition\XXXXp\Archnemesis folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
 - Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
    - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
    - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
