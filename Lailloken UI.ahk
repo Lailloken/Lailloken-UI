@@ -1,13 +1,13 @@
 ﻿#NoEnv
 #SingleInstance, Force
-#KeyHistory 0
+#InstallKeybdHook
 #InstallMouseHook
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 SetKeyDelay, 200
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, ToolTip, Screen
-SendMode Input
+SendMode, Input
 SetWorkingDir %A_ScriptDir%
 SetBatchLines, -1
 OnExit, Exit
@@ -27,13 +27,16 @@ GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
+global xScreenOffset, yScreenOffset, poe_width, poe_height
+WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
+
 If !WinExist("ahk_group poe_window")
 {
 	MsgBox, This script only runs while Path of Exile is running.
 	ExitApp
 }
 
-global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, recal_hide := 1, fSize0, fSize1
+global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, recal_hide := 1, fSize0, fSize1, Burn_number := 10
 global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, available_recipes, archnemesis_inventory, arch_recipes, arch_bases, prio_list, prio_list0, unwanted_recipes, favorite_recipes, arch_inventory := []
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 all_nemesis_unsurted := all_nemesis
@@ -66,12 +69,16 @@ If (arch_inventory.Length() != 64)
 	archnemesis_inventory := ""
 	arch_inventory := []
 }
-IniRead, archnemesis1_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord1
-IniRead, archnemesis2_x, ini\resolutions.ini, %A_ScreenHeight%p, xCoord2
-IniRead, archnemesis1_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord
-IniRead, archnemesis2_y, ini\resolutions.ini, %A_ScreenHeight%p, yCoord
-IniRead, fSize0, ini\resolutions.ini, %A_ScreenHeight%p, font-size0
-IniRead, fSize1, ini\resolutions.ini, %A_ScreenHeight%p, font-size1
+IniRead, archnemesis1_x, ini\resolutions.ini, %poe_height%p, xCoord1
+IniRead, archnemesis2_x, ini\resolutions.ini, %poe_height%p, xCoord2
+IniRead, archnemesis1_y, ini\resolutions.ini, %poe_height%p, yCoord
+IniRead, archnemesis2_y, ini\resolutions.ini, %poe_height%p, yCoord
+archnemesis1_x += xScreenOffset
+archnemesis2_x += xScreenOffset
+archnemesis1_y += yScreenOffset
+archnemesis2_y += yScreenOffset
+IniRead, fSize0, ini\resolutions.ini, %poe_height%p, font-size0
+IniRead, fSize1, ini\resolutions.ini, %poe_height%p, font-size1
 IniRead, archnemesis1_color, ini\config.ini, PixelSearch, color1
 IniRead, archnemesis2_color, ini\config.ini, PixelSearch, color2
 IniRead, game_version, ini\config.ini, PixelSearch, game-version
@@ -86,39 +93,51 @@ If (fallback = "ERROR")
 fSize0 += fSize_offset
 fSize1 += fSize_offset
 IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes
+IniRead, Burn_number, ini\config.ini, Settings, Burn-number
+If (Burn_number = "ERROR")
+{
+	IniWrite, 10, ini\config.ini, Settings, Burn-number
+	Burn_number := 10
+}
 favorite_recipes := (favorite_recipes = "ERROR") ? "" : favorite_recipes
-IniRead, yLetters, ini\resolutions.ini, %A_ScreenHeight%p, yLetters
-IniRead, xWindow, ini\resolutions.ini, %A_ScreenHeight%p, xWindow
-IniRead, invBox, ini\resolutions.ini, %A_ScreenHeight%p, invBox
-IniRead, xScan, ini\resolutions.ini, %A_ScreenHeight%p, xScan
-IniRead, yScan, ini\resolutions.ini, %A_ScreenHeight%p, yScan
-IniRead, dBitMap, ini\resolutions.ini, %A_ScreenHeight%p, dBitMap
+IniRead, yLetters, ini\resolutions.ini, %poe_height%p, yLetters
+IniRead, xWindow, ini\resolutions.ini, %poe_height%p, xWindow
+IniRead, invBox, ini\resolutions.ini, %poe_height%p, invBox
+IniRead, xScan, ini\resolutions.ini, %poe_height%p, xScan
+IniRead, yScan, ini\resolutions.ini, %poe_height%p, yScan
+IniRead, dBitMap, ini\resolutions.ini, %poe_height%p, dBitMap
+yLetters += yScreenOffset
+xWindow += xScreenOffset
 
 Loop, Parse, invBox, `,,`,
-	invBox%A_Index% := A_LoopField
+{
+	If (A_Index < 3)
+		invBox%A_Index% := A_LoopField + xScreenOffset
+	Else	invBox%A_Index% := A_LoopField + yScreenOffset
+}
 
 If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 {
-	MsgBox, %A_ScreenHeight%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
+	MsgBox, %poe_height%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
 	ExitApp
 }
 
 SetTimer, Loop, 1000
 
-If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != A_ScreenWidth "x" A_ScreenHeight) || (game_version = "ERROR") || (game_version < "31710")
+If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != poe_width "x" poe_height) || (game_version = "ERROR") || (game_version < "31710")
 {
 	If (archnemesis1_color = "ERROR") || (archnemesis1_color = "")
 		MsgBox, This seems to be the first time this script has been started. Please follow the upcoming instructions.`n`n`nINFO: If you ever need to go through this first-time setup again, delete the ini\config.ini file and restart the script.
 	Else	MsgBox, Your resolution has changed since last launch, or the game has been updated. First-time setup is required. 
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
-	ToolTip, 1) Open the archnemesis inventory.`n2) Keep the cursor away from the archnemesis inventory.`n3) Hold the 7-key until this tooltip disappears., % A_ScreenWidth//2, A_ScreenHeight//2, 1
+	ToolTip, 1) Open the archnemesis inventory.`n2) Keep the cursor away from the archnemesis inventory.`n3) Hold the 7-key until this tooltip disappears., % poe_width//2+xScreenOffset, poe_height//2+yScreenOffset, 1
 	KeyWait, 7, D
 	PixelGetColor, archnemesis1_color, %archnemesis1_x%, %archnemesis1_y%, RGB
 	PixelGetColor, archnemesis2_color, %archnemesis2_x%, %archnemesis2_y%, RGB
 	IniWrite, %archnemesis1_color%, ini\config.ini, PixelSearch, color1
 	IniWrite, %archnemesis2_color%, ini\config.ini, PixelSearch, color2
-	IniWrite, %A_ScreenWidth%x%A_ScreenHeight%, ini\config.ini, PixelSearch, resolution
+	IniWrite, %poe_width%x%poe_height%, ini\config.ini, PixelSearch, resolution
 	IniWrite, 31710, ini\config.ini, PixelSearch, game-version
 	ToolTip,,,, 1
 	KeyWait, 7
@@ -218,11 +237,11 @@ Loop, Parse, maps, `,,`,
 Gui, base_info: Show, Hide
 WinGetPos,,, width
 MouseGetPos, outX
-Gui, base_info: Show, % "Hide x"outX-width//2 " y"yTree
+Gui, base_info: Show, % "Hide x"outX-width//2 " y"yTree+yScreenOffset
 WinGetPos, outxx,
-If (outxx < 0)
-	Gui, base_info: Show, % "x0 y"yTree
-Else	Gui, base_info: Show, % "x"outX-width//2 " y"yTree
+If (outxx < xScreenOffset)
+	Gui, base_info: Show, % "x"xScreenOffset " y"yTree+yScreenOffset
+Else	Gui, base_info: Show, % "x"outX-width//2 " y"yTree+yScreenOffset
 KeyWait, LButton, D
 KeyWait, LButton
 Gui, base_info: Destroy
@@ -234,9 +253,14 @@ LLK_Overlay("base_loot", 2)
 base_loot_toggle := 0
 Return
 
+BurnEdit:
+Gui, archnemesis_window: Submit, NoHide
+Return
+
 Exit:
 Gdip_Shutdown(pToken)
 IniWrite, %favorite_recipes%, ini\config.ini, Settings, favorite recipes
+IniWrite, %Burn_number%, ini\config.ini, Settings, Burn-number
 If (archnemesis_inventory != "")
 	IniWrite, %archnemesis_inventory%, ini\config.ini, Archnemesis, inventory
 ExitApp
@@ -274,7 +298,7 @@ Gui, archnemesis_letters: Add, Text, Center ys x+6 gScan Border, % " scan "
 Gui, archnemesis_letters: Margin, 6, 2
 Gui, archnemesis_letters: Show, Hide
 WinGetPos,,, guiwidth,
-Gui, archnemesis_letters: Show, % "Hide x" (xWindow*0.96)//2-guiwidth//2 " y"yLetters
+Gui, archnemesis_letters: Show, % "Hide x" xScreenOffset+((xWindow-xScreenOffset)*0.96)//2-guiwidth//2 " y"yLetters
 Return
 
 Recalibrate_letter:
@@ -306,7 +330,7 @@ If (no_letter=0)
 	Gui, recalibrate_list: Show, Hide
 	WinGetPos,,,, height
 	WinGetPos,, outY,,, ahk_id %recalibration%
-	Gui, recalibrate_list: Show, % "NA x"mouseX-30 " y"outY-10-height
+	Gui, recalibrate_list: Show, % "NA x"mouseX-30 " y"outY-10-height+yScreenOffset
 }
 Return
 
@@ -350,7 +374,7 @@ If (arch_surplus != "")
 		}
 		Else	Gui, surplus_view: Add, Text, BackgroundTrans xs Center, % A_LoopField
 	}
-	Gui, surplus_view: Show, x0 y%yTree%
+	Gui, surplus_view: Show, % "x"xScreenOffset " y"yTree+yScreenOffset
 }
 KeyWait, LButton, D
 KeyWait, LButton
@@ -419,7 +443,6 @@ SendInput, ^{f}^{a}^{v}
 Return
 
 Map_suggestion:
-/*
 If GetKeyState("Shift", "P")
 {
 	If !WinExist("ahk_id " hwnd_base_loot)
@@ -436,7 +459,6 @@ If GetKeyState("Shift", "P")
 	WinWaitActive, ahk_group poe_window
 	Return
 }
-*/
 If (list_remaining = "")
 	Return
 map_list := []
@@ -497,7 +519,7 @@ Gui, map_suggestions: Font, s%fSize1% underline
 search_term := ""
 Loop, Parse, optimal_maps, `,,`,
 {
-	If (A_LoopField = "") || (A_Index > 10)
+	If (A_LoopField = "")
 		break
 	If !InStr(A_LoopField, "1 mods") ; && !InStr(A_LoopField, "2 mods")
 	{
@@ -506,7 +528,7 @@ Loop, Parse, optimal_maps, `,,`,
 		Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center gMap_highlight, % A_LoopField
 	}
 }
-Gui, map_suggestions: Show, NA Center
+Gui, map_suggestions: Show, % "NA x"xScreenOffset+poe_width//2 " y"yScreenOffset+poe_height//2
 WinActivate, ahk_group poe_window
 Return
 
@@ -540,12 +562,12 @@ While (recal_choice = "")
 Gui, recal_arrow: Hide
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-If !FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\")
-	FileCreateDir, img\Recognition\%A_ScreenHeight%p\Archnemesis\
+If !FileExist("img\Recognition\" poe_height "p\Archnemesis\")
+	FileCreateDir, img\Recognition\%poe_height%p\Archnemesis\
 count := ""
-While FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\" recal_choice count ".png")
+While FileExist("img\Recognition\" poe_height "p\Archnemesis\" recal_choice count ".png")
 	count += 1
-Gdip_SaveBitmapToFile(Gdip_BitmapFromScreen(xBitMap "|" yBitMap "|" dBitMap "|" dBitMap), "img\Recognition\" A_ScreenHeight "p\Archnemesis\" recal_choice count ".png", 100)
+Gdip_SaveBitmapToFile(Gdip_BitmapFromScreen(xBitMap "|" yBitMap "|" dBitMap "|" dBitMap), "img\Recognition\" poe_height "p\Archnemesis\" recal_choice count ".png", 100)
 archnemesis_inventory := (archnemesis_inventory = "") ? recal_choice : archnemesis_inventory "," recal_choice
 Return
 
@@ -593,7 +615,7 @@ Loop, Parse, all_nemesis, `n, `n
 		letter := SubStr(A_LoopField, 1, 1)
 	}
 }
-Gui, recalibration: Show, x%xWindow% yCenter
+Gui, recalibration: Show, % "x"xWindow " y"yScreenOffset+poe_height//2
 Return
 
 Fallback:
@@ -742,11 +764,11 @@ If (favorite_recipes != "")
 	archnemesis_inventory_surplus := archnemesis_inventory
 	prio_list_leftover := prio_list
 	prio_list_recipes_leftover := prio_list_recipes
-	global ignore_list := ""
+	favored_bases := ""
 	Loop, Parse, arch_bases, `,,`,
 	{
-		If !InStr(prio_list, A_LoopField)
-			ignore_list := (ignore_list = "") ? A_LoopField "," : A_LoopField "," ignore_list
+		If InStr(prio_list, A_LoopField) && !InStr(favored_bases, A_LoopField)
+			favored_bases := (favored_bases = "") ? A_LoopField "," : A_LoopField "," favored_bases
 	}
 	Loop, Parse, archnemesis_inventory, `,,`,
 	{
@@ -767,29 +789,33 @@ If (favorite_recipes != "")
 	}
 	Sort, list_remaining, C D`,
 }
+
+If WinExist("ahk_id " hwnd_base_loot)
+	WinGetPos, xbase_loot, ybase_loot,,, ahk_id %hwnd_base_loot%
 list_remaining_single := ""
 Loop, Parse, list_remaining, `,,`,
 {
 	If !InStr(list_remaining_single, A_LoopField)
 		list_remaining_single := (list_remaining_single = "") ? A_LoopField "," : list_remaining_single A_LoopField ","
 }
-Gui, base_loot: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_base_loot, Missing base mods:
+Gui, base_loot: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_base_loot, Missing base mods:
 Gui, base_loot: Margin, 15, 0
 Gui, base_loot: Color, Black
 WinSet, Transparent, 200
-Gui, base_loot: Font, cWhite s%fSize1%, Fontin SmallCaps
+Gui, base_loot: Font, cWhite s%fSize0%, Fontin SmallCaps
 Loop, Parse, list_remaining_single, `,,`,
 {
 	If (A_LoopField = "")
 		break
 	If (A_Index = 1)
 		Gui, base_loot: Add, Text, Center Section BackgroundTrans, % A_LoopField
-	Else	Gui, base_loot: Add, Text, Center ys BackgroundTrans, % A_LoopField
+	Else Gui, base_loot: Add, Text, Center xs BackgroundTrans, % A_LoopField
 }
-Gui, base_loot: Show, Hide x0 y0
-WinGetPos,,, width, height
+xbase_loot := (xbase_loot = "") ? xScreenOffset+poe_width//2 : xbase_loot
+ybase_loot := (ybase_loot = "") ? yScreenOffset+0 : ybase_loot
 style := (base_loot_toggle = 1) ? "NA" : "Hide"
-Gui, base_loot: Show, % style "y0 x"A_ScreenWidth//2-width//2
+Gui, base_loot: Show, % style " x"xbase_loot " y"ybase_loot
+
 favor_choice := ""
 Gui, favored_recipes: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 Gui, favored_recipes: Margin, 10, 2
@@ -839,7 +865,7 @@ If (list_remaining != "") && (arch_inventory.Length() = 64)
 		}
 	}
 }
-Gui, favored_recipes: Show, Hide x0 y0
+Gui, favored_recipes: Show, Hide x%xScreenOffset% y%yScreenOffset%
 WinGetPos,,, width, height
 global yTree := height + 10
 hwnd_favored_recipes := WinExist()
@@ -1047,9 +1073,9 @@ WinGetPos,,, width
 MouseGetPos, outx
 Gui, recipe_tree: Show, % "Hide x"outx-width//2
 WinGetPos, winx
-If (winx < 0)
-	Gui, recipe_tree: Show, % "x0 y"yTree
-Else	Gui, recipe_tree: Show, % "x"outx-width//2 " y"yTree
+If (winx < xScreenOffset)
+	Gui, recipe_tree: Show, % "x"xScreenOffset  " y"yTree+yScreenOffset
+Else	Gui, recipe_tree: Show, % "x"outx-width//2 " y"yTree+yScreenOffset
 KeyWait, LButton, D
 KeyWait, LButton
 Gui, recipe_tree: Destroy
@@ -1064,7 +1090,7 @@ If (xScan = "") || (xScan = "ERROR")
 }
 If GetKeyState("Shift", "P")
 {
-	Run, explore img\Recognition\%A_ScreenHeight%p\Archnemesis
+	Run, explore img\Recognition\%poe_height%p\Archnemesis
 	Return
 }
 hwnd_archnemesis_window := ""
@@ -1083,9 +1109,9 @@ progress := 0
 MouseGetPos, outX
 ToolTip, % "Don't move the cursor!`n" "Progress: " progress "/64", outX-60, yLetters+50, 17
 Loop, Parse, xScan, `,,`,
-	xGrid.Push(A_LoopField)
+	xGrid.Push(A_LoopField+xScreenOffset)
 Loop, Parse, yScan, `,,`,
-	yGrid.Push(A_LoopField)
+	yGrid.Push(A_LoopField+yScreenOffset)
 Loop, % xGrid.Length()
 {
 	xArrow := xGrid[A_Index] + dBitMap//2
@@ -1102,7 +1128,7 @@ Loop, % xGrid.Length()
 		yGridScan0 := yGrid[A_Index]
 		yGridScan1 := yGrid[A_Index] + dBitMap - 1
 		yBitMap := yGridScan0
-		If !FileExist("img\Recognition\" A_ScreenHeight "p\Archnemesis\*.png")
+		If !FileExist("img\Recognition\" poe_height "p\Archnemesis\*.png")
 			GoSub, Recalibrate
 		Else
 		{
@@ -1111,7 +1137,7 @@ Loop, % xGrid.Length()
 				compare := arch_inventory[progress]
 				If (compare != "")
 				{
-					Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\%compare%*.png
+					Loop, Files, img\Recognition\%poe_height%p\Archnemesis\%compare%*.png
 					{
 						ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *50 %A_LoopFilePath%
 						comparison := ErrorLevel
@@ -1123,7 +1149,7 @@ Loop, % xGrid.Length()
 			If (comparison != 0)
 			{
 				match := ""
-				Loop, Files, img\Recognition\%A_ScreenHeight%p\Archnemesis\*.png
+				Loop, Files, img\Recognition\%poe_height%p\Archnemesis\*.png
 				{
 					ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *50 %A_LoopFilePath%
 					If (ErrorLevel = 0)
@@ -1172,13 +1198,13 @@ LLK_Recipes(x := 0, y := 0)
 					search_term := (search_term = "") ? SubStr(A_LoopField, 1, 8) : search_term "|" SubStr(A_LoopField, 1, 8)
 			}
 		}
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	search_term := StrReplace(search_term, A_Space, ".")
-	clipboard := "^(" search_term ")"
-	KeyWait, LButton
-	sleep, 250
-	SendInput, ^{f}^{v}{Enter}
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window
+		search_term := StrReplace(search_term, A_Space, ".")
+		clipboard := "^(" search_term ")"
+		KeyWait, LButton
+		sleep, 250
+		SendInput, ^{f}^{v}{Enter}
 	}
 	Gui, archnemesis_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 	Gui, archnemesis_window: Margin, 6, 2
@@ -1259,12 +1285,16 @@ LLK_Recipes(x := 0, y := 0)
 			}
 		}
 		Gui, archnemesis_window: Font, s%fSize0% norm
-		Gui, archnemesis_window: Add, Text, xs y+20 Section cRed BackgroundTrans, available burn mods:
+		Gui, archnemesis_window: Add, Text, xs y+20 Section cRed BackgroundTrans HWNDmain_text, available burn mods:
+		ControlGetPos,,,, height,, ahk_id %main_text%
+		Gui, archnemesis_window: Font, % "s"fSize1-2 
+		Gui, archnemesis_window: Add, Edit, ys cBlack BackgroundTrans hp w%height% gBurnEdit vBurn_number, %Burn_number%
+		Gui, archnemesis_window: Font, s%fSize0%
 		If (unwanted_mods != "")
 		{
 			Loop, Parse, unwanted_mods, `,,`,
 			{
-				If (A_LoopField = "") || (A_Index > 7)
+				If (A_LoopField = "") || (A_Index > Burn_number)
 					break
 				Gui, archnemesis_window: Font, s%fSize0% underline
 				style := (x = A_LoopField) ? "Border" : ""
@@ -1279,7 +1309,7 @@ LLK_Recipes(x := 0, y := 0)
 	Gui, archnemesis_window: Margin, 6, 2
 	Gui, archnemesis_window: Show, Hide
 	WinGetPos,,,, height
-	Gui, archnemesis_window: Show, % "NA x"xWindow " y"A_ScreenHeight-height
+	Gui, archnemesis_window: Show, % "NA x"xWindow " y"poe_height-height+yScreenOffset
 	hwnd_archnemesis_window := WinExist()
 }
 
@@ -1288,13 +1318,13 @@ LLK_Overlay(x, y:=0)
 	global
 	If (x="hide")
 	{
-		Loop, Parse, guilist, |
+		Loop, Parse, guilist, |, |
 			Gui, %A_LoopField%: Hide
 		Return
 	}
 	If (x="show")
 	{
-		Loop, Parse, guilist, |
+		Loop, Parse, guilist, |, |
 			If (state_%A_LoopField%=1)
 				Gui, %A_LoopField%: Show, NA
 		Return
