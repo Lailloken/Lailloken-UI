@@ -52,17 +52,14 @@ The priority list is the center-piece of the tool and contains the set of archne
 ![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)
 Hold-clicking a recipe in the priority list will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
 
-![surplus](https://user-images.githubusercontent.com/61888437/154805163-401b44ac-7638-474b-bc95-c6a56e193773.png)
-Hold-clicking the 'prio'-label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can CTRL-F-V immediately after releasing the mouse button. Use this as a last resort to make room in your inventory in case nothing else can be burned.
+![prio_new](https://user-images.githubusercontent.com/61888437/155763659-511f8e81-72e6-4449-9420-405a7cea7c02.jpg)
+Clicking the 'prio'-label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can CTRL-F-V immediately after releasing the mouse button. Additionally, you can set a threshold above which your surplus will be suggested as a burnable mod. Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
 <br>
 <br>
 
 ### Optimal drop locations ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/)):
-![base info](https://user-images.githubusercontent.com/61888437/154804196-1524117f-52e4-43ec-9091-3845ea89a37c.png)
-You can hold-click the individual bases' icons to show where they more commonly drop.
-
 ![optimal_maps](https://user-images.githubusercontent.com/61888437/155491602-946470ef-403e-4da4-b574-cb50e43f7959.png)
-You can click the 'missing'-label to open a movable window with a list of locations that drop the most missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
+You can click the 'missing'-label to open a movable window with a list of locations that commonly drop the missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
 <br>
 <br>
 
