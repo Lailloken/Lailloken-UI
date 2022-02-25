@@ -534,7 +534,7 @@ Gui, map_suggestions: Add, Text, Center Section BackgroundTrans vheader01, commo
 Gui, map_suggestions: Font, s%fSize1% underline
 
 search_term := ""
-
+heightsuggestions := ""
 Loop, Parse, optimal_maps, `,,`,
 {
 	If (A_LoopField = "") || (heightsuggestions > poe_height*0.9)
