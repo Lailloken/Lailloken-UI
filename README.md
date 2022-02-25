@@ -103,12 +103,12 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
       - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
       - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
       - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
-- Multi-monitor setups: This tool is currently not able to detect multi-monitor setups
-   - make sure the PoE client runs on the monitor that is set up as the primary display on your system
-   - make sure a vertically set up monitor is not set as the primary display on your system
+- ~Multi-monitor setups: This tool is currently not able to detect multi-monitor setups~
+   - ~make sure the PoE client runs on the monitor that is set up as the primary display on your system~
+   - ~make sure a vertically set up monitor is not set as the primary display on your system~
 - A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
    - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
-   - the img\Recognition\XXXXp\Archnemesis folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
+   - the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
 - Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
    - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
    - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
