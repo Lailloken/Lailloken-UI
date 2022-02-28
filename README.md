@@ -82,7 +82,6 @@ Download the latest release here: [releases](https://github.com/Lailloken/Laillo
 ![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)
 - You have to disable the in-game filters introduced in patch 3.17.1
 <br>
-<br>
 
 ### Setup
 Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you through a very short first-time-setup, and you're good to go.
@@ -90,25 +89,54 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 <br>
 
 ### Known issues
-- Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
-- An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
-   - v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
-   - open the Fallback.ahk file in a text editor and follow the instructions inside; save it afterwards
-   - open the ini\config.ini file and change fallback=0 to fallback=1 (add the line in the PixelSearch section if the value doesn't exist yet); save it afterwards
-   - from now on, the overlay will behave as follows:
-      - whenever you open the archnemesis inventory by using the in-game hotkey, the overlay will automatically show up
-      - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
-      - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
-      - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
-- ~Multi-monitor setups: This tool is currently not able to detect multi-monitor setups~
-   - ~make sure the PoE client runs on the monitor that is set up as the primary display on your system~
-   - ~make sure a vertically set up monitor is not set as the primary display on your system~
-- A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
-   - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
-   - the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
-- Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
-   - the only way to circumvent this issue is to lower or increase your desktop resolution (if possible).
-   - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
-![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
-(Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
+Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
+<br>
+<br>
 
+An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
+- v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
+- open the Fallback.ahk file in a text editor and follow the instructions inside; save it afterwards
+- open the ini\config.ini file and change fallback=0 to fallback=1 (add the line in the PixelSearch section if the value doesn't exist yet); save it afterwards
+- from now on, the overlay will behave as follows:
+   - whenever you open the archnemesis inventory by using the in-game hotkey, the overlay will automatically show up
+   - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
+   - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
+   - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
+<br>
+<br>
+
+~Multi-monitor setups: This tool is currently not able to detect multi-monitor setups~
+- ~make sure the PoE client runs on the monitor that is set up as the primary display on your system~
+- ~make sure a vertically set up monitor is not set as the primary display on your system~
+<br>
+<br>
+
+A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
+- you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
+- the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
+<br>
+<br>
+
+Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
+- the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
+
+   ![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
+   (Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
+
+- workaround (v1.21.0+): Run the PoE client with a custom resolution in windowed fullscreen
+   1. set the PoE client up as usual (normal desktop resolution, windowed fullscreen, etc.)
+   2. go to the PoE settings -> UI -> confine mouse to window
+   
+   ![options](https://user-images.githubusercontent.com/61888437/155990051-aed94750-050b-452d-9b60-c7446e764a28.jpg)
+   
+   3. open ini\config.ini in a text editor and change "force-resolution" to 1 (or add this line UNDER SETTINGS if it doesn't exist yet); save the file
+   
+   ![notepad](https://user-images.githubusercontent.com/61888437/155990675-743e3eb5-5be3-4619-9654-9ac474df5fac.jpg)
+   
+   4. restart the script, a new window will open up in which to set the custom resolution; don't click "remember settings" just yet, do a test run first
+   
+   ![custom resolution](https://user-images.githubusercontent.com/61888437/155990785-ad0a9c25-3595-4ad1-a639-3f47b4207d6f.jpg)
+   
+   5. if everything works as expected, click "remember settings" the next time you start the script, and the script will automatically apply the custom resolution from now on
+      - to disable custom resolutions, set "force-resolution" back to 0
+      - to change to a different custom resolution, delete the "custom-height" line in the ini-file, save it, and restart the script
