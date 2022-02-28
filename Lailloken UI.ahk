@@ -32,13 +32,63 @@ While !WinExist("ahk_group poe_window")
 {
 	If (A_TickCount >= startup + 60000)
 		ExitApp
-	sleep, 1000
+	sleep, 5000
 }
 
 global xScreenOffset, yScreenOffset, poe_width, poe_height
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
 ;MsgBox, % xScreenOffset ", " yScreenOffset ", " poe_width ", " poe_height
 ;Return
+IniRead, fSize0, ini\resolutions.ini, %poe_height%p, font-size0
+IniRead, fSize1, ini\resolutions.ini, %poe_height%p, font-size1
+
+IniRead, force_resolution, ini\config.ini, Settings, force-resolution
+If (force_resolution = "") || (force_resolution = "ERROR")
+{
+	IniWrite, 0, ini\config.ini, Settings, force-resolution
+	force_resolution := 0
+}
+IniRead, forced_resolution, ini\config.ini, Settings, custom-height
+If (force_resolution = 1)
+{
+	If forced_resolution is not number
+	{
+		IniRead, resolutions_all, ini\resolutions.ini
+		Loop, Parse, resolutions_all, `n,`n
+		{
+			If (poe_height >= StrReplace(A_LoopField, "p", "")) && !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050"))
+				resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL 
+		}
+		Gui, resolutionGUI: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+		global hwnd_resolutionGUI := WinExist()
+		Gui, resolutionGUI: Margin, 6, 10
+		Gui, resolutionGUI: Color, Black
+		WinSet, Transparent, 220
+		Gui, resolutionGUI: Font, s%fSize0% cWhite, Fontin SmallCaps
+		Gui, resolutionGUI: Add, Text, BackgroundTrans, set custom resolution
+		Gui, resolutionGUI: Font, s%fSize1%
+		Gui, resolutionGUI: Add, Checkbox, BackgroundTrans vcheck0, remember settings
+		Gui, resolutionGUI: Add, Text, BackgroundTrans Section HWNDmain_text, %poe_width% x
+		ControlGetPos,,, width,,, ahk_id %main_text%
+		Gui, resolutionGUI: Add, DDL, % "ys w"width*2 " vforced_resolution gResolution_choice", %resolutionsDDL%
+		Gui, resolutionGUI: Show, Center AutoSize
+		While WinExist("ahk_id " hwnd_resolutionGUI)
+		{
+			If !WinExist("ahk_group poe_window")
+				ExitApp
+			Sleep, 1000
+		}
+		If (check0 = 1)
+			IniWrite, %forced_resolution%, ini\config.ini, Settings, custom-height
+	}
+	If (forced_resolution > poe_height)
+	{
+		MsgBox, Incorrect configuration detected: custom height > current height`,The script will now exit.
+		ExitApp
+	}
+	WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %forced_resolution%
+	poe_height := forced_resolution
+}
 
 global hwnd_archnemesis_window, hwnd_favored_recipes, hwnd_archnemesis_list, all_nemesis, trans := 220, guilist, xWindow, recal_hide := 1, fSize0, fSize1, Burn_number, arch_surplus
 global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, available_recipes, archnemesis_inventory, arch_recipes, arch_bases, prio_list, prio_list0, unwanted_recipes, favorite_recipes, arch_inventory := []
@@ -117,6 +167,7 @@ Loop, Parse, invBox, `,,`,
 	Else	invBox%A_Index% := A_LoopField + yScreenOffset
 }
 
+
 If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 {
 	MsgBox, %poe_height%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
@@ -144,6 +195,8 @@ If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution !=
 	KeyWait, 7
 }
 
+If (force_resolution = 1)
+	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 SoundBeep, 100
 
@@ -462,7 +515,7 @@ SendInput, ^{f}^{a}^{v}
 Return
 
 Map_suggestion:
-If (list_remaining = "") || InStr(list_remaining, "ERROR")
+If (list_remaining = "")
 	Return
 If GetKeyState("Shift", "P")
 {
@@ -777,6 +830,7 @@ If (favorite_recipes != "")
 				Else	archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
 			}
 		}
+		Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
 	}
 	arch_surplus := ""
 	Loop, Parse, archnemesis_inventory_leftover, `,,`,
@@ -1117,6 +1171,12 @@ If InStr(archnemesis_inventory, A_GuiControl)
 	}
 Return
 
+Resolution_choice:
+Gui, resolutionGUI: Submit, NoHide
+If forced_resolution is number
+	Gui, resolutionGUI: Destroy
+Return
+
 Scan:
 If (xScan = "") || (xScan = "ERROR")
 {
@@ -1175,7 +1235,7 @@ Loop, % xGrid.Length()
 				{
 					Loop, Files, img\Recognition\%poe_height%p\Archnemesis\%compare%*.png
 					{
-						ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *50 %A_LoopFilePath%
+						ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *25 %A_LoopFilePath%
 						comparison := ErrorLevel
 						If (ErrorLevel = 0)
 							break
@@ -1187,7 +1247,7 @@ Loop, % xGrid.Length()
 				match := ""
 				Loop, Files, img\Recognition\%poe_height%p\Archnemesis\*.png
 				{
-					ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *50 %A_LoopFilePath%
+					ImageSearch, outX, outY, xGridScan0, yGridScan0, xGridScan1, yGridScan1, *25 %A_LoopFilePath%
 					If (ErrorLevel = 0)
 					{
 						SplitPath, A_LoopFileName,,,, match,
