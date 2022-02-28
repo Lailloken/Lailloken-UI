@@ -88,11 +88,14 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 <br>
 <br>
 
-### Known issues
+# Known issues
+
+### Clicking
 Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
 <br>
 <br>
 
+### Performance drops
 An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
 - v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
 - open the Fallback.ahk file in a text editor and follow the instructions inside; save it afterwards
@@ -102,21 +105,13 @@ An unknown combination of hardware or software may cause dramatic frametime spik
    - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
    - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
    - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
-<br>
-<br>
 
-~Multi-monitor setups: This tool is currently not able to detect multi-monitor setups~
-- ~make sure the PoE client runs on the monitor that is set up as the primary display on your system~
-- ~make sure a vertically set up monitor is not set as the primary display on your system~
-<br>
-<br>
-
+### Scanning
 A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
 - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
 - the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
-<br>
-<br>
 
+### Resolutions
 Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
 - the tool is still usable at these resolutions and should still recognize every mod and recipe, but it will take more time and effort since the pool of archnemesis mods is effectively multiplied by the number of different ways the game renders a single icon
 
