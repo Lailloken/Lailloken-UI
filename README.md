@@ -115,6 +115,11 @@ Some mouse drivers/software may cause problems with (hold-)clicking UI elements.
 <br>
 <br>
 
+### Graphical filters/post-processing
+Using graphical filters or post-processing via ReShade, Nvidia Freesyle, or similar may cause the tool to work inconsistently or incorrectly. This may manifest as the overlay opening and closing on its own randomly, or scans not working. If you experience these issues, you will have to disable filters or post-processing for PoE and set the tool up from scratch, i.e. do a clean install.
+<br>
+<br>
+
 ### Performance drops
 An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
 - v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
@@ -125,11 +130,13 @@ An unknown combination of hardware or software may cause dramatic frametime spik
    - opening the inventory by clicking the statue will require you to press the hotkey to make the overlay appear
    - whenever the inventory closes, the overlay will disappear automatically (no matter how it was opened)
    - the frametime spikes will persist while interacting with the inventory but disappear immediately after it is closed
+<br>
 
 ### Scanning
 A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
 - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
 - the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
+<br>
 
 ### Resolutions
 Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsistent image detection because of how the game client renders the archnemesis icons at these resolutions. There is a big variance in how the very same icon is rendered, depending in which inventory row or column the item is placed. This leads to the user having to train the tool multiple times for the same icon.
