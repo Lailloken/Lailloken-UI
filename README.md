@@ -12,8 +12,8 @@ That being said, I am not a programmer, and this is a merely a fun project and l
 <br>
 
 ## User Interface
-![screenshot_new](https://user-images.githubusercontent.com/61888437/154802725-8a22a4ba-586a-4eab-b54d-0c7a65c17bb4.jpg)
-The tool's UI consists of a letter bar and two small recipe windows: one that contains priority (or 'chase') recipes and one that shows recipes that are ready to be completed.
+![Untitled 2](https://user-images.githubusercontent.com/61888437/156729115-52d867a1-85ee-427a-8ffb-67b43d0efa0f.jpg)
+The tool's UI consists of a letter bar and a recipe panel that shows lists of chase and burn recipes, as well as burn mods.
 <br>
 <br>
 
@@ -21,7 +21,7 @@ The tool's UI consists of a letter bar and two small recipe windows: one that co
 
 Using image recognition, this tool scans the contents of your archnemesis inventory, which enables a multitude of features not found in the game:
 - creating a user-configurable list of favorite/chase recipes
-- monitoring the progress of your list by breaking down recipes in a tree-view schematic
+- monitoring the progress of chase recipes by breaking them down in a tree-view schematic
 - highlighting recipes connected to your list that are ready to be assembled
 - highlighting irrelevant mods and recipes that can be safely 'burned' without interfering with your list
 - calculating which and how many base mods you need in order to complete your recipe list
@@ -39,33 +39,53 @@ The tool scans your archnemesis inventory slot by slot, starting from the top le
 
 ### Navigating the UI:
 ![letter_new](https://user-images.githubusercontent.com/61888437/155020590-223c2f87-d75e-48fc-b66e-0025fd2c7d9e.png)
-The letter bar is used to navigate a sort of glossary of the available recipes in game. Clicking a recipe will add it to the priority list and highlight it in yellow. The - and + buttons will resize all interfaces, and the SCAN button will scan your inventory.
+The letter bar is used to navigate a sort of glossary of the available archnemesis mods. Clicking an entry will highlight it in yellow and add it to the priority list. The - and + buttons will resize all interfaces, and the SCAN button will scan your inventory.
 <br>
 <br>
 
 ### The priority list:
-![prio_new](https://user-images.githubusercontent.com/61888437/154803573-6c43fde9-7785-4fb1-9ddd-40e7da123e17.png)
-The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression. Green highlighting indicates that your inventory contains at least one assembled version of the recipe. In addition, it calculates the missing base mods required to finish this list and displays them underneath.
+![Untitled 6](https://user-images.githubusercontent.com/61888437/156738702-80a38462-5f9e-446f-bda7-771b31eca683.png)
 
-**Note**: You only need to add the end-point of a recipe chain to the list (e.g. Innocence-touched), the tool will calculate everything leading up to that. So there is no need to put the whole chain into the list (I specify this here because there had been some confusion in the past). Also, the priority system currently only calculates the route to complete one set of the priority list, i.e. every part in the chain will only be completed once in order to more efficiently allocate resources. I will look into implementing user-definable set sizes.
+The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression.
+
+Green highlighting indicates that your inventory contains at least one assembled version of the recipe, and the quantity is shown in brackets. Indented entries show available recipes that are connected to your chase archnemesis mods. The panel also shows how close you are to completing the current set of the prio-list (X bases missing).
+
+Long-right-click an entry on the list to remove it, long-right-click the 'prio-list' label to clear the whole list. You can right-click an entry to pause its tracking. This will highlight it in purple and stop suggestions for this specific recipe, freeing up the components, so that these may be used elsewhere. This is different from removing a recipe in that its components stay prioritized and don't go into the burn pool. Pausing a recipe is useful if it's pulling ahead of others, or if you feel you have assembled enough of it.
+
+**What to put in**: You only need to add the end-point of a recipe chain to the list (e.g. Innocence-touched), the tool will calculate everything leading up to that. So there is no need to put the whole chain into the list (I specify this here because there had been some confusion in the past).
+
+**How it calculates**: The system cross-checks every entry of your prio-list with our inventory state and calculates the required **remaining** pieces. That means it will only suggest assembling each sub-component once to complete the entry. As an example: Innocence-touched requires Lunaris-, Solaris-touched, Mirror Image, and Mana Siphoner. You can blindly follow the suggestions without the fear of assembling multiples of these **until Innocence-touched is assembled**. Then the next round of suggestions will start and, again, one set of its sub-components will be worked on.
+<br>
+<br>
 
 ![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)
-Hold-clicking a recipe in the priority list will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
+Long-clicking a prio-list entry in the will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
+<br>
+<br>
 
-![prio_new](https://user-images.githubusercontent.com/61888437/155763659-511f8e81-72e6-4449-9420-405a7cea7c02.jpg)
-Clicking the 'prio'-label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can CTRL-F-V immediately after releasing the mouse button. Additionally, you can set a threshold above which your surplus will be suggested as a burnable mod. Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
+![Untitled 8](https://user-images.githubusercontent.com/61888437/156736481-01f5cd9c-63ff-4ef0-be52-5f55b2d798f0.png)
+
+Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can highlight it in the in-game search. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod; these entries will be highlighted in yellow. Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
 <br>
 <br>
 
 ### Optimal drop locations ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/)):
 ![optimal_maps](https://user-images.githubusercontent.com/61888437/155491602-946470ef-403e-4da4-b574-cb50e43f7959.png)
-You can click the 'missing'-label to open a movable window with a list of locations that commonly drop the missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
+You can click the 'missing' label to open a movable window with a list of locations that commonly drop the missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
+<br>
+<br>
+
+### Cheat sheet: Archnemesis bases
+![Untitled 9](https://user-images.githubusercontent.com/61888437/156737068-8bd7a1c3-0712-4b91-b95c-0d85924ab413.jpg)
+
+Right-clicking the 'missing'-label opens a movable popout window with the list of missing bases that can be placed anywhere on the screen. You can use this as a cheat sheet if you only want to loot missing bases.
 <br>
 <br>
 
 ### On-the-fly recipe suggestions:
-![ready_new](https://user-images.githubusercontent.com/61888437/155020962-a8fcbd8e-2ae6-4a64-9147-b3dcbfd17349.png)
-The second window is divided into three parts – priority recipes, non-priority recipes, and non-priority mods: The first part shows the recipes that are ready and lead to the priority set, the second and third show irrelevant recipes and mods, respectively, that are ready and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
+![Untitled 10](https://user-images.githubusercontent.com/61888437/156738303-506ffdea-92b7-4321-bd1c-673cf88007c5.jpg)
+
+The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrelevant ones that are available and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
 <br>
 <br>
 
