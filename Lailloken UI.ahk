@@ -340,7 +340,7 @@ Loop, Parse, unwanted_mods_quant, `,,`,
 clipboard := "^(" StrReplace(search_term, A_Space, ".") ")"
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-SendInput, ^{f}^{a}^{v}
+SendInput, ^{f}^{v}{Enter}
 Return
 
 BurnEdit:
@@ -609,7 +609,7 @@ WinWaitActive, ahk_group poe_window
 If (A_Gui = "base_info")
 	Clipboard := SubStr(StrReplace(A_GuiControl, A_Space, "."), 1)
 Else Clipboard := StrReplace(SubStr(A_GuiControl, InStr(A_GuiControl, "in ")+3), A_Space, ".")
-SendInput, ^{f}^{a}^{v}
+SendInput, ^{f}^{v}{Enter}
 Return
 
 Map_suggestion:
