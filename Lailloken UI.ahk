@@ -614,7 +614,10 @@ Return
 
 Map_suggestion:
 If (list_remaining = "")
+{
+	WinActivate, ahk_group poe_window
 	Return
+}
 If (click = 2)
 {
 	If !WinExist("ahk_id " hwnd_base_loot)
