@@ -94,7 +94,7 @@ If (force_resolution = 1)
 }
 
 global hwnd_archnemesis_window, all_nemesis, trans := 220, guilist, xWindow, xWindow1, fSize0, fSize1, Burn_number, reverse := 0, click := 1, sorting_order := "descending", sorting := "quantity"
-global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, archnemesis_inventory, arch_inventory := []
+global archnemesis := 0, archnemesis1_x, archnemesis1_y, archnemesis1_color, archnemesis2_x, archnemesis2_y, archnemesis2_color, archnemesis_inventory, arch_inventory := [], pixelsearch_variation
 
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 Loop, Parse, all_nemesis, `n,`n
@@ -148,6 +148,12 @@ If (fallback = "ERROR")
 {
 	IniWrite, 0, ini\config.ini, PixelSearch, fallback
 	fallback := 0
+}
+IniRead, pixelsearch_variation, ini\config.ini, PixelSearch, variation
+If (pixelsearch_variation = "ERROR")
+{
+	IniWrite, 0, ini\config.ini, PixelSearch, variation
+	pixelsearch_variation := 0
 }
 fSize0 += fSize_offset
 fSize1 += fSize_offset
@@ -311,6 +317,8 @@ unwanted_mods_quant0 := unwanted_mods_quant
 Sort, unwanted_mods_quant, D`, N R
 Loop, Parse, unwanted_mods_quant, `,,`,
 {
+	If (A_LoopField = "")
+		break
 	If (StrLen("^(" search_term ")") < 42)
 	{
 		If InStr(A_LoopField, "frost ") || InStr(A_LoopField, "frostw") || InStr(A_LoopField, "flame") || InStr(A_LoopField, "storm")
@@ -1360,7 +1368,7 @@ hwnd_surplus_view := ""
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 SendInput, ^{f}{ESC}
-sleep, 500
+sleep, 200
 archnemesis_inventory := ""
 xGrid := []
 yGrid := []
@@ -1731,9 +1739,9 @@ LLK_Overlay(x, y:=0)
 LLK_PixelSearch(x)
 {
 	global
-	PixelSearch, OutputVarX, OutputVarY, %x%1_x, %x%1_y, %x%1_x, %x%1_y, %x%1_color, 0, Fast RGB
+	PixelSearch, OutputVarX, OutputVarY, %x%1_x, %x%1_y, %x%1_x, %x%1_y, %x%1_color, %pixelsearch_variation%, Fast RGB
 		If (ErrorLevel=0)
-			PixelSearch, OutputVarX, OutputVarY, %x%2_x, %x%2_y, %x%2_x, %x%2_y, %x%2_color, 0, Fast RGB
+			PixelSearch, OutputVarX, OutputVarY, %x%2_x, %x%2_y, %x%2_x, %x%2_y, %x%2_color, %pixelsearch_variation%, Fast RGB
 	%x% := (ErrorLevel=0) ? 1 : 0
 	value := %x%
 	Return value
