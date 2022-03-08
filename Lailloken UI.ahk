@@ -1423,7 +1423,7 @@ WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 SendInput, ^{f}{ESC}
 KeyWait, LButton
-sleep, 150
+sleep, 100
 scan_in_progress := 1
 bmpHaystack := Gdip_BitmapFromScreen(xScreenOffset "|" yScreenOffset "|" poe_width "|" poe_height)
 hwnd_archnemesis_window := ""
@@ -1516,12 +1516,14 @@ Gui, recal_arrow: Destroy
 ToolTip,,,,17
 GoSub, Favored_recipes
 GoSub, Recipes
+scan_in_progress := (background_scan_in_progress = 1) ? 1 : ""
 Return
 
 Scan_background:
 SetTimer, Scan_background, Delete
 start := A_TickCount
 scan_unknown := 0
+background_scan_in_progress := 1
 background_Haystack := Gdip_BitmapFromScreen(xScreenOffset "|" yScreenOffset "|" poe_width "|" poe_height)
 background_inventory := (background_inventory_prelim = "") ? archnemesis_inventory : background_inventory_prelim
 back_inventory := []
@@ -1553,6 +1555,7 @@ Loop, % background_xGrid.Length()
 			background_scanned := 1
 			background_inventory_prelim := ""
 			scan_in_progress = ""
+			background_scan_in_progress = ""
 			Return
 		}
 		Else
@@ -1614,6 +1617,7 @@ arch_inventory := []
 Loop, Parse, background_inventory, `,,`,
 	arch_inventory.Push(A_LoopField)
 background_scanned := 1
+background_scan_in_progress := ""
 Return
 
 LLK_Rightclick()
