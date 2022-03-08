@@ -1423,7 +1423,7 @@ WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 SendInput, ^{f}{ESC}
 KeyWait, LButton
-sleep, 100
+sleep, 150
 scan_in_progress := 1
 bmpHaystack := Gdip_BitmapFromScreen(xScreenOffset "|" yScreenOffset "|" poe_width "|" poe_height)
 hwnd_archnemesis_window := ""
