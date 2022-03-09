@@ -45,7 +45,6 @@ The letter bar is used to navigate a sort of glossary of the available archnemes
 
 ### The priority list:
 ![Untitled 6](https://user-images.githubusercontent.com/61888437/156738702-80a38462-5f9e-446f-bda7-771b31eca683.png)
-
 The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression.
 
 Green highlighting indicates that your inventory contains at least one assembled version of the recipe, and the quantity is shown in brackets. Indented entries show available recipes that are connected to your chase archnemesis mods. The panel also shows how close you are to completing the current set of the prio-list (X bases missing).
@@ -58,33 +57,30 @@ Long-right-click an entry on the list to remove it, long-right-click the 'prio-l
 <br>
 <br>
 
-![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)
+![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)<br>
 Long-clicking a prio-list entry in the will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
 <br>
 <br>
 
-![Untitled 8](https://user-images.githubusercontent.com/61888437/156736481-01f5cd9c-63ff-4ef0-be52-5f55b2d798f0.png)
-
+![Untitled 8](https://user-images.githubusercontent.com/61888437/156736481-01f5cd9c-63ff-4ef0-be52-5f55b2d798f0.png)<br>
 Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can highlight it in the in-game search. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod; these entries will be highlighted in yellow. Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
 <br>
 <br>
 
 ### Optimal drop locations ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/)):
-![optimal_maps](https://user-images.githubusercontent.com/61888437/155491602-946470ef-403e-4da4-b574-cb50e43f7959.png)
+![optimal_maps](https://user-images.githubusercontent.com/61888437/155491602-946470ef-403e-4da4-b574-cb50e43f7959.png)<br>
 You can click the 'missing' label to open a movable window with a list of locations that commonly drop the missing mod bases. With it open, you can acces your map tab and search for these maps by clicking them in the list.
 <br>
 <br>
 
 ### Cheat sheet: Archnemesis bases
-![Untitled 9](https://user-images.githubusercontent.com/61888437/156737068-8bd7a1c3-0712-4b91-b95c-0d85924ab413.jpg)
-
+![Untitled 9](https://user-images.githubusercontent.com/61888437/156737068-8bd7a1c3-0712-4b91-b95c-0d85924ab413.jpg)<br>
 Right-clicking the 'missing'-label opens a movable popout window with the list of missing bases that can be placed anywhere on the screen. You can use this as a cheat sheet if you only want to loot missing bases.
 <br>
 <br>
 
 ### On-the-fly recipe suggestions:
-![Untitled 10](https://user-images.githubusercontent.com/61888437/156738303-506ffdea-92b7-4321-bd1c-673cf88007c5.jpg)
-
+![Untitled 10](https://user-images.githubusercontent.com/61888437/156738303-506ffdea-92b7-4321-bd1c-673cf88007c5.jpg)<br>
 The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrelevant ones that are available and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
 <br>
 <br>
