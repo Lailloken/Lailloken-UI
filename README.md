@@ -27,25 +27,26 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 - calculating which and how many base mods you need in order to complete your recipe list
 - calculating your surplus in archnemesis mods for easy inventory management
 - showing where the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
+- automatic recipe selection for a 1-click-0-attention interaction with the league mechanic
 <br>
 
 ### 'Training' the tool to recognize archnemesis icons:
-![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)
-Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and reliability in the long run – think of it as 'tailored' to your system and settings.
+![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)<br>
+Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and accuracy in the long run – think of it as 'tailored' to your system and settings.
 
 The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down in columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. This has to be done only once per icon for the vast majority of users (see 'known issues' at the end of this page).
 <br>
 <br>
 
 ### Navigating the UI:
-![letter_new](https://user-images.githubusercontent.com/61888437/155020590-223c2f87-d75e-48fc-b66e-0025fd2c7d9e.png)
-The letter bar is used to navigate a sort of glossary of the available archnemesis mods. Clicking an entry will highlight it in yellow and add it to the priority list. The - and + buttons will resize all interfaces, and the SCAN button will scan your inventory.
+![letter_bar](https://user-images.githubusercontent.com/61888437/157827689-ad90096f-a632-4000-adbd-cb657faeaec9.jpg)<br>
+The letter bar is used to navigate a sort of glossary of the available archnemesis mods. Clicking an entry will highlight it in yellow and add it to the priority list, the - and + buttons will resize all interfaces. Clicking the PREV button will restore the in-game search to a previously selected recipe, and clicking the SCAN button will scan your inventory.
 <br>
 <br>
 
 ### The priority list:
 ![Untitled 6](https://user-images.githubusercontent.com/61888437/156738702-80a38462-5f9e-446f-bda7-771b31eca683.png)
-The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression.
+The priority list is the center-piece of the tool and contains the set of archnemesis mods that you want to run as the endgame of the league-mechanic, i.e. the money-maker, the big wombo-combo. As such, this is where you set your goal for the archnemesis mechanic, and the tool accompanies you there and supplies recipe suggestions based on your inventory state and overall progression. Long-clicking the (?) icon will show UI navigation tips.
 
 Green highlighting indicates that your inventory contains at least one assembled version of the recipe, and the quantity is shown in brackets. Indented entries show available recipes that are connected to your chase archnemesis mods. The panel also shows how close you are to completing the current set of the prio-list (X bases missing).
 
@@ -58,12 +59,12 @@ Long-right-click an entry on the list to remove it, long-right-click the 'prio-l
 <br>
 
 ![tree_new](https://user-images.githubusercontent.com/61888437/154804804-330a8914-f626-459e-bbf7-cbf326440bb0.png)<br>
-Long-clicking a prio-list entry in the will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
+Long-clicking a prio-list entry will show a tree-view schematic and breaks the recipe down. Use this to have a more detailed view on your progress.
 <br>
 <br>
 
 ![Untitled 8](https://user-images.githubusercontent.com/61888437/156736481-01f5cd9c-63ff-4ef0-be52-5f55b2d798f0.png)<br>
-Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can highlight it in the in-game search. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod; these entries will be highlighted in yellow. Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
+Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can highlight it in the in-game search. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod (these entries will be highlighted in yellow). Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
 <br>
 <br>
 
@@ -83,6 +84,30 @@ Right-clicking the 'missing'-label opens a movable popout window with the list o
 ![Untitled 10](https://user-images.githubusercontent.com/61888437/156738303-506ffdea-92b7-4321-bd1c-673cf88007c5.jpg)<br>
 The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrelevant ones that are available and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
 <br>
+<br>
+
+### Automation of the league mechanic:
+Starting with v1.22.1, you can right-click the scan button to have the script automatically select and highlight available recipes.
+- the tool will automatically check available free slots and avoid duplicates
+- this is primarily for convenience and a one-click solution that doesn't require any attention: use it to automate the whole archnemesis mechanic or to automatically fill the remaining slots
+- it was initially planned to work without any interaction, like an auto pilot, but there are too many variables that prevent this
+
+![Untitled 1](https://user-images.githubusercontent.com/61888437/157707917-9d0fa7de-383a-4626-8737-304c431c68ff.png)<br>
+- example 1 (3+1 slots): the first right-click highlights the invulnerable recipe, the second adds soul conduit as a burner
+- example 2 (2+2 slots): the first right-click highlights the ice prison recipe, the second adds the storm strider recipe
+
+![Untitled 2](https://user-images.githubusercontent.com/61888437/157716056-2d1fbcfe-e399-4406-a55f-61296bfcb84e.png)<br>
+- example 3 (2+1+1 slots): the first right-click highlights the drought bringer recipe, the second skips malediction (because it's already inside) and instead adds soul conduit as a burner, the third skips deadeye (again, it's already inside) and instead adds berserker as a burner
+<br>
+
+- auto-highlighting will stop as soon as four mods are reached, and the script will merely refresh these four when right-clicking scan again
+  - when re-entering a map, make sure you don't accidentally right-click 'scan' when the search field is blank, otherwise a new auto-highlight set of four mods will be started; use the new 'prev' button to go back to the previous progress
+  - inversely, make sure the search field is blank when you want to start a new set of four (it is blank at the start of the map, but still check)
+<br>
+
+- CAUTION: this has to be used while actively doing archnemesis encounters; don't queue up recipes at the start of the map:
+  - as with normal scanning, only right-click the scan button after finishing a recipe
+  - queueing recipes AB and burners C and D at once may result in assembling AC and BD if you don't pay attention and the constellation allows it<br>
 <br>
 
 # Installation & Setup
@@ -116,6 +141,13 @@ Using graphical filters or post-processing via ReShade, Nvidia Freesyle, or simi
 <br>
 <br>
 
+### GeForce Now: fluctuating image quality
+Being a streaming-based gaming solution, GeForce Now's fluctuating image quality may impact how well the script is able to detect the archnemesis inventory. This manifests as the overlay not showing when the archnemesis inventory is open. v1.21.4 introduced a workaround for situations like these which enables the user to make the script's pixel check less strict.
+- open the ini\config.ini file and change the 'variation' value from 0 to 15. Save the file and restart the script
+- if the issues remain, re-do this and increase the value by 5 until the tool is able to detect the inventory reliably
+![notepad, geforce now](https://user-images.githubusercontent.com/61888437/157830289-31b15865-364d-4745-ad8f-9015e7e58a84.jpg)<br>
+<br>
+
 ### Performance drops
 An unknown combination of hardware or software may cause dramatic frametime spikes while the tool is running
 - v1.20.4 introduced a fallback mechanic that can be used in this situation: it replaces the automatic background pixel check with a manual pixel check triggered by the in-game archnemesis hotkey
@@ -131,7 +163,7 @@ An unknown combination of hardware or software may cause dramatic frametime spik
 ### Scanning
 A corrupt or outdated installation of AutoHotkey on your system may cause the tool to not work, without showing any signs of error. Telltale signs of this include:
 - you have just completed training the tool, but during the following scan the tool immediately asks you to do it again
-- the img\Recognition\XXXXp\Archnemesis (v1.20.2+: accessible via shift-clicking the SCAN-button) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
+- the img\Recognition\XXXXp\Archnemesis (accessible via right-clicking the ?-icon) folder contains image files that clearly show the CENTER of the archnemesis icons and have coherent file names
 <br>
 
 ### Resolutions
