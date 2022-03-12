@@ -179,7 +179,7 @@ IniRead, Burn_number, ini\config.ini, Settings, Burn-number
 If (Burn_number = "" || Burn_number = "ERROR")
 	Burn_number := 10
 IniRead, sorting_settings, ini\config.ini, Settings, sorting
-If (sorting = "ERROR")
+If (sorting_settings = "ERROR")
 {
 	sorting := "quantity"
 	sorting_order := "descending"
@@ -930,10 +930,6 @@ If (archnemesis = 0)
 else fallback_override := 1
 Return
 
-Favored_recipes0:
-
-Return
-
 Favored_recipes:
 SetTimer, Favored_recipes, Delete
 Gui, archnemesis_list: Hide
@@ -1531,7 +1527,7 @@ While GetKeyState("RButton", "P")
 		Return
 	}
 }
-If (click = 2)
+If (click = 2) && InStr(favorite_recipes, A_GuiControl)
 {
 	GoSub, Pause_list
 	Return
@@ -1653,6 +1649,7 @@ If InStr(archnemesis_inventory, SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2
 	clipboard := InStr(A_GuiControl, "x ") ? "^"SubStr(StrReplace(SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2), A_Space, "."), 1, 8) : "^"SubStr(StrReplace(A_GuiControl, A_Space, "."), 1, 8)
 	SendInput, ^{f}^{v}{Enter}
 }
+Else WinActivate, ahk_group poe_window
 Return
 
 Resolution_choice:
