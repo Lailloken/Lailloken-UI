@@ -28,7 +28,7 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 - calculating your surplus in archnemesis mods for easy inventory management
 - showing where the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
 - automatic recipe selection for a 1-click-0-attention interaction with the league mechanic
-- blacklist certain recipes that you want to avoid running
+- blacklisting certain recipes that you want to avoid running
 <br>
 
 ### 'Training' the tool to recognize archnemesis icons:
