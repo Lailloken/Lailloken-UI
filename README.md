@@ -28,6 +28,7 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 - calculating your surplus in archnemesis mods for easy inventory management
 - showing where the required base mods commonly drop, and suggesting optimal drop locations where multiple mods drop ([data source](https://www.reddit.com/r/pathofexile/comments/srtuug/i_made_a_sheet_for_archnemesis_drop_locations/), creator: [u/Rymse](https://www.reddit.com/user/Rymse/))
 - automatic recipe selection for a 1-click-0-attention interaction with the league mechanic
+- blacklist certain recipes that you want to avoid running
 <br>
 
 ### 'Training' the tool to recognize archnemesis icons:
@@ -64,7 +65,7 @@ Long-clicking a prio-list entry will show a tree-view schematic and breaks the r
 <br>
 
 ![Untitled 8](https://user-images.githubusercontent.com/61888437/156736481-01f5cd9c-63ff-4ef0-be52-5f55b2d798f0.png)<br>
-Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. This also copies the top item on the list into your clipboard, so you can highlight it in the in-game search. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod (these entries will be highlighted in yellow). Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
+Clicking the 'prio-list' label gives you an overview of your surplus in archnemesis mods that are connected to the priority set. Additionally, you can set a threshold above which your surplus will be suggested as a burnable recipe or mod (these entries will be highlighted in yellow). Use this panel as a last resort to make room in your inventory in case nothing else can be burned.
 <br>
 <br>
 
@@ -87,28 +88,43 @@ The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrele
 <br>
 
 ### Automation of the league mechanic:
-Starting with v1.22.1, you can right-click the scan button to have the script automatically select and highlight available recipes.
-- the tool will automatically check available free slots and avoid duplicates
-- this is primarily for convenience and a one-click solution that doesn't require any attention: use it to automate the whole archnemesis mechanic or to automatically fill the remaining slots
-- it was initially planned to work without any interaction, like an auto pilot, but there are too many variables that prevent this
+Starting with v1.22.1, you can right-click the scan button to have the script automatically fill the slots in the current encounter. The tool will automatically check how many free slots are available and also avoid duplicates. This is primarily for convenience and a one-click solution that doesn't require any attention: you can use it to automate the whole archnemesis mechanic or to automatically fill the remaining slots in an encounter. This feature uses the current contents of the in-game search field as an orientation as to which and how many mods have already been used in the current encounter. This was initially planned to work without having to click anything, like an auto pilot, but there are too many variables that prevent this.
+<br>
+<br>
 
-![Untitled 1](https://user-images.githubusercontent.com/61888437/157707917-9d0fa7de-383a-4626-8737-304c431c68ff.png)<br>
-- example 1 (3+1 slots): the first right-click highlights the invulnerable recipe, the second adds soul conduit as a burner
-- example 2 (2+2 slots): the first right-click highlights the ice prison recipe, the second adds the storm strider recipe
+![Untitled 7](https://user-images.githubusercontent.com/61888437/158019686-9d6574aa-6e1f-4f7a-9b0d-39df8bd27c98.png)<br>
+example 1 (3+1 slots): the first right-click highlights the invulnerable recipe, the second adds soul conduit as a burner
+<br>
+<br>
+
+![Untitled 1](https://user-images.githubusercontent.com/61888437/158019706-1d86be54-3313-4408-b214-0f6e050c679c.png)<br>
+example 2 (2+2 slots): the first right-click highlights the ice prison recipe, the second adds the storm strider recipe
+<br>
+<br>
 
 ![Untitled 2](https://user-images.githubusercontent.com/61888437/157716056-2d1fbcfe-e399-4406-a55f-61296bfcb84e.png)<br>
-- example 3 (2+1+1 slots): the first right-click highlights the drought bringer recipe, the second skips malediction (because it's already inside) and instead adds soul conduit as a burner, the third skips deadeye (again, it's already inside) and instead adds berserker as a burner
+example 3 (2+1+1 slots): the first right-click highlights the drought bringer recipe, the second skips malediction (because it's already in use) and instead adds soul conduit as a burner, the third skips deadeye (again, it's already in use) and instead adds berserker as a burner
+<br>
 <br>
 
-- auto-highlighting will stop as soon as four mods are reached, and the script will merely refresh these four when right-clicking scan again
-  - when re-entering a map, make sure you don't accidentally right-click 'scan' when the search field is blank, otherwise a new auto-highlight set of four mods will be started; use the new 'prev' button to go back to the previous progress
-  - inversely, make sure the search field is blank when you want to start a new set of four (it is blank at the start of the map, but still check)
+Auto-highlighting will stop as soon as four mods are reached, and the script will merely refresh these four when right-clicking scan again. When re-entering a map, make sure you don't accidentally right-click 'scan' when the search field is blank, otherwise a new auto-highlight set of four mods will be started. Instead, click the 'prev' button to go back to the previous highlighting state. Inversely, you have to make sure the search field is blank when you want to start a new set of four (it is blank at the start of the map, but it still doesn't hurt to check).
 <br>
 
-- CAUTION: this has to be used while actively doing archnemesis encounters; don't queue up recipes at the start of the map:
-  - as with normal scanning, only right-click the scan button after finishing a recipe
-  - queueing recipes AB and burners C and D at once may result in assembling AC and BD if you don't pay attention and the constellation allows it<br>
+**CAUTION**: This feature has to be used while actively doing archnemesis encounters, i.e. you must not queue up recipes at the start of the map. So, as with normal scanning, only right-click the scan button after finishing a recipe. This is what can happen if you use this feature incorrectly: Queueing recipes AB and burners C and D at the start of the map may result in assembling AC and BD if you don't pay attention and the recipe constellation allows it.<br>
 <br>
+<br>
+
+### Blacklisting recipes:
+![blacklist](https://user-images.githubusercontent.com/61888437/158016417-ac80cb77-4e31-47a6-9ecd-5b022d166e6a.png)![burn mods](https://user-images.githubusercontent.com/61888437/158015460-b462ae84-d57d-405b-ba80-31dd62d93649.jpg)<br>
+Starting with v1.22.2, you can right-click mods in the letter-bar glossary to add them to the blacklist. These blacklisted recipes will then not be suggested for assembly when ready, and they will be highlighted in red on the burn-mod list in case you already have assembled versions in your inventory. Use this feature to avoid archnemesis mods that you hate or can't run with your build, which becomes even more useful if you use the automation feature described above.
+<br>
+<br>
+
+![blacklist button](https://user-images.githubusercontent.com/61888437/158017145-f60b10f0-c23f-4119-afed-00394706603b.jpg)<br>
+Clicking the 'BL' button on the letter bar will show the current blacklist, and entries can be removed by clicking them.
+<br>
+<br>
+
 
 # Installation & Setup
 
