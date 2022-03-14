@@ -41,7 +41,7 @@ The tool scans your archnemesis inventory slot by slot, starting from the top le
 
 ### Navigating the UI:
 ![letter_bar](https://user-images.githubusercontent.com/61888437/157827689-ad90096f-a632-4000-adbd-cb657faeaec9.jpg)<br>
-The letter bar is used to navigate a sort of glossary of the available archnemesis mods. Clicking an entry will highlight it in yellow and add it to the priority list, the - and + buttons will resize all interfaces. Clicking the PREV button will restore the in-game search to a previously selected recipe, and clicking the SCAN button will scan your inventory.
+The letter bar is used to navigate a sort of glossary of the available archnemesis mods. Clicking an entry will highlight it in yellow and add it to the priority list, right-clicking it will highlight it in red and add it to the blacklist. The - and + buttons resize all interfaces, the PREV button restores the in-game search to a previously selected recipe, and the SCAN button initiates a scan of your inventory.
 <br>
 <br>
 
