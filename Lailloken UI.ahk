@@ -1196,7 +1196,7 @@ Loop, Parse, list_remaining_single, `,,`,
 xbase_loot := (xbase_loot = "") ? xScreenOffset+poe_width//2 : xbase_loot
 ybase_loot := (ybase_loot = "") ? yScreenOffset+0 : ybase_loot
 style := (base_loot_toggle = 1) ? "NA" : "Hide"
-Gui, base_loot: Show, % style Center
+Gui, base_loot: Show, % style "x"xbase_loot " y"ybase_loot
 blacklist_choice := ""
 favor_choice := ""
 GoSub, Recipes
