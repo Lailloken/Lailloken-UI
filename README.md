@@ -33,7 +33,7 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 
 ### 'Training' the tool to recognize archnemesis icons:
 ![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)<br>
-Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time (5~8 minutes cumulatively for the whole league-period, or 7~10 seconds per icon), but this should provide higher scanning speeds and accuracy in the long run – think of it as 'tailored' to your system and settings.
+Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time (around 5 to 8 minutes cumulatively for the whole league-period, or 7 to 10 seconds per icon), but this should provide higher scanning speeds and accuracy in the long run – think of it as 'tailored' to your system and settings.
 
 The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down the columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. This has to be done only once per icon for the vast majority of users (see 'known issues' at the end of this page).
 <br>
