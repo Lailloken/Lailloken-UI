@@ -12,7 +12,7 @@ That being said, I am not a programmer, and this is a merely a fun project and l
 <br>
 
 ## User Interface
-![Untitled 2](https://user-images.githubusercontent.com/61888437/156729115-52d867a1-85ee-427a-8ffb-67b43d0efa0f.jpg)
+![screenshot new](https://user-images.githubusercontent.com/61888437/158554065-49d2538d-0061-47e6-8386-fad075595a7c.jpg)<br>
 The tool's UI consists of a letter bar and a recipe panel that shows lists of chase and burn recipes, as well as burn mods.
 <br>
 <br>
@@ -51,11 +51,11 @@ The priority list is the center-piece of the tool and contains the set of archne
 
 Green highlighting indicates that your inventory contains at least one assembled version of the recipe, and the quantity is shown in brackets. Indented entries show available recipes that are connected to your chase archnemesis mods. The panel also shows how close you are to completing the current set of the prio-list (X bases missing).
 
-Long-right-click an entry on the list to remove it, long-right-click the 'prio-list' label to clear the whole list. You can right-click an entry to pause its tracking. This will highlight it in purple and stop suggestions for this specific recipe, freeing up the components so that these may be used elsewhere. This is different from removing a recipe in that its components stay prioritized and don't go into the burn pool. Pausing a recipe is useful if it's pulling ahead of others, or if you feel you have assembled enough of it.
+Long-right-click an entry on the list to remove it, long-right-click the 'prio-list' label to clear the whole list. You can right-click an entry to pause its tracking. This will highlight it in purple and stop suggestions for this specific recipe, freeing up the components so that these may be used elsewhere. This is different from removing a recipe in that its components stay prioritized and don't go into the burn pool. Pausing a recipe is useful if it's pulling ahead of others, or if you feel you have assembled enough of it for now.
 
 **What to put in**: You only need to add the end-point of a recipe chain to the list (e.g. Innocence-touched), the tool will calculate everything leading up to that. So there is no need to put the whole chain into the list (I specify this here because there had been some confusion in the past).
 
-**How it calculates**: The system cross-checks every entry of your prio-list with our inventory state and calculates the required **remaining** pieces. That means it will only suggest assembling each sub-component once to complete the entry. As an example: Innocence-touched requires Lunaris-, Solaris-touched, Mirror Image, and Mana Siphoner. You can blindly follow the suggestions without the fear of assembling multiples of these **until Innocence-touched is assembled**. Then the next round of suggestions will start and, again, one set of its sub-components will be worked on.
+**How it calculates**: The system cross-checks every entry of your prio-list with your inventory state and calculates the required **remaining** pieces. That means it will only suggest assembling each sub-component once to complete the entry. As an example: Innocence-touched requires Lunaris-, Solaris-touched, Mirror Image, and Mana Siphoner. You can blindly follow the suggestions without the fear of assembling multiples of these **until Innocence-touched is assembled**. Then the next round of suggestions will start and, again, one set of its sub-components will be worked on.
 <br>
 <br>
 
