@@ -152,6 +152,10 @@ Once you run 'Lailloken UI.ahk' for the first time, the tool will guide you thro
 
 # Known issues
 
+### Misclicking a mod when training the scanner
+
+In case you misclick when training the scanner, right-click the help button (?) to open the tool's image folder. Delete the image file with mismatched icon and name, and re-scan your inventory to initiate training for the specific icon again.
+
 ### Clicking
 Some mouse drivers/software may cause problems with (hold-)clicking UI elements. If issues like these occur on your system, you will have to disable or close your mouse software to continue using this tool.
 <br>
