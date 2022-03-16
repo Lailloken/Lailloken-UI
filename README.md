@@ -33,9 +33,9 @@ Using image recognition, this tool scans the contents of your archnemesis invent
 
 ### 'Training' the tool to recognize archnemesis icons:
 ![training_new](https://user-images.githubusercontent.com/61888437/154835584-2d432a0e-82ac-4181-9d4c-73ac31a1ea7b.jpg)<br>
-Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time, but this should provide higher scanning speeds and accuracy in the long run – think of it as 'tailored' to your system and settings.
+Rather than using universal image recognition, the tool has to be 'trained' manually. This means it has a longer set-up time (5~8 minutes cumulatively for the whole league-period, or 7~10 seconds per icon), but this should provide higher scanning speeds and accuracy in the long run – think of it as 'tailored' to your system and settings.
 
-The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down in columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. This has to be done only once per icon for the vast majority of users (see 'known issues' at the end of this page).
+The tool scans your archnemesis inventory slot by slot, starting from the top left and working its way down the columns. Whenever it finds a new icon, it asks you to specify which archnemesis mod this icon belongs to. This has to be done only once per icon for the vast majority of users (see 'known issues' at the end of this page).
 <br>
 <br>
 
@@ -82,13 +82,18 @@ Right-clicking the 'missing'-label opens a movable popout window with the list o
 <br>
 
 ### On-the-fly recipe suggestions:
-![Untitled 10](https://user-images.githubusercontent.com/61888437/156738303-506ffdea-92b7-4321-bd1c-673cf88007c5.jpg)<br>
-The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrelevant ones that are available and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory.
+![Untitled 1](https://user-images.githubusercontent.com/61888437/158548256-4d2607b3-a094-44ed-b344-ea4b22e0388d.jpg)<br>
+The lower part of the prio-list panel shows 'burn' recipes and mods, i.e. irrelevant ones that are available and do not use components from priority recipes. Clicking on an item on the list will perform an in-game search in the inventory. Clicking the 'available burn mods' label will highlight as many burn mods as possible at once (the in-game search field has a character limit) and choose the ones you have the most of.
+
+You can also change the sorting settings for the available burn mods by clicking the sorting label ("- / Q" by default): clicking it will toggle between descending (-) and ascending (+), right-clicking will toggle between quantity (Q) and tiering (T).
 <br>
 <br>
 
 ### Automation of the league mechanic:
-Starting with v1.22.1, you can right-click the scan button to have the script automatically fill the slots in the current encounter. The tool will automatically check how many free slots are available and also avoid duplicates. This is primarily for convenience and a one-click solution that doesn't require any attention: you can use it to automate the whole archnemesis mechanic or to automatically fill the remaining slots in an encounter. This feature uses the current contents of the in-game search field as an orientation as to which and how many mods have already been used in the current encounter. This was initially planned to work without having to click anything, like an auto pilot, but there are too many variables that prevent this.
+Starting with v1.22.1, you can right-click the scan button to have the script automatically fill the slots in the current encounter. The tool will automatically check how many free slots are available and also avoid duplicates. This is primarily for convenience and a one-click solution that doesn't require any attention: you can use it to automate the whole archnemesis mechanic or to automatically fill the remaining slots in an encounter. This feature uses the current contents of the in-game search field as an orientation as to which and how many mods have already been used in the current encounter.
+<br>
+
+My initial plan was for this feature to work without any user input, like an auto pilot, but there are too many variables that prevent this from working reliably.
 <br>
 <br>
 
@@ -110,7 +115,7 @@ example 3 (2+1+1 slots): the first right-click highlights the drought bringer re
 Auto-highlighting will stop as soon as four mods are reached, and the script will merely refresh these four when right-clicking scan again. When re-entering a map, make sure you don't accidentally right-click 'scan' when the search field is blank, otherwise a new auto-highlight set of four mods will be started. Instead, click the 'prev' button to go back to the previous highlighting state. Inversely, you have to make sure the search field is blank when you want to start a new set of four (it is blank at the start of the map, but it still doesn't hurt to check).
 <br>
 
-**CAUTION**: This feature has to be used while actively doing archnemesis encounters, i.e. you must not queue up recipes at the start of the map. So, as with normal scanning, only right-click the scan button after finishing a recipe. This is what can happen if you use this feature incorrectly: Queueing recipes AB and burners C and D at the start of the map may result in assembling AC and BD if you don't pay attention and the recipe constellation allows it.<br>
+**CAUTION**: This feature has to be used while actively doing archnemesis encounters, i.e. you must not queue up recipes at the start of the map. So, as with normal scanning, only right-click the scan button after finishing a recipe. This is what can happen if you use this feature incorrectly: Queueing recipes AB and burners C and D at the start of the map may result in assembling AC and BD if you don't pay attention and the recipe constellation allows it.
 <br>
 <br>
 
