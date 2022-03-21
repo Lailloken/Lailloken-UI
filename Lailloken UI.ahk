@@ -1201,40 +1201,6 @@ If (favorite_recipes != "")
 			prio_list_active := (prio_list_active = "") ? prio_list%A_Index%_active : prio_list_active prio_list%A_Index%_active
 	}
 	
-	If (oversupply_setting = 1)
-	{
-		oversupply_list := ""
-		Loop, Parse, favorite_recipes, `,,`,
-		{
-			If (A_LoopField = "")
-				break
-			;If InStr(Pause_list, A_LoopField)
-			;	continue
-			IniRead, components0, ini\db_archnemesis.ini, %A_LoopField%, components
-			If (components0 != "ERROR")
-			{
-				Loop, Parse, components0, `,,`,
-				{
-					oversupply_list := (oversupply_list = "") ? A_LoopField "," : oversupply_list A_LoopField ","
-					IniRead, components1, ini\db_archnemesis.ini, %A_LoopField%, components
-					If (components1 != "ERROR")
-					{
-						Loop, Parse, components1, `,,`,
-						{
-							oversupply_list := (oversupply_list = "") ? A_LoopField "," : oversupply_list A_LoopField ","
-							IniRead, components2, ini\db_archnemesis.ini, %A_LoopField%, components
-							If (components2 != "ERROR")
-							{
-								Loop, Parse, components2, `,,`,
-									oversupply_list := (oversupply_list = "") ? A_LoopField "," : oversupply_list A_LoopField ","
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	Loop, Parse, prio_list_no_pause, `,,`, ;calculate individual mod balance
 	{
 		If (A_LoopField = "")
@@ -1358,43 +1324,40 @@ If (prio_list != "")
 			break
 		If (oversupply_setting = 0) && InStr(prio_list, A_LoopField)
 			continue
-		;If !InStr(prio_list, A_LoopField)
-		;{
-			IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-			recipe_match := 1
-			If (recipe != "ERROR")
+		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
+		recipe_match := 1
+		If (recipe != "ERROR")
+		{
+			Loop, Parse, recipe, `,,`,
 			{
-				Loop, Parse, recipe, `,,`,
+				If InStr(blacklist_recipes, A_LoopField)
 				{
-					If InStr(blacklist_recipes, A_LoopField)
-					{
-						recipe_match := 0
-						break
-					}
-					mod_check := StrReplace(A_LoopField, "-", "_")
-					mod_check := StrReplace(mod_check, A_Space, "_")
-					If InStr(arch_bases, A_LoopField)
-					{
-						If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number)
-							recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-						Else recipe_match := 0
-					}
-					Else
-					{
-						If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number1)
-							recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-						Else recipe_match := 0
-					}
+					recipe_match := 0
+					break
+				}
+				mod_check := StrReplace(A_LoopField, "-", "_")
+				mod_check := StrReplace(mod_check, A_Space, "_")
+				If InStr(arch_bases, A_LoopField)
+				{
+					If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number)
+						recipe_match *= InStr(archnemesis_inventory, A_LoopField)
+					Else recipe_match := 0
+				}
+				Else
+				{
+					If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number1)
+						recipe_match *= InStr(archnemesis_inventory, A_LoopField)
+					Else recipe_match := 0
 				}
 			}
-			Else recipe_match := 0
-			If (recipe_match != 0)
-			{
-				If !InStr(prio_list, A_LoopField)
-					unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : A_LoopField "," unwanted_recipes
-				Else unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
-			}
-		;}	
+		}
+		Else recipe_match := 0
+		If (recipe_match != 0)
+		{
+			If !InStr(prio_list, A_LoopField)
+				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : A_LoopField "," unwanted_recipes
+			Else unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
+		}
 	}
 	
 	If InStr(A_GuiControl, "/")
@@ -2036,7 +1999,7 @@ Loop, % background_xGrid.Length()
 			If (background_comparison != 1)
 			{
 				background_match := ""
-				Loop, Parse, all_nemesis_unsorted, `n,`n ;Loop, Files, img\Recognition\%poe_height%p\Archnemesis\*.png
+				Loop, Parse, all_nemesis_unsorted, `n,`n
 				{
 					file_check := "img\Recognition\" poe_height "p\Archnemesis\" A_LoopField "*.png"
 					Loop, Files, %file_check%
@@ -2217,7 +2180,6 @@ LLK_Recipes(x := 0, y := 0)
 		clipboard := "^(" search_term ")"
 		previous_highlight := search_term
 		SendInput, ^{f}^{v}{Enter}
-		;Return
 	}
 }
 
