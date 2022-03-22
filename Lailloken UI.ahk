@@ -33,13 +33,11 @@ IniRead, startup_timeout, ini\config.ini, Settings, startup_timeout
 If startup_timeout is not number
 	IniWrite, % startup_timeout := 60, ini\config.ini, Settings, startup_timeout
 timeout_time := startup_timeout * 1000 + A_TickCount
+timeout := 1
 While !WinExist("ahk_group poe_window")
 {
 	If (startup_timeout >= 0 && A_TickCount >= timeout_time)
-	{
-		timeout := 1
 		ExitApp
-	}
 	Sleep, 1000
 }
 timeout := ""
@@ -256,6 +254,7 @@ SoundBeep, 100
 GoSub, GUI
 GoSub, Favored_recipes
 SetTimer, MainLoop, 200
+timeout := ""
 Return
 
 Archnemesis:
