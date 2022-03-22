@@ -29,12 +29,16 @@ GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
-startup := A_TickCount
+; Seconds until LUI will exit if PoE is not detected. -1 to disable.
+IniRead, startup_timeout, ini\config.ini, Settings, startup-timeout
+If startup_timeout is not number
+	IniWrite, % startup_timeout := 60, ini\config.ini, Settings, startup-timeout
+timeout_time := startup_timeout * 1000 + A_TickCount
 While !WinExist("ahk_group poe_window")
 {
-	If (A_TickCount >= startup + 60000)
+	If (startup_timeout >= 0 && A_TickCount >= timeout_time)
 		ExitApp
-	sleep, 5000
+	Sleep, 1000
 }
 
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
@@ -200,7 +204,16 @@ If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 	ExitApp
 }
 
-SetTimer, Loop, 1000
+; Seconds until LUI will exit if PoE is closed and not restarted. -1 to disable.
+IniRead, restart_timeout, ini\config.ini, Settings, restart-timeout
+If restart_timeout is not number
+	IniWrite, % restart_timeout := 60, ini\config.ini, Settings, restart-timeout
+If (restart_timeout >= 0)
+{
+	SetTimer, DetectExit, 1000
+	SetTimer, RestartTimeout, 1000
+	SetTimer, RestartTimeout, off
+}
 
 If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != poe_width "x" poe_height) || (game_version = "ERROR") || (game_version < "31710")
 {
@@ -669,9 +682,24 @@ Return
 
 #Include Fallback.ahk
 
-Loop:
+DetectExit:
 If !WinExist("ahk_group poe_window")
-	ExitApp
+{ 
+	timeout_time := restart_timeout * 1000 + A_TickCount
+	SetTimer, DetectExit, off
+	SetTimer, RestartTimeout, on
+	Gosub, RestartTimeout		; For 0 second timeout
+}
+Return
+
+RestartTimeout:
+	If WinExist("ahk_group poe_window")
+	{
+		SetTimer, DetectExit, on
+		SetTimer, RestartTimeout, off
+	}
+	Else If (A_TickCount > timeout_time)
+		ExitApp
 Return
 
 MainLoop:
