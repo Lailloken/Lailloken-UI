@@ -31,18 +31,15 @@ GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 IniRead, startup_timeout, ini\config.ini, Settings, startup_timeout		; Startup timeout in seconds. 0 or negative to disable timeout
 If startup_timeout is not number
 	IniWrite, % startup_timeout := 60, ini\config.ini, Settings, startup_timeout
-If (startup_timeout > 0)
+timeout_time := startup_timeout * 1000 + A_TickCount
+While !WinExist("ahk_group poe_window")
 {
-	timeout_time := startup_timeout * 1000 + A_TickCount
-	While !WinExist("ahk_group poe_window")
+	If (startup_timeout > 0 && A_TickCount >= timeout_time)
 	{
-		If (A_TickCount >= timeout_time)
-		{
-			timeout := 1
-			ExitApp
-		}
-		Sleep, 5000
+		timeout := 1
+		ExitApp
 	}
+	Sleep, 5000
 }
 
 global xScreenOffset, yScreenOffset, poe_width, poe_height
