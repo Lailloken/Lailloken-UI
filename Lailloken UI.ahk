@@ -40,6 +40,7 @@ While !WinExist("ahk_group poe_window")
 		ExitApp
 	Sleep, 1000
 }
+timeout := ""
 
 global xScreenOffset, yScreenOffset, poe_width, poe_height
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
