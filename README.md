@@ -198,20 +198,12 @@ Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsis
    ![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
    (Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
 
-- workaround (v1.21.0+): Run the PoE client with a custom resolution in windowed fullscreen
-   1. set the PoE client up as usual (normal desktop resolution, windowed fullscreen, etc.)
-   2. go to the PoE settings -> UI -> confine mouse to window
+#### Custom resolutions (v1.21.0+) as a workaround: Run the PoE client with a custom resolution in windowed fullscreen
+  1. set the PoE client up as usual (normal desktop resolution, windowed fullscreen, etc.)
+  2. go to the PoE settings -> UI -> confine mouse to window
    
-   ![options](https://user-images.githubusercontent.com/61888437/155990051-aed94750-050b-452d-9b60-c7446e764a28.jpg)
+  ![options](https://user-images.githubusercontent.com/61888437/155990051-aed94750-050b-452d-9b60-c7446e764a28.jpg)
    
-   3. open ini\config.ini in a text editor and change "force-resolution" to 1 (or add this line UNDER SETTINGS if it doesn't exist yet); save the file
+  3. type /LLK or /llk into the in-game chat to open the script's settings menu and choose a custom resolution. Click apply to test it, but don't check 'apply on startup' just yet (you can after doing a thorough test-run).
    
-   ![notepad](https://user-images.githubusercontent.com/61888437/155990675-743e3eb5-5be3-4619-9654-9ac474df5fac.jpg)
-   
-   4. restart the script, a new window will open up in which to set the custom resolution; don't click "remember settings" just yet, do a test run first
-   
-   ![custom resolution](https://user-images.githubusercontent.com/61888437/155990785-ad0a9c25-3595-4ad1-a639-3f47b4207d6f.jpg)
-   
-   5. if everything works as expected, click "remember settings" the next time you start the script, and the script will automatically apply the custom resolution from now on
-      - to disable custom resolutions, set "force-resolution" back to 0
-      - to change to a different custom resolution, delete the "custom-height" line in the ini-file, save it, and restart the script
+  4. if everything works as expected, click 'apply on startup,' and the script will automatically apply the custom resolution from now on
