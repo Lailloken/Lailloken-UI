@@ -198,7 +198,7 @@ Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsis
    ![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
    (Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
 
-#### Custom resolutions (v1.21.0+) as a workaround: Run the PoE client with a custom resolution in windowed fullscreen
+#### Custom resolution as a workaround
   1. set the PoE client up as usual (normal desktop resolution, windowed fullscreen, etc.)
   2. go to the PoE settings -> UI -> confine mouse to window
    
