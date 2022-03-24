@@ -40,10 +40,10 @@ workBottom := NumGet(monitorInfo, 32, "Int")
 native_resolution := workBottom*1.05
 
 
-If FileExist("ini\config.ini") ;config conversion to v1.24.0 to make it more coherent and as preparation for additional features for mechanics other than archnemesis
+If FileExist("ini\config.ini") ;config conversion to v1.23.0 to make it more coherent and as preparation for additional features for mechanics other than archnemesis
 {
 	IniRead, version_check, ini\config.ini, General, ini-version
-	If (version_check = "ERROR") || (version_check < 12400) ;v1.24.1 = 12401, v1.24.10 = 12410
+	If (version_check = "ERROR") || (version_check < 12300) ;v1.23.1 = 12301, v1.23.10 = 12310
 	{
 		IniRead, fSize_offset, ini\config.ini, PixelSearch, font-offset, 0
 		IniRead, oversupply_setting, ini\config.ini, Settings, oversupply, 0
@@ -74,7 +74,7 @@ If FileExist("ini\config.ini") ;config conversion to v1.24.0 to make it more coh
 			Sleep, 100
 		
 		IniWrite, %fSize_offset%, ini\config.ini, General, font-offset
-		IniWrite, 12400, ini\config.ini, General, ini-version
+		IniWrite, 12300, ini\config.ini, General, ini-version
 		IniWrite, %game_version%, ini\config.ini, General, game-version
 		IniWrite, 1, ini\config.ini, General, kill script
 		IniWrite, 1, ini\config.ini, General, kill-timeout
@@ -167,7 +167,7 @@ If (custom_resolution_setting = 1)
 			IniWrite, %forced_resolution%, ini\config.ini, Settings, custom-height
 	}
 	*/
-	If (forced_resolution > native_resolution)
+	If (custom_resolution > native_resolution) ;check resolution in case of manual .ini edit
 	{
 		MsgBox, Incorrect config.ini settings detected: custom height > native resolution`nThe script will now exit.
 		IniWrite, 0, ini\config.ini, General, enable custom-resolution
@@ -1795,7 +1795,7 @@ If (hwnd_surplus_view != "")
 	WinGetPos,,,, heightsurplus, ahk_id %hwnd_surplus_view%
 	Gui, surplus_view: Show, % "NA x"xWindow1 " y"yScreenOffset+poe_height-heightsurplus
 }
-Gui, archnemesis_window: Show, % "NA x"xWindow " y"poe_height-height+yScreenOffset
+Gui, archnemesis_window: Show, % "Hide x"xWindow " y"poe_height-height+yScreenOffset
 hwnd_archnemesis_window := WinExist()
 Return
 
