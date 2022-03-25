@@ -198,12 +198,4 @@ Uncommon resolutions (768p, 1024p, and 1050p, and maybe more) have very inconsis
    ![PoE rendering](https://user-images.githubusercontent.com/61888437/155091150-bef763d7-078d-4663-89f9-edc044a7ebe3.png)
    (Two Gargantuans at 1050p, only two columns apart in the inventory. The areas around the noses and eyes are visibly different, which makes the scanner recognize it as two different icons)
 
-#### Custom resolution as a workaround
-  1. set the PoE client up as usual (normal desktop resolution, windowed fullscreen, etc.)
-  2. go to the PoE settings -> UI -> confine mouse to window
-   
-  ![options](https://user-images.githubusercontent.com/61888437/155990051-aed94750-050b-452d-9b60-c7446e764a28.jpg)
-   
-  3. type /LLK or /llk into the in-game chat to open the script's settings menu and choose a custom resolution. Click apply to test it, but don't check 'apply on startup' just yet (you can after doing a thorough test-run).
-   
-  4. if everything works as expected, click 'apply on startup,' and the script will automatically apply the custom resolution from now on
+Workaround: [custom resolution](https://github.com/Lailloken/Lailloken-UI/discussions/49)
