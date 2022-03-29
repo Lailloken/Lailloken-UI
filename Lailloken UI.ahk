@@ -39,6 +39,7 @@ DllCall("GetMonitorInfo", "Ptr", monitorHandle, "Ptr", &monitorInfo)
 workBottom := NumGet(monitorInfo, 32, "Int")
 native_resolution := workBottom*1.05
 
+SysGet, Caption_height, 4
 
 If FileExist("ini\config.ini") ;config conversion to v1.23.0, splitting it into individual mechanic-specific inis, to make the config system more coherent for future additions ;individual inis allow for more extensive customization without bloating/cluttering
 {
@@ -101,7 +102,6 @@ If FileExist("ini\config.ini") ;config conversion to v1.23.0, splitting it into 
 	}
 }
 
-IniWrite, 31710, ini\config.ini, Versions, game-version
 IniWrite, 12300, ini\config.ini, Versions, ini-version
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -142,36 +142,7 @@ If (custom_resolution_setting = 1)
 		Reload
 		ExitApp
 	}
-		/*
-		IniRead, resolutions_all, ini\resolutions.ini
-		Loop, Parse, resolutions_all, `n,`n
-		{
-			If (poe_height >= StrReplace(A_LoopField, "p", "")) && !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050"))
-				resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL 
-		}
-		Gui, resolutionGUI: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-		hwnd_resolutionGUI := WinExist()
-		Gui, resolutionGUI: Margin, 6, 10
-		Gui, resolutionGUI: Color, Black
-		WinSet, Transparent, 220
-		Gui, resolutionGUI: Font, s%fSize0% cWhite, Fontin SmallCaps
-		Gui, resolutionGUI: Add, Text, BackgroundTrans, set custom resolution
-		Gui, resolutionGUI: Font, s%fSize1%
-		Gui, resolutionGUI: Add, Checkbox, BackgroundTrans vcheck0, remember settings
-		Gui, resolutionGUI: Add, Text, BackgroundTrans Section HWNDmain_text, %poe_width% x
-		ControlGetPos,,, width,,, ahk_id %main_text%
-		Gui, resolutionGUI: Add, DDL, % "ys w"width*2 " vforced_resolution gResolution_choice", %resolutionsDDL%
-		Gui, resolutionGUI: Show, Center AutoSize
-		While WinExist("ahk_id " hwnd_resolutionGUI)
-		{
-			If !WinExist("ahk_group poe_window")
-				ExitApp
-			Sleep, 1000
-		}
-		If (check0 = 1)
-			IniWrite, %forced_resolution%, ini\config.ini, Settings, custom-height
-	}
-	*/
+
 	If (custom_resolution > native_resolution) ;check resolution in case of manual .ini edit
 	{
 		MsgBox, Incorrect config.ini settings detected: custom height > monitor resolution`nThe script will now exit.
@@ -184,6 +155,27 @@ If (custom_resolution_setting = 1)
 }
 
 trans := 220, arch_inventory := []
+
+IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
+IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
+IniRead, hide_panel_setting, ini\config.ini, UI, hide panel, 0
+
+IniRead, game_version, ini\config.ini, Versions, game-version
+IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
+fSize0 := fSize_config0 + fSize_offset
+fSize1 := fSize_config1 + fSize_offset
+
+IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset+poe_width//2
+notepad_xpos := (notepad_xpos = "") ? xScreenOffset+poe_width//2 : notepad_xpos
+IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset+poe_height//2
+notepad_ypos := (notepad_ypos = "") ? yScreenOffset+poe_height//2 : notepad_ypos
+IniRead, notepad_width, ini\notepad.ini, UI, width, 400
+IniRead, notepad_height, ini\notepad.ini, UI, height, 400
+IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
+If (notepad_text != "")
+	notepad_text := StrReplace(notepad_text, ",,", "`n")
+
+IniRead, enable_archnemesis, ini\config.ini, Features, enable archnemesis, 1
 
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 all_nemesis_unsorted := "-empty-`n" all_nemesis
@@ -222,27 +214,28 @@ IniRead, archnemesis1_color, ini\config_archnemesis.ini, PixelSearch, color1
 IniRead, archnemesis2_color, ini\config_archnemesis.ini, PixelSearch, color2
 IniRead, resolution, ini\config_archnemesis.ini, PixelSearch, resolution
 IniRead, fallback, ini\config_archnemesis.ini, PixelSearch, enable fallback
-If (fallback = "ERROR")
+If (fallback != 0) && (fallback != 1)
 {
 	IniWrite, 0, ini\config_archnemesis.ini, PixelSearch, enable fallback
 	fallback := 0
 }
 IniRead, pixelsearch_variation, ini\config_archnemesis.ini, PixelSearch, variation
-If (pixelsearch_variation = "ERROR")
+If pixelsearch_variation is not number
 {
 	IniWrite, 0, ini\config_archnemesis.ini, PixelSearch, variation
 	pixelsearch_variation := 0
 }
 
-IniRead, game_version, ini\config.ini, Versions, game-version
-IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
-fSize0 := fSize_config0 + fSize_offset
-fSize1 := fSize_config1 + fSize_offset
-
 IniRead, oversupply_setting, ini\config_archnemesis.ini, Settings, enable oversupply, 0
 IniRead, favorite_recipes, ini\config_archnemesis.ini, Lists, favorite recipes, %A_Space%
 IniRead, blacklist_recipes, ini\config_archnemesis.ini, Lists, blacklisted recipes, %A_Space%
 IniRead, pause_list, ini\config_archnemesis.ini, Lists, paused recipes, %A_Space%
+IniRead, archnemesis_scan_hotkey, ini\config_archnemesis.ini, Settings, scan-hotkey, %A_Space%
+If (archnemesis_scan_hotkey != "")
+{
+	Hotkey, If, (archnemesis = 1) && (enable_archnemesis = 1)
+	Hotkey, %archnemesis_scan_hotkey%, Scan, On
+}
 IniRead, burn_number1, ini\config_archnemesis.ini, Settings, oversupply-threshold, 9
 If (burn_number1 > 9)
 	burn_number1 := 9
@@ -274,31 +267,18 @@ Loop, Parse, invBox, `,,`,
 		invBox%A_Index% := A_LoopField + xScreenOffset
 	Else	invBox%A_Index% := A_LoopField + yScreenOffset
 }
+
 IniRead, xScan, ini\resolutions.ini, %poe_height%p, xScan
 IniRead, yScan, ini\resolutions.ini, %poe_height%p, yScan
 IniRead, dBitMap, ini\resolutions.ini, %poe_height%p, dBitMap
 yLetters += yScreenOffset
 xWindow += xScreenOffset
 
-IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
-IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
-IniRead, hide_panel_setting, ini\config.ini, UI, hide panel, 0
-
-IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, %A_Space%
-IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, %A_Space%
-IniRead, notepad_width, ini\notepad.ini, UI, width, %A_Space%
-IniRead, notepad_height, ini\notepad.ini, UI, height, %A_Space%
-IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
-If (notepad_text != "")
-	notepad_text := StrReplace(notepad_text, ",,", "`n")
-
 If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
 {
 	MsgBox, %poe_height%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
 	ExitApp
 }
-
-SetTimer, Loop, 1000
 
 If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != poe_width "x" poe_height) || (game_version = "ERROR") || (game_version < "31710")
 {
@@ -318,6 +298,9 @@ If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution !=
 	ToolTip,,,, 1
 	KeyWait, 7
 }
+
+SetTimer, Loop, 1000
+
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
@@ -335,6 +318,8 @@ Return
 SendInput, {Enter}
 GoSub, Settings_menu
 Return
+
+#If (archnemesis = 1) && (enable_archnemesis = 1)
 
 #If
 
@@ -567,10 +552,12 @@ If (timeout != 1)
 	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
+	IniWrite, %enable_archnemesis%, ini\config.ini, Features, enable archnemesis
 	IniWrite, %sorting%`,%sorting_order%, ini\config_archnemesis.ini, Settings, burn-mods sorting
 	IniWrite, %oversupply_setting%, ini\config_archnemesis.ini, Settings, enable oversupply
 	IniWrite, %burn_number%, ini\config_archnemesis.ini, Settings, base-threshold
 	IniWrite, %burn_number1%, ini\config_archnemesis.ini, Settings, oversupply-threshold
+	IniWrite, %archnemesis_scan_hotkey%, ini\config_archnemesis.ini, Settings, scan-hotkey
 	IniWrite, %favorite_recipes%, ini\config_archnemesis.ini, Lists, favorite recipes
 	IniWrite, %blacklist_recipes%, ini\config_archnemesis.ini, Lists, blacklisted recipes
 	IniWrite, %pause_list%, ini\config_archnemesis.ini, Lists, paused recipes
@@ -597,9 +584,14 @@ panel_xpos := (panel_position1 = "left") ? xScreenOffset : poe_width-panel_width
 panel_ypos := (panel_position0 = "bottom") ? poe_height-panel_height : yScreenOffset
 Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
 LLK_Overlay("LLK_panel", panel_style)
+guilist := (guilist = "") ? "LLK_panel|notepad" : guilist "|LLK_panel|notepad"
+If (enable_archnemesis = 1)
+	GoSub, GUI_archnemesis
+Return
 
-Gui, archnemesis_letters: -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_archnemesis_letters
-guilist := "archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view|notepad|LLK_panel"
+GUI_archnemesis:
+Gui, archnemesis_letters: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_archnemesis_letters
+guilist := (guilist = "") ? "archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view" : guilist "|archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view"
 Gui, archnemesis_letters: Margin, 0, 2
 Gui, archnemesis_letters: Color, Black
 WinSet, Transparent, %trans%
@@ -821,6 +813,7 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 	If (inactive_counter > 3)
 	{
 		LLK_Overlay("hide")
+		archnemesis := 0
 		WinWaitActive, ahk_group poe_window
 		LLK_Overlay("show")
 	}
@@ -828,39 +821,42 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 If WinActive("ahk_group poe_window")
 {
 	inactive_counter := 0
-	If (fallback = 0) || (fallback_override = 1)
-		LLK_PixelSearch("archnemesis")
-	If (archnemesis = 1)
+	If (enable_archnemesis = 1)
 	{
-		If !WinExist("ahk_id " hwnd_archnemesis_letters)
-			LLK_Overlay("archnemesis_letters", 1)
-		If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
-			LLK_Overlay("archnemesis_window", 1)
-		If !WinExist("ahk_id " hwnd_surplus_view) && (hwnd_surplus_view != "")
-			LLK_Overlay("surplus_view", 1)
-		If (background_scanned = "")
+		If (fallback = 0) || (fallback_override = 1)
+			LLK_PixelSearch("archnemesis")
+		If (archnemesis = 1)
 		{
-			MouseGetPos, outXmouse
-			If (outXmouse > invBox2)
+			If !WinExist("ahk_id " hwnd_archnemesis_letters)
+				LLK_Overlay("archnemesis_letters", 1)
+			If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
+				LLK_Overlay("archnemesis_window", 1)
+			If !WinExist("ahk_id " hwnd_surplus_view) && (hwnd_surplus_view != "")
+				LLK_Overlay("surplus_view", 1)
+			If (background_scanned = "")
 			{
-				background_scanned := 2
-				SetTimer, Scan_background, 10
+				MouseGetPos, outXmouse
+				If (outXmouse > invBox2)
+				{
+					background_scanned := 2
+					SetTimer, Scan_background, 10
+				}
 			}
 		}
-	}
-	If (archnemesis = 0) || (archnemesis = "")
-	{
-		If (background_scanned != "")
-			background_scanned := (background_scanned = 1) ? "" : 2
-		If WinExist("ahk_id " hwnd_archnemesis_letters)
-			LLK_Overlay("archnemesis_letters", 2)
-		If WinExist("ahk_id " hwnd_archnemesis_list)
-			LLK_Overlay("archnemesis_list", 2)
-		If WinExist("ahk_id " hwnd_archnemesis_window)
-			LLK_Overlay("archnemesis_window", 2)
-		If WinExist("ahk_id " hwnd_surplus_view)
-			LLK_Overlay("surplus_view", 2)
-		fallback_override := 0
+		If (archnemesis = 0) || (archnemesis = "")
+		{
+			If (background_scanned != "")
+				background_scanned := (background_scanned = 1) ? "" : 2
+			If WinExist("ahk_id " hwnd_archnemesis_letters)
+				LLK_Overlay("archnemesis_letters", 2)
+			If WinExist("ahk_id " hwnd_archnemesis_list)
+				LLK_Overlay("archnemesis_list", 2)
+			If WinExist("ahk_id " hwnd_archnemesis_window)
+				LLK_Overlay("archnemesis_window", 2)
+			If WinExist("ahk_id " hwnd_surplus_view)
+				LLK_Overlay("surplus_view", 2)
+			fallback_override := 0
+		}
 	}
 }
 Return
@@ -971,62 +967,67 @@ WinActivate, ahk_group poe_window
 Return
 
 Notepad:
-If (click = 2)
+If (click = 2) || (hwnd_notepad = "")
 {
-	If !WinExist("ahk_id " hwnd_notepad)
-		Return
-	Else Gui, notepad: Submit, NoHide
-	If (notepad_text != "")
+	If !WinExist("ahk_id " hwnd_notepad) && (click = 2)
 	{
-		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
-		If (notepad_edit != 1)
-			Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border -Caption HWNDhwnd_notepad
-		Else Gui, notepad: New, -DPIScale +Resize +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_notepad, Lailloken-UI: notepad
-		Gui, notepad: Margin, 12, 4
-		Gui, notepad: Color, Black
-		If (notepad_edit != 1)
-			WinSet, Transparent, 150
-		Else WinSet, Transparent, 220
-		Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
-		If (notepad_edit != 1)
-			Gui, notepad: Add, Text, BackgroundTrans, %notepad_text%
-		Else Gui, notepad: Add, Edit, cBlack x0 y0 w1000 h1000 vnotepad_text, %notepad_text%
-		Gui, notepad: Show, Hide x%notepad_xpos% y%notepad_ypos% w%notepad_width% h%notepad_height%
-		LLK_Overlay("notepad", 1)
-		notepad_edit := (notepad_edit != 1) ? 1 : 0
+		WinActivate, ahk_group poe_window
+		Return
 	}
+	If WinExist("ahk_id " hwnd_notepad)
+		Gui, notepad: Submit, NoHide
+	If (notepad_text != "") || (hwnd_notepad = "")
+	{
+		If (notepad_edit = 1) || (hwnd_notepad = "")
+		{
+			Gui, notepad: New, -DPIScale +Resize +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_notepad, Lailloken-UI: notepad
+			Gui, notepad: Margin, 12, 4
+			Gui, notepad: Color, Black
+			WinSet, Transparent, 220
+			Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
+			Gui, notepad: Add, Edit, cBlack x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
+			Gui, notepad: Show, x%notepad_xpos% y%notepad_ypos% w%notepad_width% h%notepad_height%
+			SendInput, {Right}
+			notepad_edit := 0
+		}
+		Else
+		{
+			WinGetPos, notepad_xpos, notepad_ypos,,, ahk_id %hwnd_notepad%
+			Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
+			Gui, notepad: Margin, 12, 4
+			Gui, notepad: Color, Black
+			WinSet, Transparent, 160
+			Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
+			Gui, notepad: Add, Text, BackgroundTrans, %notepad_text%
+			Gui, notepad: Show, NA x%notepad_xpos% y%notepad_ypos% AutoSize
+			notepad_edit := 1
+			WinActivate, ahk_group poe_window
+		}
+	}
+	If (notepad_text = "") && (click = 2)
+		SoundBeep
 	Return
 }
 
-If (hwnd_notepad = "")
+If WinExist("ahk_id " hwnd_notepad)
 {
-	Gui, notepad: New, -DPIScale +Resize +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_notepad, Lailloken-UI: notepad
-	Gui, notepad: Margin, 12, 0
-	Gui, notepad: Color, Black
-	WinSet, Transparent, 220
-	Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
-	Gui, notepad: Add, Edit, cBlack x0 y0 w1000 h1000 vnotepad_text, %notepad_text%
-	If (notepad_xpos = "") || (notepad_ypos = "") || (notepad_width = "") || (notepad_height = "")
-		Gui, notepad: Show, Hide Center w400 h400
-	Else Gui, notepad: Show, Hide x%notepad_xpos% y%notepad_ypos% w%notepad_width% h%notepad_height%
-	LLK_Overlay("notepad", 1)
-	notepad_edit := 0
-	Return
-}
-
-If !WinExist("ahk_id " hwnd_notepad)
-	LLK_Overlay("notepad", 1)
-Else
-{
-	WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
-	Gui, notepad: Submit
+	If (notepad_edit != 1)
+		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
+	Gui, notepad: Submit, NoHide
 	LLK_Overlay("notepad", 2)
+	WinActivate, ahk_group poe_window
 }
+Else LLK_Overlay("notepad", 1, 1)
 Return
 
 NotepadGuiClose:
-Gui, notepad: Submit
-LLK_Overlay("notepad", 2)
+If WinExist("ahk_id " hwnd_notepad)
+{
+	If (notepad_edit != 1)
+		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
+	Gui, notepad: Submit, NoHide
+	LLK_Overlay("notepad", 2)
+}
 Return
 
 Pause_list:
@@ -1471,7 +1472,44 @@ favor_choice := ""
 GoSub, Recipes
 Return
 
-Apply_settings:
+Apply_settings_archnemesis:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "enable_archnemesis")
+{
+	If (enable_archnemesis = 1)
+		GoSub, GUI_archnemesis
+	Else
+	{
+		Gui, archnemesis_letters: Destroy
+		hwnd_archnemesis_letters := ""
+		Gui, archnemesis_list: Destroy
+		hwnd_archnemesis_list := ""
+		Gui, archnemesis_window: Destroy
+		hwnd_archnemesis_window := ""
+		Gui, surplus_view: Destroy
+		hwnd_surplus_view := ""
+		Gui, base_loot: Destroy
+		hwnd_base_loot := ""
+		Gui, base_info: Destroy
+		hwnd_base_info := ""
+		Gui, map_suggestions: Destroy
+		hwnd_map_suggestions := ""
+	}
+}
+Else If (A_GuiControl = "archnemesis_scan_hotkey") && (archnemesis_scan_hotkey != "")
+{
+	If (archnemesis_scan_hotkey_old != archnemesis_scan_hotkey) && (archnemesis_scan_hotkey_old != "")
+		Hotkey, %archnemesis_scan_hotkey_old%,, Off
+	archnemesis_scan_hotkey_old := archnemesis_scan_hotkey
+	Hotkey, If, (archnemesis = 1) && (enable_archnemesis = 1)
+	Hotkey, %archnemesis_scan_hotkey%, Scan, On
+}
+GoSub, Settings_menu
+If (A_GuiControl "enable_archnemesis")
+	WinActivate, ahk_group poe_window
+Return
+
+Apply_settings_general:
 If InStr(A_GuiControl, "–")
 	fSize_offset -= 1
 If InStr(A_GuiControl, "+")
@@ -1479,9 +1517,9 @@ If InStr(A_GuiControl, "+")
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
 Gui, settings_menu: Submit, NoHide
-WinActivate, ahk_group poe_window
 SetTimer, Settings_menu, 10
 GoSub, GUI
+WinActivate, ahk_group poe_window
 Return
 
 Recipes:
@@ -1554,11 +1592,14 @@ If (prio_list != "")
 			}
 		}
 		Else recipe_match := 0
+		mod_check := StrReplace(A_LoopField, "-", "_")
+		mod_check := StrReplace(mod_check, A_Space, "_")
 		If (recipe_match != 0)
 		{
 			If !InStr(prio_list, A_LoopField)
 				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : A_LoopField "," unwanted_recipes
-			Else unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
+			Else If InStr(prio_list, A_LoopField) && (balance_%mod_check% >= 0)
+				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
 		}
 	}
 	
@@ -1746,6 +1787,8 @@ If (favorite_recipes != "") ;'available burn recipes' section of the ready panel
 	{
 		Loop, Parse, unwanted_recipes, `,,`,
 		{
+			mod_check := StrReplace(A_LoopField, "-", "_")
+			mod_check := StrReplace(mod_check, A_Space, "_")
 			If (A_LoopField = "")
 				break
 			If InStr(blacklist_recipes, A_LoopField) || InStr(favorite_recipes, A_LoopField)
@@ -1762,15 +1805,13 @@ If (favorite_recipes != "") ;'available burn recipes' section of the ready panel
 			color := (color0 > 0) ? "Yellow" : "White"
 			color := (color0 >= 100) ? "Aqua" : color
 			color := InStr(prio_list, A_LoopField) ? "Aqua" : color
-			mod_check := StrReplace(A_LoopField, "-", "_")
-			mod_check := StrReplace(mod_check, A_Space, "_")
 			If InStr(prio_list, A_LoopField) && !InStr(favorite_recipes, A_LoopField) && (balance_%mod_check% >= 0)
 			{
 				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans xs Section, % "+" balance_%mod_check%
 				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys gArchnemesis, % A_LoopField
 				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys, % "(" comp_no ")"
 			}
-			If !InStr(prio_list, A_LoopField)
+			Else
 			{
 				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans Section xs HWNDmain_text gArchnemesis, % A_LoopField
 				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys, (%comp_no%)
@@ -2031,6 +2072,15 @@ If forced_resolution is number
 Return
 
 Scan:
+If (A_ThisHotkey != "")
+{
+	MouseGetPos, mousex, mousey
+	If (mousex < invBox2)
+	{
+		SoundBeep
+		Return
+	}
+}
 If (xScan = "") || (xScan = "ERROR")
 {
 	MsgBox, Scanning the archnemesis inventory at this resolution is not yet supported.
@@ -2252,6 +2302,8 @@ settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_
 archnemesis_style := InStr(A_GuiControl, "archnemesis") ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
 GuiControl_copy := A_GuiControl
+If !InStr(guilist, "settings_menu")
+	guilist := (guilist = "") ? "settings_menu" : guilist "|settings_menu"
 If (A_Gui = "settings_menu")
 	Gui, settings_menu: Submit
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu, Lailloken UI: settings
@@ -2265,73 +2317,92 @@ Gui, settings_menu: Add, Text, ys BackgroundTrans %flask_style% gSettings_menu H
 Gui, settings_menu: Font, % "s"fSize0-2 "norm"
 
 If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
-{
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script y+"fSize0, % "kill script after"
-	ControlGetPos,,,, controlheight,, ahk_id %main_text%
-	Gui, settings_menu: Font, % "s"fSize0-5 "norm"
-	Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number vkill_timeout w"controlheight*1.4, %kill_timeout%
-	Gui, settings_menu: Font, % "s"fSize0-2
-	Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans, % "minute(s) w/o poe-client"
-	Gui, settings_menu: Add, Link, xs y+15 hp Section HWNDlink_text, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
-	Gui, settings_menu: Add, Text, ys Section x+6 BackgroundTrans HWNDmain_text, % poe_width " x "
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	ControlGetPos,,, width,,, ahk_id %link_text%
-	resolutionsDDL := ""
-	IniRead, resolutions_all, ini\resolutions.ini
-	choice := 0
-	Loop, Parse, resolutions_all, `n,`n
-		If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > native_resolution)
-			resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
-	Loop, Parse, resolutionsDDL, |, |
-		If (A_LoopField = poe_height)
-			choice := A_Index
-	Gui, settings_menu: Font, % "s"fSize0-5
-	Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 wp Choose" choice, % resolutionsDDL
-	Gui, settings_menu: Font, % "s"fSize0-2
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border gApply_resolution", % " apply && restart "
-	Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
-	Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans Center HWNDmain_text, % "panel position:"
-	ControlGetPos,,, width,,, ahk_id %main_text%
-	Gui, settings_menu: Font, % "s"fSize0-5
-	If (panel_position0 = "top")
-		Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings r2 w"width*0.6, % "top||bottom"
-	Else Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings r2 w"width*0.6, % "top|bottom||"
-	If (panel_position1 = "left") || (panel_position1 = "")
-		Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings r2 w"width*0.6, % "left||right"
-	Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings r2 w"width*0.6, % "left|right||"
-		Gui, settings_menu: Font, % "s"fSize0-2
-	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel_setting " vhide_panel_setting gApply_settings", % "hide panel"
-	Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans, % "interface size:"
-	Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings Border Center, % " – "
-	Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings Border Center, % "+"
-	
-}
-
-If InStr(GuiControl_copy, "archnemesis")
-{
-	Gui, settings_menu: Add, Text, xs BackgroundTrans, coming soon
-}
-
-If InStr(GuiControl_copy, "flask")
-{
-	Gui, settings_menu: Add, Picture, xs BackgroundTrans, img\GUI\arrow_up.png
-}
+	GoSub, Settings_menu_general
+Else If InStr(GuiControl_copy, "archnemesis")
+	GoSub, Settings_menu_archnemesis
+Else If InStr(GuiControl_copy, "flask")
+	GoSub, Settings_menu_flask
 
 ControlFocus,, ahk_id %hwnd_settings_general%
 If (xsettings_menu != "") && (ysettings_menu != "")
-	Gui, settings_menu: Show, x%xsettings_menu% y%ysettings_menu%
+	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
 Else
 {
 	Gui, settings_menu: Show, Hide
 	WinGetPos,,, wsettings_menu
-	Gui, settings_menu: Show, % "x"xScreenOffset+poe_width//2-wsettings_menu//2 "y"yScreenOffset
+	Gui, settings_menu: Show, % "Hide x"xScreenOffset+poe_width//2-wsettings_menu//2 " y"yScreenOffset
 }
+LLK_Overlay("settings_menu", 1, 1)
+Return
+
+Settings_menu_general:
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script y+"fSize0, % "kill script after"
+ControlGetPos,,,, controlheight,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0-5 "norm"
+Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number vkill_timeout w"controlheight*1.4, %kill_timeout%
+Gui, settings_menu: Font, % "s"fSize0-2
+Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans, % "minute(s) w/o poe-client"
+Gui, settings_menu: Add, Link, xs y+15 hp Section HWNDlink_text, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
+Gui, settings_menu: Add, Text, ys Section x+6 BackgroundTrans HWNDmain_text, % poe_width " x "
+ControlGetPos,,,, height,, ahk_id %main_text%
+ControlGetPos,,, width,,, ahk_id %link_text%
+resolutionsDDL := ""
+IniRead, resolutions_all, ini\resolutions.ini
+choice := 0
+Loop, Parse, resolutions_all, `n,`n
+	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > native_resolution)
+		resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
+Loop, Parse, resolutionsDDL, |, |
+	If (A_LoopField = poe_height)
+		choice := A_Index
+Gui, settings_menu: Font, % "s"fSize0-5
+Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 wp Choose" choice, % resolutionsDDL
+Gui, settings_menu: Font, % "s"fSize0-2
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border gApply_resolution", % " apply && restart "
+Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
+Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans Center HWNDmain_text, % "panel position:"
+ControlGetPos,,, width,,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0-5
+If (panel_position0 = "top")
+	Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top||bottom"
+Else Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top|bottom||"
+If (panel_position1 = "left") || (panel_position1 = "")
+	Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left||right"
+Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
+	Gui, settings_menu: Font, % "s"fSize0-2
+Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel_setting " vhide_panel_setting gApply_settings_general", % "hide panel"
+Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans, % "interface size:"
+Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general Border Center, % " – "
+Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general Border Center, % "+"
+Return
+
+Settings_menu_archnemesis:
+If (GuiControl_copy = "reset_archnemesis_scan_hotkey") && (archnemesis_scan_hotkey != "")
+{
+	Hotkey, %archnemesis_scan_hotkey%,, Off
+	archnemesis_scan_hotkey := ""
+}
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_archnemesis gApply_settings_archnemesis y+"fSize0 " checked"enable_archnemesis, enable archnemesis helper
+If (enable_archnemesis = 1)
+{
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text", scan-hotkey:
+	ControlGetPos,,, width,,, ahk_id %main_text%
+	Gui, settings_menu: Font, % "s"fSize0-5
+	Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans varchnemesis_scan_hotkey gApply_settings_archnemesis w"width//2, %archnemesis_scan_hotkey%
+	Gui, settings_menu: Font, % "s"fSize0-2
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_archnemesis_scan_hotkey gSettings_menu", % " reset "
+}
+Return
+
+Settings_menu_flask:
+	Gui, settings_menu: Add, Picture, xs BackgroundTrans, img\GUI\arrow_up.png
 Return
 
 Settings_menuGuiClose:
 WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 Gui, settings_menu: Submit
 Gui, settings_menu: Destroy
+hwnd_settings_menu := ""
 Return
 
 LLK_Rightclick()
@@ -2475,7 +2546,7 @@ LLK_Recipes(x := 0, y := 0)
 	}
 }
 
-LLK_Overlay(x, y:=0)
+LLK_Overlay(x, y:=0, z:=0)
 {
 	global
 	If (x="hide")
@@ -2508,7 +2579,9 @@ LLK_Overlay(x, y:=0)
 	}
 	If (y=1)
 	{
-		Gui, %x%: Show, NA
+		If (z = 0)
+			Gui, %x%: Show, NA
+		Else Gui, %x%: Show
 		state_%x% := 1
 	}
 	If (y=2)
