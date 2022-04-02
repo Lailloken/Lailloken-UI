@@ -19,7 +19,6 @@ Menu, Tray, Tip, Lailloken UI
 font1 := New CustomFont("Fontin-SmallCaps.ttf")
 timeout := 1
 
-
 If !pToken := Gdip_Startup()
 {
 	MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
@@ -106,15 +105,12 @@ IniWrite, 12300, ini\config.ini, Versions, ini-version
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
 
-If (kill_script = 1)
+startup := A_TickCount
+While !WinExist("ahk_group poe_window")
 {
-	startup := A_TickCount
-	While !WinExist("ahk_group poe_window")
-	{
-		If (A_TickCount >= startup + kill_timeout*60000)
-			ExitApp
-		sleep, 5000
-	}
+	If (A_TickCount >= startup + kill_timeout*60000) && (kill_script = 1)
+		ExitApp
+	sleep, 5000
 }
 
 last_check := A_TickCount
@@ -174,8 +170,35 @@ IniRead, notepad_height, ini\notepad.ini, UI, height, 400
 IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
 If (notepad_text != "")
 	notepad_text := StrReplace(notepad_text, ",,", "`n")
+IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset
+If fSize_offset_notepad is not number
+	fSize_offset_notepad := 0
+IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
+notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
+IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
+If notepad_trans is not number
+	notepad_trans := 160
+
+IniRead, alarm_xpos, ini\alarm.ini, UI, xcoord, % xScreenOffset+poe_width//2
+alarm_xpos := (alarm_xpos = "") ? xScreenOffset+poe_width//2 : alarm_xpos
+IniRead, alarm_ypos, ini\alarm.ini, UI, ycoord, % yScreenOffset+poe_height//2
+alarm_ypos := (alarm_ypos = "") ? yScreenOffset+poe_height//2 : alarm_ypos
+IniRead, fSize_offset_alarm, ini\alarm.ini, Settings, font-offset
+If fSize_offset_alarm is not number
+	fSize_offset_alarm := 0
+IniRead, alarm_fontcolor, ini\alarm.ini, Settings, font-color, %A_Space%
+alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
+IniRead, alarm_trans, ini\alarm.ini, Settings, transparency
+If alarm_trans is not number
+	alarm_trans := 160
+IniRead, alarm_timestamp, ini\alarm.ini, Settings, alarm-timestamp, %A_Space%
+alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
+If (alarm_timestamp != "")
+	continue_alarm := 1
 
 IniRead, enable_archnemesis, ini\config.ini, Features, enable archnemesis, 1
+IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 1
+IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 1
 
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 all_nemesis_unsorted := "-empty-`n" all_nemesis
@@ -301,6 +324,8 @@ If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution !=
 
 SetTimer, Loop, 1000
 
+guilist := "LLK_panel|notepad|notepad_sample|archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view|settings_menu|alarm|alarm_sample"
+
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
@@ -322,6 +347,111 @@ Return
 #If (archnemesis = 1) && (enable_archnemesis = 1)
 
 #If
+
+Alarm:
+alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
+fSize_alarm := fSize0 + fSize_offset_alarm
+If (alarm_timestamp != "") && (alarm_timestamp < A_Now)
+{
+	Gui, alarm: Destroy
+	hwnd_alarm := ""
+	alarm_timestamp := ""
+	WinActivate, ahk_group poe_window
+	Return
+}
+If (A_Gui = "settings_menu")
+{
+	LLK_Overlay("alarm", 2)
+	Gui, alarm_sample: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_alarm_sample, Preview: timer
+	Gui, alarm_sample: Margin, 12, 4
+	Gui, alarm_sample: Color, Black
+	WinSet, Transparent, %alarm_trans%
+	Gui, alarm_sample: Font, c%alarm_fontcolor% s%fSize_alarm%, Fontin SmallCaps
+	Gui, alarm_sample: Add, Text, BackgroundTrans, % "  00:00  "
+	If (alarm_sample_xpos != "") && (alarm_sample_ypos != "")
+		Gui, alarm_sample: Show, NA x%alarm_sample_xpos% y%alarm_sample_ypos% AutoSize
+	Else Gui, alarm_sample: Show, NA Center AutoSize
+	Return
+}
+
+If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
+{
+	If (continue_alarm != 1)
+	{
+		Gui, alarm: Submit, NoHide
+		alarm_minutes := (alarm_minutes > 60) ? 60 : alarm_minutes
+		alarm_minutes *= 60
+		WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
+		alarm_timestamp := A_Now
+		EnvAdd, alarm_timestamp, %alarm_minutes%, S
+	}
+	Gui, alarm: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_alarm,
+	Gui, alarm: Color, Black
+	Gui, alarm: Margin, 12, 4
+	WinSet, Transparent, %alarm_trans%
+	Gui, alarm: Font, s%fSize_alarm% c%alarm_fontcolor%, Fontin SmallCaps
+	Gui, alarm: Add, Text, xp BackgroundTrans Center valarm_countdown, XX:XX
+	GuiControl, Text, alarm_countdown,
+	Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos% AutoSize
+	LLK_Overlay("alarm", 1)
+	WinActivate, ahk_group poe_window
+	continue_alarm := 0
+	Return
+}
+
+If (click = 2) || (hwnd_alarm = "")
+{
+	If !WinExist("ahk_id " hwnd_alarm) && (click = 2)
+	{
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	If WinExist("ahk_id " hwnd_alarm) || (hwnd_alarm = "")
+	{
+		alarm_timestamp := ""
+		If (hwnd_alarm != "")
+		{
+			Gui, alarm: Destroy
+			hwnd_alarm := ""
+			Return
+		}
+		Gui, alarm: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_alarm, Lailloken UI: alarm-timer
+		Gui, alarm: Color, Black
+		Gui, alarm: Margin, 12, 4
+		WinSet, Transparent, %trans%
+		Gui, alarm: Font, s%fSize1% cWhite, Fontin SmallCaps
+		Gui, alarm: Add, Text, Section BackgroundTrans Center, set timer to
+		Gui, alarm: Font, % "s"fSize0-5
+		Gui, alarm: Add, Edit, % "ys hp x+6 cBlack BackgroundTrans Center valarm_minutes Limit2 Number w"fSize0*1.8, 0
+		Gui, alarm: Font, s%fSize1%
+		Gui, alarm: Add, Text, ys x+6 BackgroundTrans Center, minute(s)
+		Gui, alarm: Add, Button, xp hp BackgroundTrans Hidden Default valarm_start gAlarm, OK
+		If (alarm_xpos = "") || (alarm_ypos = "")
+			Gui, alarm: Show, Hide Center
+		Else Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos%
+		LLK_Overlay("alarm", 1, 1)
+		WinGetPos,,,, alarm_height, ahk_id %hwnd_alarm%
+		Return
+	}
+}
+
+If !WinExist("ahk_id " hwnd_alarm)
+	LLK_Overlay("alarm", 1, 1)
+Else
+{
+	WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
+	LLK_Overlay("alarm", 2)
+}
+Return
+
+AlarmGuiClose:
+If !WinExist("ahk_group poe_window") || (alarm_timestamp < A_Now)
+{
+	alarm_timestamp := ""
+	hwnd_alarm := ""
+}
+LLK_Overlay("alarm", 2)
+Return
 
 Apply_resolution:
 Gui, settings_menu: Submit, NoHide
@@ -540,12 +670,24 @@ Exit:
 Gdip_Shutdown(pToken)
 If (timeout != 1)
 {
+	IniWrite, %alarm_xpos%, ini\alarm.ini, UI, xcoord
+	IniWrite, %alarm_ypos%, ini\alarm.ini, UI, ycoord
+	alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
+	IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+	IniWrite, %alarm_fontcolor%, ini\alarm.ini, Settings, font-color
+	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
+	
 	IniWrite, %notepad_xpos%, ini\notepad.ini, UI, xcoord
 	IniWrite, %notepad_ypos%, ini\notepad.ini, UI, ycoord
 	IniWrite, %notepad_width%, ini\notepad.ini, UI, width
 	IniWrite, %notepad_height%, ini\notepad.ini, UI, height
 	notepad_text := StrReplace(notepad_text, "`n", ",,")
 	IniWrite, %notepad_text%, ini\notepad.ini, Text, text
+	IniWrite, %fSize_offset_notepad%, ini\notepad.ini, Settings, font-offset
+	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
+	IniWrite, %notepad_trans%, ini\notepad.ini, Settings, transparency
+	
 	IniWrite, %panel_position0%, ini\config.ini, UI, panel-position0
 	IniWrite, %panel_position1%, ini\config.ini, UI, panel-position1
 	IniWrite, %hide_panel_setting%, ini\config.ini, UI, hide panel
@@ -553,6 +695,9 @@ If (timeout != 1)
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
 	IniWrite, %enable_archnemesis%, ini\config.ini, Features, enable archnemesis
+	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
+	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
+	
 	IniWrite, %sorting%`,%sorting_order%, ini\config_archnemesis.ini, Settings, burn-mods sorting
 	IniWrite, %oversupply_setting%, ini\config_archnemesis.ini, Settings, enable oversupply
 	IniWrite, %burn_number%, ini\config_archnemesis.ini, Settings, base-threshold
@@ -574,24 +719,27 @@ Gui, LLK_panel: Margin, 2, 2
 Gui, LLK_panel: Color, Black
 WinSet, Transparent, %trans%
 Gui, LLK_panel: Font, % "s"fSize0 " cWhite underline", Fontin SmallCaps
-Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "llk-ui:"
+Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "llk ui:"
 ControlGetPos,, ypos,, height,, ahk_id %main_text%
-Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gNotepad", img\GUI\notepad.jpg
+If (enable_notepad = 1)
+	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gNotepad", img\GUI\notepad.jpg
+If (enable_alarm = 1)
+	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gAlarm", img\GUI\alarm.jpg
 Gui, LLK_panel: Show, Hide
 WinGetPos,,, panel_width, panel_height
 panel_style := (hide_panel_setting = 1) ? 2 : 1
-panel_xpos := (panel_position1 = "left") ? xScreenOffset : poe_width-panel_width
-panel_ypos := (panel_position0 = "bottom") ? poe_height-panel_height : yScreenOffset
+panel_xpos := (panel_position1 = "left") ? xScreenOffset : xScreenOffset + poe_width - panel_width
+panel_ypos := (panel_position0 = "bottom") ? yScreenOffset + poe_height - panel_height : yScreenOffset
 Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
 LLK_Overlay("LLK_panel", panel_style)
-guilist := (guilist = "") ? "LLK_panel|notepad" : guilist "|LLK_panel|notepad"
 If (enable_archnemesis = 1)
 	GoSub, GUI_archnemesis
+If (continue_alarm = 1)
+	GoSub, Alarm
 Return
 
 GUI_archnemesis:
 Gui, archnemesis_letters: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_archnemesis_letters
-guilist := (guilist = "") ? "archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view" : guilist "|archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view"
 Gui, archnemesis_letters: Margin, 0, 2
 Gui, archnemesis_letters: Color, Black
 WinSet, Transparent, %trans%
@@ -800,10 +948,39 @@ WinActivate, ahk_group poe_window
 Return
 
 Loop:
-If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script=1)
+If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
 	ExitApp
 If WinExist("ahk_group poe_window")
 	last_check := A_TickCount
+
+If (enable_alarm != 0) && (alarm_timestamp != "")
+{
+	alarm_timestamp0 := alarm_timestamp
+	EnvSub, alarm_timestamp0, %A_Now%, S
+	If (alarm_timestamp0 > 0)
+	{
+		countdown_min := (StrLen(Floor(alarm_timestamp0//60)) = 1) ? 0 Floor(alarm_timestamp0//60) : Floor(alarm_timestamp0//60)
+		countdown_sec := (StrLen(Mod(alarm_timestamp0, 60)) = 1) ? 0 Mod(alarm_timestamp0, 60) : Mod(alarm_timestamp0, 60)
+		GuiControl, alarm: Text, alarm_countdown, % countdown_min ":" countdown_sec
+	}
+	Else
+	{
+		alarm_fontcolor0 := (alarm_fontcolor0 = "Blue") ? alarm_fontcolor : "Blue"
+		Gui, alarm: Font, c%alarm_fontcolor0%
+		GuiControl, alarm: Font, alarm_countdown
+		countdown_min := (StrLen(Floor(alarm_timestamp0//-60)) = 1) ? 0 Floor(alarm_timestamp0//-60) : Floor(alarm_timestamp0//-60)
+		countdown_sec := (StrLen(Mod(alarm_timestamp0, -60)) < 3) ? 0 Mod(alarm_timestamp0, -60) * -1 : Mod(alarm_timestamp0, -60) * -1
+		GuiControl, alarm: Text, alarm_countdown, % countdown_min ":" countdown_sec
+		If !WinActive("ahk_group poe_window")
+		{
+			WinSet, Style, +0xC00000, ahk_id %hwnd_alarm%
+			WinSet, ExStyle, -0x20, ahk_id %hwnd_alarm%
+			Gui, alarm: Show, % "NA h"alarm_height//2
+		}
+		If !WinExist("ahk_id " hwnd_alarm) && WinExist("ahk_group poe_window")
+			LLK_Overlay("alarm", 1)
+	}
+}
 Return
 
 MainLoop:
@@ -967,6 +1144,24 @@ WinActivate, ahk_group poe_window
 Return
 
 Notepad:
+notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
+fSize_notepad := fSize0 + fSize_offset_notepad
+If (A_Gui = "settings_menu")
+{
+	Gui, notepad: Submit, NoHide
+	Gui, notepad: Destroy
+	hwnd_notepad := ""
+	Gui, notepad_sample: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_notepad_sample, Lailloken UI: overlay-text preview
+	Gui, notepad_sample: Margin, 12, 4
+	Gui, notepad_sample: Color, Black
+	WinSet, Transparent, %notepad_trans%
+	Gui, notepad_sample: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
+	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what the`nnotepad-overlay looks`nlike with the current`nsettings
+	If (notepad_sample_xpos != "") && (notepad_sample_ypos != "")
+		Gui, notepad_sample: Show, NA x%notepad_sample_xpos% y%notepad_sample_ypos% AutoSize
+	Else Gui, notepad_sample: Show, NA Center AutoSize
+	Return
+}
 If (click = 2) || (hwnd_notepad = "")
 {
 	If !WinExist("ahk_id " hwnd_notepad) && (click = 2)
@@ -984,8 +1179,8 @@ If (click = 2) || (hwnd_notepad = "")
 			Gui, notepad: Margin, 12, 4
 			Gui, notepad: Color, Black
 			WinSet, Transparent, 220
-			Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
-			Gui, notepad: Add, Edit, cBlack x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
+			Gui, notepad: Font, cBlack s%fSize_notepad%, Fontin SmallCaps
+			Gui, notepad: Add, Edit, x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
 			Gui, notepad: Show, x%notepad_xpos% y%notepad_ypos% w%notepad_width% h%notepad_height%
 			SendInput, {Right}
 			notepad_edit := 0
@@ -996,16 +1191,14 @@ If (click = 2) || (hwnd_notepad = "")
 			Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
 			Gui, notepad: Margin, 12, 4
 			Gui, notepad: Color, Black
-			WinSet, Transparent, 160
-			Gui, notepad: Font, cWhite s%fSize0%, Fontin SmallCaps
+			WinSet, Transparent, %notepad_trans%
+			Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
 			Gui, notepad: Add, Text, BackgroundTrans, %notepad_text%
 			Gui, notepad: Show, NA x%notepad_xpos% y%notepad_ypos% AutoSize
 			notepad_edit := 1
 			WinActivate, ahk_group poe_window
 		}
 	}
-	If (notepad_text = "") && (click = 2)
-		SoundBeep
 	Return
 }
 
@@ -1014,7 +1207,12 @@ If WinExist("ahk_id " hwnd_notepad)
 	If (notepad_edit != 1)
 		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
 	Gui, notepad: Submit, NoHide
-	LLK_Overlay("notepad", 2)
+	If notepad_edit = 0
+	{
+		Gui, notepad: Destroy
+		hwnd_notepad := ""
+	}
+	Else LLK_Overlay("notepad", 2)
 	WinActivate, ahk_group poe_window
 }
 Else LLK_Overlay("notepad", 1, 1)
@@ -1472,6 +1670,39 @@ favor_choice := ""
 GoSub, Recipes
 Return
 
+Apply_settings_alarm:
+If (A_GuiControl = "enable_alarm")
+{
+	Gui, settings_menu: Submit, NoHide
+	If WinExist("ahk_id " hwnd_alarm_sample) && (enable_alarm = 0)
+	{
+		Gui, alarm_sample: Destroy
+		hwnd_alarm_sample := ""
+	}
+	If WinExist("ahk_id " hwnd_alarm) && (enable_alarm = 0)
+	{
+		Gui, alarm: Destroy
+		hwnd_alarm := ""
+	}
+	GoSub, GUI
+	GoSub, Settings_menu
+	Return
+}
+If (A_GuiControl = "fSize_alarm_minus")
+	fSize_offset_alarm -= 1
+If (A_GuiControl = "fSize_alarm_plus")
+	fSize_offset_alarm += 1
+If (A_GuiControl = "fSize_alarm_reset")
+	fSize_offset_alarm := 0
+If (A_GuiControl = "alarm_opac_minus")
+	alarm_trans -= (alarm_trans > 100) ? 30 : 0
+If (A_GuiControl = "alarm_opac_plus")
+	alarm_trans += (alarm_trans < 250) ? 30 : 0
+WinGetPos, alarm_sample_xpos, alarm_sample_ypos,,, ahk_id %hwnd_alarm_sample%
+alarm_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : alarm_fontcolor
+GoSub, Alarm
+Return
+
 Apply_settings_archnemesis:
 Gui, settings_menu: Submit, NoHide
 If (A_GuiControl = "enable_archnemesis")
@@ -1510,16 +1741,52 @@ If (A_GuiControl "enable_archnemesis")
 Return
 
 Apply_settings_general:
-If InStr(A_GuiControl, "–")
+If (A_GuiControl = "interface_size_minus")
 	fSize_offset -= 1
-If InStr(A_GuiControl, "+")
+If (A_GuiControl = "interface_size_plus")
 	fSize_offset += 1
+If (A_GuiControl = "interface_size_reset")
+	fSize_offset := 0
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
 Gui, settings_menu: Submit, NoHide
 SetTimer, Settings_menu, 10
 GoSub, GUI
 WinActivate, ahk_group poe_window
+Return
+
+Apply_settings_notepad:
+If (A_GuiControl = "enable_notepad")
+{
+	Gui, settings_menu: Submit, NoHide
+	If WinExist("ahk_id " hwnd_notepad_sample) && (enable_notepad = 0)
+	{
+		Gui, notepad_sample: Destroy
+		hwnd_notepad_sample := ""
+	}
+	If WinExist("ahk_id " hwnd_notepad) && (enable_notepad = 0)
+	{
+		Gui, Notepad: Submit, NoHide
+		Gui, notepad: Destroy
+		hwnd_notepad := ""
+	}
+	GoSub, GUI
+	GoSub, Settings_menu
+	Return
+}
+If (A_GuiControl = "fSize_notepad_minus")
+	fSize_offset_notepad -= 1
+If (A_GuiControl = "fSize_notepad_plus")
+	fSize_offset_notepad += 1
+If (A_GuiControl = "fSize_notepad_reset")
+	fSize_offset_notepad := 0
+If (A_GuiControl = "notepad_opac_minus")
+	notepad_trans -= (notepad_trans > 100) ? 30 : 0
+If (A_GuiControl = "notepad_opac_plus")
+	notepad_trans += (notepad_trans < 250) ? 30 : 0
+WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
+notepad_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : notepad_fontcolor
+GoSub, Notepad
 Return
 
 Recipes:
@@ -2065,12 +2332,6 @@ If InStr(archnemesis_inventory, SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2
 Else WinActivate, ahk_group poe_window
 Return
 
-Resolution_choice:
-Gui, resolutionGUI: Submit, NoHide
-If forced_resolution is number
-	Gui, resolutionGUI: Destroy
-Return
-
 Scan:
 If (A_ThisHotkey != "")
 {
@@ -2298,12 +2559,18 @@ Settings_menu:
 SetTimer, Settings_menu, Delete
 If WinExist("ahk_id " hwnd_settings_menu)
 	WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
+If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
+{
+	GoSub, Settings_menuGuiClose
+	WinActivate, ahk_group poe_window
+	Return
+}
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "border" : ""
+alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
 archnemesis_style := InStr(A_GuiControl, "archnemesis") ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
+notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
 GuiControl_copy := A_GuiControl
-If !InStr(guilist, "settings_menu")
-	guilist := (guilist = "") ? "settings_menu" : guilist "|settings_menu"
 If (A_Gui = "settings_menu")
 	Gui, settings_menu: Submit
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu, Lailloken UI: settings
@@ -2311,18 +2578,47 @@ Gui, settings_menu: Color, Black
 Gui, settings_menu: Margin, 12, 4
 WinSet, Transparent, %trans%
 Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
+
 Gui, settings_menu: Add, Text, Section BackgroundTrans %settings_style% gSettings_menu HWNDhwnd_settings_general, % "general"
-Gui, settings_menu: Add, Text, ys BackgroundTrans %archnemesis_style% gSettings_menu HWNDhwnd_settings_archnemesis, % "archnemesis"
-Gui, settings_menu: Add, Text, ys BackgroundTrans %flask_style% gSettings_menu HWNDhwnd_settings_flask, % "flask-macro"
-Gui, settings_menu: Font, % "s"fSize0-2 "norm"
+ControlGetPos,,, width_settings0,,, ahk_id %hwnd_settings_general%
+spacing_settings := width_settings0
+
+Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
+ControlGetPos,,, width_settings1,,, ahk_id %hwnd_settings_alarm%
+spacing_settings := (width_settings1 > spacing_settings) ? width_settings1 : spacing_settings
+
+Gui, settings_menu: Add, Text, xs BackgroundTrans %archnemesis_style% gSettings_menu HWNDhwnd_settings_archnemesis, % "archnemesis"
+ControlGetPos,,, width_settings2,,, ahk_id %hwnd_settings_archnemesis%
+spacing_settings := (width_settings2 > spacing_settings) ? width_settings2 : spacing_settings
+
+Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu HWNDhwnd_settings_notepad, % "notepad"
+ControlGetPos,,, width_settings3,,, ahk_id %hwnd_settings_notepad%
+spacing_settings := (width_settings3 > spacing_settings) ? width_settings3 : spacing_settings
+
+Gui, settings_menu: Font, % "s"fSize1 "norm"
+
+If !InStr(GuiControl_copy, "notepad") && WinExist("ahk_id " hwnd_notepad_sample)
+{
+	Gui, notepad_sample: Destroy
+	hwnd_notepad_sample := ""
+}
+
+If !InStr(GuiControl_copy, "alarm") && WinExist("ahk_id " hwnd_alarm_sample)
+{
+	Gui, alarm_sample: Destroy
+	hwnd_alarm_sample := ""
+}
 
 If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
+Else If InStr(GuiControl_copy, "alarm")
+	GoSub, Settings_menu_alarm
 Else If InStr(GuiControl_copy, "archnemesis")
 	GoSub, Settings_menu_archnemesis
-Else If InStr(GuiControl_copy, "flask")
-	GoSub, Settings_menu_flask
+Else If InStr(GuiControl_copy, "notepad")
+	GoSub, Settings_menu_notepad
 
+Gui, settings_menu: Add, Text, xs BackgroundTrans, % " "
 ControlFocus,, ahk_id %hwnd_settings_general%
 If (xsettings_menu != "") && (ysettings_menu != "")
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
@@ -2332,18 +2628,52 @@ Else
 	WinGetPos,,, wsettings_menu
 	Gui, settings_menu: Show, % "Hide x"xScreenOffset+poe_width//2-wsettings_menu//2 " y"yScreenOffset
 }
+/*
+WinGetPos,,, settings_menu_width,, ahk_id %hwnd_settings_menu%
+If (settings_menu_width > settings_menu_width0)
+{
+	settings_menu_width0 := settings_menu_width
+}
+Gui, settings_menu: Show, Hide w%settings_menu_width0%
+*/
 LLK_Overlay("settings_menu", 1, 1)
 Return
 
+Settings_menu_alarm:
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_alarm gApply_settings_alarm checked"enable_alarm " xp+"spacing_settings*1.4, enable alarm-timer
+If (enable_alarm = 1)
+{
+	GoSub, Alarm
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gApply_settings_alarm Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gApply_settings_alarm Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gApply_settings_alarm Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gApply_settings_alarm Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gApply_settings_alarm Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gApply_settings_alarm Border x+"fSize0//4, % " purple "
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_minus gApply_settings_alarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gApply_settings_alarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_plus gApply_settings_alarm Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_minus gApply_settings_alarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_plus gApply_settings_alarm Border x+2 wp", % "+"
+}
+Return
+
 Settings_menu_general:
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script y+"fSize0, % "kill script after"
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script xp+"spacing_settings*1.4, % "kill script after"
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
+
 Gui, settings_menu: Font, % "s"fSize0-5 "norm"
 Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number vkill_timeout w"controlheight*1.4, %kill_timeout%
-Gui, settings_menu: Font, % "s"fSize0-2
-Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans, % "minute(s) w/o poe-client"
-Gui, settings_menu: Add, Link, xs y+15 hp Section HWNDlink_text, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
-Gui, settings_menu: Add, Text, ys Section x+6 BackgroundTrans HWNDmain_text, % poe_width " x "
+Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
+
+Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.5, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans HWNDmain_text x+"fSize0//2, % poe_width " x "
 ControlGetPos,,,, height,, ahk_id %main_text%
 ControlGetPos,,, width,,, ahk_id %link_text%
 resolutionsDDL := ""
@@ -2357,10 +2687,10 @@ Loop, Parse, resolutionsDDL, |, |
 		choice := A_Index
 Gui, settings_menu: Font, % "s"fSize0-5
 Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 wp Choose" choice, % resolutionsDDL
-Gui, settings_menu: Font, % "s"fSize0-2
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border gApply_resolution", % " apply && restart "
-Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
-Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans Center HWNDmain_text, % "panel position:"
+Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
+Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.5, % "panel position:"
 ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-5
 If (panel_position0 = "top")
@@ -2369,11 +2699,12 @@ Else Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vp
 If (panel_position1 = "left") || (panel_position1 = "")
 	Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left||right"
 Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
-	Gui, settings_menu: Font, % "s"fSize0-2
+	Gui, settings_menu: Font, % "s"fSize1
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel_setting " vhide_panel_setting gApply_settings_general", % "hide panel"
-Gui, settings_menu: Add, Text, y+15 x12 Section BackgroundTrans, % "interface size:"
-Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general Border Center, % " – "
-Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general Border Center, % "+"
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "interface size:"
+Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
+Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
+Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
 Return
 
 Settings_menu_archnemesis:
@@ -2382,20 +2713,40 @@ If (GuiControl_copy = "reset_archnemesis_scan_hotkey") && (archnemesis_scan_hotk
 	Hotkey, %archnemesis_scan_hotkey%,, Off
 	archnemesis_scan_hotkey := ""
 }
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_archnemesis gApply_settings_archnemesis y+"fSize0 " checked"enable_archnemesis, enable archnemesis helper
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_archnemesis gApply_settings_archnemesis checked"enable_archnemesis " xp+"spacing_settings*1.4, enable archnemesis helper
 If (enable_archnemesis = 1)
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text", scan-hotkey:
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, scan-hotkey:
 	ControlGetPos,,, width,,, ahk_id %main_text%
 	Gui, settings_menu: Font, % "s"fSize0-5
 	Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans varchnemesis_scan_hotkey gApply_settings_archnemesis w"width//2, %archnemesis_scan_hotkey%
-	Gui, settings_menu: Font, % "s"fSize0-2
+	Gui, settings_menu: Font, % "s"fSize1
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_archnemesis_scan_hotkey gSettings_menu", % " reset "
 }
 Return
 
-Settings_menu_flask:
-	Gui, settings_menu: Add, Picture, xs BackgroundTrans, img\GUI\arrow_up.png
+Settings_menu_notepad:
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gApply_settings_notepad xp+"spacing_settings*1.4 " venable_notepad Checked"enable_notepad, enable notepad
+If (enable_notepad = 1)
+{
+	GoSub, Notepad
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color (overlay):
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gApply_settings_notepad Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gApply_settings_notepad Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gApply_settings_notepad Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gApply_settings_notepad Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gApply_settings_notepad Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gApply_settings_notepad Border x+"fSize0//4, % " purple "
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_minus gApply_settings_notepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_reset gApply_settings_notepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_plus gApply_settings_notepad Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_minus gApply_settings_notepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_plus gApply_settings_notepad Border x+2 wp", % "+"
+}
 Return
 
 Settings_menuGuiClose:
@@ -2403,6 +2754,18 @@ WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 Gui, settings_menu: Submit
 Gui, settings_menu: Destroy
 hwnd_settings_menu := ""
+
+If WinExist("ahk_id " hwnd_notepad_sample)
+{
+	Gui, notepad_sample: Destroy
+	hwnd_notepad_sample := ""
+}
+
+If WinExist("ahk_id " hwnd_alarm_sample)
+{
+	Gui, alarm_sample: Destroy
+	hwnd_alarm_sample := ""
+}
 Return
 
 LLK_Rightclick()
