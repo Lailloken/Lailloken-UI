@@ -6,7 +6,7 @@
 #Hotstring NoMouse
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "LLK_Rightclick")
-SetKeyDelay, 200
+SetKeyDelay, 100
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, ToolTip, Screen
@@ -37,8 +37,6 @@ monitorHandle := DllCall("MonitorFromWindow", "Ptr", winHandle, "UInt", 0x2)
 DllCall("GetMonitorInfo", "Ptr", monitorHandle, "Ptr", &monitorInfo)
 workBottom := NumGet(monitorInfo, 32, "Int")
 native_resolution := workBottom*1.05
-
-SysGet, Caption_height, 4
 
 If FileExist("ini\config.ini") ;config conversion to v1.23.0, splitting it into individual mechanic-specific inis, to make the config system more coherent for future additions ;individual inis allow for more extensive customization without bloating/cluttering
 {
@@ -154,7 +152,7 @@ trans := 220, arch_inventory := []
 
 IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
 IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
-IniRead, hide_panel_setting, ini\config.ini, UI, hide panel, 0
+IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
 
 IniRead, game_version, ini\config.ini, Versions, game-version
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
@@ -199,6 +197,20 @@ If (alarm_timestamp != "")
 IniRead, enable_archnemesis, ini\config.ini, Features, enable archnemesis, 1
 IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 1
 IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 1
+IniRead, enable_omnikey, ini\config.ini, Features, enable omni-key, 1
+
+IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
+If (omnikey_hotkey != "")
+{
+	Hotkey, IfWinActive, ahk_group poe_window
+	Hotkey, ~%omnikey_hotkey%, Omnikey, On
+	Hotkey, ~MButton, Omnikey, Off
+}
+Else
+{
+	Hotkey, IfWinActive, ahk_group poe_window
+	Hotkey, ~MButton, Omnikey, On
+}
 
 IniRead, all_nemesis, ini\db_archnemesis.ini,
 all_nemesis_unsorted := "-empty-`n" all_nemesis
@@ -690,10 +702,11 @@ If (timeout != 1)
 	
 	IniWrite, %panel_position0%, ini\config.ini, UI, panel-position0
 	IniWrite, %panel_position1%, ini\config.ini, UI, panel-position1
-	IniWrite, %hide_panel_setting%, ini\config.ini, UI, hide panel
+	IniWrite, %hide_panel%, ini\config.ini, UI, hide panel
 	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
+	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
 	IniWrite, %enable_archnemesis%, ini\config.ini, Features, enable archnemesis
 	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
 	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
@@ -727,7 +740,7 @@ If (enable_alarm = 1)
 	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gAlarm", img\GUI\alarm.jpg
 Gui, LLK_panel: Show, Hide
 WinGetPos,,, panel_width, panel_height
-panel_style := (hide_panel_setting = 1) ? 2 : 1
+panel_style := (hide_panel = 1) ? 2 : 1
 panel_xpos := (panel_position1 = "left") ? xScreenOffset : xScreenOffset + poe_width - panel_width
 panel_ypos := (panel_position0 = "bottom") ? yScreenOffset + poe_height - panel_height : yScreenOffset
 Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
@@ -989,15 +1002,19 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 	inactive_counter += 1
 	If (inactive_counter > 3)
 	{
+		Gui, context_menu: Destroy
 		LLK_Overlay("hide")
 		archnemesis := 0
-		WinWaitActive, ahk_group poe_window
-		LLK_Overlay("show")
 	}
 }
 If WinActive("ahk_group poe_window")
 {
-	inactive_counter := 0
+	If (inactive_counter > 0)
+	{
+		inactive_counter := 0
+		Gui, omni_info: Destroy
+		LLK_Overlay("show")
+	}
 	If (enable_archnemesis = 1)
 	{
 		If (fallback = 0) || (fallback_override = 1)
@@ -1226,6 +1243,253 @@ If WinExist("ahk_id " hwnd_notepad)
 	Gui, notepad: Submit, NoHide
 	LLK_Overlay("notepad", 2)
 }
+Return
+
+Omnikey:
+clipboard := ""
+SendInput ^{c}
+ClipWait, 0.2
+If (clipboard != "")
+{
+	start := A_TickCount
+	ThisHotkey_copy := StrReplace(A_ThisHotkey, "~", "")
+	While GetKeyState(ThisHotkey_copy, "P")
+	{
+		If (A_TickCount >= start + 300)
+		{
+			If InStr(clipboard, "Attacks per Second:")
+				GoSub, Omnikey_dps
+			KeyWait, %ThisHotkey_copy%
+			Return
+		}
+	}
+	KeyWait, %ThisHotkey_copy%
+	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency")
+	{
+		Gui, context_menu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_context_menu
+		Gui, context_menu: Margin, 4, 2
+		Gui, context_menu: Color, Black
+		WinSet, Transparent, %trans%
+		Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+		If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
+			Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
+		Else
+		{
+			Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
+			Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+		}
+		If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
+			Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
+		MouseGetPos, mouseX, mouseY
+		Gui, context_menu: Show, % "x"mouseX-160 " y"mouseY
+		WinGetPos, x_context
+		If (x_context < xScreenOffset)
+			Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
+		WinWaitActive, ahk_group poe_window,,, Lailloken
+		If WinExist("ahk_id " hwnd_context_menu)
+			Gui, context_menu: destroy
+	}
+}
+Return
+
+Omnikey_craft_chrome:
+attribute0 := ""
+attribute := ""
+strength := ""
+dexterity := ""
+intelligence := ""
+wiki_level := ""
+Loop, Parse, clipboard, `r`n, `r`n
+{
+	If (A_Index=1)
+	{
+		wiki_term := StrReplace(A_LoopField, "Item Class: ")
+		class := wiki_term
+		wiki_term := StrReplace(wiki_term, A_Space, "_")
+	}
+	If InStr(A_LoopField, "Str: ")
+	{
+		strength := StrReplace(A_LoopField, "Str: ")
+		strength := StrReplace(strength, " (augmented)")
+	}
+	Else strength := (strength="") ? 0 : strength
+	If InStr(A_LoopField, "Dex: ")
+	{
+		dexterity := StrReplace(A_LoopField, "Dex: ")
+		dexterity := StrReplace(dexterity, " (augmented)")
+	}
+	Else dexterity := (dexterity="") ? 0 : dexterity
+	If InStr(A_LoopField, "Int: ")
+	{
+		intelligence := StrReplace(A_LoopField, "Int: ")
+		intelligence := StrReplace(intelligence, " (augmented)")
+	}
+	Else	intelligence := (intelligence="") ? 0 : intelligence
+	If InStr(A_LoopField, "Item Level: ")
+	{
+		wiki_level := SubStr(A_LoopField, InStr(A_LoopField, ":")+1)
+		wiki_level := StrReplace(wiki_level, " ")
+	}
+	If InStr(A_LoopField, "Added Small Passive Skills grant: ")
+		wiki_cluster := SubStr(A_LoopField, 35)
+}
+If (class="Gloves") || (class="Boots") || (class="Body Armours") || (class="Helmets") || (class="Shields")
+{
+	attribute0 := Max(strength, dexterity, intelligence)
+	If (attribute0=strength)
+		attribute := "_str"
+	If (attribute0=dexterity)
+		attribute := (attribute="") ? "_dex" : attribute "_dex"
+	If (attribute0=intelligence)
+		attribute := (attribute="") ? "_int" : attribute "_int"
+}
+If (A_GuiControl = "crafting_table")
+{
+	If InStr(clipboard, "Cluster Jewel")
+	{
+		Run, https://poedb.tw/us/Cluster_Jewel#EnchantmentModifiers
+		wiki_cluster := SubStr(wiki_cluster, 1, InStr(wiki_cluster, "(")-2)
+		ToolTip, Press F3 to search for modifiers, % xScreenOffset + poe_width//2 - 100, yScreenOffset + poe_height//2, 15
+		KeyWait, F3, D
+		KeyWait, F3
+		ToolTip,,,, 15
+		SendInput, %wiki_cluster%
+	}
+	Else Run, https://poedb.tw/us/%wiki_term%%attribute%#ModifiersCalc
+	clipboard := wiki_level
+}
+If (A_GuiControl = "chrome_calc")
+{
+	ToolTip, Press CTRL-V to paste stat requirements, % xScreenOffset + poe_width//2 - 100, yScreenOffset + poe_height//2, 15
+	Run, https://siveran.github.io/calc.html
+	clipboard := ""
+	KeyWait, v, D
+	SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
+	ToolTip,,,, 15
+}
+Return
+
+Omnikey_menu_selection:
+Gui, omni_info: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_omni_info, Lailloken UI: Omni-key Info
+Gui, omni_info: Margin, 12, 4
+Gui, omni_info: Color, Black
+WinSet, Transparent, %trans%
+Gui, omni_info: Font, cWhite s%fSize0%, Fontin SmallCaps
+If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
+	GoSub, Omnikey_craft_chrome
+If InStr(A_GuiControl, "wiki")
+	GoSub, Omnikey_wiki
+Gui, context_menu: destroy
+Return
+
+Omnikey_dps:
+phys_dmg := 0
+ele_dmg := 0
+ele_dmg3 := 0
+ele_dmg4 := 0
+ele_dmg5 := 0
+edps0 := 0
+chaos_dmg := 0
+cdps := 0
+speed := 0
+Loop, Parse, clipboard, `r`n, `r`n
+{
+	If InStr(A_LoopField,"Physical Damage: ")
+	{
+		phys_dmg := A_LoopField
+		Loop, Parse, phys_dmg, " "
+			If (A_Index=3)
+				phys_dmg := A_LoopField
+	}
+	If InStr(A_LoopField,"Elemental Damage: ")
+	{
+		ele_dmg := StrReplace(A_LoopField, "`r`n")
+		ele_dmg := StrReplace(ele_dmg, " (augmented)")
+		ele_dmg := StrReplace(ele_dmg, ",")
+		Loop, Parse, ele_dmg, " "
+			If A_Index between 3 and 5
+				ele_dmg%A_Index% := A_LoopField
+	}
+	If InStr(A_LoopField, "Chaos Damage: ")
+	{
+		chaos_dmg := StrReplace(A_LoopField, "`r`n")
+		chaos_dmg := StrReplace(chaos_dmg, " (augmented)")
+		Loop, Parse, chaos_dmg, " "
+			If (A_Index=3)
+				chaos_dmg := A_LoopField
+	}
+	If InStr(A_LoopField, "Attacks per Second: ")
+	{
+		speed := A_LoopField
+		Loop, Parse, speed, " "
+			If (A_Index=4)
+				speed := SubStr(A_LoopField,1,4)
+		break
+	}
+}
+If (phys_dmg!=0)
+{
+	Loop, Parse, phys_dmg, "-"
+		phys%A_Index% := A_LoopField
+	pdps := ((phys1+phys2)/2)*speed
+	pdps := Format("{:0.2f}", pdps)
+}
+If (ele_dmg!=0)
+{
+	edps2 := 0
+	edps3 := 0
+	Loop, Parse, ele_dmg3, "-"
+		ele_dmg3_%A_Index% := A_LoopField
+	edps1 := ((ele_dmg3_1+ele_dmg3_2)/2)*speed
+	If (ele_dmg4!=0)
+	{
+		Loop, Parse, ele_dmg4, "-"
+			ele_dmg4_%A_Index% := A_LoopField
+		edps2 := ((ele_dmg4_1+ele_dmg4_2)/2)*speed
+	}
+	If (ele_dmg5!=0)
+	{
+		Loop, Parse, ele_dmg5, "-"
+			ele_dmg5_%A_Index% := A_LoopField
+		edps3 := ((ele_dmg5_1+ele_dmg5_2)/2)*speed
+	}
+	edps0 := edps1+edps2+edps3
+	edps0 := Format("{:0.2f}", edps0)
+}
+If (chaos_dmg!=0)
+{
+	Loop, Parse, chaos_dmg, "-"
+		chaos_dmg%A_Index% := A_LoopField
+	cdps := ((chaos_dmg1+chaos_dmg2)/2)*speed
+	cdps := Format("{:0.2f}", cdps)
+}
+tdps := pdps+edps0+cdps
+tdps := Format("{:0.2f}", tdps)
+MouseGetPos, mousex, mousey
+ToolTip, % "pDPS: " pdps "`neDPS: " edps0 "`ncDPS: " cdps "`n-----------`ntDPS: " tdps, % mousex-80, mouseY-20, 1
+KeyWait, %ThisHotkey_copy%
+ToolTip,,,,1
+Return
+
+Omnikey_wiki:
+If (A_GuiControl = "wiki_exact")
+	wiki_index := 3
+If (A_GuiControl = "wiki_class")
+	wiki_index := 1
+Loop, Parse, clipboard, `n, `n 
+{
+	If (A_Index=wiki_index)
+	{
+		wiki_term := StrReplace(A_LoopField, "Item Class: ")
+		wiki_term := (InStr(wiki_term, "Body")) ? "Body armour" : wiki_term
+		wiki_term := StrReplace(wiki_term, A_Space, "_")
+		wiki_term := StrReplace(wiki_term, "'", "%27")
+		break
+	}
+}
+If InStr(clipboard, "Cluster Jewel")
+	wiki_term := "Cluster_Jewel"
+Run, https://poewiki.net/wiki/%wiki_term%
 Return
 
 Pause_list:
@@ -1787,6 +2051,22 @@ If (A_GuiControl = "notepad_opac_plus")
 WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
 notepad_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : notepad_fontcolor
 GoSub, Notepad
+Return
+
+Apply_settings_omnikey:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
+{
+	If (omnikey_hotkey_old != omnikey_hotkey) && (omnikey_hotkey_old != "")
+	{
+		Hotkey, IfWinActive, ahk_group poe_window
+		Hotkey, ~%omnikey_hotkey_old%,, Off
+	}
+	omnikey_hotkey_old := omnikey_hotkey
+	Hotkey, IfWinActive, ahk_group poe_window
+	Hotkey, ~%omnikey_hotkey%, Omnikey, On
+}
+GoSub, Settings_menu
 Return
 
 Recipes:
@@ -2570,6 +2850,7 @@ alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
 archnemesis_style := InStr(A_GuiControl, "archnemesis") ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
 notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
+omnikey_style := InStr(A_GuiControl, "omni-key") ? "border" : ""
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
 	Gui, settings_menu: Submit
@@ -2595,6 +2876,10 @@ Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu
 ControlGetPos,,, width_settings3,,, ahk_id %hwnd_settings_notepad%
 spacing_settings := (width_settings3 > spacing_settings) ? width_settings3 : spacing_settings
 
+Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "omni-key"
+ControlGetPos,,, width_settings4,,, ahk_id %hwnd_settings_omnikey%
+spacing_settings := (width_settings4 > spacing_settings) ? width_settings4 : spacing_settings
+
 Gui, settings_menu: Font, % "s"fSize1 "norm"
 
 If !InStr(GuiControl_copy, "notepad") && WinExist("ahk_id " hwnd_notepad_sample)
@@ -2617,6 +2902,8 @@ Else If InStr(GuiControl_copy, "archnemesis")
 	GoSub, Settings_menu_archnemesis
 Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
+Else If InStr(GuiControl_copy, "omni")
+	GoSub, Settings_menu_omnikey
 
 Gui, settings_menu: Add, Text, xs BackgroundTrans, % " "
 ControlFocus,, ahk_id %hwnd_settings_general%
@@ -2700,7 +2987,7 @@ If (panel_position1 = "left") || (panel_position1 = "")
 	Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left||right"
 Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
 	Gui, settings_menu: Font, % "s"fSize1
-Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel_setting " vhide_panel_setting gApply_settings_general", % "hide panel"
+Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide panel"
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
@@ -2747,6 +3034,23 @@ If (enable_notepad = 1)
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_minus gApply_settings_notepad Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_plus gApply_settings_notepad Border x+2 wp", % "+"
 }
+Return
+
+Settings_menu_omnikey:
+If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
+{
+	Hotkey, IfWinActive, ahk_group poe_window
+	Hotkey, ~%omnikey_hotkey%,, Off
+	omnikey_hotkey := ""
+	Hotkey, ~MButton, Omnikey, On
+}
+
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.4, replace mbutton with:
+ControlGetPos,,, width,,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0-5
+Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans vomnikey_hotkey gApply_settings_omnikey w"width//3, %omnikey_hotkey%
+Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_omnikey_hotkey gSettings_menu", % " clear "
 Return
 
 Settings_menuGuiClose:
