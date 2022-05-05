@@ -9,7 +9,7 @@
 - like most PoE overlays, it needs the PoE client to run in windowed fullscreen
 ![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)
 
-## [Known issues / limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues) (LINK)
+## [Known issues / limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) (LINK)
 
 ## Motivation & Philosophy
 My goal with this script is to bring several QoL features to the PoE-client while staying as close to a natural in-game interface as possible, both from a design and user-friendliness point-of-view. This includes an easy and straight-forward setup, visual clarity, customizability, the ability to decide which features to enable/disable, and a lack of required extra hotkeys and alt-tabbing.
