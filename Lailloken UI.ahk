@@ -172,6 +172,11 @@ Loop, Parse, pixelchecks_list, `n, `n
 	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
 	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
 }
+If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+{
+	clone_frames_pixelcheck_enable := 0
+	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+}
 
 IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
 IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
@@ -465,6 +470,12 @@ Return
 
 Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
+If (A_GuiControl = "Clone_frames_pixelcheck_enable") && ((pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = ""))
+{
+	MsgBox, The pixel-check for 'game-screen' has not been calibrated yet. Please go to the pixel-check section and calibrate it.
+	GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
+	Return
+}
 If InStr(A_GuiControl, "pixel")
 {
 	If (clone_frames_pixelcheck_enable = 0)
