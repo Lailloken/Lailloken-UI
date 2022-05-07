@@ -1454,7 +1454,7 @@ Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
 
 If InStr(A_GuiControl, "pixelcheck")
 {
-	Gui, settings_menu_help: Add, Text, BackgroundTrans, explanation:`nthese pixel-checks merely trigger actions`nwithin the script itself and will -NEVER-`nresult in any interaction with the client.
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, explanation:`nthese pixel-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.`n`nui textures in PoE are sometimes updated in patches, which leads to pixel-checks failing. This is where you recalibrate the checks in order to continue using the script.
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 If InStr(A_GuiControl, "gamescreen")
