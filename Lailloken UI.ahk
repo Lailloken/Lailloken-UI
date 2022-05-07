@@ -1501,7 +1501,7 @@ Settings_menu_pixelchecks:
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, list of integrated pixel-checks:
 ControlGetPos,,,, height,, ahk_id %main_text%
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vPixelcheck_help h"height " w-1", img\GUI\help.png
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks vGamescreen y+"fSize0*1.2, % " check | recal "
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks vGamescreen y+"fSize0*1.2, % " check | calibrate "
 Gui, settings_menu: Font, underline
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help vGamescreen_help HWNDmain_text", % "game-screen"
 Gui, settings_menu: Font, norm
