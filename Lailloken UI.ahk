@@ -33,6 +33,8 @@ GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
 If !FileExist("Resolutions.ini")
 	LLK_Error("Critical files are missing. Make sure have installed the script correctly.")
+If !FileExist("ini\")
+	FileCreateDir, ini\
 
 IniWrite, 12400, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
