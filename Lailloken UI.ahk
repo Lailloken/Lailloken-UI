@@ -115,7 +115,7 @@ IniRead, alarm_fontcolor, ini\alarm.ini, Settings, font-color, %A_Space%
 alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
 IniRead, alarm_trans, ini\alarm.ini, Settings, transparency
 If alarm_trans is not number
-	alarm_trans := 160
+	alarm_trans := 255
 IniRead, alarm_timestamp, ini\alarm.ini, Settings, alarm-timestamp, %A_Space%
 alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
 If (alarm_timestamp != "")
@@ -161,7 +161,7 @@ IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
 notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
 IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
 If notepad_trans is not number
-	notepad_trans := 160
+	notepad_trans := 255
 
 IniRead, pixelchecks_list, Resolutions.ini, Pixel-checks
 Loop, Parse, pixelchecks_list, `n, `n
@@ -277,7 +277,12 @@ If (A_Gui = "settings_menu")
 	Gui, alarm_sample: Add, Text, BackgroundTrans, % "  00:00  "
 	If (alarm_sample_xpos != "") && (alarm_sample_ypos != "")
 		Gui, alarm_sample: Show, Hide x%alarm_sample_xpos% y%alarm_sample_ypos% AutoSize
-	Else Gui, alarm_sample: Show, Hide Center AutoSize
+	Else
+	{
+		Gui, alarm_sample: Show, Hide AutoSize
+		WinGetPos,,, win_width, win_height
+		Gui, alarm_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet + poe_height//2 - win_height//2
+	}
 	LLK_Overlay("alarm_sample", "show")
 	Return
 }
@@ -476,7 +481,7 @@ Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
 If (A_GuiControl = "Clone_frames_pixelcheck_enable") && ((pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = ""))
 {
-	MsgBox, The pixel-check for 'game-screen' has not been calibrated yet. Please go to the pixel-check section and calibrate it.
+	LLK_ToolTip("The pixel-check has not been calibrated yet.`nPlease go to the pixel-check section and calibrate it.")
 	GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
 	Return
 }
@@ -542,8 +547,8 @@ Else
 	clone_frame_edit_topleft_y := 0
 	clone_frame_edit_width := 0
 	clone_frame_edit_height := 0
-	clone_frame_edit_target_x := 0
-	clone_frame_edit_target_y := 0
+	clone_frame_edit_target_x := xScreenOffSet
+	clone_frame_edit_target_y := yScreenOffSet
 	clone_frame_edit_scale_x := 100
 	clone_frame_edit_scale_y := 100
 	clone_frame_edit_opacity := 5
@@ -559,26 +564,26 @@ ControlGetPos,,, width,,, ahk_id %main_text%
 
 Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
 Gui, clone_frames_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack limit lowercase vClone_frame_new_name w"width, % edit_string
-Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_topleft_x gClone_frames_dimensions y+"fSize0*1.2, % poe_width
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, % poe_width
-Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 gClone_frames_dimensions vClone_frame_new_topleft_y x+"fSize0//3, % poe_height
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, % poe_height
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_topleft_x gClone_frames_dimensions y+"fSize0*1.2, % xScreenOffSet + poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"xScreenOffSet + poe_width, % xScreenOffSet + poe_width
+Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 gClone_frames_dimensions vClone_frame_new_topleft_y x+"fSize0//3, % yScreenOffSet + poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"yScreenOffSet + poe_height, % yScreenOffSet + poe_height
 Gui, clone_frames_menu: Font, % "s"fSize0
 Gui, clone_frames_menu: Add, Text, ys x+0 BackgroundTrans, % " source top-left corner (f1: snap to cursor)"
 
 Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
-Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_width", % poe_width
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, 0
-Gui, clone_frames_menu: Add, Edit, % "ys hp BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_height x+"fSize0//3, % poe_height
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, 0
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_width", % xScreenOffSet + poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"xScreenOffSet + poe_width, 0
+Gui, clone_frames_menu: Add, Edit, % "ys hp BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_height x+"fSize0//3, % yScreenOffSet + poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"yScreenOffSet + poe_height, 0
 Gui, clone_frames_menu: Font, % "s"fSize0
 Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " frame width && height (f2: snap to cursor)"
 
 Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
-Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_x gClone_frames_dimensions", % poe_width
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, % poe_width
-Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_y gClone_frames_dimensions x+"fSize0//3, % poe_height
-Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, % poe_height
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_x gClone_frames_dimensions", % xScreenOffSet + poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"xScreenOffSet + poe_width, % xScreenOffSet + poe_width
+Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_y gClone_frames_dimensions x+"fSize0//3, % yScreenOffSet + poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"yScreenOffSet + poe_height, % yScreenOffSet + poe_height
 Gui, clone_frames_menu: Font, % "s"fSize0
 Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " target top-left corner (f3: snap to cursor)"
 
@@ -604,6 +609,9 @@ Gui, clone_frames_menu: Font, % "s"fSize0
 Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " opacity (0-5)"
 
 Gui, clone_frames_menu: Add, Text, % "xs BackgroundTrans HWNDmain_text Border vSave_clone_frame gClone_frames_save y+"fSize0*1.2, % " save && close "
+Gui, clone_frames_menu: Show, % "Hide"
+WinGetPos,,, win_width, win_height
+Gui, clone_frames_menu: Show, % "Hide x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet + poe_height//2 - win_height//2
 edit_string := ""
 LLK_Overlay("clone_frames_menu", "show", 0)
 Gui, clone_frames_menu: Submit, NoHide
@@ -627,7 +635,7 @@ hdcPreview := CreateCompatibleDC()
 obmPreview := SelectObject(hdcPreview, hbmPreview)
 GPreview := Gdip_GraphicsFromHDC(hdcPreview)
 Gdip_SetInterpolationMode(GPreview, 0)
-Gdip_DrawImage(GPreview, bmpPreview, clone_frame_new_target_x, clone_frame_new_target_y, clone_frame_new_width * clone_frame_new_scale_x//100, clone_frame_new_height * clone_frame_new_scale_y//100, 0, 0, WidthPreview, HeightPreview, 0.2 + 0.16 * clone_frame_new_opacity)
+Gdip_DrawImage(GPreview, bmpPreview, clone_frame_new_target_x - xScreenOffSet, clone_frame_new_target_y - yScreenOffSet, clone_frame_new_width * clone_frame_new_scale_x//100, clone_frame_new_height * clone_frame_new_scale_y//100, 0, 0, WidthPreview, HeightPreview, 0.2 + 0.16 * clone_frame_new_opacity)
 UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
 SelectObject(hdcPreview, obmPreview)
 DeleteObject(hbmPreview)
@@ -683,28 +691,25 @@ Clone_frames_save:
 Gui, clone_frames_menu: Submit, NoHide
 clone_frame_new_name_first_letter := SubStr(clone_frame_new_name, 1, 1)
 If (clone_frame_new_name = "")
+{
+	LLK_ToolTip("enter name")
 	Return
+}
 If (clone_frame_new_name = "settings")
 {
-	Gui, clone_frames_menu: Hide
-	MsgBox, The selected name is not allowed. Please choose a different name.
+	LLK_ToolTip("The selected name is not allowed.`nPlease choose a different name.", 3)
 	GuiControl, clone_frames_menu: Text, clone_frame_new_name,
-	Gui, clone_frames_menu: Show
 	Return
 }
 If clone_frame_new_name_first_letter is not alnum
 {
-	Gui, clone_frames_menu: Hide
-	MsgBox, Unsupported first character in frame-name detected. Please choose a different name.
+	LLK_ToolTip("Unsupported first character in frame-name detected.`nPlease choose a different name.", 3)
 	GuiControl, clone_frames_menu: Text, clone_frame_new_name,
-	Gui, clone_frames_menu: Show
 	Return
 }
 If (clone_frame_new_width < 1) || (clone_frame_new_height < 1)
 {
-	Gui, clone_frames_menu: Hide
-	MsgBox, Incorrect dimensions detected. Please make sure to set the source corners properly.
-	Gui, clone_frames_menu: Show
+	LLK_ToolTip("Incorrect dimensions detected.`nPlease make sure to set the source corners properly.", 3)
 	Return
 }
 clone_frame_new_name_save := ""
@@ -897,7 +902,7 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 				Break
 			bmpClone_frames := Gdip_BitmapFromScreen(clone_frame_%A_LoopField%_topleft_x "|" clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
 			Gdip_GetImageDimensions(bmpClone_frames, WidthClone_frames, HeightClone_frames)
-			Gdip_DrawImage(GClone_frames, bmpClone_frames, clone_frame_%A_LoopField%_target_x, clone_frame_%A_LoopField%_target_y, clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100, clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100, 0, 0, WidthClone_frames, HeightClone_frames, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
+			Gdip_DrawImage(GClone_frames, bmpClone_frames, clone_frame_%A_LoopField%_target_x - xScreenOffSet, clone_frame_%A_LoopField%_target_y - yScreenOffSet, clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100, clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100, 0, 0, WidthClone_frames, HeightClone_frames, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
 			Gdip_DisposeImage(bmpClone_frames)
 		}
 		UpdateLayeredWindow(hwnd_clone_frames_window, hdcClone_frames, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
@@ -927,7 +932,12 @@ If (A_Gui = "settings_menu")
 	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what the`nnotepad-overlay looks`nlike with the current`nsettings
 	If (notepad_sample_xpos != "") && (notepad_sample_ypos != "")
 		Gui, notepad_sample: Show, Hide x%notepad_sample_xpos% y%notepad_sample_ypos% AutoSize
-	Else Gui, notepad_sample: Show, Hide Center AutoSize
+	Else
+	{
+		Gui, notepad_sample: Show, % "Hide AutoSize"
+		WinGetPos,,, win_width, win_height
+		Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet + poe_height//2 - win_height//2
+	}
 	LLK_Overlay("notepad_sample", "show")
 	Return
 }
@@ -1348,7 +1358,7 @@ Else
 {
 	Gui, settings_menu: Show, Hide
 	WinGetPos,,, wsettings_menu
-	Gui, settings_menu: Show, % "Hide x"xScreenOffset+poe_width//2-wsettings_menu//2 " y"yScreenOffset
+	Gui, settings_menu: Show, % "Hide x"xScreenOffset + poe_width//2 - wsettings_menu//2 " y"yScreenOffset
 }
 LLK_Overlay("settings_menu", "show", 1)
 Return
@@ -1464,7 +1474,7 @@ If InStr(A_GuiControl, "pixelcheck")
 If InStr(A_GuiControl, "gamescreen")
 {
 	Gui, settings_menu_help: Add, Picture, BackgroundTrans, img\GUI\game_screen.jpg
-	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, instructions:`nwhen recalibrating, make sure this panel with realm/league-info is visible.`n`nexplanation:`nthis check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, instructions:`nwhen recalibrating, make sure this panel with realm/league-info is visible in the top-right corner of the screen.`n`nexplanation:`nthis check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 KeyWait, LButton
@@ -1612,7 +1622,7 @@ LLK_PixelRecalibrate(name)
 	loopcount := (name = "gamescreen") ? 1 : 2
 	Loop %loopcount%
 	{
-		PixelGetColor, pixel_%name%_color%A_Index%, % poe_width - pixel_%name%_x%A_Index%, % pixel_%name%_y%A_Index%, RGB
+		PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffSet + poe_width - pixel_%name%_x%A_Index%, % yScreenOffSet + pixel_%name%_y%A_Index%, RGB
 		IniWrite, % pixel_%name%_color%A_Index%, ini\pixel checks (%poe_height%p).ini, gamescreen, color %A_Index%
 	}
 }
@@ -1620,9 +1630,9 @@ LLK_PixelRecalibrate(name)
 LLK_PixelSearch(name)
 {
 	global
-	PixelSearch, OutputVarX, OutputVarY, poe_width - pixel_%name%_x1, pixel_%name%_y1, poe_width - pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+	PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
 	If (ErrorLevel = 0) && (name != "gamescreen")
-		PixelSearch, OutputVarX, OutputVarY, poe_width - pixel_%name%_x2, pixel_%name%_y2, poe_width - pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
+		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, xScreenOffSet + poe_width - pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
 	%name% := (ErrorLevel=0) ? 1 : 0
 	value := %name%
 	Return value
