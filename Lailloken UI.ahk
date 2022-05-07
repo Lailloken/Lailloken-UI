@@ -481,7 +481,7 @@ Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
 If (A_GuiControl = "Clone_frames_pixelcheck_enable") && ((pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = ""))
 {
-	LLK_ToolTip("The pixel-check has not been calibrated yet.`nPlease go to the pixel-check section and calibrate it.")
+	LLK_ToolTip("The pixel-check has not been calibrated yet.`nPlease go to the pixel-check section and calibrate it.", 3)
 	GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
 	Return
 }
