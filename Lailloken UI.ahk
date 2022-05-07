@@ -31,75 +31,10 @@ GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
-winHandle := WinExist("ahk_group poe_window")
-VarSetCapacity(monitorInfo, 40), NumPut(40, monitorInfo)
-monitorHandle := DllCall("MonitorFromWindow", "Ptr", winHandle, "UInt", 0x2)
-DllCall("GetMonitorInfo", "Ptr", monitorHandle, "Ptr", &monitorInfo)
-workBottom := NumGet(monitorInfo, 32, "Int")
-native_resolution := workBottom*1.05
+If !FileExist("Resolutions.ini")
+	LLK_Error("Critical files are missing. Make sure have installed the script correctly.")
 
-If FileExist("ini\config.ini") ;config conversion to v1.23.0, splitting it into individual mechanic-specific inis, to make the config system more coherent for future additions ;individual inis allow for more extensive customization without bloating/cluttering
-{
-	IniRead, version_check, ini\config.ini, Versions, ini-version
-	If (version_check = "ERROR") || (version_check < 12300) ;v1.23.1 = 12301, v1.23.10 = 12310
-	{
-		IniRead, fSize_offset, ini\config.ini, PixelSearch, font-offset, 0
-		IniRead, oversupply_setting, ini\config.ini, Settings, oversupply, 0
-		IniRead, favorite_recipes, ini\config.ini, Settings, favorite recipes, %A_Space%
-		IniRead, blacklist_recipes, ini\config.ini, Settings, blacklist recipes, %A_Space%
-		IniRead, pause_list, ini\config.ini, Settings, pause-list, %A_Space%
-		IniRead, burn_number, ini\config.ini, Settings, Burn-number, 9
-		IniRead, burn_number1, ini\config.ini, Settings, Burn-number1, 9
-		IniRead, sorting_settings, ini\config.ini, Settings, sorting, quantity`,descending
-		IniRead, fallback, ini\config.ini, PixelSearch, fallback, 0
-		IniRead, variation, ini\config.ini, PixelSearch, variation, 0
-		IniRead, arch_color1, ini\config.ini, PixelSearch, color1, %A_Space%
-		IniRead, arch_color2, ini\config.ini, PixelSearch, color2, %A_Space%
-		IniRead, resolution, ini\config.ini, PixelSearch, resolution, 0x0
-		IniRead, game_version, ini\config.ini, PixelSearch, game-version, 0
-		IniRead, archnemesis_inventory, ini\config.ini, Archnemesis, inventory, %A_Space%
-		IniRead, previous_highlight, ini\config.ini, Archnemesis, previous-highlight, %A_Space%
-		IniRead, force_resolution, ini\config.ini, Settings, force-resolution, 0
-		IniRead, forced_resolution, ini\config.ini, Settings, custom-height, %A_Space%
-		
-		FileDelete, ini\config.ini
-		If (ErrorLevel != 0) ;ErrorLevel = number of files not found/deleted
-		{
-			MsgBox, There was an error while converting the config-file to a newer version. Make sure to close any text-editor that has the config.ini file opened, then launch the script again.
-			ExitApp
-		}
-		While FileExist("ini\config.ini")
-			Sleep, 100
-		
-		IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
-		IniWrite, 12300, ini\config.ini, Versions, ini-version
-		IniWrite, %game_version%, ini\config.ini, Versions, game-version
-		IniWrite, 1, ini\config.ini, Settings, kill script
-		IniWrite, 1, ini\config.ini, Settings, kill-timeout
-		IniWrite, %force_resolution%, ini\config.ini, Settings, enable custom-resolution
-		IniWrite, %forced_resolution%, ini\config.ini, Settings, custom-resolution
-		
-		IniWrite, %oversupply_setting%, ini\config_archnemesis.ini, Settings, enable oversupply
-		IniWrite, %burn_number%, ini\config_archnemesis.ini, Settings, base-threshold
-		IniWrite, %burn_number1%, ini\config_archnemesis.ini, Settings, oversupply-threshold
-		IniWrite, %sorting_settings%, ini\config_archnemesis.ini, Settings, burn-mods sorting
-		IniWrite, %fallback%, ini\config_archnemesis.ini, PixelSearch, enable fallback
-		IniWrite, %variation%, ini\config_archnemesis.ini, PixelSearch, variation
-		IniWrite, %arch_color1%, ini\config_archnemesis.ini, PixelSearch, color1
-		IniWrite, %arch_color2%, ini\config_archnemesis.ini, PixelSearch, color2
-		IniWrite, %resolution%, ini\config_archnemesis.ini, PixelSearch, resolution
-		IniWrite, %favorite_recipes%, ini\config_archnemesis.ini, Lists, favorite recipes
-		IniWrite, %blacklist_recipes%, ini\config_archnemesis.ini, Lists, blacklisted recipes
-		IniWrite, %pause_list%, ini\config_archnemesis.ini, Lists, paused recipes
-		IniWrite, %previous_highlight%, ini\config_archnemesis.ini, Lists, previous highlight
-		IniWrite, %archnemesis_inventory%, ini\config_archnemesis.ini, Lists, inventory
-		
-		Reload
-		ExitApp
-	}
-}
-
-IniWrite, 12300, ini\config.ini, Versions, ini-version
+IniWrite, 12400, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
 
@@ -114,8 +49,15 @@ While !WinExist("ahk_group poe_window")
 last_check := A_TickCount
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
 
-IniRead, fSize_config0, ini\resolutions.ini, %poe_height%p, font-size0
-IniRead, fSize_config1, ini\resolutions.ini, %poe_height%p, font-size1
+;determine native resolution of the active monitor
+Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
+WinSet, Trans, 0
+Gui, Test: Show, x%xScreenOffset% y%yScreenOffset% Maximize
+WinGetPos,,, width_native, height_native
+Gui, Test: Destroy
+
+IniRead, fSize_config0, Resolutions.ini, %poe_height%p, font-size0
+IniRead, fSize_config1, Resolutions.ini, %poe_height%p, font-size1
 fSize0 := fSize_config0
 fSize1 := fSize_config1
 
@@ -131,51 +73,33 @@ If (custom_resolution_setting = 1)
 	IniRead, custom_resolution, ini\config.ini, Settings, custom-resolution
 	If custom_resolution is not number
 	{
-		MsgBox, Incorrect config.ini settings detected: custom resolution enabled but none selected.`nThe setting will be reset, and the script restarted.
+		MsgBox, Incorrect config.ini settings detected: custom resolution enabled but none selected.`nThe setting will be reset and the script restarted.
 		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 		Reload
 		ExitApp
 	}
 
-	If (custom_resolution > native_resolution) ;check resolution in case of manual .ini edit
+	If (custom_resolution > height_native) ;check resolution in case of manual .ini edit
 	{
-		MsgBox, Incorrect config.ini settings detected: custom height > monitor resolution`nThe script will now exit.
+		MsgBox, Incorrect config.ini settings detected: custom height > monitor height`nThe script will now exit.
 		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
-		IniWrite, 0, ini\config.ini, Settings, custom-resolution
+		IniWrite, %height_native%, ini\config.ini, Settings, custom-resolution
 		ExitApp
 	}
 	WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 	poe_height := custom_resolution
 }
 
-trans := 220, arch_inventory := []
+trans := 220
 
 IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
 IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
 IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
 
-IniRead, game_version, ini\config.ini, Versions, game-version
+IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
-
-IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset+poe_width//2
-notepad_xpos := (notepad_xpos = "") ? xScreenOffset+poe_width//2 : notepad_xpos
-IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset+poe_height//2
-notepad_ypos := (notepad_ypos = "") ? yScreenOffset+poe_height//2 : notepad_ypos
-IniRead, notepad_width, ini\notepad.ini, UI, width, 400
-IniRead, notepad_height, ini\notepad.ini, UI, height, 400
-IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
-If (notepad_text != "")
-	notepad_text := StrReplace(notepad_text, ",,", "`n")
-IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset
-If fSize_offset_notepad is not number
-	fSize_offset_notepad := 0
-IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
-notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
-IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
-If notepad_trans is not number
-	notepad_trans := 160
 
 IniRead, alarm_xpos, ini\alarm.ini, UI, xcoord, % xScreenOffset+poe_width//2
 alarm_xpos := (alarm_xpos = "") ? xScreenOffset+poe_width//2 : alarm_xpos
@@ -194,10 +118,61 @@ alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
 If (alarm_timestamp != "")
 	continue_alarm := 1
 
-IniRead, enable_archnemesis, ini\config.ini, Features, enable archnemesis, 1
-IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 1
-IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 1
-IniRead, enable_omnikey, ini\config.ini, Features, enable omni-key, 1
+If !FileExist("ini\clone frames.ini")
+	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
+IniRead, clone_frames_list, ini\clone frames.ini,
+IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 0
+If (clone_frames_pixelcheck_enable = 1)
+	pixelchecks_enabled := (pixelchecks_enabled = "") ? "gamescreen," : pixelchecks_enabled "gamescreen,"
+Loop, Parse, clone_frames_list, `n, `n
+{
+	If (A_LoopField = "Settings")
+		continue
+	IniRead, clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable, 0
+	If (clone_frame_%A_LoopField%_enable = 1)
+		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+	IniRead, clone_frame_%A_LoopField%_topleft_x, ini\clone frames.ini, %A_LoopField%, source x-coordinate, 0
+	IniRead, clone_frame_%A_LoopField%_topleft_y, ini\clone frames.ini, %A_LoopField%, source y-coordinate, 0
+	IniRead, clone_frame_%A_LoopField%_width, ini\clone frames.ini, %A_LoopField%, frame-width, 200
+	IniRead, clone_frame_%A_LoopField%_height, ini\clone frames.ini, %A_LoopField%, frame-height, 200
+	IniRead, clone_frame_%A_LoopField%_target_x, ini\clone frames.ini, %A_LoopField%, target x-coordinate, % xScreenOffset + poe_width//2
+	IniRead, clone_frame_%A_LoopField%_target_y, ini\clone frames.ini, %A_LoopField%, target y-coordinate, % yScreenOffset + poe_height//2
+	IniRead, clone_frame_%A_LoopField%_scale_x, ini\clone frames.ini, %A_LoopField%, scaling x-axis, 100
+	IniRead, clone_frame_%A_LoopField%_scale_y, ini\clone frames.ini, %A_LoopField%, scaling y-axis, 100
+	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
+}
+
+IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset+poe_width//2
+notepad_xpos := (notepad_xpos = "") ? xScreenOffset+poe_width//2 : notepad_xpos
+IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset+poe_height//2
+notepad_ypos := (notepad_ypos = "") ? yScreenOffset+poe_height//2 : notepad_ypos
+IniRead, notepad_width, ini\notepad.ini, UI, width, 400
+IniRead, notepad_height, ini\notepad.ini, UI, height, 400
+IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
+If (notepad_text != "")
+	notepad_text := StrReplace(notepad_text, ",,", "`n")
+IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset, 0
+If fSize_offset_notepad is not number
+	fSize_offset_notepad := 0
+IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
+notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
+IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
+If notepad_trans is not number
+	notepad_trans := 160
+
+IniRead, pixelchecks_list, Resolutions.ini, Pixel-checks
+Loop, Parse, pixelchecks_list, `n, `n
+{
+	IniRead, pixel_%A_LoopField%_x1, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 1
+	IniRead, pixel_%A_LoopField%_y1, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 1
+	IniRead, pixel_%A_LoopField%_x2, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
+	IniRead, pixel_%A_LoopField%_y2, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
+	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
+	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
+}
+
+IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
+IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
 
 IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
 If (omnikey_hotkey != "")
@@ -212,131 +187,9 @@ Else
 	Hotkey, ~MButton, Omnikey, On
 }
 
-IniRead, all_nemesis, ini\db_archnemesis.ini,
-all_nemesis_unsorted := "-empty-`n" all_nemesis
-Loop, Parse, all_nemesis, `n,`n
-{
-	all_nemesis_inverted := (A_Index = 1) ? A_LoopField "," : A_LoopField "," all_nemesis_inverted
-	IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
-	If (read != "ERROR")
-		arch_recipes := (arch_recipes = "") ? A_LoopField "," : A_LoopField "," arch_recipes
-	Else arch_bases := (arch_bases = "") ? A_LoopField "," : A_LoopField "," arch_bases
-}
-arch_recipes_sorted := arch_recipes
-Sort, arch_recipes_sorted, C D`,
-arch_bases_sorted := arch_bases
-Sort, arch_bases_sorted, C D`,
-Sort, all_nemesis, C D`n
-
-IniRead, previous_highlight, ini\config_archnemesis.ini, Lists, previous highlight, %A_Space%
-IniRead, archnemesis_inventory, ini\config_archnemesis.ini, Lists, inventory	
-If (archnemesis_inventory != "") && (archnemesis_inventory != "ERROR")
-	Loop, Parse, archnemesis_inventory, `,,`,
-		arch_inventory.Push(A_LoopField)
-If (arch_inventory.Length() != 64)
-	archnemesis_inventory := "", arch_inventory := []
-
-IniRead, archnemesis1_x, ini\resolutions.ini, %poe_height%p, xCoord1
-IniRead, archnemesis2_x, ini\resolutions.ini, %poe_height%p, xCoord2
-IniRead, archnemesis1_y, ini\resolutions.ini, %poe_height%p, yCoord
-IniRead, archnemesis2_y, ini\resolutions.ini, %poe_height%p, yCoord
-archnemesis1_x += xScreenOffset
-archnemesis2_x += xScreenOffset
-archnemesis1_y += yScreenOffset
-archnemesis2_y += yScreenOffset
-
-IniRead, archnemesis1_color, ini\config_archnemesis.ini, PixelSearch, color1
-IniRead, archnemesis2_color, ini\config_archnemesis.ini, PixelSearch, color2
-IniRead, resolution, ini\config_archnemesis.ini, PixelSearch, resolution
-IniRead, fallback, ini\config_archnemesis.ini, PixelSearch, enable fallback
-If (fallback != 0) && (fallback != 1)
-{
-	IniWrite, 0, ini\config_archnemesis.ini, PixelSearch, enable fallback
-	fallback := 0
-}
-IniRead, pixelsearch_variation, ini\config_archnemesis.ini, PixelSearch, variation
-If pixelsearch_variation is not number
-{
-	IniWrite, 0, ini\config_archnemesis.ini, PixelSearch, variation
-	pixelsearch_variation := 0
-}
-
-IniRead, oversupply_setting, ini\config_archnemesis.ini, Settings, enable oversupply, 0
-IniRead, favorite_recipes, ini\config_archnemesis.ini, Lists, favorite recipes, %A_Space%
-IniRead, blacklist_recipes, ini\config_archnemesis.ini, Lists, blacklisted recipes, %A_Space%
-IniRead, pause_list, ini\config_archnemesis.ini, Lists, paused recipes, %A_Space%
-IniRead, archnemesis_scan_hotkey, ini\config_archnemesis.ini, Settings, scan-hotkey, %A_Space%
-If (archnemesis_scan_hotkey != "")
-{
-	Hotkey, If, (archnemesis = 1) && (enable_archnemesis = 1)
-	Hotkey, %archnemesis_scan_hotkey%, Scan, On
-}
-IniRead, burn_number1, ini\config_archnemesis.ini, Settings, oversupply-threshold, 9
-If (burn_number1 > 9)
-	burn_number1 := 9
-IniRead, burn_number, ini\config_archnemesis.ini, Settings, base-threshold, 9
-If (burn_number > 9)
-	burn_number := 9
-IniRead, sorting_settings, ini\config_archnemesis.ini, Settings, burn-mods sorting, quantity`,descending
-If (!InStr(sorting_settings, "ascending") && !InStr(sorting_settings, "descending"))
-{
-	sorting := "quantity"
-	sorting_order := "descending"
-}
-Else
-{
-	Loop, Parse, sorting_settings, `,,`,
-	{
-		If (A_Index = 1)
-			sorting := A_LoopField
-		Else sorting_order := A_LoopField
-	}
-}
-
-IniRead, yLetters, ini\resolutions.ini, %poe_height%p, yLetters
-IniRead, xWindow, ini\resolutions.ini, %poe_height%p, xWindow
-IniRead, invBox, ini\resolutions.ini, %poe_height%p, invBox
-Loop, Parse, invBox, `,,`,
-{
-	If (A_Index < 3)
-		invBox%A_Index% := A_LoopField + xScreenOffset
-	Else	invBox%A_Index% := A_LoopField + yScreenOffset
-}
-
-IniRead, xScan, ini\resolutions.ini, %poe_height%p, xScan
-IniRead, yScan, ini\resolutions.ini, %poe_height%p, yScan
-IniRead, dBitMap, ini\resolutions.ini, %poe_height%p, dBitMap
-yLetters += yScreenOffset
-xWindow += xScreenOffset
-
-If (archnemesis1_x = "ERROR") || (archnemesis1_x = "")
-{
-	MsgBox, %poe_height%p is not supported in this version. This may be due to a recent game update. If that is not the case, please request your resolution on GitHub and provide a screenshot with the archnemesis inventory open. 
-	ExitApp
-}
-
-If (archnemesis1_color = "ERROR") || (archnemesis1_color = "") || (resolution != poe_width "x" poe_height) || (game_version = "ERROR") || (game_version < "31710")
-{
-	If (archnemesis1_color = "ERROR") || (archnemesis1_color = "")
-		MsgBox, This seems to be the first time this script has been started. Please follow the upcoming instructions.
-	Else	MsgBox, Your resolution has changed since last launch, or the game has been updated. First-time setup is required. 
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	ToolTip, 1) Open the archnemesis inventory.`n2) Keep the cursor away from the archnemesis inventory.`n3) Hold the 7-key until this tooltip disappears., % poe_width//2+xScreenOffset, poe_height//2+yScreenOffset, 1
-	KeyWait, 7, D
-	PixelGetColor, archnemesis1_color, %archnemesis1_x%, %archnemesis1_y%, RGB
-	PixelGetColor, archnemesis2_color, %archnemesis2_x%, %archnemesis2_y%, RGB
-	IniWrite, %archnemesis1_color%, ini\config_archnemesis.ini, PixelSearch, color1
-	IniWrite, %archnemesis2_color%, ini\config_archnemesis.ini, PixelSearch, color2
-	IniWrite, %poe_width%x%poe_height%, ini\config_archnemesis.ini, PixelSearch, resolution
-	IniWrite, 31710, ini\config.ini, Versions, game-version
-	ToolTip,,,, 1
-	KeyWait, 7
-}
-
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|archnemesis_letters|base_loot|archnemesis_list|archnemesis_window|surplus_view|settings_menu|alarm|alarm_sample"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window"
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -344,10 +197,8 @@ If (custom_resolution_setting = 1)
 WinWaitActive, ahk_group poe_window
 SoundBeep, 100
 GoSub, GUI
-SetTimer, MainLoop, 200
+SetTimer, MainLoop, 100
 Return
-
-#Include Fallback.ahk
 
 #IfWinActive ahk_group poe_window
 	
@@ -356,7 +207,40 @@ SendInput, {Enter}
 GoSub, Settings_menu
 Return
 
-#If (archnemesis = 1) && (enable_archnemesis = 1)
+#If WinExist("ahk_id " hwnd_clone_frames_menu)
+
+F1::
+MouseGetPos, mouseXpos, mouseYpos
+clone_frame_new_topleft_x := mouseXpos
+clone_frame_new_topleft_y := mouseYpos
+GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_x, % clone_frame_new_topleft_x
+GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_y, % clone_frame_new_topleft_y
+GoSub, Clone_frames_dimensions
+Return
+
+F2::
+MouseGetPos, mouseXpos, mouseYpos
+clone_frame_new_width := mouseXpos - clone_frame_new_topleft_x
+clone_frame_new_height := mouseYpos - clone_frame_new_topleft_y
+GuiControl, clone_frames_menu: Text, clone_frame_new_width, % clone_frame_new_width
+GuiControl, clone_frames_menu: Text, clone_frame_new_height, % clone_frame_new_height
+/*
+clone_frame_new_botright_x := mouseXpos
+clone_frame_new_botright_y := mouseYpos
+GuiControl, clone_frames_menu: Text, clone_frame_new_botright_x, % mouseXpos
+GuiControl, clone_frames_menu: Text, clone_frame_new_botright_y, % mouseYpos
+*/
+GoSub, Clone_frames_dimensions
+Return
+
+F3::
+MouseGetPos, mouseXpos, mouseYpos
+clone_frame_new_target_x := (mouseXpos + clone_frame_new_width * clone_frame_new_scale_x//100 > xScreenOffset + poe_width) ? xScreenOffSet + poe_width - clone_frame_new_width * clone_frame_new_scale_x//100 : mouseXpos
+clone_frame_new_target_y := (mouseYpos + clone_frame_new_height * clone_frame_new_scale_y//100 > yScreenOffset + poe_height) ? yScreenOffSet + poe_height - clone_frame_new_height * clone_frame_new_scale_y//100 : mouseYpos
+GuiControl, clone_frames_menu: Text, clone_frame_new_target_x, % clone_frame_new_target_x
+GuiControl, clone_frames_menu: Text, clone_frame_new_target_y, % clone_frame_new_target_y
+GoSub, Clone_frames_dimensions
+Return
 
 #If
 
@@ -373,7 +257,7 @@ If (alarm_timestamp != "") && (alarm_timestamp < A_Now)
 }
 If (A_Gui = "settings_menu")
 {
-	LLK_Overlay("alarm", 2)
+	LLK_Overlay("alarm", "hide")
 	Gui, alarm_sample: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_alarm_sample, Preview: timer
 	Gui, alarm_sample: Margin, 12, 4
 	Gui, alarm_sample: Color, Black
@@ -381,8 +265,9 @@ If (A_Gui = "settings_menu")
 	Gui, alarm_sample: Font, c%alarm_fontcolor% s%fSize_alarm%, Fontin SmallCaps
 	Gui, alarm_sample: Add, Text, BackgroundTrans, % "  00:00  "
 	If (alarm_sample_xpos != "") && (alarm_sample_ypos != "")
-		Gui, alarm_sample: Show, NA x%alarm_sample_xpos% y%alarm_sample_ypos% AutoSize
-	Else Gui, alarm_sample: Show, NA Center AutoSize
+		Gui, alarm_sample: Show, Hide x%alarm_sample_xpos% y%alarm_sample_ypos% AutoSize
+	Else Gui, alarm_sample: Show, Hide Center AutoSize
+	LLK_Overlay("alarm_sample", "show")
 	Return
 }
 
@@ -405,7 +290,7 @@ If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
 	Gui, alarm: Add, Text, xp BackgroundTrans Center valarm_countdown, XX:XX
 	GuiControl, Text, alarm_countdown,
 	Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos% AutoSize
-	LLK_Overlay("alarm", 1)
+	LLK_Overlay("alarm", "show")
 	WinActivate, ahk_group poe_window
 	continue_alarm := 0
 	Return
@@ -425,34 +310,36 @@ If (click = 2) || (hwnd_alarm = "")
 		{
 			Gui, alarm: Destroy
 			hwnd_alarm := ""
+			WinActivate, ahk_group poe_window
 			Return
 		}
 		Gui, alarm: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_alarm, Lailloken UI: alarm-timer
 		Gui, alarm: Color, Black
 		Gui, alarm: Margin, 12, 4
 		WinSet, Transparent, %trans%
-		Gui, alarm: Font, s%fSize1% cWhite, Fontin SmallCaps
+		Gui, alarm: Font, s%fSize0% cWhite, Fontin SmallCaps
 		Gui, alarm: Add, Text, Section BackgroundTrans Center, set timer to
-		Gui, alarm: Font, % "s"fSize0-5
+		Gui, alarm: Font, % "s"fSize0-4
 		Gui, alarm: Add, Edit, % "ys hp x+6 cBlack BackgroundTrans Center valarm_minutes Limit2 Number w"fSize0*1.8, 0
-		Gui, alarm: Font, s%fSize1%
+		Gui, alarm: Font, s%fSize0%
 		Gui, alarm: Add, Text, ys x+6 BackgroundTrans Center, minute(s)
 		Gui, alarm: Add, Button, xp hp BackgroundTrans Hidden Default valarm_start gAlarm, OK
 		If (alarm_xpos = "") || (alarm_ypos = "")
 			Gui, alarm: Show, Hide Center
 		Else Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos%
-		LLK_Overlay("alarm", 1, 1)
+		LLK_Overlay("alarm", "show", 1)
 		WinGetPos,,,, alarm_height, ahk_id %hwnd_alarm%
 		Return
 	}
 }
 
 If !WinExist("ahk_id " hwnd_alarm)
-	LLK_Overlay("alarm", 1, 1)
+	LLK_Overlay("alarm", "show", 1)
 Else
 {
 	WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
-	LLK_Overlay("alarm", 2)
+	LLK_Overlay("alarm", "hide")
+	WinActivate, ahk_group poe_window
 }
 Return
 
@@ -462,11 +349,12 @@ If !WinExist("ahk_group poe_window") || (alarm_timestamp < A_Now)
 	alarm_timestamp := ""
 	hwnd_alarm := ""
 }
-LLK_Overlay("alarm", 2)
+LLK_Overlay("alarm", "hide")
 Return
 
 Apply_resolution:
 Gui, settings_menu: Submit, NoHide
+kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 poe_height := custom_resolution
 IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
@@ -475,207 +363,362 @@ Reload
 ExitApp
 Return
 
-Archnemesis:
-LLK_Recipes(A_GuiControl, 1)
-Return
-
-Archnemesis2:
-If InStr(A_GuiControl, "prev")
-	param := previous_highlight
-Else param := InStr(A_GuiControl, "x ") ? SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2) : A_GuiControl
-LLK_Recipes(param, 2)
-Return
-
-Archnemesis_letter:
-If WinExist("ahk_id " hwnd_archnemesis_list) && (letter_clicked = A_GuiControl)
+Apply_settings_alarm:
+If (A_GuiControl = "enable_alarm")
 {
-	Gui, archnemesis_list: Destroy
-	hwnd_archnemesis_list := ""
-	letter_clicked := ""
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
+	Gui, settings_menu: Submit, NoHide
+	If WinExist("ahk_id " hwnd_alarm_sample) && (enable_alarm = 0)
+	{
+		Gui, alarm_sample: Destroy
+		hwnd_alarm_sample := ""
+	}
+	If WinExist("ahk_id " hwnd_alarm) && (enable_alarm = 0)
+	{
+		Gui, alarm: Destroy
+		hwnd_alarm := ""
+	}
+	GoSub, GUI
+	GoSub, Settings_menu
 	Return
 }
-letter_clicked := A_GuiControl
-Gui, archnemesis_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-hwnd_archnemesis_list := WinExist()
-Gui, archnemesis_list: Margin, 2, 2
-Gui, archnemesis_list: Color, Black
-WinSet, Transparent, %trans%
-Gui, archnemesis_list: Font, s%fSize0% cWhite, Fontin SmallCaps
-no_letter := 1
-section := 0
-If InStr(A_GuiControl, "t1")
+If (A_GuiControl = "fSize_alarm_minus")
+	fSize_offset_alarm -= 1
+If (A_GuiControl = "fSize_alarm_plus")
+	fSize_offset_alarm += 1
+If (A_GuiControl = "fSize_alarm_reset")
+	fSize_offset_alarm := 0
+If (A_GuiControl = "alarm_opac_minus")
+	alarm_trans -= (alarm_trans > 100) ? 30 : 0
+If (A_GuiControl = "alarm_opac_plus")
+	alarm_trans += (alarm_trans < 250) ? 30 : 0
+WinGetPos, alarm_sample_xpos, alarm_sample_ypos,,, ahk_id %hwnd_alarm_sample%
+alarm_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : alarm_fontcolor
+GoSub, Alarm
+Return
+
+Apply_settings_general:
+If (A_GuiControl = "interface_size_minus")
+	fSize_offset -= 1
+If (A_GuiControl = "interface_size_plus")
+	fSize_offset += 1
+If (A_GuiControl = "interface_size_reset")
+	fSize_offset := 0
+fSize0 := fSize_config0 + fSize_offset
+fSize1 := fSize_config1 + fSize_offset
+Gui, settings_menu: Submit, NoHide
+SetTimer, Settings_menu, 10
+GoSub, GUI
+WinActivate, ahk_group poe_window
+Return
+
+Apply_settings_notepad:
+If (A_GuiControl = "enable_notepad")
 {
-	Loop, Parse, arch_bases_sorted, `,,`,
+	Gui, settings_menu: Submit, NoHide
+	If WinExist("ahk_id " hwnd_notepad_sample) && (enable_notepad = 0)
 	{
-		If (A_LoopField = "")
-			break
-		color := InStr(favorite_recipes, A_LoopField) ? "Yellow" : "White"
-		color := InStr(blacklist_recipes, A_LoopField) ? "Red" : color
-		If (A_Index = 1)
-			Gui, archnemesis_list: Add, Text, x6 y2 c%color% Section HWNDmain_text gFavored_recipes, % A_LoopField
-		Else Gui, archnemesis_list: Add, Text, xs c%color% Section HWNDmain_text gFavored_recipes, % A_LoopField
-		IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
-		ControlGetPos,, ypos,, height,, ahk_id %main_text%
-		Loop, Parse, rewards, `,,`,
-			Gui, archnemesis_list: Add, Picture, ys BackgroundTrans h%height% w-1 y%ypos%, img\Rewards\%A_LoopField%.png
-		no_letter := 0
+		Gui, notepad_sample: Destroy
+		hwnd_notepad_sample := ""
 	}
+	If WinExist("ahk_id " hwnd_notepad) && (enable_notepad = 0)
+	{
+		Gui, Notepad: Submit, NoHide
+		Gui, notepad: Destroy
+		hwnd_notepad := ""
+	}
+	GoSub, GUI
+	GoSub, Settings_menu
+	Return
 }
-Else If InStr(A_GuiControl,"b-list") && (blacklist_recipes != "")
+If (A_GuiControl = "fSize_notepad_minus")
+	fSize_offset_notepad -= 1
+If (A_GuiControl = "fSize_notepad_plus")
+	fSize_offset_notepad += 1
+If (A_GuiControl = "fSize_notepad_reset")
+	fSize_offset_notepad := 0
+If (A_GuiControl = "notepad_opac_minus")
+	notepad_trans -= (notepad_trans > 100) ? 30 : 0
+If (A_GuiControl = "notepad_opac_plus")
+	notepad_trans += (notepad_trans < 250) ? 30 : 0
+WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
+notepad_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : notepad_fontcolor
+GoSub, Notepad
+Return
+
+Apply_settings_omnikey:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 {
-	Sort, blacklist_recipes, C D`,
-	Loop, Parse, blacklist_recipes, `,,`,
+	If (omnikey_hotkey_old != omnikey_hotkey) && (omnikey_hotkey_old != "")
 	{
-		If (A_LoopField = "")
-			break
-		color := "red"
-		If (A_Index = 1)
-			Gui, archnemesis_list: Add, Text, x6 y2 c%color% Section HWNDmain_text gBlacklist_recipes, % A_LoopField
-		Else Gui, archnemesis_list: Add, Text, xs c%color% Section HWNDmain_text gBlacklist_recipes, % A_LoopField
-		IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
-		IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-		ControlGetPos,, ypos,, height,, ahk_id %main_text%
-		Loop, Parse, rewards, `,,`,
-			Gui, archnemesis_list: Add, Picture, ys BackgroundTrans h%height% w-1 y%ypos%, img\Rewards\%A_LoopField%.png
-		If (modifiers != "ERROR")
-		{
-			Gui, archnemesis_list: Font, s%fSize1% cWhite
-			Gui, archnemesis_list: Add, Text, cSilver xs BackgroundTrans Section, % "    "
-			Gui, archnemesis_list: Add, Text, cSilver ys BackgroundTrans, % modifiers
-			Gui, archnemesis_list: Font, s%fSize0% cWhite
-		}
-		no_letter := 0
+		Hotkey, IfWinActive, ahk_group poe_window
+		Hotkey, ~%omnikey_hotkey_old%,, Off
 	}
+	omnikey_hotkey_old := omnikey_hotkey
+	Hotkey, IfWinActive, ahk_group poe_window
+	Hotkey, ~%omnikey_hotkey%, Omnikey, On
+}
+GoSub, Settings_menu
+Return
+
+Clone_frames_apply:
+Gui, Settings_menu: Submit, NoHide
+If InStr(A_GuiControl, "pixel")
+{
+	If (clone_frames_pixelcheck_enable = 0)
+		pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+	Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
+	Return
+}
+clone_frames_enabled := ""
+Loop, Parse, clone_frames_list, `n, `n
+{
+	If (clone_frame_%A_LoopField%_enable = 1)
+		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+}
+Return
+
+Clone_frames_dimensions:
+Gui, clone_frames_menu: Submit, NoHide
+GuiControl, clone_frames_menu: Text, clone_frame_new_dimensions, % clone_frame_new_width " x " clone_frame_new_height " pixels"
+Gui, clone_frame_preview: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview
+Gui, clone_frame_preview: Show, NA
+bmpCloneFrameScreenshot := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
+Gui, clone_frame_preview_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border +OwnDialogs HWNDhwnd_clone_frame_preview_frame
+Gui, clone_frame_preview_frame: Color, Black
+WinSet, TransColor, Black
+If ((clone_frame_new_width > 1) && (clone_frame_new_height > 1))
+	Gui, clone_frame_preview_frame: Show, % "NA x"clone_frame_new_topleft_x - 1 " y"clone_frame_new_topleft_y - 1 " w"clone_frame_new_width " h"clone_frame_new_height
+Else Gui, clone_frame_preview_frame: Hide
+SetTimer, Clone_frames_preview, 100
+Return
+
+Clone_frames_delete:
+delete_string := StrReplace(A_GuiControl, "delete_", "")
+IniDelete, ini\clone frames.ini, %delete_string%
+new_clone_menu_closed := 1
+GoSub, Settings_menu
+Return
+
+Clone_frames_new:
+Gui, settings_menu: Submit
+LLK_Overlay("settings_menu", "hide")
+If (clone_frames_edit_mode = 1)
+{
+	edit_string := StrReplace(A_GuiControl, "edit_", "")
+	clone_frames_enabled := StrReplace(clone_frames_enabled, edit_string ",", "")
+	IniRead, clone_frame_edit_topleft_x, ini\clone frames.ini, %edit_string%, source x-coordinate
+	IniRead, clone_frame_edit_topleft_y, ini\clone frames.ini, %edit_string%, source y-coordinate
+	IniRead, clone_frame_edit_width, ini\clone frames.ini, %edit_string%, frame-width
+	IniRead, clone_frame_edit_height, ini\clone frames.ini, %edit_string%, frame-height
+	IniRead, clone_frame_edit_target_x, ini\clone frames.ini, %edit_string%, target x-coordinate
+	IniRead, clone_frame_edit_target_y, ini\clone frames.ini, %edit_string%, target y-coordinate
+	IniRead, clone_frame_edit_scale_x, ini\clone frames.ini, %edit_string%, scaling x-axis, 100
+	IniRead, clone_frame_edit_scale_y, ini\clone frames.ini, %edit_string%, scaling y-axis, 100
+	IniRead, clone_frame_edit_opacity, ini\clone frames.ini, %edit_string%, opacity, 5
+	clone_frames_edit_mode := 0
 }
 Else
 {
-	Loop, Parse, arch_recipes_sorted, `,,`,
-	{
-		color := InStr(favorite_recipes, A_LoopField) ? "Yellow" : "White"
-		color := InStr(blacklist_recipes, A_LoopField) ? "Red" : color
-		If (SubStr(A_LoopField, 1, 1) = A_GuiControl)
-		{
-			Gui, archnemesis_list: Font, s%fSize0%
-			If (section != 1)
-			{
-				Gui, archnemesis_list: Add, Text, x6 y2 c%color% Section HWNDmain_text gFavored_recipes, % A_LoopField
-				section := 1
-			}
-			Else Gui, archnemesis_list: Add, Text, xs c%color% Section HWNDmain_text gFavored_recipes, % A_LoopField
-			IniRead, rewards, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-			ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			Loop, Parse, rewards, `,,`,
-				Gui, archnemesis_list: Add, Picture, ys BackgroundTrans h%height% w-1 y%ypos%, img\Rewards\%A_LoopField%.png
-			If (modifiers != "ERROR")
-			{
-				Gui, archnemesis_list: Font, s%fSize1% cWhite
-				Gui, archnemesis_list: Add, Text, cSilver xs BackgroundTrans Section, % "    "
-				Gui, archnemesis_list: Add, Text, cSilver ys BackgroundTrans, % modifiers
-				Gui, archnemesis_list: Font, s%fSize0% cWhite
-			}
-			no_letter := 0
-		}
-	}
+	edit_string := ""
+	clone_frame_edit_topleft_x := 0
+	clone_frame_edit_topleft_y := 0
+	clone_frame_edit_width := 0
+	clone_frame_edit_height := 0
+	clone_frame_edit_target_x := 0
+	clone_frame_edit_target_y := 0
+	clone_frame_edit_scale_x := 100
+	clone_frame_edit_scale_y := 100
+	clone_frame_edit_opacity := 5
 }
-Gui, archnemesis_list: Margin, 6, 2
-If (no_letter=0)
-{
-	MouseGetPos, mouseX, mouseY
-	Gui, archnemesis_list: Show, Hide
-	WinGetPos,,,, height
-	If (height > yScreenOffset + yLetters - 10)
-		Gui, archnemesis_list: Show, % "NA x"archnemesis1_x+10 " y"yScreenOffset
-	Else	Gui, archnemesis_list: Show, % "NA x"mouseX " y"yLetters-10-height
-}
-WinActivate, ahk_group poe_window
-Return
-
-Base_info:
-IniRead, maps, ini\db_archnemesis.ini, %A_GuiControl%, maps
-Sort, maps, D`,
-Gui, base_info: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border, map tab search: %A_GuiControl%
-Gui, base_info: Margin, 20, 0
-Gui, base_info: Color, Black
+Gui, clone_frames_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_clone_frames_menu, Lailloken UI: clone-frame configuration
+Gui, clone_frames_menu: Color, Black
+Gui, clone_frames_menu: Margin, 12, 4
 WinSet, Transparent, %trans%
-Gui, base_info: Font, cWhite s%fSize0%, Fontin SmallCaps
-search_term := ""
-Loop, Parse, maps, `,,`,
+Gui, clone_frames_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+
+Gui, clone_frames_menu: Add, Text, Section BackgroundTrans HWNDmain_text, % "unique frame name: "
+ControlGetPos,,, width,,, ahk_id %main_text%
+
+Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
+Gui, clone_frames_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack limit lowercase vClone_frame_new_name w"width, % edit_string
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_topleft_x gClone_frames_dimensions y+"fSize0*1.2, % poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, % poe_width
+Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 gClone_frames_dimensions vClone_frame_new_topleft_y x+"fSize0//3, % poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, % poe_height
+Gui, clone_frames_menu: Font, % "s"fSize0
+Gui, clone_frames_menu: Add, Text, ys x+0 BackgroundTrans, % " source top-left corner (f1: snap to cursor)"
+
+Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_width", % poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, 0
+Gui, clone_frames_menu: Add, Edit, % "ys hp BackgroundTrans cWhite Number ReadOnly Limit4 gClone_frames_dimensions right vClone_frame_new_height x+"fSize0//3, % poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, 0
+Gui, clone_frames_menu: Font, % "s"fSize0
+Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " frame width && height (f2: snap to cursor)"
+
+Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_x gClone_frames_dimensions", % poe_width
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_width, % poe_width
+Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly right Limit4 vClone_frame_new_target_y gClone_frames_dimensions x+"fSize0//3, % poe_height
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-"poe_height, % poe_height
+Gui, clone_frames_menu: Font, % "s"fSize0
+Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " target top-left corner (f3: snap to cursor)"
+
+GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_x, % clone_frame_edit_topleft_x
+GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_y, % clone_frame_edit_topleft_y
+GuiControl, clone_frames_menu: Text, clone_frame_new_width, % clone_frame_edit_width
+GuiControl, clone_frames_menu: Text, clone_frame_new_height, % clone_frame_edit_height
+GuiControl, clone_frames_menu: Text, clone_frame_new_target_x, % clone_frame_edit_target_x
+GuiControl, clone_frames_menu: Text, clone_frame_new_target_y, % clone_frame_edit_target_y
+
+Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
+Gui, clone_frames_menu: Add, Edit, % "xs Section BackgroundTrans cBlack Number Limit4 gClone_frames_dimensions right vClone_frame_new_scale_x", 1000
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range10-1000", % clone_frame_edit_scale_x
+Gui, clone_frames_menu: Add, Edit, % "ys hp BackgroundTrans cBlack Number Limit4 gClone_frames_dimensions right vClone_frame_new_scale_y x+"fSize0//3, 1000
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range10-1000", % clone_frame_edit_scale_y
+Gui, clone_frames_menu: Font, % "s"fSize0
+Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " x/y-axis scaling (%)"
+
+Gui, clone_frames_menu: Font, % "s"fSize0-4 "norm"
+Gui, clone_frames_menu: Add, Edit, % "ys BackgroundTrans cWhite Number ReadOnly Limit3 ReadOnly gClone_frames_dimensions right vClone_frame_new_opacity", 10
+Gui, clone_frames_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 gClone_frames_dimensions range0-5", % clone_frame_edit_opacity
+Gui, clone_frames_menu: Font, % "s"fSize0
+Gui, clone_frames_menu: Add, Text, % "ys x+0 BackgroundTrans", % " opacity (0-5)"
+
+Gui, clone_frames_menu: Add, Text, % "xs BackgroundTrans HWNDmain_text Border vSave_clone_frame gClone_frames_save y+"fSize0*1.2, % " save && close "
+edit_string := ""
+LLK_Overlay("clone_frames_menu", "show", 0)
+Gui, clone_frames_menu: Submit, NoHide
+Return
+
+Clone_frames_menuGuiClose:
+SetTimer, Clone_frames_preview, Delete
+new_clone_menu_closed := 1
+GoSub, Settings_menu
+Gui, clone_frame_preview: Destroy
+Gui, clone_frame_preview_frame: Destroy
+Gui, clone_frames_menu: Destroy
+Return
+
+Clone_frames_preview:
+bmpPreview := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
+;WinGetPos, winXpos, winYpos,, winheight, ahk_id %hwnd_clone_frames_menu%
+Gdip_GetImageDimensions(bmpPreview, WidthPreview, HeightPreview)
+hbmPreview := CreateDIBSection(poe_width, poe_height)
+hdcPreview := CreateCompatibleDC()
+obmPreview := SelectObject(hdcPreview, hbmPreview)
+GPreview := Gdip_GraphicsFromHDC(hdcPreview)
+Gdip_SetInterpolationMode(GPreview, 0)
+Gdip_DrawImage(GPreview, bmpPreview, clone_frame_new_target_x, clone_frame_new_target_y, clone_frame_new_width * clone_frame_new_scale_x//100, clone_frame_new_height * clone_frame_new_scale_y//100, 0, 0, WidthPreview, HeightPreview, 0.2 + 0.16 * clone_frame_new_opacity)
+UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
+SelectObject(hdcPreview, obmPreview)
+DeleteObject(hbmPreview)
+DeleteDC(hdcPreview)
+Gdip_DeleteGraphics(GPreview)
+Gdip_DisposeImage(bmpPreview)
+Return
+
+Clone_frames_preview_list:
+MouseGetPos, mouseXpos, mouseYpos
+If (click = 2)
 {
-	If (A_Index = 1)
-		Gui, base_info: Add, Text, Center Section BackgroundTrans gMap_highlight, % A_LoopField
-	Else	Gui, base_info: Add, Text, Center xs BackgroundTrans gMap_highlight, % A_LoopField
-}
-Gui, base_info: Show, % "NA x"xScreenOffset+poe_width//2 " y"yScreenOffset
-WinActivate, ahk_group poe_window
-Return
-
-Base_lootGuiClose:
-LLK_Overlay("base_loot", 2)
-base_loot_toggle := 0
-Return
-
-Blacklist_recipes:
-blacklist_recipes := StrReplace(blacklist_recipes, A_GuiControl ",", "")
-SetTimer, Favored_recipes, 10
-Return
-
-Burn_all:
-search_term := ""
-unwanted_mods_quant0 := unwanted_mods_quant
-If (unwanted_mods_quant = "")
-{
-	WinActivate, ahk_group poe_window
+	Gui, clone_frame_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_context_menu
+	Gui, clone_frame_context_menu: Margin, % fSize0//2, fSize0//2
+	Gui, clone_frame_context_menu: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, clone_frame_context_menu: Font, cWhite s%fSize0%, Fontin SmallCaps
+	clone_frames_edit_mode := 1
+	Gui, clone_frame_context_menu: Add, Text, Section BackgroundTrans vEdit_%A_GuiControl% gClone_frames_new, edit
+	Gui, clone_frame_context_menu: Add, Text, % "xs BackgroundTrans vDelete_" A_GuiControl " gClone_frames_delete y+"fSize0//2, delete
+	Gui, clone_frame_context_menu: Show, % "AutoSize x"mouseXpos + fSize0 " y"mouseYpos + fSize0
+	WinWaitNotActive, ahk_id %hwnd_clone_frame_context_menu%
+	clone_frames_edit_mode := 0
+	Gui, clone_frame_context_menu: Destroy
 	Return
 }
-Sort, unwanted_mods_burn, D`, N R
-Loop, Parse, unwanted_mods_burn, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	If InStr(blacklist_recipes, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2))
-		continue
-	If (StrLen("^(" search_term ")") < 42)
-	{
-		If InStr(A_LoopField, "frost ") || InStr(A_LoopField, "frostw") || InStr(A_LoopField, "flame") || InStr(A_LoopField, "storm")
-		{
-			search_term := (search_term = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 7) : search_term "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 7)
-			continue
-		}
-		If InStr(A_LoopField, "cor")
-		{
-			search_term := (search_term = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 4) : search_term "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 4)
-			continue
-		}
-		If InStr(A_LoopField, "soul")
-		{
-			search_term := (search_term = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 6) : search_term "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 6)
-			continue
-		}
-		If InStr(A_LoopField, "empower")
-		{
-			search_term := (search_term = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8) : search_term "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8)
-			continue
-		}
-		search_term := (search_term = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 3) : search_term "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 3)
-	}
-}
-
-clipboard := "^(" StrReplace(search_term, A_Space, ".") ")"
-WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
-SendInput, ^{f}^{v}{Enter}
+Gui, clone_frame_preview_list: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview_list
+Gui, clone_frame_preview_list: Show, NA
+Gui, clone_frame_preview_list_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview_list_frame
+Gui, clone_frame_preview_list_frame: Color, Red
+bmpPreview_list := Gdip_BitmapFromScreen(clone_frame_%A_GuiControl%_topleft_x "|" clone_frame_%A_GuiControl%_topleft_y "|" clone_frame_%A_GuiControl%_width "|" clone_frame_%A_GuiControl%_height)
+Gdip_GetImageDimensions(bmpPreview_list, WidthPreview_list, HeightPreview_list)
+hbmPreview_list := CreateDIBSection(WidthPreview_list, HeightPreview_list)
+hdcPreview_list := CreateCompatibleDC()
+obmPreview_list := SelectObject(hdcPreview_list, hbmPreview_list)
+GPreview_list := Gdip_GraphicsFromHDC(hdcPreview_list)
+Gdip_SetInterpolationMode(GPreview_list, 0)
+Gdip_DrawImage(GPreview_list, bmpPreview_list, 0, 0, WidthPreview_list, HeightPreview_list, 0, 0, WidthPreview_list, HeightPreview_list, 1)
+UpdateLayeredWindow(hwnd_clone_frame_Preview_list, hdcPreview_list, mouseXpos, mouseYpos, WidthPreview_list, HeightPreview_list)
+Gui, clone_frame_preview_list_frame: Show, % "NA x"mouseXpos - fSize0//6 " y"mouseYpos - fSize0//6 " w"WidthPreview_list + 2*(fSize0//6) " h"HeightPreview_list + 2*(fSize0//6)
+Gui, clone_frame_preview_list: Show, NA
+KeyWait, LButton
+Gui, clone_frame_preview_list: Destroy
+Gui, clone_frame_preview_list_frame: Destroy
+SelectObject(hdcPreview_list, obmPreview_list)
+DeleteObject(hbmPreview_list)
+DeleteDC(hdcPreview_list)
+Gdip_DeleteGraphics(GPreview_list)
+Gdip_DisposeImage(bmpPreview_list)
 Return
 
-BurnEdit:
-Gui, surplus_view: Submit, NoHide
-If (burn_number != "") && (burn_number1 != "")
-	GoSub, Favored_recipes
-Burn_number := (Burn_number = "") ? 0 : Burn_number
-Burn_number1 := (Burn_number1 = "") ? 0 : Burn_number1
-WinActivate, ahk_group poe_window
+Clone_frames_save:
+Gui, clone_frames_menu: Submit, NoHide
+clone_frame_new_name_first_letter := SubStr(clone_frame_new_name, 1, 1)
+If (clone_frame_new_name = "")
+	Return
+If (clone_frame_new_name = "settings")
+{
+	Gui, clone_frames_menu: Hide
+	MsgBox, The selected name is not allowed. Please choose a different name.
+	GuiControl, clone_frames_menu: Text, clone_frame_new_name,
+	Gui, clone_frames_menu: Show
+	Return
+}
+If clone_frame_new_name_first_letter is not alnum
+{
+	Gui, clone_frames_menu: Hide
+	MsgBox, Unsupported first character in frame-name detected. Please choose a different name.
+	GuiControl, clone_frames_menu: Text, clone_frame_new_name,
+	Gui, clone_frames_menu: Show
+	Return
+}
+If (clone_frame_new_width < 1) || (clone_frame_new_height < 1)
+{
+	Gui, clone_frames_menu: Hide
+	MsgBox, Incorrect dimensions detected. Please make sure to set the source corners properly.
+	Gui, clone_frames_menu: Show
+	Return
+}
+clone_frame_new_name_save := ""
+Loop, Parse, clone_frame_new_name
+{
+	If (A_LoopField = A_Space)
+		add_character := " "
+	Else If A_LoopField is not alnum
+		add_character := "_"
+	Else add_character := A_LoopField
+	clone_frame_new_name_save := (clone_frame_new_name_save = "") ? add_character : clone_frame_new_name_save add_character
+}
+IniWrite, %clone_frame_new_topleft_x%, ini\clone frames.ini, %clone_frame_new_name_save%, source x-coordinate
+IniWrite, %clone_frame_new_topleft_y%, ini\clone frames.ini, %clone_frame_new_name_save%, source y-coordinate
+IniWrite, %clone_frame_new_target_x%, ini\clone frames.ini, %clone_frame_new_name_save%, target x-coordinate
+IniWrite, %clone_frame_new_target_y%, ini\clone frames.ini, %clone_frame_new_name_save%, target y-coordinate
+IniWrite, %clone_frame_new_width%, ini\clone frames.ini, %clone_frame_new_name_save%, frame-width
+IniWrite, %clone_frame_new_height%, ini\clone frames.ini, %clone_frame_new_name_save%, frame-height
+IniWrite, %clone_frame_new_scale_x%, ini\clone frames.ini, %clone_frame_new_name_save%, scaling x-axis
+IniWrite, %clone_frame_new_scale_y%, ini\clone frames.ini, %clone_frame_new_name_save%, scaling y-axis
+IniWrite, %clone_frame_new_opacity%, ini\clone frames.ini, %clone_frame_new_name_save%, opacity
+clone_frame_%clone_frame_new_name_save%_topleft_x := clone_frame_new_topleft_x
+clone_frame_%clone_frame_new_name_save%_topleft_y := clone_frame_new_topleft_y
+clone_frame_%clone_frame_new_name_save%_target_x := clone_frame_new_target_x
+clone_frame_%clone_frame_new_name_save%_target_y := clone_frame_new_target_y
+clone_frame_%clone_frame_new_name_save%_width := clone_frame_new_width
+clone_frame_%clone_frame_new_name_save%_height := clone_frame_new_height
+clone_frame_%clone_frame_new_name_save%_scale_x := clone_frame_new_scale_x
+clone_frame_%clone_frame_new_name_save%_scale_y := clone_frame_new_scale_y
+clone_frame_%clone_frame_new_name_save%_opacity := clone_frame_new_opacity
+GoSub, Clone_frames_menuGuiClose
 Return
 
 Exit:
@@ -707,21 +750,16 @@ If (timeout != 1)
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
 	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-	IniWrite, %enable_archnemesis%, ini\config.ini, Features, enable archnemesis
 	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
 	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
 	
-	IniWrite, %sorting%`,%sorting_order%, ini\config_archnemesis.ini, Settings, burn-mods sorting
-	IniWrite, %oversupply_setting%, ini\config_archnemesis.ini, Settings, enable oversupply
-	IniWrite, %burn_number%, ini\config_archnemesis.ini, Settings, base-threshold
-	IniWrite, %burn_number1%, ini\config_archnemesis.ini, Settings, oversupply-threshold
-	IniWrite, %archnemesis_scan_hotkey%, ini\config_archnemesis.ini, Settings, scan-hotkey
-	IniWrite, %favorite_recipes%, ini\config_archnemesis.ini, Lists, favorite recipes
-	IniWrite, %blacklist_recipes%, ini\config_archnemesis.ini, Lists, blacklisted recipes
-	IniWrite, %pause_list%, ini\config_archnemesis.ini, Lists, paused recipes
-	IniWrite, %previous_highlight%, ini\config_archnemesis.ini, Lists, previous highlight
-	If (archnemesis_inventory != "")
-		IniWrite, %archnemesis_inventory%, ini\config_archnemesis.ini, Lists, inventory
+	Loop, Parse, clone_frames_list, `n, `n
+	{
+		If (A_LoopField = "Settings")
+			continue
+		IniWrite, % clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable
+	}
+	IniWrite, % clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check
 }
 ExitApp
 Return
@@ -731,8 +769,8 @@ Gui, LLK_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Bor
 Gui, LLK_panel: Margin, 2, 2
 Gui, LLK_panel: Color, Black
 WinSet, Transparent, %trans%
-Gui, LLK_panel: Font, % "s"fSize0 " cWhite underline", Fontin SmallCaps
-Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "llk ui:"
+Gui, LLK_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "LLK UI:"
 ControlGetPos,, ypos,, height,, ahk_id %main_text%
 If (enable_notepad = 1)
 	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gNotepad", img\GUI\notepad.jpg
@@ -740,231 +778,33 @@ If (enable_alarm = 1)
 	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gAlarm", img\GUI\alarm.jpg
 Gui, LLK_panel: Show, Hide
 WinGetPos,,, panel_width, panel_height
-panel_style := (hide_panel = 1) ? 2 : 1
+panel_style := (hide_panel = 1) ? "hide" : "show"
 panel_xpos := (panel_position1 = "left") ? xScreenOffset : xScreenOffset + poe_width - panel_width
 panel_ypos := (panel_position0 = "bottom") ? yScreenOffset + poe_height - panel_height : yScreenOffset
 Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
 LLK_Overlay("LLK_panel", panel_style)
-If (enable_archnemesis = 1)
-	GoSub, GUI_archnemesis
+Gui, clone_frames_window: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frames_window
 If (continue_alarm = 1)
 	GoSub, Alarm
 Return
 
-GUI_archnemesis:
-Gui, archnemesis_letters: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_archnemesis_letters
-Gui, archnemesis_letters: Margin, 0, 2
-Gui, archnemesis_letters: Color, Black
-WinSet, Transparent, %trans%
-Gui, archnemesis_letters: Font, s%fSize0% cWhite, Fontin SmallCaps
-letter := ""
-Gui, archnemesis_letters: Add, Text, x0 y2 Center BackgroundTrans HWNDbutton_width, % "    "
-ControlGetPos,,, width,,, ahk_id %button_width%
-Gui, archnemesis_letters: Add, Text, x6 y2 Center BackgroundTrans Section Border gArchnemesis_letter, % " t1 "
-Loop, Parse, arch_recipes_sorted, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	If (letter != SubStr(A_LoopField, 1, 1))
-	{
-		If (A_Index = 1)	
-			Gui, archnemesis_letters: Add, Text, ys x+2 w%width% gArchnemesis_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
-		Else	Gui, archnemesis_letters: Add, Text, ys x+2 wp gArchnemesis_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
-		letter := SubStr(A_LoopField, 1, 1)
-	}
-}
-Gui, archnemesis_letters: Add, Text, ys x+6 Center BackgroundTrans Border gArchnemesis_letter, % " b-list "
-Gui, archnemesis_letters: Add, Text, Center ys x+6 gArchnemesis2 Border, % " prev "
-Gui, archnemesis_letters: Add, Text, Center ys x+6 gScan Border, % " scan "
-Gui, archnemesis_letters: Margin, 6, 2
-Gui, archnemesis_letters: Show, Hide
-WinGetPos,,, guiwidth,
-Gui, archnemesis_letters: Show, % "Hide x" xScreenOffset+((xWindow-xScreenOffset)*0.96)//2-guiwidth//2 " y"yLetters
-WinGetPos, outx,, guiwidth
-xScan_button := (outx + guiwidth) * 0.9
-If (outx < xScreenOffset)
-{
-	Gui, archnemesis_letters: Show, % "Hide x" xScreenOffset " y"yLetters
-	xScan_button := guiwidth * 0.9
-}
-GoSub, Favored_recipes
-Return
-
-Help:
-If (click = 2)
-{
-	Run, explore img\Recognition\%poe_height%p\Archnemesis
-	Return
-}
-Gui, help_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-Gui, help_panel: Margin, 6, 4
-Gui, help_panel: Color, Black
-WinSet, Transparent, %trans%
-Gui, help_panel: Font, s%fSize1% cWhite underline, Fontin SmallCaps
-Gui, help_panel: Add, Text, Section BackgroundTrans, clear list:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, long-r-click on 'prio-list'
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, view prio-surplus:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, click 'prio-list'
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, remove recipe:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, long-r-click prio-entry
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, pause recipe:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, r-click prio-entry
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, tree-view:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, long-click prio-entry
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, map search:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, click 'missing'
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, bases cheat sheet:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, r-click 'missing'
-Gui, help_panel: Font, underline
-Gui, help_panel: Add, Text, xs Section BackgroundTrans, open image folder:
-Gui, help_panel: Font, norm
-Gui, help_panel: Add, Text, ys BackgroundTrans, r-click '?'
-MouseGetPos, mousex, mousey
-Gui, help_panel: Show, % "NA x"xWindow1 " y"mousey
-KeyWait, LButton
-Gui, help_panel: Destroy
-WinActivate, ahk_group poe_window
-Return
-
-Recalibrate_letter:
-letter_clicked := A_GuiControl
-Gui, recalibrate_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-hwnd_recalibrate_list := WinExist()
-Gui, recalibrate_list: Margin, 6, 2
-Gui, recalibrate_list: Color, Black
-WinSet, Transparent, %trans%
-Gui, recalibrate_list: Font, s%fSize0% cWhite underline, Fontin SmallCaps
-no_letter := 1
-section := 0
-Loop, Parse, all_nemesis, `n, `n
-{
-	If (SubStr(A_LoopField, 1, 1) = A_GuiControl)
-	{
-		If (section = 0)
-		{
-			Gui, recalibrate_list: Add, Text, Section gRecalibrate_UI, % A_LoopField
-			section := 1
-		}
-		Else	Gui, recalibrate_list: Add, Text, xs y+6 Section gRecalibrate_UI, % A_LoopField
-		no_letter := 0
-	}
-}
-If (no_letter=0)
-{
-	MouseGetPos, mouseX, mouseY
-	Gui, recalibrate_list: Show, Hide
-	WinGetPos,,,, height
-	WinGetPos,, outY,,, ahk_id %recalibration%
-	Gui, recalibrate_list: Show, % "NA x"mouseX-30 " y"outY-10-height+yScreenOffset
-}
-Return
-
-Surplus:
-If (click = 2)
-{
-	holdstart := A_TickCount
-	While GetKeyState("RButton", "P")
-	{
-		If (A_TickCount >= holdstart + 500)
-		{
-			favorite_recipes := ""
-			GoSub, Favored_recipes
-			Return
-		}
-	}
-	Return
-}
-If WinExist("ahk_id " hwnd_surplus_view)
-{
-	Gui, surplus_view: Destroy
-	hwnd_surplus_view := ""
-	WinActivate, ahk_group poe_window
-	Return
-}
-If !WinExist("ahk_id " hwnd_surplus_view)
-{
-	Sort, arch_surplus, D`,
-	check := ""
-	surplus_list := ""
-	count := 0
-	Loop, Parse, arch_surplus, `,,`,
-	{
-		If (A_Index = 1) || (check = A_LoopField)
-		{
-			check := A_LoopField
-			count += 1
-		}
-		If (A_Index != 1) && (check != A_LoopField)
-		{
-			surplus_list := (surplus_list = "") ? count "x " check "," : surplus_list count "x " check ","
-			check := A_LoopField
-			count := 1
-		}
-	}
-	Sort, surplus_list, N R D`,
-	hwnd_surplus_view := ""
-	Gui, surplus_view: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-	Gui, surplus_view: Margin, 0, 0
-	Gui, surplus_view: Color, Black
-	WinSet, Transparent, %trans%
-	Gui, surplus_view: Font, cWhite s%fSize0%, Fontin SmallCaps
-	Gui, surplus_view: Add, Text, x0 y0 BackgroundTrans Section Center HWNDmain_text, % "  "
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	Gui, surplus_view: Add, Text, % "x0 y"height//4 "BackgroundTrans Section Center", % "  "
-	Gui, surplus_view: Font, s%fSize0%
-	Gui, surplus_view: Add, Text, BackgroundTrans ys Section Center, surplus settings:
-	Gui, surplus_view: Font, cWhite s%fSize1%
-	Gui, surplus_view: Add, Checkbox, Center BackgroundTrans xs Checked%oversupply_setting% voversupply_setting gBurnEdit, produce oversupply
-	Gui, surplus_view: Add, Text, BackgroundTrans xs Section HWNDmain_text Center, % "burn "
-	Gui, surplus_view: Add, Text, cAqua BackgroundTrans ys HWNDmain_text Center, % "oversupply "
-	Gui, surplus_view: Add, Text, BackgroundTrans ys HWNDmain_text Center, % "above "
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	Gui, surplus_view: Font, % "s"fSize1-2
-	Gui, surplus_view: Add, Edit, ys cBlack BackgroundTrans hp w%height% gBurnEdit vBurn_number1 Limit1 Number, %Burn_number1%
-	Gui, surplus_view: Font, cWhite s%fSize0%
-	Gui, surplus_view: Add, Text, BackgroundTrans ys HWNDmain_text Center, % "  "
-	Gui, surplus_view: Font, cWhite s%fSize1%
-	Gui, surplus_view: Add, Text, BackgroundTrans xs Section HWNDmain_text Center, burn prio-bases above
-	Gui, surplus_view: Font, % "s"fSize1-2
-	Gui, surplus_view: Add, Edit, ys x+6 cBlack BackgroundTrans hp w%height% gBurnEdit vBurn_number Limit1 Number, %Burn_number%
-	Gui, surplus_view: Font, cWhite s%fSize1%
-	Gui, surplus_view: Add, Text, BackgroundTrans xs Section Center, % " "
-	Gui, surplus_view: Font, cWhite s%fSize0%, Fontin SmallCaps
-	Gui, surplus_view: Add, Text, BackgroundTrans xs Section Center, prio-surplus:
-	Gui, surplus_view: Font, cWhite s%fSize1%
-	Loop, Parse, surplus_list, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		color := InStr(arch_bases, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)) ? "White" : "Aqua"
-		Gui, surplus_view: Add, Text, c%color% BackgroundTrans xs Center, % A_LoopField
-	}
-	Gui, surplus_view: Show, % "Hide x"xWindow1 " y"yScreenOffset
-	WinGetPos,,,, height
-	Gui, surplus_view: Show, % "NA x"xWindow1 " y"yScreenOffset+poe_height-height
-	hwnd_surplus_view := WinExist()
-}
-WinActivate, ahk_group poe_window
-Return
-
 Loop:
+If !WinExist("ahk_group poe_window")
+	poe_window_closed := 1
 If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
 	ExitApp
 If WinExist("ahk_group poe_window")
+{
 	last_check := A_TickCount
+	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
+	{
+		While !WinActive("ahk_class POEWindowClass")
+			Sleep, 2000
+		WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
+		poe_height := custom_resolution
+		poe_window_closed := 0
+	}
+}
 
 If (enable_alarm != 0) && (alarm_timestamp != "")
 {
@@ -991,7 +831,7 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 			Gui, alarm: Show, % "NA h"alarm_height//2
 		}
 		If !WinExist("ahk_id " hwnd_alarm) && WinExist("ahk_group poe_window")
-			LLK_Overlay("alarm", 1)
+			LLK_Overlay("alarm", "show")
 	}
 }
 Return
@@ -1000,164 +840,58 @@ MainLoop:
 If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 {
 	inactive_counter += 1
-	If (inactive_counter > 3)
+	If (inactive_counter = 3)
 	{
 		Gui, context_menu: Destroy
 		LLK_Overlay("hide")
-		archnemesis := 0
 	}
 }
-If WinActive("ahk_group poe_window")
+If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 {
-	If (inactive_counter > 0)
+	If (inactive_counter != 0)
 	{
 		inactive_counter := 0
 		Gui, omni_info: Destroy
 		LLK_Overlay("show")
 	}
-	If (enable_archnemesis = 1)
+	If (pixelchecks_enabled != "")
 	{
-		If (fallback = 0) || (fallback_override = 1)
-			LLK_PixelSearch("archnemesis")
-		If (archnemesis = 1)
+		Loop, Parse, pixelchecks_enabled, `,, `,
 		{
-			If !WinExist("ahk_id " hwnd_archnemesis_letters)
-				LLK_Overlay("archnemesis_letters", 1)
-			If !WinExist("ahk_id " hwnd_archnemesis_window) && (hwnd_archnemesis_window != "")
-				LLK_Overlay("archnemesis_window", 1)
-			If !WinExist("ahk_id " hwnd_surplus_view) && (hwnd_surplus_view != "")
-				LLK_Overlay("surplus_view", 1)
-			If (background_scanned = "")
-			{
-				MouseGetPos, outXmouse
-				If (outXmouse > invBox2)
-				{
-					background_scanned := 2
-					SetTimer, Scan_background, 10
-				}
-			}
-		}
-		If (archnemesis = 0) || (archnemesis = "")
-		{
-			If (background_scanned != "")
-				background_scanned := (background_scanned = 1) ? "" : 2
-			If WinExist("ahk_id " hwnd_archnemesis_letters)
-				LLK_Overlay("archnemesis_letters", 2)
-			If WinExist("ahk_id " hwnd_archnemesis_list)
-				LLK_Overlay("archnemesis_list", 2)
-			If WinExist("ahk_id " hwnd_archnemesis_window)
-				LLK_Overlay("archnemesis_window", 2)
-			If WinExist("ahk_id " hwnd_surplus_view)
-				LLK_Overlay("surplus_view", 2)
-			fallback_override := 0
+			If (A_LoopField = "")
+				break
+			LLK_PixelSearch(A_LoopField)
 		}
 	}
-}
-Return
-
-Map_highlight:
-WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
-If (A_Gui = "base_info")
-	Clipboard := SubStr(StrReplace(A_GuiControl, A_Space, "."), 1)
-Else Clipboard := StrReplace(SubStr(A_GuiControl, InStr(A_GuiControl, "in ")+3), A_Space, ".")
-SendInput, ^{f}^{v}{Enter}
-Return
-
-Map_suggestion:
-If (list_remaining = "")
-{
-	WinActivate, ahk_group poe_window
-	Return
-}
-If (click = 2)
-{
-	If !WinExist("ahk_id " hwnd_base_loot)
+	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1))
 	{
-		LLK_Overlay("base_loot", 1)
-		base_loot_toggle := 1
+		If !WinExist("ahk_id " hwnd_clone_frames_window)
+			Gui, clone_frames_window: Show, NA
+		
+		hbmClone_frames := CreateDIBSection(poe_width, poe_height)
+		hdcClone_frames := CreateCompatibleDC()
+		obmClone_frames := SelectObject(hdcClone_frames, hbmClone_frames)
+		GClone_frames := Gdip_GraphicsFromHDC(hdcClone_frames)
+		Gdip_SetInterpolationMode(GClone_frames, 0)
+		
+		Loop, Parse, clone_frames_enabled, `,, `,
+		{
+			If (A_LoopField = "")
+				Break
+			bmpClone_frames := Gdip_BitmapFromScreen(clone_frame_%A_LoopField%_topleft_x "|" clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
+			Gdip_GetImageDimensions(bmpClone_frames, WidthClone_frames, HeightClone_frames)
+			Gdip_DrawImage(GClone_frames, bmpClone_frames, clone_frame_%A_LoopField%_target_x, clone_frame_%A_LoopField%_target_y, clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100, clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100, 0, 0, WidthClone_frames, HeightClone_frames, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
+			Gdip_DisposeImage(bmpClone_frames)
+		}
+		UpdateLayeredWindow(hwnd_clone_frames_window, hdcClone_frames, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
+		SelectObject(hdcClone_frames, obmClone_frames)
+		DeleteObject(hbmClone_frames)
+		DeleteDC(hdcClone_frames)
+		Gdip_DeleteGraphics(GClone_frames)
 	}
-	Else
-	{
-		LLK_Overlay("base_loot", 2)
-		base_loot_toggle := 0
-	}
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	Return
+	Else If WinExist("ahk_id " hwnd_clone_frames_window)
+		Gui, clone_frames_window: Hide
 }
-map_list := []
-map_counter := []
-optimal_maps := ""
-map_pool := ""
-list_remaining_single := ""
-all_maps := ""
-Loop, Parse, list_remaining, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	If !InStr(list_remaining_single, A_LoopField)
-		list_remaining_single := (list_remaining_single = "") ? A_LoopField "," : list_remaining_single A_LoopField ","
-}
-
-Loop, Parse, list_remaining_single, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	IniRead, maps, ini\db_archnemesis.ini, %A_LoopField%, maps
-	map_pool := (map_pool = "") ? maps "," : map_pool maps ","
-}
-
-Loop, Parse, map_pool, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	If !InStr(all_maps, A_LoopField)
-	{
-		all_maps := (all_maps = "") ? A_LoopField "," : all_maps A_LoopField ","
-		map_list.Push(A_LoopField)
-	}
-}
-Loop, Parse, all_maps, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	count := 0
-	While (InStr(map_pool, A_LoopField,,, A_Index) != 0)
-	{
-		count += 1
-	}
-	map_counter.Push(count)
-}
-
-Loop, % map_list.Length()
-	optimal_maps := (optimal_maps = "") ? map_counter[A_Index] " mods in " map_list[A_Index] "," : optimal_maps map_counter[A_Index] " mods in " map_list[A_Index] ","
-
-Sort, optimal_maps, N R D`,
-Gui, map_suggestions: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border, map tab search
-Gui, map_suggestions: Margin, 20, 0
-Gui, map_suggestions: Color, Black
-WinSet, Transparent, %trans%
-Gui, map_suggestions: Font, cWhite s%fSize0%, Fontin SmallCaps
-Gui, map_suggestions: Add, Text, Center Section BackgroundTrans vheader01, common drop locations:
-Gui, map_suggestions: Font, s%fSize1% underline
-
-heightsuggestions := ""
-Loop, Parse, optimal_maps, `,,`,
-{
-	If (A_LoopField = "") || (heightsuggestions > poe_height*0.9)
-		break
-	If InStr(A_LoopField, "1 mods")
-		map_text := StrReplace(A_LoopField, "1 mods", "1 mod")
-	Else map_text := A_LoopField
-	If (A_Index = 1)
-		Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text y+6 xs Section Center gMap_highlight, % map_text
-	Else	Gui, map_suggestions: Add, Text, BackgroundTrans HWNDmain_text xs Center gMap_highlight, % map_text
-	Gui, map_suggestions: Show, Hide AutoSize
-	WinGetPos,,,, heightsuggestions
-}
-Gui, map_suggestions: Show, % "NA x"xScreenOffset+poe_width//2 " y"yScreenOffset
-WinActivate, ahk_group poe_window
 Return
 
 Notepad:
@@ -1175,8 +909,9 @@ If (A_Gui = "settings_menu")
 	Gui, notepad_sample: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
 	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what the`nnotepad-overlay looks`nlike with the current`nsettings
 	If (notepad_sample_xpos != "") && (notepad_sample_ypos != "")
-		Gui, notepad_sample: Show, NA x%notepad_sample_xpos% y%notepad_sample_ypos% AutoSize
-	Else Gui, notepad_sample: Show, NA Center AutoSize
+		Gui, notepad_sample: Show, Hide x%notepad_sample_xpos% y%notepad_sample_ypos% AutoSize
+	Else Gui, notepad_sample: Show, Hide Center AutoSize
+	LLK_Overlay("notepad_sample", "show")
 	Return
 }
 If (click = 2) || (hwnd_notepad = "")
@@ -1229,10 +964,10 @@ If WinExist("ahk_id " hwnd_notepad)
 		Gui, notepad: Destroy
 		hwnd_notepad := ""
 	}
-	Else LLK_Overlay("notepad", 2)
+	Else LLK_Overlay("notepad", "hide")
 	WinActivate, ahk_group poe_window
 }
-Else LLK_Overlay("notepad", 1, 1)
+Else LLK_Overlay("notepad", "show", 1)
 Return
 
 NotepadGuiClose:
@@ -1241,7 +976,7 @@ If WinExist("ahk_id " hwnd_notepad)
 	If (notepad_edit != 1)
 		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
 	Gui, notepad: Submit, NoHide
-	LLK_Overlay("notepad", 2)
+	LLK_Overlay("notepad", "hide")
 }
 Return
 
@@ -1311,18 +1046,21 @@ Loop, Parse, clipboard, `r`n, `r`n
 	{
 		strength := StrReplace(A_LoopField, "Str: ")
 		strength := StrReplace(strength, " (augmented)")
+		strength := StrReplace(strength, " (unmet)")
 	}
 	Else strength := (strength="") ? 0 : strength
 	If InStr(A_LoopField, "Dex: ")
 	{
 		dexterity := StrReplace(A_LoopField, "Dex: ")
 		dexterity := StrReplace(dexterity, " (augmented)")
+		dexterity := StrReplace(dexterity, " (unmet)")
 	}
 	Else dexterity := (dexterity="") ? 0 : dexterity
 	If InStr(A_LoopField, "Int: ")
 	{
 		intelligence := StrReplace(A_LoopField, "Int: ")
 		intelligence := StrReplace(intelligence, " (augmented)")
+		intelligence := StrReplace(intelligence, " (unmet)")
 	}
 	Else	intelligence := (intelligence="") ? 0 : intelligence
 	If InStr(A_LoopField, "Item Level: ")
@@ -1367,19 +1105,6 @@ If (A_GuiControl = "chrome_calc")
 	SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
 	ToolTip,,,, 15
 }
-Return
-
-Omnikey_menu_selection:
-Gui, omni_info: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_omni_info, Lailloken UI: Omni-key Info
-Gui, omni_info: Margin, 12, 4
-Gui, omni_info: Color, Black
-WinSet, Transparent, %trans%
-Gui, omni_info: Font, cWhite s%fSize0%, Fontin SmallCaps
-If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
-	GoSub, Omnikey_craft_chrome
-If InStr(A_GuiControl, "wiki")
-	GoSub, Omnikey_wiki
-Gui, context_menu: destroy
 Return
 
 Omnikey_dps:
@@ -1471,6 +1196,19 @@ KeyWait, %ThisHotkey_copy%
 ToolTip,,,,1
 Return
 
+Omnikey_menu_selection:
+Gui, omni_info: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_omni_info, Lailloken UI: Omni-key Info
+Gui, omni_info: Margin, 12, 4
+Gui, omni_info: Color, Black
+WinSet, Transparent, %trans%
+Gui, omni_info: Font, cWhite s%fSize0%, Fontin SmallCaps
+If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
+	GoSub, Omnikey_craft_chrome
+If InStr(A_GuiControl, "wiki")
+	GoSub, Omnikey_wiki
+Gui, context_menu: destroy
+Return
+
 Omnikey_wiki:
 If (A_GuiControl = "wiki_exact")
 	wiki_index := 3
@@ -1492,1347 +1230,15 @@ If InStr(clipboard, "Cluster Jewel")
 Run, https://poewiki.net/wiki/%wiki_term%
 Return
 
-Pause_list:
-If InStr(pause_list, A_GuiControl)
-	pause_list := StrReplace(pause_list, A_GuiControl ",", "")
-Else pause_list := (pause_list = "") ? A_GuiControl "," : pause_list A_GuiControl ","
-GoSub, Favored_recipes
-Return
-
-Recalibrate:
-recal_choice := ""
-GoSub, Recalibrate_UI
-Gui, recal_arrow: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow
-Gui, recal_arrow: Color, Black
-WinSet, TransColor, Black
-Gui, recal_arrow: Add, Picture, BackgroundTrans w%dBitMap% h-1, img\GUI\arrow_red.png
-Gui, recal_arrow: Show, Hide
-WinGetPos,,, width, height
-Gui, recal_arrow: Show, % "NA x"xArrow-width//2 " y"yArrow-height*1.2
-LLK_Overlay("Hide")
-ToolTip,,,, 17
-While (recal_choice = "")
-	Sleep, 100
-Gui, recal_arrow: Hide
-WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
-If !FileExist("img\Recognition\" poe_height "p\Archnemesis\")
-	FileCreateDir, img\Recognition\%poe_height%p\Archnemesis\
-count := ""
-While FileExist("img\Recognition\" poe_height "p\Archnemesis\" recal_choice count ".png")
-	count += 1
-Gdip_SaveBitmapToFile(Gdip_BitmapFromScreen(xBitMap "|" yBitMap "|" dBitMap "|" dBitMap), "img\Recognition\" poe_height "p\Archnemesis\" recal_choice count ".png", 100)
-archnemesis_inventory_prelim := (archnemesis_inventory_prelim = "") ? recal_choice : archnemesis_inventory_prelim "," recal_choice
-Return
-
-Recalibrate_UI:
-If InStr(A_GuiControl, "cancel")
-{
-	Gdip_DisposeImage(background_Needle)
-	Gdip_DisposeImage(bmpNeedle)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(background_Haystack)
-	Reload
-	ExitApp
-}
-If InStr(A_GuiControl, "empty")
-{
-	recal_choice := "-empty-"
-	Gui, recalibrate_list: Destroy
-	Gui, recalibration: Destroy
-	Return
-}
-If (A_Gui = "recalibrate_list")
-{
-	recal_choice := A_GuiControl
-	Gui, recalibrate_list: Destroy
-	Gui, recalibration: Destroy
-	WinActivate, ahk_group poe_window
-	Return
-}
-Gui, recalibration: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDrecalibration
-hwnd_recalibration := WinExist()
-Gui, recalibration: Margin, 6, 2
-Gui, recalibration: Color, Black
-WinSet, Transparent, %trans%
-Gui, recalibration: Font, cWhite s%fSize0%, Fontin SmallCaps
-Gui, recalibration: Add, Text, BackgroundTrans, Please specify the indicated mod type.
-letter := ""
-Gui, recalibration: Add, Text, x6 Section Center gRecalibrate_UI Border, % " empty "
-Gui, recalibration: Add, Text, xs wp Center gRecalibrate_UI Border, % "cancel"
-Gui, recalibration: Add, Text, ys x-5 Center BackgroundTrans, % "     "
-Loop, Parse, all_nemesis, `n, `n
-{
-	If (letter != SubStr(A_LoopField, 1, 1))
-	{
-		If (A_Index = 1)
-			Gui, recalibration: Add, Text, ys wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
-		Else
-		{
-			If (SubStr(A_LoopField, 1, 1) != "k")
-				Gui, recalibration: Add, Text, ys wp gRecalibrate_letter BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
-			Else	Gui, recalibration: Add, Text, xs wp gRecalibrate_letter Section BackgroundTrans Center Border, % SubStr(A_LoopField, 1, 1)
-		}
-		letter := SubStr(A_LoopField, 1, 1)
-	}
-}
-Gui, recalibration: Show, % "x"xWindow " y"yScreenOffset+poe_height//2
-Return
-
-Fallback:
-hotkey0 := StrReplace(A_ThisHotkey, "$", "")
-LLK_PixelSearch("archnemesis")
-If (archnemesis = 0)
-{
-	SendInput, {%hotkey0%}
-	fallback_override := 1
-}
-else fallback_override := 1
-Return
-
-Favored_recipes:
-SetTimer, Favored_recipes, Delete
-If WinExist("ahk_id " hwnd_surplus_view) && (A_Gui != "surplus_view")
-{
-	Gui, surplus_view: Destroy
-	hwnd_surplus_view := ""
-}
-Gui, archnemesis_list: Hide
-If (A_Gui = "Archnemesis_list")
-{
-	If (click != 2)
-		favor_choice := InStr(blacklist_recipes, A_GuiControl) ? "" : A_GuiControl
-	Else blacklist_choice := InStr(favorite_recipes, A_GuiControl) ? "" : A_GuiControl
-}
-If (favor_choice != "")
-{
-	If InStr(favorite_recipes, favor_choice)
-		favorite_recipes := StrReplace(favorite_recipes, favor_choice ",", "")
-	Else favorite_recipes := (favorite_recipes = "") ? favor_choice "," : favorite_recipes favor_choice ","
-}
-If (blacklist_choice != "")
-{
-	If InStr(blacklist_recipes, blacklist_choice)
-		blacklist_recipes := StrReplace(blacklist_recipes, blacklist_choice ",", "")
-	Else blacklist_recipes := (blacklist_recipes = "") ? blacklist_choice "," : blacklist_recipes blacklist_choice ","
-}	
-prio_list := "", prio_list_active := "", prio_list_recipes := "", list_remaining := "", fav_in_inv := "", fav_not_inv := ""
-If (favorite_recipes != "")
-{
-	Loop, Parse, favorite_recipes, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(pause_list, A_LoopField) || InStr(archnemesis_inventory, A_LoopField)
-			fav_in_inv := (fav_in_inv = "") ? A_LoopField "," : fav_in_inv A_LoopField ","
-		Else fav_not_inv := (fav_not_inv = "") ? A_LoopField "," : fav_not_inv A_LoopField ","
-	}
-	favorite_recipes := fav_not_inv fav_in_inv
-	
-	is_base := "", not_base := ""
-	Loop, Parse, favorite_recipes, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (recipe = "ERROR")
-			is_base := (is_base = "") ? A_LoopField "," : is_base A_LoopField ","
-		Else not_base := (not_base = "") ? A_LoopField "," : not_base A_LoopField ","
-	}
-	favorite_recipes := not_base is_base
-	
-	is_paused := "", not_paused := ""
-	Loop, Parse, favorite_recipes, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(pause_list, A_LoopField)
-			is_paused := (is_paused = "") ? A_LoopField "," : is_paused A_LoopField ","
-		Else not_paused := (not_paused = "") ? A_LoopField "," : not_paused A_LoopField ","
-	}
-	favorite_recipes := not_paused is_paused
-	
-	list_remaining := "", archnemesis_inventory_leftover := archnemesis_inventory ","
-	Loop, Parse, favorite_recipes, `,,`, ;calculate remaining bases
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(pause_list, A_LoopField)
-			continue
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (recipe != "ERROR")
-		{
-			Loop, Parse, recipe, `,,`,
-			{
-				If !InStr(archnemesis_inventory_leftover, A_LoopField)
-				{
-					IniRead, recipe0, ini\db_archnemesis.ini, %A_LoopField%, components
-					If (recipe0 != "ERROR")
-					{
-						Loop, Parse, recipe0, `,,`,
-						{
-							If !InStr(archnemesis_inventory_leftover, A_LoopField)
-							{
-								IniRead, recipe1, ini\db_archnemesis.ini, %A_LoopField%, components
-								If (recipe1 != "ERROR")
-								{
-									Loop, Parse, recipe1, `,,`,
-									{
-										If !InStr(archnemesis_inventory_leftover, A_LoopField)
-										{
-											IniRead, recipe2, ini\db_archnemesis.ini, %A_LoopField%, components
-											If (recipe2 != "ERROR")
-											{
-												Loop, Parse, recipe2, `,,`,
-												{
-													If !InStr(archnemesis_inventory_leftover, A_LoopField)
-														list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-													Else archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
-												}
-											}
-											Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-										}
-										Else archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
-									}
-								}
-								Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-							}
-							Else archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
-						}
-					}
-					Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-				}
-				Else archnemesis_inventory_leftover := StrReplace(archnemesis_inventory_leftover, A_LoopField ",", "",, 1)
-			}
-		}
-		Else list_remaining := (list_remaining = "") ? A_LoopField "," : list_remaining A_LoopField ","
-	}
-	
-	prio_list_no_pause := ""
-	Loop, Parse, favorite_recipes, `,,`, ;create list of prio-mods excluding paused entries
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(pause_list, A_LoopField)
-			continue
-		mod0 := A_LoopField
-		IniRead, components0, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (components0 != "ERROR")
-		{
-			Loop, Parse, components0, `,,`,
-			{
-				prio_list_no_pause := (prio_list_no_pause = "") ? A_LoopField "," : prio_list_no_pause A_LoopField ","
-				mod1 := A_LoopField
-				IniRead, components1, ini\db_archnemesis.ini, %A_LoopField%, components
-				If (components1 != "ERROR")
-				{
-					Loop, Parse, components1, `,,`,
-					{
-						If !InStr(archnemesis_inventory, mod1)
-							prio_list_no_pause := (prio_list_no_pause = "") ? A_LoopField "," : prio_list_no_pause A_LoopField ","
-						Else continue
-						mod2 := A_LoopField
-						IniRead, components2, ini\db_archnemesis.ini, %A_LoopField%, components
-						If (components2 != "ERROR")
-						{
-							Loop, Parse, components2, `,,`,
-							{
-								If !InStr(archnemesis_inventory, mod2)
-									prio_list_no_pause := (prio_list_no_pause = "") ? A_LoopField "," : prio_list_no_pause A_LoopField ","	
-								Else continue
-								mod3 := A_LoopField
-								IniRead, components3, ini\db_archnemesis.ini, %A_LoopField%, components
-								If (components3 != "ERROR")
-								{
-									Loop, Parse, components3, `,,`,
-									{
-										If !InStr(archnemesis_inventory, mod3)
-											prio_list_no_pause := (prio_list_no_pause = "") ? A_LoopField "," : prio_list_no_pause A_LoopField ","
-										Else continue
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	Loop, Parse, favorite_recipes, `,,`, ;create complete and individual list(s) of prio-mods
-	{
-		If (A_LoopField = "")
-			break
-		prio_list%A_Index% := ""
-		loop := A_Index
-		prio_list%loop% := (prio_list%loop% = "") ? A_LoopField "," : prio_list%loop% A_LoopField ","
-		IniRead, components0, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (components0 != "ERROR")
-		{
-			prio_list%loop% := prio_list%loop% components0 ","
-			Loop, Parse, components0, `,,`,
-			{
-				IniRead, components1, ini\db_archnemesis.ini, %A_LoopField%, components
-				If (components1 != "ERROR")
-				{
-					prio_list%loop% := prio_list%loop% components1 ","
-					Loop, Parse, components1, `,,`,
-					{
-						IniRead, components2, ini\db_archnemesis.ini, %A_LoopField%, components
-						If (components2 != "ERROR")
-						{
-							prio_list%loop% := prio_list%loop% components2 ","
-							Loop, Parse, components2, `,,`,
-							{
-								IniRead, components3, ini\db_archnemesis.ini, %A_LoopField%, components
-								If (components3 != "ERROR")
-									prio_list%loop% := prio_list%loop% components3 ","
-							}
-						}
-					}
-				}
-			}
-		}
-		prio_list := (prio_list = "") ? prio_list%A_Index% : prio_list prio_list%A_Index%
-	}
-	prio_list0 := prio_list
-	
-	Loop, Parse, all_nemesis, `n,`n ;calculate quantities of individual mods
-	{
-		mod_check0 := A_LoopField
-		mod_check := StrReplace(A_LoopField, "-", "_")
-		mod_check := StrReplace(mod_check, A_Space, "_")
-		balance_%mod_check% := 0
-		While InStr(archnemesis_inventory, mod_check0,,, A_Index)
-			balance_%mod_check% += 1
-	}
-	
-	archnemesis_inventory_leftover0 := archnemesis_inventory ","
-	Loop, Parse, favorite_recipes, `,,`, ;create a list of missing prio-mods & cross out available prio-mods from inventory list
-	{
-		If (A_LoopField = "")
-			break
-		prio_list%A_Index%_active := ""
-		loop := A_Index
-		If InStr(Pause_list, A_LoopField)
-			continue
-		prio_list%loop%_active := (prio_list%loop%_active = "") ? A_LoopField "," : prio_list%loop%_active A_LoopField ","
-		IniRead, components0, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (components0 != "ERROR")
-		{
-			Loop, Parse, components0, `,,`,
-			{
-				If !InStr(archnemesis_inventory_leftover0, A_LoopField)
-					prio_list%loop%_active := (prio_list%loop%_active = "") ? A_LoopField "," : prio_list%loop%_active A_LoopField ","
-				Else
-				{
-					archnemesis_inventory_leftover0 := StrReplace(archnemesis_inventory_leftover0, A_LoopField ",", "",, 1)
-					continue
-				}
-				IniRead, components1, ini\db_archnemesis.ini, %A_LoopField%, components
-				If (components1 != "ERROR")
-				{
-					Loop, Parse, components1, `,,`,
-					{
-						If !InStr(archnemesis_inventory_leftover0, A_LoopField)
-							prio_list%loop%_active := (prio_list%loop%_active = "") ? A_LoopField "," : prio_list%loop%_active A_LoopField ","
-						Else
-						{
-							archnemesis_inventory_leftover0 := StrReplace(archnemesis_inventory_leftover0, A_LoopField ",", "",, 1)
-							continue
-						}
-						IniRead, components2, ini\db_archnemesis.ini, %A_LoopField%, components
-						If (components2 != "ERROR")
-						{
-							Loop, Parse, components2, `,,`,
-							{
-								If !InStr(archnemesis_inventory_leftover0, A_LoopField)
-									prio_list%loop%_active := (prio_list%loop%_active = "") ? A_LoopField "," : prio_list%loop%_active A_LoopField ","
-								Else
-								{
-									archnemesis_inventory_leftover0 := StrReplace(archnemesis_inventory_leftover0, A_LoopField ",", "",, 1)
-									continue
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		If !InStr(pause_list, A_LoopField)
-			prio_list_active := (prio_list_active = "") ? prio_list%A_Index%_active : prio_list_active prio_list%A_Index%_active
-	}
-	
-	Loop, Parse, prio_list_no_pause, `,,`, ;calculate individual mod balance
-	{
-		If (A_LoopField = "")
-			break
-		mod_check := StrReplace(A_LoopField, "-", "_")
-		mod_check := StrReplace(mod_check, A_Space, "_")
-		balance_%mod_check% -= 1
-	}
-	
-	arch_surplus := ""
-	Loop, Parse, archnemesis_inventory_leftover0, `,,`, ;create a list of surplus mods
-	{
-		If (A_LoopField = "")
-			break
-		mod_check := StrReplace(A_LoopField, "-", "_")
-		mod_check := StrReplace(mod_check, A_Space, "_")
-		IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-		If InStr(prio_list, A_LoopField) && !InStr(favorite_recipes, A_LoopField) && (balance_%mod_check% >= 1)
-			arch_surplus := (arch_surplus = "") ? A_LoopField "," : arch_surplus A_LoopField ","
-	}
-	
-	Loop, Parse, arch_surplus, `,,`, ;take mods off prio-list copy if above burn-threshold
-	{
-		If (A_LoopField = "")
-			break
-		mod_check := StrReplace(A_LoopField, "-", "_")
-		mod_check := StrReplace(mod_check, A_Space, "_")
-		If InStr(arch_bases, A_LoopField) && (balance_%mod_check% > burn_number)
-			prio_list0 := StrReplace(prio_list0, A_LoopField ",", "")
-		If !InStr(arch_bases, A_LoopField) && (balance_%mod_check% > burn_number1)
-			prio_list0 := StrReplace(prio_list0, A_LoopField ",", "")
-	}
-	
-	Sort, list_remaining, C D`,
-}
-
-If WinExist("ahk_id " hwnd_base_loot)
-	WinGetPos, xbase_loot, ybase_loot,,, ahk_id %hwnd_base_loot%
-list_remaining_single := ""
-list_remaining_count := 0
-Loop, Parse, list_remaining, `,,`, ;create a list of individual missing bases & count them
-{
-	If (A_LoopField = "")
-		break
-	list_remaining_count += 1
-	If !InStr(list_remaining_single, A_LoopField)
-		list_remaining_single := (list_remaining_single = "") ? A_LoopField "," : list_remaining_single A_LoopField ","
-}
-Gui, base_loot: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_base_loot, Missing bases:
-Gui, base_loot: Margin, 15, 0
-Gui, base_loot: Color, Black
-WinSet, Transparent, 200
-Gui, base_loot: Font, cWhite s%fSize0%, Fontin SmallCaps
-
-Loop, Parse, list_remaining_single, `,,`,
-{
-	If (A_LoopField = "")
-		break
-	If (A_Index = 1)
-		Gui, base_loot: Add, Text, Center Section BackgroundTrans gBase_info, % A_LoopField
-	Else Gui, base_loot: Add, Text, Center xs BackgroundTrans gBase_info, % A_LoopField
-}
-xbase_loot := (xbase_loot = "") ? xScreenOffset+poe_width//2 : xbase_loot
-ybase_loot := (ybase_loot = "") ? yScreenOffset+0 : ybase_loot
-style := (base_loot_toggle = 1) ? "NA" : "Hide"
-Gui, base_loot: Show, % style "x"xbase_loot " y"ybase_loot
-blacklist_choice := ""
-favor_choice := ""
-GoSub, Recipes
-Return
-
-Apply_settings_alarm:
-If (A_GuiControl = "enable_alarm")
-{
-	Gui, settings_menu: Submit, NoHide
-	If WinExist("ahk_id " hwnd_alarm_sample) && (enable_alarm = 0)
-	{
-		Gui, alarm_sample: Destroy
-		hwnd_alarm_sample := ""
-	}
-	If WinExist("ahk_id " hwnd_alarm) && (enable_alarm = 0)
-	{
-		Gui, alarm: Destroy
-		hwnd_alarm := ""
-	}
-	GoSub, GUI
-	GoSub, Settings_menu
-	Return
-}
-If (A_GuiControl = "fSize_alarm_minus")
-	fSize_offset_alarm -= 1
-If (A_GuiControl = "fSize_alarm_plus")
-	fSize_offset_alarm += 1
-If (A_GuiControl = "fSize_alarm_reset")
-	fSize_offset_alarm := 0
-If (A_GuiControl = "alarm_opac_minus")
-	alarm_trans -= (alarm_trans > 100) ? 30 : 0
-If (A_GuiControl = "alarm_opac_plus")
-	alarm_trans += (alarm_trans < 250) ? 30 : 0
-WinGetPos, alarm_sample_xpos, alarm_sample_ypos,,, ahk_id %hwnd_alarm_sample%
-alarm_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : alarm_fontcolor
-GoSub, Alarm
-Return
-
-Apply_settings_archnemesis:
-Gui, settings_menu: Submit, NoHide
-If (A_GuiControl = "enable_archnemesis")
-{
-	If (enable_archnemesis = 1)
-		GoSub, GUI_archnemesis
-	Else
-	{
-		Gui, archnemesis_letters: Destroy
-		hwnd_archnemesis_letters := ""
-		Gui, archnemesis_list: Destroy
-		hwnd_archnemesis_list := ""
-		Gui, archnemesis_window: Destroy
-		hwnd_archnemesis_window := ""
-		Gui, surplus_view: Destroy
-		hwnd_surplus_view := ""
-		Gui, base_loot: Destroy
-		hwnd_base_loot := ""
-		Gui, base_info: Destroy
-		hwnd_base_info := ""
-		Gui, map_suggestions: Destroy
-		hwnd_map_suggestions := ""
-	}
-}
-Else If (A_GuiControl = "archnemesis_scan_hotkey") && (archnemesis_scan_hotkey != "")
-{
-	If (archnemesis_scan_hotkey_old != archnemesis_scan_hotkey) && (archnemesis_scan_hotkey_old != "")
-		Hotkey, %archnemesis_scan_hotkey_old%,, Off
-	archnemesis_scan_hotkey_old := archnemesis_scan_hotkey
-	Hotkey, If, (archnemesis = 1) && (enable_archnemesis = 1)
-	Hotkey, %archnemesis_scan_hotkey%, Scan, On
-}
-GoSub, Settings_menu
-If (A_GuiControl "enable_archnemesis")
-	WinActivate, ahk_group poe_window
-Return
-
-Apply_settings_general:
-If (A_GuiControl = "interface_size_minus")
-	fSize_offset -= 1
-If (A_GuiControl = "interface_size_plus")
-	fSize_offset += 1
-If (A_GuiControl = "interface_size_reset")
-	fSize_offset := 0
-fSize0 := fSize_config0 + fSize_offset
-fSize1 := fSize_config1 + fSize_offset
-Gui, settings_menu: Submit, NoHide
-SetTimer, Settings_menu, 10
-GoSub, GUI
-WinActivate, ahk_group poe_window
-Return
-
-Apply_settings_notepad:
-If (A_GuiControl = "enable_notepad")
-{
-	Gui, settings_menu: Submit, NoHide
-	If WinExist("ahk_id " hwnd_notepad_sample) && (enable_notepad = 0)
-	{
-		Gui, notepad_sample: Destroy
-		hwnd_notepad_sample := ""
-	}
-	If WinExist("ahk_id " hwnd_notepad) && (enable_notepad = 0)
-	{
-		Gui, Notepad: Submit, NoHide
-		Gui, notepad: Destroy
-		hwnd_notepad := ""
-	}
-	GoSub, GUI
-	GoSub, Settings_menu
-	Return
-}
-If (A_GuiControl = "fSize_notepad_minus")
-	fSize_offset_notepad -= 1
-If (A_GuiControl = "fSize_notepad_plus")
-	fSize_offset_notepad += 1
-If (A_GuiControl = "fSize_notepad_reset")
-	fSize_offset_notepad := 0
-If (A_GuiControl = "notepad_opac_minus")
-	notepad_trans -= (notepad_trans > 100) ? 30 : 0
-If (A_GuiControl = "notepad_opac_plus")
-	notepad_trans += (notepad_trans < 250) ? 30 : 0
-WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
-notepad_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : notepad_fontcolor
-GoSub, Notepad
-Return
-
-Apply_settings_omnikey:
-Gui, settings_menu: Submit, NoHide
-If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
-{
-	If (omnikey_hotkey_old != omnikey_hotkey) && (omnikey_hotkey_old != "")
-	{
-		Hotkey, IfWinActive, ahk_group poe_window
-		Hotkey, ~%omnikey_hotkey_old%,, Off
-	}
-	omnikey_hotkey_old := omnikey_hotkey
-	Hotkey, IfWinActive, ahk_group poe_window
-	Hotkey, ~%omnikey_hotkey%, Omnikey, On
-}
-GoSub, Settings_menu
-Return
-
-Recipes:
-available_recipes := "", unwanted_recipes := "", unwanted_mods := "", leftover_recipes := all_nemesis_inverted
-If (prio_list != "")
-{
-	Loop, Parse, favorite_recipes, `,,`, ;check if prio-entries themselves are available
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(Pause_list, A_LoopField)
-			continue
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (recipe != "") && (recipe != "ERROR")
-		{
-			recipe_match := 1
-			Loop, Parse, recipe, `,,`,
-				recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-			If (recipe_match != 0)
-				available_recipes := (available_recipes = "") ? A_LoopField "," : available_recipes A_LoopField ","
-		}
-	}
-	
-	Loop, Parse, prio_list_active, `,,`, ;check the rest of the connected recipes for availability
-	{
-		If (A_LoopField = "")
-			break
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		If (recipe != "") && (recipe != "ERROR")
-		{
-			recipe_match := 1
-			Loop, Parse, recipe, `,,`,
-				recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-			If (recipe_match != 0) && !InStr(available_recipes, A_LoopField)
-				available_recipes := (available_recipes = "") ? A_LoopField "," : available_recipes A_LoopField ","
-		}
-	}
-	
-	Loop, Parse, all_nemesis_inverted, `,,`, ;create a list of available burn recipes
-	{
-		If (A_LoopField = "")
-			break
-		If (oversupply_setting = 0) && InStr(prio_list, A_LoopField)
-			continue
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		recipe_match := 1
-		If (recipe != "ERROR")
-		{
-			Loop, Parse, recipe, `,,`,
-			{
-				If InStr(blacklist_recipes, A_LoopField)
-				{
-					recipe_match := 0
-					break
-				}
-				mod_check := StrReplace(A_LoopField, "-", "_")
-				mod_check := StrReplace(mod_check, A_Space, "_")
-				If InStr(arch_bases, A_LoopField)
-				{
-					If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number)
-						recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-					Else recipe_match := 0
-				}
-				Else
-				{
-					If !InStr(prio_list, A_LoopField) || (balance_%mod_check% > burn_number1)
-						recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-					Else recipe_match := 0
-				}
-			}
-		}
-		Else recipe_match := 0
-		mod_check := StrReplace(A_LoopField, "-", "_")
-		mod_check := StrReplace(mod_check, A_Space, "_")
-		If (recipe_match != 0)
-		{
-			If !InStr(prio_list, A_LoopField)
-				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : A_LoopField "," unwanted_recipes
-			Else If InStr(prio_list, A_LoopField) && (balance_%mod_check% >= 0)
-				unwanted_recipes := (unwanted_recipes = "") ? A_LoopField "," : unwanted_recipes A_LoopField ","
-		}
-	}
-	
-	If InStr(A_GuiControl, "/")
-	{
-		If (click != 2)
-			sorting_order := (sorting_order = "descending") ? "ascending" : "descending"
-		Else sorting := (sorting = "quantity") ? "ranking" : "quantity"
-	}
-	
-	Loop, Parse, all_nemesis_inverted, `,,`, ;create a list of available burn mods
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(arch_bases, A_LoopField)
-		{
-			If (!InStr(prio_list0, A_LoopField) && InStr(archnemesis_inventory, A_LoopField)) || InStr(arch_surplus, A_LoopField,,, Burn_number + 1)
-				unwanted_mods := (unwanted_mods = "") ? A_LoopField "," : unwanted_mods A_LoopField ","
-		}
-		Else
-		{
-			If (!InStr(prio_list0, A_LoopField) && InStr(archnemesis_inventory, A_LoopField)) || InStr(arch_surplus, A_LoopField,,, Burn_number1 + 1)
-				unwanted_mods := (unwanted_mods = "") ? A_LoopField "," : unwanted_mods A_LoopField ","
-		}
-	}
-}
-Else
-{
-	Loop, Parse, arch_recipes, `,,`,
-	{
-		If (A_LoopField = "")
-			break
-		IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-		recipe_match := 1
-		Loop, Parse, recipe, `,,`,
-			recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-		If (recipe_match != 0)
-			available_recipes := (available_recipes = "") ? A_LoopField "," : available_recipes A_LoopField ","
-	}
-}
-
-Gui, archnemesis_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-Gui, archnemesis_window: Margin, 6, 0
-Gui, archnemesis_window: Color, Black
-WinSet, Transparent, %trans%
-Gui, archnemesis_window: Font, % "s"fSize1-1 "norm cWhite", Fontin SmallCaps
-window_text := (prio_list != "") ? "prio-list:" : "ready:"
-Gui, archnemesis_window: Font, s%fSize0%
-If InStr(window_text, "prio")
-{
-	Gui, archnemesis_window: Font, underline
-	Gui, archnemesis_window: Add, Text, x12 y4 cYellow BackgroundTrans Section gSurplus, %window_text%
-	Gui, archnemesis_window: Font, norm
-}
-Else	Gui, archnemesis_window: Add, Text, x12 y4 cYellow BackgroundTrans Section, %window_text%
-	
-If (prio_list != "")
-{
-	If (list_remaining_count = 1)
-		Gui, archnemesis_window: Add, Text, cYellow BackgroundTrans ys x+6, % list_remaining_count " base"
-	Else	Gui, archnemesis_window: Add, Text, cYellow BackgroundTrans ys x+6, % list_remaining_count " bases"
-	Gui, archnemesis_window: Font, s%fSize0% underline
-	Gui, archnemesis_window: Add, Text, cYellow BackgroundTrans ys gMap_suggestion HWNDmain_text, % "missing"
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	Gui, archnemesis_window: Add, Picture, BackgroundTrans ys gHelp hp w-1, img\GUI\help.png
-	Gui, archnemesis_window: Font, s%fSize0% norm
-}
-
-If (favorite_recipes != "")
-{
-	/*
-	If (oversupply_setting = 1)
-	{
-		available_recipes_oversupply := ""
-		Loop, Parse, arch_recipes, `,,`,
-		{
-			IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-			recipe_match := 1
-			Loop, Parse, recipe, `,,`,
-				recipe_match *= InStr(archnemesis_inventory, A_LoopField)
-			mod_check := StrReplace(A_LoopField, "-", "_")
-			mod_check := StrReplace(mod_check, A_Space, "_")
-			If (recipe_match != 0) && !InStr(available_recipes_oversupply, A_LoopField)
-				available_recipes_oversupply := (available_recipes_oversupply = "") ? A_LoopField "," : available_recipes_oversupply A_LoopField ","
-		}
-		Gui, archnemesis_window: Add, Text, cAqua BackgroundTrans xs Section, oversupply
-		Loop, Parse, available_recipes_oversupply, `,,`,
-		{
-			If (A_LoopField = "")
-				break
-			mod_check := StrReplace(A_LoopField, "-", "_")
-			mod_check := StrReplace(mod_check, A_Space, "_")
-			If InStr(prio_list, A_LoopField) && !InStr(favorite_recipes, A_LoopField) && (balance_%mod_check% >= 0)
-			{
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs Section, % "     "
-				If (balance_%mod_check% >= 0)
-					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys , % "+" balance_%mod_check%
-				Else	Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys , % "-" balance_%mod_check%
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys gArchnemesis, % A_LoopField
-				IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-				If (recipe != "ERROR")
-				{
-					count := 0
-					Loop, Parse, recipe, `,,`,
-						count += 1
-					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, % "(" count ")"
-				}
-			}
-		}
-	}
-	*/
-	Loop, Parse, favorite_recipes, `,,`, ;'prio-list' section of the ready panel
-	{
-		If (A_LoopField = "")
-			break
-		check := A_LoopField
-		prio_number := A_Index
-		color := (InStr(archnemesis_inventory, A_LoopField)) ? "Lime" : "Silver"
-		color := (InStr(Pause_list, A_LoopField)) ? "Fuchsia" : color
-		count := 0
-		While InStr(archnemesis_inventory, check,,, A_Index)
-			count := A_Index
-		Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans xs Section gRecipe_tree HWNDmain_text, % A_LoopField
-		If (color = "Lime" || color = "Fuchsia") && (count != 0)
-			Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys, % "("count "x)"
-		If InStr(pause_list, A_LoopField)
-			continue
-		Loop, Parse, available_recipes, `,,`,
-		{
-			If (A_LoopField = "")
-				break
-			If InStr(prio_list%prio_number%_active, A_LoopField)
-			{
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs Section, % "     "
-				Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys gArchnemesis, % A_LoopField
-				IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-				If (recipe != "ERROR")
-				{
-					count := 0
-					Loop, Parse, recipe, `,,`,
-						count += 1
-					Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, % "(" count ")"
-				}
-			}
-		}
-	}
-}
-Else
-{
-	Loop, Parse, available_recipes, `,,`, ;ready panel without a prio-list
-	{
-		If (A_LoopField = "")
-			break
-		If InStr(blacklist_recipes, A_LoopField)
-			continue
-		Gui, archnemesis_window: Font, s%fSize0% norm
-		Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans xs Section HWNDmain_text gArchnemesis, % A_LoopField
-		IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
-		comp_no := 0
-		Loop, Parse, read, `,,`,
-			comp_no += 1
-		Gui, archnemesis_window: Add, Text, cWhite BackgroundTrans ys, (%comp_no%)
-		IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
-		ControlGetPos,, ypos,, height,, ahk_id %main_text%
-		Loop, Parse, read, `,,`,
-			Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
-		IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-		If (modifiers != "ERROR")
-		{
-			Gui, archnemesis_window: Font, % "s"fSize1-1
-			Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans xs Section, % "    "
-			Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans ys, % modifiers
-			Gui, archnemesis_window: Font, s%fSize0%
-		}
-	}
-}
-
-If (favorite_recipes != "") ;'available burn recipes' section of the ready panel
-{
-	Gui, archnemesis_window: Font, % "s"fSize1-3 norm
-	Gui, archnemesis_window: Add, Text, xs Section cRed BackgroundTrans, % " "
-	Gui, archnemesis_window: Font, s%fSize0%
-	Gui, archnemesis_window: Add, Text, xs Section cRed BackgroundTrans, available burn recipes:
-	If (unwanted_recipes != "")
-	{
-		Loop, Parse, unwanted_recipes, `,,`,
-		{
-			mod_check := StrReplace(A_LoopField, "-", "_")
-			mod_check := StrReplace(mod_check, A_Space, "_")
-			If (A_LoopField = "")
-				break
-			If InStr(blacklist_recipes, A_LoopField) || InStr(favorite_recipes, A_LoopField)
-				continue
-			IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, components
-			comp_no := 0
-			color0 := 0
-			Loop, Parse, read, `,,`,
-			{
-				If InStr(arch_surplus, A_LoopField)
-					color0 += InStr(arch_bases, A_LoopField) ? 1 : 100
-				comp_no += 1
-			}
-			color := (color0 > 0) ? "Yellow" : "White"
-			color := (color0 >= 100) ? "Aqua" : color
-			color := InStr(prio_list, A_LoopField) ? "Aqua" : color
-			If InStr(prio_list, A_LoopField) && !InStr(favorite_recipes, A_LoopField) && (balance_%mod_check% >= 0)
-			{
-				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans xs Section, % "+" balance_%mod_check%
-				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys gArchnemesis, % A_LoopField
-				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys, % "(" comp_no ")"
-			}
-			Else
-			{
-				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans Section xs HWNDmain_text gArchnemesis, % A_LoopField
-				Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans ys, (%comp_no%)
-			}
-			IniRead, read, ini\db_archnemesis.ini, %A_LoopField%, rewards
-			ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			Loop, Parse, read, `,,`,
-				Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys, img\rewards\%A_LoopField%.png
-			IniRead, modifiers, ini\db_archnemesis.ini, %A_LoopField%, modifiers
-			If (modifiers != "ERROR")
-			{
-				Gui, archnemesis_window: Font, % "s"fSize1-1
-				Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans xs Section, % "    "
-				Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans ys, % modifiers
-				Gui, archnemesis_window: Font, s%fSize0%
-			}
-		}
-	}
-	Gui, archnemesis_window: Font, % "s"fSize1-3 norm
-	Gui, archnemesis_window: Add, Text, xs Section cRed BackgroundTrans, % " "
-	Gui, archnemesis_window: Font, s%fSize0% underline
-	Gui, archnemesis_window: Add, Text, xs Section cRed BackgroundTrans HWNDmain_text gBurn_all, available burn mods:
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	sort_text0 := (sorting = "quantity") ? " q" : " t"
-	sort_text1 := (sorting_order = "descending") ? "– " : "+ "
-	Gui, archnemesis_window: Add, Text, ys x+10 BackgroundTrans gRecipes, % sort_text1 "/" sort_text0
-	Gui, archnemesis_window: Font, s%fSize0% norm
-	heightwin := ""
-	
-	If (unwanted_mods != "") ;'available burn mods' section of the ready panel
-	{
-		unwanted_mods_quant := ""
-		Loop, Parse, unwanted_mods, `,,`, ;calculate surplus quantities
-		{
-			If (A_LoopField = "")
-				break
-			mod_check := StrReplace(A_LoopField, "-", "_")
-			mod_check := StrReplace(mod_check, A_Space, "_")
-			count := balance_%mod_check%
-			If InStr(arch_surplus, A_LoopField)
-			{
-				If InStr(arch_bases, A_LoopField)
-					count := balance_%mod_check% - burn_number
-				Else count := "oversup" balance_%mod_check% - burn_number1
-			}
-			If (count > 0)
-				unwanted_mods_quant := (unwanted_mods_quant = "") ? count "x " A_LoopField "," : unwanted_mods_quant count "x " A_LoopField ","
-		}
-		unwanted_mods_burn := unwanted_mods_quant
-		unwanted_mods_quant := StrReplace(unwanted_mods_quant, "oversup", "")
-		unwanted_mods_quant0 := unwanted_mods_quant
-		
-		If (sorting = "quantity") ;sort list according to settings
-		{
-			If (sorting_order = "descending")
-				Sort, unwanted_mods_quant, D`, N R
-			If (sorting_order = "ascending")
-				Sort, unwanted_mods_quant, D`, N
-		}
-		Else
-		{
-			If (sorting_order = "ascending")
-			{
-				unwanted_mods_quant := ""
-				Loop, Parse, unwanted_mods_quant0, `,,`,
-				{
-					If (A_LoopField = "")
-						break
-					unwanted_mods_quant := (unwanted_mods_quant = "") ? A_LoopField "," : A_LoopField "," unwanted_mods_quant
-				}
-			}
-		}
-		Loop, Parse, unwanted_mods_quant, `,,`, ;populate the burn-mods list with available mods
-		{
-			If (A_LoopField = "") || (heightwin > poe_height*0.90)
-				break
-			color := InStr(arch_surplus, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)) ? "Yellow" : "White"
-			color := InStr(prio_list, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)) && !InStr(arch_bases, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)) ? "Aqua" : color
-			color := InStr(blacklist_recipes, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)) ? "Red" : color
-			Gui, archnemesis_window: Add, Text, c%color% BackgroundTrans xs Section HWNDmain_text gRecipe_tree, % A_LoopField
-			ini_section := SubStr(A_LoopField, InStr(A_LoopField, "x ")+2)
-			IniRead, read, ini\db_archnemesis.ini, %ini_section%, rewards
-			IniRead, modifiers, ini\db_archnemesis.ini, %ini_section%, modifiers
-			ControlGetPos,, ypos,, height,, ahk_id %main_text%
-			Loop, Parse, read, `,,`,
-				Gui, archnemesis_window: Add, Picture, h%height% w-1 BackgroundTrans ys y%ypos%, img\rewards\%A_LoopField%.png
-			If (modifiers != "ERROR")
-			{
-				Gui, archnemesis_window: Font, % "s"fSize1-1
-				Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans xs Section, % "    "
-				Gui, archnemesis_window: Add, Text, cSilver BackgroundTrans ys, % modifiers
-				Gui, archnemesis_window: Font, s%fSize0%
-			}
-			Gui, archnemesis_window: Show, Hide AutoSize
-			WinGetPos,,,, heightwin
-		}
-	}
-	Else unwanted_mods_quant := ""
-}
-	
-Gui, archnemesis_window: Margin, 4, 4
-Gui, archnemesis_window: Show, Hide AutoSize
-WinGetPos,,, width, height
-xWindow1 := xWindow + width
-yWindow := yScreenOffset + poe_height - height
-If (hwnd_surplus_view != "")
-{
-	WinGetPos,,,, heightsurplus, ahk_id %hwnd_surplus_view%
-	Gui, surplus_view: Show, % "NA x"xWindow1 " y"yScreenOffset+poe_height-heightsurplus
-}
-Gui, archnemesis_window: Show, % "Hide x"xWindow " y"poe_height-height+yScreenOffset
-hwnd_archnemesis_window := WinExist()
-Return
-
-Recipe_tree:
-holdstart := A_TickCount
-While GetKeyState("RButton", "P") ;removing a prio-entry via long-r-clicking
-{
-	If (A_TickCount >= holdstart + 250)
-	{
-		favor_choice := A_GuiControl
-		GoSub, Favored_recipes
-		Return
-	}
-}
-
-If (click = 2) && InStr(favorite_recipes, A_GuiControl) ;pausing a recipe via r-clicking
-{
-	GoSub, Pause_list
-	Return
-}
-
-While GetKeyState("LButton", "P") && !InStr(arch_bases, SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2)) ;showing tree-view schematic via long-clicking
-{
-	If (A_TickCount >= holdstart + 100)
-	{
-		IniRead, components, ini\db_archnemesis.ini, %A_GuiControl%, components
-		If (components = "ERROR")
-		{
-			KeyWait, LButton
-			WinActivate, ahk_group poe_window
-			Return
-		}
-		Gui, recipe_tree: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-		Gui, recipe_tree: Color, Black
-		WinSet, Transparent, %trans%
-		Gui, recipe_tree: Font, cWhite s%fSize0%, Fontin SmallCaps
-		Gui, recipe_tree: Margin, 20, 0
-		Loop, Parse, components, `,,`,
-		{
-			mod := A_LoopField
-			count := 0
-			Loop
-			{
-				check := InStr(archnemesis_inventory, mod,,, A_Index)
-				If (check = 0)
-					break
-				Else count += 1
-			}
-			count := (count = 0) ? "" : " (" count ")"
-			color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
-			If (A_Index = 1)
-				Gui, recipe_tree: Add, Text, x6 y2 BackgroundTrans c%color% HWNDmain_text Section Center, % A_LoopField count
-			Else	Gui, recipe_tree: Add, Text, BackgroundTrans c%color% ys HWNDmain_text Section Center, % A_LoopField count
-			IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-			If (components != "ERROR") && (components != "")
-			{
-				Loop, Parse, components, `,,`,
-				{
-					mod := A_LoopField
-					count := 0
-					Loop
-					{
-						check := InStr(archnemesis_inventory, mod,,, A_Index)
-						If (check = 0)
-							break
-						Else count += 1
-					}
-					count := (count = 0) ? "" : " (" count ")"
-					color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
-					Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |–" A_LoopField count
-					IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-					If (components != "ERROR") && (components != "")
-					{
-						Loop, Parse, components, `,,`,
-						{
-							mod := A_LoopField
-							count := 0
-							Loop
-							{
-								check := InStr(archnemesis_inventory, mod,,, A_Index)
-								If (check = 0)
-									break
-								Else count += 1
-							}
-							count := (count = 0) ? "" : " (" count ")"
-							color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
-							Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |     |–" A_LoopField count
-							IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-							If (components != "ERROR") && (components != "")
-							{
-								Loop, Parse, components, `,,`,
-								{
-									mod := A_LoopField
-									count := 0
-									Loop
-									{
-										check := InStr(archnemesis_inventory, mod,,, A_Index)
-										If (check = 0)
-											break
-										Else count += 1
-									}
-									count := (count = 0) ? "" : " (" count ")"
-									color := InStr(archnemesis_inventory, A_LoopField) ? "Lime" : "White"
-										Gui, recipe_tree: Add, Text, BackgroundTrans c%color% xs HWNDmain_text Center, % "    |     |     |–" A_LoopField count
-									IniRead, components, ini\db_archnemesis.ini, %A_LoopField%, components
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		Gui, recipe_tree: Margin, 6, 4
-		Gui, recipe_tree: Show, Hide
-		MouseGetPos, mousex, mousey
-		WinGetPos,,, width, height
-		Gui, recipe_tree: Show, % "Hide x"xWindow1 " y"mousey
-		WinGetPos, winx, winy, width, height
-		If (winy+height > yScreenOffset+poe_height)
-			ywincoord := yScreenOffset+poe_height-height
-		Else ywincoord := mousey
-		If (winx+width > xScreenOffset+poe_width)
-			xwincoord := xScreenOffset+poe_width-width
-		Else	xwincoord := xWindow1
-		Gui, recipe_tree: Show, % "NA x"xwincoord " y"ywincoord
-		KeyWait, LButton
-		Gui, recipe_tree: Destroy
-		WinActivate, ahk_group poe_window
-		Return
-	}
-}
-
-If InStr(archnemesis_inventory, SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2)) ;highlight available recipe via clicking
-{
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	clipboard := InStr(A_GuiControl, "x ") ? "^"SubStr(StrReplace(SubStr(A_GuiControl, InStr(A_GuiControl, "x ")+2), A_Space, "."), 1, 8) : "^"SubStr(StrReplace(A_GuiControl, A_Space, "."), 1, 8)
-	SendInput, ^{f}^{v}{Enter}
-}
-Else WinActivate, ahk_group poe_window
-Return
-
-Scan:
-If (A_ThisHotkey != "")
-{
-	MouseGetPos, mousex, mousey
-	If (mousex < invBox2)
-	{
-		SoundBeep
-		Return
-	}
-}
-If (xScan = "") || (xScan = "ERROR")
-{
-	MsgBox, Scanning the archnemesis inventory at this resolution is not yet supported.
-	Return
-}
-Gui, archnemesis_list: Destroy
-hwnd_archnemesis_list := ""
-Gui, surplus_view: Destroy
-hwnd_surplus_view := ""
-clipboard := ""
-WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
-If (click = 2)
-	SendInput, ^{f}^{x}{Enter}
-Else SendInput, ^{f}{ESC}
-KeyWait, LButton
-sleep, 100
-scan_in_progress := 1
-bmpHaystack := Gdip_BitmapFromScreen(xScreenOffset "|" yScreenOffset "|" poe_width "|" poe_height)
-archnemesis_inventory_prelim := ""
-xGrid := []
-yGrid := []
-progress := 0
-Loop, Parse, xScan, `,,`,
-	xGrid.Push(A_LoopField+xScreenOffset)
-Loop, Parse, yScan, `,,`,
-	yGrid.Push(A_LoopField+yScreenOffset)
-Loop, % xGrid.Length()
-{
-	xArrow := xGrid[A_Index] + dBitMap//2
-	xGridScan0 := xGrid[A_Index]
-	xGridScan1 := xGrid[A_Index] + dBitMap
-	xBitMap := xGridScan0
-	Loop, % yGrid.Length()
-	{
-		progress += 1
-		comparison := 0
-		ToolTip, % "Progress: " progress "/64", xScan_button, yLetters+50, 17
-		yArrow := yGrid[A_Index]
-		yGridScan0 := yGrid[A_Index]
-		yGridScan1 := yGrid[A_Index] + dBitMap
-		yBitMap := yGridScan0
-		If !FileExist("img\Recognition\" poe_height "p\Archnemesis\*.png")
-			GoSub, Recalibrate
-		Else
-		{
-			If (arch_inventory != "")
-			{
-				compare := arch_inventory[progress]
-				If (compare != "")
-				{
-					Loop, Files, img\Recognition\%poe_height%p\Archnemesis\%compare%*.png
-					{
-						bmpNeedle := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-						comparison := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LIST, xGridScan0, yGridScan0, xGridScan1, yGridScan1, 25,, 1, 1)
-						Gdip_DisposeImage(bmpNeedle)
-						If (comparison = 1)
-							break
-					}
-				}
-			}
-			If (comparison != 1)
-			{
-				match := ""
-				Loop, Parse, all_nemesis_unsorted, `n,`n
-				{
-					file_check := "img\Recognition\" poe_height "p\Archnemesis\" A_LoopField "*.png"
-					Loop, Files, %file_check%
-					{
-						bmpNeedle := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-						comparison := Gdip_ImageSearch(bmpHaystack, bmpNeedle, LIST, xGridScan0, yGridScan0, xGridScan1, yGridScan1, 25,, 1 , 1)
-						Gdip_DisposeImage(bmpNeedle)
-						If (comparison = 1)
-						{
-							SplitPath, A_LoopFileName,,,, match,
-							break
-						}
-					}
-					If (comparison = 1)
-						break
-				}
-			}
-			Else match := compare
-			Loop, 10
-			{
-				If (A_Index = 10)
-					match := StrReplace(match, "0", "")
-				Else match := StrReplace(match, A_Index, "")
-			}
-			If (match = "")
-				GoSub, Recalibrate
-			else	archnemesis_inventory_prelim := (archnemesis_inventory_prelim = "") ? match : archnemesis_inventory_prelim "," match
-		}
-	}
-}
-Gdip_DisposeImage(bmpHaystack)
-archnemesis_inventory := archnemesis_inventory_prelim
-background_inventory_prelim := archnemesis_inventory_prelim
-arch_inventory := []
-Loop, Parse, archnemesis_inventory, `,,`,
-	arch_inventory.Push(A_LoopField)
-Gui, recal_arrow: Destroy
-ToolTip,,,,17
-GoSub, Favored_recipes
-scan_in_progress := (background_scan_in_progress = 1) ? 1 : ""
+Pixelchecks:
 If (click = 2)
 {
-	LLK_Recipes("auto_highlight")
+	LLK_PixelRecalibrate("gamescreen")
 	Return
 }
-Return
-
-Scan_background:
-SetTimer, Scan_background, Delete
-scan_unknown := 0
-background_scan_in_progress := 1
-background_Haystack := Gdip_BitmapFromScreen(xScreenOffset "|" yScreenOffset "|" poe_width "|" poe_height)
-background_inventory := (background_inventory_prelim = "") ? archnemesis_inventory : background_inventory_prelim
-back_inventory := []
-Loop, Parse, background_inventory, `,,`,
-	back_inventory.Push(A_LoopField)
-background_inventory_prelim := ""
-background_xGrid := []
-background_yGrid := []
-background_progress := 0
-Loop, Parse, xScan, `,,`,
-	background_xGrid.Push(A_LoopField+xScreenOffset)
-Loop, Parse, yScan, `,,`,
-	background_yGrid.Push(A_LoopField+yScreenOffset)
-Loop, % background_xGrid.Length()
-{
-	background_xGridScan0 := background_xGrid[A_Index]
-	background_xGridScan1 := background_xGrid[A_Index] + dBitMap
-	background_xBitMap := background_xGridScan0
-	Loop, % background_yGrid.Length()
-	{
-		background_progress += 1
-		background_comparison := 0
-		background_yGridScan0 := background_yGrid[A_Index]
-		background_yGridScan1 := background_yGrid[A_Index] + dBitMap
-		background_yBitMap := background_yGridScan0
-		If !FileExist("img\Recognition\" poe_height "p\Archnemesis\*.png") || (scan_unknown > 2) || (scan_in_progress = 1)
-		{
-			Gdip_DisposeImage(background_Haystack)
-			background_scanned := 1
-			background_inventory_prelim := ""
-			scan_in_progress = ""
-			background_scan_in_progress = ""
-			Return
-		}
-		Else
-		{
-			If (background_inventory != "")
-			{
-				background_compare := back_inventory[background_progress]
-				If (background_compare != "")
-				{
-					Loop, Files, img\Recognition\%poe_height%p\Archnemesis\%background_compare%*.png
-					{
-						background_Needle := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-						background_comparison := Gdip_ImageSearch(background_Haystack, background_Needle, LIST, background_xGridScan0, background_yGridScan0, background_xGridScan1, background_yGridScan1, 25,, 1, 1)
-						Gdip_DisposeImage(background_Needle)
-						If (background_comparison = 1)
-							break
-					}
-				}
-			}
-			If (background_comparison != 1)
-			{
-				background_match := ""
-				Loop, Parse, all_nemesis_unsorted, `n,`n
-				{
-					file_check := "img\Recognition\" poe_height "p\Archnemesis\" A_LoopField "*.png"
-					Loop, Files, %file_check%
-					{
-						background_Needle := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-						background_comparison := Gdip_ImageSearch(background_Haystack, background_Needle, LIST, background_xGridScan0, background_yGridScan0, background_xGridScan1, background_yGridScan1, 25,, 1 , 1)
-						Gdip_DisposeImage(background_Needle)
-						If (background_comparison = 1)
-						{
-							SplitPath, A_LoopFileName,,,, background_match,
-							break
-						}
-					}
-					If (background_comparison = 1)
-						break
-				}
-			}
-			Else background_match := background_compare
-			Loop, 10
-			{
-				If (A_Index = 10)
-					background_match := StrReplace(background_match, "0", "")
-				Else background_match := StrReplace(background_match, A_Index, "")
-			}
-			If (background_match = "")
-			{
-				background_match := "-empty-"
-				scan_unknown += 1
-			}
-			background_inventory_prelim := (background_inventory_prelim = "") ? background_match : background_inventory_prelim "," background_match
-		}
-	}
-}
-Gdip_DisposeImage(background_Haystack)
-background_inventory := background_inventory_prelim
-arch_inventory := []
-Loop, Parse, background_inventory, `,,`,
-	arch_inventory.Push(A_LoopField)
-background_scanned := 1
-background_scan_in_progress := ""
+If LLK_PixelSearch(A_GuiControl)
+	LLK_ToolTip("success")
+Else LLK_ToolTip("failed")
 Return
 
 Settings_menu:
@@ -2847,40 +1253,51 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 }
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "border" : ""
 alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
-archnemesis_style := InStr(A_GuiControl, "archnemesis") ? "border" : ""
+clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
 notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "border" : ""
+pixelcheck_style := InStr(A_GuiControl, "pixel") ? "border" : ""
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
+{
 	Gui, settings_menu: Submit
+	kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
+}
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu, Lailloken UI: settings
 Gui, settings_menu: Color, Black
 Gui, settings_menu: Margin, 12, 4
 WinSet, Transparent, %trans%
 Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 
-Gui, settings_menu: Add, Text, Section BackgroundTrans %settings_style% gSettings_menu HWNDhwnd_settings_general, % "general"
-ControlGetPos,,, width_settings0,,, ahk_id %hwnd_settings_general%
-spacing_settings := width_settings0
+Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSettings_menu HWNDhwnd_settings_general", % "general"
+ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_general%
+spacing_settings := width_settings
 
 Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
-ControlGetPos,,, width_settings1,,, ahk_id %hwnd_settings_alarm%
-spacing_settings := (width_settings1 > spacing_settings) ? width_settings1 : spacing_settings
+ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_alarm%
+spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
-Gui, settings_menu: Add, Text, xs BackgroundTrans %archnemesis_style% gSettings_menu HWNDhwnd_settings_archnemesis, % "archnemesis"
-ControlGetPos,,, width_settings2,,, ahk_id %hwnd_settings_archnemesis%
-spacing_settings := (width_settings2 > spacing_settings) ? width_settings2 : spacing_settings
+Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
+ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_clone_frames%
+spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu HWNDhwnd_settings_notepad, % "notepad"
-ControlGetPos,,, width_settings3,,, ahk_id %hwnd_settings_notepad%
-spacing_settings := (width_settings3 > spacing_settings) ? width_settings3 : spacing_settings
+ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_notepad%
+spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "omni-key"
-ControlGetPos,,, width_settings4,,, ahk_id %hwnd_settings_omnikey%
-spacing_settings := (width_settings4 > spacing_settings) ? width_settings4 : spacing_settings
+ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
+spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
-Gui, settings_menu: Font, % "s"fSize1 "norm"
+If pixel_gamescreen_x1 is number
+{
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "pixel-checks"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+}
+
+Gui, settings_menu: Font, norm
 
 If !InStr(GuiControl_copy, "notepad") && WinExist("ahk_id " hwnd_notepad_sample)
 {
@@ -2898,14 +1315,15 @@ If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
-Else If InStr(GuiControl_copy, "archnemesis")
-	GoSub, Settings_menu_archnemesis
+Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
+	GoSub, Settings_menu_clone_frames
 Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
 Else If InStr(GuiControl_copy, "omni")
 	GoSub, Settings_menu_omnikey
+Else If InStr(GuiControl_copy, "pixel")
+	GoSub, Settings_menu_pixelchecks
 
-Gui, settings_menu: Add, Text, xs BackgroundTrans, % " "
 ControlFocus,, ahk_id %hwnd_settings_general%
 If (xsettings_menu != "") && (ysettings_menu != "")
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
@@ -2915,19 +1333,11 @@ Else
 	WinGetPos,,, wsettings_menu
 	Gui, settings_menu: Show, % "Hide x"xScreenOffset+poe_width//2-wsettings_menu//2 " y"yScreenOffset
 }
-/*
-WinGetPos,,, settings_menu_width,, ahk_id %hwnd_settings_menu%
-If (settings_menu_width > settings_menu_width0)
-{
-	settings_menu_width0 := settings_menu_width
-}
-Gui, settings_menu: Show, Hide w%settings_menu_width0%
-*/
-LLK_Overlay("settings_menu", 1, 1)
+LLK_Overlay("settings_menu", "show", 1)
 Return
 
 Settings_menu_alarm:
-Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_alarm gApply_settings_alarm checked"enable_alarm " xp+"spacing_settings*1.4, enable alarm-timer
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_alarm gApply_settings_alarm checked"enable_alarm " xp+"spacing_settings*1.2, enable alarm-timer
 If (enable_alarm = 1)
 {
 	GoSub, Alarm
@@ -2950,13 +1360,40 @@ If (enable_alarm = 1)
 }
 Return
 
+Settings_menu_clone_frames:
+new_clone_menu_closed := 0
+clone_frames_enabled := ""
+IniRead, clone_frames_list, ini\clone frames.ini
+Sort, clone_frames_list, D`n
+If pixel_gamescreen_x1 is number
+{
+	Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " xp+"spacing_settings*1.2, trigger overlay via 'game-screen' pixel-check
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
+}
+Else Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans xp+"spacing_settings*1.2, list of clone-frames currently set up:
+Loop, Parse, clone_frames_list, `n, `n
+{
+	If (A_LoopField = "Settings")
+		continue
+	If clone_frame_%A_LoopField%_enable is not number
+		IniRead, clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable, 1
+	If (clone_frame_%A_LoopField%_enable = 1)
+		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply Checked" clone_frame_%A_LoopField%_enable " vClone_frame_" A_LoopField "_enable", % "enable: "
+	Gui, settings_menu: Font, underline
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gClone_frames_preview_list", % A_LoopField
+	Gui, settings_menu: Font, norm
+}
+Gui, settings_menu: Add, Text, % "xs Section Border gClone_frames_new vClone_frames_add BackgroundTrans y+"fSize0*1.2, % " add frame "
+Return
+
 Settings_menu_general:
-Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script xp+"spacing_settings*1.4, % "kill script after"
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script xp+"spacing_settings*1.2, % "kill script after"
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
 
-Gui, settings_menu: Font, % "s"fSize0-5 "norm"
-Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number vkill_timeout w"controlheight*1.4, %kill_timeout%
-Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Font, % "s"fSize0-4 "norm"
+Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number right Limit2 vkill_timeout w"controlheight*1.2, %kill_timeout%
+Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
 
 Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.5, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
@@ -2964,29 +1401,29 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans HWNDmain_text x+"fSize0//2,
 ControlGetPos,,,, height,, ahk_id %main_text%
 ControlGetPos,,, width,,, ahk_id %link_text%
 resolutionsDDL := ""
-IniRead, resolutions_all, ini\resolutions.ini
+IniRead, resolutions_all, Resolutions.ini
 choice := 0
 Loop, Parse, resolutions_all, `n,`n
-	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > native_resolution)
+	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native)
 		resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
 Loop, Parse, resolutionsDDL, |, |
 	If (A_LoopField = poe_height)
 		choice := A_Index
-Gui, settings_menu: Font, % "s"fSize0-5
+Gui, settings_menu: Font, % "s"fSize0-4
 Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 wp Choose" choice, % resolutionsDDL
-Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.5, % "panel position:"
 ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s"fSize0-5
+Gui, settings_menu: Font, % "s"fSize0-4
 If (panel_position0 = "top")
 	Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top||bottom"
 Else Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top|bottom||"
 If (panel_position1 = "left") || (panel_position1 = "")
 	Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left||right"
 Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
-	Gui, settings_menu: Font, % "s"fSize1
+	Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide panel"
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
@@ -2994,26 +1431,31 @@ Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
 Return
 
-Settings_menu_archnemesis:
-If (GuiControl_copy = "reset_archnemesis_scan_hotkey") && (archnemesis_scan_hotkey != "")
+Settings_menu_help:
+MouseGetPos, mouseXpos, mouseYpos
+Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu_help
+Gui, settings_menu_help: Color, Black
+Gui, settings_menu_help: Margin, 12, 4
+WinSet, Transparent, %trans%
+Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
+
+If InStr(A_GuiControl, "pixelcheck")
 {
-	Hotkey, %archnemesis_scan_hotkey%,, Off
-	archnemesis_scan_hotkey := ""
+	Gui, settings_menu_help: Add, Text, BackgroundTrans, explanation:`nthese pixel-checks merely trigger actions`nwithin the script itself and will -NEVER-`nresult in any interaction with the client.
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
-Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_archnemesis gApply_settings_archnemesis checked"enable_archnemesis " xp+"spacing_settings*1.4, enable archnemesis helper
-If (enable_archnemesis = 1)
+If InStr(A_GuiControl, "gamescreen")
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, scan-hotkey:
-	ControlGetPos,,, width,,, ahk_id %main_text%
-	Gui, settings_menu: Font, % "s"fSize0-5
-	Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans varchnemesis_scan_hotkey gApply_settings_archnemesis w"width//2, %archnemesis_scan_hotkey%
-	Gui, settings_menu: Font, % "s"fSize1
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_archnemesis_scan_hotkey gSettings_menu", % " reset "
+	Gui, settings_menu_help: Add, Picture, BackgroundTrans, img\GUI\game_screen.jpg
+	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, instructions:`nwhen recalibrating, make sure this panel with realm/league-info is visible.`n`nexplanation:`nthis check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+KeyWait, LButton
+Gui, settings_menu_help: Destroy
 Return
 
 Settings_menu_notepad:
-Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gApply_settings_notepad xp+"spacing_settings*1.4 " venable_notepad Checked"enable_notepad, enable notepad
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gApply_settings_notepad xp+"spacing_settings*1.2 " venable_notepad Checked"enable_notepad, enable notepad
 If (enable_notepad = 1)
 {
 	GoSub, Notepad
@@ -3045,17 +1487,28 @@ If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
 	Hotkey, ~MButton, Omnikey, On
 }
 
-Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.4, replace mbutton with:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, replace mbutton with:
 ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s"fSize0-5
+Gui, settings_menu: Font, % "s"fSize0-4
 Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans vomnikey_hotkey gApply_settings_omnikey w"width//3, %omnikey_hotkey%
-Gui, settings_menu: Font, % "s"fSize1
+Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_omnikey_hotkey gSettings_menu", % " clear "
+Return
+
+Settings_menu_pixelchecks:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, list of integrated pixel-checks:
+ControlGetPos,,,, height,, ahk_id %main_text%
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vPixelcheck_help h"height " w-1", img\GUI\help.png
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks vGamescreen y+"fSize0*1.2, % " check | recal "
+Gui, settings_menu: Font, underline
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help vGamescreen_help HWNDmain_text", % "game-screen"
+Gui, settings_menu: Font, norm
 Return
 
 Settings_menuGuiClose:
 WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 Gui, settings_menu: Submit
+kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 Gui, settings_menu: Destroy
 hwnd_settings_menu := ""
 
@@ -3072,6 +1525,89 @@ If WinExist("ahk_id " hwnd_alarm_sample)
 }
 Return
 
+ToolTip_clear:
+SetTimer, ToolTip_clear, delete
+ToolTip,,,, 17
+Return
+
+LLK_Error(ErrorMessage)
+{
+	global
+	MsgBox, % ErrorMessage
+	ExitApp
+}
+
+LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
+{
+	global
+	If (gui="hide")
+	{
+		Loop, Parse, guilist, |, |
+			Gui, %A_LoopField%: Hide
+		Return
+	}
+	If (gui="show")
+	{
+		Loop, Parse, guilist, |, |
+			If (state_%A_LoopField%=1) && (hwnd_%A_LoopField% != "")
+				Gui, %A_LoopField%: Show, NA
+		Return
+	}
+	If (toggleshowhide="toggle")
+	{
+		If !WinExist("ahk_id " hwnd_%gui%) && (hwnd_%gui% != "")
+		{
+			Gui, %gui%: Show, NA
+			state_%gui% := 1
+			Return
+		}
+		If WinExist("ahk_id " hwnd_%gui%)
+		{
+			Gui, %gui%: Hide
+			state_%gui% := 0
+			Return
+		}
+	}
+	If (toggleshowhide="show")
+	{
+		If (NA = 1)
+			Gui, %gui%: Show, NA
+		Else Gui, %gui%: Show
+		state_%gui% := 1
+	}
+	If (toggleshowhide="hide")
+	{
+		Gui, %gui%: Hide
+		state_%gui% := 0
+	}
+}
+
+LLK_PixelRecalibrate(name)
+{
+	global
+	IniRead, pixel_%name%_x1, Resolutions.ini, %poe_height%p, %name% x-coordinate 1
+	IniRead, pixel_%name%_y1, Resolutions.ini, %poe_height%p, %name% y-coordinate 1
+	IniRead, pixel_%name%_x2, Resolutions.ini, %poe_height%p, %name% x-coordinate 2
+	IniRead, pixel_%name%_y2, Resolutions.ini, %poe_height%p, %name% y-coordinate 2
+	
+	Loop 2
+	{
+		PixelGetColor, pixel_%name%_color%A_Index%, % pixel_%name%_x%A_Index%, % pixel_%name%_y%A_Index%, RGB
+		IniWrite, % pixel_%name%_color%A_Index%, ini\pixel checks (%poe_height%p).ini, gamescreen, color %A_Index%
+	}
+}
+
+LLK_PixelSearch(name)
+{
+	global
+	PixelSearch, OutputVarX, OutputVarY, pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+	If (ErrorLevel=0)
+		PixelSearch, OutputVarX, OutputVarY, pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
+	%name% := (ErrorLevel=0) ? 1 : 0
+	value := %name%
+	Return value
+}
+
 LLK_Rightclick()
 {
 	global
@@ -3081,1241 +1617,11 @@ LLK_Rightclick()
 	click := 1
 }
 
-LLK_Recipes(x := 0, y := 0)
+LLK_ToolTip(message, duration := 1)
 {
 	global
-	If (x = "auto_highlight")
-	{
-		If (clipboard != "")
-		{
-			clipboard_check := clipboard
-			clipboard_check := StrReplace(clipboard_check, "^", "")
-			clipboard_check := StrReplace(clipboard_check, "(", "")
-			clipboard_check := StrReplace(clipboard_check, ")", "")
-			count := 0
-			Loop, Parse, clipboard_check, |, |
-				count += 1
-		}
-		Else
-		{
-			count := 0
-			clipboard_check := ""
-		}
-		prio_chosen := 0
-		burn_chosen := 0
-		highlight := 0
-		If (count < 4)
-		{
-			If (available_recipes != "")
-			{
-				Loop, Parse, available_recipes, `,,`,
-				{
-					If (A_LoopField = "")
-						break
-					comp_count := 0
-					IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-					recipe0 := ""
-					Loop, Parse, recipe, `,,`,
-					{
-						comp_count += InStr(clipboard_check, StrReplace(SubStr(A_LoopField, 1, 8), A_Space, ".")) ? 5 : 1
-						recipe0 := (recipe0 = "") ? SubStr(A_LoopField, 1, 8) : recipe0 "|" SubStr(A_LoopField, 1, 8)
-					}
-					If (count + comp_count < 5)
-					{
-						prio_chosen := 1
-						highlight := 1
-						clipboard_check := (clipboard_check = "") ? recipe0 : clipboard_check "|" recipe0
-						x := clipboard_check
-						y := 2
-						break
-					}
-				}
-			}
-			If (unwanted_recipes != "") && (highlight = 0)
-			{
-				Loop, Parse, unwanted_recipes, `,,`,
-				{
-					If (A_LoopField = "")
-						break
-					If InStr(blacklist_recipes, A_LoopField)
-						continue
-					comp_count := 0
-					IniRead, recipe, ini\db_archnemesis.ini, %A_LoopField%, components
-					recipe0 := ""
-					Loop, Parse, recipe, `,,`,
-					{
-						comp_count += InStr(clipboard_check, StrReplace(SubStr(A_LoopField, 1, 8), A_Space, ".")) ? 5 : 1
-						recipe0 := (recipe0 = "") ? SubStr(A_LoopField, 1, 8) : recipe0 "|" SubStr(A_LoopField, 1, 8)
-					}
-					If (count + comp_count < 5)
-					{
-						burn_chosen := 1
-						highlight := 1
-						clipboard_check := (clipboard_check = "") ? recipe0 : clipboard_check "|" recipe0
-						x := clipboard_check
-						y := 2
-						break
-					}
-				}
-			}
-			If (unwanted_mods_quant != "") && (highlight = 0)
-			{
-				Loop, Parse, unwanted_mods_quant, `,,`,
-				{
-					If (A_LoopField = "")
-						break
-					If InStr(blacklist_recipes, SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8))
-						continue
-					comp_count := 0
-					comp_count += InStr(clipboard_check, StrReplace(SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8), A_Space, ".")) ? 5 : 1
-					If (count + comp_count < 5)
-					{
-						burn_chosen := 1
-						clipboard_check := (clipboard_check = "") ? SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8) : clipboard_check "|" SubStr(A_LoopField, InStr(A_LoopField, "x ")+2, 8)
-						x := clipboard_check
-						y := 2
-						break
-					}
-				}
-			}
-			If (prio_chosen = 0 && burn_chosen = 0) && (clipboard_check != "")
-			{
-				x := clipboard_check
-				y := 2
-			}
-		}
-		Else
-		{
-			x := clipboard_check
-			y := 2
-		}
-	}
-	If (x != 0)
-	{
-		search_term := ""
-		If (y = 2)
-			search_term := x
-		If (y = 1)
-		{
-			IniRead, read, ini\db_archnemesis.ini, %x%, components
-			If (read != "ERROR")
-			{
-				Loop, Parse, read, `,,`,
-					search_term := (search_term = "") ? SubStr(A_LoopField, 1, 8) : search_term "|" SubStr(A_LoopField, 1, 8)
-			}
-		}
-		WinActivate, ahk_group poe_window
-		WinWaitActive, ahk_group poe_window
-		search_term := StrReplace(search_term, A_Space, ".")
-		clipboard := "^(" search_term ")"
-		previous_highlight := search_term
-		SendInput, ^{f}^{v}{Enter}
-	}
+	ToolTip, % message,,, 17
+	SetTimer, ToolTip_clear, % 1000 * duration
 }
 
-LLK_Overlay(x, y:=0, z:=0)
-{
-	global
-	If (x="hide")
-	{
-		Loop, Parse, guilist, |, |
-			Gui, %A_LoopField%: Hide
-		Return
-	}
-	If (x="show")
-	{
-		Loop, Parse, guilist, |, |
-			If (state_%A_LoopField%=1) && (hwnd_%A_LoopField% != "")
-				Gui, %A_LoopField%: Show, NA
-		Return
-	}
-	If (y=0)
-	{
-		If !WinExist("ahk_id " hwnd_%x%) && (hwnd_%x% != "")
-		{
-			Gui, %x%: Show, NA
-			state_%x% := 1
-			Return
-		}
-		If WinExist("ahk_id " hwnd_%x%)
-		{
-			Gui, %x%: Hide
-			state_%x% := 0
-			Return
-		}
-	}
-	If (y=1)
-	{
-		If (z = 0)
-			Gui, %x%: Show, NA
-		Else Gui, %x%: Show
-		state_%x% := 1
-	}
-	If (y=2)
-	{
-		Gui, %x%: Hide
-		state_%x% := 0
-	}
-}
-
-LLK_PixelSearch(x)
-{
-	global
-	PixelSearch, OutputVarX, OutputVarY, %x%1_x, %x%1_y, %x%1_x, %x%1_y, %x%1_color, %pixelsearch_variation%, Fast RGB
-		If (ErrorLevel=0)
-			PixelSearch, OutputVarX, OutputVarY, %x%2_x, %x%2_y, %x%2_x, %x%2_y, %x%2_color, %pixelsearch_variation%, Fast RGB
-	%x% := (ErrorLevel=0) ? 1 : 0
-	value := %x%
-	Return value
-}
-
-Gdip_BitmapFromScreen(Screen=0, Raster="")
-{
-	if (Screen = 0)
-	{
-		Sysget, x, 76
-		Sysget, y, 77	
-		Sysget, w, 78
-		Sysget, h, 79
-	}
-	else if (SubStr(Screen, 1, 5) = "hwnd:")
-	{
-		Screen := SubStr(Screen, 6)
-		if !WinExist( "ahk_id " Screen)
-			return -2
-		WinGetPos,,, w, h, ahk_id %Screen%
-		x := y := 0
-		hhdc := GetDCEx(Screen, 3)
-	}
-	else if (Screen&1 != "")
-	{
-		Sysget, M, Monitor, %Screen%
-		x := MLeft, y := MTop, w := MRight-MLeft, h := MBottom-MTop
-	}
-	else
-	{
-		StringSplit, S, Screen, |
-		x := S1, y := S2, w := S3, h := S4
-	}
-
-	if (x = "") || (y = "") || (w = "") || (h = "")
-		return -1
-
-	chdc := CreateCompatibleDC(), hbm := CreateDIBSection(w, h, chdc), obm := SelectObject(chdc, hbm), hhdc := hhdc ? hhdc : GetDC()
-	BitBlt(chdc, 0, 0, w, h, hhdc, x, y, Raster)
-	ReleaseDC(hhdc)
-	
-	pBitmap := Gdip_CreateBitmapFromHBITMAP(hbm)
-	SelectObject(chdc, obm), DeleteObject(hbm), DeleteDC(hhdc), DeleteDC(chdc)
-	return pBitmap
-}
-
-GetDC(hwnd=0)
-{
-	return DllCall("GetDC", A_PtrSize ? "UPtr" : "UInt", hwnd)
-}
-
-GetDCEx(hwnd, flags=0, hrgnClip=0)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-    return DllCall("GetDCEx", Ptr, hwnd, Ptr, hrgnClip, "int", flags)
-}
-
-CreateCompatibleDC(hdc=0)
-{
-   return DllCall("CreateCompatibleDC", A_PtrSize ? "UPtr" : "UInt", hdc)
-}
-
-CreateDIBSection(w, h, hdc="", bpp=32, ByRef ppvBits=0)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	hdc2 := hdc ? hdc : GetDC()
-	VarSetCapacity(bi, 40, 0)
-	
-	NumPut(w, bi, 4, "uint")
-	, NumPut(h, bi, 8, "uint")
-	, NumPut(40, bi, 0, "uint")
-	, NumPut(1, bi, 12, "ushort")
-	, NumPut(0, bi, 16, "uInt")
-	, NumPut(bpp, bi, 14, "ushort")
-	
-	hbm := DllCall("CreateDIBSection"
-					, Ptr, hdc2
-					, Ptr, &bi
-					, "uint", 0
-					, A_PtrSize ? "UPtr*" : "uint*", ppvBits
-					, Ptr, 0
-					, "uint", 0, Ptr)
-
-	if !hdc
-		ReleaseDC(hdc2)
-	return hbm
-}
-
-SelectObject(hdc, hgdiobj)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	return DllCall("SelectObject", Ptr, hdc, Ptr, hgdiobj)
-}
-
-BitBlt(ddc, dx, dy, dw, dh, sdc, sx, sy, Raster="")
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	return DllCall("gdi32\BitBlt"
-					, Ptr, dDC
-					, "int", dx
-					, "int", dy
-					, "int", dw
-					, "int", dh
-					, Ptr, sDC
-					, "int", sx
-					, "int", sy
-					, "uint", Raster ? Raster : 0x00CC0020)
-}
-
-ReleaseDC(hdc, hwnd=0)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	return DllCall("ReleaseDC", Ptr, hwnd, Ptr, hdc)
-}
-
-Gdip_CreateBitmapFromHBITMAP(hBitmap, Palette=0)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	DllCall("gdiplus\GdipCreateBitmapFromHBITMAP", Ptr, hBitmap, Ptr, Palette, A_PtrSize ? "UPtr*" : "uint*", pBitmap)
-	return pBitmap
-}
-
-DeleteObject(hObject)
-{
-   return DllCall("DeleteObject", A_PtrSize ? "UPtr" : "UInt", hObject)
-}
-
-DeleteDC(hdc)
-{
-   return DllCall("DeleteDC", A_PtrSize ? "UPtr" : "UInt", hdc)
-}
-
-Gdip_SaveBitmapToFile(pBitmap, sOutput, Quality=75)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	SplitPath, sOutput,,, Extension
-	if Extension not in BMP,DIB,RLE,JPG,JPEG,JPE,JFIF,GIF,TIF,TIFF,PNG
-		return -1
-	Extension := "." Extension
-
-	DllCall("gdiplus\GdipGetImageEncodersSize", "uint*", nCount, "uint*", nSize)
-	VarSetCapacity(ci, nSize)
-	DllCall("gdiplus\GdipGetImageEncoders", "uint", nCount, "uint", nSize, Ptr, &ci)
-	if !(nCount && nSize)
-		return -2
-	
-	If (A_IsUnicode){
-		StrGet_Name := "StrGet"
-		Loop, %nCount%
-		{
-			sString := %StrGet_Name%(NumGet(ci, (idx := (48+7*A_PtrSize)*(A_Index-1))+32+3*A_PtrSize), "UTF-16")
-			if !InStr(sString, "*" Extension)
-				continue
-			
-			pCodec := &ci+idx
-			break
-		}
-	} else {
-		Loop, %nCount%
-		{
-			Location := NumGet(ci, 76*(A_Index-1)+44)
-			nSize := DllCall("WideCharToMultiByte", "uint", 0, "uint", 0, "uint", Location, "int", -1, "uint", 0, "int",  0, "uint", 0, "uint", 0)
-			VarSetCapacity(sString, nSize)
-			DllCall("WideCharToMultiByte", "uint", 0, "uint", 0, "uint", Location, "int", -1, "str", sString, "int", nSize, "uint", 0, "uint", 0)
-			if !InStr(sString, "*" Extension)
-				continue
-			
-			pCodec := &ci+76*(A_Index-1)
-			break
-		}
-	}
-	
-	if !pCodec
-		return -3
-
-	if (Quality != 75)
-	{
-		Quality := (Quality < 0) ? 0 : (Quality > 100) ? 100 : Quality
-		if Extension in .JPG,.JPEG,.JPE,.JFIF
-		{
-			DllCall("gdiplus\GdipGetEncoderParameterListSize", Ptr, pBitmap, Ptr, pCodec, "uint*", nSize)
-			VarSetCapacity(EncoderParameters, nSize, 0)
-			DllCall("gdiplus\GdipGetEncoderParameterList", Ptr, pBitmap, Ptr, pCodec, "uint", nSize, Ptr, &EncoderParameters)
-			Loop, % NumGet(EncoderParameters, "UInt")      ;%
-			{
-				elem := (24+(A_PtrSize ? A_PtrSize : 4))*(A_Index-1) + 4 + (pad := A_PtrSize = 8 ? 4 : 0)
-				if (NumGet(EncoderParameters, elem+16, "UInt") = 1) && (NumGet(EncoderParameters, elem+20, "UInt") = 6)
-				{
-					p := elem+&EncoderParameters-pad-4
-					NumPut(Quality, NumGet(NumPut(4, NumPut(1, p+0)+20, "UInt")), "UInt")
-					break
-				}
-			}      
-		}
-	}
-
-	if (!A_IsUnicode)
-	{
-		nSize := DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sOutput, "int", -1, Ptr, 0, "int", 0)
-		VarSetCapacity(wOutput, nSize*2)
-		DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sOutput, "int", -1, Ptr, &wOutput, "int", nSize)
-		VarSetCapacity(wOutput, -1)
-		if !VarSetCapacity(wOutput)
-			return -4
-		E := DllCall("gdiplus\GdipSaveImageToFile", Ptr, pBitmap, Ptr, &wOutput, Ptr, pCodec, "uint", p ? p : 0)
-	}
-	else
-		E := DllCall("gdiplus\GdipSaveImageToFile", Ptr, pBitmap, Ptr, &sOutput, Ptr, pCodec, "uint", p ? p : 0)
-	return E ? -5 : 0
-}
-
-Gdip_Startup()
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	if !DllCall("GetModuleHandle", "str", "gdiplus", Ptr)
-		DllCall("LoadLibrary", "str", "gdiplus")
-	VarSetCapacity(si, A_PtrSize = 8 ? 24 : 16, 0), si := Chr(1)
-	DllCall("gdiplus\GdiplusStartup", A_PtrSize ? "UPtr*" : "uint*", pToken, Ptr, &si, Ptr, 0)
-	return pToken
-}
-
-Gdip_Shutdown(pToken)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	DllCall("gdiplus\GdiplusShutdown", Ptr, pToken)
-	if hModule := DllCall("GetModuleHandle", "str", "gdiplus", Ptr)
-		DllCall("FreeLibrary", Ptr, hModule)
-	return 0
-}
-
-Gdip_GetImageDimensions(pBitmap, ByRef Width, ByRef Height)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	DllCall("gdiplus\GdipGetImageWidth", Ptr, pBitmap, "uint*", Width)
-	DllCall("gdiplus\GdipGetImageHeight", Ptr, pBitmap, "uint*", Height)
-}
-
-Gdip_LockBits(pBitmap, x, y, w, h, ByRef Stride, ByRef Scan0, ByRef BitmapData, LockMode = 3, PixelFormat = 0x26200a)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	CreateRect(Rect, x, y, w, h)
-	VarSetCapacity(BitmapData, 16+2*(A_PtrSize ? A_PtrSize : 4), 0)
-	E := DllCall("Gdiplus\GdipBitmapLockBits", Ptr, pBitmap, Ptr, &Rect, "uint", LockMode, "int", PixelFormat, Ptr, &BitmapData)
-	Stride := NumGet(BitmapData, 8, "Int")
-	Scan0 := NumGet(BitmapData, 16, Ptr)
-	return E
-}
-
-CreateRect(ByRef Rect, x, y, w, h)
-{
-	VarSetCapacity(Rect, 16)
-	NumPut(x, Rect, 0, "uint"), NumPut(y, Rect, 4, "uint"), NumPut(w, Rect, 8, "uint"), NumPut(h, Rect, 12, "uint")
-}
-
-Gdip_CloneBitmapArea(pBitmap, x, y, w, h, Format=0x26200A)
-{
-	DllCall("gdiplus\GdipCloneBitmapArea"
-					, "float", x
-					, "float", y
-					, "float", w
-					, "float", h
-					, "int", Format
-					, A_PtrSize ? "UPtr" : "UInt", pBitmap
-					, A_PtrSize ? "UPtr*" : "UInt*", pBitmapDest)
-	return pBitmapDest
-}
-
-Gdip_DisposeImage(pBitmap)
-{
-   return DllCall("gdiplus\GdipDisposeImage", A_PtrSize ? "UPtr" : "UInt", pBitmap)
-}
-
-Gdip_UnlockBits(pBitmap, ByRef BitmapData)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	return DllCall("Gdiplus\GdipBitmapUnlockBits", Ptr, pBitmap, Ptr, &BitmapData)
-}
-
-Gdip_FromARGB(ARGB, ByRef A, ByRef R, ByRef G, ByRef B)
-{
-	A := (0xff000000 & ARGB) >> 24
-	R := (0x00ff0000 & ARGB) >> 16
-	G := (0x0000ff00 & ARGB) >> 8
-	B := 0x000000ff & ARGB
-}
-
-Gdip_CreateBitmapFromFile(sFile, IconNumber=1, IconSize="")
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	, PtrA := A_PtrSize ? "UPtr*" : "UInt*"
-	
-	SplitPath, sFile,,, ext
-	if ext in exe,dll
-	{
-		Sizes := IconSize ? IconSize : 256 "|" 128 "|" 64 "|" 48 "|" 32 "|" 16
-		BufSize := 16 + (2*(A_PtrSize ? A_PtrSize : 4))
-		
-		VarSetCapacity(buf, BufSize, 0)
-		Loop, Parse, Sizes, |
-		{
-			DllCall("PrivateExtractIcons", "str", sFile, "int", IconNumber-1, "int", A_LoopField, "int", A_LoopField, PtrA, hIcon, PtrA, 0, "uint", 1, "uint", 0)
-			
-			if !hIcon
-				continue
-
-			if !DllCall("GetIconInfo", Ptr, hIcon, Ptr, &buf)
-			{
-				DestroyIcon(hIcon)
-				continue
-			}
-			
-			hbmMask  := NumGet(buf, 12 + ((A_PtrSize ? A_PtrSize : 4) - 4))
-			hbmColor := NumGet(buf, 12 + ((A_PtrSize ? A_PtrSize : 4) - 4) + (A_PtrSize ? A_PtrSize : 4))
-			if !(hbmColor && DllCall("GetObject", Ptr, hbmColor, "int", BufSize, Ptr, &buf))
-			{
-				DestroyIcon(hIcon)
-				continue
-			}
-			break
-		}
-		if !hIcon
-			return -1
-
-		Width := NumGet(buf, 4, "int"), Height := NumGet(buf, 8, "int")
-		hbm := CreateDIBSection(Width, -Height), hdc := CreateCompatibleDC(), obm := SelectObject(hdc, hbm)
-		if !DllCall("DrawIconEx", Ptr, hdc, "int", 0, "int", 0, Ptr, hIcon, "uint", Width, "uint", Height, "uint", 0, Ptr, 0, "uint", 3)
-		{
-			DestroyIcon(hIcon)
-			return -2
-		}
-		
-		VarSetCapacity(dib, 104)
-		DllCall("GetObject", Ptr, hbm, "int", A_PtrSize = 8 ? 104 : 84, Ptr, &dib) ; sizeof(DIBSECTION) = 76+2*(A_PtrSize=8?4:0)+2*A_PtrSize
-		Stride := NumGet(dib, 12, "Int"), Bits := NumGet(dib, 20 + (A_PtrSize = 8 ? 4 : 0)) ; padding
-		DllCall("gdiplus\GdipCreateBitmapFromScan0", "int", Width, "int", Height, "int", Stride, "int", 0x26200A, Ptr, Bits, PtrA, pBitmapOld)
-		pBitmap := Gdip_CreateBitmap(Width, Height)
-		G := Gdip_GraphicsFromImage(pBitmap)
-		, Gdip_DrawImage(G, pBitmapOld, 0, 0, Width, Height, 0, 0, Width, Height)
-		SelectObject(hdc, obm), DeleteObject(hbm), DeleteDC(hdc)
-		Gdip_DeleteGraphics(G), Gdip_DisposeImage(pBitmapOld)
-		DestroyIcon(hIcon)
-	}
-	else
-	{
-		if (!A_IsUnicode)
-		{
-			VarSetCapacity(wFile, 1024)
-			DllCall("kernel32\MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sFile, "int", -1, Ptr, &wFile, "int", 512)
-			DllCall("gdiplus\GdipCreateBitmapFromFile", Ptr, &wFile, PtrA, pBitmap)
-		}
-		else
-			DllCall("gdiplus\GdipCreateBitmapFromFile", Ptr, &sFile, PtrA, pBitmap)
-	}
-	
-	return pBitmap
-}
-
-DestroyIcon(hIcon)
-{
-	return DllCall("DestroyIcon", A_PtrSize ? "UPtr" : "UInt", hIcon)
-}
-
-Gdip_CreateBitmap(Width, Height, Format=0x26200A)
-{
-    DllCall("gdiplus\GdipCreateBitmapFromScan0", "int", Width, "int", Height, "int", 0, "int", Format, A_PtrSize ? "UPtr" : "UInt", 0, A_PtrSize ? "UPtr*" : "uint*", pBitmap)
-    Return pBitmap
-}
-
-Gdip_GraphicsFromImage(pBitmap)
-{
-	DllCall("gdiplus\GdipGetImageGraphicsContext", A_PtrSize ? "UPtr" : "UInt", pBitmap, A_PtrSize ? "UPtr*" : "UInt*", pGraphics)
-	return pGraphics
-}
-
-Gdip_DrawImage(pGraphics, pBitmap, dx="", dy="", dw="", dh="", sx="", sy="", sw="", sh="", Matrix=1)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	if (Matrix&1 = "")
-		ImageAttr := Gdip_SetImageAttributesColorMatrix(Matrix)
-	else if (Matrix != 1)
-		ImageAttr := Gdip_SetImageAttributesColorMatrix("1|0|0|0|0|0|1|0|0|0|0|0|1|0|0|0|0|0|" Matrix "|0|0|0|0|0|1")
-
-	if (sx = "" && sy = "" && sw = "" && sh = "")
-	{
-		if (dx = "" && dy = "" && dw = "" && dh = "")
-		{
-			sx := dx := 0, sy := dy := 0
-			sw := dw := Gdip_GetImageWidth(pBitmap)
-			sh := dh := Gdip_GetImageHeight(pBitmap)
-		}
-		else
-		{
-			sx := sy := 0
-			sw := Gdip_GetImageWidth(pBitmap)
-			sh := Gdip_GetImageHeight(pBitmap)
-		}
-	}
-
-	E := DllCall("gdiplus\GdipDrawImageRectRect"
-				, Ptr, pGraphics
-				, Ptr, pBitmap
-				, "float", dx
-				, "float", dy
-				, "float", dw
-				, "float", dh
-				, "float", sx
-				, "float", sy
-				, "float", sw
-				, "float", sh
-				, "int", 2
-				, Ptr, ImageAttr
-				, Ptr, 0
-				, Ptr, 0)
-	if ImageAttr
-		Gdip_DisposeImageAttributes(ImageAttr)
-	return E
-}
-
-Gdip_DeleteGraphics(pGraphics)
-{
-   return DllCall("gdiplus\GdipDeleteGraphics", A_PtrSize ? "UPtr" : "UInt", pGraphics)
-}
-
-Gdip_SetImageAttributesColorMatrix(Matrix)
-{
-	Ptr := A_PtrSize ? "UPtr" : "UInt"
-	
-	VarSetCapacity(ColourMatrix, 100, 0)
-	Matrix := RegExReplace(RegExReplace(Matrix, "^[^\d-\.]+([\d\.])", "$1", "", 1), "[^\d-\.]+", "|")
-	StringSplit, Matrix, Matrix, |
-	Loop, 25
-	{
-		Matrix := (Matrix%A_Index% != "") ? Matrix%A_Index% : Mod(A_Index-1, 6) ? 0 : 1
-		NumPut(Matrix, ColourMatrix, (A_Index-1)*4, "float")
-	}
-	DllCall("gdiplus\GdipCreateImageAttributes", A_PtrSize ? "UPtr*" : "uint*", ImageAttr)
-	DllCall("gdiplus\GdipSetImageAttributesColorMatrix", Ptr, ImageAttr, "int", 1, "int", 1, Ptr, &ColourMatrix, Ptr, 0, "int", 0)
-	return ImageAttr
-}
-
-Gdip_GetImageWidth(pBitmap)
-{
-   DllCall("gdiplus\GdipGetImageWidth", A_PtrSize ? "UPtr" : "UInt", pBitmap, "uint*", Width)
-   return Width
-}
-
-Gdip_GetImageHeight(pBitmap)
-{
-   DllCall("gdiplus\GdipGetImageHeight", A_PtrSize ? "UPtr" : "UInt", pBitmap, "uint*", Height)
-   return Height
-}
-
-Gdip_DisposeImageAttributes(ImageAttr)
-{
-	return DllCall("gdiplus\GdipDisposeImageAttributes", A_PtrSize ? "UPtr" : "UInt", ImageAttr)
-}
-
-;**********************************************************************************
-;
-; Gdip_ImageSearch()
-; by MasterFocus - 02/APRIL/2013 00:30h BRT
-; Thanks to guest3456 for helping me ponder some ideas
-; Requires GDIP, Gdip_SetBitmapTransColor() and Gdip_MultiLockedBitsSearch()
-; http://www.autohotkey.com/board/topic/71100-gdip-imagesearch/
-;
-; Licensed under CC BY-SA 3.0 -> http://creativecommons.org/licenses/by-sa/3.0/
-; I waive compliance with the "Share Alike" condition of the license EXCLUSIVELY
-; for these users: tic , Rseding91 , guest3456
-;
-;==================================================================================
-;
-; This function searches for pBitmapNeedle within pBitmapHaystack
-; The returned value is the number of instances found (negative = error)
-;
-; ++ PARAMETERS ++
-;
-; pBitmapHaystack and pBitmapNeedle
-;   Self-explanatory bitmap pointers, are the only required parameters
-;
-; OutputList
-;   ByRef variable to store the list of coordinates where a match was found
-;
-; OuterX1, OuterY1, OuterX2, OuterY2
-;   Equivalent to ImageSearch's X1,Y1,X2,Y2
-;   Default: 0 for all (which searches the whole haystack area)
-;
-; Variation
-;   Just like ImageSearch, a value from 0 to 255
-;   Default: 0
-;
-; Trans
-;   Needle RGB transparent color, should be a numerical value from 0 to 0xFFFFFF
-;   Default: blank (does not use transparency)
-;
-; SearchDirection
-;   Haystack search direction
-;     Vertical preference:
-;       1 = top->left->right->bottom [default]
-;       2 = bottom->left->right->top
-;       3 = bottom->right->left->top
-;       4 = top->right->left->bottom
-;     Horizontal preference:
-;       5 = left->top->bottom->right
-;       6 = left->bottom->top->right
-;       7 = right->bottom->top->left
-;       8 = right->top->bottom->left
-;
-; Instances
-;   Maximum number of instances to find when searching (0 = find all)
-;   Default: 1 (stops after one match is found)
-;
-; LineDelim and CoordDelim
-;   Outer and inner delimiters for the list of coordinates (OutputList)
-;   Defaults: "`n" and ","
-;
-; ++ RETURN VALUES ++
-;
-; -1001 ==> invalid haystack and/or needle bitmap pointer
-; -1002 ==> invalid variation value
-; -1003 ==> X1 and Y1 cannot be negative
-; -1004 ==> unable to lock haystack bitmap bits
-; -1005 ==> unable to lock needle bitmap bits
-; any non-negative value ==> the number of instances found
-;
-;==================================================================================
-;
-;**********************************************************************************
-
-Gdip_ImageSearch(pBitmapHaystack,pBitmapNeedle,ByRef OutputList=""
-,OuterX1=0,OuterY1=0,OuterX2=0,OuterY2=0,Variation=0,Trans=""
-,SearchDirection=1,Instances=1,LineDelim="`n",CoordDelim=",") {
-
-    ; Some validations that can be done before proceeding any further
-    If !( pBitmapHaystack && pBitmapNeedle )
-        Return -1001
-    If Variation not between 0 and 255
-        return -1002
-    If ( ( OuterX1 < 0 ) || ( OuterY1 < 0 ) )
-        return -1003
-    If SearchDirection not between 1 and 8
-        SearchDirection := 1
-    If ( Instances < 0 )
-        Instances := 0
-
-    ; Getting the dimensions and locking the bits [haystack]
-    Gdip_GetImageDimensions(pBitmapHaystack,hWidth,hHeight)
-    ; Last parameter being 1 says the LockMode flag is "READ only"
-    If Gdip_LockBits(pBitmapHaystack,0,0,hWidth,hHeight,hStride,hScan,hBitmapData,1)
-    OR !(hWidth := NumGet(hBitmapData,0,"UInt"))
-    OR !(hHeight := NumGet(hBitmapData,4,"UInt"))
-        Return -1004
-
-    ; Careful! From this point on, we must do the following before returning:
-    ; - unlock haystack bits
-
-    ; Getting the dimensions and locking the bits [needle]
-    Gdip_GetImageDimensions(pBitmapNeedle,nWidth,nHeight)
-    ; If Trans is correctly specified, create a backup of the original needle bitmap
-    ; and modify the current one, setting the desired color as transparent.
-    ; Also, since a copy is created, we must remember to dispose the new bitmap later.
-    ; This whole thing has to be done before locking the bits.
-    If Trans between 0 and 0xFFFFFF
-    {
-        pOriginalBmpNeedle := pBitmapNeedle
-        pBitmapNeedle := Gdip_CloneBitmapArea(pOriginalBmpNeedle,0,0,nWidth,nHeight)
-        Gdip_SetBitmapTransColor(pBitmapNeedle,Trans)
-        DumpCurrentNeedle := true
-    }
-
-    ; Careful! From this point on, we must do the following before returning:
-    ; - unlock haystack bits
-    ; - dispose current needle bitmap (if necessary)
-
-    If Gdip_LockBits(pBitmapNeedle,0,0,nWidth,nHeight,nStride,nScan,nBitmapData)
-    OR !(nWidth := NumGet(nBitmapData,0,"UInt"))
-    OR !(nHeight := NumGet(nBitmapData,4,"UInt"))
-    {
-        If ( DumpCurrentNeedle )
-            Gdip_DisposeImage(pBitmapNeedle)
-        Gdip_UnlockBits(pBitmapHaystack,hBitmapData)
-        Return -1005
-    }
-    
-    ; Careful! From this point on, we must do the following before returning:
-    ; - unlock haystack bits
-    ; - unlock needle bits
-    ; - dispose current needle bitmap (if necessary)
-
-    ; Adjust the search box. "OuterX2,OuterY2" will be the last pixel evaluated
-    ; as possibly matching with the needle's first pixel. So, we must avoid going
-    ; beyond this maximum final coordinate.
-    OuterX2 := ( !OuterX2 ? hWidth-nWidth+1 : OuterX2-nWidth+1 )
-    OuterY2 := ( !OuterY2 ? hHeight-nHeight+1 : OuterY2-nHeight+1 )
-
-    OutputCount := Gdip_MultiLockedBitsSearch(hStride,hScan,hWidth,hHeight
-    ,nStride,nScan,nWidth,nHeight,OutputList,OuterX1,OuterY1,OuterX2,OuterY2
-    ,Variation,SearchDirection,Instances,LineDelim,CoordDelim)
-
-    Gdip_UnlockBits(pBitmapHaystack,hBitmapData)
-    Gdip_UnlockBits(pBitmapNeedle,nBitmapData)
-    If ( DumpCurrentNeedle )
-        Gdip_DisposeImage(pBitmapNeedle)
-
-    Return OutputCount
-}
-
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-;**********************************************************************************
-;
-; Gdip_SetBitmapTransColor()
-; by MasterFocus - 02/APRIL/2013 00:30h BRT
-; Requires GDIP
-; http://www.autohotkey.com/board/topic/71100-gdip-imagesearch/
-;
-; Licensed under CC BY-SA 3.0 -> http://creativecommons.org/licenses/by-sa/3.0/
-; I waive compliance with the "Share Alike" condition of the license EXCLUSIVELY
-; for these users: tic , Rseding91 , guest3456
-;
-;**********************************************************************************
-
-;==================================================================================
-;
-; This function modifies the Alpha component for all pixels of a certain color to 0
-; The returned value is 0 in case of success, or a negative number otherwise
-;
-; ++ PARAMETERS ++
-;
-; pBitmap
-;   A valid pointer to the bitmap that will be modified
-;
-; TransColor
-;   The color to become transparent
-;   Should range from 0 (black) to 0xFFFFFF (white)
-;
-; ++ RETURN VALUES ++
-;
-; -2001 ==> invalid bitmap pointer
-; -2002 ==> invalid TransColor
-; -2003 ==> unable to retrieve bitmap positive dimensions
-; -2004 ==> unable to lock bitmap bits
-; -2005 ==> DllCall failed (see ErrorLevel)
-; any non-negative value ==> the number of pixels modified by this function
-;
-;==================================================================================
-
-Gdip_SetBitmapTransColor(pBitmap,TransColor) {
-    static _SetBmpTrans, Ptr, PtrA
-    if !( _SetBmpTrans ) {
-        Ptr := A_PtrSize ? "UPtr" : "UInt"
-        PtrA := Ptr . "*"
-        MCode_SetBmpTrans := "
-            (LTrim Join
-            8b44240c558b6c241cc745000000000085c07e77538b5c2410568b74242033c9578b7c2414894c24288da424000000
-            0085db7e458bc18d1439b9020000008bff8a0c113a4e0275178a4c38013a4e01750e8a0a3a0e7508c644380300ff450083c0
-            0483c204b9020000004b75d38b4c24288b44241c8b5c2418034c242048894c24288944241c75a85f5e5b33c05dc3,405
-            34c8b5424388bda41c702000000004585c07e6448897c2410458bd84c8b4424304963f94c8d49010f1f800000000085db7e3
-            8498bc1488bd3660f1f440000410fb648023848017519410fb6480138087510410fb6083848ff7507c640020041ff024883c
-            00448ffca75d44c03cf49ffcb75bc488b7c241033c05bc3
-            )"
-        if ( A_PtrSize == 8 ) ; x64, after comma
-            MCode_SetBmpTrans := SubStr(MCode_SetBmpTrans,InStr(MCode_SetBmpTrans,",")+1)
-        else ; x86, before comma
-            MCode_SetBmpTrans := SubStr(MCode_SetBmpTrans,1,InStr(MCode_SetBmpTrans,",")-1)
-        VarSetCapacity(_SetBmpTrans, LEN := StrLen(MCode_SetBmpTrans)//2, 0)
-        Loop, %LEN%
-            NumPut("0x" . SubStr(MCode_SetBmpTrans,(2*A_Index)-1,2), _SetBmpTrans, A_Index-1, "uchar")
-        MCode_SetBmpTrans := ""
-        DllCall("VirtualProtect", Ptr,&_SetBmpTrans, Ptr,VarSetCapacity(_SetBmpTrans), "uint",0x40, PtrA,0)
-    }
-    If !pBitmap
-        Return -2001
-    If TransColor not between 0 and 0xFFFFFF
-        Return -2002
-    Gdip_GetImageDimensions(pBitmap,W,H)
-    If !(W && H)
-        Return -2003
-    If Gdip_LockBits(pBitmap,0,0,W,H,Stride,Scan,BitmapData)
-        Return -2004
-    ; The following code should be slower than using the MCode approach,
-    ; but will the kept here for now, just for reference.
-    /*
-    Count := 0
-    Loop, %H% {
-        Y := A_Index-1
-        Loop, %W% {
-            X := A_Index-1
-            CurrentColor := Gdip_GetLockBitPixel(Scan,X,Y,Stride)
-            If ( (CurrentColor & 0xFFFFFF) == TransColor )
-                Gdip_SetLockBitPixel(TransColor,Scan,X,Y,Stride), Count++
-        }
-    }
-    */
-    ; Thanks guest3456 for helping with the initial solution involving NumPut
-    Gdip_FromARGB(TransColor,A,R,G,B), VarSetCapacity(TransColor,0), VarSetCapacity(TransColor,3,255)
-    NumPut(B,TransColor,0,"UChar"), NumPut(G,TransColor,1,"UChar"), NumPut(R,TransColor,2,"UChar")
-    MCount := 0
-    E := DllCall(&_SetBmpTrans, Ptr,Scan, "int",W, "int",H, "int",Stride, Ptr,&TransColor, "int*",MCount, "cdecl int")
-    Gdip_UnlockBits(pBitmap,BitmapData)
-    If ( E != 0 ) {
-        ErrorLevel := E
-        Return -2005
-    }
-    Return MCount
-}
-
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-;**********************************************************************************
-;
-; Gdip_MultiLockedBitsSearch()
-; by MasterFocus - 24/MARCH/2013 06:20h BRT
-; Requires GDIP and Gdip_LockedBitsSearch()
-; http://www.autohotkey.com/board/topic/71100-gdip-imagesearch/
-;
-; Licensed under CC BY-SA 3.0 -> http://creativecommons.org/licenses/by-sa/3.0/
-; I waive compliance with the "Share Alike" condition of the license EXCLUSIVELY
-; for these users: tic , Rseding91 , guest3456
-;
-;**********************************************************************************
-
-;==================================================================================
-;
-; This function returns the number of instances found
-; The 8 first parameters are the same as in Gdip_LockedBitsSearch()
-; The other 10 parameters are the same as in Gdip_ImageSearch()
-; Note: the default for the Intances parameter here is 0 (find all matches)
-;
-;==================================================================================
-
-Gdip_MultiLockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight
-,ByRef OutputList="",OuterX1=0,OuterY1=0,OuterX2=0,OuterY2=0,Variation=0
-,SearchDirection=1,Instances=0,LineDelim="`n",CoordDelim=",")
-{
-    OutputList := ""
-    OutputCount := !Instances
-    InnerX1 := OuterX1 , InnerY1 := OuterY1
-    InnerX2 := OuterX2 , InnerY2 := OuterY2
-
-    ; The following part is a rather ugly but working hack that I
-    ; came up with to adjust the variables and their increments
-    ; according to the specified Haystack Search Direction
-    /*
-    Mod(SD,4) = 0 --> iX = 2 , stepX = +0 , iY = 1 , stepY = +1
-    Mod(SD,4) = 1 --> iX = 1 , stepX = +1 , iY = 1 , stepY = +1
-    Mod(SD,4) = 2 --> iX = 1 , stepX = +1 , iY = 2 , stepY = +0
-    Mod(SD,4) = 3 --> iX = 2 , stepX = +0 , iY = 2 , stepY = +0
-    SD <= 4   ------> Vertical preference
-    SD > 4    ------> Horizontal preference
-    */
-    ; Set the index and the step (for both X and Y) to +1
-    iX := 1, stepX := 1, iY := 1, stepY := 1
-    ; Adjust Y variables if SD is 2, 3, 6 or 7
-    Modulo := Mod(SearchDirection,4)
-    If ( Modulo > 1 )
-        iY := 2, stepY := 0
-    ; adjust X variables if SD is 3, 4, 7 or 8
-    If !Mod(Modulo,3)
-        iX := 2, stepX := 0
-    ; Set default Preference to vertical and Nonpreference to horizontal
-    P := "Y", N := "X"
-    ; adjust Preference and Nonpreference if SD is 5, 6, 7 or 8
-    If ( SearchDirection > 4 )
-        P := "X", N := "Y"
-    ; Set the Preference Index and the Nonpreference Index
-    iP := i%P%, iN := i%N%
-
-    While (!(OutputCount == Instances) && (0 == Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride
-    ,nScan,nWidth,nHeight,FoundX,FoundY,OuterX1,OuterY1,OuterX2,OuterY2,Variation,SearchDirection)))
-    {
-        OutputCount++
-        OutputList .= LineDelim FoundX CoordDelim FoundY
-        Outer%P%%iP% := Found%P%+step%P%
-        Inner%N%%iN% := Found%N%+step%N%
-        Inner%P%1 := Found%P%
-        Inner%P%2 := Found%P%+1
-        While (!(OutputCount == Instances) && (0 == Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride
-        ,nScan,nWidth,nHeight,FoundX,FoundY,InnerX1,InnerY1,InnerX2,InnerY2,Variation,SearchDirection)))
-        {
-            OutputCount++
-            OutputList .= LineDelim FoundX CoordDelim FoundY
-            Inner%N%%iN% := Found%N%+step%N%
-        }
-    }
-    OutputList := SubStr(OutputList,1+StrLen(LineDelim))
-    OutputCount -= !Instances
-    Return OutputCount
-}
-
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-;**********************************************************************************
-;
-; Gdip_LockedBitsSearch()
-; by MasterFocus - 24/MARCH/2013 06:20h BRT
-; Mostly adapted from previous work by tic and Rseding91
-;
-; Requires GDIP
-; http://www.autohotkey.com/board/topic/71100-gdip-imagesearch/
-;
-; Licensed under CC BY-SA 3.0 -> http://creativecommons.org/licenses/by-sa/3.0/
-; I waive compliance with the "Share Alike" condition of the license EXCLUSIVELY
-; for these users: tic , Rseding91 , guest3456
-;
-;**********************************************************************************
-
-;==================================================================================
-;
-; This function searches for a single match of nScan within hScan
-;
-; ++ PARAMETERS ++
-;
-; hStride, hScan, hWidth and hHeight
-;   Haystack stuff, extracted from a BitmapData, extracted from a Bitmap
-;
-; nStride, nScan, nWidth and nHeight
-;   Needle stuff, extracted from a BitmapData, extracted from a Bitmap
-;
-; x and y
-;   ByRef variables to store the X and Y coordinates of the image if it's found
-;   Default: "" for both
-;
-; sx1, sy1, sx2 and sy2
-;   These can be used to crop the search area within the haystack
-;   Default: "" for all (does not crop)
-;
-; Variation
-;   Same as the builtin ImageSearch command
-;   Default: 0
-;
-; sd
-;   Haystack search direction
-;     Vertical preference:
-;       1 = top->left->right->bottom [default]
-;       2 = bottom->left->right->top
-;       3 = bottom->right->left->top
-;       4 = top->right->left->bottom
-;     Horizontal preference:
-;       5 = left->top->bottom->right
-;       6 = left->bottom->top->right
-;       7 = right->bottom->top->left
-;       8 = right->top->bottom->left
-;   This value is passed to the internal MCoded function
-;
-; ++ RETURN VALUES ++
-;
-; -3001 to -3006 ==> search area incorrectly defined
-; -3007 ==> DllCall returned blank
-; 0 ==> DllCall succeeded and a match was found
-; -4001 ==> DllCall succeeded but a match was not found
-; anything else ==> the error value returned by the unsuccessful DllCall
-;
-;==================================================================================
-
-Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight
-,ByRef x="",ByRef y="",sx1=0,sy1=0,sx2=0,sy2=0,Variation=0,sd=1)
-{
-    static _ImageSearch, Ptr, PtrA
-
-    ; Initialize all MCode stuff, if necessary
-    if !( _ImageSearch ) {
-        Ptr := A_PtrSize ? "UPtr" : "UInt"
-        PtrA := Ptr . "*"
-
-        MCode_ImageSearch := "
-            (LTrim Join
-            8b44243883ec205355565783f8010f857a0100008b7c2458897c24143b7c24600f8db50b00008b44244c8b5c245c8b
-            4c24448b7424548be80fafef896c242490897424683bf30f8d0a0100008d64240033c033db8bf5896c241c895c2420894424
-            183b4424480f8d0401000033c08944241085c90f8e9d0000008b5424688b7c24408beb8d34968b54246403df8d4900b80300
-            0000803c18008b442410745e8b44243c0fb67c2f020fb64c06028d04113bf87f792bca3bf97c738b44243c0fb64c06018b44
-            24400fb67c28018d04113bf87f5a2bca3bf97c548b44243c0fb63b0fb60c068d04113bf87f422bca3bf97c3c8b4424108b7c
-            24408b4c24444083c50483c30483c604894424103bc17c818b5c24208b74241c0374244c8b44241840035c24508974241ce9
-            2dffffff8b6c24688b5c245c8b4c244445896c24683beb8b6c24240f8c06ffffff8b44244c8b7c24148b7424544703e8897c
-            2414896c24243b7c24600f8cd5feffffe96b0a00008b4424348b4c246889088b4424388b4c24145f5e5d890833c05b83c420
-            c383f8020f85870100008b7c24604f897c24103b7c24580f8c310a00008b44244c8b5c245c8b4c24448bef0fafe8f7d88944
-            24188b4424548b742418896c24288d4900894424683bc30f8d0a0100008d64240033c033db8bf5896c2420895c241c894424
-            243b4424480f8d0401000033c08944241485c90f8e9d0000008b5424688b7c24408beb8d34968b54246403df8d4900b80300
-            0000803c03008b442414745e8b44243c0fb67c2f020fb64c06028d04113bf87f792bca3bf97c738b44243c0fb64c06018b44
-            24400fb67c28018d04113bf87f5a2bca3bf97c548b44243c0fb63b0fb60c068d04113bf87f422bca3bf97c3c8b4424148b7c
-            24408b4c24444083c50483c30483c604894424143bc17c818b5c241c8b7424200374244c8b44242440035c245089742420e9
-            2dffffff8b6c24688b5c245c8b4c244445896c24683beb8b6c24280f8c06ffffff8b7c24108b4424548b7424184f03ee897c
-            2410896c24283b7c24580f8dd5feffffe9db0800008b4424348b4c246889088b4424388b4c24105f5e5d890833c05b83c420
-            c383f8030f85650100008b7c24604f897c24103b7c24580f8ca10800008b44244c8b6c245c8b5c24548b4c24448bf70faff0
-            4df7d8896c242c897424188944241c8bff896c24683beb0f8c020100008d64240033c033db89742424895c2420894424283b
-            4424480f8d76ffffff33c08944241485c90f8e9f0000008b5424688b7c24408beb8d34968b54246403dfeb038d4900b80300
-            0000803c03008b442414745e8b44243c0fb67c2f020fb64c06028d04113bf87f752bca3bf97c6f8b44243c0fb64c06018b44
-            24400fb67c28018d04113bf87f562bca3bf97c508b44243c0fb63b0fb60c068d04113bf87f3e2bca3bf97c388b4424148b7c
-            24408b4c24444083c50483c30483c604894424143bc17c818b5c24208b7424248b4424280374244c40035c2450e92bffffff
-            8b6c24688b5c24548b4c24448b7424184d896c24683beb0f8d0affffff8b7c24108b44241c4f03f0897c2410897424183b7c
-            24580f8c580700008b6c242ce9d4feffff83f8040f85670100008b7c2458897c24103b7c24600f8d340700008b44244c8b6c
-            245c8b5c24548b4c24444d8bf00faff7896c242c8974241ceb098da424000000008bff896c24683beb0f8c020100008d6424
-            0033c033db89742424895c2420894424283b4424480f8d06feffff33c08944241485c90f8e9f0000008b5424688b7c24408b
-            eb8d34968b54246403dfeb038d4900b803000000803c03008b442414745e8b44243c0fb67c2f020fb64c06028d04113bf87f
-            752bca3bf97c6f8b44243c0fb64c06018b4424400fb67c28018d04113bf87f562bca3bf97c508b44243c0fb63b0fb60c068d
-            04113bf87f3e2bca3bf97c388b4424148b7c24408b4c24444083c50483c30483c604894424143bc17c818b5c24208b742424
-            8b4424280374244c40035c2450e92bffffff8b6c24688b5c24548b4c24448b74241c4d896c24683beb0f8d0affffff8b4424
-            4c8b7c24104703f0897c24108974241c3b7c24600f8de80500008b6c242ce9d4feffff83f8050f85890100008b7c2454897c
-            24683b7c245c0f8dc40500008b5c24608b6c24588b44244c8b4c2444eb078da42400000000896c24103beb0f8d200100008b
-            e80faf6c2458896c241c33c033db8bf5896c2424895c2420894424283b4424480f8d0d01000033c08944241485c90f8ea600
-            00008b5424688b7c24408beb8d34968b54246403dfeb0a8da424000000008d4900b803000000803c03008b442414745e8b44
-            243c0fb67c2f020fb64c06028d04113bf87f792bca3bf97c738b44243c0fb64c06018b4424400fb67c28018d04113bf87f5a
-            2bca3bf97c548b44243c0fb63b0fb60c068d04113bf87f422bca3bf97c3c8b4424148b7c24408b4c24444083c50483c30483
-            c604894424143bc17c818b5c24208b7424240374244c8b44242840035c245089742424e924ffffff8b7c24108b6c241c8b44
-            244c8b5c24608b4c24444703e8897c2410896c241c3bfb0f8cf3feffff8b7c24688b6c245847897c24683b7c245c0f8cc5fe
-            ffffe96b0400008b4424348b4c24688b74241089088b4424385f89305e5d33c05b83c420c383f8060f85670100008b7c2454
-            897c24683b7c245c0f8d320400008b6c24608b5c24588b44244c8b4c24444d896c24188bff896c24103beb0f8c1a0100008b
-            f50faff0f7d88974241c8944242ceb038d490033c033db89742424895c2420894424283b4424480f8d06fbffff33c0894424
-            1485c90f8e9f0000008b5424688b7c24408beb8d34968b54246403dfeb038d4900b803000000803c03008b442414745e8b44
-            243c0fb67c2f020fb64c06028d04113bf87f752bca3bf97c6f8b44243c0fb64c06018b4424400fb67c28018d04113bf87f56
-            2bca3bf97c508b44243c0fb63b0fb60c068d04113bf87f3e2bca3bf97c388b4424148b7c24408b4c24444083c50483c30483
-            c604894424143bc17c818b5c24208b7424248b4424280374244c40035c2450e92bffffff8b6c24108b74241c0374242c8b5c
-            24588b4c24444d896c24108974241c3beb0f8d02ffffff8b44244c8b7c246847897c24683b7c245c0f8de60200008b6c2418
-            e9c2feffff83f8070f85670100008b7c245c4f897c24683b7c24540f8cc10200008b6c24608b5c24588b44244c8b4c24444d
-            896c241890896c24103beb0f8c1a0100008bf50faff0f7d88974241c8944242ceb038d490033c033db89742424895c242089
-            4424283b4424480f8d96f9ffff33c08944241485c90f8e9f0000008b5424688b7c24408beb8d34968b54246403dfeb038d49
-            00b803000000803c18008b442414745e8b44243c0fb67c2f020fb64c06028d04113bf87f752bca3bf97c6f8b44243c0fb64c
-            06018b4424400fb67c28018d04113bf87f562bca3bf97c508b44243c0fb63b0fb60c068d04113bf87f3e2bca3bf97c388b44
-            24148b7c24408b4c24444083c50483c30483c604894424143bc17c818b5c24208b7424248b4424280374244c40035c2450e9
-            2bffffff8b6c24108b74241c0374242c8b5c24588b4c24444d896c24108974241c3beb0f8d02ffffff8b44244c8b7c24684f
-            897c24683b7c24540f8c760100008b6c2418e9c2feffff83f8080f85640100008b7c245c4f897c24683b7c24540f8c510100
-            008b5c24608b6c24588b44244c8b4c24448d9b00000000896c24103beb0f8d200100008be80faf6c2458896c241c33c033db
-            8bf5896c2424895c2420894424283b4424480f8d9dfcffff33c08944241485c90f8ea60000008b5424688b7c24408beb8d34
-            968b54246403dfeb0a8da424000000008d4900b803000000803c03008b442414745e8b44243c0fb67c2f020fb64c06028d04
-            113bf87f792bca3bf97c738b44243c0fb64c06018b4424400fb67c28018d04113bf87f5a2bca3bf97c548b44243c0fb63b0f
-            b604068d0c103bf97f422bc23bf87c3c8b4424148b7c24408b4c24444083c50483c30483c604894424143bc17c818b5c2420
-            8b7424240374244c8b44242840035c245089742424e924ffffff8b7c24108b6c241c8b44244c8b5c24608b4c24444703e889
-            7c2410896c241c3bfb0f8cf3feffff8b7c24688b6c24584f897c24683b7c24540f8dc5feffff8b4424345fc700ffffffff8b
-            4424345e5dc700ffffffffb85ff0ffff5b83c420c3,4c894c24204c89442418488954241048894c24085355565741544
-            155415641574883ec188b8424c80000004d8bd94d8bd0488bda83f8010f85b3010000448b8c24a800000044890c24443b8c2
-            4b80000000f8d66010000448bac24900000008b9424c0000000448b8424b00000008bbc2480000000448b9424a0000000418
-            bcd410fafc9894c24040f1f84000000000044899424c8000000453bd00f8dfb000000468d2495000000000f1f80000000003
-            3ed448bf933f6660f1f8400000000003bac24880000000f8d1701000033db85ff7e7e458bf4448bce442bf64503f7904d63c
-            14d03c34180780300745a450fb65002438d040e4c63d84c035c2470410fb64b028d0411443bd07f572bca443bd17c50410fb
-            64b01450fb650018d0411443bd07f3e2bca443bd17c37410fb60b450fb6108d0411443bd07f272bca443bd17c204c8b5c247
-            8ffc34183c1043bdf7c8fffc54503fd03b42498000000e95effffff8b8424c8000000448b8424b00000008b4c24044c8b5c2
-            478ffc04183c404898424c8000000413bc00f8c20ffffff448b0c24448b9424a000000041ffc14103cd44890c24894c24044
-            43b8c24b80000000f8cd8feffff488b5c2468488b4c2460b85ff0ffffc701ffffffffc703ffffffff4883c418415f415e415
-            d415c5f5e5d5bc38b8424c8000000e9860b000083f8020f858c010000448b8c24b800000041ffc944890c24443b8c24a8000
-            0007cab448bac2490000000448b8424c00000008b9424b00000008bbc2480000000448b9424a0000000418bc9410fafcd418
-            bc5894c2404f7d8894424080f1f400044899424c8000000443bd20f8d02010000468d2495000000000f1f80000000004533f
-            6448bf933f60f1f840000000000443bb424880000000f8d56ffffff33db85ff0f8e81000000418bec448bd62bee4103ef496
-            3d24903d3807a03007460440fb64a02418d042a4c63d84c035c2470410fb64b02428d0401443bc87f5d412bc8443bc97c554
-            10fb64b01440fb64a01428d0401443bc87f42412bc8443bc97c3a410fb60b440fb60a428d0401443bc87f29412bc8443bc97
-            c214c8b5c2478ffc34183c2043bdf7c8a41ffc64503fd03b42498000000e955ffffff8b8424c80000008b9424b00000008b4
-            c24044c8b5c2478ffc04183c404898424c80000003bc20f8c19ffffff448b0c24448b9424a0000000034c240841ffc9894c2
-            40444890c24443b8c24a80000000f8dd0feffffe933feffff83f8030f85c4010000448b8c24b800000041ffc944898c24c80
-            00000443b8c24a80000000f8c0efeffff8b842490000000448b9c24b0000000448b8424c00000008bbc248000000041ffcb4
-            18bc98bd044895c24080fafc8f7da890c24895424048b9424a0000000448b542404458beb443bda0f8c13010000468d249d0
-            000000066660f1f84000000000033ed448bf933f6660f1f8400000000003bac24880000000f8d0801000033db85ff0f8e960
-            00000488b4c2478458bf4448bd6442bf64503f70f1f8400000000004963d24803d1807a03007460440fb64a02438d04164c6
-            3d84c035c2470410fb64b02428d0401443bc87f63412bc8443bc97c5b410fb64b01440fb64a01428d0401443bc87f48412bc
-            8443bc97c40410fb60b440fb60a428d0401443bc87f2f412bc8443bc97c27488b4c2478ffc34183c2043bdf7c8a8b8424900
-            00000ffc54403f803b42498000000e942ffffff8b9424a00000008b8424900000008b0c2441ffcd4183ec04443bea0f8d11f
-            fffff448b8c24c8000000448b542404448b5c240841ffc94103ca44898c24c8000000890c24443b8c24a80000000f8dc2fef
-            fffe983fcffff488b4c24608b8424c8000000448929488b4c2468890133c0e981fcffff83f8040f857f010000448b8c24a80
-            0000044890c24443b8c24b80000000f8d48fcffff448bac2490000000448b9424b00000008b9424c0000000448b8424a0000
-            0008bbc248000000041ffca418bcd4489542408410fafc9894c2404669044899424c8000000453bd00f8cf8000000468d249
-            5000000000f1f800000000033ed448bf933f6660f1f8400000000003bac24880000000f8df7fbffff33db85ff7e7e458bf44
-            48bce442bf64503f7904d63c14d03c34180780300745a450fb65002438d040e4c63d84c035c2470410fb64b028d0411443bd
-            07f572bca443bd17c50410fb64b01450fb650018d0411443bd07f3e2bca443bd17c37410fb60b450fb6108d0411443bd07f2
-            72bca443bd17c204c8b5c2478ffc34183c1043bdf7c8fffc54503fd03b42498000000e95effffff8b8424c8000000448b842
-            4a00000008b4c24044c8b5c2478ffc84183ec04898424c8000000413bc00f8d20ffffff448b0c24448b54240841ffc14103c
-            d44890c24894c2404443b8c24b80000000f8cdbfeffffe9defaffff83f8050f85ab010000448b8424a000000044890424443
-            b8424b00000000f8dc0faffff8b9424c0000000448bac2498000000448ba424900000008bbc2480000000448b8c24a800000
-            0428d0c8500000000898c24c800000044894c2404443b8c24b80000000f8d09010000418bc4410fafc18944240833ed448bf
-            833f6660f1f8400000000003bac24880000000f8d0501000033db85ff0f8e87000000448bf1448bce442bf64503f74d63c14
-            d03c34180780300745d438d040e4c63d84d03da450fb65002410fb64b028d0411443bd07f5f2bca443bd17c58410fb64b014
-            50fb650018d0411443bd07f462bca443bd17c3f410fb60b450fb6108d0411443bd07f2f2bca443bd17c284c8b5c24784c8b5
-            42470ffc34183c1043bdf7c8c8b8c24c8000000ffc54503fc4103f5e955ffffff448b4424048b4424088b8c24c80000004c8
-            b5c24784c8b54247041ffc04103c4448944240489442408443b8424b80000000f8c0effffff448b0424448b8c24a80000004
-            1ffc083c10444890424898c24c8000000443b8424b00000000f8cc5feffffe946f9ffff488b4c24608b042489018b4424044
-            88b4c2468890133c0e945f9ffff83f8060f85aa010000448b8c24a000000044894c2404443b8c24b00000000f8d0bf9ffff8
-            b8424b8000000448b8424c0000000448ba424900000008bbc2480000000428d0c8d00000000ffc88944240c898c24c800000
-            06666660f1f840000000000448be83b8424a80000000f8c02010000410fafc4418bd4f7da891424894424084533f6448bf83
-            3f60f1f840000000000443bb424880000000f8df900000033db85ff0f8e870000008be9448bd62bee4103ef4963d24903d38
-            07a03007460440fb64a02418d042a4c63d84c035c2470410fb64b02428d0401443bc87f64412bc8443bc97c5c410fb64b014
-            40fb64a01428d0401443bc87f49412bc8443bc97c41410fb60b440fb60a428d0401443bc87f30412bc8443bc97c284c8b5c2
-            478ffc34183c2043bdf7c8a8b8c24c800000041ffc64503fc03b42498000000e94fffffff8b4424088b8c24c80000004c8b5
-            c247803042441ffcd89442408443bac24a80000000f8d17ffffff448b4c24048b44240c41ffc183c10444894c2404898c24c
-            8000000443b8c24b00000000f8ccefeffffe991f7ffff488b4c24608b4424048901488b4c246833c0448929e992f7ffff83f
-            8070f858d010000448b8c24b000000041ffc944894c2404443b8c24a00000000f8c55f7ffff8b8424b8000000448b8424c00
-            00000448ba424900000008bbc2480000000428d0c8d00000000ffc8890424898c24c8000000660f1f440000448be83b8424a
-            80000000f8c02010000410fafc4418bd4f7da8954240c8944240833ed448bf833f60f1f8400000000003bac24880000000f8
-            d4affffff33db85ff0f8e89000000448bf1448bd6442bf64503f74963d24903d3807a03007460440fb64a02438d04164c63d
-            84c035c2470410fb64b02428d0401443bc87f63412bc8443bc97c5b410fb64b01440fb64a01428d0401443bc87f48412bc84
-            43bc97c40410fb60b440fb60a428d0401443bc87f2f412bc8443bc97c274c8b5c2478ffc34183c2043bdf7c8a8b8c24c8000
-            000ffc54503fc03b42498000000e94fffffff8b4424088b8c24c80000004c8b5c24780344240c41ffcd89442408443bac24a
-            80000000f8d17ffffff448b4c24048b042441ffc983e90444894c2404898c24c8000000443b8c24a00000000f8dcefeffffe
-            9e1f5ffff83f8080f85ddf5ffff448b8424b000000041ffc84489442404443b8424a00000000f8cbff5ffff8b9424c000000
-            0448bac2498000000448ba424900000008bbc2480000000448b8c24a8000000428d0c8500000000898c24c800000044890c2
-            4443b8c24b80000000f8d08010000418bc4410fafc18944240833ed448bf833f6660f1f8400000000003bac24880000000f8
-            d0501000033db85ff0f8e87000000448bf1448bce442bf64503f74d63c14d03c34180780300745d438d040e4c63d84d03da4
-            50fb65002410fb64b028d0411443bd07f5f2bca443bd17c58410fb64b01450fb650018d0411443bd07f462bca443bd17c3f4
-            10fb603450fb6108d0c10443bd17f2f2bc2443bd07c284c8b5c24784c8b542470ffc34183c1043bdf7c8c8b8c24c8000000f
-            fc54503fc4103f5e955ffffff448b04248b4424088b8c24c80000004c8b5c24784c8b54247041ffc04103c44489042489442
-            408443b8424b80000000f8c10ffffff448b442404448b8c24a800000041ffc883e9044489442404898c24c8000000443b842
-            4a00000000f8dc6feffffe946f4ffff8b442404488b4c246089018b0424488b4c2468890133c0e945f4ffff
-            )"
-        if ( A_PtrSize == 8 ) ; x64, after comma
-            MCode_ImageSearch := SubStr(MCode_ImageSearch,InStr(MCode_ImageSearch,",")+1)
-        else ; x86, before comma
-            MCode_ImageSearch := SubStr(MCode_ImageSearch,1,InStr(MCode_ImageSearch,",")-1)
-        VarSetCapacity(_ImageSearch, LEN := StrLen(MCode_ImageSearch)//2, 0)
-        Loop, %LEN%
-            NumPut("0x" . SubStr(MCode_ImageSearch,(2*A_Index)-1,2), _ImageSearch, A_Index-1, "uchar")
-        MCode_ImageSearch := ""
-        DllCall("VirtualProtect", Ptr,&_ImageSearch, Ptr,VarSetCapacity(_ImageSearch), "uint",0x40, PtrA,0)
-    }
-
-    ; Abort if an initial coordinates is located before a final coordinate
-    If ( sx2 < sx1 )
-        return -3001
-    If ( sy2 < sy1 )
-        return -3002
-
-    ; Check the search box. "sx2,sy2" will be the last pixel evaluated
-    ; as possibly matching with the needle's first pixel. So, we must
-    ; avoid going beyond this maximum final coordinate.
-    If ( sx2 > (hWidth-nWidth+1) )
-        return -3003
-    If ( sy2 > (hHeight-nHeight+1) )
-        return -3004
-
-    ; Abort if the width or height of the search box is 0
-    If ( sx2-sx1 == 0 )
-        return -3005
-    If ( sy2-sy1 == 0 )
-        return -3006
-
-    ; The DllCall parameters are the same for easier C code modification,
-    ; even though they aren't all used on the _ImageSearch version
-    x := 0, y := 0
-    , E := DllCall( &_ImageSearch, "int*",x, "int*",y, Ptr,hScan, Ptr,nScan, "int",nWidth, "int",nHeight
-    , "int",hStride, "int",nStride, "int",sx1, "int",sy1, "int",sx2, "int",sy2, "int",Variation
-    , "int",sd, "cdecl int")
-    Return ( E == "" ? -3007 : E )
-}
+#include External Functions.ahk
