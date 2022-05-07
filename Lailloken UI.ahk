@@ -99,6 +99,7 @@ IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
 IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
 
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
+IniRead, resolution_warning, ini\config.ini, Versions, resolution warning, 0
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
@@ -167,8 +168,11 @@ Loop, Parse, pixelchecks_list, `n, `n
 {
 	IniRead, pixel_%A_LoopField%_x1, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 1
 	IniRead, pixel_%A_LoopField%_y1, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 1
-	IniRead, pixel_%A_LoopField%_x2, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
-	IniRead, pixel_%A_LoopField%_y2, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
+	If (A_LoopField != "gamescreen")
+	{
+		IniRead, pixel_%A_LoopField%_x2, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
+		IniRead, pixel_%A_LoopField%_y2, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
+	}
 	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
 	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
 }
@@ -197,11 +201,17 @@ Else
 SetTimer, Loop, 1000
 
 guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window"
+buggy_resolutions := "768,1024,1050"
 
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
+If InStr(buggy_resolutions, poe_height) && (resolution_warning = 0)
+{
+	MsgBox, Uncommon resolution detected.`n`nThe script has detected a vertical screen-resolution of %poe_height%p which has caused issues in the past. The script should still be usable, but a few advanced features might be disabled and I cannot guarantee a smooth user-experience.`n`nI would suggest using a custom resolution which can be set up in the settings menu.
+	IniWrite, 1, ini\config.ini, Versions, resolution warning
+}
 SoundBeep, 100
 GoSub, GUI
 SetTimer, MainLoop, 100
@@ -231,12 +241,6 @@ clone_frame_new_width := mouseXpos - clone_frame_new_topleft_x
 clone_frame_new_height := mouseYpos - clone_frame_new_topleft_y
 GuiControl, clone_frames_menu: Text, clone_frame_new_width, % clone_frame_new_width
 GuiControl, clone_frames_menu: Text, clone_frame_new_height, % clone_frame_new_height
-/*
-clone_frame_new_botright_x := mouseXpos
-clone_frame_new_botright_y := mouseYpos
-GuiControl, clone_frames_menu: Text, clone_frame_new_botright_x, % mouseXpos
-GuiControl, clone_frames_menu: Text, clone_frame_new_botright_y, % mouseYpos
-*/
 GoSub, Clone_frames_dimensions
 Return
 
@@ -1600,12 +1604,15 @@ LLK_PixelRecalibrate(name)
 	global
 	IniRead, pixel_%name%_x1, Resolutions.ini, %poe_height%p, %name% x-coordinate 1
 	IniRead, pixel_%name%_y1, Resolutions.ini, %poe_height%p, %name% y-coordinate 1
-	IniRead, pixel_%name%_x2, Resolutions.ini, %poe_height%p, %name% x-coordinate 2
-	IniRead, pixel_%name%_y2, Resolutions.ini, %poe_height%p, %name% y-coordinate 2
-	
-	Loop 2
+	If (name != "gamescreen")
 	{
-		PixelGetColor, pixel_%name%_color%A_Index%, % pixel_%name%_x%A_Index%, % pixel_%name%_y%A_Index%, RGB
+		IniRead, pixel_%name%_x2, Resolutions.ini, %poe_height%p, %name% x-coordinate 2
+		IniRead, pixel_%name%_y2, Resolutions.ini, %poe_height%p, %name% y-coordinate 2
+	}
+	loopcount := (name = "gamescreen") ? 1 : 2
+	Loop %loopcount%
+	{
+		PixelGetColor, pixel_%name%_color%A_Index%, % poe_width - pixel_%name%_x%A_Index%, % pixel_%name%_y%A_Index%, RGB
 		IniWrite, % pixel_%name%_color%A_Index%, ini\pixel checks (%poe_height%p).ini, gamescreen, color %A_Index%
 	}
 }
@@ -1613,9 +1620,9 @@ LLK_PixelRecalibrate(name)
 LLK_PixelSearch(name)
 {
 	global
-	PixelSearch, OutputVarX, OutputVarY, pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
-	If (ErrorLevel=0)
-		PixelSearch, OutputVarX, OutputVarY, pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
+	PixelSearch, OutputVarX, OutputVarY, poe_width - pixel_%name%_x1, pixel_%name%_y1, poe_width - pixel_%name%_x1, pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+	If (ErrorLevel = 0) && (name != "gamescreen")
+		PixelSearch, OutputVarX, OutputVarY, poe_width - pixel_%name%_x2, pixel_%name%_y2, poe_width - pixel_%name%_x2, pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
 	%name% := (ErrorLevel=0) ? 1 : 0
 	value := %name%
 	Return value
