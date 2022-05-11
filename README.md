@@ -1,5 +1,4 @@
 ## Features
-- Archnemesis UI & feature extension ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Archnemesis))
 - Clone-frames: pseudo-customization of the in-game interface ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))
 - Context-menu for items to quickly access popular 3rd-party websites ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))
 - Several minor QoL improvements ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))
