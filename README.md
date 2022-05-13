@@ -1,7 +1,14 @@
 ## Features
-- Clone-frames: pseudo-customization of the in-game interface ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))
-- Context-menu for items to quickly access popular 3rd-party websites ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))
-- Several minor QoL improvements ([info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))
+- Clone-frames: pseudo-customization of the in-game interface ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))  
+![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
+- Context-menu for items to quickly access popular 3rd-party websites ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))  
+![context1](https://user-images.githubusercontent.com/61888437/162455047-080586b1-dd33-400e-940d-1e716b254ad0.jpg)![context2](https://user-images.githubusercontent.com/61888437/162455067-602def7f-4b1d-4074-a8af-db012e9325f7.jpg)<br>
+
+- Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
+![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
+![image](https://user-images.githubusercontent.com/61888437/165969218-dff53584-6fbf-4c55-bbca-ea27f918aca5.png) 
+![image](https://user-images.githubusercontent.com/61888437/165969262-fb0bdac5-39ea-4755-a0fa-8fc97b32a8d1.png)  
+<br>
 
 ## Installation & Requirements
 - download the latest release here: [releases](https://github.com/Lailloken/Lailloken-UI/releases)
