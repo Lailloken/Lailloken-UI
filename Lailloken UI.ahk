@@ -31,7 +31,9 @@ GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
-If !FileExist("Resolutions.ini")
+If FileExist("Resolutions.ini")
+	FileDelete, Resolutions.ini
+If !FileExist("data\Resolutions.ini")
 	LLK_Error("Critical files are missing. Make sure have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
@@ -58,8 +60,10 @@ Gui, Test: Show, x%xScreenOffset% y%yScreenOffset% Maximize
 WinGetPos,,, width_native, height_native
 Gui, Test: Destroy
 
-IniRead, fSize_config0, Resolutions.ini, %poe_height%p, font-size0, 16
-IniRead, fSize_config1, Resolutions.ini, %poe_height%p, font-size1, 14
+IniRead, supported_resolutions, data\Resolutions.ini
+
+IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
+IniRead, fSize_config1, data\Resolutions.ini, %poe_height%p, font-size1, 14
 fSize0 := fSize_config0
 fSize1 := fSize_config1
 
@@ -98,8 +102,11 @@ IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
 IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
 IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
 
+IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
+IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
+IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
+
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
-IniRead, resolution_warning, ini\config.ini, Versions, resolution warning, 0
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
@@ -123,10 +130,8 @@ If (alarm_timestamp != "")
 
 If !FileExist("ini\clone frames.ini")
 	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-IniRead, clone_frames_list, ini\clone frames.ini,
-IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 0
-If (clone_frames_pixelcheck_enable = 1)
-	pixelchecks_enabled := (pixelchecks_enabled = "") ? "gamescreen," : pixelchecks_enabled "gamescreen,"
+IniRead, clone_frames_list, ini\clone frames.ini
+IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 1
 Loop, Parse, clone_frames_list, `n, `n
 {
 	If (A_LoopField = "Settings")
@@ -143,6 +148,44 @@ Loop, Parse, clone_frames_list, `n, `n
 	IniRead, clone_frame_%A_LoopField%_scale_x, ini\clone frames.ini, %A_LoopField%, scaling x-axis, 100
 	IniRead, clone_frame_%A_LoopField%_scale_y, ini\clone frames.ini, %A_LoopField%, scaling y-axis, 100
 	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
+}
+
+IniRead, map_info_y, data\Resolutions.ini, %poe_height%p, map info y-coordinate, 0
+IniRead, map_toggle_x, data\Resolutions.ini, %poe_height%p, map toggle x-coordinate, 0
+IniRead, map_toggle_y, data\Resolutions.ini, %poe_height%p, map toggle y-coordinate, 0
+IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
+If (map_info_pixelcheck_enable = 1)
+	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
+IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
+IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
+If fSize_offset_map_info is not number
+	fSize_offset_map_info := 0
+IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
+IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
+If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
+{
+	map_info_exists := FileExist("ini\map info.ini") ? 1 : 0
+	IniWrite, %map_mod_ini_version_data%, ini\map info.ini, Version, version
+	If (map_info_exists = 0)
+	{
+		IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
+		IniWrite, 0, ini\map info.ini, Settings, font-offset
+		IniWrite, 220, ini\map info.ini, Settings, transparency
+	}
+	IniRead, map_info_parse, data\Map mods.ini
+	Loop, Parse, map_info_parse, `n, `n
+	{
+		If (A_LoopField = "sample map") || (A_LoopField = "version")
+			continue
+		IniRead, parse_ID, data\Map mods.ini, %A_LoopField%, ID
+		IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text
+		IniRead, parse_type, data\Map mods.ini, %A_LoopField%, type
+		IniRead, parse_rank, data\map info.ini, %parse_ID%, rank
+		IniWrite, %parse_text%, ini\map info.ini, %parse_ID%, text
+		IniWrite, %parse_type%, ini\map info.ini, %parse_ID%, type
+		If (map_info_exists = 0) || (parse_rank = "") || (parse_rank = "ERROR")
+			IniWrite, 1, ini\map info.ini, %parse_ID%, rank
+	}
 }
 
 IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset+poe_width//2
@@ -163,28 +206,6 @@ IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
 If notepad_trans is not number
 	notepad_trans := 255
 
-IniRead, pixelchecks_list, Resolutions.ini, Pixel-checks
-Loop, Parse, pixelchecks_list, `n, `n
-{
-	IniRead, pixel_%A_LoopField%_x1, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 1
-	IniRead, pixel_%A_LoopField%_y1, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 1
-	If (A_LoopField != "gamescreen")
-	{
-		IniRead, pixel_%A_LoopField%_x2, Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
-		IniRead, pixel_%A_LoopField%_y2, Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
-	}
-	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
-	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
-}
-If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
-{
-	clone_frames_pixelcheck_enable := 0
-	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-}
-
-IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
-IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
-
 IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
 If (omnikey_hotkey != "")
 {
@@ -198,22 +219,80 @@ Else
 	Hotkey, ~MButton, Omnikey, On
 }
 
+IniRead, pixelchecks_list, data\Resolutions.ini, Pixel-checks
+Loop, Parse, pixelchecks_list, `n, `n
+{
+	IniRead, pixel_%A_LoopField%_x1, data\Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 1
+	IniRead, pixel_%A_LoopField%_y1, data\Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 1
+	If (A_LoopField != "gamescreen")
+	{
+		IniRead, pixel_%A_LoopField%_x2, data\Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
+		IniRead, pixel_%A_LoopField%_y2, data\Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
+	}
+	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
+	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
+}
+If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+{
+	clone_frames_pixelcheck_enable := 0
+	map_info_pixelcheck_enable := 0
+	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+}
+
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle"
 buggy_resolutions := "768,1024,1050"
 
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-If InStr(buggy_resolutions, poe_height) && (resolution_warning = 0)
+If InStr(buggy_resolutions, poe_height) || !InStr(supported_resolutions, poe_height)
 {
-	MsgBox, Uncommon resolution detected.`n`nThe script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues in the past. The script should still be usable, but a few advanced features might be disabled and I cannot guarantee a smooth user-experience.`n`nI would suggest using a custom resolution which can be set up in the settings menu.
-	IniWrite, 1, ini\config.ini, Versions, resolution warning
+	If InStr(buggy_resolutions, poe_height)
+	{
+text =
+(
+Unsupported resolution detected!
+
+The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
+
+I have decided to end support for this resolution.
+You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+
+You also have to enable "confine mouse to window" in the game's UI options.
+)
+	}
+	Else If !InStr(supported_resolutions, poe_height)
+	{
+text =
+(
+Unsupported resolution detected!
+
+The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
+
+You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+
+You also have to enable "confine mouse to window" in the game's UI options.
+)
+	}
+	MsgBox, % text
+	GoSub, settings_menu
+	sleep, 2000
+	Loop
+	{
+		If !WinExist("ahk_id " hwnd_settings_menu)
+		{
+			MsgBox, The script will now shut down.
+			ExitApp
+		}
+	}
+	Return
 }
 SoundBeep, 100
 GoSub, GUI
+GoSub, Pixelchecks_gamescreen
 SetTimer, MainLoop, 100
 Return
 
@@ -370,7 +449,6 @@ Return
 
 Apply_resolution:
 Gui, settings_menu: Submit, NoHide
-kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 poe_height := custom_resolution
 IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
@@ -393,35 +471,77 @@ If (A_GuiControl = "enable_alarm")
 		Gui, alarm: Destroy
 		hwnd_alarm := ""
 	}
+	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
 	GoSub, GUI
 	GoSub, Settings_menu
 	Return
 }
 If (A_GuiControl = "fSize_alarm_minus")
+{
 	fSize_offset_alarm -= 1
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
 If (A_GuiControl = "fSize_alarm_plus")
+{
 	fSize_offset_alarm += 1
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
 If (A_GuiControl = "fSize_alarm_reset")
+{
 	fSize_offset_alarm := 0
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
 If (A_GuiControl = "alarm_opac_minus")
+{
 	alarm_trans -= (alarm_trans > 100) ? 30 : 0
+	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
+}
 If (A_GuiControl = "alarm_opac_plus")
+{
 	alarm_trans += (alarm_trans < 250) ? 30 : 0
+	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
+}
 WinGetPos, alarm_sample_xpos, alarm_sample_ypos,,, ahk_id %hwnd_alarm_sample%
-alarm_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : alarm_fontcolor
+If InStr(A_GuiControl, "fontcolor_")
+{
+	alarm_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
+	IniWrite, %alarm_fontcolor%, ini\alarm.ini, Settings, font-color
+}
 GoSub, Alarm
 Return
 
 Apply_settings_general:
 If (A_GuiControl = "interface_size_minus")
+{
 	fSize_offset -= 1
+	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
+}
 If (A_GuiControl = "interface_size_plus")
+{
 	fSize_offset += 1
+	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
+}
 If (A_GuiControl = "interface_size_reset")
+{
 	fSize_offset := 0
+	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
+}
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
 Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "kill_script")
+	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
+If (A_GuiControl = "kill_timeout")
+{
+	kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
+	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
+}
+If (A_GuiControl = "panel_position0")
+	IniWrite, %panel_position0%, ini\config.ini, UI, panel-position0
+If (A_GuiControl = "panel_position1")
+	IniWrite, %panel_position1%, ini\config.ini, UI, panel-position1
+If (A_GuiControl = "hide_panel")
+	IniWrite, %hide_panel%, ini\config.ini, UI, hide panel
 SetTimer, Settings_menu, 10
 GoSub, GUI
 WinActivate, ahk_group poe_window
@@ -442,22 +562,42 @@ If (A_GuiControl = "enable_notepad")
 		Gui, notepad: Destroy
 		hwnd_notepad := ""
 	}
+	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
 	GoSub, GUI
 	GoSub, Settings_menu
 	Return
 }
 If (A_GuiControl = "fSize_notepad_minus")
+{
 	fSize_offset_notepad -= 1
+	IniWrite, %fSize_offset_notepad%, ini\notepad.ini, Settings, font-offset
+}
 If (A_GuiControl = "fSize_notepad_plus")
+{
 	fSize_offset_notepad += 1
+	IniWrite, %fSize_offset_notepad%, ini\notepad.ini, Settings, font-offset
+}
 If (A_GuiControl = "fSize_notepad_reset")
+{
 	fSize_offset_notepad := 0
+	IniWrite, %fSize_offset_notepad%, ini\notepad.ini, Settings, font-offset
+}
 If (A_GuiControl = "notepad_opac_minus")
+{
 	notepad_trans -= (notepad_trans > 100) ? 30 : 0
+	IniWrite, %notepad_trans%, ini\notepad.ini, Settings, transparency
+}
 If (A_GuiControl = "notepad_opac_plus")
+{
 	notepad_trans += (notepad_trans < 250) ? 30 : 0
+	IniWrite, %notepad_trans%, ini\notepad.ini, Settings, transparency
+}
 WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
-notepad_fontcolor := InStr(A_GuiControl, "fontcolor_") ? StrReplace(A_GuiControl, "fontcolor_", "") : notepad_fontcolor
+If InStr(A_GuiControl, "fontcolor_")
+{
+	notepad_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
+	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
+}
 GoSub, Notepad
 Return
 
@@ -473,23 +613,25 @@ If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 	omnikey_hotkey_old := omnikey_hotkey
 	Hotkey, IfWinActive, ahk_group poe_window
 	Hotkey, ~%omnikey_hotkey%, Omnikey, On
+	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
 }
 GoSub, Settings_menu
 Return
 
 Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
-If (A_GuiControl = "Clone_frames_pixelcheck_enable") && ((pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = ""))
-{
-	LLK_ToolTip("The pixel-check has not been calibrated yet.`nPlease go to the pixel-check section and calibrate it.", 3)
-	GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
-	Return
-}
 If InStr(A_GuiControl, "pixel")
 {
+	If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+	{
+		LLK_ToolTip("pixel-check setup required")
+		GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
+		Return
+	}
 	If (clone_frames_pixelcheck_enable = 0)
-		pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-	Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
+		IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
+	Else IniWrite, 1, ini\clone frames.ini, Settings, enable pixel-check
+	GoSub, Pixelchecks_gamescreen
 	Return
 }
 clone_frames_enabled := ""
@@ -628,7 +770,6 @@ Return
 
 Clone_frames_preview:
 bmpPreview := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
-;WinGetPos, winXpos, winYpos,, winheight, ahk_id %hwnd_clone_frames_menu%
 Gdip_GetImageDimensions(bmpPreview, WidthPreview, HeightPreview)
 hbmPreview := CreateDIBSection(poe_width, poe_height)
 hdcPreview := CreateCompatibleDC()
@@ -751,9 +892,6 @@ If (timeout != 1)
 	IniWrite, %alarm_ypos%, ini\alarm.ini, UI, ycoord
 	alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
 	IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
-	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
-	IniWrite, %alarm_fontcolor%, ini\alarm.ini, Settings, font-color
-	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
 	
 	IniWrite, %notepad_xpos%, ini\notepad.ini, UI, xcoord
 	IniWrite, %notepad_ypos%, ini\notepad.ini, UI, ycoord
@@ -761,19 +899,6 @@ If (timeout != 1)
 	IniWrite, %notepad_height%, ini\notepad.ini, UI, height
 	notepad_text := StrReplace(notepad_text, "`n", ",,")
 	IniWrite, %notepad_text%, ini\notepad.ini, Text, text
-	IniWrite, %fSize_offset_notepad%, ini\notepad.ini, Settings, font-offset
-	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
-	IniWrite, %notepad_trans%, ini\notepad.ini, Settings, transparency
-	
-	IniWrite, %panel_position0%, ini\config.ini, UI, panel-position0
-	IniWrite, %panel_position1%, ini\config.ini, UI, panel-position1
-	IniWrite, %hide_panel%, ini\config.ini, UI, hide panel
-	IniWrite, %fSize_offset%, ini\config.ini, UI, font-offset
-	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
-	IniWrite, %kill_timeout%, ini\config.ini, Settings, kill-timeout
-	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
-	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
 	
 	Loop, Parse, clone_frames_list, `n, `n
 	{
@@ -781,7 +906,6 @@ If (timeout != 1)
 			continue
 		IniWrite, % clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable
 	}
-	IniWrite, % clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check
 }
 ExitApp
 Return
@@ -878,13 +1002,37 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 		Gui, omni_info: Destroy
 		LLK_Overlay("show")
 	}
-	If (pixelchecks_enabled != "")
+	If (pixelchecks_enabled != "") && (enable_pixelchecks = 1)
 	{
 		Loop, Parse, pixelchecks_enabled, `,, `,
 		{
 			If (A_LoopField = "")
 				break
 			LLK_PixelSearch(A_LoopField)
+		}
+		
+		If (map_info_pixelcheck_enable = 1)
+		{
+			If (gamescreen = 1)
+			{
+				If !WinExist("ahk_id " hwnd_map_mods_window) && (toggle_map_mods_panel = 1) && (hwnd_map_mods_window != "") || (map_mods_panel_fresh = 1)
+				{
+					LLK_Overlay("map_mods_window", "show")
+					map_mods_panel_fresh := 0
+				}
+				If !WinExist("ahk_id " hwnd_map_mods_toggle) && (hwnd_map_mods_toggle != "") || (map_mods_panel_fresh = 1)
+				{
+					LLK_Overlay("map_mods_toggle", "show")
+					map_mods_panel_fresh := 0
+				}
+			}
+			Else
+			{
+				If WinExist("ahk_id " hwnd_map_mods_window) && (map_mods_panel_fresh != 1) && (hwnd_map_mods_window != "")
+					LLK_Overlay("map_mods_window", "hide")
+				If WinExist("ahk_id " hwnd_map_mods_toggle) && (map_mods_panel_fresh != 1) && (hwnd_map_mods_window != "")
+					LLK_Overlay("map_mods_toggle", "hide")
+			}
 		}
 	}
 	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1))
@@ -916,6 +1064,422 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 	Else If WinExist("ahk_id " hwnd_clone_frames_window)
 		Gui, clone_frames_window: Hide
 }
+Return
+
+Map_info:
+If (A_Gui = "")
+{
+	map_mods_clipped := Clipboard
+	map_mods_sample := 0
+}
+monsters := ""
+player := ""
+bosses := ""
+area := ""
+map_mods_panel_player := ""
+map_mods_panel_monsters := ""
+map_mods_panel_bosses := ""
+map_mods_panel_area := ""
+If (map_mods_clipped = "")
+{
+	IniRead, parseboard, data\Map mods.ini, sample map
+	parseboard := SubStr(parseboard, InStr(parseboard, "Item Level:"))
+	map_mods_sample := 1
+}
+Else parseboard := SubStr(map_mods_clipped, InStr(map_mods_clipped, "Item Level:"))
+IniRead, map_mods_list, data\Map mods.ini
+Loop, Parse, parseboard, `n, `n
+{
+	If (A_LoopField = "")
+		continue
+	check := A_LoopField
+	check_characters := "-0123456789%"
+	map_mod_pretext := ""
+	Loop, Parse, check
+	{
+		If InStr(check_characters, A_LoopField)
+			map_mod_pretext := (map_mod_pretext = "") ? A_LoopField : map_mod_pretext A_LoopField
+	}
+	While (SubStr(map_mod_pretext, 0) = "-")
+		map_mod_pretext := SubStr(map_mod_pretext, 1, -1)
+	Loop, Parse, map_mods_list, `n, `n
+	{
+		If (A_LoopField = "sample map") || (A_LoopField = "version")
+			continue
+		If InStr(check, A_LoopField)
+		{
+			loopfield_copy := A_LoopField
+			IniRead, map_mod_type, data\Map mods.ini, %A_LoopField%, type
+			IniRead, map_mod_modifier, data\Map mods.ini, %A_LoopField%, mod
+			If (A_LoopField = "increased area") && InStr(check, "monster")
+				map_mod_type := "monsters"
+			Else If (A_LoopField = "increased area") && InStr(check, "boss")
+			{
+				map_mod_type := "bosses"
+				loopfield_copy := "increased area of"
+			}
+			IniRead, map_mod_ID, data\Map mods.ini, %loopfield_copy%, ID
+			IniRead, map_mod_text, data\Map mods.ini, %loopfield_copy%, text
+			
+			If (map_mod_type = "player")
+				map_mods_panel_player := (map_mods_panel_player = "") ? map_mod_text : map_mods_panel_player "`n" map_mod_text
+			Else If (map_mod_type = "monsters")
+				map_mods_panel_monsters := (map_mods_panel_monsters = "") ? map_mod_text : map_mods_panel_monsters "`n" map_mod_text
+			Else If (map_mod_type = "bosses")
+				map_mods_panel_bosses := (map_mods_panel_bosses = "") ? map_mod_text : map_mods_panel_bosses "`n" map_mod_text
+			Else If (map_mod_type = "area")
+				map_mods_panel_area := (map_mods_panel_area = "") ? map_mod_text : map_mods_panel_area "`n" map_mod_text
+			
+			map_mod_text := (map_mod_pretext != "") ? map_mod_pretext "," map_mod_ID map_mod_text : "," map_mod_ID map_mod_text
+			If (map_mod_modifier = "+")
+				map_mod_text := "+" map_mod_text
+			If (map_mod_modifier = "-")
+				map_mod_text := "-" map_mod_text
+			IniRead, map_mod_rank, ini\map info.ini, %map_mod_ID%, rank
+			If (map_mod_type = "player") && (map_mod_rank > 0)
+				player := (player = "") ? map_mod_text : player "`n" map_mod_text
+			Else If (map_mod_type = "monsters") && (map_mod_rank > 0)
+				monsters := (monsters = "") ? map_mod_text : monsters "`n" map_mod_text
+			Else If (map_mod_type = "bosses") && (map_mod_rank > 0)
+				bosses := (bosses = "") ? map_mod_text : bosses "`n" map_mod_text
+			Else If (map_mod_type = "area") && (map_mod_rank > 0)
+				area := (area = "") ? map_mod_text : area "`n" map_mod_text
+			break
+		}
+	}
+}
+/*
+map_mods_panel_text := ""
+map_mods_panel_text := (map_mods_panel_player = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_player
+map_mods_panel_text := (map_mods_panel_monsters = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_monsters
+map_mods_panel_text := (map_mods_panel_bosses = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_bosses
+map_mods_panel_text := (map_mods_panel_area = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_area
+*/
+map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" map_mods_panel_bosses "`n" map_mods_panel_area
+width := ""
+Loop 2
+{
+	Gui, map_mods_window: destroy
+	Gui, map_mods_window: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_window
+	If (A_Index = 1)
+		Gui, map_mods_window: Margin, 0, 0
+	Else Gui, map_mods_window: Margin, 8, 2
+	Gui, map_mods_window: Color, Black
+	WinSet, Transparent, %map_info_trans%
+	style_map_mods := (width = "") ? "" : " w"width
+	Gui, map_mods_window: Font, % "s"fSize0 + fSize_offset_map_info " cWhite underline", Fontin SmallCaps
+	If (player != "")
+	{
+		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, player:
+		Gui, map_mods_window: Font, norm
+		Loop, Parse, player, `n, `n
+		{
+			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
+			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			window_color := "white"
+			window_color := (window_rank > 1) ? "yellow" : window_color
+			window_color := (window_rank > 2) ? "red" : window_color
+			window_color := (window_rank > 3) ? "fuchsia" : window_color
+			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+		}
+		Gui, map_mods_window: Font, underline
+	}
+	If (monsters != "")
+	{
+		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, monsters:
+		Gui, map_mods_window: Font, norm
+		Loop, Parse, monsters, `n, `n
+		{
+			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
+			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			window_color := "white"
+			window_color := (window_rank > 1) ? "yellow" : window_color
+			window_color := (window_rank > 2) ? "red" : window_color
+			window_color := (window_rank > 3) ? "fuchsia" : window_color
+			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			window_text := StrReplace(window_text, "?", "`n")
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+		}
+		Gui, map_mods_window: Font, underline
+	}
+	If (bosses != "")
+	{
+		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, boss:
+		Gui, map_mods_window: Font, norm
+		Loop, Parse, bosses, `n, `n
+		{
+			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
+			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			window_color := "white"
+			window_color := (window_rank > 1) ? "yellow" : window_color
+			window_color := (window_rank > 2) ? "red" : window_color
+			window_color := (window_rank > 3) ? "fuchsia" : window_color
+			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			window_text := StrReplace(window_text, "a0e", "aoe")
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+		}
+		Gui, map_mods_window: Font, underline
+	}
+	If (area != "")
+	{
+		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, area:
+		Gui, map_mods_window: Font, norm
+		Loop, Parse, area, `n, `n
+		{
+			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
+			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			window_color := "white"
+			window_color := (window_rank > 1) ? "yellow" : window_color
+			window_color := (window_rank > 2) ? "red" : window_color
+			window_color := (window_rank > 3) ? "fuchsia" : window_color
+			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+		}
+		Gui, map_mods_window: Font, underline
+	}
+	If (A_Index = 1)
+	{
+		Gui, map_mods_window: Show, Hide
+		WinGetPos,,, width
+	}
+	Else
+	{
+		Gui, map_mods_window: Show, Hide
+		WinGetPos,,, width
+		Gui, map_mods_window: Show, % "Hide x"xScreenOffSet + poe_width - width " y"yScreenOffSet + map_info_y
+		LLK_Overlay("map_mods_window", "show")
+		Gui, map_mods_toggle: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_toggle
+		Gui, map_mods_toggle: Margin, 4, 2
+		Gui, map_mods_toggle: Color, Black
+		WinSet, Transparent, %trans%
+		pic_style := ""
+		pic_style := (poe_height = "2160") ? "h26 w-1" : pic_style
+		pic_style := (poe_height = "1800") ? "h23 w-1" : pic_style
+		pic_style := (poe_height = "1600") ? "h20 w-1" : pic_style
+		pic_style := (poe_height = "1200") ? "h15 w-1" : pic_style
+		pic_style := (poe_height = "1080") ? "h12 w-1" : pic_style
+		pic_style := (poe_height = "900") ? "h9 w-1" : pic_style
+		pic_style := (poe_height = "720") ? "h6 w-1" : pic_style
+		Gui, map_mods_toggle: Add, Picture, vMap_mods_toggle_pic BackgroundTrans gMap_mods_toggle %pic_style%, img\GUI\map_mod_button_hide.png
+		Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet + poe_width - map_toggle_x " y"yScreenOffSet + map_toggle_y
+		LLK_Overlay("map_mods_toggle", "show")
+		toggle_map_mods_panel := 1
+		map_mods_panel_fresh := 1
+	}
+	If ((player != "") || (monsters != "") || (bosses != "") || (area != "")) && (A_Gui = "")
+		LLK_ToolTip("success", 0.5)
+	Else If (player = "") && (monsters = "") && (bosses = "") && (area = "") && (map_info_search = "")
+	{
+		LLK_ToolTip("failed:`nno mods", 0.5)
+		Gui, map_mods_window: Destroy
+		Gui, map_mods_toggle: Destroy
+		map_mods_panel_fresh := 0
+	}
+}
+Return
+
+Map_info_customization:
+GuiControl_copy := A_GuiControl
+Gui, map_info_menu: destroy
+Gui, map_info_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_info_menu, Lailloken UI: map mod customization
+Gui, map_info_menu: Color, Black
+Gui, map_info_menu: Margin, 12, 4
+WinSet, Transparent, %trans%
+Gui, map_info_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+
+If (GuiControl_copy = "Map_info_search")
+{
+	map_info_hits := ""
+	Gui, settings_menu: Submit, NoHide
+	If (StrLen(map_info_search) < 3)
+		Return
+	IniRead, map_mods_search_db, data\Map search.ini
+	Loop, Parse, map_mods_search_db, `n, `n
+	{
+		If InStr(A_LoopField, map_info_search)
+		{
+			IniRead, map_info_ID, data\Map search.ini, %A_LoopField%, ID
+			map_info_hits := (map_info_hits = "") ? map_info_ID : map_info_hits "," map_info_ID
+		}
+	}
+	Loop, Parse, map_info_hits, `,, `,
+	{
+		IniRead, map_mod_%A_LoopField%_rank, ini\map info.ini, %A_LoopField%, rank, 1
+		IniRead, map_mod_%A_LoopField%_type, ini\map info.ini, %A_LoopField%, type
+		IniRead, map_mod_%A_LoopField%_text, ini\map info.ini, %A_LoopField%, text
+		If (A_Index = 1)
+		{
+			Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
+			Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
+		}
+		Gui, map_info_menu: Font, % "s"fSize0 - 4
+		Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%A_LoopField% gMap_mods_save number limit1 cBlack, % map_mod_%A_LoopField%_rank
+		Gui, map_info_menu: Font, % "s"fSize0
+		map_info_cfg_text := StrReplace(map_mod_%A_LoopField%_text, "?", " ")
+		map_info_cfg_text := StrReplace(map_info_cfg_text, "a0e", "aoe")
+		Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text " (" map_mod_%A_LoopField%_type ")"
+	}
+	/*
+	IniRead, map_info_parse, ini\map info.ini
+	Loop, Parse, map_info_parse, `n, `n
+	{
+		If (A_LoopField = "version") || (A_LoopField = "settings") || (A_LoopField = "")
+			continue
+		IniRead, map_info_rank, ini\map info.ini, %A_LoopField%, rank, 1
+		If map_info_rank is not number
+			map_info_rank := 1
+		map_info_zeroes += (map_info_rank = 0) ? 1 : 0
+		If (map_info_rank = 0)
+		{
+			If (section = 0)
+			{
+				Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
+				Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
+				Gui, map_info_menu: Font, % "s"fSize0 - 4
+				Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%A_LoopField% gMap_mods_save number limit1 cBlack, % map_info_rank
+				section := 1
+			}
+			Else
+			{
+				Gui, map_info_menu: Font, % "s"fSize0 - 4
+				Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%A_LoopField% gMap_mods_save number limit1 cBlack, % map_info_rank
+			}
+			IniRead, map_info_text, ini\map info.ini, %A_LoopField%, text
+			map_info_text := StrReplace(map_info_text, "?", " ")
+			IniRead, map_info_type, ini\map info.ini, %A_LoopField%, type
+			map_info_type := (map_info_type = "") ? "bosses && monsters" : map_info_type
+			Gui, map_info_menu: Font, % "s"fSize0
+			Gui, map_info_menu: Add, Text, ys BackgroundTrans, % StrReplace(map_info_text, "a0e", "aoe") " (" map_info_type ")"
+		}
+	}
+	*/
+	If (map_info_hits != "")
+	{
+		WinGetPos, winXpos, winYpos, winwidth, winheight, ahk_id %hwnd_settings_menu%
+		show_search_x := winXpos + winwidth//2
+		show_search_y := winYpos + winheight
+		Gui, map_info_menu: Show, NA x%show_search_x% y%show_search_y%
+	}
+	Return
+}
+
+IniRead, map_info_parse, data\Map mods.ini
+map_info_parse := StrReplace(map_info_parse, "-")
+loop := ""
+IDs_hit := ""
+Loop, Parse, map_mods_panel_text, `n, `n
+{
+	If (A_LoopField = "")
+		continue
+	loop += 1
+	check := A_LoopField
+	Loop, Parse, map_info_parse, `n, `n
+	{
+		IniRead, map_info_text, data\Map mods.ini, %A_LoopField%, text
+		If (map_info_text = check)
+		{
+			IniRead, map_info_ID, data\Map mods.ini, %A_LoopField%, ID
+			break
+		}
+	}
+	IniRead, map_mod_%map_info_ID%_rank, ini\map info.ini, %map_info_ID%, rank, 1
+	IniRead, map_mod_%map_info_ID%_type, ini\map info.ini, %map_info_ID%, type
+	If (loop = 1)
+	{
+		Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
+		Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
+	}
+	Gui, map_info_menu: Font, % "s"fSize0 - 4
+	Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%map_info_ID% gMap_mods_save number limit1 cBlack, % map_mod_%map_info_ID%_rank
+	Gui, map_info_menu: Font, % "s"fSize0
+	map_info_cfg_text := StrReplace(A_LoopField, "?", " ")
+	map_info_cfg_text := StrReplace(map_info_cfg_text, "a0e", "aoe")
+	Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text
+}
+Gui, map_info_menu: Show, Hide
+WinGetPos,,, widthedit
+WinGetPos, winx, winy,,, ahk_id %hwnd_map_mods_window%
+Gui, map_info_menu: Show, % "x"winx - widthedit " y"winy
+Return
+
+Map_info_menuGuiClose:
+Gui, map_info_menu: Destroy
+WinActivate, ahk_group poe_window
+Return
+
+Map_info_settings_apply:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "Map_info_pixelcheck_enable")
+{
+	If (pixel_gamescreen_color1 = "") || (pixel_gamescreen_color1 = "ERROR")
+	{
+		LLK_ToolTip("pixel-check setup required")
+		GuiControl, settings_menu: , Map_info_pixelcheck_enable, 0
+		Return
+	}
+	IniWrite, %map_info_pixelcheck_enable%, ini\map info.ini, Settings, enable pixel-check
+	GoSub, Pixelchecks_gamescreen
+	Return
+}
+If (A_GuiControl = "fSize_map_info_minus")
+{
+	fSize_offset_map_info -= 1
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_map_info_plus")
+{
+	fSize_offset_map_info += 1
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_map_info_reset")
+{
+	fSize_offset_map_info := 0
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "map_info_opac_minus")
+{
+	map_info_trans -= (map_info_trans > 100) ? 30 : 0
+	IniWrite, %map_info_trans%, ini\map info.ini, Settings, transparency
+}
+If (A_GuiControl = "map_info_opac_plus")
+{
+	map_info_trans += (map_info_trans < 250) ? 30 : 0
+	IniWrite, %map_info_trans%, ini\map info.ini, Settings, transparency
+}
+GoSub, Map_info
+Return
+
+Map_mods_save:
+Gui, map_info_menu: Submit, NoHide
+SendInput, ^{a}
+map_mod_ID := StrReplace(A_GuiControl, "map_mod_edit_")
+map_mod_difficulty := %A_GuiControl%
+map_mod_difficulty := (map_mod_difficulty = "") ? 0 : map_mod_difficulty
+map_mod_difficulty := (map_mod_difficulty > 4) ? 4 : map_mod_difficulty
+IniWrite, %map_mod_difficulty%, ini\map info.ini, %map_mod_ID%, rank
+GoSub, Map_info
+Return
+
+Map_mods_toggle:
+If (click = 2)
+{
+	GoSub, Map_info_customization
+	Return
+}
+If WinExist("ahk_id " hwnd_map_mods_window)
+{
+	LLK_Overlay("map_mods_window", "hide")
+	toggle_map_mods_panel := 0
+	GuiControl, map_mods_toggle: , map_mods_toggle_pic, img\GUI\map_mod_button_show.png
+}
+Else
+{
+	LLK_Overlay("map_mods_window", "Show")
+	toggle_map_mods_panel := 1
+	GuiControl, map_mods_toggle: , map_mods_toggle_pic, img\GUI\map_mod_button_hide.png
+}
+WinActivate, ahk_group poe_window
 Return
 
 Notepad:
@@ -1030,30 +1594,50 @@ If (clipboard != "")
 	KeyWait, %ThisHotkey_copy%
 	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency")
 	{
-		Gui, context_menu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_context_menu
-		Gui, context_menu: Margin, 4, 2
-		Gui, context_menu: Color, Black
-		WinSet, Transparent, %trans%
-		Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
-		If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
-			Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
-		Else
+		GoSub, Omnikey_context_menu
+		Return
+	}
+	If InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Rarity: Normal") && !InStr(clipboard, "Rarity: Unique") && !InStr(clipboard, "Unidentified")
+	{
+		If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 		{
-			Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
-			Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+			LLK_ToolTip("pixel-check setup required")
+			Return
 		}
-		If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
-			Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
-		MouseGetPos, mouseX, mouseY
-		Gui, context_menu: Show, % "x"mouseX-160 " y"mouseY
-		WinGetPos, x_context
-		If (x_context < xScreenOffset)
-			Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
-		WinWaitActive, ahk_group poe_window,,, Lailloken
-		If WinExist("ahk_id " hwnd_context_menu)
-			Gui, context_menu: destroy
+		GoSub, Map_info
+		Return
+	}
+	Else
+	{
+		LLK_ToolTip("not supported:`nnormal, unique, un-ID")
+		Return
 	}
 }
+Return
+
+Omnikey_context_menu:
+Gui, context_menu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_context_menu
+Gui, context_menu: Margin, 4, 2
+Gui, context_menu: Color, Black
+WinSet, Transparent, %trans%
+Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
+	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
+Else
+{
+	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
+	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+}
+If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
+	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
+MouseGetPos, mouseX, mouseY
+Gui, context_menu: Show, % "x"mouseX-160 " y"mouseY
+WinGetPos, x_context
+If (x_context < xScreenOffset)
+	Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
+WinWaitActive, ahk_group poe_window,,, Lailloken
+If WinExist("ahk_id " hwnd_context_menu)
+	Gui, context_menu: destroy
 Return
 
 Omnikey_craft_chrome:
@@ -1266,8 +1850,36 @@ If (click = 2)
 	Return
 }
 If LLK_PixelSearch(A_GuiControl)
-	LLK_ToolTip("success")
-Else LLK_ToolTip("failed")
+	LLK_ToolTip("check positive")
+Else LLK_ToolTip("check negative")
+Return
+
+Pixelchecks_gamescreen:
+total_pixelcheck_enable := clone_frames_pixelcheck_enable + map_info_pixelcheck_enable
+If (total_pixelcheck_enable = 0)
+	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
+Return
+
+Pixelchecks_settings_apply:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "enable_pixelchecks")
+	IniWrite, %enable_pixelchecks%, ini\config.ini, Settings, background pixel-checks
+If (enable_pixelchecks = 0)
+{
+	gamescreen := 0
+	clone_frames_pixelcheck_enable := 0
+	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
+	map_info_pixelcheck_enable := 0
+	IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
+}
+Else
+{
+	clone_frames_pixelcheck_enable := 1
+	IniWrite, 1, ini\clone frames.ini, Settings, enable pixel-check
+	map_info_pixelcheck_enable := 1
+	IniWrite, 1, ini\map info.ini, Settings, enable pixel-check
+}
 Return
 
 Settings_menu:
@@ -1284,6 +1896,7 @@ settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_
 alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
+map_mods_style := InStr(A_GuiControl, "map") ? "border" : ""
 notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "border" : ""
 pixelcheck_style := InStr(A_GuiControl, "pixel") ? "border" : ""
@@ -1303,29 +1916,35 @@ Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSe
 ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_general%
 spacing_settings := width_settings
 
-Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
-ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_alarm%
-spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
-Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
-ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_clone_frames%
-spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
-Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu HWNDhwnd_settings_notepad, % "notepad"
-ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_notepad%
-spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
-Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "omni-key"
-ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
-spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
-If pixel_gamescreen_x1 is number
+If !InStr(buggy_resolutions, poe_height)
 {
-	Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "pixel-checks"
-	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_alarm%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-}
 
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_clone_frames%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %map_mods_style% gSettings_menu HWNDhwnd_settings_map_mods, % "map-info"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_map_mods%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu HWNDhwnd_settings_notepad, % "notepad"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_notepad%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "omni-key"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+
+	If pixel_gamescreen_x1 is number
+	{
+		Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "pixel-checks"
+		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
+		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	}
+}
 Gui, settings_menu: Font, norm
 
 If !InStr(GuiControl_copy, "notepad") && WinExist("ahk_id " hwnd_notepad_sample)
@@ -1346,6 +1965,8 @@ Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
 Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
+Else If InStr(GuiControl_copy, "map")
+	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
 Else If InStr(GuiControl_copy, "omni")
@@ -1394,9 +2015,10 @@ new_clone_menu_closed := 0
 clone_frames_enabled := ""
 IniRead, clone_frames_list, ini\clone frames.ini
 Sort, clone_frames_list, D`n
-If pixel_gamescreen_x1 is number
+If (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR") && (enable_pixelchecks = 1)
 {
-	Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " xp+"spacing_settings*1.2, trigger overlay via 'game-screen' pixel-check
+	Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " xp+"spacing_settings*1.2, toggle overlay automatically
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vpixelcheck_auto_trigger hp w-1", img\GUI\help.png
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
 }
 Else Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans xp+"spacing_settings*1.2, list of clone-frames currently set up:
@@ -1417,20 +2039,20 @@ Gui, settings_menu: Add, Text, % "xs Section Border gClone_frames_new vClone_fra
 Return
 
 Settings_menu_general:
-Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans HWNDmain_text Checked" kill_script " vkill_script xp+"spacing_settings*1.2, % "kill script after"
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gApply_settings_general HWNDmain_text Checked" kill_script " vkill_script xp+"spacing_settings*1.2, % "kill script after"
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
 
 Gui, settings_menu: Font, % "s"fSize0-4 "norm"
-Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number right Limit2 vkill_timeout w"controlheight*1.2, %kill_timeout%
+Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gApply_settings_general right Limit2 vkill_timeout w"controlheight*1.2, %kill_timeout%
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
 
-Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.5, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
+Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans HWNDmain_text x+"fSize0//2, % poe_width " x "
 ControlGetPos,,,, height,, ahk_id %main_text%
 ControlGetPos,,, width,,, ahk_id %link_text%
 resolutionsDDL := ""
-IniRead, resolutions_all, Resolutions.ini
+IniRead, resolutions_all, data\Resolutions.ini
 choice := 0
 Loop, Parse, resolutions_all, `n,`n
 	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native)
@@ -1443,7 +2065,7 @@ Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_re
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.5, % "panel position:"
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.2, % "panel position:"
 ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4
 If (panel_position0 = "top")
@@ -1454,7 +2076,7 @@ If (panel_position1 = "left") || (panel_position1 = "")
 Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
 	Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide panel"
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "interface size:"
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
@@ -1468,19 +2090,119 @@ Gui, settings_menu_help: Margin, 12, 4
 WinSet, Transparent, %trans%
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
 
-If InStr(A_GuiControl, "pixelcheck")
+If (A_GuiControl = "map_info")
 {
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, explanation:`nthese pixel-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.`n`nui textures in PoE are sometimes updated in patches, which leads to pixel-checks failing. This is where you recalibrate the checks in order to continue using the script.
+text =
+(
+explanation:
+0 hides the mod from now on, and higher values have distinct text-colors.
+
+it's up to you how to tier the mods and whether to use all tiers.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If (A_GuiControl = "pixelcheck_help")
+{
+text =
+(
+explanation:
+left-click the button to test the pixel-check, right-click the button to calibrate.
+
+ui textures in PoE sometimes get updated in patches, which leads to pixel-checks failing. this is where you recalibrate the checks in order to continue using the script.
+
+disclaimer:
+these pixel-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.
+
+they are used to let the script's ui adapt to what's happening on screen, emulating the use of an addon-api.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If (A_GuiControl = "pixelcheck_enable_help")
+{
+text =
+(
+explanation:
+this should only be disabled when experiencing severe performance drops while running the script.
+
+when disabled, overlays will not show/hide automatically (if the user navigates through in-game menus) and they have to be toggled manually.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 If InStr(A_GuiControl, "gamescreen")
 {
-	Gui, settings_menu_help: Add, Picture, BackgroundTrans, img\GUI\game_screen.jpg
-	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, instructions:`nwhen recalibrating, make sure this panel with realm/league-info is visible in the top-right corner of the screen.`n`nexplanation:`nthis check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+text =
+(
+instructions:
+when recalibrating, make sure this panel with info on realm && league is visible in the top-right corner of the screen.
+
+explanation:
+this check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*16 " w-1", img\GUI\game_screen.jpg
+	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+If InStr(A_GuiControl, "omnikey")
+{
+text =
+(
+explanation:
+this hotkey is context-sensitive and used to access the majority of this script's features. it's meant to be the only hotkey you have to use while playing.
+
+used to access:
+- context-menu for items
+- map mods panel
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If (A_GuiControl = "pixelcheck_auto_trigger")
+{
+text =
+(
+explanation:
+allows the script to automatically hide/show its overlays by adapting to what's happening on screen.
+
+requires 'game-screen' pixel-check to be set up correctly and playing with the mini-map in the center of the screen.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+WinGetPos, winx, winy, width, height, ahk_id %hwnd_settings_menu_help%
+newxpos := (winx + width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - width : winx
+newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
+Gui, Settings_menu_help: Show, NA x%newxpos% y%newypos%
 KeyWait, LButton
 Gui, settings_menu_help: Destroy
+Return
+
+Settings_menu_map_info:
+map_info_primary := 0
+If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
+{
+	Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gMap_info_settings_apply xp+"spacing_settings*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
+	map_info_primary := 1
+}
+If (map_info_primary = 0)
+	Gui, settings_menu: Add, Text, % "ys Section Center BackgroundTrans xp+"spacing_settings*1.2, text-size offset:
+Else Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info_settings_apply Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info_settings_apply Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "search for mods: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Edit, % "ys x+0 cBlack BackgroundTrans Limit gMap_info_customization vMap_info_search wp"
+GoSub, Map_info
 Return
 
 Settings_menu_notepad:
@@ -1514,24 +2236,28 @@ If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
 	Hotkey, ~%omnikey_hotkey%,, Off
 	omnikey_hotkey := ""
 	Hotkey, ~MButton, Omnikey, On
+	IniWrite, %A_Space%, ini\config.ini, Settings, omni-hotkey
 }
 
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, replace mbutton with:
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
 ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4
-Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans vomnikey_hotkey gApply_settings_omnikey w"width//3, %omnikey_hotkey%
+Gui, settings_menu: Add, Hotkey, % "xs Section hp BackgroundTrans vomnikey_hotkey gApply_settings_omnikey w"width//3, %omnikey_hotkey%
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_omnikey_hotkey gSettings_menu", % " clear "
 Return
 
 Settings_menu_pixelchecks:
-Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, list of integrated pixel-checks:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, % "list of integrated pixel-checks: "
 ControlGetPos,,,, height,, ahk_id %main_text%
-Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vPixelcheck_help h"height " w-1", img\GUI\help.png
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks vGamescreen y+"fSize0*1.2, % " check | calibrate "
 Gui, settings_menu: Font, underline
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help vGamescreen_help HWNDmain_text", % "game-screen"
 Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gPixelchecks_settings_apply vEnable_pixelchecks Center y+"fSize0*1.2 " Checked"enable_pixelchecks, % "enable background pixel-checks"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_enable_help hp w-1", img\GUI\help.png
 Return
 
 Settings_menuGuiClose:
@@ -1597,7 +2323,7 @@ LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
 			Return
 		}
 	}
-	If (toggleshowhide="show")
+	If (toggleshowhide="show") && (hwnd_%gui% != "")
 	{
 		If (NA = 1)
 			Gui, %gui%: Show, NA
@@ -1614,12 +2340,12 @@ LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
 LLK_PixelRecalibrate(name)
 {
 	global
-	IniRead, pixel_%name%_x1, Resolutions.ini, %poe_height%p, %name% x-coordinate 1
-	IniRead, pixel_%name%_y1, Resolutions.ini, %poe_height%p, %name% y-coordinate 1
+	IniRead, pixel_%name%_x1, data\Resolutions.ini, %poe_height%p, %name% x-coordinate 1
+	IniRead, pixel_%name%_y1, data\Resolutions.ini, %poe_height%p, %name% y-coordinate 1
 	If (name != "gamescreen")
 	{
-		IniRead, pixel_%name%_x2, Resolutions.ini, %poe_height%p, %name% x-coordinate 2
-		IniRead, pixel_%name%_y2, Resolutions.ini, %poe_height%p, %name% y-coordinate 2
+		IniRead, pixel_%name%_x2, data\Resolutions.ini, %poe_height%p, %name% x-coordinate 2
+		IniRead, pixel_%name%_y2, data\Resolutions.ini, %poe_height%p, %name% y-coordinate 2
 	}
 	loopcount := (name = "gamescreen") ? 1 : 2
 	Loop %loopcount%
@@ -1652,7 +2378,13 @@ LLK_Rightclick()
 LLK_ToolTip(message, duration := 1)
 {
 	global
-	ToolTip, % message,,, 17
+	mouseYpos := ""
+	If WinActive("ahk_group poe_window")
+	{
+		MouseGetPos,, mouseYpos
+		mouseYpos -= fSize0
+	}
+	ToolTip, % message,, %mouseYpos%, 17
 	SetTimer, ToolTip_clear, % 1000 * duration
 }
 
