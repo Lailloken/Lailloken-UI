@@ -33,7 +33,7 @@ GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
-If !FileExist("data\Resolutions.ini")
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini")
 	LLK_Error("Critical files are missing. Make sure have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
