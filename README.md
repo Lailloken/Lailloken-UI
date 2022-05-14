@@ -3,7 +3,7 @@
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
 
-### Overhauled map-info panel: streamlined and customizable map-mod panel ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
+### Overhauled map-info panel: streamlined and customizable ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
 ![header](https://user-images.githubusercontent.com/61888437/168431773-71ba048b-877d-4bfd-a9bf-afdc52b4b1ff.png)  
 <br>
 
