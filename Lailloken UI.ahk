@@ -857,7 +857,7 @@ clone_frame_new_name_save := ""
 Loop, Parse, clone_frame_new_name
 {
 	If (A_LoopField = A_Space)
-		add_character := " "
+		add_character := "_"
 	Else If A_LoopField is not alnum
 		add_character := "_"
 	Else add_character := A_LoopField
