@@ -31,6 +31,12 @@ GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
 GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
+IniRead, clone_frames_failcheck, ini\clone frames.ini
+Loop, Parse, clone_frames_failcheck, `n, `n
+{
+	If InStr(A_LoopField, " ")
+		IniDelete, ini\clone frames.ini, %A_LoopField%
+}
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
 If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini")
