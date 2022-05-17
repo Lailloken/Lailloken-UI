@@ -39,8 +39,8 @@ Loop, Parse, clone_frames_failcheck, `n, `n
 }
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
-If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini")
-	LLK_Error("Critical files are missing. Make sure have installed the script correctly.")
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini")
+	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
 
@@ -56,6 +56,7 @@ While !WinExist("ahk_group poe_window")
 	sleep, 5000
 }
 
+hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
 
@@ -134,6 +135,33 @@ alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
 If (alarm_timestamp != "")
 	continue_alarm := 1
 
+betrayal_divisions := "transportation,fortification,research,intervention"
+IniRead, betrayal_list, data\Betrayal.ini
+Sort, betrayal_list, D`n
+IniRead, betrayal_ini_version_data, data\Betrayal.ini, Version, version, 1
+IniRead, betrayal_ini_version_user, ini\betrayal info.ini, Version, version, 0
+If !FileExist("ini\betrayal info.ini") || (betrayal_ini_version_user < betrayal_ini_version_data)
+{
+	betrayal_info_exists := FileExist("ini\betrayal info.ini") ? 1 : 0
+	IniWrite, %betrayal_ini_version_data%, ini\betrayal info.ini, Version, version
+	If (betrayal_info_exists = 0)
+	{
+		IniWrite, 0, ini\betrayal info.ini, Settings, font-offset
+		IniWrite, 220, ini\betrayal info.ini, Settings, transparency
+	}
+	Loop, Parse, betrayal_list, `n, `n
+	{
+		check := A_Loopfield
+		If (A_LoopField = "settings") || (A_Loopfield = "version")
+			continue
+		If (betrayal_info_exists = 0)
+			Loop, Parse, betrayal_divisions, `,, `,
+				IniWrite, 1, ini\betrayal info.ini, %check%, %A_Loopfield%
+	}
+}
+IniRead, fSize_offset_betrayal, ini\betrayal info.ini, Settings, font-offset, 0
+IniRead, betrayal_trans, ini\betrayal info.ini, Settings, transparency, 220
+
 If !FileExist("ini\clone frames.ini")
 	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
 IniRead, clone_frames_list, ini\clone frames.ini
@@ -194,9 +222,9 @@ If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_ver
 	}
 }
 
-IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset+poe_width//2
+IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset + poe_width//2
 notepad_xpos := (notepad_xpos = "") ? xScreenOffset+poe_width//2 : notepad_xpos
-IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset+poe_height//2
+IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset + poe_height//2
 notepad_ypos := (notepad_ypos = "") ? yScreenOffset+poe_height//2 : notepad_ypos
 IniRead, notepad_width, ini\notepad.ini, UI, width, 400
 IniRead, notepad_height, ini\notepad.ini, UI, height, 400
@@ -225,19 +253,19 @@ Else
 	Hotkey, ~MButton, Omnikey, On
 }
 
-IniRead, pixelchecks_list, data\Resolutions.ini, Pixel-checks
-Loop, Parse, pixelchecks_list, `n, `n
-{
-	IniRead, pixel_%A_LoopField%_x1, data\Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 1
-	IniRead, pixel_%A_LoopField%_y1, data\Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 1
-	If (A_LoopField != "gamescreen")
-	{
-		IniRead, pixel_%A_LoopField%_x2, data\Resolutions.ini, %poe_height%p, %A_LoopField% x-coordinate 2
-		IniRead, pixel_%A_LoopField%_y2, data\Resolutions.ini, %poe_height%p, %A_LoopField% y-coordinate 2
-	}
-	IniRead, pixel_%A_LoopField%_color1, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 1
-	IniRead, pixel_%A_LoopField%_color2, ini\pixel checks (%poe_height%p).ini, %A_LoopField%, color 2
-}
+IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
+IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1
+IniRead, pixel_gamescreen_color1, ini\pixel checks (%poe_height%p).ini, gamescreen, color 1
+
+IniRead, pixel_betrayal_color1, ini\pixel checks (%poe_height%p).ini, betrayal, color 1
+IniRead, pixel_betrayal_color2, ini\pixel checks (%poe_height%p).ini, betrayal, color 2
+pixel_betrayal_x1 := poe_width//25
+pixel_betrayal_y1 := poe_height//2
+pixel_betrayal_x2 := poe_width - poe_width//25
+pixel_betrayal_y2 := poe_height//2
+
+pixelchecks_list := "betrayal`ngamescreen"
+
 If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 {
 	clone_frames_pixelcheck_enable := 0
@@ -247,7 +275,7 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|"
 buggy_resolutions := "768,1024,1050"
 
 timeout := 0
@@ -298,6 +326,8 @@ You also have to enable "confine mouse to window" in the game's UI options.
 }
 SoundBeep, 100
 GoSub, GUI
+If (clone_frames_enabled != "")
+	GoSub, GUI_clone_frames
 GoSub, Pixelchecks_gamescreen
 SetTimer, MainLoop, 100
 Return
@@ -337,6 +367,10 @@ GuiControl, clone_frames_menu: Text, clone_frame_new_target_x, % clone_frame_new
 GuiControl, clone_frames_menu: Text, clone_frame_new_target_y, % clone_frame_new_target_y
 GoSub, Clone_frames_dimensions
 Return
+
+#If WinExist("ahk_id " hwnd_betrayal_search)
+
+ESC::Gui, betrayal_search: Destroy
 
 #If
 
@@ -624,6 +658,202 @@ If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 GoSub, Settings_menu
 Return
 
+Betrayal_apply:
+If (A_GuiControl = "fSize_betrayal_minus")
+{
+	fSize_offset_betrayal -= 1
+	IniWrite, %fSize_offset_betrayal%, ini\betrayal info.ini, Settings, font-offset
+	GoSub, Betrayal_info
+	Return
+}
+If (A_GuiControl = "fSize_betrayal_plus")
+{
+	fSize_offset_betrayal += 1
+	IniWrite, %fSize_offset_betrayal%, ini\betrayal info.ini, Settings, font-offset
+	GoSub, Betrayal_info
+	Return
+}
+If (A_GuiControl = "fSize_betrayal_reset")
+{
+	fSize_offset_betrayal := 0
+	IniWrite, %fSize_offset_betrayal%, ini\betrayal info.ini, Settings, font-offset
+	GoSub, Betrayal_info
+	Return
+}
+If (A_GuiControl = "betrayal_opac_minus")
+{
+	betrayal_trans -= (betrayal_trans > 100) ? 30 : 0
+	IniWrite, %betrayal_trans%, ini\betrayal info.ini, Settings, transparency
+	GoSub, Betrayal_info
+	Return
+}
+If (A_GuiControl = "betrayal_opac_plus")
+{
+	betrayal_trans += (betrayal_trans < 250) ? 30 : 0
+	IniWrite, %betrayal_trans%, ini\betrayal info.ini, Settings, transparency
+	GoSub, Betrayal_info
+	Return
+}
+parse_member := SubStr(A_GuiControl, InStr(A_GuiControl, "_",,, 3) + 1)
+parse_member := SubStr(parse_member, 1, InStr(parse_member, "_",,, 1) - 1)
+parse_division := SubStr(A_GuiControl, InStr(A_GuiControl, "_",,, 4) + 1)
+parse_gui := SubStr(A_GuiControl, 1, InStr(A_GuiControl, "_",,, 3) - 1)
+If (click != 2)
+	betrayal_%parse_member%_%parse_division% -= (betrayal_%parse_member%_%parse_division% < 4) ? -1 : 2
+Else betrayal_%parse_member%_%parse_division% := (betrayal_%parse_member%_%parse_division% = 1) ? 5 : 1
+color := "white"
+color := (betrayal_%parse_member%_%parse_division% = 2) ? "Lime" : color
+color := (betrayal_%parse_member%_%parse_division% = 3) ? "Yellow" : color
+color := (betrayal_%parse_member%_%parse_division% = 4) ? "Red" : color
+color := (betrayal_%parse_member%_%parse_division% = 5) ? "Aqua" : color
+IniWrite, % betrayal_%parse_member%_%parse_division%, ini\betrayal info.ini, %parse_member%, %parse_division%
+Gui, %parse_gui%: Font, c%color%
+GuiControl, Font, %A_GuiControl%
+WinSet, Redraw,, % "ahk_id " hwnd_%parse_gui%
+WinActivate, ahk_group poe_window
+Return
+
+Betrayal_info:
+Loop, Parse, betrayal_divisions, `,, `,
+{
+	Gui, betrayal_info_%A_Index%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_betrayal_info_%A_Index%
+	Gui, betrayal_info_%A_Index%: Margin, 0, 0
+	Gui, betrayal_info_%A_Index%: Color, Black
+	WinSet, Transparent, %betrayal_trans%
+	Gui, betrayal_info_%A_Index%: Font, % "cWhite s"fSize0 + fSize_offset_betrayal, Fontin SmallCaps
+	If (betrayal_layout = 1)
+	{
+		IniRead, betrayal_%betrayal_member%_%A_Loopfield%, ini\betrayal info.ini, %betrayal_member%, %A_Loopfield%, 1
+		color := "white"
+		color := (betrayal_%betrayal_member%_%A_Loopfield% = 2) ? "Lime" : color
+		color := (betrayal_%betrayal_member%_%A_Loopfield% = 3) ? "Yellow" : color
+		color := (betrayal_%betrayal_member%_%A_Loopfield% = 4) ? "Red" : color
+		color := (betrayal_%betrayal_member%_%A_Loopfield% = 5) ? "Aqua" : color
+		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_"A_Index "_" betrayal_member "_" A_Loopfield " gBetrayal_apply w"poe_width//5 " c"color, % %A_Loopfield%_text
+	}
+	Else
+	{
+		If (A_Index < 3)
+		{
+			betrayal_member := betrayal_member1
+			betrayal_division := (A_Index = 1) ? parse_division2 : parse_division1
+		}
+		Else
+		{
+			betrayal_member := betrayal_member2
+			betrayal_division := (A_Index = 3) ? parse_division1 : parse_division2
+		}
+		IniRead, betrayal_%betrayal_member%_%betrayal_division%, ini\betrayal info.ini, %betrayal_member%, %betrayal_division%, 1
+		color := "white"
+		color := (betrayal_%betrayal_member%_%betrayal_division% = 2) ? "Lime" : color
+		color := (betrayal_%betrayal_member%_%betrayal_division% = 3) ? "Yellow" : color
+		color := (betrayal_%betrayal_member%_%betrayal_division% = 4) ? "Red" : color
+		color := (betrayal_%betrayal_member%_%betrayal_division% = 5) ? "Aqua" : color
+		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_"A_Index "_" betrayal_member "_" betrayal_division " gBetrayal_apply w"poe_width//5 " c"color, % panel%A_Index%_text
+	}
+	Gui, betrayal_info_%A_Index%: Show, % "Hide y0 x"xScreenOffSet + A_Index * poe_width//25 + (A_Index - 1) * poe_width//5
+	LLK_Overlay("betrayal_info_" A_Index, "show")
+}
+Return
+
+Betrayal_search:
+If (A_Gui = "")
+{
+	Gui, settings_menu: Destroy
+	hwnd_settings_menu := ""
+	pixelchecks_enabled := InStr(pixelchecks_enabled, "betrayal") ? pixelchecks_enabled : pixelchecks_enabled "betrayal,"
+	Gui, betrayal_search: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_betrayal_search
+	Gui, betrayal_search: Margin, 12, 4
+	Gui, betrayal_search: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, betrayal_search: Font, cWhite s%fSize0%, Fontin SmallCaps
+	Gui, betrayal_search: Add, Edit, BackgroundTrans Limit6 cBlack vBetrayal_searchbox HWNDmain_text, member search
+	Gui, betrayal_search: Add, Button, BackgroundTrans Default Hidden gBetrayal_search, OK
+	ControlGetPos,,,, hEdit,, ahk_id %main_text%
+	Gui, betrayal_search: Show, % "h"hEdit*1.3
+	Return
+}
+Else
+{
+	betrayal_member := ""
+	Gui, betrayal_search: Submit, NoHide
+	If (A_Gui = "settings_menu")
+	{
+		Gui, settings_menu: Submit, NoHide
+		If (A_GuiControl != "betrayal_search_button")
+			betrayal_searchbox := "ai"
+	}
+	If (StrLen(betrayal_searchbox) < 2)
+		Return
+	Else If (StrLen(betrayal_searchbox) = 2)
+	{
+		Loop, Parse, betrayal_list, `n, `n
+		{
+			If (betrayal_searchbox = SubStr(A_Loopfield, 1, 2))
+			{
+				betrayal_member := A_Loopfield
+				betrayal_layout := 1
+				IniRead, transportation_text, data\Betrayal.ini, %A_Loopfield%, transportation
+				transportation_text := "transportation:`n" transportation_text
+				IniRead, fortification_text, data\Betrayal.ini, %A_Loopfield%, fortification
+				fortification_text := "fortification:`n" fortification_text
+				IniRead, research_text, data\Betrayal.ini, %A_Loopfield%, research
+				research_text := "research:`n" research_text
+				IniRead, intervention_text, data\Betrayal.ini, %A_Loopfield%, intervention
+				intervention_text := "intervention:`n" intervention_text
+				Gui, betrayal_search: Destroy
+				GoSub, Betrayal_info
+			}
+		}
+		Return
+	}
+	Else If (StrLen(betrayal_searchbox) = 6)
+	{
+		betrayal_member1 := SubStr(betrayal_searchbox, 1, 2)
+		Loop, Parse, betrayal_list, `n, `n
+			If (betrayal_member1 = SubStr(A_Loopfield, 1, 2))
+				betrayal_member1 := A_Loopfield
+		parse_division1 := SubStr(betrayal_searchbox, 3, 1)
+		Loop, Parse, betrayal_divisions, `,, `,
+			If (parse_division1 = SubStr(A_Loopfield, 1, 1))
+				parse_division1 := A_Loopfield
+		betrayal_member2 := SubStr(betrayal_searchbox, 4, 2)
+		Loop, Parse, betrayal_list, `n, `n
+			If (betrayal_member2 = SubStr(A_Loopfield, 1, 2))
+				betrayal_member2 := A_Loopfield
+		parse_division2 := SubStr(betrayal_searchbox, 6, 1)
+		Loop, Parse, betrayal_divisions, `,, `,
+			If (parse_division2 = SubStr(A_Loopfield, 1, 1))
+				parse_division2 := A_Loopfield
+		betrayal_layout := 2
+		IniRead, panel1_text, data\Betrayal.ini, %betrayal_member1%, %parse_division2%
+		IniRead, panel2_text, data\Betrayal.ini, %betrayal_member1%, %parse_division1%
+		IniRead, panel3_text, data\Betrayal.ini, %betrayal_member2%, %parse_division1%
+		IniRead, panel4_text, data\Betrayal.ini, %betrayal_member2%, %parse_division2%
+		If (panel1_text = "ERROR") || (panel2_text = "ERROR") || (panel3_text = "ERROR") || (panel4_text = "ERROR")
+		{
+			WinGetPos, winXpos, winYpos,,, ahk_id %hwnd_betrayal_search%
+			LLK_ToolTip("incorrect input",, winXpos, winYpos)
+			Gui, betrayal_search: Destroy
+			Return
+		}
+		panel1_text := betrayal_member1 " " parse_division2 " (current):`n" panel1_text
+		panel2_text := betrayal_member1 " " parse_division1 " (target):`n" panel2_text
+		panel3_text := betrayal_member2 " " parse_division1 " (current):`n" panel3_text
+		panel4_text := betrayal_member2 " " parse_division2 " (target):`n" panel4_text
+		Gui, betrayal_search: Destroy
+		GoSub, Betrayal_info
+		Return
+	}
+	Else
+	{
+		WinGetPos, winXpos, winYpos,,, ahk_id %hwnd_betrayal_search%
+		LLK_ToolTip("incorrect input",, winXpos, winYpos)
+		Gui, betrayal_search: Destroy
+	}
+}
+Return
+
 Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
 If InStr(A_GuiControl, "pixel")
@@ -643,9 +873,12 @@ If InStr(A_GuiControl, "pixel")
 clone_frames_enabled := ""
 Loop, Parse, clone_frames_list, `n, `n
 {
+	Gui, clone_frames_%A_Loopfield%: Hide
 	If (clone_frame_%A_LoopField%_enable = 1)
 		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+	Else guilist := StrReplace(guilist, "clone_frames_" A_Loopfield "|")
 }
+GoSub, GUI_clone_frames
 Return
 
 Clone_frames_dimensions:
@@ -653,7 +886,6 @@ Gui, clone_frames_menu: Submit, NoHide
 GuiControl, clone_frames_menu: Text, clone_frame_new_dimensions, % clone_frame_new_width " x " clone_frame_new_height " pixels"
 Gui, clone_frame_preview: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview
 Gui, clone_frame_preview: Show, NA
-bmpCloneFrameScreenshot := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
 Gui, clone_frame_preview_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border +OwnDialogs HWNDhwnd_clone_frame_preview_frame
 Gui, clone_frame_preview_frame: Color, Black
 WinSet, TransColor, Black
@@ -666,6 +898,8 @@ Return
 Clone_frames_delete:
 delete_string := StrReplace(A_GuiControl, "delete_", "")
 IniDelete, ini\clone frames.ini, %delete_string%
+Gui, clone_frames_%delete_string%: Destroy
+guilist := StrReplace(guilist, "clone_frames_" delete_string "|")
 new_clone_menu_closed := 1
 GoSub, Settings_menu
 Return
@@ -676,7 +910,8 @@ LLK_Overlay("settings_menu", "hide")
 If (clone_frames_edit_mode = 1)
 {
 	edit_string := StrReplace(A_GuiControl, "edit_", "")
-	clone_frames_enabled := StrReplace(clone_frames_enabled, edit_string ",", "")
+	clone_frames_enabled := StrReplace(clone_frames_enabled, edit_string ",")
+	Gui, clone_frames_%edit_string%: Hide
 	IniRead, clone_frame_edit_topleft_x, ini\clone frames.ini, %edit_string%, source x-coordinate
 	IniRead, clone_frame_edit_topleft_y, ini\clone frames.ini, %edit_string%, source y-coordinate
 	IniRead, clone_frame_edit_width, ini\clone frames.ini, %edit_string%, frame-width
@@ -775,20 +1010,23 @@ Gui, clone_frames_menu: Destroy
 Return
 
 Clone_frames_preview:
-bmpPreview := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
-Gdip_GetImageDimensions(bmpPreview, WidthPreview, HeightPreview)
-hbmPreview := CreateDIBSection(poe_width, poe_height)
+pPreview := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
+wPreview := clone_frame_new_width
+hPreview := clone_frame_new_height
+wPreview_dest := clone_frame_new_width * clone_frame_new_scale_x//100
+hPreview_dest := clone_frame_new_height * clone_frame_new_scale_y//100
+hbmPreview := CreateDIBSection(wPreview_dest, hPreview_dest)
 hdcPreview := CreateCompatibleDC()
 obmPreview := SelectObject(hdcPreview, hbmPreview)
-GPreview := Gdip_GraphicsFromHDC(hdcPreview)
-Gdip_SetInterpolationMode(GPreview, 0)
-Gdip_DrawImage(GPreview, bmpPreview, clone_frame_new_target_x - xScreenOffSet, clone_frame_new_target_y - yScreenOffSet, clone_frame_new_width * clone_frame_new_scale_x//100, clone_frame_new_height * clone_frame_new_scale_y//100, 0, 0, WidthPreview, HeightPreview, 0.2 + 0.16 * clone_frame_new_opacity)
-UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
+gPreview := Gdip_GraphicsFromHDC(hdcPreview)
+Gdip_SetInterpolationMode(gPreview, 0)
+Gdip_DrawImage(gPreview, pPreview, 0, 0, wPreview_dest, hPreview_dest, 0, 0, wPreview, hPreview, 0.2 + 0.16 * clone_frame_new_opacity)
+UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, clone_frame_new_target_x, clone_frame_new_target_y, wPreview_dest, hPreview_dest)
 SelectObject(hdcPreview, obmPreview)
 DeleteObject(hbmPreview)
 DeleteDC(hdcPreview)
-Gdip_DeleteGraphics(GPreview)
-Gdip_DisposeImage(bmpPreview)
+Gdip_DeleteGraphics(gPreview)
+Gdip_DisposeImage(pPreview)
 Return
 
 Clone_frames_preview_list:
@@ -935,11 +1173,18 @@ panel_xpos := (panel_position1 = "left") ? xScreenOffset : xScreenOffset + poe_w
 panel_ypos := (panel_position0 = "bottom") ? yScreenOffset + poe_height - panel_height : yScreenOffset
 Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
 LLK_Overlay("LLK_panel", panel_style)
-
-Gui, clone_frames_window: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frames_window
-
 If (continue_alarm = 1)
 	GoSub, Alarm
+Return
+
+GUI_clone_frames:
+Loop, Parse, clone_frames_enabled, `,, `,
+{
+	If (A_Loopfield = "")
+		Break
+	Gui, clone_frames_%A_Loopfield%: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_%A_Loopfield%
+	guilist := InStr(guilist, A_Loopfield) ? guilist : guilist "clone_frames_" A_Loopfield "|"
+}
 Return
 
 Loop:
@@ -952,8 +1197,8 @@ If WinExist("ahk_group poe_window")
 	last_check := A_TickCount
 	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
 	{
-		While !WinActive("ahk_class POEWindowClass")
-			Sleep, 2000
+		If !WinActive("ahk_class POEWindowClass")
+			Return
 		WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 		poe_height := custom_resolution
 		poe_window_closed := 0
@@ -1016,7 +1261,15 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 				break
 			LLK_PixelSearch(A_LoopField)
 		}
-		
+		If (betrayal = 0)
+		{
+			Gui, betrayal_search: Destroy
+			Loop 4
+				LLK_Overlay("betrayal_info_" A_Index, "hide")
+			pixelchecks_enabled := StrReplace(pixelchecks_enabled, "betrayal,")
+			betrayal := ""
+			Return
+		}
 		If (map_info_pixelcheck_enable = 1)
 		{
 			If (gamescreen = 1)
@@ -1043,9 +1296,32 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 	}
 	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1))
 	{
-		If !WinExist("ahk_id " hwnd_clone_frames_window)
-			Gui, clone_frames_window: Show, NA
+		Loop, Parse, clone_frames_enabled, `,, `,
+		{
+			If (A_LoopField = "")
+				Break
+			If !WinExist("ahk_id " hwnd_%A_Loopfield%)
+				Gui, clone_frames_%A_Loopfield%: Show, NA
+			p%A_LoopField% := Gdip_BitmapFromScreen(clone_frame_%A_LoopField%_topleft_x "|" clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
+			w%A_LoopField% := clone_frame_%A_LoopField%_width
+			h%A_LoopField% := clone_frame_%A_LoopField%_height
+			w%A_LoopField%_dest := clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100
+			h%A_LoopField%_dest := clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100
+			hbm%A_LoopField% := CreateDIBSection(w%A_LoopField%_dest, h%A_LoopField%_dest)
+			hdc%A_LoopField% := CreateCompatibleDC()
+			omb%A_LoopField% := SelectObject(hdc%A_LoopField%, hbm%A_LoopField%)
+			g%A_LoopField% := Gdip_GraphicsFromHDC(hdc%A_LoopField%)
+			Gdip_SetInterpolationMode(g%A_LoopField%, 0)
+			Gdip_DrawImage(g%A_LoopField%, p%A_LoopField%, 0, 0, w%A_LoopField%_dest, h%A_LoopField%_dest, 0, 0, w%A_LoopField%, h%A_LoopField%, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
+			Gdip_DisposeImage(p%A_LoopField%)
+			UpdateLayeredWindow(hwnd_%A_LoopField%, hdc%A_LoopField%, clone_frame_%A_LoopField%_target_x, clone_frame_%A_LoopField%_target_y, w%A_LoopField%_dest, h%A_LoopField%_dest)
+			SelectObject(hdc%A_Loopfield%, obm%A_Loopfield%)
+			DeleteObject(hbm%A_Loopfield%)
+			DeleteDC(hdc%A_Loopfield%)
+			Gdip_DeleteGraphics(g%A_Loopfield%)
+		}
 		
+		/*
 		hbmClone_frames := CreateDIBSection(poe_width, poe_height)
 		hdcClone_frames := CreateCompatibleDC()
 		obmClone_frames := SelectObject(hdcClone_frames, hbmClone_frames)
@@ -1066,9 +1342,16 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 		DeleteObject(hbmClone_frames)
 		DeleteDC(hdcClone_frames)
 		Gdip_DeleteGraphics(GClone_frames)
+		*/
 	}
-	Else If WinExist("ahk_id " hwnd_clone_frames_window)
-		Gui, clone_frames_window: Hide
+	Else
+	{
+		Loop, Parse, clone_frames_enabled, `,, `,
+		{
+			If WinExist("ahk_id " hwnd_%A_Loopfield%)
+				Gui, clone_frames_%A_Loopfield%: Hide
+		}
+	}
 }
 Return
 
@@ -1165,7 +1448,6 @@ map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" m
 width := ""
 Loop 2
 {
-	Gui, map_mods_window: destroy
 	Gui, map_mods_window: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_window
 	If (A_Index = 1)
 		Gui, map_mods_window: Margin, 0, 0
@@ -1619,6 +1901,13 @@ If (clipboard != "")
 		Return
 	}
 }
+Else If (pixel_betrayal_color1 != "ERROR") && (pixel_betrayal_color1 != "")
+{
+	LLK_Overlay("hide")
+	If LLK_PixelSearch("betrayal")
+		GoSub, Betrayal_search
+	LLK_Overlay("show")
+}
 Return
 
 Omnikey_context_menu:
@@ -1852,7 +2141,7 @@ Return
 Pixelchecks:
 If (click = 2)
 {
-	LLK_PixelRecalibrate("gamescreen")
+	LLK_PixelRecalibrate(A_GuiControl)
 	Return
 }
 If LLK_PixelSearch(A_GuiControl)
@@ -1900,6 +2189,7 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 }
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "border" : ""
 alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
+betrayal_style := InStr(A_GuiControl, "betrayal") ? "border" : ""
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
 map_mods_style := InStr(A_GuiControl, "map") ? "border" : ""
@@ -1926,6 +2216,10 @@ If !InStr(buggy_resolutions, poe_height)
 {
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_alarm%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %betrayal_style% gSettings_menu HWNDhwnd_settings_betrayal, % "betrayal-info"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_betrayal%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
@@ -1969,6 +2263,8 @@ If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
+Else If InStr(GuiControl_copy, "betrayal")
+	GoSub, Settings_menu_betrayal
 Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
 Else If InStr(GuiControl_copy, "map")
@@ -1980,7 +2276,10 @@ Else If InStr(GuiControl_copy, "omni")
 Else If InStr(GuiControl_copy, "pixel")
 	GoSub, Settings_menu_pixelchecks
 
-ControlFocus,, ahk_id %hwnd_settings_general%
+If !InStr(GuiControl_copy, "betrayal")
+	ControlFocus,, ahk_id %hwnd_settings_general%
+Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
+
 If (xsettings_menu != "") && (ysettings_menu != "")
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
 Else
@@ -2016,6 +2315,26 @@ If (enable_alarm = 1)
 }
 Return
 
+Settings_menu_betrayal:
+Gui, betrayal_search: Destroy
+Gui, settings_menu: Add, Text, % "ys Section Center BackgroundTrans xp+"spacing_settings*1.2, text-size offset:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_plus gBetrayal_apply Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_minus gBetrayal_apply Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_plus gBetrayal_apply Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, % "member search: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Edit, % "ys x+0 hp wp BackgroundTrans Limit6 cBlack vBetrayal_searchbox HWNDhwnd_betrayal_edit",
+Gui, settings_menu: Font, % "s"fSize0
+Gui, settings_menu: Add, Button, xs BackgroundTrans Default Hidden vBetrayal_search_button gBetrayal_search, OK
+ControlFocus,, ahk_id %main_text%
+GoSub, Betrayal_search
+Return
+
 Settings_menu_clone_frames:
 new_clone_menu_closed := 0
 clone_frames_enabled := ""
@@ -2035,7 +2354,10 @@ Loop, Parse, clone_frames_list, `n, `n
 	If clone_frame_%A_LoopField%_enable is not number
 		IniRead, clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable, 1
 	If (clone_frame_%A_LoopField%_enable = 1)
+	{
 		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+		Gui, clone_frames_%A_Loopfield%: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_%A_Loopfield%
+	}
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply Checked" clone_frame_%A_LoopField%_enable " vClone_frame_" A_LoopField "_enable", % "enable: "
 	Gui, settings_menu: Font, underline
 	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gClone_frames_preview_list", % A_LoopField
@@ -2100,7 +2422,7 @@ If (A_GuiControl = "map_info")
 {
 text =
 (
-explanation:
+explanation
 0 hides the mod from now on, and higher values have distinct text-colors.
 
 it's up to you how to tier the mods and whether to use all tiers.
@@ -2112,15 +2434,15 @@ If (A_GuiControl = "pixelcheck_help")
 {
 text =
 (
-explanation:
+explanation
 left-click the button to test the pixel-check, right-click the button to calibrate.
 
 ui textures in PoE sometimes get updated in patches, which leads to pixel-checks failing. this is where you recalibrate the checks in order to continue using the script.
 
-disclaimer:
+disclaimer
 these pixel-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.
 
-they are used to let the script's ui adapt to what's happening on screen, emulating the use of an addon-api.
+they are used to let the script toggle its ui elements in order to adapt to what's happening on screen, emulating the use of an addon-api.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -2129,10 +2451,23 @@ If (A_GuiControl = "pixelcheck_enable_help")
 {
 text =
 (
-explanation:
+explanation
 this should only be disabled when experiencing severe performance drops while running the script.
 
 when disabled, overlays will not show/hide automatically (if the user navigates through in-game menus) and they have to be toggled manually.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If InStr(A_GuiControl, "betrayal")
+{
+text =
+(
+instructions
+to recalibrate, open the syndicate board and DO NOT move it or zoom into it.
+
+explanation
+this check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -2141,13 +2476,13 @@ If InStr(A_GuiControl, "gamescreen")
 {
 text =
 (
-instructions:
-when recalibrating, make sure this panel with info on realm && league is visible in the top-right corner of the screen.
+instructions
+to recalibrate, close the inventory and every menu until you're on the main screen (where you control your character). then, set the mini-map to overlay-mode on the center of the screen.
 
-explanation:
-this check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+explanation
+this check helps the script identify whether the user is in a menu or on the regular 'gamescreen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*16 " w-1", img\GUI\game_screen.jpg
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\game_screen.jpg
 	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
@@ -2155,12 +2490,15 @@ If InStr(A_GuiControl, "omnikey")
 {
 text =
 (
-explanation:
+explanation
 this hotkey is context-sensitive and used to access the majority of this script's features. it's meant to be the only hotkey you have to use while playing.
 
-used to access:
+this feature does not block the key-press from being sent to the client. if you still want/need to rebind it, bind it to a key that's not used for chatting.
+
+used to access
 - context-menu for items
 - map mods panel
+- betrayal cheat-sheet
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -2169,10 +2507,10 @@ If (A_GuiControl = "pixelcheck_auto_trigger")
 {
 text =
 (
-explanation:
+explanation
 allows the script to automatically hide/show its overlays by adapting to what's happening on screen.
 
-requires 'game-screen' pixel-check to be set up correctly and playing with the mini-map in the center of the screen.
+requires 'gamescreen' pixel-check to be set up correctly and playing with the mini-map in the center of the screen.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -2258,9 +2596,13 @@ Settings_menu_pixelchecks:
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, % "list of integrated pixel-checks: "
 ControlGetPos,,,, height,, ahk_id %main_text%
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks vGamescreen y+"fSize0*1.2, % " check | calibrate "
-Gui, settings_menu: Font, underline
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help vGamescreen_help HWNDmain_text", % "game-screen"
+Loop, Parse, pixelchecks_list, `n, `n
+{
+	Gui, settings_menu: Font, norm	
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gPixelchecks v" A_Loopfield " y+"fSize0*1.2, % " check | calibrate "
+	Gui, settings_menu: Font, underline
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help HWNDmain_text", % A_Loopfield
+}
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gPixelchecks_settings_apply vEnable_pixelchecks Center y+"fSize0*1.2 " Checked"enable_pixelchecks, % "enable background pixel-checks"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_enable_help hp w-1", img\GUI\help.png
@@ -2273,6 +2615,11 @@ kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 Gui, settings_menu: Destroy
 hwnd_settings_menu := ""
 
+If WinExist("ahk_id " hwnd_betrayal_info_1)
+{
+	Loop 4
+		LLK_Overlay("betrayal_info_" A_Index, "hide")
+}
 If WinExist("ahk_id " hwnd_notepad_sample)
 {
 	Gui, notepad_sample: Destroy
@@ -2284,6 +2631,7 @@ If WinExist("ahk_id " hwnd_alarm_sample)
 	Gui, alarm_sample: Destroy
 	hwnd_alarm_sample := ""
 }
+WinActivate, ahk_group poe_window
 Return
 
 ToolTip_clear:
@@ -2304,14 +2652,22 @@ LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
 	If (gui="hide")
 	{
 		Loop, Parse, guilist, |, |
+		{
+			If (A_Loopfield = "")
+				Break
 			Gui, %A_LoopField%: Hide
+		}
 		Return
 	}
 	If (gui="show")
 	{
 		Loop, Parse, guilist, |, |
+		{
+			If (A_Loopfield = "")
+				Break
 			If (state_%A_LoopField%=1) && (hwnd_%A_LoopField% != "")
 				Gui, %A_LoopField%: Show, NA
+		}
 		Return
 	}
 	If (toggleshowhide="toggle")
@@ -2346,27 +2702,24 @@ LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
 LLK_PixelRecalibrate(name)
 {
 	global
-	IniRead, pixel_%name%_x1, data\Resolutions.ini, %poe_height%p, %name% x-coordinate 1
-	IniRead, pixel_%name%_y1, data\Resolutions.ini, %poe_height%p, %name% y-coordinate 1
-	If (name != "gamescreen")
-	{
-		IniRead, pixel_%name%_x2, data\Resolutions.ini, %poe_height%p, %name% x-coordinate 2
-		IniRead, pixel_%name%_y2, data\Resolutions.ini, %poe_height%p, %name% y-coordinate 2
-	}
 	loopcount := (name = "gamescreen") ? 1 : 2
 	Loop %loopcount%
 	{
-		PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffSet + poe_width - pixel_%name%_x%A_Index%, % yScreenOffSet + pixel_%name%_y%A_Index%, RGB
-		IniWrite, % pixel_%name%_color%A_Index%, ini\pixel checks (%poe_height%p).ini, gamescreen, color %A_Index%
+		If (name = "gamescreen")
+			PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffset + poe_width - pixel_%name%_x%A_Index%, % yScreenOffset + pixel_%name%_y%A_Index%, RGB
+		Else PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffset + pixel_%name%_x%A_Index%, % yScreenoffset + pixel_%name%_y%A_Index%, RGB
+		IniWrite, % pixel_%name%_color%A_Index%, ini\pixel checks (%poe_height%p).ini, %name%, color %A_Index%
 	}
 }
 
 LLK_PixelSearch(name)
 {
 	global
-	PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+	If (name = "gamescreen")
+		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+	Else PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
 	If (ErrorLevel = 0) && (name != "gamescreen")
-		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, xScreenOffSet + poe_width - pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
+		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
 	%name% := (ErrorLevel=0) ? 1 : 0
 	value := %name%
 	Return value
@@ -2381,7 +2734,7 @@ LLK_Rightclick()
 	click := 1
 }
 
-LLK_ToolTip(message, duration := 1)
+LLK_ToolTip(message, duration := 1, x := "", y := "")
 {
 	global
 	mouseYpos := ""
@@ -2390,7 +2743,7 @@ LLK_ToolTip(message, duration := 1)
 		MouseGetPos,, mouseYpos
 		mouseYpos -= fSize0
 	}
-	ToolTip, % message,, %mouseYpos%, 17
+	ToolTip, % message, %x%, %y%, 17
 	SetTimer, ToolTip_clear, % 1000 * duration
 }
 
