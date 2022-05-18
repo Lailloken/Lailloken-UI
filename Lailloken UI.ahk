@@ -861,6 +861,7 @@ If InStr(A_GuiControl, "pixel")
 	If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 	{
 		LLK_ToolTip("pixel-check setup required")
+		clone_frames_pixelcheck_enable := 0
 		GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
 		Return
 	}
@@ -1703,6 +1704,7 @@ If (A_GuiControl = "Map_info_pixelcheck_enable")
 	If (pixel_gamescreen_color1 = "") || (pixel_gamescreen_color1 = "ERROR")
 	{
 		LLK_ToolTip("pixel-check setup required")
+		map_info_pixelcheck_enable := 0
 		GuiControl, settings_menu: , Map_info_pixelcheck_enable, 0
 		Return
 	}
