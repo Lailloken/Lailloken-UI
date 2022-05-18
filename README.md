@@ -14,6 +14,8 @@
 <br>
 
 #### advanced search:
+![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png)  
+
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
 *****
 ### Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
