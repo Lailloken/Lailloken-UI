@@ -2469,7 +2469,7 @@ instructions
 to recalibrate, open the syndicate board and DO NOT move it or zoom into it.
 
 explanation
-this check helps the script identify whether the user is in a menu or on the regular 'game-screen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the info-sheet, and the script to hide the overlay automatically once the board is closed.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
