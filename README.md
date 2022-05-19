@@ -19,9 +19,15 @@
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
 *****
 ### Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
+#### countdown/alarm-timer:
 ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
+#### notepad overlay:
 ![image](https://user-images.githubusercontent.com/61888437/165969218-dff53584-6fbf-4c55-bbca-ea27f918aca5.png) 
 ![image](https://user-images.githubusercontent.com/61888437/165969262-fb0bdac5-39ea-4755-a0fa-8fc97b32a8d1.png)  
+#### orb of horizons tooltips:
+![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
+#### lab layout overlay:
+![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)
 *****
 <br>
 
