@@ -39,7 +39,7 @@ Loop, Parse, clone_frames_failcheck, `n, `n
 }
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
-If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini")
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini")
 	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
@@ -184,6 +184,23 @@ Loop, Parse, clone_frames_list, `n, `n
 	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
 }
 
+Loop 16
+{
+	IniRead, maps_tier%A_Index%, data\Atlas.ini, Maps, tier%A_Index%
+	maps_list := (maps_list = "") ? StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),") : maps_list StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),")
+	Sort, maps_tier%A_Index%, D`,
+	maps_tier%A_Index% := SubStr(maps_tier%A_Index%, 1, -1)
+	maps_tier%A_Index% := StrReplace(maps_tier%A_Index%, ",", "`n")
+}
+Sort, maps_list, D`,
+Loop, Parse, maps_list, `,, `,
+{
+	If (A_Loopfield = "")
+		break
+	letter := SubStr(A_Loopfield, 1, 1)
+	maps_%letter% := (maps_%letter% = "") ? A_Loopfield : maps_%letter% "`n" A_Loopfield
+}
+
 IniRead, map_info_y, data\Resolutions.ini, %poe_height%p, map info y-coordinate, 0
 IniRead, map_toggle_x, data\Resolutions.ini, %poe_height%p, map toggle x-coordinate, 0
 IniRead, map_toggle_y, data\Resolutions.ini, %poe_height%p, map toggle y-coordinate, 0
@@ -275,7 +292,7 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|lab_layout|lab_marker|"
 buggy_resolutions := "768,1024,1050"
 
 timeout := 0
@@ -339,6 +356,41 @@ SendInput, {Enter}
 GoSub, Settings_menu
 Return
 
+::/lab::
+SendInput, {Enter}
+If (lab_mode != 1)
+	GoSub, Lab_info
+Else
+{
+	lab_mode := 0
+	Gui, lab_layout: Destroy
+	Gui, lab_marker: Destroy
+	hwnd_lab_layout := ""
+	hwnd_lab_marker := ""
+}
+Return
+
+Tab::
+If (lab_mode = 1)
+{
+	start := A_TickCount
+	While GetKeyState("Tab", "P")
+	{
+		If (A_TickCount >= start + 200)
+		{
+			GoSub, Lab_info
+			KeyWait, Tab
+			Return
+		}
+	}
+}
+SendInput, {Tab}
+Return
+
+;F2::
+;Gdip_SaveBitmapToFile(Gdip_CloneBitmapArea(Gdip_CreateBitmapFromClipboard(), 257, 42, 1175, 521), "test.bmp", 100)
+;Return
+
 #If WinExist("ahk_id " hwnd_clone_frames_menu)
 
 F1::
@@ -371,6 +423,35 @@ Return
 #If WinExist("ahk_id " hwnd_betrayal_search)
 
 ESC::Gui, betrayal_search: Destroy
+
+#If (horizon_toggle = 1)
+	
+a::
+b::
+c::
+d::
+e::
+f::
+g::
+h::
+i::
+j::
+k::
+l::
+m::
+n::
+o::
+p::
+q::
+r::
+s::
+t::
+u::
+v::
+w::
+x::
+y::
+z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
 
 #If
 
@@ -462,8 +543,7 @@ If (click = 2) || (hwnd_alarm = "")
 		If (alarm_xpos = "") || (alarm_ypos = "")
 			Gui, alarm: Show, Hide Center
 		Else Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos%
-		LLK_Overlay("alarm", "show", 1)
-		WinGetPos,,,, alarm_height, ahk_id %hwnd_alarm%
+		LLK_Overlay("alarm", "show", 0)
 		Return
 	}
 }
@@ -1126,6 +1206,7 @@ clone_frame_%clone_frame_new_name_save%_height := clone_frame_new_height
 clone_frame_%clone_frame_new_name_save%_scale_x := clone_frame_new_scale_x
 clone_frame_%clone_frame_new_name_save%_scale_y := clone_frame_new_scale_y
 clone_frame_%clone_frame_new_name_save%_opacity := clone_frame_new_opacity
+guilist := InStr(guilist, clone_frame_new_name_save) ? guilist : guilist "clone_frames_" clone_frame_new_name_save "|"
 GoSub, Clone_frames_menuGuiClose
 Return
 
@@ -1188,6 +1269,67 @@ Loop, Parse, clone_frames_enabled, `,, `,
 }
 Return
 
+Lab_info:
+If (A_Gui = "context_menu") || InStr(A_ThisHotkey, "::")
+{
+	lab_mode := 1
+	Run, https://www.poelab.com
+	Return
+}
+If (A_GuiControl = "Lab_marker")
+{
+	Gui, lab_marker: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lab_marker
+	Gui, lab_marker: Color, White
+	WinSet, Transparent, 100
+	MouseGetPos, mouseXpos, mouseYpos
+	Gui, lab_marker: Show, % "NA w"poe_width * 3//160 * 212//235 " h"poe_width * 3//160 * 212//235 " x"mouseXpos - (poe_width * 3//160 * 212//235)//2 " y"mouseYpos - (poe_width * 3//160 * 212//235)//2
+	LLK_Overlay("lab_marker", "show")
+	WinActivate, ahk_group poe_window
+	Return
+}
+If (A_ThisHotkey = "Tab")
+{
+	If (hwnd_lab_layout = "")
+	{
+		If (Gdip_CreateBitmapFromClipboard() < 0)
+		{
+			LLK_ToolTip("no image-data in clipboard", 1.5, xScreenOffSet + poe_width//2, yScreenOffSet + poe_height//2)
+			KeyWait, Tab
+			Return
+		}
+		pLab_source := Gdip_CloneBitmapArea(Gdip_CreateBitmapFromClipboard(), 257, 42, 1175, 521)
+		wLab_source := 1175
+		hLab_source := 521
+		hbmLab_source := CreateDIBSection(wLab_source, hLab_source)
+		hdcLab_source := CreateCompatibleDC()
+		obmLab_source := SelectObject(hdcLab_source, hbmLab_source)
+		gLab_source := Gdip_GraphicsFromHDC(hdcLab_source)
+		Gdip_SetInterpolationMode(gLab_source, 0)
+		Gdip_DrawImage(gLab_source, pLab_source, 0, 0, wLab_source, hLab_source, 0, 0, wLab_source, hLab_source, 1)
+		Gui, lab_layout: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lab_layout, Lailloken UI: lab-info
+		Gui, lab_layout: Color, Black
+		Gui, lab_layout: Margin, 0, 0
+		Gui, lab_layout: Font, s%fSize0% cWhite, Fontin SmallCaps
+		Gui, lab_layout: Add, Picture, % "BackgroundTrans vLab_marker gLab_info w" poe_width * 53//128 " h-1", HBitmap:*%hbmLab_source%
+		Gui, lab_layout: Show, Hide
+		WinGetPos,,,, hWin
+		Gui, lab_layout: Show, % "NA x"xScreenOffSet + poe_width * 75//256 " y"yScreenOffSet + poe_height - hWin
+		LLK_Overlay("lab_layout", "show")
+		SelectObject(hdcLab_source, obmLab_source)
+		DeleteObject(hbmLab_source)
+		DeleteDC(hdcLab_source)
+		Gdip_DeleteGraphics(gLab_source)
+		Gdip_DisposeImage(pLab_source)
+	}
+	Else
+	{
+		LLK_Overlay("lab_layout", "toggle")
+		LLK_Overlay("lab_marker", "toggle")
+	}
+	KeyWait, Tab
+}
+Return
+
 Loop:
 If !WinExist("ahk_group poe_window")
 	poe_window_closed := 1
@@ -1228,7 +1370,7 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 		{
 			WinSet, Style, +0xC00000, ahk_id %hwnd_alarm%
 			WinSet, ExStyle, -0x20, ahk_id %hwnd_alarm%
-			Gui, alarm: Show, % "NA h"alarm_height//2
+			Gui, alarm: Show, % "NA AutoSize"
 		}
 		If !WinExist("ahk_id " hwnd_alarm) && WinExist("ahk_group poe_window")
 			LLK_Overlay("alarm", "show")
@@ -1251,7 +1393,6 @@ If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 	If (inactive_counter != 0)
 	{
 		inactive_counter := 0
-		Gui, omni_info: Destroy
 		LLK_Overlay("show")
 	}
 	If (pixelchecks_enabled != "") && (enable_pixelchecks = 1)
@@ -1871,24 +2012,68 @@ If (clipboard != "")
 {
 	start := A_TickCount
 	ThisHotkey_copy := StrReplace(A_ThisHotkey, "~", "")
-	While GetKeyState(ThisHotkey_copy, "P")
+	If InStr(clipboard, "Attacks per Second:")
 	{
-		If (A_TickCount >= start + 300)
+		While GetKeyState(ThisHotkey_copy, "P")
 		{
-			If InStr(clipboard, "Attacks per Second:")
+			If (A_TickCount >= start + 200)
+			{
 				GoSub, Omnikey_dps
-			KeyWait, %ThisHotkey_copy%
-			Return
+				KeyWait, %ThisHotkey_copy%
+				Return
+			}
 		}
+		KeyWait, %ThisHotkey_copy%
 	}
-	KeyWait, %ThisHotkey_copy%
-	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency")
+	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess")
 	{
 		GoSub, Omnikey_context_menu
 		Return
 	}
-	If InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Rarity: Normal") && !InStr(clipboard, "Rarity: Unique") && !InStr(clipboard, "Unidentified")
+	If InStr(clipboard, "Orb of Horizons")
 	{
+		While GetKeyState(ThisHotkey_copy, "P")
+		{
+			If (A_TickCount >= start + 200)
+			{
+				horizon_toggle := 1
+				LLK_Omnikey_ToolTip(maps_a)
+				KeyWait, %ThisHotkey_copy%
+				horizon_toggle := 0
+				LLK_Omnikey_ToolTip()
+				Return
+			}
+		}
+	}
+	If InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Fragment")
+	{
+		
+		start := A_TickCount
+		While GetKeyState(ThisHotkey_copy, "P")
+		{
+			If (A_TickCount >= start + 200)
+			{
+				Loop, Parse, Clipboard, `r`n, `r`n
+				{
+					If InStr(A_Loopfield, "Map Tier: ")
+					{
+						parse_tier := StrReplace(A_Loopfield, "Map Tier: ")
+						Break
+					}
+				}
+				If InStr(clipboard, "maze of the minotaur") || InStr(clipboard, "forge of the phoenix") || InStr(clipboard, "lair of the hydra") || InStr(clipboard, "pit of the chimera")
+					LLK_Omnikey_ToolTip("horizons:maze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" )
+				Else LLK_Omnikey_ToolTip("horizons:" maps_tier%parse_tier%)
+				KeyWait, %ThisHotkey_copy%
+				LLK_Omnikey_ToolTip()
+				Return
+			}
+		}
+		If InStr(clipboard, "Unidentified") || InStr(clipboard, "Rarity: Normal") || InStr(clipboard, "Rarity: Unique")
+		{
+			LLK_ToolTip("not supported:`nnormal, unique, un-ID")
+			Return
+		}
 		If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 		{
 			LLK_ToolTip("pixel-check setup required")
@@ -1897,18 +2082,13 @@ If (clipboard != "")
 		GoSub, Map_info
 		Return
 	}
-	Else
-	{
-		LLK_ToolTip("not supported:`nnormal, unique, un-ID")
-		Return
-	}
 }
 Else If (pixel_betrayal_color1 != "ERROR") && (pixel_betrayal_color1 != "")
 {
-	LLK_Overlay("hide")
+	;LLK_Overlay("hide")
 	If LLK_PixelSearch("betrayal")
 		GoSub, Betrayal_search
-	LLK_Overlay("show")
+	;LLK_Overlay("show")
 }
 Return
 
@@ -1920,6 +2100,11 @@ WinSet, Transparent, %trans%
 Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
 If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
 	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
+Else If InStr(clipboard, "to the goddess")
+{
+	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
+	Gui, context_menu: Add, Text, vlab_layout gOmnikey_menu_selection BackgroundTrans Center, lab info
+}
 Else
 {
 	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
@@ -2107,15 +2292,12 @@ ToolTip,,,,1
 Return
 
 Omnikey_menu_selection:
-Gui, omni_info: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_omni_info, Lailloken UI: Omni-key Info
-Gui, omni_info: Margin, 12, 4
-Gui, omni_info: Color, Black
-WinSet, Transparent, %trans%
-Gui, omni_info: Font, cWhite s%fSize0%, Fontin SmallCaps
 If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
 	GoSub, Omnikey_craft_chrome
-If InStr(A_GuiControl, "wiki")
+Else If InStr(A_GuiControl, "wiki")
 	GoSub, Omnikey_wiki
+Else If InStr(A_GuiControl, "layout")
+	GoSub, Lab_info
 Gui, context_menu: destroy
 Return
 
@@ -2500,7 +2682,9 @@ this feature does not block the key-press from being sent to the client. if you 
 used to access
 - context-menu for items
 - map mods panel
-- betrayal cheat-sheet
+- map horizons info
+- orb of horizons search
+- betrayal info-sheet
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -2646,6 +2830,41 @@ LLK_Error(ErrorMessage)
 	global
 	MsgBox, % ErrorMessage
 	ExitApp
+}
+
+LLK_Omnikey_ToolTip(text:=0)
+{
+	global
+	If (text = 0)
+	{
+		Gui, omnikey_tooltip: Destroy
+		Return
+	}
+	If (text = "")
+	{
+		SoundBeep
+		Return
+	}
+	Gui, omnikey_tooltip: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_omnikey_tooltip,
+	Gui, omnikey_tooltip: Color, Black
+	Gui, omnikey_tooltip: Margin, 12, 4
+	WinSet, Transparent, %trans%
+	Gui, omnikey_tooltip: Font, s%fSize0% cWhite, Fontin SmallCaps
+	If InStr(text, "horizons:")
+	{
+		text := StrReplace(text, "horizons:")
+		Gui, omnikey_tooltip: Font, underline
+		Gui, omnikey_tooltip: Add, Text, Section BackgroundTrans, % "horizons:"
+		Gui, omnikey_tooltip: Font, norm
+		Gui, omnikey_tooltip: Add, Text, xs BackgroundTrans, % text
+	}
+	Else Gui, omnikey_tooltip: Add, Text, BackgroundTrans, % text
+	Gui, omnikey_tooltip: Show, Hide AutoSize
+	MouseGetPos, mouseXpos, mouseYpos
+	WinGetPos, winX, winY, winW, winH, ;ahk_id %hwnd_omnikey_tooltip%
+	tooltip_posX := (mouseXpos - winW < xScreenOffSet) ? xScreenOffSet : mouseXpos - winW
+	tooltip_posy := (mouseYpos - winH < yScreenOffSet) ? yScreenOffSet : mouseYpos - winH
+	Gui, omnikey_tooltip: Show, % "NA AutoSize x"tooltip_posX " y"tooltip_posy
 }
 
 LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
