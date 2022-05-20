@@ -25,10 +25,7 @@ If !pToken := Gdip_Startup()
 	ExitApp
 }
 
-GroupAdd, poe_window, ahk_exe PathOfExile.exe
-GroupAdd, poe_window, ahk_exe PathOfExile_x64.exe
-GroupAdd, poe_window, ahk_exe PathOfExileSteam.exe
-GroupAdd, poe_window, ahk_exe PathOfExile_x64Steam.exe
+GroupAdd, poe_window, ahk_class POEWindowClass
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 
 IniRead, clone_frames_failcheck, ini\clone frames.ini
