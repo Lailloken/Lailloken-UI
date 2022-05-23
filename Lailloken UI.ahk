@@ -937,7 +937,7 @@ While GetKeyState(ThisHotkey_copy, "P")
 	}
 }
 
-If ((A_Gui = "") && !WinExist("ahk_id " hwnd_betrayal_search) && (betrayal_enable_recognition = 0)) || ((betrayal_enable_recognition = 1) && GetKeyState("LShift", "P") && !WinExist("ahk_id " hwnd_betrayal_search)) || InStr(A_ThisHotkey, ":")
+If ((A_Gui = "") && !WinExist("ahk_id " hwnd_betrayal_search) && (betrayal_enable_recognition = 0)) || ((betrayal_enable_recognition = 1) && GetKeyState("LShift", "P") && !WinExist("ahk_id " hwnd_betrayal_search))
 {
 	Gui, settings_menu: Destroy
 	hwnd_settings_menu := ""
@@ -2757,7 +2757,7 @@ Return
 
 Settings_menu_betrayal:
 Gui, betrayal_search: Destroy
-Gui, settings_menu: Add, Checkbox, % "ys Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans xp+"spacing_settings*1.2 " Checked"betrayal_enable_recognition, use image recognition instead of text-search`n(screen-check setup required)
+Gui, settings_menu: Add, Checkbox, % "ys Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans xp+"spacing_settings*1.2 " Checked"betrayal_enable_recognition, use image recognition instead of text-search`n(requires additional setup)
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "0"
@@ -2961,7 +2961,7 @@ If InStr(A_GuiControl, "betrayal")
 text =
 (
 instructions
-to recalibrate, open the syndicate board and screen-cap an area above the health globe.
+to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap an area above the health globe.
 
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the info-sheet.
