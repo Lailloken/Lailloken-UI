@@ -492,9 +492,9 @@ If (A_Gui = "settings_menu")
 	{
 		Gui, alarm_sample: Show, Hide AutoSize
 		WinGetPos,,, win_width, win_height
-		Gui, alarm_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet + poe_height//2 - win_height//2
+		Gui, alarm_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet
 	}
-	LLK_Overlay("alarm_sample", "show")
+	LLK_Overlay("alarm_sample", "show", 0)
 	Return
 }
 
@@ -2154,7 +2154,7 @@ If (A_Gui = "settings_menu")
 	{
 		Gui, notepad_sample: Show, % "Hide AutoSize"
 		WinGetPos,,, win_width, win_height
-		Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet + poe_height//2 - win_height//2
+		Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet
 	}
 	LLK_Overlay("notepad_sample", "show")
 	Return
@@ -3147,6 +3147,7 @@ LLK_ImageSearch(name)
 	%name% := Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, 0, 0, 0, 0, 25,, 1, 1)
 	Gdip_DisposeImage(pHaystack_ImageSearch)
 	Gdip_DisposeImage(pNeedle_ImageSearch)
+	Gdip_DisposeImage(%name%)
 	If (%name% > 0)
 		Return 1
 	Else Return 0
