@@ -8,7 +8,7 @@
 ### Context-menu for items to quickly access popular 3rd-party websites ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))  
 ![context1](https://user-images.githubusercontent.com/61888437/162455047-080586b1-dd33-400e-940d-1e716b254ad0.jpg)![context2](https://user-images.githubusercontent.com/61888437/162455067-602def7f-4b1d-4074-a8af-db012e9325f7.jpg)  
 *****
-### Customizable & searchable betrayal info-sheet ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
+### Customizable & searchable betrayal info-sheet (with optional image recognition) ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
 #### simple search + customization:
 ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
 <br>
@@ -17,6 +17,9 @@
 ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png)  
 
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
+*****
+### Improved beastcrafting search
+![beastcrafting](https://user-images.githubusercontent.com/61888437/169816073-30c82c30-3b42-429c-ae34-ed7d4683669e.png)  
 *****
 ### Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
 #### countdown/alarm-timer:
@@ -27,7 +30,9 @@
 #### orb of horizons tooltips:
 ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
 #### lab layout overlay:
-![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)
+![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
+#### one-click Gwennen regex
+![image](https://user-images.githubusercontent.com/61888437/169816828-5e98ca38-ec54-421a-b6f6-26147805a6da.png)
 *****
 <br>
 
