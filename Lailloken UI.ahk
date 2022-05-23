@@ -2713,7 +2713,11 @@ Else If InStr(GuiControl_copy, "screen")
 	GoSub, Settings_menu_screenchecks
 
 If !InStr(GuiControl_copy, "betrayal")
+{
 	ControlFocus,, ahk_id %hwnd_settings_general%
+	Loop 4
+		LLK_Overlay("betrayal_info_" A_Index, "hide")
+}
 Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
 
 If ((xsettings_menu != "") && (ysettings_menu != ""))
@@ -2891,7 +2895,7 @@ left-click the button to test the pixel-check, right-click the button to calibra
 ui textures in PoE sometimes get updated in patches, which leads to screen-checks failing. this is where you recalibrate the checks in order to continue using the script.
 
 disclaimer
-these pixel-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.
+these screen-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.
 
 they are used to let the script toggle its ui elements in order to adapt to what's happening on screen, emulating the use of an addon-api.
 )
