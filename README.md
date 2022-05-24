@@ -1,13 +1,13 @@
 # Features
 ### Clone-frames: pseudo-customization of the in-game interface ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
-*****
+***
 ### Overhauled map-info panel: streamlined and customizable ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
 ![header](https://user-images.githubusercontent.com/61888437/168431773-71ba048b-877d-4bfd-a9bf-afdc52b4b1ff.png)  
-*****
+***
 ### Context-menu for items to quickly access popular 3rd-party websites ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))  
 ![context1](https://user-images.githubusercontent.com/61888437/162455047-080586b1-dd33-400e-940d-1e716b254ad0.jpg)![context2](https://user-images.githubusercontent.com/61888437/162455067-602def7f-4b1d-4074-a8af-db012e9325f7.jpg)  
-*****
+***
 ### Customizable & searchable betrayal info-sheet (with optional image recognition) ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
 #### simple search + customization:
 ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
@@ -17,12 +17,13 @@
 ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png)  
 
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
-*****
+***
 ### Improved beastcrafting search
 ![beastcrafting](https://user-images.githubusercontent.com/61888437/169816073-30c82c30-3b42-429c-ae34-ed7d4683669e.png)  
-*****
+***
 ### lab layout overlay ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay))
 ![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
+***
 ### Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
 #### countdown/alarm-timer:
 ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
@@ -33,7 +34,7 @@
 ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
 #### one-click Gwennen regex
 ![image](https://user-images.githubusercontent.com/61888437/169816828-5e98ca38-ec54-421a-b6f6-26147805a6da.png)
-*****
+***
 <br>
 
 # Installation & Requirements
@@ -43,11 +44,11 @@
 ![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)  
 <br>
 
-*****
+***
 # [Known issues / limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) (LINK)  
 <br>
 
-*****
+***
 # Ideas & Feedback
 I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).
 
