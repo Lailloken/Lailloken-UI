@@ -21,6 +21,8 @@
 ### Improved beastcrafting search
 ![beastcrafting](https://user-images.githubusercontent.com/61888437/169816073-30c82c30-3b42-429c-ae34-ed7d4683669e.png)  
 *****
+### lab layout overlay ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay))
+![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
 ### Several minor QoL improvements ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features))  
 #### countdown/alarm-timer:
 ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
@@ -29,8 +31,6 @@
 ![image](https://user-images.githubusercontent.com/61888437/165969262-fb0bdac5-39ea-4755-a0fa-8fc97b32a8d1.png)  
 #### orb of horizons tooltips:
 ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
-#### lab layout overlay:
-![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
 #### one-click Gwennen regex
 ![image](https://user-images.githubusercontent.com/61888437/169816828-5e98ca38-ec54-421a-b6f6-26147805a6da.png)
 *****
