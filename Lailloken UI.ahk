@@ -1564,12 +1564,17 @@ Return
 
 Loop:
 If !WinExist("ahk_group poe_window")
+{
 	poe_window_closed := 1
+	hwnd_poe_client := ""
+}
 If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
 	ExitApp
 If WinExist("ahk_group poe_window")
 {
 	last_check := A_TickCount
+	If (hwnd_poe_client = "")
+		hwnd_poe_client := WinExist("ahk_group poe_window")
 	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
 	{
 		If !WinActive("ahk_class POEWindowClass")
