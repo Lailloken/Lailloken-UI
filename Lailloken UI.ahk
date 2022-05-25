@@ -106,6 +106,8 @@ If !FileExist("img\Recognition (" poe_height "p\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
 
 trans := 220
+imagesearch_variation := 25
+pixelsearch_variation := 0
 
 IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
 IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
@@ -217,6 +219,7 @@ IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
 IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
 If fSize_offset_map_info is not number
 	fSize_offset_map_info := 0
+IniRead, map_info_side, ini\map info.ini, Settings, side, right
 IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
 IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
 If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
@@ -279,6 +282,12 @@ Else
 IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
 IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1
 IniRead, pixel_gamescreen_color1, ini\pixel checks (%poe_height%p).ini, gamescreen, color 1
+
+If WinExist("ahk_exe GeForceNOW.exe")
+{
+	IniRead, pixelsearch_variation, ini\geforce now.ini, Settings, pixel-check variation, 0
+	IniRead, imagesearch_variation, ini\geforce now.ini, Settings, image-check variation, 25
+}
 
 pixelchecks_list := "gamescreen"
 Sort, pixelchecks_list, D`,
@@ -1038,7 +1047,7 @@ Else If (betrayal_enable_recognition = 1) && (A_Gui = "")
 	Loop, Files, img\Recognition (%poe_height%p)\Betrayal\*.bmp
 	{
 		pNeedle_betrayal := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-		pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, 25,, 1, 1)
+		pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation,, 1, 1)
 		Gdip_DisposeImage(pNeedle_betrayal)
 		Gdip_DisposeImage(pSearch_betrayal)
 		If (pSearch_betrayal > 0)
@@ -1397,6 +1406,18 @@ If (timeout != 1)
 	}
 }
 ExitApp
+Return
+
+Geforce_now_apply:
+Gui, settings_menu: Submit, NoHide
+pixelsearch_variation := (pixelsearch_variation = "") ? 0 : pixelsearch_variation
+pixelsearch_variation := (pixelsearch_variation > 255) ? 255 : pixelsearch_variation
+imagesearch_variation := (imagesearch_variation = "") ? 0 : imagesearch_variation
+imagesearch_variation := (imagesearch_variation > 255) ? 255 : imagesearch_variation
+If (A_GuiControl = "pixelsearch_variation")
+	IniWrite, % pixelsearch_variation, ini\geforce now.ini, Settings, pixel-check variation
+If (A_GuiControl = "imagesearch_variation")
+	IniWrite, % imagesearch_variation, ini\geforce now.ini, Settings, image-check variation
 Return
 
 GUI:
@@ -1796,13 +1817,7 @@ Loop, Parse, parseboard, `n, `n
 		}
 	}
 }
-/*
-map_mods_panel_text := ""
-map_mods_panel_text := (map_mods_panel_player = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_player
-map_mods_panel_text := (map_mods_panel_monsters = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_monsters
-map_mods_panel_text := (map_mods_panel_bosses = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_bosses
-map_mods_panel_text := (map_mods_panel_area = "") ? map_mods_panel_text: map_mods_panel_text "`n" map_mods_panel_area
-*/
+
 map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" map_mods_panel_bosses "`n" map_mods_panel_area
 width := ""
 Loop 2
@@ -1817,7 +1832,7 @@ Loop 2
 	Gui, map_mods_window: Font, % "s"fSize0 + fSize_offset_map_info " cWhite underline", Fontin SmallCaps
 	If (player != "")
 	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, player:
+		Gui, map_mods_window: Add, Text, BackgroundTrans %map_info_side% %style_map_mods%, player:
 		Gui, map_mods_window: Font, norm
 		Loop, Parse, player, `n, `n
 		{
@@ -1829,13 +1844,13 @@ Loop 2
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
 			window_text := StrReplace(A_LoopField, "," window_ID, " ")
 			window_text := StrReplace(window_text, "?", "`n")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
 		Gui, map_mods_window: Font, underline
 	}
 	If (monsters != "")
 	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, monsters:
+		Gui, map_mods_window: Add, Text, BackgroundTrans %map_info_side% %style_map_mods%, monsters:
 		Gui, map_mods_window: Font, norm
 		Loop, Parse, monsters, `n, `n
 		{
@@ -1845,16 +1860,16 @@ Loop 2
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
 			window_text := StrReplace(window_text, "?", "`n")
 			window_text := StrReplace(window_text, "$")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
 		Gui, map_mods_window: Font, underline
 	}
 	If (bosses != "")
 	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, boss:
+		Gui, map_mods_window: Add, Text, BackgroundTrans %map_info_side% %style_map_mods%, boss:
 		Gui, map_mods_window: Font, norm
 		Loop, Parse, bosses, `n, `n
 		{
@@ -1864,15 +1879,15 @@ Loop 2
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := StrReplace(A_LoopField, "," window_ID, " ")
+			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
 			window_text := StrReplace(window_text, "a0e", "aoe")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
 		Gui, map_mods_window: Font, underline
 	}
 	If (area != "")
 	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans Right %style_map_mods%, area:
+		Gui, map_mods_window: Add, Text, BackgroundTrans %map_info_side% %style_map_mods%, area:
 		Gui, map_mods_window: Font, norm
 		Loop, Parse, area, `n, `n
 		{
@@ -1882,8 +1897,8 @@ Loop 2
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := StrReplace(A_LoopField, "," window_ID, " ")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% Right %style_map_mods% y+0, %window_text%
+			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
+			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
 		Gui, map_mods_window: Font, underline
 	}
@@ -1894,10 +1909,6 @@ Loop 2
 	}
 	Else
 	{
-		Gui, map_mods_window: Show, Hide
-		WinGetPos,,, width
-		Gui, map_mods_window: Show, % "Hide x"xScreenOffSet + poe_width - width " y"yScreenOffSet + map_info_y
-		LLK_Overlay("map_mods_window", "show")
 		Gui, map_mods_toggle: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_toggle
 		Gui, map_mods_toggle: Margin, 4, 2
 		Gui, map_mods_toggle: Color, Black
@@ -1911,8 +1922,18 @@ Loop 2
 		pic_style := (poe_height = "900") ? "h9 w-1" : pic_style
 		pic_style := (poe_height = "720") ? "h6 w-1" : pic_style
 		Gui, map_mods_toggle: Add, Picture, vMap_mods_toggle_pic BackgroundTrans gMap_mods_toggle %pic_style%, img\GUI\map_mod_button_hide.png
-		Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet + poe_width - map_toggle_x " y"yScreenOffSet + map_toggle_y
+		If (map_info_side = "right")
+			Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet + poe_width - map_toggle_x " y"yScreenOffSet + map_toggle_y
+		Else Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet " y"yScreenOffSet + map_toggle_y
 		LLK_Overlay("map_mods_toggle", "show")
+		If (map_info_side = "left")
+			WinGetPos,, yToggle,, hToggle, ahk_id %hwnd_map_mods_toggle%
+		Gui, map_mods_window: Show, NA
+		WinGetPos,,, width,, ahk_id %hwnd_map_mods_window%
+		If (map_info_side = "right")
+			Gui, map_mods_window: Show, % "Hide x"xScreenOffSet + poe_width - width " y"yScreenOffSet + map_info_y
+		Else Gui, map_mods_window: Show, % "Hide x"xScreenOffSet " y"yToggle + hToggle*1.1
+		LLK_Overlay("map_mods_window", "show")
 		toggle_map_mods_panel := 1
 		map_mods_panel_fresh := 1
 	}
@@ -1923,6 +1944,8 @@ Loop 2
 		LLK_ToolTip("failed:`nno mods", 0.5)
 		Gui, map_mods_window: Destroy
 		Gui, map_mods_toggle: Destroy
+		hwnd_map_mods_toggle := ""
+		hwnd_map_mods_window := ""
 		map_mods_panel_fresh := 0
 	}
 }
@@ -1970,40 +1993,7 @@ If (GuiControl_copy = "Map_info_search")
 		map_info_cfg_text := StrReplace(map_info_cfg_text, "$")
 		Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text " (" map_mod_%A_LoopField%_type ")"
 	}
-	/*
-	IniRead, map_info_parse, ini\map info.ini
-	Loop, Parse, map_info_parse, `n, `n
-	{
-		If (A_LoopField = "version") || (A_LoopField = "settings") || (A_LoopField = "")
-			continue
-		IniRead, map_info_rank, ini\map info.ini, %A_LoopField%, rank, 1
-		If map_info_rank is not number
-			map_info_rank := 1
-		map_info_zeroes += (map_info_rank = 0) ? 1 : 0
-		If (map_info_rank = 0)
-		{
-			If (section = 0)
-			{
-				Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
-				Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
-				Gui, map_info_menu: Font, % "s"fSize0 - 4
-				Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%A_LoopField% gMap_mods_save number limit1 cBlack, % map_info_rank
-				section := 1
-			}
-			Else
-			{
-				Gui, map_info_menu: Font, % "s"fSize0 - 4
-				Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%A_LoopField% gMap_mods_save number limit1 cBlack, % map_info_rank
-			}
-			IniRead, map_info_text, ini\map info.ini, %A_LoopField%, text
-			map_info_text := StrReplace(map_info_text, "?", " ")
-			IniRead, map_info_type, ini\map info.ini, %A_LoopField%, type
-			map_info_type := (map_info_type = "") ? "bosses && monsters" : map_info_type
-			Gui, map_info_menu: Font, % "s"fSize0
-			Gui, map_info_menu: Add, Text, ys BackgroundTrans, % StrReplace(map_info_text, "a0e", "aoe") " (" map_info_type ")"
-		}
-	}
-	*/
+
 	If (map_info_hits != "")
 	{
 		WinGetPos, winXpos, winYpos, winwidth, winheight, ahk_id %hwnd_settings_menu%
@@ -2048,10 +2038,12 @@ Loop, Parse, map_mods_panel_text, `n, `n
 	map_info_cfg_text := StrReplace(map_info_cfg_text, "$")
 	Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text
 }
-Gui, map_info_menu: Show, Hide
+Gui, map_info_menu: Show, NA
 WinGetPos,,, widthedit
-WinGetPos, winx, winy,,, ahk_id %hwnd_map_mods_window%
-Gui, map_info_menu: Show, % "x"winx - widthedit " y"winy
+WinGetPos, winx, winy, winw,, ahk_id %hwnd_map_mods_window%
+If (map_info_side = "right")
+	Gui, map_info_menu: Show, % "x"winx - widthedit " y"winy
+Else Gui, map_info_menu: Show, % "x"winx + winw " y"winy
 Return
 
 Map_info_menuGuiClose:
@@ -2061,6 +2053,12 @@ Return
 
 Map_info_settings_apply:
 Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "map_info_side")
+{
+	IniWrite, % map_info_side, ini\map info.ini, Settings, side
+	GoSub, Map_info
+	Return
+}
 If (A_GuiControl = "Map_info_pixelcheck_enable")
 {
 	If (pixel_gamescreen_color1 = "") || (pixel_gamescreen_color1 = "ERROR")
@@ -2245,9 +2243,8 @@ If (clipboard != "")
 				Return
 			}
 		}
-		KeyWait, %ThisHotkey_copy%
 	}
-	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess")
+	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
 		Return
@@ -2327,6 +2324,11 @@ Else If InStr(clipboard, "to the goddess")
 	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
 	Gui, context_menu: Add, Text, vlab_layout gOmnikey_menu_selection BackgroundTrans Center, lab info
 }
+Else If InStr(clipboard, "other oils")
+{
+	Gui, context_menu: Add, Text, vOil_wiki gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+	Gui, context_menu: Add, Text, vOil_table gOmnikey_menu_selection BackgroundTrans Center, anoint table
+}
 Else
 {
 	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
@@ -2335,10 +2337,11 @@ Else
 If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
 	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
 MouseGetPos, mouseX, mouseY
-Gui, context_menu: Show, % "x"mouseX-160 " y"mouseY
-WinGetPos, x_context
+Gui, context_menu: Show, % "Hide x"mouseX " y"mouseY
+WinGetPos, x_context,, w_context
 If (x_context < xScreenOffset)
 	Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
+Else Gui, context_menu: Show, % "x"mouseX - w_context " y"mouseY
 WinWaitActive, ahk_group poe_window,,, Lailloken
 If WinExist("ahk_id " hwnd_context_menu)
 	Gui, context_menu: destroy
@@ -2516,6 +2519,10 @@ Return
 Omnikey_menu_selection:
 If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
 	GoSub, Omnikey_craft_chrome
+Else If (A_GuiControl = "oil_wiki")
+	Run, https://www.poewiki.net/wiki/Oil
+Else If (A_GuiControl = "oil_table")
+	Run, https://blight.raelys.com/
 Else If InStr(A_GuiControl, "wiki")
 	GoSub, Omnikey_wiki
 Else If InStr(A_GuiControl, "layout")
@@ -2561,6 +2568,7 @@ If (click = 2)
 		}
 		Else Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "_image") ".bmp", 100)
 	}
+	GoSub, Settings_menu
 	Return
 }
 Else
@@ -2625,13 +2633,14 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 }
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "border" : ""
 alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
-betrayal_style := InStr(A_GuiControl, "betrayal") ? "border" : ""
+betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "border" : ""
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "border" : ""
 flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
 map_mods_style := InStr(A_GuiControl, "map") ? "border" : ""
 notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "border" : ""
-pixelcheck_style := InStr(A_GuiControl, "pixel") ? "border" : ""
+pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "border" : ""
+geforce_style := InStr(A_GuiControl, "geforce") ? "border" : ""
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
 {
@@ -2647,6 +2656,21 @@ Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSettings_menu HWNDhwnd_settings_general", % "general"
 ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_general%
 spacing_settings := width_settings
+
+screenchecks_gamescreen_valid := 1
+screenchecks_bestiary_valid := 1
+screenchecks_betrayal_valid := 1
+screenchecks_gwennen_valid := 1
+
+If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+	screenchecks_gamescreen_valid := 0
+If !FileExist("img\Recognition (" poe_height "p)\GUI\bestiary.bmp")
+	screenchecks_bestiary_valid := 0
+If !FileExist("img\Recognition (" poe_height "p)\GUI\betrayal.bmp")
+	screenchecks_betrayal_valid := 0
+If !FileExist("img\Recognition (" poe_height "p)\GUI\gwennen.bmp")
+	screenchecks_gwennen_valid := 0
+screenchecks_all_valid := screenchecks_gamescreen_valid * screenchecks_bestiary_valid * screenchecks_betrayal_valid * screenchecks_gwennen_valid
 
 If !InStr(buggy_resolutions, poe_height)
 {
@@ -2676,9 +2700,21 @@ If !InStr(buggy_resolutions, poe_height)
 
 	If pixel_gamescreen_x1 is number
 	{
+		If (screenchecks_all_valid = 0)
+			Gui, settings_menu: Font, cRed
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "screen-checks"
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
 		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+		Gui, settings_menu: Font, cWhite
+	}
+	
+	If WinExist("ahk_exe GeForceNOW.exe")
+	{
+		Gui, settings_menu: Font, cLime
+		Gui, settings_menu: Add, Text, xs BackgroundTrans %geforce_style% gSettings_menu HWNDhwnd_settings_geforce, % "geforce now"
+		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_geforce%
+		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+		Gui, settings_menu: Font, cWhite
 	}
 }
 Gui, settings_menu: Font, norm
@@ -2699,7 +2735,7 @@ If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
-Else If InStr(GuiControl_copy, "betrayal")
+Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image")
 	GoSub, Settings_menu_betrayal
 Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
@@ -2709,8 +2745,10 @@ Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
 Else If InStr(GuiControl_copy, "omni")
 	GoSub, Settings_menu_omnikey
-Else If InStr(GuiControl_copy, "screen")
+Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen")
 	GoSub, Settings_menu_screenchecks
+Else If InStr(GuiControl_copy, "geforce")
+	GoSub, Settings_menu_geforce_now
 
 If !InStr(GuiControl_copy, "betrayal")
 {
@@ -2805,6 +2843,22 @@ Loop, Parse, clone_frames_list, `n, `n
 	Gui, settings_menu: Font, norm
 }
 Gui, settings_menu: Add, Text, % "xs Section Border gClone_frames_new vClone_frames_add BackgroundTrans y+"fSize0*1.2, % " add frame "
+Return
+
+Settings_menu_geforce_now:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, % "pixel-check allowed variation: "
+ControlGetPos,,,, controlheight,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0-4 "norm"
+Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gGeforce_now_apply Center Limit3 vPixelsearch_variation w"controlheight*1.6, %pixelsearch_variation%
+Gui, settings_menu: Font, s%fSize0%
+Gui, settings_menu: Add, Text, % "xs y+0 BackgroundTrans", % "(range: 0–255, default: 0)"
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "image-check allowed variation: "
+ControlGetPos,,,, controlheight,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0-4 "norm"
+Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gGeforce_now_apply Center Limit3 vImagesearch_variation w"controlheight*1.6, %imagesearch_variation%
+Gui, settings_menu: Font, s%fSize0%
+Gui, settings_menu: Add, Text, % "xs BackgroundTrans", % "(range: 0–255, default: 25)"
 Return
 
 Settings_menu_general:
@@ -2978,7 +3032,7 @@ instructions
 to recalibrate, open Gwennen's gamble window and screen-cap the plate displayed above.
 
 explanation
-this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the info-sheet.
+this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\gwennen.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
@@ -3033,6 +3087,14 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus
 Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "panel position: "
+map_info_choice := (map_info_side = "right") ? 1 : 2
+ControlGetPos,,, width,,, ahk_id %main_text%
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, DDL, % "ys hp cBlack Center BackgroundTrans r2 vMap_info_side gMap_info_settings_apply Choose"map_info_choice " w"width//2 , % "right||left"
+Gui, settings_menu: Font, % "s"fSize0
+
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "search for mods: "
 Gui, settings_menu: Font, % "s"fSize0 - 4
@@ -3089,10 +3151,13 @@ ControlGetPos,,,, height,, ahk_id %main_text%
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
 Loop, Parse, pixelchecks_list, `,, `,
 {
-	Gui, settings_menu: Font, norm	
+	
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gScreenchecks v" A_Loopfield "_pixel y+"fSize0*0.6, % " check | calibrate "
-	Gui, settings_menu: Font, underline
+	If (screenchecks_%A_Loopfield%_valid = 0)
+		Gui, settings_menu: Font, cRed underline
+	Else Gui, settings_menu: Font, cWhite underline
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help HWNDmain_text", % A_Loopfield
+	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gScreenchecks_settings_apply vEnable_pixelchecks Center Checked"enable_pixelchecks, % "enable background pixel-checks"
@@ -3104,9 +3169,12 @@ Loop, Parse, imagechecks_list, `,, `,
 {
 	Gui, settings_menu: Font, norm	
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gScreenchecks v" A_Loopfield "_image y+"fSize0*0.6, % " check | calibrate "
-	Gui, settings_menu: Font, underline
+	If (screenchecks_%A_Loopfield%_valid = 0)
+		Gui, settings_menu: Font, cRed underline
+	Else Gui, settings_menu: Font, cWhite underline
 	ControlGetPos,,, width,,, ahk_id %main_text%
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help HWNDmain_text", % A_Loopfield
+	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gScreenchecks_settings_apply vImage_folder HWNDmain_text y+"fSize0*0.6 " w"width, % " open img folder "
@@ -3148,7 +3216,25 @@ LLK_ImageSearch(name)
 	global
 	pHaystack_ImageSearch := Gdip_BitmapFromHWND(hwnd_poe_client)
 	pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
-	%name% := Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, 0, 0, 0, 0, 25,, 1, 1)
+	imagesearch_x1 := 0
+	imagesearch_y1 := 0
+	imagesearch_x2 := 0
+	imagesearch_y2 := 0
+	If (name = "gwennen" || name = "bestiary")
+	{
+		imagesearch_x1 := 0
+		imagesearch_y1 := 0
+		imagesearch_x2 := 0
+		imagesearch_y2 := poe_height//2
+	}
+	Else If (name = "betrayal")
+	{
+		imagesearch_x1 := 0
+		imagesearch_y1 := poe_height//2
+		imagesearch_x2 := 0
+		imagesearch_y2 := 0
+	}
+	%name% := Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1)
 	Gdip_DisposeImage(pHaystack_ImageSearch)
 	Gdip_DisposeImage(pNeedle_ImageSearch)
 	Gdip_DisposeImage(%name%)
