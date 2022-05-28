@@ -879,12 +879,12 @@ If (A_Gui = "")
 	Gui, bestiary_menu: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, bestiary_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, bleed
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, curse
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, freeze
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, ignite
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, poison
-	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, shock
+	Gui, bestiary_menu: Add, Text, Section gBestiary_search BackgroundTrans Center, bleed
+	Gui, bestiary_menu: Add, Text, xs y+0 gBestiary_search BackgroundTrans Center, curse
+	Gui, bestiary_menu: Add, Text, xs y+0 gBestiary_search BackgroundTrans Center, freeze
+	Gui, bestiary_menu: Add, Text, xs y+0 gBestiary_search BackgroundTrans Center, ignite
+	Gui, bestiary_menu: Add, Text, xs y+0 gBestiary_search BackgroundTrans Center, poison
+	Gui, bestiary_menu: Add, Text, xs y+0 gBestiary_search BackgroundTrans Center, shock
 	MouseGetPos, mouseXpos, mouseYpos
 	Gui, bestiary_menu: Show, x%mouseXpos% y%mouseYpos%
 	Return
