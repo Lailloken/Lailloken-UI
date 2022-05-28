@@ -370,12 +370,6 @@ Return
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
-Enter::
-If LLK_ImageSearch("bestiary")
-	LLK_HotstringClip("best")
-Else SendInput, {Enter}
-Return
-
 Tab::
 If (lab_mode = 1)
 {
@@ -878,25 +872,40 @@ Loop, Parse, betrayal_divisions, `,, `,
 Return
 
 Bestiary_search:
-If (hotstringboard = "")
+If (A_Gui = "")
 {
-	SoundBeep
+	Gui, bestiary_menu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_bestiary_menu
+	Gui, bestiary_menu: Margin, 4, 2
+	Gui, bestiary_menu: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, bestiary_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, bleed
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, curse
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, freeze
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, ignite
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, poison
+	Gui, bestiary_menu: Add, Text, gBestiary_search BackgroundTrans Center, shock
+	MouseGetPos, mouseXpos, mouseYpos
+	Gui, bestiary_menu: Show, x%mouseXpos% y%mouseYpos%
 	Return
 }
-If InStr(hotstringboard, "curse")
+If (A_GuiControl = "curse")
 	clipboard := "warding"
-Else If InStr(hotstringboard, "bleed")
+Else If (A_GuiControl = "bleed")
 	clipboard := "sealing|lizard"
-Else If InStr(hotstringboard, "shock")
+Else If (A_GuiControl = "shock")
 	clipboard := "earthing|conger"
-Else If InStr(hotstringboard, "freeze") || InStr(Clipboard, "chill")
+Else If (A_GuiControl = "freeze")
 	clipboard := "convection|deer"
-Else If InStr(hotstringboard, "ignite")
+Else If (A_GuiControl = "ignite")
 	clipboard := "damping|urchin"
-Else If InStr(hotstringboard, "poison")
+Else If (A_GuiControl = "poison")
 	clipboard := "antitoxin|skunk"
 Else clipboard := ""
-SendInput, ^{v}
+WinActivate, ahk_group poe_window
+WinWaitActive, ahk_group poe_window
+SendInput, ^{a}^{v}
+Gui, bestiary_menu: Destroy
 Return
 
 Betrayal_search:
@@ -2308,6 +2317,8 @@ Else
 		GoSub, Betrayal_search
 	If LLK_ImageSearch("gwennen")
 		GoSub, Gwennen_search
+	If LLK_ImageSearch("bestiary")
+		GoSub, Bestiary_search
 }
 Return
 
