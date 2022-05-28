@@ -19,7 +19,7 @@
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
 ***
 ### Improved beastcrafting search
-![beastcrafting](https://user-images.githubusercontent.com/61888437/169816073-30c82c30-3b42-429c-ae34-ed7d4683669e.png)  
+![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png)  
 ***
 ### lab layout overlay ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay))
 ![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
