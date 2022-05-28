@@ -1627,11 +1627,14 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 	If (inactive_counter = 3)
 	{
 		Gui, context_menu: Destroy
+		Gui, bestiary_menu: Destroy
 		LLK_Overlay("hide")
 	}
 }
 If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
 {
+	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
+		Gui, bestiary_menu: Destroy
 	If (inactive_counter != 0)
 	{
 		inactive_counter := 0
