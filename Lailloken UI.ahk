@@ -54,8 +54,8 @@ While !WinExist("ahk_group poe_window")
 	sleep, 5000
 }
 
-;If WinExist("ahk_group poe_window") ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
-;	sleep, 1500
+If WinExist("ahk_group poe_window") ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
+	sleep, 1000
 
 hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
@@ -315,6 +315,7 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
 If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini")
 {
+	IniRead, pixel_gamescreen_color1, ini\pixel checks (%poe_height%p).ini, gamescreen, color 1
 	IniRead, convert_pixelchecks, ini\pixel checks (%poe_height%p).ini, gamescreen
 	IniWrite, % convert_pixelchecks, ini\screen checks (%poe_height%p).ini, gamescreen
 	FileDelete, ini\pixel checks*.ini
@@ -992,7 +993,6 @@ If ((A_Gui = "") && !WinExist("ahk_id " hwnd_betrayal_search) && (betrayal_enabl
 {
 	Gui, settings_menu: Destroy
 	hwnd_settings_menu := ""
-	;pixelchecks_enabled := InStr(pixelchecks_enabled, "betrayal") ? pixelchecks_enabled : pixelchecks_enabled "betrayal,"
 	Gui, betrayal_search: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_betrayal_search, LLK UI: Betrayal search
 	Gui, betrayal_search: Margin, 12, 4
 	Gui, betrayal_search: Color, Black
@@ -1932,6 +1932,7 @@ Loop 2
 			window_color := (window_rank > 2) ? "red" : window_color
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
 			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
+			window_text := StrReplace(window_text, "0f", "of")
 			window_text := StrReplace(window_text, "a0e", "aoe")
 			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
@@ -2025,7 +2026,6 @@ If (GuiControl_copy = "Map_info_search")
 		If InStr(A_LoopField, map_info_search)
 		{
 			IniRead, map_info_ID, data\Map search.ini, %A_LoopField%, ID
-			;map_info_hits := (map_info_hits = "") ? map_info_ID : map_info_hits "," map_info_ID
 			IniRead, map_mod_%map_info_ID%_rank, ini\map info.ini, %map_info_ID%, rank, 1
 			IniRead, map_mod_%map_info_ID%_type, ini\map info.ini, %map_info_ID%, type
 			map_mod_text := A_Loopfield
@@ -2044,7 +2044,7 @@ If (GuiControl_copy = "Map_info_search")
 	If (section != 0)
 	{
 		WinGetPos, winXpos, winYpos, winwidth, winheight, ahk_id %hwnd_settings_menu%
-		show_search_x := winXpos + winwidth//2
+		show_search_x := winXpos
 		show_search_y := winYpos + winheight
 		Gui, map_info_menu: Show, NA x%show_search_x% y%show_search_y%
 	}
@@ -2084,6 +2084,7 @@ Loop, Parse, map_mods_panel_text, `n, `n
 	Gui, map_info_menu: Font, % "s"fSize0
 	map_info_cfg_text := StrReplace(A_LoopField, "-?")
 	map_info_cfg_text := StrReplace(map_info_cfg_text, "?", " ")
+	map_info_cfg_text := StrReplace(map_info_cfg_text, "0f", "of")
 	map_info_cfg_text := StrReplace(map_info_cfg_text, "a0e", "aoe")
 	map_info_cfg_text := StrReplace(map_info_cfg_text, "$")
 	Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text " (" map_mod_%map_info_ID%_type ")"
@@ -2850,12 +2851,7 @@ Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
 
 If ((xsettings_menu != "") && (ysettings_menu != ""))
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
-Else
-{
-	Gui, settings_menu: Show, Hide
-	;WinGetPos,,, wsettings_menu
-	;Gui, settings_menu: Show, % "Hide x"xScreenOffset + poe_width//2 - wsettings_menu//2 " y"yScreenOffset
-}
+Else Gui, settings_menu: Show, Hide
 LLK_Overlay("settings_menu", "show", 1)
 Return
 
@@ -3000,7 +2996,6 @@ MouseGetPos, mouseXpos, mouseYpos
 Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu_help
 Gui, settings_menu_help: Color, Black
 Gui, settings_menu_help: Margin, 12, 4
-;WinSet, Transparent, %trans%
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
 
 If (A_GuiControl = "map_info")
@@ -3395,7 +3390,6 @@ LLK_HotstringClip(hotstring, mode := 0)
 	SendInput, ^{a}^{c}
 	If (mode = 1)
 		SendInput, {ESC}
-	;Else SendInput, ^{a}^{x}
 	ClipWait, 0.1
 	hotstringboard := InStr(clipboard, "@") ? SubStr(clipboard, InStr(clipboard, " ") + 1) : clipboard
 	hotstringboard := (SubStr(hotstringboard, 0) = " ") ? SubStr(hotstringboard, 1, -1) : hotstringboard
@@ -3456,7 +3450,7 @@ LLK_Omnikey_ToolTip(text:=0)
 	Else Gui, omnikey_tooltip: Add, Text, BackgroundTrans, % text
 	Gui, omnikey_tooltip: Show, Hide AutoSize
 	MouseGetPos, mouseXpos, mouseYpos
-	WinGetPos, winX, winY, winW, winH, ;ahk_id %hwnd_omnikey_tooltip%
+	WinGetPos, winX, winY, winW, winH
 	tooltip_posX := (mouseXpos - winW < xScreenOffSet) ? xScreenOffSet : mouseXpos - winW
 	tooltip_posy := (mouseYpos - winH < yScreenOffSet) ? yScreenOffSet : mouseYpos - winH
 	Gui, omnikey_tooltip: Show, % "NA AutoSize x"tooltip_posX " y"tooltip_posy
