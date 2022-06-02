@@ -1,9 +1,13 @@
+# About
+A light-weight AHK script with UI extensions and QoL features for Path of Exile, with emphasis on ease-of-use, minimalist design, and seamless integration into the game-client.  
+<br>
+
 # Features
 ### Clone-frames: pseudo-customization of the in-game interface ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 ***
 ### Overhauled map-info panel: streamlined and customizable ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
-![header](https://user-images.githubusercontent.com/61888437/168431773-71ba048b-877d-4bfd-a9bf-afdc52b4b1ff.png)  
+![Untitled 1](https://user-images.githubusercontent.com/61888437/171627970-630e6dca-4ed2-487a-827a-6de66dcbcc0b.png)  
 ***
 ### Context-menu for items to quickly access popular 3rd-party websites ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))  
 ![context1](https://user-images.githubusercontent.com/61888437/162455047-080586b1-dd33-400e-940d-1e716b254ad0.jpg)![context2](https://user-images.githubusercontent.com/61888437/162455067-602def7f-4b1d-4074-a8af-db012e9325f7.jpg)  
@@ -50,7 +54,8 @@
 
 ***
 # Ideas & Feedback
-I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).
+I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).  
+<br>
 
 # Motivation & Philosophy
 This script is my personal collection of QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. This includes an easy and straight-forward setup, visual clarity, customizability, the ability to decide which features to enable/disable, and a lack of required extra hotkeys and alt-tabbing.
