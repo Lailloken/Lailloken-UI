@@ -51,11 +51,12 @@ While !WinExist("ahk_group poe_window")
 {
 	If (A_TickCount >= startup + kill_timeout*60000) && (kill_script = 1)
 		ExitApp
+	win_not_exist := 1
 	sleep, 5000
 }
 
-If WinExist("ahk_group poe_window") ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
-	sleep, 1000
+If WinExist("ahk_group poe_window") && (win_not_exist = 1) ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
+	sleep, 2000
 
 hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
@@ -222,9 +223,6 @@ Loop, Parse, maps_list, `,, `,
 	maps_%letter% := (maps_%letter% = "") ? A_Loopfield : maps_%letter% "`n" A_Loopfield
 }
 
-IniRead, map_info_y, data\Resolutions.ini, %poe_height%p, map info y-coordinate, 0
-IniRead, map_toggle_x, data\Resolutions.ini, %poe_height%p, map toggle x-coordinate, 0
-IniRead, map_toggle_y, data\Resolutions.ini, %poe_height%p, map toggle y-coordinate, 0
 IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
 If (map_info_pixelcheck_enable = 1)
 	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
@@ -232,8 +230,10 @@ IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
 IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
 If fSize_offset_map_info is not number
 	fSize_offset_map_info := 0
-IniRead, map_info_side, ini\map info.ini, Settings, side, right
 IniRead, map_info_short, ini\map info.ini, Settings, short descriptions, 1
+IniRead, map_info_xPos, ini\map info.ini, Settings, x-coordinate, 0
+map_info_side := (map_info_xPos >= xScreenOffSet + poe_width//2) ? "right" : "left"
+IniRead, map_info_yPos, ini\map info.ini, Settings, y-coordinate, 0
 IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
 IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
 If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
@@ -1556,7 +1556,7 @@ If (A_GuiControl = "Lab_marker")
 	Gui, lab_marker: Color, White
 	WinSet, Transparent, 100
 	MouseGetPos, mouseXpos, mouseYpos
-	Gui, lab_marker: Show, % "NA w"poe_width * 3//160 * 212//235 " h"poe_width * 3//160 * 212//235 " x"mouseXpos - (poe_width * 3//160 * 212//235)//2 " y"mouseYpos - (poe_width * 3//160 * 212//235)//2
+	Gui, lab_marker: Show, % "NA w"poe_width * 3/160 * 212/235 " h"poe_width * 3/160 * 212/235 " x"mouseXpos - (poe_width * 3/160 * 212/235)/2 " y"mouseYpos - (poe_width * 3/160 * 212/235)/2
 	LLK_Overlay("lab_marker", "show")
 	WinActivate, ahk_group poe_window
 	Return
@@ -1567,7 +1567,7 @@ If (A_ThisHotkey = "Tab")
 	{
 		If (Gdip_CreateBitmapFromClipboard() < 0)
 		{
-			LLK_ToolTip("no image-data in clipboard", 1.5, xScreenOffSet + poe_width//2, yScreenOffSet + poe_height//2)
+			LLK_ToolTip("no image-data in clipboard", 1.5, xScreenOffSet + poe_width/2, yScreenOffSet + poe_height/2)
 			KeyWait, Tab
 			Return
 		}
@@ -1584,10 +1584,10 @@ If (A_ThisHotkey = "Tab")
 		Gui, lab_layout: Color, Black
 		Gui, lab_layout: Margin, 0, 0
 		Gui, lab_layout: Font, s%fSize0% cWhite, Fontin SmallCaps
-		Gui, lab_layout: Add, Picture, % "BackgroundTrans vLab_marker gLab_info w" poe_width * 53//128 " h-1", HBitmap:*%hbmLab_source%
+		Gui, lab_layout: Add, Picture, % "BackgroundTrans vLab_marker gLab_info w" poe_width * 53/128 " h-1", HBitmap:*%hbmLab_source%
 		Gui, lab_layout: Show, Hide
 		WinGetPos,,,, hWin
-		Gui, lab_layout: Show, % "NA x"xScreenOffSet + poe_width * 75//256 " y"yScreenOffSet + poe_height - hWin
+		Gui, lab_layout: Show, % "NA x"xScreenOffSet + poe_width * 75/256 " y"yScreenOffSet + poe_height - hWin
 		LLK_Overlay("lab_layout", "show")
 		SelectObject(hdcLab_source, obmLab_source)
 		DeleteObject(hbmLab_source)
@@ -1666,6 +1666,8 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 	{
 		Gui, context_menu: Destroy
 		Gui, bestiary_menu: Destroy
+		Gui, map_info_menu: Destroy
+		hwnd_map_info_menu := ""
 		LLK_Overlay("hide")
 	}
 }
@@ -1874,6 +1876,8 @@ map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" m
 width := ""
 Loop 2
 {
+	map_info_difficulty := 0
+	map_info_mod_count := 0
 	Gui, map_mods_window: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_window
 	If (A_Index = 1)
 		Gui, map_mods_window: Margin, 0, 0
@@ -1890,12 +1894,15 @@ Loop 2
 		{
 			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
 			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			map_info_difficulty += window_rank
+			map_info_mod_count += (window_rank != 0) ? 1 : 0
 			window_color := "white"
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
 			window_color := (window_rank > 3) ? "fuchsia" : window_color
 			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
 			window_text := StrReplace(window_text, "?", "`n")
+			window_text := StrReplace(window_text, "$")
 			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
 		}
 		Gui, map_mods_window: Font, underline
@@ -1908,6 +1915,8 @@ Loop 2
 		{
 			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
 			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			map_info_difficulty += window_rank
+			map_info_mod_count += (window_rank != 0) ? 1 : 0
 			window_color := "white"
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
@@ -1927,6 +1936,8 @@ Loop 2
 		{
 			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
 			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			map_info_difficulty += window_rank
+			map_info_mod_count += (window_rank != 0) ? 1 : 0
 			window_color := "white"
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
@@ -1946,6 +1957,8 @@ Loop 2
 		{
 			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
 			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
+			map_info_difficulty += window_rank
+			map_info_mod_count += (window_rank != 0) ? 1 : 0
 			window_color := "white"
 			window_color := (window_rank > 1) ? "yellow" : window_color
 			window_color := (window_rank > 2) ? "red" : window_color
@@ -1962,31 +1975,31 @@ Loop 2
 	}
 	Else
 	{
-		Gui, map_mods_toggle: New, -DPIScale -Caption +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_toggle
-		Gui, map_mods_toggle: Margin, 4, 2
+		Gui, map_mods_toggle: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_toggle
+		Gui, map_mods_toggle: Margin, 8, 0
 		Gui, map_mods_toggle: Color, Black
-		WinSet, Transparent, %trans%, ahk_id %hwnd_map_mods_toggle%
-		pic_style := ""
-		pic_style := (poe_height = "2160") ? "h26 w-1" : pic_style
-		pic_style := (poe_height = "1800") ? "h23 w-1" : pic_style
-		pic_style := (poe_height = "1600") ? "h20 w-1" : pic_style
-		pic_style := (poe_height = "1200") ? "h15 w-1" : pic_style
-		pic_style := (poe_height = "1080") ? "h12 w-1" : pic_style
-		pic_style := (poe_height = "900") ? "h9 w-1" : pic_style
-		pic_style := (poe_height = "720") ? "h6 w-1" : pic_style
-		Gui, map_mods_toggle: Add, Picture, vMap_mods_toggle_pic BackgroundTrans gMap_mods_toggle %pic_style%, img\GUI\map_mod_button_hide.png
-		If (map_info_side = "right")
-			Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet + poe_width - map_toggle_x " y"yScreenOffSet + map_toggle_y
-		Else Gui, map_mods_toggle: Show, % "Hide x"xScreenOffSet " y"yScreenOffSet + map_toggle_y
-		LLK_Overlay("map_mods_toggle", "show")
-		If (map_info_side = "left")
-			WinGetPos,, yToggle,, hToggle, ahk_id %hwnd_map_mods_toggle%
-		Gui, map_mods_window: Show, Hide
-		WinGetPos,,, width
-		If (map_info_side = "right")
-			Gui, map_mods_window: Show, % "Hide x"xScreenOffSet + poe_width - width " y"yScreenOffSet + map_info_y
-		Else Gui, map_mods_window: Show, % "Hide x"xScreenOffSet " y"yToggle + hToggle*1.1
+		WinSet, Transparent, %map_info_trans%
+		Gui, map_mods_toggle: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
+		Gui, map_mods_window: Show, NA
+		Gui, map_mods_toggle: Add, Text, BackgroundTrans %style_map_mods% Center gMap_mods_toggle, % " avg: " Format("{:0.2f}", map_info_difficulty/map_info_mod_count)
+		Gui, map_mods_toggle: Show, NA
+		WinGetPos,,, width, height
+		map_info_xPos_target := (map_info_xPos > xScreenOffSet + poe_width//2) ? map_info_xPos - width : map_info_xPos
+		map_info_yPos_target := (map_info_yPos > yScreenOffSet + poe_height//2) ? map_info_yPos - height : map_info_yPos
+		Gui, map_mods_window: Show, NA
+		WinGetPos,,, width_window, height_window, ahk_id %hwnd_map_mods_window%
+		map_info_yPos_target1 := (map_info_yPos > yScreenOffSet + poe_height//2) ? map_info_yPos - height - height_window + 1 : map_info_yPos + height - 1
+		Gui, map_mods_window: Show, NA x%map_info_xPos_target% y%map_info_yPos_target1%
+		Gui, map_mods_toggle: Show, Hide x%map_info_xPos_target% y%map_info_yPos_target%
+		LLK_Overlay("map_mods_toggle", "show")		
 		LLK_Overlay("map_mods_window", "show")
+		If WinExist("ahk_id " hwnd_map_info_menu) && !WinExist("ahk_id " hwnd_settings_menu)
+		{
+			WinGetPos, edit_x, edit_y, edit_width, edit_height, ahk_id %hwnd_map_info_menu%
+			edit_xPos := (map_info_xPos_target >= xScreenOffSet + poe_width//2) ? map_info_xPos_target - edit_width + 1 : map_info_xPos_target + width_window - 1
+			edit_yPos := (map_info_yPos_target1 + edit_height >= yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - edit_height : map_info_yPos_target1
+			WinMove, ahk_id %hwnd_map_info_menu%,, % edit_xPos, % edit_yPos
+		}
 		toggle_map_mods_panel := 1
 		map_mods_panel_fresh := 1
 	}
@@ -1994,7 +2007,7 @@ Loop 2
 		LLK_ToolTip("success", 0.5)
 	Else If (player = "") && (monsters = "") && (bosses = "") && (area = "") && (map_info_search = "")
 	{
-		LLK_ToolTip("failed:`nno mods", 0.5)
+		LLK_ToolTip("no mods", 0.5)
 		Gui, map_mods_window: Destroy
 		Gui, map_mods_toggle: Destroy
 		hwnd_map_mods_toggle := ""
@@ -2007,7 +2020,7 @@ Return
 Map_info_customization:
 GuiControl_copy := A_GuiControl
 Gui, map_info_menu: destroy
-Gui, map_info_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_info_menu, Lailloken UI: map mod customization
+Gui, map_info_menu: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_info_menu, Lailloken UI: map mod customization
 Gui, map_info_menu: Color, Black
 Gui, map_info_menu: Margin, 12, 4
 WinSet, Transparent, %trans%
@@ -2089,27 +2102,29 @@ Loop, Parse, map_mods_panel_text, `n, `n
 	map_info_cfg_text := StrReplace(map_info_cfg_text, "$")
 	Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text " (" map_mod_%map_info_ID%_type ")"
 }
-Gui, map_info_menu: Show, NA
-WinGetPos,,, widthedit
+Gui, map_info_menu: Show, Hide
 WinGetPos, winx, winy, winw,, ahk_id %hwnd_map_mods_window%
+WinGetPos,,, widthedit, height,
 If (map_info_side = "right")
-	Gui, map_info_menu: Show, % "x"winx - widthedit " y"winy
-Else Gui, map_info_menu: Show, % "x"winx + winw " y"winy
+	Gui, map_info_menu: Show, % "x"winx - widthedit + 1 " y"winy
+Else Gui, map_info_menu: Show, % "x"winx + winw - 1 " y"winy
+If (winy + height > yScreenOffSet + poe_height)
+	WinMove, ahk_id %hwnd_map_info_menu%,,, % yScreenOffSet + poe_height - height
 Return
 
-Map_info_menuGuiClose:
-Gui, map_info_menu: Destroy
-WinActivate, ahk_group poe_window
+Map_info_drag:
+MouseGetPos, mouseXpos, mouseYpos
+mouseXpos := (mouseXpos >= width_native * 0.998) ? width_native : mouseXpos
+mouseYpos := (mouseYpos >= height_native * 0.998) ? height_native : mouseYpos
+xPos := (mouseXpos > xScreenOffSet + poe_width//2) ? mouseXpos - wToggle : mouseXpos
+yPos := (mouseYpos > yScreenOffSet + poe_height//2) ? mouseYpos - hToggle : mouseYpos
+yPos1 := (mouseYpos > yScreenOffSet + poe_height//2) ? mouseYpos - hToggle - hWindow + 1 : mouseYpos + hToggle - 1
+Gui, map_mods_toggle: Show, NA x%xPos% y%yPos%
+Gui, map_mods_window: Show, % "NA x"xPos " y"yPos1
 Return
 
 Map_info_settings_apply:
 Gui, settings_menu: Submit, NoHide
-If (A_GuiControl = "map_info_side")
-{
-	IniWrite, % map_info_side, ini\map info.ini, Settings, side
-	GoSub, Map_info
-	Return
-}
 If (A_GuiControl = "map_info_short")
 {
 	IniWrite, % map_info_short, ini\map info.ini, Settings, short descriptions
@@ -2180,22 +2195,56 @@ GoSub, Map_info
 Return
 
 Map_mods_toggle:
+start := A_TickCount
+While GetKeyState("LButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		If WinExist("ahk_id " hwnd_map_info_menu)
+		{
+			Gui, map_info_menu: Destroy
+			hwnd_map_info_menu := ""
+		}
+		WinGetPos,,, wToggle, hToggle, ahk_id %hwnd_map_mods_toggle%
+		WinGetPos,,,, hWindow, ahk_id %hwnd_map_mods_window%
+		While GetKeyState("LButton", "P")
+			GoSub, Map_info_drag
+		KeyWait, LButton
+		If (mouseXpos >= xScreenOffSet + poe_width - pixel_gamescreen_x1 - 1) && (mouseYpos <= pixel_gamescreen_y1 + 1)
+		{
+			WinMove, ahk_id %hwnd_map_mods_toggle%,,, % pixel_gamescreen_y1 + 2
+			WinMove, ahk_id %hwnd_map_mods_window%,,, % pixel_gamescreen_y1 + 1 + hToggle
+			mouseYpos := pixel_gamescreen_y1 + 2
+		}
+		map_info_xPos := mouseXpos
+		map_info_yPos := mouseYpos
+		map_info_side := (mouseXpos > xScreenOffSet + poe_width//2) ? "right" : "left"
+		IniWrite, % mouseXpos, ini\map info.ini, Settings, x-coordinate
+		IniWrite, % mouseYpos, ini\map info.ini, Settings, y-coordinate
+		GoSub, map_info
+		Return
+	}
+}
 If (click = 2)
 {
+	LLK_Overlay("map_mods_window", "show")
 	GoSub, Map_info_customization
 	Return
+}
+If WinExist("ahk_id " hwnd_map_info_menu)
+{
+	Gui, map_info_menu: Destroy
+	hwnd_map_info_menu := ""
 }
 If WinExist("ahk_id " hwnd_map_mods_window)
 {
 	LLK_Overlay("map_mods_window", "hide")
 	toggle_map_mods_panel := 0
-	GuiControl, map_mods_toggle:, map_mods_toggle_pic, img\GUI\map_mod_button_show.png
 }
 Else
 {
 	LLK_Overlay("map_mods_window", "Show")
 	toggle_map_mods_panel := 1
-	GuiControl, map_mods_toggle:, map_mods_toggle_pic, img\GUI\map_mod_button_hide.png
 }
 WinActivate, ahk_group poe_window
 Return
@@ -3164,13 +3213,6 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus
 Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
-
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "panel position: "
-map_info_choice := (map_info_side = "right") ? 1 : 2
-ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, DDL, % "ys x+0 hp cBlack Center BackgroundTrans r2 vMap_info_side gMap_info_settings_apply Choose"map_info_choice " w"width//2 , % "right||left"
-Gui, settings_menu: Font, % "s"fSize0
 
 Gui, settings_menu: Add, Checkbox, % "xs Section Center gMap_info_settings_apply vMap_info_short BackgroundTrans Checked"map_info_short " y+"fSize0*1.2, % "short mod descriptions"
 
