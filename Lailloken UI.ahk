@@ -1993,7 +1993,7 @@ Loop 2
 		Gui, map_mods_toggle: Show, Hide x%map_info_xPos_target% y%map_info_yPos_target%
 		LLK_Overlay("map_mods_toggle", "show")		
 		LLK_Overlay("map_mods_window", "show")
-		If WinExist("ahk_id " hwnd_map_info_menu)
+		If WinExist("ahk_id " hwnd_map_info_menu) && !WinExist("ahk_id " hwnd_settings_menu)
 		{
 			WinGetPos, edit_x, edit_y, edit_width, edit_height, ahk_id %hwnd_map_info_menu%
 			edit_xPos := (map_info_xPos_target >= xScreenOffSet + poe_width//2) ? map_info_xPos_target - edit_width + 1 : map_info_xPos_target + width_window - 1
