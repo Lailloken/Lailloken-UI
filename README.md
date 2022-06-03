@@ -49,6 +49,12 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 <br>
 
 ***
+# Setup & How to use
+- you can read a setup and usage guide [HERE (wiki)](https://github.com/Lailloken/Lailloken-UI/wiki)
+- browse the wiki for in-depth documentation on all features  
+<br>
+
+***
 # [Known issues / limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) (LINK)  
 <br>
 
