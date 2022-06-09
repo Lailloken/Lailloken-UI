@@ -1819,9 +1819,9 @@ Else parseboard := SubStr(map_mods_clipped, InStr(map_mods_clipped, "Item Level:
 IniRead, map_mods_list, data\Map mods.ini
 Loop, Parse, parseboard, `n, `n
 {
-	If (A_LoopField = "")
+	If (A_LoopField = "") || InStr(A_Loopfield, "{") || (SubStr(A_Loopfield, 1, 1) = "(")
 		continue
-	check := A_LoopField
+	check := InStr(A_Loopfield, "(") ? SubStr(A_LoopField, 1, InStr(A_Loopfield, "(",,, 1) - 1) SubStr(A_Loopfield, InStr(A_Loopfield, ")") + 1) : A_Loopfield
 	check_characters := "-0123456789%"
 	map_mod_pretext := ""
 	Loop, Parse, check
@@ -2392,11 +2392,6 @@ If (clipboard != "")
 				Return
 			}
 		}
-	}
-	If InStr(clipboard, "power core") || InStr(clipboard, "recombinator")
-	{
-		GoSub, Recombinators
-		Return
 	}
 	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
