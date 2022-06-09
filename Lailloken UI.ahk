@@ -312,6 +312,9 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
 }
 
+If !FileExist("ini\stash search.ini")
+	IniWrite, %A_Space%, ini\stash search.ini, Settings
+
 IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
 If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini")
 {
@@ -324,8 +327,9 @@ IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|lab_layout|lab_marker|betrayal_search|gwennen_setup|"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|lab_layout|lab_marker|betrayal_search|gwennen_setup|" ;recombinator_window|"
 buggy_resolutions := "768,1024,1050"
+allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -377,6 +381,7 @@ You also have to enable "confine mouse to window" in the game's UI options.
 
 SoundBeep, 100
 GoSub, GUI
+GoSub, Recombinators
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
 GoSub, Screenchecks_gamescreen
@@ -411,6 +416,11 @@ SendInput, {Tab}
 Return
 
 ESC::
+If WinActive("ahk_id " hwnd_recombinator_window)
+{
+	Gosub, Recombinator_windowGuiClose
+	Return
+}
 If WinExist("ahk_id " hwnd_betrayal_info_1) || WinActive("ahk_id " hwnd_betrayal_search)
 {
 	WinActivate, ahk_group poe_window
@@ -2013,6 +2023,7 @@ Loop 2
 		hwnd_map_mods_toggle := ""
 		hwnd_map_mods_window := ""
 		map_mods_panel_fresh := 0
+		break
 	}
 }
 Return
@@ -2342,13 +2353,34 @@ Return
 
 Omnikey:
 clipboard := ""
-SendInput ^{c}
+SendInput !^{c}
 ClipWait, 0.05
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
 If (clipboard != "")
 {
+	Loop, Parse, clipboard, `n, `n
+	{
+		If InStr(A_LoopField, "item class:")
+		{
+			item_class := StrReplace(A_LoopField, "item class:")
+			item_class := StrReplace(item_class, "`r")
+			break
+		}
+	}
 	start := A_TickCount
+	If InStr(clipboard, "recombinator") || InStr(clipboard, "power core")
+	{
+		recomb_item1 := "sample item`nclass x:`n`n`n`n`n`n`n`n"
+		recomb_item2 := "sample item`nclass x:`n`n`n`n`n`n`n`n"
+		GoSub, Recombinators_add2
+		Return
+	}
+	If WinExist("ahk_id " hwnd_recombinator_window)
+	{
+		GoSub, Recombinators_add
+		Return
+	}
 	If InStr(clipboard, "Attacks per Second:")
 	{
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -2360,6 +2392,11 @@ If (clipboard != "")
 				Return
 			}
 		}
+	}
+	If InStr(clipboard, "power core") || InStr(clipboard, "recombinator")
+	{
+		GoSub, Recombinators
+		Return
 	}
 	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
@@ -2458,13 +2495,19 @@ Else
 }
 If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
 	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
+Loop, Parse, allowed_recomb_classes, `,, `,
+	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified")
+	{
+		Gui, context_menu: Add, Text, gRecombinators_add BackgroundTrans Center, recombinator
+		break
+	}
 MouseGetPos, mouseX, mouseY
 Gui, context_menu: Show, % "Hide x"mouseX " y"mouseY
 WinGetPos, x_context,, w_context
 If (x_context < xScreenOffset)
 	Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
 Else Gui, context_menu: Show, % "x"mouseX - w_context " y"mouseY
-WinWaitActive, ahk_group poe_window,,, Lailloken
+WinWaitActive, ahk_group poe_window
 If WinExist("ahk_id " hwnd_context_menu)
 	Gui, context_menu: destroy
 Return
@@ -2673,6 +2716,624 @@ If InStr(clipboard, "Cluster Jewel")
 Run, https://poewiki.net/wiki/%wiki_term%
 Return
 
+Recombinators:
+mod_pool_count := []
+mod_pool_count[0] := 1 "," 1 "," 1
+mod_pool_count[1] := 2/3 "," 0 "," 0
+mod_pool_count[2] := 2/3 "," 1/3 "," 0
+mod_pool_count[3] := 0.3 "," 0.5 "," 0.2
+mod_pool_count[4] := 0.1 "," 0.55 "," 0.35
+mod_pool_count[5] := 0 "," 0.5 "," 0.5
+mod_pool_count[6] := 0 "," 0.3 "," 0.7
+Return
+
+Recombinator_windowGuiClose:
+recomb_item1 := ""
+Gui, recombinator_window: Destroy
+hwnd_recombinator_window := ""
+WinActivate, ahk_group poe_window
+Return
+
+Recombinators_add:
+recomb_regular := 1
+item_name := ""
+item_class := ""
+allowed := 0
+Loop, Parse, clipboard, `n, `n
+{
+	If InStr(A_LoopField, "item class:")
+	{
+		item_class := StrReplace(A_LoopField, "item class:")
+		item_class := StrReplace(item_class, "`r")
+	}
+	If (A_Index = 3)
+		item_name := StrReplace(A_LoopField, "`r")
+	If (A_Index = 4)
+		item_name := InStr(item_class, "sentinel") ? item_name "`nsentinel" : item_name "`n" StrReplace(A_LoopField, "`r")
+	If (A_Index > 4)
+		break
+}
+StringLower, item_name, item_name	
+
+Loop, Parse, allowed_recomb_classes, `,, `,
+{
+	If InStr(item_class, A_LoopField)
+	{
+		allowed := 1
+		break
+	}
+}
+If (allowed = 0) || InStr(clipboard, "unidentified") || InStr(clipboard, "rarity: unique")
+{
+	LLK_ToolTip("cannot be recombined")
+	Return
+}
+
+parse_clipboard := ""
+Loop, Parse, clipboard, `n, `n
+{
+	If (A_Loopfield = "") || ((SubStr(A_Loopfield, 1, 1) != "{") && (!InStr(A_Loopfield, "prefix") || !InStr(A_Loopfield, "suffix")))
+		continue
+	Else If (SubStr(A_Loopfield, 1, 1) = "{") && (InStr(A_Loopfield, "prefix") || InStr(A_Loopfield, "suffix"))
+	{
+		parse_clipboard := SubStr(clipboard, InStr(clipboard, A_LoopField))
+		break
+	}
+}
+
+prefixes := 0
+suffixes := 0
+Loop 3
+{
+	prefix_%A_Index% := ""
+	suffix_%A_Index% := ""
+}
+Loop, Parse, parse_clipboard, `n, `n
+{
+	If (A_Loopfield = "")
+		continue
+	If (SubStr(A_Loopfield, 1, 1) = "{")
+	{
+		If InStr(A_Loopfield, "prefix")
+		{
+			prefixes += 1
+			affix := "prefix"
+			brace_expected := 0
+		}
+		Else If InStr(A_LoopField, "suffix")
+		{
+			suffixes += 1
+			affix := "suffix"
+			brace_expected := 0
+		}
+	}
+	Else
+	{
+		If (brace_expected = 1)
+			break
+		If (SubStr(A_LoopField, 1, 1) != "(") && (affix = "prefix")
+			%affix%_%prefixes% := (%affix%_%prefixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%prefixes% " / " StrReplace(A_Loopfield, "`r")
+		Else If (SubStr(A_LoopField, 1, 1) != "(") && (affix = "suffix")
+			%affix%_%suffixes% := (%affix%_%suffixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%suffixes% " / " StrReplace(A_Loopfield, "`r")
+		%affix%_%suffixes% := StrReplace(%affix%_%suffixes%, " — Unscalable Value")
+		brace_expected := InStr(A_Loopfield, "`r") ? 1 : 0
+	}
+	
+	Loop 3
+	{
+		prefix_%A_Index% := StrReplace(prefix_%A_Index%, " (crafted)")
+		suffix_%A_Index% := StrReplace(suffix_%A_Index%, " (crafted)")
+	}
+	/*
+	If ((SubStr(A_Loopfield, 1, 1) = "{") && InStr(A_LoopField, "prefix"))
+	{
+		prefixes += 1
+		affix := "prefix"
+		brace_expected := 0
+	}
+	Else If (SubStr(A_LoopField, 1, 1) != "{") && (SubStr(A_LoopField, 1, 1) != "(")
+	{
+		If (brace_expected = 1)
+			break
+		%affix%_%prefixes% := (%affix%_%prefixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%prefixes% " / " StrReplace(A_Loopfield, "`r")
+		brace_expected := InStr(A_Loopfield, "`r") ? 1 : 0
+	}
+	If ((SubStr(A_Loopfield, 1, 1) = "{") && InStr(A_LoopField, "suffix"))
+	{
+		suffixes += 1
+		affix := "suffix"
+		brace_expected := 0
+	}
+	Else If (SubStr(A_LoopField, 1, 1) != "{") && (SubStr(A_LoopField, 1, 1) != "(")
+	{
+		If (brace_expected = 1)
+			break
+		%affix%_%suffixes% := (%affix%_%suffixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%suffixes% " / " StrReplace(A_Loopfield, "`r")
+		brace_expected := InStr(A_Loopfield, "`r") ? 1 : 0
+	}
+	*/
+}
+
+remove_chars := "+-0123456789()%."
+
+Loop 3
+{
+	loop := A_Index
+	prefix_%A_Index%_clean := ""
+	suffix_%A_Index%_clean := ""
+	Loop, Parse, prefix_%A_Index%
+	{
+		If !InStr(remove_chars, A_Loopfield)
+			prefix_%loop%_clean := (prefix_%loop%_clean = "") ? A_Loopfield : prefix_%loop%_clean A_Loopfield
+	}
+	Loop, Parse, suffix_%A_Index%
+	{
+		If !InStr(remove_chars, A_Loopfield)
+			suffix_%loop%_clean := (suffix_%loop%_clean = "") ? A_Loopfield : suffix_%loop%_clean A_Loopfield
+	}
+	loop := A_Index
+	Loop 2
+	{
+		affix := (A_Index = 1) ? "prefix" : "suffix"
+		%affix%_%loop%_clean := StrReplace(%affix%_%loop%_clean, "increased ", "% ")
+		%affix%_%loop%_clean := StrReplace(%affix%_%loop%_clean, "stun and block recovery", "stun recovery")
+		%affix%_%loop%_clean := (SubStr(%affix%_%loop%_clean, 1, 4) = " to ") ? SubStr(%affix%_%loop%_clean, 5) : %affix%_%loop%_clean
+		%affix%_%loop%_clean := (SubStr(%affix%_%loop%_clean, 1, 4) = " of ") ? SubStr(%affix%_%loop%_clean, 5) : %affix%_%loop%_clean
+		%affix%_%loop%_clean := (SubStr(%affix%_%loop%_clean, 1, 1) = " ") ? SubStr(%affix%_%loop%_clean, 2) : %affix%_%loop%_clean
+		%affix%_%loop%_clean := InStr(%affix%_%loop%_clean, "/  to ") ? StrReplace(%affix%_%loop%_clean, "/  to ", "/ ") : %affix%_%loop%_clean
+		%affix%_%loop%_clean := InStr(%affix%_%loop%_clean, "/  ") ? StrReplace(%affix%_%loop%_clean, "/  ", "/ ") : %affix%_%loop%_clean
+		%affix%_%loop%_clean := StrReplace(%affix%_%loop%_clean, "  to  ", " ")
+		%affix%_%loop%_clean := StrReplace(%affix%_%loop%_clean, "  ", " ")
+		StringLower, %affix%_%loop%, %affix%_%loop%_clean
+		%affix%_%loop% := (%affix%_%loop% = "") ? "(empty " affix " slot)" : %affix%_%loop%
+	}
+	/*
+	prefix_%A_Index% := (prefix_%A_Index% = "") ? "(empty prefix slot)" : prefix_%A_Index%
+	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 4) = " to ") ? SubStr(prefix_%A_Index%_clean, 5) : prefix_%A_Index%_clean
+	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 4) = " of ") ? SubStr(prefix_%A_Index%_clean, 5) : prefix_%A_Index%_clean
+	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 1) = " ") ? SubStr(prefix_%A_Index%_clean, 2) : prefix_%A_Index%_clean
+	prefix_%A_Index%_clean := InStr(prefix_%A_Index%_clean, "/  to ") ? StrReplace(prefix_%A_Index%_clean, "/  to ", "/ ") : prefix_%A_Index%_clean
+	prefix_%A_Index%_clean := InStr(prefix_%A_Index%_clean, "/  ") ? StrReplace(prefix_%A_Index%_clean, "/  ", "/ ") : prefix_%A_Index%_clean
+	prefix_%A_Index%_clean := StrReplace(prefix_%A_Index%_clean, "  to  ", " ")
+	prefix_%A_Index%_clean := StrReplace(prefix_%A_Index%_clean, "  ", " ")
+	StringLower, prefix_%A_Index%, prefix_%A_Index%_clean
+	prefix_%A_Index% := (prefix_%A_Index% = "") ? "(empty prefix slot)" : prefix_%A_Index%
+	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 4) = " to ") ? SubStr(suffix_%A_Index%_clean, 5) : suffix_%A_Index%_clean
+	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 4) = " of ") ? SubStr(suffix_%A_Index%_clean, 5) : suffix_%A_Index%_clean
+	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 1) = " ") ? SubStr(suffix_%A_Index%_clean, 2) : suffix_%A_Index%_clean
+	suffix_%A_Index%_clean := InStr(suffix_%A_Index%_clean, "/  to ") ? StrReplace(suffix_%A_Index%_clean, "/  to ", "/ ") : suffix_%A_Index%_clean
+	suffix_%A_Index%_clean := InStr(suffix_%A_Index%_clean, "/  ") ? StrReplace(suffix_%A_Index%_clean, "/  ", "/ ") : suffix_%A_Index%_clean
+	suffix_%A_Index%_clean := StrReplace(suffix_%A_Index%_clean, "  to  ", " ")
+	suffix_%A_Index%_clean := StrReplace(suffix_%A_Index%_clean, "  ", " ")
+	StringLower, suffix_%A_Index%, suffix_%A_Index%_clean
+	suffix_%A_Index% := (suffix_%A_Index% = "") ? "(empty suffix slot)" : suffix_%A_Index%
+	*/
+}
+
+recomb_item2 := (recomb_item1 = "") ? "" : recomb_item1
+prefix_pool2 := (prefix_pool1 = "") ? "" : prefix_pool1
+prefix_pool1 := prefix_1 "," prefix_2 "," prefix_3 ","
+prefix_pool1 := StrReplace(prefix_pool1, "(empty prefix slot),")
+suffix_pool2 := (suffix_pool1 = "") ? "" : suffix_pool1
+suffix_pool1 := suffix_1 "," suffix_2 "," suffix_3 ","
+suffix_pool1 := StrReplace(suffix_pool1, "(empty suffix slot),")
+recomb_item1 := item_name ":`n`n" prefix_1 "`n" prefix_2 "`n" prefix_3 "`n`n" suffix_1 "`n" suffix_2 "`n" suffix_3
+recomb_item1 := StrReplace(recomb_item1, "(empty prefix slot)")
+recomb_item1 := StrReplace(recomb_item1, "(empty suffix slot)")
+GoSub, Recombinators_add2
+Return
+
+Recombinators_add2:
+If WinExist("ahk_id " hwnd_recombinator_window)
+	WinGetPos, xRecomb_window, yRecomb_window
+style_recomb_window := WinExist("ahk_id " hwnd_recombinator_window) ? " x"xRecomb_window " y"yRecomb_window : " Center"
+Gui, recombinator_window: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_recombinator_window, Lailloken UI: recombinators
+Gui, recombinator_window: Color, Black
+Gui, recombinator_window: Margin, 12, 4
+WinSet, Transparent, %trans%
+Gui, recombinator_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
+Loop, Parse, recomb_item1, `n, `n
+{
+	If (A_Index = 1)
+	{
+		add_text := (StrLen(A_Loopfield) > 25) ? " [...]" : ""
+		Gui, recombinator_window: Add, Text, % "Section BackgroundTrans vRecomb_item1_name w"poe_width/8, % SubStr(A_Loopfield, 1, 25) add_text
+		continue
+	}
+	If (A_Index = 2)
+	{
+		Gui, recombinator_window: Add, Text, % "xs y+0 BackgroundTrans vRecomb_item1_class wp", % A_Loopfield
+		Gui, recombinator_window: Font, % "s"fSize0 - 4
+		continue
+	}
+	If A_Index between 4 and 6
+	{
+		Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp vRecomb_item1_prefix"A_Index - 3, % A_LoopField
+		continue
+	}
+	If (A_Index = 8)
+		Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp y+"fSize0 " vRecomb_item1_suffix"A_Index - 7, % A_LoopField
+	If (A_Index > 8)
+		Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp vRecomb_item1_suffix"A_Index - 7, % A_LoopField
+}
+recomb_item2 := (recomb_item2 = "") ? "sample item`nclass x:`n`n`n`n`n`n`n`n" : recomb_item2
+If (recomb_item2 != "")
+{
+	prefix_pool_unique := ""
+	suffix_pool_unique := ""
+	prefix_pool_target := ""
+	suffix_pool_target := ""
+	
+	Loop, Parse, recomb_item1, `n, `n
+	{
+		If (A_Index < 4) || (A_LoopField = "")
+			continue
+		If (A_Index < 8)
+			prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
+		If (A_Index > 7)
+			suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+	}
+	Loop, Parse, recomb_item2, `n, `n
+	{
+		If (A_Index < 4) || (A_LoopField = "")
+			continue
+		If (A_Index < 8)
+			prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
+		If (A_Index > 7)
+			suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+	}
+	prefix_pool_unique := StrReplace(prefix_pool_unique, "(empty prefix slot),")
+	suffix_pool_unique := StrReplace(suffix_pool_unique, "(empty suffix slot),")
+	
+	Gui, recombinator_window: Font, s%fSize0% underline
+	Gui, recombinator_window: Add, Text, % "xs BackgroundTrans HWNDprefix_header wp y+"fSize0*1.2, desired prefixes:
+	Gui, recombinator_window: Font, % "norm s"fSize0 - 3
+	Loop, Parse, prefix_pool_unique, `,, `,
+	{
+		;If InStr(A_LoopField, "(empty")
+		;	continue
+		If (A_Loopfield = "")
+			continue
+		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc", % A_LoopField
+	}
+	Gui, recombinator_window: Font, % "norm s"fSize0
+	
+	Loop, Parse, recomb_item2, `n, `n
+	{
+		If (A_Index = 1)
+		{
+			add_text := (StrLen(A_Loopfield) > 25) ? " [...]" : ""
+			Gui, recombinator_window: Add, Text, % "ys Section BackgroundTrans vRecomb_item2_name w"poe_width/8, % SubStr(A_Loopfield, 1, 25) add_text
+			continue
+		}
+		If (A_Index = 2)
+		{
+			Gui, recombinator_window: Add, Text, % "xs y+0 BackgroundTrans vRecomb_item2_class wp", % A_Loopfield
+			Gui, recombinator_window: Font, % "s"fSize0 - 4
+			continue
+		}
+		If A_Index between 4 and 6
+		{
+			Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp vRecomb_item2_prefix"A_Index - 3, % A_LoopField
+			continue
+		}
+		If (A_Index = 8)
+			Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp y+"fSize0 " vRecomb_item2_suffix"A_Index - 7, % A_LoopField
+		If (A_Index > 8)
+			Gui, recombinator_window: Add, Edit, % "xs BackgroundTrans gRecombinators_input cBlack lowercase wp hp vRecomb_item2_suffix"A_Index - 7, % A_LoopField
+	}
+	Gui, recombinator_window: Font, underline s%fSize0%
+	Gui, recombinator_window: Add, Text, % "xs BackgroundTrans HWNDsuffix_header wp y+"fSize0*1.2, desired suffixes:
+	Gui, recombinator_window: Font, % "norm s"fSize0 - 3
+	Loop, Parse, suffix_pool_unique, `,, `,
+	{
+		If (A_Loopfield = "")
+			continue
+		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc", % A_LoopField
+	}
+	Gui, recombinator_window: Font, s%fSize0% underline
+	Gui, recombinator_window: Add, Text, % "xs wp vRecomb_success gRecombinators_apply BackgroundTrans y+"fSize0*1.2, % "chance of success: 100.00%"
+	GuiControl, Text, recomb_success, chance of success:
+	Gui, recombinator_window: Font, norm
+}
+/*
+Loop 2
+{
+	If (recomb_regular != 1) && (A_Gui != "recombinator_window")
+	{
+		recomb_item1 := "sample item`nclass`n`n(empty prefix slot)`n(empty prefix slot)`n(empty prefix slot)`n`n(empty suffix slot)`n(empty suffix slot)`n(empty suffix slot)"
+		recomb_item2 := recomb_item1
+	}
+	style_recomb_box := (A_Index = 1) ? "" : " w"wRecomb_box
+	Gui, recombinator_window: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_recombinator_window, Lailloken UI: recombinators (based on u/TheDiabeetusKing's guide)
+	Gui, recombinator_window: Color, Black
+	Gui, recombinator_window: Margin, 12, 4
+	WinSet, Transparent, %trans%
+	Gui, recombinator_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
+	If (recomb_regular = 1)
+		Gui, recombinator_window: Add, Text, % "Section BackgroundTrans Border HWNDrecomb_box1"style_recomb_box, % recomb_item1
+	Else Gui, recombinator_window: Add, Edit, % "Section BackgroundTrans cBlack lowercase vRecomb_item1 HWNDrecomb_box1 w"poe_width/8 " r10", % recomb_item1
+	ControlGetPos, xBox1,, wBox1,,, ahk_id %recomb_box1%
+	If (recomb_item2 != "") || (recomb_regular != 1)
+	{
+		prefix_pool_unique := ""
+		suffix_pool_unique := ""
+		prefix_pool_target := ""
+		suffix_pool_target := ""
+		If (recomb_regular = 1)
+			Gui, recombinator_window: Add, Text, % "ys BackgroundTrans Border HWNDrecomb_box2"style_recomb_box, % recomb_item2
+		Else Gui, recombinator_window: Add, Edit, % "ys BackgroundTrans cBlack lowercase vRecomb_item2 HWNDrecomb_box2 w"poe_width/8 " r10", % recomb_item2
+		ControlGetPos, xBox2,, wBox2,,, ahk_id %recomb_box2%
+		Loop, Parse, recomb_item1, `n, `n
+		{
+			If (A_Index < 4) || (A_LoopField = "")
+				continue
+			If (A_Index < 8)
+				prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+				;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
+			If (A_Index > 7)
+				suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+		}
+		Loop, Parse, recomb_item2, `n, `n
+		{
+			If (A_Index < 4) || (A_LoopField = "")
+				continue
+			If (A_Index < 8)
+				prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+				;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
+			If (A_Index > 7)
+				suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+		}
+		prefix_pool_unique := StrReplace(prefix_pool_unique, "(empty prefix slot),")
+		suffix_pool_unique := StrReplace(suffix_pool_unique, "(empty suffix slot),")
+		
+		Gui, recombinator_window: Font, underline
+		Gui, recombinator_window: Add, Text, % "xs Section BackgroundTrans HWNDprefix_header y+"fSize0*1.2, desired prefixes:
+		Gui, recombinator_window: Font, % "norm s"fSize0 - 3
+		yPosMax := 0
+		Loop, Parse, prefix_pool_unique, `,, `,
+		{
+			;If InStr(A_LoopField, "(empty")
+			;	continue
+			If (A_Loopfield = "")
+				continue
+			Gui, recombinator_window: Add, Checkbox, % "xs w"wBox1 " BackgroundTrans gRecombinators_calc HWNDmain_text", % A_LoopField
+			ControlGetPos,, yPosCheck,, hCheck,, ahk_id %main_text%
+			yPosMax := (yPosCheck + hCheck > yPosMax) ? yPosCheck + hCheck : yPosMax
+		}
+		Gui, recombinator_window: Font, underline s%fSize0%
+		Gui, recombinator_window: Add, Text, % "ys Section BackgroundTrans x"xBox2, desired suffixes:
+		Gui, recombinator_window: Font, % "norm s"fSize0 - 3
+		Loop, Parse, suffix_pool_unique, `,, `,
+		{
+			If (A_Loopfield = "")
+				continue
+			Gui, recombinator_window: Add, Checkbox, % "xs w"wBox2 "BackgroundTrans gRecombinators_calc HWNDmain_text", % A_LoopField
+			ControlGetPos,, yPosCheck,, hCheck,, ahk_id %main_text%
+			yPosMax := (yPosCheck + hCheck > yPosMax) ? yPosCheck + hCheck : yPosMax
+		}
+		Gui, recombinator_window: Font, underline s%fSize0%
+		If (recomb_regular = 1)
+			Gui, recombinator_window: Add, Text, % "xs Section BackgroundTrans y"yPosMax, % "chance of success:"
+		Else Gui, recombinator_window: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "chance of success:"
+		Gui, recombinator_window: Font, norm
+		Gui, recombinator_window: Add, Text, % "ys vRecomb_success BackgroundTrans", 100.00`%
+		GuiControl, Text, recomb_success,
+	}
+	If (A_Index = 1)
+	{
+		Gui, recombinator_window: Show, Hide
+		wRecomb_box := (wBox1 > wBox2) ? wBox1 : wBox2
+	}
+	Else Gui, recombinator_window: Show, NA %style_recomb_window%
+}
+	*/
+ControlFocus,, ahk_id %prefix_header%
+If (recomb_regular != 1)
+	Gui, recombinator_window: Show, %style_recomb_window%
+Else Gui, recombinator_window: Show, NA %style_recomb_window%
+;If (recomb_regular = 1)
+;	LLK_Overlay("recombinator_window", "show")
+;Else LLK_Overlay("recombinator_window", "show")
+KeyWait, LButton
+Gui, context_menu: Destroy
+If (recomb_apply != 1) && (recomb_regular = 1)
+	WinActivate, ahk_group poe_window
+recomb_regular := 0
+recomb_apply := 0
+Return
+
+Recombinators_apply:
+recomb_apply := 1
+Gui, recombinator_window: Submit, NoHide
+Loop 3
+{
+	If InStr(recomb_item1_prefix%A_Index%, ",") || InStr(recomb_item2_prefix%A_Index%, ",") || InStr(recomb_item1_suffix%A_Index%, ",") || InStr(recomb_item2_suffix%A_Index%, ",")
+	{
+		LLK_ToolTip("don't use commas in text fields!")
+		recomb_apply := 0
+		Return
+	}
+}
+GuiControlGet, recomb_item1_name
+GuiControlGet, recomb_item1_class
+GuiControlGet, recomb_item2_name
+GuiControlGet, recomb_item2_class
+prefix_pool1 := ""
+prefix_pool2 := ""
+suffix_pool1 := ""
+suffix_pool2 := ""
+Loop 3
+{
+	prefix_pool1 := (recomb_item1_prefix%A_Index% != "") ? prefix_pool1 recomb_item1_prefix%A_Index% "," : prefix_pool1
+	prefix_pool2 := (recomb_item2_prefix%A_Index% != "") ? prefix_pool2 recomb_item2_prefix%A_Index% "," : prefix_pool2
+	suffix_pool1 := (recomb_item1_suffix%A_Index% != "") ? suffix_pool1 recomb_item1_suffix%A_Index% "," : suffix_pool1
+	suffix_pool2 := (recomb_item2_suffix%A_Index% != "") ? suffix_pool2 recomb_item2_suffix%A_Index% "," : suffix_pool2
+}
+recomb_item1 := recomb_item1_name "`n" recomb_item1_class "`n`n" recomb_item1_prefix1 "`n" recomb_item1_prefix2 "`n" recomb_item1_prefix3 "`n`n" recomb_item1_suffix1 "`n" recomb_item1_suffix2 "`n" recomb_item1_suffix3
+recomb_item2 := recomb_item2_name "`n" recomb_item2_class "`n`n" recomb_item2_prefix1 "`n" recomb_item2_prefix2 "`n" recomb_item2_prefix3 "`n`n" recomb_item2_suffix1 "`n" recomb_item2_suffix2 "`n" recomb_item2_suffix3
+;ToolTip, % recomb_item1_prefix1 "," recomb_item1_prefix2 "," recomb_item1_prefix3 "," recomb_item1_suffix1 "," recomb_item1_suffix2 "," recomb_item1_suffix3 "`n" recomb_item2_prefix1 "," recomb_item2_prefix2 "," recomb_item2_prefix3 "," recomb_item2_suffix1 "," recomb_item2_suffix2 "," recomb_item2_suffix3 "`n"
+GoSub, Recombinators_add2
+Return
+
+Recombinators_calc:
+Gui, recombinator_window: Submit, NoHide
+affix := InStr(prefix_pool_unique, A_GuiControl) ? "prefix" : "suffix"
+%affix%_pool_target := InStr(%affix%_pool_target, A_GuiControl ",") ? StrReplace(%affix%_pool_target, A_GuiControl ",") : %affix%_pool_target A_GuiControl ","
+If (LLK_InStrCount(%affix%_pool_target, ",") > 3)
+{
+	LLK_ToolTip("too many " affix "es")
+	%affix%_pool_target := StrReplace(%affix%_pool_target, A_GuiControl ",")
+	GuiControl, , %A_GuiControl%, 0
+}
+Loop 2
+{
+	affix := (A_Index = 1) ? "prefix" : "suffix"
+	Loop, Parse, % mod_pool_count[LLK_InStrCount(%affix%_pool, ",")], `,, `,
+		%affix%_chance_%A_Index%mod := A_Loopfield
+	%affix%_pool_number := LLK_InStrCount(%affix%_pool1, ",") + LLK_InStrCount(%affix%_pool2, ",")
+	%affix%_target_number := LLK_InStrCount(%affix%_pool_target, ",")
+	%affix%_pool_unique_number := LLK_InStrCount(%affix%_pool_unique, ",")
+	Loop, Parse, % mod_pool_count[%affix%_pool_number], `,, `,
+		chance_%A_Index%%affix% := A_Loopfield
+
+	chance_1roll := 1
+	chance_2roll := 1
+	chance_3roll := 1
+	If (%affix%_target_number != 0)
+	{
+		chance_1roll := (%affix%_target_number <= 1) ? 1 / %affix%_pool_unique_number : 0
+		Loop 2
+		{
+			loopmod := A_Index - 1
+			chance_2roll *= (%affix%_target_number <= 2) ? (2 - loopmod) / (%affix%_pool_unique_number - loopmod) : 0
+			If (A_Index = %affix%_target_number)
+				break
+		}
+		Loop 3
+		{
+			loopmod := A_Index - 1
+			chance_3roll *= (3 - loopmod) / (%affix%_pool_unique_number - loopmod)
+			If (A_Index = %affix%_target_number)
+				break
+		}
+		chance_2roll := (chance_2roll > 1) ? 1 : chance_2roll
+		chance_3roll := (chance_3roll > 1) ? 1 : chance_3roll
+		/*
+		Loop, % prefix_target_number
+		{
+			loopmod := A_Index - 1
+			chance_1roll *= (prefix_target_number < 2) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+			chance_2roll *= (prefix_target_number < 3) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+			chance_3roll *= (prefix_target_number < 4) && (A_Index < 4) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+			If (A_Index = prefix_target_number)
+			{
+				
+				break
+			}
+		}
+		*/
+	}
+	Loop, 3
+	{
+		chance_%A_Index%roll_%affix% := chance_%A_Index%roll ;chance for X slots to hit desired mods
+		chance_%A_Index%roll *= chance_%A_Index%%affix% ;chance for X slots to hit desired mods, and to appear on the final item
+	}
+	%affix%_chance := chance_1roll + chance_2roll + chance_3roll ;chance for desired affix-group to appear on the final item
+	%affix%_chance := (%affix%_chance > 1) ? 1 : %affix%_chance
+}
+debug_tooltip =
+(
+prefix_pool: %prefix_pool1% %prefix_pool2%
+suffix_pool: %suffix_pool1% %suffix_pool2%
+prefix_pool_unique: %prefix_pool_unique%
+suffix_pool_unique: %suffix_pool_unique%
+prefix_pool_target: %prefix_pool_target%
+suffix_pool_target: %suffix_pool_target%
+prefix roll odds: %chance_1roll_prefix%, %chance_2roll_prefix%, %chance_3roll_prefix%,
+prefix slot chances: %chance_1prefix%, %chance_2prefix%, %chance_3prefix%
+suffix roll odds: %chance_1roll_suffix%, %chance_2roll_suffix%, %chance_3roll_suffix%,
+suffix slot chances: %chance_1suffix%, %chance_2suffix%, %chance_3suffix%
+)
+;ToolTip, % debug_tooltip, 0, 0
+If (prefix_target_number + suffix_target_number > 0)
+	GuiControl, Text, recomb_success, % "chance of success: " Format("{:0.2f}", (prefix_chance * suffix_chance)*100) "%"
+Else GuiControl, Text, recomb_success, % "chance of success: "
+Return
+
+
+prefix_pool_number := LLK_InStrCount(prefix_pool1, ",") + LLK_InStrCount(prefix_pool2, ",")
+prefix_target_number := LLK_InStrCount(prefix_pool_target, ",")
+prefix_pool_unique_number := LLK_InStrCount(prefix_pool_unique, ",")
+Loop, Parse, % mod_pool_count[prefix_pool_number], `,, `,
+	chance_%A_Index%prefix := A_Loopfield
+
+chance_1roll := 1
+chance_2roll := 1
+chance_3roll := 1
+
+If (prefix_target_number != 0)
+{
+	chance_1roll := (prefix_target_number <= 1) ? 1 / prefix_pool_unique_number : 0
+	Loop 2
+	{
+		loopmod := A_Index - 1
+		chance_2roll *= (prefix_target_number <= 2) ? (2 - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+		If (A_Index = prefix_target_number)
+			break
+	}
+	Loop 3
+	{
+		loopmod := A_Index - 1
+		chance_3roll *= (3 - loopmod) / (prefix_pool_unique_number - loopmod)
+		If (A_Index = prefix_target_number)
+			break
+	}
+	chance_2roll := (chance_2roll > 1) ? 1 : chance_2roll
+	chance_3roll := (chance_3roll > 1) ? 1 : chance_3roll
+	/*
+	Loop, % prefix_target_number
+	{
+		loopmod := A_Index - 1
+		chance_1roll *= (prefix_target_number < 2) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+		chance_2roll *= (prefix_target_number < 3) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+		chance_3roll *= (prefix_target_number < 4) && (A_Index < 4) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
+		If (A_Index = prefix_target_number)
+		{
+			
+			break
+		}
+	}
+	*/
+}
+Loop, 3
+{
+	chance_%A_Index%roll_copy := chance_%A_Index%roll
+	chance_%A_Index%roll *= chance_%A_Index%prefix
+}
+debug_tooltip =
+(
+prefix_pool: %prefix_pool1% %prefix_pool2%
+suffix_pool: %suffix_pool1% %suffix_pool2%
+prefix_pool_unique: %prefix_pool_unique%
+suffix_pool_unique: %suffix_pool_unique%
+prefix_pool_target: %prefix_pool_target%
+suffix_pool_target: %suffix_pool_target%
+prefix roll odds: %chance_1roll_copy%, %chance_2roll_copy%, %chance_3roll_copy%,
+prefix slot chances: %chance_1prefix%, %chance_2prefix%, %chance_3prefix%
+)
+ToolTip, % debug_tooltip, 0, 0
+If (prefix_target_number + suffix_target_number > 0)
+	GuiControl, Text, recomb_success, % "chance of success: " Format("{:0.2f}", (chance_1roll + chance_2roll + chance_3roll)*100) "%"
+Else GuiControl, Text, recomb_success, % "chance of success:"
+Return
+
+Recombinators_input:
+GuiControl, Text, recomb_success, refresh
+Return
+
 Screenchecks:
 If (click = 2)
 {
@@ -2772,16 +3433,17 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 	WinActivate, ahk_group poe_window
 	Return
 }
-settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "border" : ""
-alarm_style := InStr(A_GuiControl, "alarm") ? "border" : ""
-betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "border" : ""
-clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "border" : ""
-flask_style := InStr(A_GuiControl, "flask") ? "border" : ""
-map_mods_style := InStr(A_GuiControl, "map") ? "border" : ""
-notepad_style := InStr(A_GuiControl, "notepad") ? "border" : ""
-omnikey_style := InStr(A_GuiControl, "omni-key") ? "border" : ""
-pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "border" : ""
-geforce_style := InStr(A_GuiControl, "geforce") ? "border" : ""
+settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "cAqua" : "cWhite"
+alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : ""
+betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "cAqua" : "cWhite"
+clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
+flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
+map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
+notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
+omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
+pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
+stash_style := InStr(A_GuiControl, "stash-search") || InStr(A_GuiControl, "stash_search") ? "cAqua" : "cWhite"
+geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
 {
@@ -2841,16 +3503,18 @@ If !InStr(buggy_resolutions, poe_height)
 	If pixel_gamescreen_x1 is number
 	{
 		If (screenchecks_all_valid = 0)
-			Gui, settings_menu: Font, cRed
+			pixelcheck_style := "cRed"
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "screen-checks"
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
 		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-		Gui, settings_menu: Font, cWhite
 	}
-	
+	/*
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %stash_style% gSettings_menu HWNDhwnd_settings_stashsearch, % "stash-search"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_stashsearch%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	*/
 	If WinExist("ahk_exe GeForceNOW.exe")
 	{
-		Gui, settings_menu: Font, cLime
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %geforce_style% gSettings_menu HWNDhwnd_settings_geforce, % "geforce now"
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_geforce%
 		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
@@ -2887,6 +3551,8 @@ Else If InStr(GuiControl_copy, "omni")
 	GoSub, Settings_menu_omnikey
 Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen")
 	GoSub, Settings_menu_screenchecks
+Else If InStr(GuiControl_copy, "stash-search") || InStr(GuiControl_copy, "stash_search")
+	GoSub, Settings_menu_stash_search
 Else If InStr(GuiControl_copy, "geforce")
 	GoSub, Settings_menu_geforce_now
 
@@ -2986,7 +3652,8 @@ ControlGetPos,,,, controlheight,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4 "norm"
 Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gGeforce_now_apply Center Limit3 vPixelsearch_variation w"controlheight*1.6, %pixelsearch_variation%
 Gui, settings_menu: Font, s%fSize0%
-Gui, settings_menu: Add, Text, % "xs y+0 BackgroundTrans", % "(range: 0–255, default: 0)"
+Gui, settings_menu: Add, Text, % "xs Section y+0 BackgroundTrans", % "(range: 0–255, default: 0) "
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vGeForce_now_help hp w-1", img\GUI\help.png
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "image-check allowed variation: "
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
@@ -3055,6 +3722,40 @@ explanation
 0 hides the mod from now on, and higher values have distinct text-colors.
 
 it's up to you how to tier the mods and whether to use all tiers.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "stash_search_new_help")
+{
+text =
+(
+explanation
+name: has to be unique, otherwise an existing search with the same name will be replaced.
+
+string: has to be a valid string that works in game. it will not be corrected or checked for errors here, so make sure it works before saving it.
+
+scrolling: if enabled, scrolling will adjust a number within the string, and the string can only contain a single number.
+
+right-click function: a secondary string, or url. this will be pasted/opened when right-clicking the saved shortcut.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "geforce_now_help")
+{
+text =
+(
+explanation
+since geforce now is a streaming-based client, its image quality can fluctuate significantly.
+this results in screen-checks being inconsistent and the script behaving abnormally.
+to counteract this, screen-checks can be 'loosened' in order to be less strict and adapt to changing image-quality.
+
+instructions
+if you have problems with screen-checks, increase variation by 15 and see if that fixes it.
+repeat until the script's behavior becomes stable.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -3315,6 +4016,25 @@ ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center Border gScreenchecks_settings_apply vImage_folder HWNDmain_text y+"fSize0*0.6 " w"width, % " img folder "
 Return
 
+Settings_menu_stash_search:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans xp+"spacing_settings*1.2, list of searches currently set up:
+IniRead, stash_search_list, ini\stash search.ini
+Loop, Parse, stash_search_list, `n, `n
+{
+	If (A_LoopField = "Settings")
+		continue
+	If stash_search_%A_LoopField%_enable is not number
+		IniRead, stash_search_%A_LoopField%_enable, ini\stash search.ini, %A_LoopField%, enable, 1
+	If (stash_search_%A_LoopField%_enable = 1)
+		stash_searches_enabled := (stash_searches_enabled = "") ? A_LoopField "," : A_LoopField "," stash_searches_enabled
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gStash_search_apply Checked" stash_search_%A_LoopField%_enable " vStash_search_" A_LoopField "_enable", % "enable: "
+	Gui, settings_menu: Font, underline
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % A_LoopField
+	Gui, settings_menu: Font, norm
+}
+Gui, settings_menu: Add, Text, % "xs Section Border gStash_search_new vStash_add BackgroundTrans y+"fSize0*1.2, % " add search "
+Return
+
 Settings_menuGuiClose:
 WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 Gui, settings_menu: Submit
@@ -3339,6 +4059,134 @@ If WinExist("ahk_id " hwnd_alarm_sample)
 	hwnd_alarm_sample := ""
 }
 WinActivate, ahk_group poe_window
+Return
+
+Stash_search_apply:
+
+Return
+
+Stash_search_new:
+Gui, settings_menu: Submit
+LLK_Overlay("settings_menu", "hide")
+Gui, stash_search_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_stash_search_menu, Lailloken UI: stash-search configuration
+Gui, stash_search_menu: Color, Black
+Gui, stash_search_menu: Margin, 12, 4
+WinSet, Transparent, %trans%
+Gui, stash_search_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+
+Gui, stash_search_menu: Add, Text, Section BackgroundTrans HWNDmain_text, % "unique search name: "
+ControlGetPos,,, width,,, ahk_id %main_text%
+
+Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
+Gui, stash_search_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack lowercase vStash_search_new_name wp",
+
+Gui, stash_search_menu: Font, % "s"fSize0
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "search string:"
+Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll gStash_search_scroll", enable scrolling
+Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
+Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string w"width*2,
+Gui, stash_search_menu: Font, % "s"fSize0
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "right-click function: "
+Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
+Gui, stash_search_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r3 vStash_search_new_secondary w"width/2, none||string|url
+Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string1 w"width*2,
+Gui, stash_search_menu: Font, % "s"fSize0
+Gui, stash_search_menu: Add, Text, xs Section Border BackgroundTrans vStash_search_save gStash_search_save y+%fSize0%, % " save && close "
+Gui, stash_search_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vStash_search_new_help hp w-1", img\GUI\help.png
+
+Gui, stash_search_menu: Show, % "Hide Center"
+LLK_Overlay("stash_search_menu", "show", 0)
+Return
+
+Stash_search_preview_list:
+
+Return
+
+Stash_search_scroll:
+Gui, stash_search_menu: Submit, NoHide
+Return
+
+Stash_search_save:
+Gui, stash_search_menu: Submit, NoHide
+stash_search_new_name_first_letter := SubStr(stash_search_new_name, 1, 1)
+If (stash_search_new_name = "")
+{
+	LLK_ToolTip("enter a name")
+	Return
+}
+If (stash_search_new_string = "")
+{
+	LLK_ToolTip("enter a string")
+	Return
+}
+If ((stash_search_new_secondary != "none") && (stash_search_new_string1 = ""))
+{
+	LLK_ToolTip("right-click empty")
+	Return
+}
+If ((stash_search_new_secondary = "none") && (stash_search_new_string1 != ""))
+{
+	LLK_ToolTip("right-click set to 'none',`nbut string not empty", 2)
+	Return
+}
+If (stash_search_new_name = "settings")
+{
+	LLK_ToolTip("The selected name is not allowed.`nPlease choose a different name.", 3)
+	GuiControl, stash_search_menu: Text, stash_search_new_name,
+	Return
+}
+If stash_search_new_name_first_letter is not alnum
+{
+	LLK_ToolTip("Unsupported first character in frame-name detected.`nPlease choose a different name.", 3)
+	GuiControl, stash_search_menu: Text, stash_search_new_name,
+	Return
+}
+If (stash_search_new_scroll = 1)
+{
+	parse_string := ""
+	numbers := 0
+	Loop, Parse, stash_search_new_string
+	{
+		If A_Loopfield is number
+			parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
+		Else parse_string := (parse_string = "") ? "," : parse_string ","
+	}
+	Loop, Parse, parse_string, `,, `,
+	{
+		If A_Loopfield is number
+			numbers += 1
+		If (numbers > 1)
+		{
+			LLK_ToolTip("cannot scroll:`nstring has more than`none number", 2)
+			Return
+		}
+	}
+	If (numbers = 0)
+	{
+		LLK_ToolTip("cannot scroll:`nstring has no number")
+		Return
+	}
+}
+If (stash_search_new_secondary = "none")
+	stash_search_new_secondary := 0
+Else stash_search_new_secondary := (stash_search_new_secondary = "string") ? 1 : 2
+stash_search_new_name_save := ""
+Loop, Parse, stash_search_new_name
+{
+	If (A_LoopField = A_Space)
+		add_character := "_"
+	Else If A_LoopField is not alnum
+		add_character := "_"
+	Else add_character := A_LoopField
+	stash_search_new_name_save := (stash_search_new_name_save = "") ? add_character : stash_search_new_name_save add_character
+}
+IniWrite, 1, ini\stash search.ini, % stash_search_new_name_save, enable
+IniWrite, "%stash_search_new_string%", ini\stash search.ini, % stash_search_new_name_save, string 1
+IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, enable scrolling
+IniWrite, % stash_search_new_secondary, ini\stash search.ini, % stash_search_new_name_save, secondary
+IniWrite, "%stash_search_new_string1%", ini\stash search.ini, % stash_search_new_name_save, string 2
+GoSub, settings_menu
+Gui, stash_search_menu: Destroy
 Return
 
 ToolTip_clear:
@@ -3401,10 +4249,10 @@ LLK_ImageSearch(name := "")
 	Gdip_DisposeImage(pHaystack_ImageSearch)
 }
 
-LLK_InStrCount(var, string)
+LLK_InStrCount(string, character)
 {
 	count := 0
-	Loop, Parse, var
+	Loop, Parse, string
 	{
 		If (A_Loopfield = character)
 			count += 1
