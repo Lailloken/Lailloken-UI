@@ -2996,7 +2996,7 @@ If (recomb_item2 != "")
 		;	continue
 		If (A_Loopfield = "")
 			continue
-		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc", % A_LoopField
+		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc vCheckbox_prefix"A_Index, % A_LoopField
 	}
 	Gui, recombinator_window: Font, % "norm s"fSize0
 	
@@ -3031,7 +3031,7 @@ If (recomb_item2 != "")
 	{
 		If (A_Loopfield = "")
 			continue
-		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc", % A_LoopField
+		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc vCheckbox_suffix"A_Index, % A_LoopField
 	}
 	Gui, recombinator_window: Font, s%fSize0% underline
 	Gui, recombinator_window: Add, Text, % "xs wp vRecomb_success gRecombinators_apply BackgroundTrans y+"fSize0*1.2, % "chance of success: 100.00%"
@@ -3180,13 +3180,15 @@ Return
 
 Recombinators_calc:
 Gui, recombinator_window: Submit, NoHide
-affix := InStr(prefix_pool_unique, A_GuiControl) ? "prefix" : "suffix"
+GuiControlGet, checkbox_text,, %A_GuiControl%, text
+affix := InStr(prefix_pool_unique, checkbox_text) ? "prefix" : "suffix"
 %affix%_pool_target := InStr(%affix%_pool_target, A_GuiControl ",") ? StrReplace(%affix%_pool_target, A_GuiControl ",") : %affix%_pool_target A_GuiControl ","
 If (LLK_InStrCount(%affix%_pool_target, ",") > 3)
 {
 	LLK_ToolTip("too many " affix "es")
 	%affix%_pool_target := StrReplace(%affix%_pool_target, A_GuiControl ",")
 	GuiControl, , %A_GuiControl%, 0
+	Return
 }
 Loop 2
 {
