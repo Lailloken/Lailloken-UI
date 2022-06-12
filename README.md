@@ -6,7 +6,7 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ### Clone-frames: pseudo-customization of the in-game interface ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames))  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 ***
-### Recombinator calculator: client-integrated calculator for recombinators in Sentinel ([more info](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.25.0-hotfix))  
+### Recombinator calculator: client-integrated calculator for recombinators in Sentinel ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator))  
 ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png)  
 ***
 ### Overhauled map-info panel: streamlined and customizable ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
