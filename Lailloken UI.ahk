@@ -2596,7 +2596,7 @@ If InStr(A_GuiControl, "crafting_table")
 		wiki_cluster := SubStr(wiki_cluster, 1, InStr(wiki_cluster, "(")-2)
 		If (enable_browser_features = 1)
 		{
-			ToolTip, % "Press F3 to highlight the jewel's enchant/type`n(This will time out in 10 seconds)", % xScreenOffset + poe_width//2, yScreenOffset + poe_height//2, 15
+			ToolTip, % "Press F3 to highlight the jewel's enchant/type", % xScreenOffset + poe_width//2, yScreenOffset + poe_height//2, 15
 			SetTimer, Timeout_cluster_jewels
 		}
 	}
