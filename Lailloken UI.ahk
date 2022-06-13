@@ -19,6 +19,9 @@ font1 := New CustomFont("Fontin-SmallCaps.ttf")
 timeout := 1
 Menu, Tray, Icon, img\GUI\tray.ico
 
+IniRead, enable_caps_toggling, ini\config.ini, Settings, enable CapsLock-toggling, 1
+SetStoreCapsLockMode, %enable_caps_toggling%
+
 If !pToken := Gdip_Startup()
 {
 	MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
@@ -130,6 +133,7 @@ IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
 IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
 IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
 IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
+IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
 
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
@@ -720,6 +724,14 @@ If (A_GuiControl = "panel_position1")
 	IniWrite, %panel_position1%, ini\config.ini, UI, panel-position1
 If (A_GuiControl = "hide_panel")
 	IniWrite, %hide_panel%, ini\config.ini, UI, hide panel
+If (A_GuiControl = "enable_browser_features")
+	IniWrite, %enable_browser_features%, ini\config.ini, Settings, enable browser features
+If (A_GuiControl = "enable_caps_toggling")
+{
+	IniWrite, %enable_caps_toggling%, ini\config.ini, Settings, enable CapsLock-toggling
+	Reload
+	ExitApp
+}
 SetTimer, Settings_menu, 10
 GoSub, GUI
 WinActivate, ahk_group poe_window
@@ -2483,6 +2495,15 @@ Else If InStr(clipboard, "other oils")
 	Gui, context_menu: Add, Text, vOil_wiki gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 	Gui, context_menu: Add, Text, vOil_table gOmnikey_menu_selection BackgroundTrans Center, anoint table
 }
+Else If InStr(clipboard, "cluster jewel")
+{
+	If InStr(clipboard, "small cluster")
+		cluster_type := "Small"
+	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
+	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: all
+	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type%
+	Gui, context_menu: Add, Text, vOil_wiki gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+}
 Else
 {
 	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
@@ -2498,6 +2519,8 @@ Loop, Parse, allowed_recomb_classes, `,, `,
 	}
 MouseGetPos, mouseX, mouseY
 Gui, context_menu: Show, % "Hide x"mouseX " y"mouseY
+WinGetPos, x_context,, w_context
+Gui, context_menu: Show, % "Hide x"mouseX - w_context " y"mouseY
 WinGetPos, x_context,, w_context
 If (x_context < xScreenOffset)
 	Gui, context_menu: Show, x%xScreenOffset% y%mouseY%
@@ -2549,7 +2572,10 @@ Loop, Parse, clipboard, `r`n, `r`n
 		wiki_level := StrReplace(wiki_level, " ")
 	}
 	If InStr(A_LoopField, "Added Small Passive Skills grant: ")
+	{
 		wiki_cluster := SubStr(A_LoopField, 35)
+		wiki_cluster := StrReplace(wiki_cluster, "+")
+	}
 }
 If (class="Gloves") || (class="Boots") || (class="Body Armours") || (class="Helmets") || (class="Shields")
 {
@@ -2560,29 +2586,32 @@ If (class="Gloves") || (class="Boots") || (class="Body Armours") || (class="Helm
 	If InStr(clipboard, "Energy Shield: ")
 		attribute := (attribute="") ? "_int" : attribute "_int"
 }
-If (A_GuiControl = "crafting_table")
+If InStr(A_GuiControl, "crafting_table")
 {
 	If InStr(clipboard, "Cluster Jewel")
 	{
-		Run, https://poedb.tw/us/Cluster_Jewel#EnchantmentModifiers
+		If (A_GuiControl = "crafting_table_all_cluster")
+			Run, https://poedb.tw/us/Cluster_Jewel#EnchantmentModifiers
+		Else Run, https://poedb.tw/us/%cluster_type%_Cluster_Jewel#%cluster_type%ClusterJewelEnchantmentModifiers
 		wiki_cluster := SubStr(wiki_cluster, 1, InStr(wiki_cluster, "(")-2)
-		ToolTip, Press F3 to search for modifiers, % xScreenOffset + poe_width//2 - 100, yScreenOffset + poe_height//2, 15
-		KeyWait, F3, D
-		KeyWait, F3
-		ToolTip,,,, 15
-		SendInput, %wiki_cluster%
+		If (enable_browser_features = 1)
+		{
+			ToolTip, % "Press F3 to highlight the jewel's enchant/type", % xScreenOffset + poe_width//2, yScreenOffset + poe_height//2, 15
+			SetTimer, Timeout_cluster_jewels
+		}
 	}
 	Else Run, https://poedb.tw/us/%wiki_term%%attribute%#ModifiersCalc
 	clipboard := wiki_level
 }
 If (A_GuiControl = "chrome_calc")
 {
-	ToolTip, Press CTRL-V to paste stat requirements, % xScreenOffset + poe_width//2 - 100, yScreenOffset + poe_height//2, 15
 	Run, https://siveran.github.io/calc.html
-	clipboard := ""
-	KeyWait, v, D
-	SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
-	ToolTip,,,, 15
+	If (enable_browser_features = 1)
+	{
+		ToolTip, Click into the str field and press`nCTRL-V to paste stat requirements, % xScreenOffset + poe_width//2, yScreenOffset + poe_height//2, 15
+		clipboard := ""
+		SetTimer, Timeout_chromatics
+	}
 }
 Return
 
@@ -2677,7 +2706,7 @@ ToolTip,,,,1
 Return
 
 Omnikey_menu_selection:
-If (A_GuiControl = "chrome_calc") || (A_GuiControl = "crafting_table")
+If (A_GuiControl = "chrome_calc") || InStr(A_GuiControl, "crafting_table")
 	GoSub, Omnikey_craft_chrome
 Else If (A_GuiControl = "oil_wiki")
 	Run, https://www.poewiki.net/wiki/Oil
@@ -3260,73 +3289,6 @@ If (prefix_target_number + suffix_target_number > 0)
 Else GuiControl, Text, recomb_success, % "chance of success: "
 Return
 
-
-prefix_pool_number := LLK_InStrCount(prefix_pool1, ",") + LLK_InStrCount(prefix_pool2, ",")
-prefix_target_number := LLK_InStrCount(prefix_pool_target, ",")
-prefix_pool_unique_number := LLK_InStrCount(prefix_pool_unique, ",")
-Loop, Parse, % mod_pool_count[prefix_pool_number], `,, `,
-	chance_%A_Index%prefix := A_Loopfield
-
-chance_1roll := 1
-chance_2roll := 1
-chance_3roll := 1
-
-If (prefix_target_number != 0)
-{
-	chance_1roll := (prefix_target_number <= 1) ? 1 / prefix_pool_unique_number : 0
-	Loop 2
-	{
-		loopmod := A_Index - 1
-		chance_2roll *= (prefix_target_number <= 2) ? (2 - loopmod) / (prefix_pool_unique_number - loopmod) : 0
-		If (A_Index = prefix_target_number)
-			break
-	}
-	Loop 3
-	{
-		loopmod := A_Index - 1
-		chance_3roll *= (3 - loopmod) / (prefix_pool_unique_number - loopmod)
-		If (A_Index = prefix_target_number)
-			break
-	}
-	chance_2roll := (chance_2roll > 1) ? 1 : chance_2roll
-	chance_3roll := (chance_3roll > 1) ? 1 : chance_3roll
-	/*
-	Loop, % prefix_target_number
-	{
-		loopmod := A_Index - 1
-		chance_1roll *= (prefix_target_number < 2) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
-		chance_2roll *= (prefix_target_number < 3) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
-		chance_3roll *= (prefix_target_number < 4) && (A_Index < 4) ? (prefix_target_number - loopmod) / (prefix_pool_unique_number - loopmod) : 0
-		If (A_Index = prefix_target_number)
-		{
-			
-			break
-		}
-	}
-	*/
-}
-Loop, 3
-{
-	chance_%A_Index%roll_copy := chance_%A_Index%roll
-	chance_%A_Index%roll *= chance_%A_Index%prefix
-}
-debug_tooltip =
-(
-prefix_pool: %prefix_pool1% %prefix_pool2%
-suffix_pool: %suffix_pool1% %suffix_pool2%
-prefix_pool_unique: %prefix_pool_unique%
-suffix_pool_unique: %suffix_pool_unique%
-prefix_pool_target: %prefix_pool_target%
-suffix_pool_target: %suffix_pool_target%
-prefix roll odds: %chance_1roll_copy%, %chance_2roll_copy%, %chance_3roll_copy%,
-prefix slot chances: %chance_1prefix%, %chance_2prefix%, %chance_3prefix%
-)
-ToolTip, % debug_tooltip, 0, 0
-If (prefix_target_number + suffix_target_number > 0)
-	GuiControl, Text, recomb_success, % "chance of success: " Format("{:0.2f}", (chance_1roll + chance_2roll + chance_3roll)*100) "%"
-Else GuiControl, Text, recomb_success, % "chance of success:"
-Return
-
 Recombinators_input:
 GuiControl, Text, recomb_success, refresh
 Return
@@ -3702,6 +3664,12 @@ Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "i
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans y+"fSize0*1.2 " vEnable_browser_features gApply_settings_general Checked"enable_browser_features, % "enable browser features"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vBrowser_features_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans y+"fSize0*1.2 " vEnable_caps_toggling gApply_settings_general Checked"enable_caps_toggling, % "enable capslock-toggling"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vCaps_toggling_help hp w-1", img\GUI\help.png
 Return
 
 Settings_menu_help:
@@ -3724,6 +3692,38 @@ it's up to you how to tier the mods and whether to use all tiers.
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "browser_features_help")
+{
+text =
+(
+explanation
+enables complementary features when accessing 3rd-party websites in your browser
+
+examples
+- chromatics calculator: auto-input of required stats
+- cluster jewel crafting: F3 quick-search
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "caps_toggling_help")
+{
+text =
+(
+explanation
+toggling this checkbox will restart the script due to code-limitations (and the settings menu will close).
+
+if enabled, the script will toggle the state of capslock to off before sending key-presses in order to avoid case-inversions.
+
+the system will handle this toggling as a capslock key-press, so anything bound to it will be activated.
+
+uncheck this option if you have something bound to capslock (e.g. push-to-talk), but keep in mind unwanted case-inversion may occur as a consequence.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "stash_search_new_help")
 {
 text =
@@ -3733,9 +3733,9 @@ name: has to be unique, otherwise an existing search with the same name will be 
 
 string: has to be a valid string that works in game. it will not be corrected or checked for errors here, so make sure it works before saving it.
 
-scrolling: if enabled, scrolling will adjust a number within the string, and the string can only contain a single number.
+scrolling: if enabled, scrolling will adjust a number within the string. strings can only contain -one- number.
 
-right-click function: a secondary string, or url. this will be pasted/opened when right-clicking the saved shortcut.
+string 2: an optional secondary string. this will be used when right-clicking the shortcut.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -4016,6 +4016,7 @@ Return
 Settings_menu_stash_search:
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans xp+"spacing_settings*1.2, list of searches currently set up:
 IniRead, stash_search_list, ini\stash search.ini
+Sort, stash_search_list, D`n
 Loop, Parse, stash_search_list, `n, `n
 {
 	If (A_LoopField = "Settings")
@@ -4026,7 +4027,8 @@ Loop, Parse, stash_search_list, `n, `n
 		stash_searches_enabled := (stash_searches_enabled = "") ? A_LoopField "," : A_LoopField "," stash_searches_enabled
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gStash_search_apply Checked" stash_search_%A_LoopField%_enable " vStash_search_" A_LoopField "_enable", % "enable: "
 	Gui, settings_menu: Font, underline
-	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % A_LoopField
+	text := StrReplace(A_Loopfield, "_", " ")
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % StrReplace(text, "vertbar", "|")
 	Gui, settings_menu: Font, norm
 }
 Gui, settings_menu: Add, Text, % "xs Section Border gStash_search_new vStash_add BackgroundTrans y+"fSize0*1.2, % " add search "
@@ -4059,7 +4061,14 @@ WinActivate, ahk_group poe_window
 Return
 
 Stash_search_apply:
+Gui, settings_menu: Submit, NoHide
+GuiControl_copy := StrReplace(A_GuiControl, "stash_search_")
+GuiControl_copy := StrReplace(GuiControl_copy, "_enable")
+IniWrite, % %A_GuiControl%, ini\stash search.ini, % GuiControl_copy, enable
+Return
 
+Stash_search_delete:
+SoundBeep
 Return
 
 Stash_search_new:
@@ -4078,14 +4087,21 @@ Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
 Gui, stash_search_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack lowercase vStash_search_new_name wp",
 
 Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "search string:"
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "used in: "
+ControlGetPos,,, width_ddl,,, ahk_id %main_text%
+
+Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
+Gui, stash_search_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r3 vStash_search_new_link wp", % "map tab|npc|stash"
+
+Gui, stash_search_menu: Font, % "s"fSize0
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0, % "search string 1:"
 Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll gStash_search_scroll", enable scrolling
 Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
 Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string w"width*2,
 Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "right-click function: "
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "search string 2:"
+Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll1 gStash_search_scroll", enable scrolling
 Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r3 vStash_search_new_secondary w"width/2, none||string|url
 Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string1 w"width*2,
 Gui, stash_search_menu: Font, % "s"fSize0
 Gui, stash_search_menu: Add, Text, xs Section Border BackgroundTrans vStash_search_save gStash_search_save y+%fSize0%, % " save && close "
@@ -4096,7 +4112,39 @@ LLK_Overlay("stash_search_menu", "show", 0)
 Return
 
 Stash_search_preview_list:
+MouseGetPos, mouseXpos, mouseYpos
+GuiControl_copy := StrReplace(A_GuiControl, " ", "_")
+GuiControl_copy := StrReplace(GuiControl_copy, "|", "vertbar")
+If (click = 2)
+{
+	Gui, stash_search_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_stash_search_context_menu
+	Gui, stash_search_context_menu: Margin, % fSize0//2, fSize0//2
+	Gui, stash_search_context_menu: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, stash_search_context_menu: Font, cWhite s%fSize0%, Fontin SmallCaps
+	stash_search_edit_mode := 1
+	Gui, stash_search_context_menu: Add, Text, Section BackgroundTrans vEdit_%GuiControl_copy% gStash_search_new, edit
+	Gui, stash_search_context_menu: Add, Text, % "xs BackgroundTrans vDelete_" GuiControl_copy " gStash_search_delete y+"fSize0//2, delete
+	Gui, stash_search_context_menu: Show, % "AutoSize x"mouseXpos + fSize0 " y"mouseYpos + fSize0
+	WinWaitNotActive, ahk_id %hwnd_stash_search_context_menu%
+	stash_search_edit_mode := 0
+	Gui, stash_search_context_menu: Destroy
+	Return
+}
+Gui, stash_search_preview_list: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs +Border HWNDhwnd_stash_search_preview_list
+Gui, stash_search_preview_list: Margin, % 12, 4
+Gui, stash_search_preview_list: Color, Black
+WinSet, Transparent, %trans%
+Gui, stash_search_preview_list: Font, cWhite s%fSize0%, Fontin SmallCaps
 
+IniRead, use_case, ini\stash search.ini, % GuiControl_copy, use-case, % A_Space
+IniRead, primary_string, ini\stash search.ini, % GuiControl_copy, string 1, % A_Space
+IniRead, secondary_string, ini\stash search.ini, % GuiControl_copy, string 2, % A_Space
+secondary_string := (secondary_string = "") ? "" : "`nstring 2: " secondary_string
+Gui, stash_search_preview_list: Add, Text, Section BackgroundTrans, % "use-case: " use_case "`nstring 1: " primary_string secondary_string
+Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos%
+KeyWait, LButton
+Gui, stash_search_preview_list: Destroy
 Return
 
 Stash_search_scroll:
@@ -4111,19 +4159,19 @@ If (stash_search_new_name = "")
 	LLK_ToolTip("enter a name")
 	Return
 }
-If (stash_search_new_string = "")
+If (stash_search_new_link = "")
+{
+	LLK_ToolTip("select use-case")
+	Return
+}
+If (stash_search_new_string = "") && (stash_search_new_string1 = "")
 {
 	LLK_ToolTip("enter a string")
 	Return
 }
-If ((stash_search_new_secondary != "none") && (stash_search_new_string1 = ""))
+If (stash_search_new_string = "") && (stash_search_new_string1 != "")
 {
-	LLK_ToolTip("right-click empty")
-	Return
-}
-If ((stash_search_new_secondary = "none") && (stash_search_new_string1 != ""))
-{
-	LLK_ToolTip("right-click set to 'none',`nbut string not empty", 2)
+	LLK_ToolTip("first string empty, but second is not")
 	Return
 }
 If (stash_search_new_name = "settings")
@@ -4154,36 +4202,92 @@ If (stash_search_new_scroll = 1)
 			numbers += 1
 		If (numbers > 1)
 		{
-			LLK_ToolTip("cannot scroll:`nstring has more than`none number", 2)
+			LLK_ToolTip("cannot scroll:`nstring 1 has more than`none number", 2)
 			Return
 		}
 	}
 	If (numbers = 0)
 	{
-		LLK_ToolTip("cannot scroll:`nstring has no number")
+		LLK_ToolTip("cannot scroll:`nstring 1 has no number")
 		Return
 	}
 }
-If (stash_search_new_secondary = "none")
-	stash_search_new_secondary := 0
-Else stash_search_new_secondary := (stash_search_new_secondary = "string") ? 1 : 2
+
+If (stash_search_new_scroll1 = 1)
+{
+	parse_string := ""
+	numbers := 0
+	Loop, Parse, stash_search_new_string1
+	{
+		If A_Loopfield is number
+			parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
+		Else parse_string := (parse_string = "") ? "," : parse_string ","
+	}
+	Loop, Parse, parse_string, `,, `,
+	{
+		If A_Loopfield is number
+			numbers += 1
+		If (numbers > 1)
+		{
+			LLK_ToolTip("cannot scroll:`nstring 2 has more than`none number", 2)
+			Return
+		}
+	}
+	If (numbers = 0)
+	{
+		LLK_ToolTip("cannot scroll:`nstring 2 has no number")
+		Return
+	}
+}
+
 stash_search_new_name_save := ""
 Loop, Parse, stash_search_new_name
 {
 	If (A_LoopField = A_Space)
 		add_character := "_"
+	Else If (A_Loopfield = "|")
+		add_character := "vertbar"
 	Else If A_LoopField is not alnum
 		add_character := "_"
 	Else add_character := A_LoopField
 	stash_search_new_name_save := (stash_search_new_name_save = "") ? add_character : stash_search_new_name_save add_character
 }
+IniWrite, % stash_search_new_link, ini\stash search.ini, % stash_search_new_name_save, use-case
 IniWrite, 1, ini\stash search.ini, % stash_search_new_name_save, enable
 IniWrite, "%stash_search_new_string%", ini\stash search.ini, % stash_search_new_name_save, string 1
-IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, enable scrolling
-IniWrite, % stash_search_new_secondary, ini\stash search.ini, % stash_search_new_name_save, secondary
+IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, string 1 enable scrolling
 IniWrite, "%stash_search_new_string1%", ini\stash search.ini, % stash_search_new_name_save, string 2
+IniWrite, % stash_search_new_scroll1, ini\stash search.ini, % stash_search_new_name_save, string 2 enable scrolling
 GoSub, settings_menu
 Gui, stash_search_menu: Destroy
+Return
+
+Timeout_chromatics:
+KeyWait, v, D T0.5
+If !ErrorLevel
+{
+	KeyWait, v
+	SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
+}
+If WinActive("ahk_group poe_window") || !ErrorLevel
+{
+	SetTimer, Timeout_chromatics, delete
+	ToolTip,,,, 15
+}
+Return
+
+Timeout_cluster_jewels:
+KeyWait, F3, D T0.5
+If !ErrorLevel
+{
+	KeyWait, F3
+	SendInput, %wiki_cluster%
+}
+If WinActive("ahk_group poe_window") || !ErrorLevel
+{
+	SetTimer, Timeout_cluster_jewels, delete
+	ToolTip,,,, 15
+}
 Return
 
 ToolTip_clear:
