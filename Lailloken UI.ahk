@@ -116,12 +116,14 @@ If !FileExist("img\Recognition (" poe_height "p\Betrayal\")
 trans := 220
 imagesearch_variation := 25
 pixelsearch_variation := 0
+stash_search_usecases := "stash,vendor"
+Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen"
 Sort, pixelchecks_list, D`,
 Loop, Parse, pixelchecks_list, `,, `,
 	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 
-imagechecks_list := "betrayal,bestiary,gwennen"
+imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
 Sort, imagechecks_list, D`,
 Loop, Parse, imagechecks_list, `,, `,
 	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
@@ -2474,6 +2476,16 @@ If (clipboard = "") && (gamescreen = 0)
 		GoSub, Gwennen_search
 	If (disable_imagecheck_betrayal = 0) && (betrayal = 1)
 		GoSub, Betrayal_search
+	If (disable_imagecheck_stash = 0) && (stash = 1)
+	{
+		stash_search_type := "stash"
+		GoSub, Stash_search
+	}
+	If (disable_imagecheck_vendor = 0) && (vendor = 1)
+	{
+		stash_search_type := "vendor"
+		GoSub, Stash_search
+	}
 }
 Return
 
@@ -2983,8 +2995,8 @@ Loop, Parse, recomb_item1, `n, `n
 recomb_item2 := (recomb_item2 = "") ? "sample item`nclass x:`n`n`n`n`n`n`n`n" : recomb_item2
 If (recomb_item2 != "")
 {
-	prefix_pool_unique := ""
-	suffix_pool_unique := ""
+	prefix_pool_unique := ","
+	suffix_pool_unique := ","
 	prefix_pool_target := ""
 	suffix_pool_target := ""
 	
@@ -2993,23 +3005,25 @@ If (recomb_item2 != "")
 		If (A_Index < 4) || (A_LoopField = "")
 			continue
 		If (A_Index < 8)
-			prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+			prefix_pool_unique := !InStr(prefix_pool_unique, "," A_LoopField ",") ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
 			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
 		If (A_Index > 7)
-			suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+			suffix_pool_unique := !InStr(suffix_pool_unique, "," A_LoopField ",") ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
 	}
 	Loop, Parse, recomb_item2, `n, `n
 	{
 		If (A_Index < 4) || (A_LoopField = "")
 			continue
 		If (A_Index < 8)
-			prefix_pool_unique := !InStr(prefix_pool_unique, A_LoopField) ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
+			prefix_pool_unique := !InStr(prefix_pool_unique, "," A_LoopField ",") ? prefix_pool_unique A_Loopfield "," : prefix_pool_unique
 			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
 		If (A_Index > 7)
-			suffix_pool_unique := !InStr(suffix_pool_unique, A_LoopField) ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
+			suffix_pool_unique := !InStr(suffix_pool_unique, "," A_LoopField ",") ? suffix_pool_unique A_LoopField "," : suffix_pool_unique
 	}
 	prefix_pool_unique := StrReplace(prefix_pool_unique, "(empty prefix slot),")
+	prefix_pool_unique := SubStr(prefix_pool_unique, 2)
 	suffix_pool_unique := StrReplace(suffix_pool_unique, "(empty suffix slot),")
+	suffix_pool_unique := SubStr(suffix_pool_unique, 2)
 	
 	Gui, recombinator_window: Font, s%fSize0% underline
 	Gui, recombinator_window: Add, Text, % "xs BackgroundTrans HWNDprefix_header wp y+"fSize0*1.2, desired prefixes:
@@ -3401,7 +3415,7 @@ map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
 pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
-stash_style := InStr(A_GuiControl, "stash-search") || InStr(A_GuiControl, "stash_search") ? "cAqua" : "cWhite"
+stash_style := InStr(A_GuiControl, "stash-search") || InStr(A_GuiControl, "stash_search") ||(new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
@@ -3419,19 +3433,22 @@ Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSe
 ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_general%
 spacing_settings := width_settings
 
-screenchecks_gamescreen_valid := 1
-screenchecks_bestiary_valid := 1
-screenchecks_betrayal_valid := 1
-screenchecks_gwennen_valid := 1
-
-If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+If (pixel_gamescreen_color1 = "ERROR" || pixel_gamescreen_color1 = "")
 	screenchecks_gamescreen_valid := 0
+Else screenchecks_gamescreen_valid := 1
 
 Loop, Parse, imagechecks_list, `,, `,
+{
+	screenchecks_%A_Loopfield%_valid := 1
 	If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp") && (disable_imagecheck_%A_Loopfield% = 0)
 		screenchecks_%A_Loopfield%_valid := 0
+}
 
-screenchecks_all_valid := screenchecks_gamescreen_valid * screenchecks_bestiary_valid * screenchecks_betrayal_valid * screenchecks_gwennen_valid
+screenchecks_all_valid := 1
+screenchecks_all_valid *= screenchecks_gamescreen_valid
+
+Loop, Parse, imagechecks_list, `,, `,
+	screenchecks_all_valid *= screenchecks_%A_Loopfield%_valid
 
 If !InStr(buggy_resolutions, poe_height)
 {
@@ -3510,7 +3527,7 @@ Else If InStr(GuiControl_copy, "omni")
 	GoSub, Settings_menu_omnikey
 Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen")
 	GoSub, Settings_menu_screenchecks
-Else If InStr(GuiControl_copy, "stash-search") || InStr(GuiControl_copy, "stash_search")
+Else If InStr(GuiControl_copy, "stash-search") || InStr(GuiControl_copy, "stash_search") || (new_stash_search_menu_closed = 1)
 	GoSub, Settings_menu_stash_search
 Else If InStr(GuiControl_copy, "geforce")
 	GoSub, Settings_menu_geforce_now
@@ -3731,6 +3748,8 @@ text =
 explanation
 name: has to be unique, otherwise an existing search with the same name will be replaced.
 
+use-cases: select which search-fields the string will be used for.
+
 string: has to be a valid string that works in game. it will not be corrected or checked for errors here, so make sure it works before saving it.
 
 scrolling: if enabled, scrolling will adjust a number within the string. strings can only contain -one- number.
@@ -3867,6 +3886,34 @@ explanation
 this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\gwennen.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If InStr(A_GuiControl, "stash")
+{
+text =
+(
+instructions
+to recalibrate, open your stash and screen-cap the plate displayed above.
+
+explanation
+this check helps the script identify whether your stash is open or not, which enables the omni-key to trigger the search-string features.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\stash.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+If InStr(A_GuiControl, "vendor")
+{
+text =
+(
+instructions
+to recalibrate, open the purchase-window of a vendor and screen-cap the plate displayed above.
+
+explanation
+this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to trigger the search-string features.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\vendor.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
@@ -4014,21 +4061,23 @@ Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center Border gScre
 Return
 
 Settings_menu_stash_search:
+new_stash_search_menu_closed := 0
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans xp+"spacing_settings*1.2, list of searches currently set up:
 IniRead, stash_search_list, ini\stash search.ini
 Sort, stash_search_list, D`n
 Loop, Parse, stash_search_list, `n, `n
 {
+	loopfield_copy := StrReplace(A_Loopfield, "|", "vertbar")
 	If (A_LoopField = "Settings")
 		continue
-	If stash_search_%A_LoopField%_enable is not number
-		IniRead, stash_search_%A_LoopField%_enable, ini\stash search.ini, %A_LoopField%, enable, 1
-	If (stash_search_%A_LoopField%_enable = 1)
+	If stash_search_%loopfield_copy%_enable is not number
+		IniRead, stash_search_%loopfield_copy%_enable, ini\stash search.ini, %A_LoopField%, enable, 1
+	If (stash_search_%loopfield_copy%_enable = 1)
 		stash_searches_enabled := (stash_searches_enabled = "") ? A_LoopField "," : A_LoopField "," stash_searches_enabled
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gStash_search_apply Checked" stash_search_%A_LoopField%_enable " vStash_search_" A_LoopField "_enable", % "enable: "
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gStash_search_apply Checked" stash_search_%loopfield_copy%_enable " vStash_search_" loopfield_copy "_enable", % "enable: "
 	Gui, settings_menu: Font, underline
 	text := StrReplace(A_Loopfield, "_", " ")
-	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % StrReplace(text, "vertbar", "|")
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % text
 	Gui, settings_menu: Font, norm
 }
 Gui, settings_menu: Add, Text, % "xs Section Border gStash_search_new vStash_add BackgroundTrans y+"fSize0*1.2, % " add search "
@@ -4060,6 +4109,10 @@ If WinExist("ahk_id " hwnd_alarm_sample)
 WinActivate, ahk_group poe_window
 Return
 
+Stash_search:
+SoundBeep
+Return
+
 Stash_search_apply:
 Gui, settings_menu: Submit, NoHide
 GuiControl_copy := StrReplace(A_GuiControl, "stash_search_")
@@ -4068,12 +4121,44 @@ IniWrite, % %A_GuiControl%, ini\stash search.ini, % GuiControl_copy, enable
 Return
 
 Stash_search_delete:
-SoundBeep
+delete_string := StrReplace(A_GuiControl, "delete_", "")
+delete_string := StrReplace(delete_string, " ", "_")
+delete_string := StrReplace(delete_string, "vertbar", "|")
+IniDelete, ini\stash search.ini, %delete_string%
+new_stash_search_menu_closed := 1
+GoSub, Settings_menu
 Return
 
 Stash_search_new:
 Gui, settings_menu: Submit
 LLK_Overlay("settings_menu", "hide")
+
+
+If (stash_search_edit_mode = 1)
+{
+	edit_name := StrReplace(A_GuiControl, "edit_", "")
+	edit_name := StrReplace(edit_name, "vertbar", "|")
+	IniRead, stash_search_edit_usecases, ini\stash search.ini, % edit_name, use-cases
+	Loop, Parse, stash_search_usecases, `,, `,
+		stash_search_edit_use_%A_Loopfield% := InStr(stash_search_edit_usecases, A_Loopfield) ? 1 : 0
+	IniRead, stash_search_edit_scroll1, ini\stash search.ini, % edit_name, string 1 enable scrolling, 0
+	IniRead, stash_search_edit_string1, ini\stash search.ini, % edit_name, string 1, % A_Space
+	IniRead, stash_search_edit_scroll2, ini\stash search.ini, % edit_name, string 2 enable scrolling, 0
+	IniRead, stash_search_edit_string2, ini\stash search.ini, % edit_name, string 2, % A_Space
+	stash_search_edit_mode := 0
+}
+Else
+{
+	edit_name := ""
+	Loop, Parse, stash_search_usecases, `,, `,
+		stash_search_edit_use_%A_Loopfield% := 0
+	stash_search_edit_scroll1 := 0
+	stash_search_edit_scroll2 := 0
+	stash_search_edit_string1 := ""
+	stash_search_edit_string2 := ""
+}
+
+
 Gui, stash_search_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_stash_search_menu, Lailloken UI: stash-search configuration
 Gui, stash_search_menu: Color, Black
 Gui, stash_search_menu: Margin, 12, 4
@@ -4084,25 +4169,27 @@ Gui, stash_search_menu: Add, Text, Section BackgroundTrans HWNDmain_text, % "uni
 ControlGetPos,,, width,,, ahk_id %main_text%
 
 Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack lowercase vStash_search_new_name wp",
+Gui, stash_search_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack lowercase vStash_search_new_name wp", % StrReplace(edit_name, "_", " ")
 
 Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "used in: "
-ControlGetPos,,, width_ddl,,, ahk_id %main_text%
-
-Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r3 vStash_search_new_link wp", % "map tab|npc|stash"
+Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "use-cases: "
+Loop, Parse, stash_search_usecases, `,, `,
+{
+	If (A_Index = 1 || A_Index = 5)
+		Gui, stash_search_menu: Add, Checkbox, % "xs Section BackgroundTrans vStash_search_use_" A_Loopfield " gStash_search_scroll w"width/2 " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
+	Else Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_use_" A_Loopfield " gStash_search_scroll w"width/2 " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
+}
 
 Gui, stash_search_menu: Font, % "s"fSize0
 Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0, % "search string 1:"
-Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll gStash_search_scroll", enable scrolling
+Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll gStash_search_scroll Checked"stash_search_edit_scroll1, enable scrolling
 Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string w"width*2,
+Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string w"width*2, % stash_search_edit_string1
 Gui, stash_search_menu: Font, % "s"fSize0
 Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "search string 2:"
-Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll1 gStash_search_scroll", enable scrolling
+Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll1 gStash_search_scroll Checked"stash_search_edit_scroll2, enable scrolling
 Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string1 w"width*2,
+Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string1 w"width*2, % stash_search_edit_string2
 Gui, stash_search_menu: Font, % "s"fSize0
 Gui, stash_search_menu: Add, Text, xs Section Border BackgroundTrans vStash_search_save gStash_search_save y+%fSize0%, % " save && close "
 Gui, stash_search_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vStash_search_new_help hp w-1", img\GUI\help.png
@@ -4111,12 +4198,18 @@ Gui, stash_search_menu: Show, % "Hide Center"
 LLK_Overlay("stash_search_menu", "show", 0)
 Return
 
+Stash_search_menuGuiClose:
+new_stash_search_menu_closed := 1
+GoSub, Settings_menu
+Gui, stash_search_menu: Destroy
+Return
+
 Stash_search_preview_list:
 MouseGetPos, mouseXpos, mouseYpos
 GuiControl_copy := StrReplace(A_GuiControl, " ", "_")
-GuiControl_copy := StrReplace(GuiControl_copy, "|", "vertbar")
 If (click = 2)
 {
+	GuiControl_copy := StrReplace(GuiControl_copy, "|", "vertbar")
 	Gui, stash_search_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_stash_search_context_menu
 	Gui, stash_search_context_menu: Margin, % fSize0//2, fSize0//2
 	Gui, stash_search_context_menu: Color, Black
@@ -4137,11 +4230,11 @@ Gui, stash_search_preview_list: Color, Black
 WinSet, Transparent, %trans%
 Gui, stash_search_preview_list: Font, cWhite s%fSize0%, Fontin SmallCaps
 
-IniRead, use_case, ini\stash search.ini, % GuiControl_copy, use-case, % A_Space
+IniRead, use_case, ini\stash search.ini, % GuiControl_copy, use-cases, % A_Space
 IniRead, primary_string, ini\stash search.ini, % GuiControl_copy, string 1, % A_Space
 IniRead, secondary_string, ini\stash search.ini, % GuiControl_copy, string 2, % A_Space
 secondary_string := (secondary_string = "") ? "" : "`nstring 2: " secondary_string
-Gui, stash_search_preview_list: Add, Text, Section BackgroundTrans, % "use-case: " use_case "`nstring 1: " primary_string secondary_string
+Gui, stash_search_preview_list: Add, Text, Section BackgroundTrans, % "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
 Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos%
 KeyWait, LButton
 Gui, stash_search_preview_list: Destroy
@@ -4154,14 +4247,17 @@ Return
 Stash_search_save:
 Gui, stash_search_menu: Submit, NoHide
 stash_search_new_name_first_letter := SubStr(stash_search_new_name, 1, 1)
+checkbox_sum := 0
 If (stash_search_new_name = "")
 {
 	LLK_ToolTip("enter a name")
 	Return
 }
-If (stash_search_new_link = "")
+Loop, Parse, stash_search_usecases, `,, `,
+	checkbox_sum += stash_search_use_%A_Loopfield%
+If (checkbox_sum = 0)
 {
-	LLK_ToolTip("select use-case")
+	LLK_ToolTip("set at least one use-case")
 	Return
 }
 If (stash_search_new_string = "") && (stash_search_new_string1 = "")
@@ -4246,14 +4342,31 @@ Loop, Parse, stash_search_new_name
 	If (A_LoopField = A_Space)
 		add_character := "_"
 	Else If (A_Loopfield = "|")
-		add_character := "vertbar"
+		add_character := "|"
 	Else If A_LoopField is not alnum
 		add_character := "_"
 	Else add_character := A_LoopField
 	stash_search_new_name_save := (stash_search_new_name_save = "") ? add_character : stash_search_new_name_save add_character
 }
-IniWrite, % stash_search_new_link, ini\stash search.ini, % stash_search_new_name_save, use-case
+
+usecases := ""
+Loop, Parse, stash_search_usecases, `,, `,
+	usecases := (stash_search_use_%A_Loopfield% = 1) ? usecases "," A_Loopfield : usecases
+usecases := SubStr(usecases, 2)
+
+Loop, Parse, usecases, `,, `,
+{
+	IniRead, ThisUsecase, ini\stash search.ini, Settings, % A_Loopfield, % A_Space
+	If !InStr(ThisUsecase, "," stash_search_new_name_save ",")
+	{
+		If (ThisUsecase = "")
+			IniWrite, % "," stash_search_new_name_save ",", ini\stash search.ini, Settings, % A_Loopfield
+		Else IniWrite, % ThisUsecase stash_search_new_name_save ",", ini\stash search.ini, Settings, % A_Loopfield
+	}
+}
+ 
 IniWrite, 1, ini\stash search.ini, % stash_search_new_name_save, enable
+IniWrite, % usecases, ini\stash search.ini, % stash_search_new_name_save, use-cases
 IniWrite, "%stash_search_new_string%", ini\stash search.ini, % stash_search_new_name_save, string 1
 IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, string 1 enable scrolling
 IniWrite, "%stash_search_new_string1%", ini\stash search.ini, % stash_search_new_name_save, string 2
@@ -4311,12 +4424,12 @@ LLK_ImageSearch(name := "")
 			imagesearch_y2 := 0
 			If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
 				continue
-			If (A_Loopfield = "bestiary" || A_Loopfield = "gwennen")
+			If (A_Loopfield = "bestiary" || A_Loopfield = "gwennen" || A_Loopfield = "stash" || A_Loopfield = "vendor")
 			{
 				imagesearch_x2 := poe_width//2
 				imagesearch_y2 := poe_height//2
 			}
-			If (A_Loopfield = "betrayal")
+			Else If (A_Loopfield = "betrayal")
 			{
 				imagesearch_y1 := poe_height//2
 				imagesearch_x2 := poe_width//2
