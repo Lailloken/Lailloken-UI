@@ -123,7 +123,7 @@ Sort, pixelchecks_list, D`,
 Loop, Parse, pixelchecks_list, `,, `,
 	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 
-imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
+imagechecks_list := "betrayal,bestiary,gwennen"
 Sort, imagechecks_list, D`,
 Loop, Parse, imagechecks_list, `,, `,
 	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
