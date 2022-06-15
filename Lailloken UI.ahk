@@ -114,6 +114,7 @@ If !FileExist("img\Recognition (" poe_height "p\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
 
 trans := 220
+pixelchecks_enabled := "gamescreen,"
 imagesearch_variation := 25
 pixelsearch_variation := 0
 stash_search_usecases := "stash,vendor"
@@ -319,7 +320,14 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 }
 
 If !FileExist("ini\stash search.ini")
-	IniWrite, %A_Space%, ini\stash search.ini, Settings
+	IniWrite, stash=`nvendor=, ini\stash search.ini, Settings
+IniRead, stash_search_check, ini\stash search.ini, Settings
+Loop, Parse, stash_search_usecases, `,, `,
+{
+	If !InStr(stash_search_check, A_Loopfield "=")
+		IniWrite, % A_Space, ini\stash search.ini, Settings, % A_Loopfield
+}
+
 
 IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
 If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini")
@@ -2496,7 +2504,7 @@ If (clipboard != "")
 		Return
 	}
 }
-If (enable_pixelchecks = 0)
+If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 If (clipboard = "") && (gamescreen = 0)
 {
@@ -4081,7 +4089,7 @@ Gui, stash_search_context_menu: Color, Black
 WinSet, Transparent, %trans%
 Gui, stash_search_context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
 
-IniRead, stash_search_shortcuts, ini\stash search.ini, Settings, % stash_search_type
+IniRead, stash_search_shortcuts, ini\stash search.ini, Settings, % stash_search_type, % A_Space
 stash_search_shortcuts_enabled := 0
 Loop, Parse, stash_search_shortcuts, `,,`,
 {
