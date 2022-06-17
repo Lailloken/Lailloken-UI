@@ -407,12 +407,21 @@ Return
 WheelUp::
 scroll_in_progress := 1
 parsed_number := ""
-Loop, Parse, clipboard
+If (scrollboard1 = "")
 {
-	If IsNumber(A_Loopfield)
-		parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
+	Loop, Parse, clipboard
+	{
+		If IsNumber(A_Loopfield)
+			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
+	}
+	clipboard := StrReplace(clipboard, parsed_number, parsed_number + 1)
 }
-clipboard := StrReplace(clipboard, parsed_number, parsed_number + 1)
+Else
+{
+	scrollboard_active -= (scrollboard_active > 1) ? 1 : 0
+	clipboard := scrollboard%scrollboard_active%
+	ClipWait, 0.05
+}
 SendInput, ^{v}^{a}
 sleep, 50
 scroll_in_progress := 0
@@ -421,12 +430,21 @@ Return
 WheelDown::
 scroll_in_progress := 1
 parsed_number := ""
-Loop, Parse, clipboard
+If (scrollboard1 = "")
 {
-	If IsNumber(A_Loopfield)
-		parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
+	Loop, Parse, clipboard
+	{
+		If IsNumber(A_Loopfield)
+			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
+	}
+	clipboard := StrReplace(clipboard, parsed_number, parsed_number - 1)
 }
-clipboard := StrReplace(clipboard, parsed_number, parsed_number - 1)
+Else
+{
+	scrollboard_active += (scrollboard_active < scrollboards) ? 1 : 0
+	clipboard := scrollboard%scrollboard_active%
+	ClipWait, 0.05
+}
 SendInput, ^{v}^{a}
 sleep, 50
 scroll_in_progress := 0
@@ -2639,6 +2657,22 @@ If (class="Gloves") || (class="Boots") || (class="Body Armours") || (class="Helm
 }
 If InStr(A_GuiControl, "crafting_table")
 {
+	If InStr(wiki_term, "abyss_jewel")
+	{
+		wiki_index := InStr(clipboard, "rarity: normal") ? 3 : 4
+		Loop, Parse, clipboard, `n, `n
+		{
+			If (A_Index = wiki_index)
+				wiki_term := StrReplace(A_Loopfield, " ", "_")
+			If InStr(A_Loopfield, "item level: ")
+			{
+				clipboard := StrReplace(A_Loopfield, "item level: ")
+				break
+			}
+		}
+		Run, https://poedb.tw/us/%wiki_term%
+		Return
+	}
 	If InStr(clipboard, "Cluster Jewel")
 	{
 		If (A_GuiControl = "crafting_table_all_cluster")
@@ -2783,6 +2817,7 @@ Loop, Parse, clipboard, `n, `n
 		wiki_term := (InStr(wiki_term, "Body")) ? "Body armour" : wiki_term
 		wiki_term := StrReplace(wiki_term, A_Space, "_")
 		wiki_term := StrReplace(wiki_term, "'", "%27")
+		wiki_term := InStr(wiki_term, "abyss_jewel") ? "abyss_jewel" : wiki_term
 		break
 	}
 }
@@ -4069,10 +4104,29 @@ If (A_Gui != "")
 	string_number := (click = 2) ? 2 : 1
 	IniRead, stash_search_string, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number%
 	IniRead, stash_search_scroll, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number% enable scrolling, 0
+	KeyWait, LButton
 	Gui, stash_search_context_menu: Destroy
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
-	clipboard := stash_search_string
+	Loop
+	{
+		If (scrollboard%A_Index% != "")
+			scrollboard%A_Index% := ""
+		Else break
+	}
+	If InStr(stash_search_string, ";")
+	{
+		scrollboards := 0
+		Loop, Parse, stash_search_string, `;, `;
+		{
+			If (A_Loopfield = "")
+				continue
+			scrollboard%A_Index% := A_Loopfield
+			scrollboards += 1
+		}
+		scrollboard_active := 1
+	}
+	clipboard := (scrollboard1 = "") ? stash_search_string : scrollboard1
 	ClipWait, 0.05
 	SendInput, ^{a}^{v}^{a}
 	If (stash_search_scroll = 1)
@@ -4320,6 +4374,43 @@ If stash_search_new_name_first_letter is not alnum
 	GuiControl, stash_search_menu: Text, stash_search_new_name,
 	Return
 }
+
+Loop 2
+{
+	loop := A_Index
+	string_mod := (A_Index = 1) ? "" : 1
+	If (stash_search_new_scroll%string_mod% = 1)
+	{
+		parse_string := ""
+		numbers := 0
+		Loop, Parse, stash_search_new_string%string_mod%
+		{
+			If A_Loopfield is number
+				parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
+			Else parse_string := (parse_string = "") ? "," : parse_string ","
+		}
+		If !InStr(stash_search_new_string%string_mod%, ";")
+		{
+			Loop, Parse, parse_string, `,, `,
+			{
+				If A_Loopfield is number
+					numbers += 1
+				If (numbers > 1)
+				{
+					LLK_ToolTip("cannot scroll:`nstring " loop " has more than`none number", 2)
+					Return
+				}
+			}
+		}
+		If (numbers = 0) && !InStr(stash_search_new_string%string_mod%, ";")
+		{
+			LLK_ToolTip("cannot scroll string " loop ":`nno number or semi-colon")
+			Return
+		}
+	}
+}
+
+/*
 If (stash_search_new_scroll = 1)
 {
 	parse_string := ""
@@ -4373,6 +4464,7 @@ If (stash_search_new_scroll1 = 1)
 		Return
 	}
 }
+*/
 
 stash_search_new_name_save := ""
 Loop, Parse, stash_search_new_name
@@ -4410,6 +4502,11 @@ Loop, Parse, usecases, `,, `,
 	}
 }
 */
+
+stash_search_new_string := (SubStr(stash_search_new_string, 0) = ";") ? SubStr(stash_search_new_string, 1, -1) : stash_search_new_string
+stash_search_new_string := StrReplace(stash_search_new_string, ";;", ";")
+stash_search_new_string1 := (SubStr(stash_search_new_string1, 0) = ";") ? SubStr(stash_search_new_string1, 1, -1) : stash_search_new_string1
+stash_search_new_string1 := StrReplace(stash_search_new_string1, ";;", ";")
 IniWrite, 1, ini\stash search.ini, % stash_search_new_name_save, enable
 IniWrite, "%stash_search_new_string%", ini\stash search.ini, % stash_search_new_name_save, string 1
 IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, string 1 enable scrolling
