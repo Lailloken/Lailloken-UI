@@ -15,6 +15,8 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ### Context-menu for items to quickly access popular 3rd-party websites ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items))  
 ![context1](https://user-images.githubusercontent.com/61888437/162455047-080586b1-dd33-400e-940d-1e716b254ad0.jpg)![context2](https://user-images.githubusercontent.com/61888437/162455067-602def7f-4b1d-4074-a8af-db012e9325f7.jpg)  
 ***
+### Search-strings: customizable quick-access menu for frequent in-game searches ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings))  
+![image](https://user-images.githubusercontent.com/61888437/174295941-6ef1eb44-756e-4e4a-83be-3eeedf62298b.png)  
 ### Customizable & searchable betrayal info-sheet (with optional image recognition) ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
 #### simple search + customization:
 ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
