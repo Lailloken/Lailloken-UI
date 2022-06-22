@@ -161,6 +161,7 @@ If (alarm_timestamp != "")
 	continue_alarm := 1
 
 betrayal_divisions := "transportation,fortification,research,intervention"
+betrayal_shift_clicks := 0
 IniRead, betrayal_list, data\Betrayal.ini
 betrayal_list := StrReplace(betrayal_list, "version`n")
 Sort, betrayal_list, D`n
@@ -181,8 +182,7 @@ If !FileExist("ini\betrayal info.ini") || (betrayal_ini_version_user < betrayal_
 		If (A_LoopField = "settings") || (A_Loopfield = "version")
 			continue
 		If (betrayal_info_exists = 0)
-			Loop, Parse, betrayal_divisions, `,, `,
-				IniWrite, 1, ini\betrayal info.ini, %check%, %A_Loopfield%
+			IniWrite, transportation=1`nfortification=1`nresearch=1`nintervention=1, ini\betrayal info.ini, %check%
 	}
 }
 IniRead, fSize_offset_betrayal, ini\betrayal info.ini, Settings, font-offset, 0
@@ -341,7 +341,7 @@ IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|lab_layout|lab_marker|betrayal_search|gwennen_setup|" ;recombinator_window|"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info_1|betrayal_info_2|betrayal_info_3|betrayal_info_4|lab_layout|lab_marker|betrayal_search|gwennen_setup|betrayal_info_members|" ;recombinator_window|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 
@@ -488,6 +488,7 @@ If WinExist("ahk_id " hwnd_betrayal_info_1) || WinActive("ahk_id " hwnd_betrayal
 	WinActivate, ahk_group poe_window
 	Loop 4
 		LLK_Overlay("betrayal_info_" A_Index, "hide")
+	LLK_Overlay("betrayal_info_members", "hide")
 	If (betrayal_enable_recognition = 1)
 	{
 		Gui, betrayal_search: Destroy
@@ -911,15 +912,143 @@ If (A_GuiControl = "betrayal_opac_plus")
 If (A_GuiControl = "betrayal_enable_recognition")
 {
 	IniWrite, %betrayal_enable_recognition%, ini\betrayal info.ini, Settings, enable image recognition
+	If (%A_GuiControl% = 1)
+	{
+		Gui, betrayal_info_members: Destroy
+		hwnd_betrayal_info_members := ""
+	}
+	GoSub, Betrayal_info
 	Return
 }
 If (A_GuiControl = "betrayal_ddl")
 {
 	Gui, betrayal_setup: Submit
-	test := Gdip_SaveBitmapToFile(pBetrayal_screencap, "img\Recognition (" poe_height "p)\Betrayal\" betrayal_ddl ".bmp", 100)
+	If (betrayal_ddl != "abort screen-cap")
+		test := Gdip_SaveBitmapToFile(pBetrayal_screencap, "img\Recognition (" poe_height "p)\Betrayal\" betrayal_ddl ".bmp", 100)
 	Gdip_DisposeImage(test)
 	Return
 }
+If InStr(A_GuiControl, "betrayal_info_member_") && GetKeyState("LShift", "P")
+{
+	GuiControl_copy := A_GuiControl
+	If (betrayal_shift_clicks > 3)
+	{
+		betrayal_shift_clicks := 0
+		parse_member1 := ""
+		parse_member2 := ""
+		parse_division1 := ""
+		parse_division2 := ""
+		betrayal_member := ""
+		betrayal_info_click_member := ""
+		betrayal_info_click_member2 := ""
+		Loop, Parse, betrayal_divisions, `,, `,
+		{
+			panel%A_Index%_text := A_Loopfield ":"
+			%A_Loopfield%_text := A_Loopfield ":"
+		}
+		GoSub, Betrayal_info
+	}
+	If (betrayal_shift_clicks = 0)
+	{
+		parse_member2 := StrReplace(GuiControl_copy, "betrayal_info_member_")
+		betrayal_info_click_member := parse_member2
+		If WinExist("ahk_id " hwnd_betrayal_info_members)
+			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
+		Else hMembers := 0
+		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
+		ToolTip, % parse_member2 " moves to",, % hMembers + hInfo
+	}
+	If (betrayal_shift_clicks = 1)
+	{
+		LLK_ToolTip("second click has to be a division")
+		Return
+	}
+	If (betrayal_shift_clicks = 2)
+	{
+		If (StrReplace(A_GuiControl, "betrayal_info_member_") = parse_member2)
+		{
+			LLK_ToolTip("can't select the same member twice")
+			Return
+		}
+		parse_member1 := StrReplace(A_GuiControl, "betrayal_info_member_")
+		betrayal_info_click_member2 := parse_member1
+		If WinExist("ahk_id " hwnd_betrayal_info_members)
+			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
+		Else hMembers := 0
+		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
+		ToolTip, % parse_member2 " moves to " parse_division1 ",`n" parse_member1 " moves to ",, % hMembers + hInfo
+	}
+	If (betrayal_shift_clicks = 3)
+	{
+		LLK_ToolTip("fourth click has to be a division")
+		Return
+	}
+	betrayal_shift_clicks += 1
+	Return
+}
+If InStr(A_GuiControl, "betrayal_info_member_")
+{
+	ToolTip,,,,
+	betrayal_shift_clicks := 0
+	betrayal_info_click_member := StrReplace(A_GuiControl, "betrayal_info_member_")
+	betrayal_info_click_member2 := ""
+	parse_member2 := ""
+	GoSub, Betrayal_search
+	Return
+}
+If InStr(A_GuiControl, "betrayal_info_") && !InStr(A_GuiControl, "betrayal_info_member") && GetKeyState("LShift", "P")
+{
+	If (betrayal_shift_clicks = 0)
+	{
+		LLK_ToolTip("first click has to be a member")
+		Return
+	}
+	If (betrayal_shift_clicks = 1)
+	{
+		parse_division1 := ""
+		GuiControlGet, text,, %A_GuiControl%
+		Loop, Parse, betrayal_divisions, `,, `,
+			parse_division1 := InStr(text, A_Loopfield) ? A_Loopfield : parse_division1
+		If WinExist("ahk_id " hwnd_betrayal_info_members)
+			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
+		Else hMembers := 0
+		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
+		ToolTip, % parse_member2 " moves to " parse_division1,, % hMembers + hInfo
+	}
+	If (betrayal_shift_clicks = 2)
+	{
+		LLK_ToolTip("third click has to be a member")
+		Return
+	}
+	If (betrayal_shift_clicks = 3)
+	{
+		parse_division2 := ""
+		parse_division2_provisional := ""
+		GuiControlGet, text,, %A_GuiControl%
+		Loop, Parse, betrayal_divisions, `,, `,
+			parse_division2_provisional := InStr(text, A_Loopfield) ? A_Loopfield : parse_division2_provisional
+		If (parse_division2_provisional = parse_division1)
+		{
+			LLK_ToolTip("both members can't move to the same division")
+			Return
+		}
+		parse_division2 := parse_division2_provisional
+	}
+	betrayal_shift_clicks += 1
+	If (betrayal_shift_clicks = 4)
+	{
+		ToolTip,,,,
+		GoSub, Betrayal_search
+	}
+	Return
+}
+
+check := 0
+Loop, Parse, betrayal_list, `n, `n
+	check += InStr(A_GuiControl, A_Loopfield) ? 1 : 0
+If (check = 0)
+	Return
+
 parse_member := SubStr(A_GuiControl, InStr(A_GuiControl, "_",,, 3) + 1)
 parse_member := SubStr(parse_member, 1, InStr(parse_member, "_",,, 1) - 1)
 parse_division := SubStr(A_GuiControl, InStr(A_GuiControl, "_",,, 4) + 1)
@@ -941,44 +1070,74 @@ WinActivate, ahk_group poe_window
 Return
 
 Betrayal_info:
+betrayal_offset := 0
+Gui_copy := A_Gui
+If (betrayal_enable_recognition = 0)
+{
+	Gui, betrayal_info_members: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_betrayal_info_members
+	Gui, betrayal_info_members: Margin, 0, 0
+	Gui, betrayal_info_members: Color, Black
+	WinSet, Transparent, %betrayal_trans%
+	Gui, betrayal_info_members: Font, % "cWhite s"fSize0 + fSize_offset_betrayal, Fontin SmallCaps
+	Loop, Parse, betrayal_list, `n, `n
+	{
+		color := (A_Loopfield = betrayal_info_click_member) || (A_Loopfield = betrayal_info_click_member2) || (A_Loopfield = parse_member1) ? "Fuchsia" : "White"
+		If (A_Index = 1)
+			Gui, betrayal_info_members: Add, Text, % "Section BackgroundTrans Border Center vbetrayal_info_member_" A_Loopfield " gBetrayal_apply w"poe_width//17 " c"color, % A_Loopfield
+		Else Gui, betrayal_info_members: Add, Text, % "ys BackgroundTrans Center Border vbetrayal_info_member_" A_Loopfield " gBetrayal_apply w"poe_width//17 " c"color, % A_Loopfield
+	}
+	Gui, betrayal_info_members: Show, NA y%yScreenOffSet%
+	LLK_Overlay("betrayal_info_members", "show")
+	WinGetPos,,,, betrayal_offset
+	betrayal_offset -= 1
+}
 Loop, Parse, betrayal_divisions, `,, `,
 {
 	Gui, betrayal_info_%A_Index%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_betrayal_info_%A_Index%
 	Gui, betrayal_info_%A_Index%: Margin, 0, 0
-	Gui, betrayal_info_%A_Index%: Color, Black
+	If (parse_division1 = A_LoopField) && (betrayal_layout = 1) && (betrayal_enable_recognition = 1)
+		Gui, betrayal_info_%A_Index%: Color, 303030
+	Else Gui, betrayal_info_%A_Index%: Color, Black
 	WinSet, Transparent, %betrayal_trans%
 	Gui, betrayal_info_%A_Index%: Font, % "cWhite s"fSize0 + fSize_offset_betrayal, Fontin SmallCaps
 	If (betrayal_layout = 1)
 	{
 		IniRead, betrayal_%betrayal_member%_%A_Loopfield%, ini\betrayal info.ini, %betrayal_member%, %A_Loopfield%, 1
 		color := "white"
-		color := (betrayal_%betrayal_member%_%A_Loopfield% = 2) ? "Lime" : color
-		color := (betrayal_%betrayal_member%_%A_Loopfield% = 3) ? "Yellow" : color
-		color := (betrayal_%betrayal_member%_%A_Loopfield% = 4) ? "Red" : color
-		color := (betrayal_%betrayal_member%_%A_Loopfield% = 5) ? "Aqua" : color
-		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_"A_Index "_" betrayal_member "_" A_Loopfield " gBetrayal_apply w"poe_width//5 " c"color, % %A_Loopfield%_text
+		If (Gui_copy != "") || (betrayal_enable_recognition = 1)
+		{
+			color := (betrayal_%betrayal_member%_%A_Loopfield% = 2) ? "Lime" : color
+			color := (betrayal_%betrayal_member%_%A_Loopfield% = 3) ? "Yellow" : color
+			color := (betrayal_%betrayal_member%_%A_Loopfield% = 4) ? "Red" : color
+			color := (betrayal_%betrayal_member%_%A_Loopfield% = 5) ? "Aqua" : color
+		}
+		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_" A_Index "_" betrayal_member "_" A_Loopfield " gBetrayal_apply w"poe_width/4 - 2 " c"color, % %A_Loopfield%_text
 	}
 	Else
 	{
 		If (A_Index < 3)
 		{
 			betrayal_member := parse_member1
-			betrayal_division := (A_Index = 1) ? parse_division2 : parse_division1
+			betrayal_division := (A_Index = 1) ? parse_division1 : parse_division2
 		}
 		Else
 		{
 			betrayal_member := parse_member2
-			betrayal_division := (A_Index = 3) ? parse_division1 : parse_division2
+			betrayal_division := (A_Index = 3) ? parse_division2 : parse_division1
 		}
 		IniRead, betrayal_%betrayal_member%_%betrayal_division%, ini\betrayal info.ini, %betrayal_member%, %betrayal_division%, 1
 		color := "white"
-		color := (betrayal_%betrayal_member%_%betrayal_division% = 2) ? "Lime" : color
-		color := (betrayal_%betrayal_member%_%betrayal_division% = 3) ? "Yellow" : color
-		color := (betrayal_%betrayal_member%_%betrayal_division% = 4) ? "Red" : color
-		color := (betrayal_%betrayal_member%_%betrayal_division% = 5) ? "Aqua" : color
-		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_"A_Index "_" betrayal_member "_" betrayal_division " gBetrayal_apply w"poe_width//5 " c"color, % panel%A_Index%_text
+		If (Gui_copy != "") || (betrayal_enable_recognition = 1)
+		{
+			color := (betrayal_%betrayal_member%_%betrayal_division% = 2) ? "Lime" : color
+			color := (betrayal_%betrayal_member%_%betrayal_division% = 3) ? "Yellow" : color
+			color := (betrayal_%betrayal_member%_%betrayal_division% = 4) ? "Red" : color
+			color := (betrayal_%betrayal_member%_%betrayal_division% = 5) ? "Aqua" : color
+		}
+		Gui, betrayal_info_%A_Index%: Add, Text, % "BackgroundTrans Center vbetrayal_info_" A_Index "_" betrayal_member "_" betrayal_division " gBetrayal_apply w"poe_width/4 - 2 " c"color, % panel%A_Index%_text
 	}
-	Gui, betrayal_info_%A_Index%: Show, % "Hide y0 x"xScreenOffSet + A_Index * poe_width//25 + (A_Index - 1) * poe_width//5
+	;Gui, betrayal_info_%A_Index%: Show, % "Hide y0 x"xScreenOffSet + A_Index * poe_width//25 + (A_Index - 1) * poe_width//5
+	Gui, betrayal_info_%A_Index%: Show, % "Hide y" yScreenOffSet + betrayal_offset " x"xScreenOffSet + (A_Index - 1) * poe_width/4
 	LLK_Overlay("betrayal_info_" A_Index, "show")
 }
 Return
@@ -1022,7 +1181,8 @@ Return
 
 Betrayal_search:
 start := A_TickCount
-While GetKeyState(ThisHotkey_copy, "P")
+betrayal_shift_clicks := (betrayal_enable_recognition = 1) ? 0 : betrayal_shift_clicks
+While GetKeyState(ThisHotkey_copy, "P") && (betrayal_enable_recognition = 1)
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -1054,7 +1214,7 @@ While GetKeyState(ThisHotkey_copy, "P")
 		WinSet, Transparent, %trans%
 		Gui, betrayal_setup: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 		Gui, betrayal_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBetrayal_screencap%
-		Gui, betrayal_setup: Add, DDL, ys BackgroundTrans cBlack vBetrayal_ddl Choose1 gBetrayal_apply HWNDmain_text, % StrReplace(betrayal_list, "`n", "|")
+		Gui, betrayal_setup: Add, DDL, ys BackgroundTrans cBlack vBetrayal_ddl Choose1 gBetrayal_apply HWNDmain_text, % "abort screen-cap||transportation|fortification|research|intervention|" StrReplace(betrayal_list, "`n", "|")
 		LLK_Overlay("betrayal_setup", "show", 0)
 		WinWaitActive, ahk_group poe_window
 		SelectObject(hdcBetrayal_screencap, obmBetrayal_screencap)
@@ -1069,6 +1229,9 @@ While GetKeyState(ThisHotkey_copy, "P")
 	}
 }
 
+KeyWait, MButton
+
+/*
 If ((A_Gui = "") && !WinExist("ahk_id " hwnd_betrayal_search) && (betrayal_enable_recognition = 0)) || ((betrayal_enable_recognition = 1) && GetKeyState("LShift", "P") && !WinExist("ahk_id " hwnd_betrayal_search))
 {
 	Gui, settings_menu: Destroy
@@ -1091,17 +1254,6 @@ Else If (A_Gui = "") && WinExist("ahk_id " hwnd_betrayal_search)
 	Return
 }
 
-If (A_Gui = "betrayal_search")
-{
-	Gui, betrayal_search: Submit, NoHide
-	GuiControl, Text, betrayal_searchbox,
-}
-
-If (A_Gui = "betrayal_search") && (betrayal_searchbox = "betrayal search" || StrLen(betrayal_searchbox) < 2)
-{
-	LLK_ToolTip("incorrect input")
-	Return
-}
 
 If (A_Gui = "settings_menu")
 {
@@ -1110,13 +1262,55 @@ If (A_Gui = "settings_menu")
 		betrayal_searchbox := "aisling"
 	GuiControl, Text, betrayal_searchbox,
 }
+*/
 
-betrayal_member := ""
-parse_member1 := ""
-parse_member2 := ""
-parse_division1 := ""
-parse_division2 := ""
+If (betrayal_shift_clicks != 4)
+{
+	If (A_Gui = "betrayal_info_members")
+		parse_member1 := betrayal_info_click_member
+	Else
+	{
+		betrayal_member := ""
+		If (parse_member2 != "")
+		{
+			parse_member2 := ""
+			parse_division2 := ""
+		}
+		Else If GetKeyState("LShift", "P")
+		{
+			parse_member2 := (parse_member1 = "") ? "" : parse_member1
+			parse_division2 := (parse_member1 = "") ? "" : parse_division1
+		}
+		Else
+		{
+			parse_member2 := ""
+			parse_division2 := ""
+		}
+		parse_member1 := ""
+		parse_division1 := ""
+	}
+}
 
+If (A_Gui = "settings_menu")
+	parse_member1 := "aisling"
+
+If (A_Gui = "") && (betrayal_enable_recognition = 0)
+{
+	ToolTip,,,,
+	betrayal_member := ""
+	parse_member1 := ""
+	betrayal_info_click_member := ""
+	betrayal_info_click_member2 := ""
+	betrayal_shift_clicks := 0
+	Loop, Parse, betrayal_divisions, `,, `,
+	{
+		panel%A_Index%_text := A_Loopfield ":"
+		%A_Loopfield%_text := A_Loopfield ":"
+	}
+	GoSub, Betrayal_info
+	Return
+}
+/*
 If (A_Gui = "betrayal_search") || (A_Gui = "settings_menu")
 {
 	Loop, Parse, betrayal_searchbox, %A_Space%, %A_Space%
@@ -1161,13 +1355,18 @@ If (A_Gui = "betrayal_search") || (A_Gui = "settings_menu")
 		hwnd_betrayal_search := ""
 	}
 }
-Else If (betrayal_enable_recognition = 1) && (A_Gui = "")
+Else
+*/
+If (betrayal_enable_recognition = 1) && (A_Gui = "")
 {
 	If FileExist("img\Recognition (" poe_height "p)\Betrayal\.bmp")
 		FileDelete, img\Recognition (%poe_height%p)\Betrayal\.bmp
 	pHaystack_betrayal := Gdip_BitmapFromHWND(hwnd_poe_client)
+	;Gdip_SaveBitmapToFile(pHaystack_betrayal, "test.bmp", 100)
 	Loop, Files, img\Recognition (%poe_height%p)\Betrayal\*.bmp
 	{
+		If InStr(A_LoopFilePath, "transportation") || InStr(A_LoopFilePath, "fortification") || InStr(A_LoopFilePath, "research") || InStr(A_LoopFilePath, "intervention")
+			continue
 		pNeedle_betrayal := Gdip_CreateBitmapFromFile(A_LoopFilePath)
 		pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation,, 1, 1)
 		Gdip_DisposeImage(pNeedle_betrayal)
@@ -1180,16 +1379,50 @@ Else If (betrayal_enable_recognition = 1) && (A_Gui = "")
 		}
 	}
 	Gdip_DisposeImage(pHaystack_betrayal)
+	If (parse_member1 = parse_member2) && (parse_member1 != "")
+	{
+		GoSub, Betrayal_search
+		Return
+	}
 	If (parse_member1 != "")
+	{
+		pHaystack_betrayal := Gdip_BitmapFromHWND(hwnd_poe_client)
+		Loop, Parse, betrayal_divisions, `,, `,
+		{
+			pNeedle_betrayal := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\Betrayal\" A_Loopfield ".bmp")
+			pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation,, 1, 1)
+			Gdip_DisposeImage(pNeedle_betrayal)
+			Gdip_DisposeImage(pSearch_betrayal)
+			If (pSearch_betrayal > 0)
+			{
+				parse_division1 := A_Loopfield
+				parse_member1 := StrReplace(parse_member1, "1")
+				Break
+			}
+		}
 		LLK_ToolTip("match found", 0.5)
+		Gdip_DisposeImage(pHaystack_betrayal)
+	}
 	Else LLK_ToolTip("no match", 0.5)
 }
 
 If (parse_member1 = "")
+{
+	parse_member1 := ""
+	parse_division1 := ""
+	parse_member2 := ""
+	parse_division2 := ""
+	Loop 4
+		LLK_Overlay("betrayal_info_" A_Index, "hide")
 	Return
+}
 
-If ((parse_member1 != "") && (parse_division1 = ""))
+If ((parse_member1 != "") && (parse_member2 = "")) || (parse_division1 = "") || (parse_division1 = parse_division2)
+{
 	betrayal_layout := 1
+	parse_member2 := ""
+	parse_division2 := ""
+}
 Else betrayal_layout := 2
 
 If (betrayal_layout = 1)
@@ -1207,19 +1440,19 @@ If (betrayal_layout = 1)
 }
 Else
 {
-	IniRead, panel1_text, data\Betrayal.ini, %parse_member1%, %parse_division2%
-	IniRead, panel2_text, data\Betrayal.ini, %parse_member1%, %parse_division1%
-	IniRead, panel3_text, data\Betrayal.ini, %parse_member2%, %parse_division1%
-	IniRead, panel4_text, data\Betrayal.ini, %parse_member2%, %parse_division2%
+	IniRead, panel1_text, data\Betrayal.ini, %parse_member1%, %parse_division1%
+	IniRead, panel2_text, data\Betrayal.ini, %parse_member1%, %parse_division2%
+	IniRead, panel3_text, data\Betrayal.ini, %parse_member2%, %parse_division2%
+	IniRead, panel4_text, data\Betrayal.ini, %parse_member2%, %parse_division1%
 	If (panel1_text = "ERROR") || (panel2_text = "ERROR") || (panel3_text = "ERROR") || (panel4_text = "ERROR")
 	{
 		SoundBeep
 		Return
 	}
-	panel1_text := parse_member1 " " parse_division2 " (current):`n" panel1_text
-	panel2_text := parse_member1 " " parse_division1 " (target):`n" panel2_text
-	panel3_text := parse_member2 " " parse_division1 " (current):`n" panel3_text
-	panel4_text := parse_member2 " " parse_division2 " (target):`n" panel4_text
+	panel1_text := parse_member1 " " parse_division1 " (current):`n" panel1_text
+	panel2_text := parse_member1 " " parse_division2 " (target):`n" panel2_text
+	panel3_text := parse_member2 " " parse_division2 " (current):`n" panel3_text
+	panel4_text := parse_member2 " " parse_division1 " (target):`n" panel4_text
 	GoSub, Betrayal_info
 }
 Return
@@ -1890,7 +2123,7 @@ Else parseboard := SubStr(map_mods_clipped, InStr(map_mods_clipped, "Item Level:
 IniRead, map_mods_list, data\Map mods.ini
 Loop, Parse, parseboard, `n, `n
 {
-	If (A_LoopField = "") || InStr(A_Loopfield, "{") || (SubStr(A_Loopfield, 1, 1) = "(")
+	If (A_LoopField = "") || InStr(A_Loopfield, "{") || (SubStr(A_Loopfield, 1, 1) = "(") || InStr(A_Loopfield, "delirium reward type")
 		continue
 	check := InStr(A_Loopfield, "(") ? SubStr(A_LoopField, 1, InStr(A_Loopfield, "(",,, 1) - 1) SubStr(A_Loopfield, InStr(A_Loopfield, ")") + 1) : A_Loopfield
 	check_characters := "-0123456789%"
@@ -2571,7 +2804,7 @@ Else If InStr(clipboard, "cluster jewel")
 	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
 	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: all
 	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type%
-	Gui, context_menu: Add, Text, vOil_wiki gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
+	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
 Else
 {
@@ -2613,6 +2846,12 @@ Loop, Parse, clipboard, `r`n, `r`n
 		wiki_term := StrReplace(A_LoopField, "Item Class: ")
 		class := wiki_term
 		wiki_term := StrReplace(wiki_term, A_Space, "_")
+		If InStr(clipboard, "runic") && InStr(clipboard, "ward:")
+		{
+			If (class = "gloves")
+				wiki_term := "Runic_Gauntlets"
+			Else wiki_term := (class = "helmets") ? "Runic_Crown" : "Runic_Sabatons"
+		}
 	}
 	If InStr(A_LoopField, "Str: ")
 	{
@@ -2685,6 +2924,8 @@ If InStr(A_GuiControl, "crafting_table")
 			SetTimer, Timeout_cluster_jewels
 		}
 	}
+	Else If (InStr(clipboard, "runic") && InStr(Clipboard, "ward:"))
+		Run, https://poedb.tw/us/%wiki_term%#ModifiersCalc
 	Else Run, https://poedb.tw/us/%wiki_term%%attribute%#ModifiersCalc
 	clipboard := wiki_level
 }
@@ -2823,7 +3064,9 @@ Loop, Parse, clipboard, `n, `n
 }
 If InStr(clipboard, "Cluster Jewel")
 	wiki_term := "Cluster_Jewel"
-Run, https://poewiki.net/wiki/%wiki_term%
+If (InStr(clipboard, "runic") && InStr(clipboard, "ward:"))
+	Run, https://www.poewiki.net/wiki/Runic_base_type#%wiki_term%
+Else Run, https://poewiki.net/wiki/%wiki_term%
 Return
 
 Recombinators:
@@ -3526,6 +3769,7 @@ If !InStr(GuiControl_copy, "betrayal")
 	ControlFocus,, ahk_id %hwnd_settings_general%
 	Loop 4
 		LLK_Overlay("betrayal_info_" A_Index, "hide")
+	LLK_Overlay("betrayal_info_members", "hide")
 }
 Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
 
@@ -3561,7 +3805,7 @@ Return
 
 Settings_menu_betrayal:
 Gui, betrayal_search: Destroy
-Gui, settings_menu: Add, Checkbox, % "ys Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans xp+"spacing_settings*1.2 " Checked"betrayal_enable_recognition, use image recognition instead of text-search`n(requires additional setup)
+Gui, settings_menu: Add, Checkbox, % "ys Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans xp+"spacing_settings*1.2 " Checked"betrayal_enable_recognition, use image recognition`n(requires additional setup)
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "0"
@@ -3571,10 +3815,12 @@ Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_minus gBetrayal_apply Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_plus gBetrayal_apply Border x+2 wp", % "+"
 
+/*
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, % "member search: "
 Gui, settings_menu: Font, % "s"fSize0 - 4
 Gui, settings_menu: Add, Edit, % "ys x+0 hp wp BackgroundTrans cBlack vBetrayal_searchbox HWNDhwnd_betrayal_edit",
 Gui, settings_menu: Font, % "s"fSize0
+*/
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gBetrayal_apply vImage_folder HWNDmain_text y+"fSize0*1.2, % " open img folder "
 Gui, settings_menu: Add, Button, xs BackgroundTrans Default Hidden vBetrayal_search_button gBetrayal_search, OK
 GoSub, Betrayal_search
@@ -4083,6 +4329,7 @@ If WinExist("ahk_id " hwnd_betrayal_info_1)
 {
 	Loop 4
 		LLK_Overlay("betrayal_info_" A_Index, "hide")
+	LLK_Overlay("betrayal_info_members", "hide")
 }
 If WinExist("ahk_id " hwnd_notepad_sample)
 {
