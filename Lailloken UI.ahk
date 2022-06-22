@@ -1271,15 +1271,15 @@ If (betrayal_shift_clicks != 4)
 	Else
 	{
 		betrayal_member := ""
-		If GetKeyState("LShift", "P")
-		{
-			parse_member2 := (parse_member1 = "") ? "" : parse_member1
-			parse_division2 := (parse_member1 = "") ? "" : parse_division1
-		}
-		Else If (parse_member2 != "")
+		If (parse_member2 != "")
 		{
 			parse_member2 := ""
 			parse_division2 := ""
+		}
+		Else If GetKeyState("LShift", "P")
+		{
+			parse_member2 := (parse_member1 = "") ? "" : parse_member1
+			parse_division2 := (parse_member1 = "") ? "" : parse_division1
 		}
 		Else
 		{
@@ -1298,6 +1298,7 @@ If (A_Gui = "") && (betrayal_enable_recognition = 0)
 {
 	ToolTip,,,,
 	betrayal_member := ""
+	parse_member1 := ""
 	betrayal_info_click_member := ""
 	betrayal_info_click_member2 := ""
 	betrayal_shift_clicks := 0
