@@ -28,6 +28,10 @@ If !pToken := Gdip_Startup()
 	ExitApp
 }
 
+SysGet, xborder, 32
+SysGet, yborder, 33
+SysGet, caption, 4
+
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 GroupAdd, poe_window, ahk_class POEWindowClass
 GroupAdd, poe_ahk_window, ahk_class POEWindowClass
@@ -73,6 +77,17 @@ WinGetPos,,, width_native, height_native
 Gui, Test: Destroy
 
 IniRead, supported_resolutions, data\Resolutions.ini
+If !InStr(supported_resolutions, poe_height)
+	windowed_mode := !InStr(supported_resolutions, poe_height - caption - yborder*2) ? 0 : 1
+
+If (windowed_mode = 1)
+{
+	poe_width -= xborder*2
+	poe_height := poe_height - caption - yborder*2
+	xScreenOffSet += xborder
+	yScreenOffSet := yScreenOffSet + caption + yborder
+}
+
 
 IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
 IniRead, fSize_config1, data\Resolutions.ini, %poe_height%p, font-size1, 14
@@ -89,7 +104,8 @@ If (custom_resolution_setting != 0) && (custom_resolution_setting != 1)
 If (custom_resolution_setting = 1)
 {
 	IniRead, custom_resolution, ini\config.ini, Settings, custom-resolution
-	If custom_resolution is not number
+	IniRead, custom_width, ini\config.ini, Settings, custom-width
+	If !IsNumber(custom_resolution) || !IsNumber(custom_width)
 	{
 		MsgBox, Incorrect config.ini settings detected: custom resolution enabled but none selected.`nThe setting will be reset and the script restarted.
 		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
@@ -97,15 +113,17 @@ If (custom_resolution_setting = 1)
 		ExitApp
 	}
 
-	If (custom_resolution > height_native) ;check resolution in case of manual .ini edit
+	If (custom_resolution > height_native) || (custom_width > width_native) ;check resolution in case of manual .ini edit
 	{
 		MsgBox, Incorrect config.ini settings detected: custom height > monitor height`nThe script will now exit.
 		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 		IniWrite, %height_native%, ini\config.ini, Settings, custom-resolution
 		ExitApp
 	}
-	WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
+	xScreenOffset := (custom_width < width_native) && (poe_width != custom_width) ? xScreenOffset + (width_native - custom_width)/2 : xScreenOffset
+	WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %custom_width%, %custom_resolution%
 	poe_height := custom_resolution
+	poe_width := custom_width
 }
 
 If !FileExist("img\Recognition (" poe_height "p\GUI\")
@@ -350,7 +368,7 @@ If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 
-If InStr(buggy_resolutions, poe_height) || !InStr(supported_resolutions, poe_height)
+If InStr(buggy_resolutions, poe_height) || (!InStr(supported_resolutions, poe_height) && !InStr(supported_resolutions, poe_height - caption - yborder*2))
 {
 	If InStr(buggy_resolutions, poe_height)
 	{
@@ -368,6 +386,7 @@ You also have to enable "confine mouse to window" in the game's UI options.
 	}
 	Else If !InStr(supported_resolutions, poe_height)
 	{
+	
 text =
 (
 Unsupported resolution detected!
@@ -489,11 +508,6 @@ If WinExist("ahk_id " hwnd_betrayal_info_1) || WinActive("ahk_id " hwnd_betrayal
 	Loop 4
 		LLK_Overlay("betrayal_info_" A_Index, "hide")
 	LLK_Overlay("betrayal_info_members", "hide")
-	If (betrayal_enable_recognition = 1)
-	{
-		Gui, betrayal_search: Destroy
-		hwnd_betrayal_search := ""
-	}
 	If LLK_ImageSearch("betrayal")
 		SendInput, {ESC}
 	WinActivate, ahk_group poe_window
@@ -690,10 +704,13 @@ Return
 
 Apply_resolution:
 Gui, settings_menu: Submit, NoHide
-WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
+xScreenOffSet := (custom_width != poe_width) && (custom_width < width_native) ? xScreenOffSet + (poe_width - custom_width)/2 : xScreenOffSet
+WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %custom_width%, %custom_resolution%
+poe_width := custom_width
 poe_height := custom_resolution
 IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
 IniWrite, %custom_resolution%, ini\config.ini, Settings, custom-resolution
+IniWrite, %custom_width%, ini\config.ini, Settings, custom-width
 Reload
 ExitApp
 Return
@@ -956,7 +973,7 @@ If InStr(A_GuiControl, "betrayal_info_member_") && GetKeyState("LShift", "P")
 			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
 		Else hMembers := 0
 		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
-		ToolTip, % parse_member2 " moves to",, % hMembers + hInfo
+		ToolTip, % parse_member2 " moves to",, % hMembers + hInfo + yScreenOffSet
 	}
 	If (betrayal_shift_clicks = 1)
 	{
@@ -976,7 +993,7 @@ If InStr(A_GuiControl, "betrayal_info_member_") && GetKeyState("LShift", "P")
 			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
 		Else hMembers := 0
 		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
-		ToolTip, % parse_member2 " moves to " parse_division1 ",`n" parse_member1 " moves to ",, % hMembers + hInfo
+		ToolTip, % parse_member2 " moves to " parse_division1 ",`n" parse_member1 " moves to ",, % hMembers + hInfo + yScreenOffSet
 	}
 	If (betrayal_shift_clicks = 3)
 	{
@@ -1013,7 +1030,7 @@ If InStr(A_GuiControl, "betrayal_info_") && !InStr(A_GuiControl, "betrayal_info_
 			WinGetPos,,,, hMembers, ahk_id %hwnd_betrayal_info_members%
 		Else hMembers := 0
 		WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info_1%
-		ToolTip, % parse_member2 " moves to " parse_division1,, % hMembers + hInfo
+		ToolTip, % parse_member2 " moves to " parse_division1,, % hMembers + hInfo + yScreenOffSet
 	}
 	If (betrayal_shift_clicks = 2)
 	{
@@ -1417,7 +1434,7 @@ If (parse_member1 = "")
 	Return
 }
 
-If ((parse_member1 != "") && (parse_member2 = "")) || (parse_division1 = "") || (parse_division1 = parse_division2)
+If ((parse_member1 != "") && (parse_member2 = "")) || (parse_division1 = "") || (parse_division2 = "") || (parse_division1 = parse_division2)
 {
 	betrayal_layout := 1
 	parse_member2 := ""
@@ -3884,9 +3901,12 @@ Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
 
 Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans HWNDmain_text x+"fSize0//2, % poe_width " x "
+Gui, settings_menu: Font, % "s"fSize0-4 "norm"
+Gui, settings_menu: Add, Edit, % "ys hp BackgroundTrans cBlack Limit4 vcustom_width Number HWNDmain_text x+"fSize0//2, % poe_width
+Gui, settings_menu: Font, % "s"fSize0
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+0", x
 ControlGetPos,,,, height,, ahk_id %main_text%
-ControlGetPos,,, width,,, ahk_id %link_text%
+ControlGetPos,,, width,,, ahk_id %main_text%
 resolutionsDDL := ""
 IniRead, resolutions_all, data\Resolutions.ini
 choice := 0
@@ -3897,7 +3917,7 @@ Loop, Parse, resolutionsDDL, |, |
 	If (A_LoopField = poe_height)
 		choice := A_Index
 Gui, settings_menu: Font, % "s"fSize0-4
-Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 wp Choose" choice, % resolutionsDDL
+Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " w"width*1.5, % resolutionsDDL
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
@@ -4834,8 +4854,22 @@ LLK_ImageSearch(name := "")
 	}
 	Else
 	{
+		imagesearch_x1 := 0
+		imagesearch_y1 := 0
+		imagesearch_x2 := 0
+		imagesearch_y2 := 0
+		If (A_Loopfield = "bestiary" || A_Loopfield = "gwennen" || A_Loopfield = "stash" || A_Loopfield = "vendor")
+		{
+			imagesearch_x2 := poe_width//2
+			imagesearch_y2 := poe_height//2
+		}
+		Else If (A_Loopfield = "betrayal")
+		{
+			imagesearch_y1 := poe_height//2
+			imagesearch_x2 := poe_width//2
+		}
 		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
-		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch,,,,,, imagesearch_variation,, 1, 1) > 0)
+		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch,, imagesearch_x1,imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
 		{
 			Gdip_DisposeImage(pNeedle_ImageSearch)
 			Gdip_DisposeImage(pHaystack_ImageSearch)
