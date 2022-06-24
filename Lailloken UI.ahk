@@ -63,7 +63,40 @@ While !WinExist("ahk_group poe_window")
 }
 
 If WinExist("ahk_group poe_window") && (win_not_exist = 1) ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
-	sleep, 2000
+	sleep, 4000
+
+IniRead, poe_config_file, ini\config.ini, Settings, PoE config-file, %A_MyDocuments%\My Games\Path of Exile\production_Config.ini
+If !FileExist(poe_config_file)
+{
+	FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the PoE config file which is stored in the same folder as loot-filters, config files (*.ini)
+	If (ErrorLevel = 1) || !InStr(poe_config_file, "production_Config")
+	{
+		Reload
+		ExitApp
+	}
+	IniRead, check_ini, % poe_config_file
+	If !InStr(check_ini, "Display")
+	{
+		Reload
+		ExitApp
+	}
+	IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
+}
+
+IniRead, exclusive_fullscreen, % poe_config_file, DISPLAY, fullscreen
+If (exclusive_fullscreen = "ERROR" || exclusive_fullscreen = "")
+	LLK_Error("Cannot read the PoE config-file")
+Else If (exclusive_fullscreen = "true")
+	LLK_Error("The game-client is set to exclusive fullscreen.`nPlease set it to windowed fullscreen.")
+IniRead, fullscreen, % poe_config_file, DISPLAY, borderless_windowed_fullscreen,
+If (fullscreen = "ERROR" || fullscreen = "")
+	LLK_Error("Cannot read the PoE config-file")
+IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
+If (fullscreen_last != fullscreen)
+{
+	IniWrite, % fullscreen, ini\config.ini, Settings, fullscreen
+	IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
+}
 
 hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
@@ -73,27 +106,29 @@ WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_wi
 Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 WinSet, Trans, 0
 Gui, Test: Show, NA x%xScreenOffset% y%yScreenOffset% Maximize
-WinGetPos,,, width_native, height_native
+WinGetPos, xScreenOffset_monitor, yScreenOffSet_monitor, width_native, height_native
 Gui, Test: Destroy
 
 IniRead, supported_resolutions, data\Resolutions.ini
-If !InStr(supported_resolutions, poe_height)
-	windowed_mode := !InStr(supported_resolutions, poe_height - caption - yborder*2) ? 0 : 1
+supported_resolutions := "," StrReplace(supported_resolutions, "`n", ",")
 
-If (windowed_mode = 1)
+;poe_height += (poe_height > height_native) || ((poe_height = height_native) && (yScreenOffSet < yScreenOffset_monitor)) ? 1 : 0
+
+If (fullscreen = "false")
 {
 	poe_width -= xborder*2
 	poe_height := poe_height - caption - yborder*2
 	xScreenOffSet += xborder
-	yScreenOffSet := yScreenOffSet + caption + yborder
+	yScreenOffSet += caption + yborder
+	;IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 }
-
 
 IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
 IniRead, fSize_config1, data\Resolutions.ini, %poe_height%p, font-size1, 14
 fSize0 := fSize_config0
 fSize1 := fSize_config1
 
+IniRead, window_docking, ini\config.ini, Settings, top-docking, 1
 IniRead, custom_resolution_setting, ini\config.ini, Settings, enable custom-resolution
 If (custom_resolution_setting != 0) && (custom_resolution_setting != 1)
 {
@@ -115,15 +150,21 @@ If (custom_resolution_setting = 1)
 
 	If (custom_resolution > height_native) || (custom_width > width_native) ;check resolution in case of manual .ini edit
 	{
-		MsgBox, Incorrect config.ini settings detected: custom height > monitor height`nThe script will now exit.
+		MsgBox, Incorrect config.ini settings detected.`nThe script will now exit.
 		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 		IniWrite, %height_native%, ini\config.ini, Settings, custom-resolution
+		IniWrite, %width_native%, ini\config.ini, Settings, custom-width
 		ExitApp
 	}
-	xScreenOffset := (custom_width < width_native) && (poe_width != custom_width) ? xScreenOffset + (width_native - custom_width)/2 : xScreenOffset
-	WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %custom_width%, %custom_resolution%
-	poe_height := custom_resolution
-	poe_width := custom_width
+	If (fullscreen = "true")
+		WinMove, ahk_group poe_window,, % xScreenOffset_monitor, % yScreenOffset_monitor, % poe_width, %custom_resolution%
+	Else
+	{
+		WinMove, ahk_group poe_window,, % xScreenOffset_monitor + (width_native - custom_width)/2 - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
+		xScreenOffSet := xScreenOffset_monitor + (width_native - custom_width)/2
+		yScreenOffSet := (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 + yborder + caption : yScreenOffSet_monitor + caption + yborder
+	}
+	poe_height := custom_resolution ;(fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution
 }
 
 If !FileExist("img\Recognition (" poe_height "p\GUI\")
@@ -313,11 +354,13 @@ If (omnikey_hotkey != "")
 	Hotkey, IfWinActive, ahk_group poe_window
 	Hotkey, *~%omnikey_hotkey%, Omnikey, On
 	Hotkey, *~MButton, Omnikey, Off
+	omnikey_hotkey_old := omnikey_hotkey
 }
 Else
 {
 	Hotkey, IfWinActive, ahk_group poe_window
 	Hotkey, *~MButton, Omnikey, On
+	omnikey_hotkey_old := "MButton"
 }
 
 IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
@@ -368,7 +411,7 @@ If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 
-If InStr(buggy_resolutions, poe_height) || (!InStr(supported_resolutions, poe_height) && !InStr(supported_resolutions, poe_height - caption - yborder*2))
+If InStr(buggy_resolutions, poe_height) || !InStr(supported_resolutions, "," poe_height "p")
 {
 	If InStr(buggy_resolutions, poe_height)
 	{
@@ -384,7 +427,7 @@ You have to run the client with a custom resolution, which you can do in the fol
 You also have to enable "confine mouse to window" in the game's UI options.
 )
 	}
-	Else If !InStr(supported_resolutions, poe_height)
+	Else If !InStr(supported_resolutions, "," poe_height "p")
 	{
 	
 text =
@@ -399,6 +442,7 @@ You also have to enable "confine mouse to window" in the game's UI options.
 )
 	}
 	MsgBox, % text
+	safe_mode := 1
 	GoSub, settings_menu
 	sleep, 2000
 	Loop
@@ -408,6 +452,7 @@ You also have to enable "confine mouse to window" in the game's UI options.
 			MsgBox, The script will now shut down.
 			ExitApp
 		}
+		Sleep, 100
 	}
 	Return
 }
@@ -502,12 +547,13 @@ If WinActive("ahk_id " hwnd_recombinator_window)
 	Gosub, Recombinator_windowGuiClose
 	Return
 }
-If WinExist("ahk_id " hwnd_betrayal_info_1) || WinActive("ahk_id " hwnd_betrayal_search)
+If WinExist("ahk_id " hwnd_betrayal_info_1)
 {
 	WinActivate, ahk_group poe_window
 	Loop 4
 		LLK_Overlay("betrayal_info_" A_Index, "hide")
-	LLK_Overlay("betrayal_info_members", "hide")
+	If WinExist("ahk_id " hwnd_betrayal_info_members)
+		LLK_Overlay("betrayal_info_members", "hide")
 	If LLK_ImageSearch("betrayal")
 		SendInput, {ESC}
 	WinActivate, ahk_group poe_window
@@ -704,13 +750,34 @@ Return
 
 Apply_resolution:
 Gui, settings_menu: Submit, NoHide
-xScreenOffSet := (custom_width != poe_width) && (custom_width < width_native) ? xScreenOffSet + (poe_width - custom_width)/2 : xScreenOffSet
-WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %custom_width%, %custom_resolution%
-poe_width := custom_width
-poe_height := custom_resolution
+If (A_GuiControl = "custom_resolution_setting")
+{
+	IniWrite, % %A_GuiControl%, ini\config.ini, Settings, enable custom-resolution
+	Return
+}
+If (A_GuiControl = "window_docking")
+{
+	IniWrite, % %A_GuiControl%, ini\config.ini, Settings, top-docking
+	Return
+}
+custom_width := (custom_width > width_native) ? width_native : custom_width
+poe_width := (fullscreen = "true") ? width_native : custom_width
+If (fullscreen = "false") ;|| !InStr(supported_resolutions, "," poe_height "p")
+{
+	custom_resolution += caption + yborder*2
+	poe_width += (poe_width > width_native) ? 0 : xborder*2
+}
+WinMove, ahk_group poe_window,, % (fullscreen = "false") ? xScreenOffset_monitor - xborder : xScreenOffset_monitor, %yScreenOffset_monitor%, %poe_width%, %custom_resolution%
+WinGetPos,,, poe_width, custom_resolution, ahk_group poe_window
+If (fullscreen = "false")
+{
+	xScreenOffSet := (poe_width < width_native) ? xScreenOffset_monitor + (width_native - poe_width)/2 : xScreenOffset_monitor - xborder
+	yScreenOffSet := (custom_resolution < height_native) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor - yborder - caption
+	WinMove, ahk_group poe_window,, %xScreenOffSet%, % (window_docking = 1) ? yScreenOffset_monitor : yScreenOffSet_monitor + (height_native - custom_resolution)/2, %poe_width%, %custom_resolution%
+}
 IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
-IniWrite, %custom_resolution%, ini\config.ini, Settings, custom-resolution
-IniWrite, %custom_width%, ini\config.ini, Settings, custom-width
+IniWrite, % (fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution, ini\config.ini, Settings, custom-resolution
+IniWrite, % (fullscreen = "false") ? custom_width : width_native, ini\config.ini, Settings, custom-width
 Reload
 ExitApp
 Return
@@ -1852,7 +1919,7 @@ While GetKeyState(ThisHotkey_copy, "P")
 		Gui, gwennen_setup: Font, % "s"fSize0
 		Gui, gwennen_setup: Show
 		LLK_Overlay("gwennen_setup", "show", 0)
-		ControlFocus,, ahk_id %main_text%
+		ControlFocus,, ahk_id %link_text%
 		KeyWait, %ThisHotkey_copy%
 		Return
 	}
@@ -1949,9 +2016,12 @@ If WinExist("ahk_group poe_window")
 		hwnd_poe_client := WinExist("ahk_group poe_window")
 	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
 	{
+		Sleep, 4000
 		If !WinActive("ahk_class POEWindowClass")
 			Return
-		WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
+		If (fullscreen = "true")
+			WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
+		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
 		poe_height := custom_resolution
 		hwnd_poe_client := WinExist("ahk_group poe_window")
 		poe_window_closed := 0
@@ -3699,7 +3769,7 @@ screenchecks_all_valid *= screenchecks_gamescreen_valid
 Loop, Parse, imagechecks_list, `,, `,
 	screenchecks_all_valid *= screenchecks_%A_Loopfield%_valid
 
-If !InStr(buggy_resolutions, poe_height)
+If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 {
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %alarm_style% gSettings_menu HWNDhwnd_settings_alarm, % "alarm-timer"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_alarm%
@@ -3900,27 +3970,40 @@ Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gApply
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
 
-Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
-Gui, settings_menu: Font, % "s"fSize0-4 "norm"
-Gui, settings_menu: Add, Edit, % "ys hp BackgroundTrans cBlack Limit4 vcustom_width Number HWNDmain_text x+"fSize0//2, % poe_width
-Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+0", x
-ControlGetPos,,,, height,, ahk_id %main_text%
-ControlGetPos,,, width,,, ahk_id %main_text%
-resolutionsDDL := ""
-IniRead, resolutions_all, data\Resolutions.ini
-choice := 0
-Loop, Parse, resolutions_all, `n,`n
-	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native)
-		resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
-Loop, Parse, resolutionsDDL, |, |
-	If (A_LoopField = poe_height)
-		choice := A_Index
-Gui, settings_menu: Font, % "s"fSize0-4
-Gui, settings_menu: Add, DDL, % "ys x+0 BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " w"width*1.5, % resolutionsDDL
-Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
-Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting ", % "apply on startup "
+;If (windowed_mode != 1)
+{
+	Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
+	If (fullscreen = "true") ;InStr(supported_resolutions, poe_height "p")	
+		Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans HWNDmain_text vcustom_width x+"fSize0//2, % poe_width
+	Else
+	{
+		Gui, settings_menu: Font, % "s"fSize0-4
+		Gui, settings_menu: Add, Edit, % "ys hp Limit4 Number Right cBlack BackgroundTrans vcustom_width HWNDmain_text x+"fSize0//2, % width_native ;(poe_width > width_native) ? width_native : poe_width
+		GuiControl, text, custom_width, % poe_width
+		Gui, settings_menu: Font, % "s"fSize0
+	}
+	Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans x+0", %  " x "
+	ControlGetPos,,,, height,, ahk_id %main_text%
+	ControlGetPos,,, width,,, ahk_id %main_text%
+	resolutionsDDL := ""
+	IniRead, resolutions_all, data\Resolutions.ini
+	choice := 0
+	Loop, Parse, resolutions_all, `n,`n
+		If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native) && !((StrReplace(A_Loopfield, "p") >= height_native) && (fullscreen != "true"))
+			resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
+	resolutionsDDL := (resolutionsDDL = "") ? height_native : resolutionsDDL
+	Loop, Parse, resolutionsDDL, |, |
+		If (A_LoopField = poe_height)
+			choice := A_Index
+	choice := (choice = 0) ? 1 : choice
+	Gui, settings_menu: Font, % "s"fSize0-4
+	Gui, settings_menu: Add, DDL, % "ys BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " x+0 w"width*1.5 " hp", % resolutionsDDL
+	Gui, settings_menu: Font, % "s"fSize0
+	If (fullscreen = "false")
+		Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" window_docking " vwindow_docking gApply_resolution", % "top-docked"
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_resolution", % "apply on startup "
+}
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.2, % "panel position:"
 ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4
@@ -4858,12 +4941,12 @@ LLK_ImageSearch(name := "")
 		imagesearch_y1 := 0
 		imagesearch_x2 := 0
 		imagesearch_y2 := 0
-		If (A_Loopfield = "bestiary" || A_Loopfield = "gwennen" || A_Loopfield = "stash" || A_Loopfield = "vendor")
+		If (name = "bestiary" || name = "gwennen" || name = "stash" || name = "vendor")
 		{
 			imagesearch_x2 := poe_width//2
 			imagesearch_y2 := poe_height//2
 		}
-		Else If (A_Loopfield = "betrayal")
+		Else If (name = "betrayal")
 		{
 			imagesearch_y1 := poe_height//2
 			imagesearch_x2 := poe_width//2
