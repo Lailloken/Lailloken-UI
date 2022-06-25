@@ -171,6 +171,7 @@ If (custom_resolution_setting = 1)
 		WinMove, ahk_group poe_window,, % xScreenOffset_monitor + (width_native - custom_width)/2 - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
 		xScreenOffSet := xScreenOffset_monitor + (width_native - custom_width)/2
 		yScreenOffSet := (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 + yborder + caption : yScreenOffSet_monitor + caption + yborder
+		poe_width := custom_width
 	}
 	poe_height := custom_resolution ;(fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution
 	IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
@@ -1948,7 +1949,7 @@ If (hotstringboard = "") && (gwennen_regex != "ERROR" && gwennen_regex != "")
 {
 	Clipboard := gwennen_regex
 	ClipWait
-	SendInput, ^{v}
+	SendInput, ^{a}{v}
 }
 Return
 
@@ -2029,7 +2030,6 @@ If WinExist("ahk_group poe_window")
 	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
 	{
 		Sleep, 4000
-		WinWaitActive, ahk_group poe_window
 		If (fullscreen = "true")
 			WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
@@ -2618,16 +2618,18 @@ While GetKeyState("LButton", "P")
 			Gui, map_info_menu: Destroy
 			hwnd_map_info_menu := ""
 		}
+		If !WinExist("ahk_id " hwnd_map_mods_window)
+			LLK_Overlay("map_mods_window", "show")
 		WinGetPos,,, wToggle, hToggle, ahk_id %hwnd_map_mods_toggle%
 		WinGetPos,,,, hWindow, ahk_id %hwnd_map_mods_window%
 		While GetKeyState("LButton", "P")
 			GoSub, Map_info_drag
 		KeyWait, LButton
-		If (mouseXpos >= xScreenOffSet + poe_width - pixel_gamescreen_x1 - 1) && (mouseYpos <= pixel_gamescreen_y1 + 1)
+		If (mouseXpos >= xScreenOffSet + poe_width - pixel_gamescreen_x1 - 1) && (mouseYpos <= yScreenOffSet + pixel_gamescreen_y1 + 1)
 		{
-			WinMove, ahk_id %hwnd_map_mods_toggle%,,, % pixel_gamescreen_y1 + 2
-			WinMove, ahk_id %hwnd_map_mods_window%,,, % pixel_gamescreen_y1 + 1 + hToggle
-			mouseYpos := pixel_gamescreen_y1 + 2
+			WinMove, ahk_id %hwnd_map_mods_toggle%,,, % yScreenOffSet + pixel_gamescreen_y1 + 2
+			WinMove, ahk_id %hwnd_map_mods_window%,,, % yScreenOffSet + pixel_gamescreen_y1 + 1 + hToggle
+			mouseYpos := yScreenOffSet + pixel_gamescreen_y1 + 2
 		}
 		map_info_xPos := mouseXpos
 		map_info_yPos := mouseYpos
@@ -3388,7 +3390,7 @@ Loop, Parse, recomb_item1, `n, `n
 	If (A_Index = 1)
 	{
 		add_text := (StrLen(A_Loopfield) > 25) ? " [...]" : ""
-		Gui, recombinator_window: Add, Text, % "Section BackgroundTrans vRecomb_item1_name w"poe_width/8, % SubStr(A_Loopfield, 1, 25) add_text
+		Gui, recombinator_window: Add, Text, % "Section BackgroundTrans vRecomb_item1_name w"width_native/8, % SubStr(A_Loopfield, 1, 25) add_text
 		continue
 	}
 	If (A_Index = 2)
@@ -3456,7 +3458,7 @@ If (recomb_item2 != "")
 		If (A_Index = 1)
 		{
 			add_text := (StrLen(A_Loopfield) > 25) ? " [...]" : ""
-			Gui, recombinator_window: Add, Text, % "ys Section BackgroundTrans vRecomb_item2_name w"poe_width/8, % SubStr(A_Loopfield, 1, 25) add_text
+			Gui, recombinator_window: Add, Text, % "ys Section BackgroundTrans vRecomb_item2_name w"width_native/8, % SubStr(A_Loopfield, 1, 25) add_text
 			continue
 		}
 		If (A_Index = 2)
@@ -5054,6 +5056,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 			hwnd_lab_marker := ""
 		}
 	}
+	hotstringboard := ""
 }
 
 LLK_Omnikey_ToolTip(text:=0)
