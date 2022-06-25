@@ -1,5 +1,5 @@
 # About
-A light-weight AHK script with UI extensions and QoL features for Path of Exile, with emphasis on ease-of-use, minimalist design, and seamless integration into the game-client.  
+A light-weight AHK script with UI extensions and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, and seamless integration into the game-client.  
 <br>
 
 # Features
@@ -50,8 +50,6 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 # Installation & Requirements
 - download the latest release here: [releases](https://github.com/Lailloken/Lailloken-UI/releases)
 - this tool is an AHK script and thus requires AutoHotkey to be installed on your system
-- like most PoE overlays, it needs the PoE client to run in windowed fullscreen
-![fullscreen](https://user-images.githubusercontent.com/61888437/155345187-06e604a8-8a80-403b-be7b-061c100d0de0.png)  
 <br>
 
 ***
