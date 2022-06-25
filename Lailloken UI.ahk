@@ -3,6 +3,7 @@
 #InstallKeybdHook
 #InstallMouseHook
 #Hotstring NoMouse
+#Hotstring EndChars `n
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "LLK_Rightclick")
 SetKeyDelay, 100
@@ -59,45 +60,52 @@ While !WinExist("ahk_group poe_window")
 	If (A_TickCount >= startup + kill_timeout*60000) && (kill_script = 1)
 		ExitApp
 	win_not_exist := 1
-	sleep, 5000
+	sleep, 100
 }
 
 If WinExist("ahk_group poe_window") && (win_not_exist = 1) ;band-aid fix for situations in which the script detected an unsupported resolution because the PoE-client window was being resized while launching
-	sleep, 4000
+	client_start := A_TickCount
 
-IniRead, poe_config_file, ini\config.ini, Settings, PoE config-file, %A_MyDocuments%\My Games\Path of Exile\production_Config.ini
-If !FileExist(poe_config_file)
+While (A_TickCount < client_start + 4000)
+	sleep, 100
+
+If !WinExist("ahk_exe GeForceNOW.exe")
 {
-	FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the PoE config file which is stored in the same folder as loot-filters, config files (*.ini)
-	If (ErrorLevel = 1) || !InStr(poe_config_file, "production_Config")
+	IniRead, poe_config_file, ini\config.ini, Settings, PoE config-file, %A_MyDocuments%\My Games\Path of Exile\production_Config.ini
+	If !FileExist(poe_config_file)
 	{
-		Reload
-		ExitApp
+		FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the 'production_Config.ini' file which is stored in the same folder as loot-filters, config files (*.ini)
+		If (ErrorLevel = 1) || !InStr(poe_config_file, "production_Config")
+		{
+			Reload
+			ExitApp
+		}
+		IniRead, check_ini, % poe_config_file
+		If !InStr(check_ini, "Display")
+		{
+			Reload
+			ExitApp
+		}
+		IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 	}
-	IniRead, check_ini, % poe_config_file
-	If !InStr(check_ini, "Display")
+
+	IniRead, exclusive_fullscreen, % poe_config_file, DISPLAY, fullscreen
+	If (exclusive_fullscreen = "ERROR" || exclusive_fullscreen = "")
+		LLK_Error("Cannot read the PoE config-file")
+	Else If (exclusive_fullscreen = "true")
+		LLK_Error("The game-client is set to exclusive fullscreen.`nPlease set it to windowed fullscreen.")
+	IniRead, fullscreen, % poe_config_file, DISPLAY, borderless_windowed_fullscreen,
+	If (fullscreen = "ERROR" || fullscreen = "")
+		LLK_Error("Cannot read the PoE config-file")
+	IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
+	If (fullscreen_last != fullscreen)
 	{
-		Reload
-		ExitApp
+		IniWrite, % fullscreen, ini\config.ini, Settings, fullscreen
+		IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 	}
-	IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 }
-
-IniRead, exclusive_fullscreen, % poe_config_file, DISPLAY, fullscreen
-If (exclusive_fullscreen = "ERROR" || exclusive_fullscreen = "")
-	LLK_Error("Cannot read the PoE config-file")
-Else If (exclusive_fullscreen = "true")
-	LLK_Error("The game-client is set to exclusive fullscreen.`nPlease set it to windowed fullscreen.")
-IniRead, fullscreen, % poe_config_file, DISPLAY, borderless_windowed_fullscreen,
-If (fullscreen = "ERROR" || fullscreen = "")
-	LLK_Error("Cannot read the PoE config-file")
-IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
-If (fullscreen_last != fullscreen)
-{
-	IniWrite, % fullscreen, ini\config.ini, Settings, fullscreen
-	IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
-}
-
+Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
+	
 hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
 WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
@@ -165,6 +173,10 @@ If (custom_resolution_setting = 1)
 		yScreenOffSet := (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 + yborder + caption : yScreenOffSet_monitor + caption + yborder
 	}
 	poe_height := custom_resolution ;(fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution
+	IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
+	IniRead, fSize_config1, data\Resolutions.ini, %poe_height%p, font-size1, 14
+	fSize0 := fSize_config0
+	fSize1 := fSize_config1
 }
 
 If !FileExist("img\Recognition (" poe_height "p\GUI\")
@@ -516,11 +528,11 @@ Return
 
 #IfWinActive ahk_group poe_ahk_window
 
-:*:.lab::
+::.lab::
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
-:*?:.llk::
+:?:.llk::
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
@@ -1866,8 +1878,8 @@ Gui, LLK_panel: Color, Black
 WinSet, Transparent, %trans%
 Gui, LLK_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
 If (enable_notepad = 1) || (enable_alarm = 1)
-	Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "LLK:"
-Else Gui, LLK_panel: Add, Text, Section Center BackgroundTrans HWNDmain_text gSettings_menu, % "LLK"
+	Gui, LLK_panel: Add, Text, Section Center BackgroundTrans vLLK_panel HWNDmain_text gSettings_menu, % "LLK:"
+Else Gui, LLK_panel: Add, Text, Section Center BackgroundTrans vLLK_panel HWNDmain_text gSettings_menu, % "LLK"
 ControlGetPos,, ypos,, height,, ahk_id %main_text%
 If (enable_notepad = 1)
 	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gNotepad", img\GUI\notepad.jpg
@@ -2017,15 +2029,14 @@ If WinExist("ahk_group poe_window")
 	If (poe_window_closed = 1) && (custom_resolution_setting = 1)
 	{
 		Sleep, 4000
-		If !WinActive("ahk_class POEWindowClass")
-			Return
+		WinWaitActive, ahk_group poe_window
 		If (fullscreen = "true")
 			WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
 		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
 		poe_height := custom_resolution
 		hwnd_poe_client := WinExist("ahk_group poe_window")
-		poe_window_closed := 0
 	}
+	poe_window_closed := 0
 }
 
 If (enable_alarm != 0) && (alarm_timestamp != "")
@@ -2072,7 +2083,7 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 		LLK_Overlay("hide")
 	}
 }
-If WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")
+If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) && (poe_window_closed != 1)
 {
 	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
 		Gui, bestiary_menu: Destroy
@@ -3630,7 +3641,14 @@ Screenchecks:
 If (click = 2)
 {
 	If InStr(A_GuiControl, "_pixel")
+	{
 		LLK_PixelRecalibrate(StrReplace(A_GuiControl, "_pixel"))
+		GoSub, Settings_menu
+		sleep, 100
+		While !WinExist("ahk_id " hwnd_settings_menu)
+			sleep, 100
+		LLK_ToolTip("success")
+	}
 	Else
 	{
 		Clipboard := ""
@@ -3645,8 +3663,8 @@ If (click = 2)
 			Return
 		}
 		Else Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "_image") ".bmp", 100)
+		GoSub, Settings_menu
 	}
-	GoSub, Settings_menu
 	Return
 }
 Else
@@ -3717,6 +3735,11 @@ Return
 
 Settings_menu:
 SetTimer, Settings_menu, Delete
+If (A_GuiControl = "LLK_panel") && (click = 2)
+{
+	Reload
+	ExitApp
+}
 If WinExist("ahk_id " hwnd_settings_menu)
 	WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
@@ -5010,8 +5033,11 @@ LLK_HotstringClip(hotstring, mode := 0)
 		GoSub, Betrayal_search
 	If (hotstring = "llk")
 	{
-		If (hotstringboard != "")
-			settings_menu_section := clipboard
+		If (hotstringboard = "r")
+		{
+			Reload
+			ExitApp
+		}
 		GoSub, Settings_menu
 	}
 	If (hotstring = "lab")
