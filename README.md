@@ -31,9 +31,6 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 
 ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
 ***
-### Improved beastcrafting search
-![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png)  
-***
 ### lab layout overlay ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay))
 ![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
 ***
@@ -47,6 +44,9 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
 #### one-click Gwennen regex
 ![image](https://user-images.githubusercontent.com/61888437/169816828-5e98ca38-ec54-421a-b6f6-26147805a6da.png)
+***
+#### improved beastcrafting search
+![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png)  
 ***
 <br>
 
