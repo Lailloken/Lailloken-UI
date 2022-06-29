@@ -1110,6 +1110,16 @@ If InStr(A_GuiControl, "betrayal_info_combo_")
 	betrayal_info_click_member2 := ""
 	WinGetPos,,, wMembers,, ahk_id %hwnd_betrayal_info_members%
 	;WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info%
+	If InStr(A_GuiControl, parse_member1) && (parse_member1 != "") && (betrayal_clicks != 0)
+	{
+		LLK_ToolTip("same member selected twice")
+		Return
+	}
+	If InStr(A_GuiControl, parse_division2) && (parse_division2 != "")
+	{
+		LLK_ToolTip("same division selected twice")
+		Return
+	}
 	If (betrayal_clicks = 0)
 	{
 		parse_member1 := StrReplace(A_GuiControl, "betrayal_info_combo_")
@@ -1121,16 +1131,6 @@ If InStr(A_GuiControl, "betrayal_info_combo_")
 		parse_member2 := StrReplace(A_GuiControl, "betrayal_info_combo_")
 		parse_division1 := SubStr(parse_member2, InStr(parse_member2, "_") + 1)
 		parse_member2 := SubStr(parse_member2, 1, InStr(parse_member2, "_") - 1)
-	}
-	If InStr(A_GuiControl, parse_member1) && (parse_member1 != "") && (betrayal_clicks != 0)
-	{
-		LLK_ToolTip("same member selected twice")
-		Return
-	}
-	If InStr(A_GuiControl, parse_division2) && (parse_division1 != "")
-	{
-		LLK_ToolTip("same division selected twice")
-		Return
 	}
 	ToolTip, % parse_member1 " moves to " parse_division2, % wMembers + xScreenOffSet,
 	betrayal_clicks += 1
@@ -1342,14 +1342,16 @@ Gui_copy := A_Gui
 
 While GetKeyState(ThisHotkey_copy, "P")
 {
-	If (betrayal_info_prio_transportation = "0,0") || (betrayal_info_prio_fortification = "0,0") || (betrayal_info_prio_research = "0,0") || (betrayal_info_prio_intervention = "0,0") || (betrayal_info_prio_dimensions = 0)
-	{
-		LLK_ToolTip("betrayal prio-view not set up", 2)
-		KeyWait, % ThisHotkey_copy
-		Return
-	}
+	LLK_Overlay("betrayal_info_members", "hide")
 	If (A_TickCount >= start + 200)
 	{
+		If (betrayal_info_prio_transportation = "0,0") || (betrayal_info_prio_fortification = "0,0") || (betrayal_info_prio_research = "0,0") || (betrayal_info_prio_intervention = "0,0") || (betrayal_info_prio_dimensions = 0)
+		{
+			LLK_ToolTip("betrayal prio-view not set up", 2)
+			KeyWait, % ThisHotkey_copy
+			LLK_Overlay("betrayal_info_members", "show")
+			Return
+		}
 		Gui, betrayal_prioview: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_betrayal_prioview
 		Gui, betrayal_prioview: Margin, 0, 0
 		Gui, betrayal_prioview: Color, Black
@@ -1375,7 +1377,6 @@ While GetKeyState(ThisHotkey_copy, "P")
 			}
 		}
 		Gui, betrayal_prioview: Show, NA x%xScreenOffSet% y%yScreenOffSet% w%poe_width%
-		LLK_Overlay("betrayal_info_members", "hide")
 		KeyWait, % ThisHotkey_copy
 		LLK_Overlay("betrayal_info_members", "show")
 		Gui, betrayal_prioview: Destroy
@@ -3987,7 +3988,7 @@ Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", % "frame d
 Gui, settings_menu: Font, % "s"fSize0 - 4
 Gui, settings_menu: Add, Edit, % "ys x+0 Center BackgroundTrans cBlack hp vbetrayal_info_prio_dimensions gBetrayal_apply", % (betrayal_info_prio_dimensions = 0) ? 100 : betrayal_info_prio_dimensions
 Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "ys Center Border BackgroundTrans vbetrayal_info_prio_apply gBetrayal_apply", % " apply "
+Gui, settings_menu: Add, Text, % "ys Center Border BackgroundTrans vbetrayal_info_prio_apply gBetrayal_apply", % " save "
 
 GoSub, Betrayal_search
 GoSub, GUI_betrayal_prioview
