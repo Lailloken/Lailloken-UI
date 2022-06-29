@@ -4285,7 +4285,8 @@ If InStr(A_GuiControl, "betrayal")
 text =
 (
 instructions
-to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the pattern in the syndicate board displayed above.
+to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the area displayed above.
+(UltraWide-users: that area will not be right above the health globe but more towards the center).
 
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the betrayal-info feature.
@@ -5006,7 +5007,7 @@ LLK_ImageSearch(name := "")
 				imagesearch_x2 := poe_width//2
 			}
 			pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
-			If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch,, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
+			If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
 			{
 				%A_Loopfield% := 1
 				Gdip_DisposeImage(pNeedle_ImageSearch)
