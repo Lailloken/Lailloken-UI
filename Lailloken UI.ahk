@@ -2341,6 +2341,8 @@ If (modtext = "")
 	return
 If (click = 2)
 {
+	If InStr(A_GuiControl, "keystone")
+		Return
 	GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
 	modtext := InStr(modtext, "x)") ? SubStr(modtext, 1, -5) : modtext
 	If InStr(legion_%legion_type_parse2%_favs, modtext)
