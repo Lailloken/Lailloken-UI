@@ -2328,7 +2328,7 @@ Loop, Parse, squarecount, `n, `n
 		break
 	IniRead, coords, data\timeless jewels\Treemap.ini, squares, % A_Index, 0
 	square_coords := StrSplit(coords, ",", ",")
-	style := InStr(previous_socket, A_Index) ? "img\GUI\square_red.png" : ""
+	style := (StrReplace(previous_socket, "legion_socket") = A_Index) ? "img\GUI\square_red.png" : ""
 	Gui, legion_treemap: Add, Picture, % "BackgroundTrans gLegion_seeds_sockets vlegion_socket" A_Index " x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % style
 }
 Gui, show, % "NA x"xScreenOffSet " y"poe_height/2
