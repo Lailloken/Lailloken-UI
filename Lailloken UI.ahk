@@ -586,8 +586,8 @@ If WinExist("ahk_id " hwnd_legion_treemap) || WinExist("ahk_id " hwnd_legion_win
 	hwnd_legion_treemap := ""
 	Gui, legion_window: Destroy
 	hwnd_legion_treemap := ""
-	;Gui, legion_list: Destroy
-	;hwnd_legion_list := ""
+	Gui, legion_list: Destroy
+	hwnd_legion_list := ""
 	Return
 }
 If WinExist("ahk_id " hwnd_betrayal_info) || WinExist("ahk_id " hwnd_betrayal_info_members)
@@ -2101,7 +2101,7 @@ If !WinExist("ahk_id " hwnd_legion_window)
 	Gui, legion_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_window
 	Gui, legion_window: Margin, 12, 4
 	Gui, legion_window: Color, Black
-	;WinSet, Transparent, %trans%
+	WinSet, Transparent, %trans%
 	Gui, legion_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 	
 	Gui, legion_window: Add, Text, % "Section BackgroundTrans Center w"(poe_height/4)*0.95, % A_Space
@@ -2111,7 +2111,8 @@ If !WinExist("ahk_id " hwnd_legion_window)
 	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name w"(poe_height/4)*0.95, % "name:"
 	
 	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "ys Section BackgroundTrans Left w"(poe_height/4)*0.95, % "keystones:"
+	Gui, legion_window: Add, Text, % "ys Section BackgroundTrans Left w"(poe_height/4)*0.85, % "keystones:"
+	Gui, legion_window: Add, Picture, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp w-1 x"poe_height/2*0.95, img\GUI\legion_toggle1.png
 	Gui, legion_window: Font, norm
 	Loop 3
 		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help w"(poe_height/4)*0.95, % A_Space
@@ -2162,62 +2163,145 @@ Loop, Parse, legion_keystones, CSV
 	Else GuiControl, legion_window: +cWhite, legion_keystonetext%A_Index%
 }
 
-/*
-If !WinExist("ahk_id " hwnd_legion_window)
+Loop, Read, data\timeless jewels\%legion_type_parse%.csv
 {
-	Gui, legion_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_window
-	Gui, legion_window: Margin, 12, 4
-	Gui, legion_window: Color, Black
-	;WinSet, Transparent, %trans%
-	Gui, legion_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
-
-	If (legion_type_parse = "")
+	If (SubStr(A_LoopReadLine, 1, InStr(A_LoopReadLine, ",",,, 1) - 1) = legion_seed_parse)
 	{
-		legion_type_parse := "lethal pride"
-		legion_seed_parse := 18000
-		legion_name_parse := "kaom"
+		legion_csvline_array := []
+		Loop, Parse, A_LoopReadLine, CSV
+			legion_csvline_array.Push(A_Loopfield)
+		break
 	}
-	legion_encode_array := []
-	Iniread, legion_decode_keys, data\timeless jewels\jewels.ini, % legion_type_parse
-	legion_type_parse2 := StrReplace(legion_type_parse, " ", "_")
-	If (legion_%legion_type_parse2%_mod1 = "")
-		Loop, Parse, legion_decode_keys, `n, `n
+}
+
+If (A_Gui != "legion_treemap")
+{
+	IniRead, legion_sockets, data\timeless jewels\sockets.ini
+	Loop, Parse, legion_sockets, `n, `n
+	{
+		IniRead, legion_socket_notables, data\timeless jewels\sockets.ini, socket%A_Index%
+		
+		legion_socket_notables_array := []
+		Loop, Parse, legion_socket_notables, `n, `n
+			legion_socket_notables_array.Push(A_Loopfield)
+		
+		modpool := ""
+		modpool_unique := ""
+		
+		Loop, % legion_socket_notables_array.Length()
 		{
-			IniRead, legion_%legion_type_parse2%_mod%A_Index%, data\timeless jewels\jewels.ini, % legion_type_parse, % A_Index
-			legion_encode_array.Push(legion_%legion_type_parse2%_mod%A_Index%)
+			target_key := legion_csvline_array[LLK_ArrayHasVal(legion_notables_array, legion_socket_notables_array[A_Index])]
+			modpool .= legion_%legion_type_parse2%_mod%target_key% ","
+			modpool_unique .= InStr(modpool_unique, legion_%legion_type_parse2%_mod%target_key%) ? "" : legion_%legion_type_parse2%_mod%target_key% ","
 		}
-
-	IniRead, legion_keystones, data\timeless jewels\Jewels.ini, types, % legion_type_parse, 0
-	IniRead, legion_keystone, data\timeless jewels\Jewels.ini, names, % legion_name_parse, 0
-
-	Gui, legion_window: Add, Text, % "Section BackgroundTrans Center w"(poe_height/4)*0.95, % A_Space
-	Gui, legion_window: Add, Text, xp yp Border BackgroundTrans Center vlegion_paste, % " import from clipboard "
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_type w"(poe_height/4)*0.95, % "type: " legion_type_parse
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed w"(poe_height/4)*0.95, % "seed: " legion_seed_parse
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name w"(poe_height/4)*0.95, % "name: " legion_name_parse
-	
-	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "ys Section BackgroundTrans Left w"(poe_height/4)*0.95, % "keystones:"
-	Gui, legion_window: Font, norm
-	Loop, Parse, legion_keystones, CSV
-	{
-		color := (legion_keystone = A_Loopfield) ? "Lime" : "White"
-		Gui, legion_window: Add, Text, % "xs BackgroundTrans gLegion_seeds_help c"color, % A_Loopfield
+		
+		Sort, modpool_unique, D`,
+		modpool_unique_array := []
+		modpool_unique_array2 := []
+		Loop, Parse, modpool_unique, `,, `,
+		{
+			If (A_Loopfield = "")
+				break
+			count := (LLK_InStrCount(modpool, A_Loopfield, ",") > 1) ? " (" LLK_InStrCount(modpool, A_Loopfield, ",") "x)" : ""
+			modpool_unique_array.Push(A_Loopfield count)
+			modpool_unique_array2.Push(A_Loopfield)
+		}
+		
+		count := 0
+		Loop 22
+		{
+			If InStr(legion_%legion_type_parse2%_favs, modpool_unique_array2[A_Index]) && (modpool_unique_array2[A_Index] != "")
+			{
+				If InStr(modpool_unique_array[A_Index], "x)")
+				{
+					multiplier := SubStr(modpool_unique_array[A_Index], -2, 1)
+					count += 1*multiplier
+				}
+				Else count += 1
+			}
+		}
+		GuiControl, legion_treemap: text, legion_socket_text%A_Index%, % (count = 0) ? "" : count
+		legion_socket%A_Index%_notables := count
 	}
-	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans c"color " y+"fSize0*2, resulting notable modifications:
-	Gui, legion_window: Font, norm
+}
+
+If (legion_socket != "")
+{
+	IniRead, legion_socket_notables, data\timeless jewels\sockets.ini, % legion_socket
+	
+	legion_socket_notables_array := []
+	Loop, Parse, legion_socket_notables, `n, `n
+		legion_socket_notables_array.Push(A_Loopfield)
+	
+	modpool := ""
+	modpool_unique := ""
+	
+	Loop, % legion_socket_notables_array.Length()
+	{
+		target_key := legion_csvline_array[LLK_ArrayHasVal(legion_notables_array, legion_socket_notables_array[A_Index])]
+		modpool .= legion_%legion_type_parse2%_mod%target_key% ","
+		modpool_unique .= InStr(modpool_unique, legion_%legion_type_parse2%_mod%target_key%) ? "" : legion_%legion_type_parse2%_mod%target_key% ","
+	}
+	
+	Sort, modpool_unique, D`,
+	modpool_unique_array := []
+	modpool_unique_array2 := []
+	Loop, Parse, modpool_unique, `,, `,
+	{
+		If (A_Loopfield = "")
+			break
+		count := (LLK_InStrCount(modpool, A_Loopfield, ",") > 1) ? " (" LLK_InStrCount(modpool, A_Loopfield, ",") "x)" : ""
+		modpool_unique_array.Push(A_Loopfield count)
+		modpool_unique_array2.Push(A_Loopfield)
+	}
 	
 	Loop 22
 	{
-		If (A_Index = 1)
-			Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95 " y+"fSize1, % A_Space
-		Else If (A_Index = 12)
-			Gui, legion_window: Add, Text, % "ys Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95, % A_Space
-		Else Gui, legion_window: Add, Text, % "xs vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95 " HWNDhwnd_modtext"A_Index, % A_Space
+		;target_key := legion_csvline_array[LLK_ArrayHasVal(legion_notables_array, legion_socket_notables_array[A_Index])]
+		GuiControl, legion_window: , legion_modtext%A_Index%, % modpool_unique_array[A_Index]
+		If InStr(legion_%legion_type_parse2%_favs, modpool_unique_array2[A_Index]) && (modpool_unique_array2[A_Index] != "")
+			GuiControl, legion_window: +cAqua, legion_modtext%A_Index%
+		Else If !InStr(legion_%legion_type_parse2%_favs, modpool_unique_array2[A_Index]) || (modpool_unique_array2[A_Index] = "")
+			GuiControl, legion_window: +cWhite, legion_modtext%A_Index%
+		;Gui, legion_window: Add, Text, xs Section BackgroundTrans Left, % legion_%legion_type_parse2%_mod%target_key%
+	}
+	WinSet, Redraw,, ahk_id %hwnd_legion_window%
+}
+
+/*
+If (A_Gui = "legion_treemap")
+{
+	legion_highlight := ""
+	Loop, Parse, legion_%legion_type_parse2%_favs, `,, `,
+	{
+		If (A_Loopfield = "")
+			break
+		target_code := LLK_ArrayHasVal(legion_encode_array, A_Loopfield)
+		Loop, Parse, % LLK_ArrayHasVal(legion_csvline_array, target_code, 1), `,, `,
+		{
+			If (A_Loopfield = "")
+				break
+			If InStr(legion_socket_notables, legion_notables_array[A_Loopfield])
+				legion_highlight .= SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables)/(legion_%legion_socket%_notables))+1) "|"
+		}
+	}
+
+	If (legion_highlight != "")
+	{
+		legion_highlight := SubStr(legion_highlight, 1, -1)
+		legion_highlight := StrReplace(legion_highlight, " ", ".")
+		legion_highlight = ^(%legion_highlight%)
+		MsgBox, % legion_highlight ", " StrLen(legion_highlight)
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window
+		sleep, 50
+		clipboard := legion_highlight
+		ClipWait, 0.05
+		SendInput, ^{f}^{v}{Enter}
 	}
 }
 */
+/*
 If (legion_socket != "")
 {
 	IniRead, legion_socket_notables, data\timeless jewels\sockets.ini, % legion_socket
@@ -2270,7 +2354,7 @@ If (legion_socket != "")
 	}
 	WinSet, Redraw,, ahk_id %hwnd_legion_window%
 }
-
+*/
 Gui, legion_window: Show, % "NA x" xScreenOffSet " y" yScreenOffSet " w"poe_height/2 - 1 " h"poe_height/2 - 1
 LLK_Overlay("legion_window", "show")
 Return
@@ -2316,6 +2400,30 @@ LLK_Overlay("legion_list", "show", 0)
 If WinExist("ahk_id " hwnd_legion_treemap)
 	Return
 
+If !WinExist("ahk_id " hwnd_legion_treemap)
+{
+	Gui, legion_treemap: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_treemap
+	Gui, legion_treemap: Margin, 0, 0
+	Gui, legion_treemap: Color, Black
+	Gui, legion_treemap: Font, % "s"fSize0 + 6 " cAqua", Fontin SmallCaps
+	Gui, legion_treemap: Add, Picture, % "BackgroundTrans h" poe_height/2 - 2 " w-1", img\GUI\legion_treemap.jpg
+	IniRead, squarecount, data\timeless jewels\Treemap.ini, squares
+	Loop, Parse, squarecount, `n, `n
+	{
+		If (StrLen(A_Loopfield) < 4)
+			break
+		IniRead, coords, data\timeless jewels\Treemap.ini, squares, % A_Index, 0
+		square_coords := StrSplit(coords, ",", ",")
+		style := (StrReplace(previous_socket, "legion_socket") = A_Index) ? "img\GUI\square_red.png" : ""
+		Gui, legion_treemap: Add, Text, % "BackgroundTrans Right vlegion_socket_text" A_Index " x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % A_Space
+		Gui, legion_treemap: Add, Picture, % "BackgroundTrans gLegion_seeds_sockets vlegion_socket" A_Index " x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % style
+	}
+	GoSub, Legion_seeds
+}
+Gui, show, % "NA x"xScreenOffSet " y"poe_height/2
+LLK_Overlay("legion_treemap", "show")
+
+/*
 Gui, legion_treemap: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_treemap
 Gui, legion_treemap: Margin, 0, 0
 Gui, legion_treemap: Color, Black
@@ -2333,12 +2441,56 @@ Loop, Parse, squarecount, `n, `n
 }
 Gui, show, % "NA x"xScreenOffSet " y"poe_height/2
 LLK_Overlay("legion_treemap", "show")
+*/
+Return
+
+Legion_seeds3:
+If WinExist("ahk_id " hwnd_legion_list) && (A_Gui != "")
+{
+	Gui, legion_list: Destroy
+	hwnd_legion_list := ""
+	GuiControl, legion_window:, legion_toggle, img\GUI\legion_toggle1.png
+	Return
+}
+
+GuiControl, legion_window:, legion_toggle, img\GUI\legion_toggle2.png
+Gui, legion_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_list
+Gui, legion_list: Margin, 12, 0
+Gui, legion_list: Color, Black
+WinSet, Transparent, %trans%
+Gui, legion_list: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
+
+Gui, legion_list: Font, underline
+
+Gui, legion_list: Add, Text, % "Section BackgroundTrans y4", notable modifications:
+
+Gui, legion_list: Font, norm
+IniRead, legion_notables, data\timeless jewels\jewels.ini, % legion_type_parse
+legion_notables_list := ""
+Loop, Parse, legion_notables, `n, `n
+{
+	IniRead, legion_notable%A_Index%, data\timeless jewels\jewels.ini, % legion_type_parse, % A_Index
+	legion_notables_list .= (legion_notables_list = "") ? legion_notable%A_Index% : "," legion_notable%A_Index%
+}
+Sort, legion_notables_list, D`,
+Loop, Parse, legion_notables_list, CSV
+{
+	color := InStr(legion_%legion_type_parse2%_favs, A_Loopfield) ? "Aqua" : "White"
+	If (A_Index = 1)
+		Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help y+4 c"color, % A_Loopfield
+	Else Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help c"color, % A_Loopfield
+}
+
+
+
+Gui, legion_list: Show, % "NA x" xScreenOffSet + poe_height/2 " y" yScreenOffSet " h"poe_height - 2
+LLK_Overlay("legion_list", "show")
 Return
 
 Legion_seeds_help:
 GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
-If (modtext = "")
-	return
+If (modtext = "" || modtext = " ") || InStr(modtext, "+5 devotion")
+	Return
 If (click = 2)
 {
 	If InStr(A_GuiControl, "keystone")
@@ -2346,11 +2498,20 @@ If (click = 2)
 	GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
 	modtext := InStr(modtext, "x)") ? SubStr(modtext, 1, -5) : modtext
 	If InStr(legion_%legion_type_parse2%_favs, modtext)
+	{
 		GuiControl, legion_window: +cWhite, % A_GuiControl
-	Else GuiControl, legion_window: +cAqua, % A_GuiControl
+		GuiControl, %A_Gui%: +cWhite, % A_GuiControl
+	}
+	Else
+	{
+		GuiControl, legion_window: +cAqua, % A_GuiControl
+		GuiControl, %A_Gui%: +cAqua, % A_GuiControl
+	}
 	WinSet, Redraw,, ahk_id %hwnd_legion_window%
+	WinSet, Redraw,, ahk_id %hwnd_legion_list%
 	legion_%legion_type_parse2%_favs := InStr(legion_%legion_type_parse2%_favs, modtext) ? StrReplace(legion_%legion_type_parse2%_favs, modtext ",") : (legion_%legion_type_parse2%_favs = "") ? modtext "," : legion_%legion_type_parse2%_favs modtext ","
 	IniWrite, % legion_%legion_type_parse2%_favs, ini\timeless jewels.ini, favorites, % legion_type_parse
+	GoSub, Legion_seeds
 	Return
 }
 
@@ -2486,6 +2647,8 @@ Loop, Parse, legion_leaders, `,, `,
 
 GoSub, Legion_seeds
 GoSub, Legion_seeds2
+If WinExist("ahk_id " hwnd_legion_list)
+	GoSub, Legion_seeds3
 Return
 
 Legion_seeds_sockets:
@@ -3256,6 +3419,11 @@ If (clipboard != "")
 		recomb_item1 := "sample item`nclass x:`n`n`n`n`n`n`n`n"
 		recomb_item2 := "sample item`nclass x:`n`n`n`n`n`n`n`n"
 		GoSub, Recombinators_add2
+		Return
+	}
+	If InStr(clipboard, "limited to: 1 historic") && WinExist("ahk_id " hwnd_legion_window)
+	{
+		GoSub, Legion_seeds_parse
 		Return
 	}
 	If WinExist("ahk_id " hwnd_recombinator_window)
