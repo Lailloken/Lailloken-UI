@@ -2112,8 +2112,8 @@ If !WinExist("ahk_id " hwnd_legion_window)
 	
 	Gui, legion_window: Font, underline
 	Gui, legion_window: Add, Text, % "ys Section BackgroundTrans Left w"(poe_height/4)*0.85, % "keystones:"
-	Gui, legion_window: Add, Picture, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp w-1 x"poe_height/2*0.95, img\GUI\legion_toggle1.png
 	Gui, legion_window: Font, norm
+	Gui, legion_window: Add, Text, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp x"poe_height/2*0.95, % " > " ;img\GUI\legion_toggle1.png
 	Loop 3
 		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help w"(poe_height/4)*0.95, % A_Space
 	
@@ -2449,11 +2449,11 @@ If WinExist("ahk_id " hwnd_legion_list) && (A_Gui != "")
 {
 	Gui, legion_list: Destroy
 	hwnd_legion_list := ""
-	GuiControl, legion_window:, legion_toggle, img\GUI\legion_toggle1.png
+	GuiControl, legion_window: text, legion_toggle, % " > "  ;img\GUI\legion_toggle1.png
 	Return
 }
 
-GuiControl, legion_window:, legion_toggle, img\GUI\legion_toggle2.png
+GuiControl, legion_window: text, legion_toggle, % " < " ;img\GUI\legion_toggle2.png
 Gui, legion_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_list
 Gui, legion_list: Margin, 12, 0
 Gui, legion_list: Color, Black
