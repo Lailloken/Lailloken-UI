@@ -429,7 +429,7 @@ IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|betrayal_search|gwennen_setup|betrayal_info_members|" ;"legion_treemap|legion_window|legion_list|"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|betrayal_search|gwennen_setup|betrayal_info_members|legion_treemap|legion_window|legion_list|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 
@@ -2094,6 +2094,8 @@ If (legion_notables_array[1] = "")
 		parse := StrReplace(parse, " ", "_")
 		IniRead, legion_%parse%_favs, ini\timeless jewels.ini, favorites, % StrReplace(parse, "_", " "), % A_Space
 	}
+	
+	IniRead, legion_treemap_notables, data\timeless jewels\Treemap.ini, all notables
 }
 
 If !WinExist("ahk_id " hwnd_legion_window)
@@ -2105,7 +2107,7 @@ If !WinExist("ahk_id " hwnd_legion_window)
 	Gui, legion_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 	
 	Gui, legion_window: Add, Text, % "Section BackgroundTrans Center w"(poe_height/4)*0.95, % A_Space
-	Gui, legion_window: Add, Text, xp yp Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse, % " import from clipboard "
+	Gui, legion_window: Add, Text, xp yp Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse, % " import | trade-check "
 	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_type w"(poe_height/4)*0.95, % "type:"
 	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed w"(poe_height/4)*0.95, % "seed:"
 	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name w"(poe_height/4)*0.95, % "name:"
@@ -2118,7 +2120,7 @@ If !WinExist("ahk_id " hwnd_legion_window)
 		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help w"(poe_height/4)*0.95, % A_Space
 	
 	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans c"color " y+"fSize0*2, resulting notable modifications:
+	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans y+"fSize0*2, resulting notable modifications:
 	Gui, legion_window: Font, norm
 	
 	Loop 22
@@ -2154,9 +2156,15 @@ Loop, Parse, legion_decode_keys, `n, `n
 
 IniRead, legion_keystones, data\timeless jewels\Jewels.ini, types, % legion_type_parse, 0
 IniRead, legion_keystone, data\timeless jewels\Jewels.ini, names, % legion_name_parse, 0
+IniRead, legion_keystone2, data\timeless jewels\Jewels.ini, names
 
 Loop, Parse, legion_keystones, CSV
 {
+	check := A_LoopField
+	loop := A_Index
+	Loop, Parse, legion_keystone2, `n, `n
+		If InStr(A_LoopField, check)
+			legion_name%loop% := SubStr(A_LoopField, 1, InStr(A_LoopField, "=")-1)
 	GuiControl, legion_window: text, legion_keystonetext%A_Index%, % A_LoopField
 	If (legion_keystone = A_LoopField)
 		GuiControl, legion_window: +cLime, legion_keystonetext%A_Index%
@@ -2268,7 +2276,7 @@ If (legion_socket != "")
 	WinSet, Redraw,, ahk_id %hwnd_legion_window%
 }
 
-/*
+
 If (A_Gui = "legion_treemap")
 {
 	legion_highlight := ""
@@ -2282,7 +2290,18 @@ If (A_Gui = "legion_treemap")
 			If (A_Loopfield = "")
 				break
 			If InStr(legion_socket_notables, legion_notables_array[A_Loopfield])
-				legion_highlight .= SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables)/(legion_%legion_socket%_notables))+1) "|"
+			{
+				legion_highlight .= SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))) "|"
+				If (LLK_SubStrCount(legion_treemap_notables, SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))), "`n", 1) > 1)
+				{
+					LLK_ToolTip("auto-highlight unavailable:`ntoo many desired mods around this socket", 2)
+					WinActivate, ahk_group poe_window
+					WinWaitActive, ahk_group poe_window
+					sleep, 50
+					SendInput, ^{f}{ESC}
+					Return
+				}
+			}
 		}
 	}
 
@@ -2291,7 +2310,6 @@ If (A_Gui = "legion_treemap")
 		legion_highlight := SubStr(legion_highlight, 1, -1)
 		legion_highlight := StrReplace(legion_highlight, " ", ".")
 		legion_highlight = ^(%legion_highlight%)
-		MsgBox, % legion_highlight ", " StrLen(legion_highlight)
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
 		sleep, 50
@@ -2300,7 +2318,7 @@ If (A_Gui = "legion_treemap")
 		SendInput, ^{f}^{v}{Enter}
 	}
 }
-*/
+
 /*
 If (legion_socket != "")
 {
@@ -2568,7 +2586,7 @@ If InStr(A_GuiControl, "legion_modtext") && (modtext != "") && !InStr(modtext, "
 	{
 		legion_highlight := SubStr(legion_highlight, 1, -1)
 		legion_highlight := StrReplace(legion_highlight, " ", ".")
-		legion_highlight = ^(%legion_highlight%)
+		legion_highlight = notable ^(%legion_highlight%)
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
 		sleep, 50
@@ -2582,6 +2600,14 @@ If InStr(modtext, "+5 devotion")
 Return
 
 Legion_seeds_parse:
+If (click = 2)
+{
+	legion_trade := "{%22query%22:{%22status%22:{%22option%22:%22any%22},%22stats%22:[{%22type%22:%22count%22,%22filters%22:[{%22id%22:%22explicit.pseudo_timeless_jewel_" legion_name1 "%22,%22value%22:{%22min%22:" legion_seed_parse ",%22max%22:" legion_seed_parse
+	legion_trade .= "},%22disabled%22:false},{%22id%22:%22explicit.pseudo_timeless_jewel_" legion_name2 "%22,%22value%22:{%22min%22:" legion_seed_parse ",%22max%22:" legion_seed_parse
+	legion_trade .= "},%22disabled%22:false},{%22id%22:%22explicit.pseudo_timeless_jewel_" legion_name3 "%22,%22value%22:{%22min%22:" legion_seed_parse ",%22max%22:" legion_seed_parse "},%22disabled%22:false}],%22value%22:{%22min%22:1}}]},%22sort%22:{%22price%22:%22asc%22}}"
+	Run, https://www.pathofexile.com/trade/search/Sentinel?q=%legion_trade%
+	Return
+}
 If !InStr(clipboard, "limited to: 1 historic")
 {
 	LLK_ToolTip("no timeless jewel in clipboard", 2)
@@ -5656,6 +5682,19 @@ LLK_ImageSearch(name := "")
 		}
 	}
 	Gdip_DisposeImage(pHaystack_ImageSearch)
+}
+
+LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
+{
+	count := 0
+	Loop, Parse, string, % delimiter, % delimiter
+	{
+		If (strict = 0) && InStr(A_Loopfield, substring)
+			count += 1
+		If (strict = 1) && (SubStr(A_Loopfield, 1, StrLen(substring)) = substring)
+			count += 1
+	}
+	Return count
 }
 
 LLK_InStrCount(string, character, delimiter := "")
