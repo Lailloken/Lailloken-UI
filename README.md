@@ -12,6 +12,9 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ### Recombinator calculator: client-integrated calculator for recombinators in Sentinel ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator))  
 ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png)  
 ***
+### Client-integrated seed explorer for timeless jewels ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer))
+![image](https://user-images.githubusercontent.com/61888437/178274075-9afc6e58-b4ff-4d7e-83d5-fb65e060fafc.png)  
+***
 ### Overhauled map-info panel: streamlined and customizable ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel))  
 ![Untitled 1](https://user-images.githubusercontent.com/61888437/171627970-630e6dca-4ed2-487a-827a-6de66dcbcc0b.png)  
 ***
