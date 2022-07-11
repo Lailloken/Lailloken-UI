@@ -2289,7 +2289,7 @@ If (A_Gui = "legion_treemap")
 		{
 			If (A_Loopfield = "")
 				break
-			If InStr(legion_socket_notables, legion_notables_array[A_Loopfield])
+			If InStr(legion_socket_notables, legion_notables_array[A_Loopfield] "`n") || (SubStr(legion_socket_notables, -StrLen(legion_notables_array[A_Loopfield])+1) = legion_notables_array[A_Loopfield])
 			{
 				legion_highlight .= SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))) "|"
 				If (LLK_SubStrCount(legion_treemap_notables, SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))), "`n", 1) > 1)
@@ -2578,7 +2578,7 @@ If InStr(A_GuiControl, "legion_modtext") && (modtext != "") && !InStr(modtext, "
 	{
 		If (A_Loopfield = "")
 			break
-		If InStr(legion_socket_notables, legion_notables_array[A_Loopfield] "`n")
+		If InStr(legion_socket_notables, legion_notables_array[A_Loopfield] "`n") || (SubStr(legion_socket_notables, -StrLen(legion_notables_array[A_Loopfield])+1) = legion_notables_array[A_Loopfield])
 			legion_highlight .= legion_notables_array[A_Loopfield] "|"
 	}
 
@@ -5638,7 +5638,7 @@ LLK_ImageSearch(name := "")
 			}
 			Else If (A_Loopfield = "betrayal")
 			{
-				imagesearch_y1 := poe_height//2
+				imagesearch_y2 := poe_height//8
 				imagesearch_x2 := poe_width//2
 			}
 			pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
@@ -5664,7 +5664,7 @@ LLK_ImageSearch(name := "")
 		}
 		Else If (name = "betrayal")
 		{
-			imagesearch_y1 := poe_height//2
+			imagesearch_y2 := poe_height//8
 			imagesearch_x2 := poe_width//2
 		}
 		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
@@ -5689,6 +5689,8 @@ LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
 	count := 0
 	Loop, Parse, string, % delimiter, % delimiter
 	{
+		If (A_Loopfield = "")
+			continue
 		If (strict = 0) && InStr(A_Loopfield, substring)
 			count += 1
 		If (strict = 1) && (SubStr(A_Loopfield, 1, StrLen(substring)) = substring)
