@@ -2578,7 +2578,7 @@ If InStr(A_GuiControl, "legion_modtext") && (modtext != "") && !InStr(modtext, "
 	{
 		If (A_Loopfield = "")
 			break
-		If InStr(legion_socket_notables, legion_notables_array[A_Loopfield])
+		If InStr(legion_socket_notables, legion_notables_array[A_Loopfield] "`n")
 			legion_highlight .= legion_notables_array[A_Loopfield] "|"
 	}
 
