@@ -5638,7 +5638,7 @@ LLK_ImageSearch(name := "")
 			}
 			Else If (A_Loopfield = "betrayal")
 			{
-				imagesearch_y2 := poe_height//8
+				imagesearch_y1 := poe_height//2
 				imagesearch_x2 := poe_width//2
 			}
 			pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
@@ -5664,7 +5664,7 @@ LLK_ImageSearch(name := "")
 		}
 		Else If (name = "betrayal")
 		{
-			imagesearch_y2 := poe_height//8
+			imagesearch_y1 := poe_height//1
 			imagesearch_x2 := poe_width//2
 		}
 		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
