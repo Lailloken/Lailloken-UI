@@ -430,7 +430,8 @@ IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 
 
 SetTimer, Loop, 1000
 
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|betrayal_search|gwennen_setup|betrayal_info_members|legion_treemap|legion_window|legion_list|"
+guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
+guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 
@@ -585,6 +586,8 @@ If WinExist("ahk_id " hwnd_legion_treemap) || WinExist("ahk_id " hwnd_legion_win
 {
 	Gui, legion_treemap: Destroy
 	hwnd_legion_treemap := ""
+	Gui, legion_treemap2: Destroy
+	hwnd_legion_treemap2 := ""
 	Gui, legion_window: Destroy
 	hwnd_legion_window := ""
 	Gui, legion_list: Destroy
@@ -2082,7 +2085,10 @@ If (A_ThisHotkey = "Tab")
 Return
 
 Legion_seeds:
-If (legion_notables_array[1] = "") ;create array with all socket-relevant notables
+If (legion_profile = "")
+	IniRead, legion_profile, ini\timeless jewels.ini, Settings, profile, %A_Space%
+
+;If (legion_notables_array[1] = "") ;create array with all socket-relevant notables
 {
 	legion_notables_array := []
 	legion_tooltips_array := []
@@ -2098,45 +2104,54 @@ If (legion_notables_array[1] = "") ;create array with all socket-relevant notabl
 	{
 		parse := StrReplace(A_LoopFileName, ".csv")
 		parse := StrReplace(parse, " ", "_")
-		IniRead, legion_%parse%_favs, ini\timeless jewels.ini, favorites, % StrReplace(parse, "_", " "), % A_Space
+		IniRead, legion_%parse%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % StrReplace(parse, "_", " "), % A_Space
 	}
-	
-	
-	
+		
 	IniRead, legion_treemap_notables, data\timeless jewels\Treemap.ini, all notables
 }
 
 If !WinExist("ahk_id " hwnd_legion_window) ;create GUI with blank text labels
 {
 	Gui, legion_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_window
-	Gui, legion_window: Margin, 12, 4
+	Gui, legion_window: Margin, 12, 0
 	Gui, legion_window: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, legion_window: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 	
-		Gui, legion_window: Add, Text, % "Section BackgroundTrans Left vlegion_type w"(poe_height/4)*0.95, % "type:"
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed w"(poe_height/4)*0.95, % "seed:"
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name w"(poe_height/4)*0.95, % "name:"
-	Gui, legion_window: Add, Text, xs Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse, % " import | trade-check "
+	Gui, legion_window: Add, Text, Section y4 BackgroundTrans Center, % "profile: "
+	Loop 5
+	{
+		If (A_Index = 1)
+			Gui, legion_window: Add, Text, ys x+4 Border BackgroundTrans Center vlegion_profile gLegion_seeds_apply, % " " A_Index " "
+		Else Gui, legion_window: Add, Text, ys x+4 Border BackgroundTrans Center vlegion_profile%A_Index% gLegion_seeds_apply, % " " A_Index " "
+	}
+	
+	GuiControl, legion_window: +cFuchsia, % "legion_profile" StrReplace(legion_profile, "_")
+	
+	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans Left vlegion_type y+8", % "type: brutal restraint"
+	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed wp", % "seed:"
+	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name wp", % "name:"
+	Gui, legion_window: Add, Text, xs Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse y+8, % " import | trade-check "
 	
 	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "ys Section BackgroundTrans Left w"(poe_height/4)*0.85, % "keystones:"
+	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans Left y+8", % "keystones:"
 	Gui, legion_window: Font, norm
 	Loop 3
-		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help w"(poe_height/4)*0.95, % A_Space
+		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help", supreme grandstanding
+	
 	
 	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans y+"fSize0*2, resulting notable modifications:
+	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans y+8", resulting modifications:
 	Gui, legion_window: Font, norm
-	Gui, legion_window: Add, Text, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp x"poe_height/2*0.95, % " > " ;img\GUI\legion_toggle1.png
+	;Gui, legion_window: Add, Text, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp x"poe_height/2*0.95, % " > " ;img\GUI\legion_toggle1.png
 	
 	Loop 22
 	{
-		If (A_Index = 1)
-			Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95 " y+"fSize1, % A_Space
-		Else If (A_Index = 12)
-			Gui, legion_window: Add, Text, % "ys Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95, % A_Space
-		Else Gui, legion_window: Add, Text, % "xs vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95 " HWNDhwnd_modtext"A_Index, % A_Space
+		;If (A_Index = 1)
+			Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans", night of a thousand ribbons (11x)
+		;Else If (A_Index = 12)
+		;	Gui, legion_window: Add, Text, % "ys Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95, % A_Space
+		;Else Gui, legion_window: Add, Text, % "xs vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans wp", % A_Space
 	}
 }
 
@@ -2224,7 +2239,7 @@ If (A_Gui != "legion_treemap") ;calculate desired mod numbers for the overview
 		
 		count := 0
 		count_overlaps := 0
-		IniRead, legion_socket%A_Index%_favs, ini\timeless jewels.ini, favorites, socket%A_Index%, % A_Space
+		IniRead, legion_socket%A_Index%_favs, ini\timeless jewels.ini, favorites%legion_profile%, socket%A_Index%, % A_Space
 		Loop, Parse, legion_socket%A_Index%_favs, CSV
 		{
 			If (A_Loopfield = "")
@@ -2341,20 +2356,64 @@ If (A_Gui = "legion_treemap") && (legion_socket != "") ;auto-highlight notables 
 	}
 }
 
-Gui, legion_window: Show, % "NA x" xScreenOffSet " y" yScreenOffSet " w"poe_height/2 - 1 " h"poe_height/2 - 1
-LLK_Overlay("legion_window", "show")
+If !WinExist("ahk_id " hwnd_legion_window)
+{
+	Gui, legion_window: Show, % "NA x" xScreenOffSet " y" yScreenOffSet
+	WinGetPos,,, legion_window_width,, ahk_id %hwnd_legion_window%
+	Gui, legion_window: Show, % "NA x" xScreenOffSet " y" yScreenOffSet " h"poe_height - legion_window_width - 1
+	LLK_Overlay("legion_window", "show")
+}
+WinGetPos,,, legion_window_width,, ahk_id %hwnd_legion_window%
+GoSub, Legion_seeds3
+Return
+
+Legion_seeds_apply:
+If InStr(A_GuiControl, "legion_profile")
+{
+	If (click = 2)
+	{
+		If (legion_profile = StrReplace(A_GuiControl, "legion_profile") || legion_profile = "_" StrReplace(A_GuiControl, "legion_profile"))
+			IniDelete, ini\timeless jewels.ini, favorites%legion_profile%
+		Else
+		{
+			IniRead, ini_copy, ini\timeless jewels.ini, favorites%legion_profile%
+			IniWrite, % ini_copy, ini\timeless jewels.ini, % (StrReplace(A_GuiControl, "legion_profile") = "") ? "favorites" : "favorites_" StrReplace(A_GuiControl, "legion_profile")
+			;IniWrite, % ini_copy, ini\timeless jewels.ini, %
+		}
+		GoSub, Legion_seeds
+		Return
+	}
+	legion_profile := (StrReplace(A_GuiControl, "legion_profile") = "") ? "" : "_" StrReplace(A_GuiControl, "legion_profile")
+	Loop 5
+	{
+		If (A_Index = 1)
+			GuiControl, legion_window: +cWhite, legion_profile
+		Else GuiControl, legion_window: +cWhite, legion_profile%A_Index%
+	}
+	GuiControl, legion_window: +cFuchsia, % "legion_profile" StrReplace(legion_profile, "_")
+	WinSet, Redraw,, ahk_id %hwnd_legion_window%
+	IniWrite, % legion_profile, ini\timeless jewels.ini, Settings, profile
+	GoSub, Legion_seeds
+	Return
+}
 Return
 
 Legion_seeds2:
-If WinExist("ahk_id " hwnd_legion_treemap) ;create passive tree GUI & place squares and number labels
+If (hwnd_legion_treemap != "") ;create passive tree GUI & place squares and number labels
 	Return
 Else
 {
+	Gui, legion_treemap2: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_treemap2
+	Gui, legion_treemap2: Margin, 0, 0
+	Gui, legion_treemap2: Color, Black
+	Gui, legion_treemap2: Font, % "s"fSize0 " cAqua bold", Fontin SmallCaps
+	Gui, legion_treemap2: Add, Picture, % "BackgroundTrans h" legion_window_width - 2 " w-1", img\GUI\legion_treemap.jpg
+	
 	Gui, legion_treemap: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_treemap
 	Gui, legion_treemap: Margin, 0, 0
 	Gui, legion_treemap: Color, Black
 	Gui, legion_treemap: Font, % "s"fSize0 " cAqua bold", Fontin SmallCaps
-	Gui, legion_treemap: Add, Picture, % "BackgroundTrans h" poe_height/2 - 2 " w-1", img\GUI\legion_treemap.jpg
+	Gui, legion_treemap: Add, Picture, % "BackgroundTrans h" legion_window_width + legion_list_width - 3 " w-1", img\GUI\legion_treemap.jpg
 	IniRead, squarecount, data\timeless jewels\Treemap.ini, squares
 	Loop, Parse, squarecount, `n, `n
 	{
@@ -2363,17 +2422,20 @@ Else
 		IniRead, coords, data\timeless jewels\Treemap.ini, squares, % A_Index, 0
 		square_coords := StrSplit(coords, ",", ",")
 		style := (StrReplace(previous_socket, "legion_socket") = A_Index) ? "img\GUI\square_red.png" : ""
-		Gui, legion_treemap: Add, Text, % "BackgroundTrans Left vlegion_socket_text" A_Index " x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % A_Space
-		Gui, legion_treemap: Add, Text, % "BackgroundTrans Right cYellow vlegion_socket_text" A_Index "overlap x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % A_Space
-		Gui, legion_treemap: Add, Picture, % "BackgroundTrans gLegion_seeds_sockets vlegion_socket" A_Index " x" poe_height/2*square_coords[1] " y" poe_height/2*square_coords[2] " h" poe_height/2/18 " w" poe_height/2/18, % style
+		Gui, legion_treemap: Add, Text, % "BackgroundTrans Left vlegion_socket_text" A_Index " x" (legion_window_width + legion_list_width - 3)*square_coords[1] " y" (legion_window_width + legion_list_width - 3)*square_coords[2] " h" (legion_window_width + legion_list_width - 3)/18 " w" (legion_window_width + legion_list_width - 3)/18, % A_Space
+		Gui, legion_treemap: Add, Text, % "BackgroundTrans Right cYellow vlegion_socket_text" A_Index "overlap x" (legion_window_width + legion_list_width - 3)*square_coords[1] " y" (legion_window_width + legion_list_width - 3)*square_coords[2] " h" (legion_window_width + legion_list_width - 3)/18 " w" (legion_window_width + legion_list_width - 3)/18, % A_Space
+		Gui, legion_treemap: Add, Picture, % "BackgroundTrans gLegion_seeds_sockets vlegion_socket" A_Index " x" (legion_window_width + legion_list_width - 3)*square_coords[1] " y" (legion_window_width + legion_list_width - 3)*square_coords[2] " h" (legion_window_width + legion_list_width - 3)/18 " w" (legion_window_width + legion_list_width - 3)/18, % style
 	}
 	GoSub, Legion_seeds
+	Gui, legion_treemap: Show, % "Hide x"xScreenOffset " y"yScreenOffSet + poe_height - (legion_window_width + legion_list_width) + 1
+	Gui, legion_treemap2: Show, % "NA x"xScreenOffset " y"yScreenOffSet + poe_height - legion_window_width
+	LLK_Overlay("legion_treemap2", "show")
 }
-Gui, show, % "NA x"xScreenOffSet " y"poe_height/2
-LLK_Overlay("legion_treemap", "show")
+;LLK_Overlay("legion_treemap", "show")
 Return
 
 Legion_seeds3: ;create toggle-able list of all modifications
+/*
 If WinExist("ahk_id " hwnd_legion_list) && (A_Gui != "") && (A_Gui != "legion_treemap")
 {
 	Gui, legion_list: Destroy
@@ -2381,24 +2443,34 @@ If WinExist("ahk_id " hwnd_legion_list) && (A_Gui != "") && (A_Gui != "legion_tr
 	GuiControl, legion_window: text, legion_toggle, % " > "
 	Return
 }
+*/
 
-If (A_Gui = "legion_treemap") && !WinExist("ahk_id " hwnd_legion_list)
-	Return
+If !WinExist("ahk_id " hwnd_legion_list)
+{
+	GuiControl, legion_window: text, legion_toggle, % " < "
+	Gui, legion_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_list
+	Gui, legion_list: Margin, 12, 0
+	Gui, legion_list: Color, Black
+	WinSet, Transparent, %trans%
+	Gui, legion_list: Font, % "s"fSize0 " cWhite underline", Fontin SmallCaps
+	Gui, legion_list: Add, Text, % "Section BackgroundTrans y4 vlegion_list_header", notables around socket:
+	Gui, legion_list: Font, norm
 
-GuiControl, legion_window: text, legion_toggle, % " < "
-Gui, legion_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_list
-Gui, legion_list: Margin, 12, 0
-Gui, legion_list: Color, Black
-WinSet, Transparent, %trans%
-Gui, legion_list: Font, % "s"fSize0 " cWhite underline", Fontin SmallCaps
-
+	Loop, 45
+	{
+		If (A_Index = 1)
+			Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help vlegion_list_text" A_Index " y+4", night of a thousand ribbons
+		Else Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help wp vlegion_list_text" A_Index, % ""
+	}
+}
 
 If (legion_socket = "")
 {
-	Gui, legion_list: Add, Text, % "Section BackgroundTrans y4", notable modifications:
-	Gui, legion_list: Font, norm
+	GuiControl, legion_list: text, legion_list_header, notable modifications:
+	
 	IniRead, legion_notables, data\timeless jewels\jewels.ini, % legion_type_parse
 	legion_notables_list := ""
+	loops := 0
 	Loop, Parse, legion_notables, `n, `n
 	{
 		IniRead, legion_notable%A_Index%, data\timeless jewels\jewels.ini, % legion_type_parse, % A_Index
@@ -2408,31 +2480,53 @@ If (legion_socket = "")
 	Sort, legion_notables_list, D`,
 	Loop, Parse, legion_notables_list, CSV
 	{
-		color := InStr(legion_%legion_type_parse2%_favs, A_Loopfield ",") ? "Aqua" : "White"
-		If (A_Index = 1)
-			Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help y+4 c"color, % A_Loopfield
-		Else Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help c"color, % A_Loopfield
+		loops += 1
+		GuiControl, legion_list: text, legion_list_text%A_Index%, % A_Loopfield
+		If InStr(legion_%legion_type_parse2%_favs, A_Loopfield ",")
+			GuiControl, legion_list: +cAqua, legion_list_text%A_Index%
+		Else GuiControl, legion_list: +cWhite, legion_list_text%A_Index%
+	}
+	Loop 45
+	{
+		If (A_Index <= loops)
+			continue
+		GuiControl, legion_list: text, legion_list_text%A_Index%, % ""
 	}
 }
 Else
 {
-	IniRead, legion_%legion_socket%_favs, ini\timeless jewels.ini, favorites, % legion_socket, % A_Space
-	Gui, legion_list: Add, Text, % "Section BackgroundTrans y4", notables around socket:
-	Gui, legion_list: Font, norm
+	IniRead, legion_%legion_socket%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % legion_socket, % A_Space
+	GuiControl, legion_list: text, legion_list_header, notables around socket:
 	legion_notables_socket_array := []
+	loops := 0
 	IniRead, legion_notables_socket, data\timeless jewels\sockets.ini, % legion_socket
 	Loop, Parse, legion_notables_socket, `n, `n
 	{
+		loops += 1
 		legion_notables_socket_array.Push(A_Loopfield)
-		color := InStr(legion_%legion_socket%_favs, A_Loopfield ",") ? "Aqua" : "White"
-		If (A_Index = 1)
-			Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help y+4 c"color, % A_Loopfield
-		Else Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help c"color, % A_Loopfield
+		target_column := LLK_ArrayHasVal(legion_notables_array, A_LoopField)
+		target_key := legion_csvline_array[target_column]
+		GuiControl, legion_list: text, legion_list_text%A_Index%, % A_Loopfield
+		If InStr(legion_%legion_type_parse2%_favs, legion_%legion_type_parse2%_mod%target_key% ",") && InStr(legion_%legion_socket%_favs, A_Loopfield ",")
+			GuiControl, legion_list: +cYellow, legion_list_text%A_Index%
+		Else If InStr(legion_%legion_socket%_favs, A_Loopfield ",")
+			GuiControl, legion_list: +cAqua, legion_list_text%A_Index%
+		Else GuiControl, legion_list: +cWhite, legion_list_text%A_Index%
+	}
+	Loop 45
+	{
+		If (A_Index <= loops)
+			continue
+		GuiControl, legion_list: text, legion_list_text%A_Index%, % ""
 	}
 }
 
-Gui, legion_list: Show, % "NA x" xScreenOffSet + poe_height/2 " y" yScreenOffSet " h"poe_height - 2
-LLK_Overlay("legion_list", "show")
+If !WinExist("ahk_id " hwnd_legion_list)
+{
+	Gui, legion_list: Show, % "NA x" xScreenOffSet + legion_window_width - 1 " y" yScreenOffSet " h"poe_height - 2
+	LLK_Overlay("legion_list", "show")
+}
+WinGetPos,,, legion_list_width,, ahk_id %hwnd_legion_list%
 Return
 
 Legion_seeds_help:
@@ -2453,7 +2547,7 @@ If (click = 2) ;right-click notable labels to mark as desired
 		Else
 			GuiControl, %A_Gui%: +cAqua, % A_GuiControl
 		legion_%legion_socket%_favs := InStr(legion_%legion_socket%_favs, modtext) ? StrReplace(legion_%legion_socket%_favs, modtext ",") : (legion_%legion_socket%_favs = "") ? modtext "," : legion_%legion_socket%_favs modtext ","
-		IniWrite, % legion_%legion_socket%_favs, ini\timeless jewels.ini, favorites, % legion_socket
+		IniWrite, % legion_%legion_socket%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % legion_socket
 	}
 	Else
 	{
@@ -2468,10 +2562,10 @@ If (click = 2) ;right-click notable labels to mark as desired
 			GuiControl, %A_Gui%: +cAqua, % A_GuiControl
 		}
 		legion_%legion_type_parse2%_favs := InStr(legion_%legion_type_parse2%_favs, modtext) ? StrReplace(legion_%legion_type_parse2%_favs, modtext ",") : (legion_%legion_type_parse2%_favs = "") ? modtext "," : legion_%legion_type_parse2%_favs modtext ","
-		IniWrite, % legion_%legion_type_parse2%_favs, ini\timeless jewels.ini, favorites, % legion_type_parse
+		IniWrite, % legion_%legion_type_parse2%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % legion_type_parse
 	}
-	WinSet, Redraw,, ahk_id %hwnd_legion_window%
-	WinSet, Redraw,, ahk_id %hwnd_legion_list%
+	;WinSet, Redraw,, ahk_id %hwnd_legion_window%
+	;WinSet, Redraw,, ahk_id %hwnd_legion_list%
 	GoSub, Legion_seeds
 	Return
 }
@@ -2565,7 +2659,7 @@ If InStr(modtext, "+5 devotion")
 Return
 
 Legion_seeds_hover:
-MouseGetPos, mouseXpos, mouseYpos,, 
+MouseGetPos, mouseXpos, mouseYpos,
 Gui, legion_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_legion_help
 Gui, legion_help: Color, Black
 Gui, legion_help: Margin, 0, 0
@@ -2597,7 +2691,9 @@ Else
 	target_column := LLK_ArrayHasVal(legion_notables_array, modtext)
 	target_key := legion_csvline_array[target_column]
 	Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"fSize0*15, % legion_%legion_type_parse2%_mod%target_key%
-	IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % legion_%legion_type_parse2%_mod%target_key%, n/a
+	IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % legion_%legion_type_parse2%_mod%target_key%, 0
+	If (text = 0)
+		Return
 	Loop, Parse, text, ??, ??
 	{
 		If (A_Loopfield = "")
@@ -2605,11 +2701,21 @@ Else
 		Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % A_Loopfield
 	}
 }
-Gui, legion_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+Gui, legion_help: Show, % "NA x"mouseXpos*1.1 " y"mouseYpos*0.98 " AutoSize"
 
-WinGetPos, winx, winy, width, height, ahk_id %hwnd_legion_help%
-newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
-Gui, legion_help: Show, % "NA x" mouseXpos + fSize0 " y"newypos
+If (hwnd_win_hover != hwnd_legion_window)
+	SetTimer, Legion_seeds_hover_check
+Return
+
+Legion_seeds_hover_check:
+MouseGetPos,,, hwnd_win_hover2,, 2
+If (hwnd_win_hover2 != hwnd_legion_treemap) && (hwnd_win_hover2 != hwnd_legion_list)
+{
+	Gui, legion_help: Destroy
+	hwnd_legion_help := ""
+	LLK_Overlay("legion_treemap", "hide")
+	SetTimer, Legion_seeds_hover_check, Delete
+}
 Return
 
 Legion_seeds_parse:
@@ -5964,9 +6070,19 @@ LLK_Rightclick()
 LLK_MouseMove()
 {
 	global
+	If (A_TickCount < last_hover + 25) && (last_hover != "")
+		Return
+	last_hover := A_TickCount
 	MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
 	If (hwnd_win_hover = hwnd_legion_help)
 		Gui, legion_help: Destroy
+	If (hwnd_win_hover = hwnd_legion_treemap2) && !WinExist("ahk_id " hwnd_legion_treemap)
+	{
+		LLK_Overlay("legion_treemap", "show")
+		SetTimer, Legion_seeds_hover_check, 250
+	}
+	Else If (hwnd_win_hover != hwnd_legion_treemap) && WinExist("ahk_id " hwnd_legion_treemap)
+		LLK_Overlay("legion_treemap", "hide")
 	;If (hwnd_win_hover = hwnd_legion_window || hwnd_win_hover = hwnd_legion_list || hwnd_win_hover = hwnd_legion_treemap) && !WinActive("ahk_id " hwnd_win_hover)
 	;	WinActivate, ahk_id %hwnd_win_hover%
 	If (hwnd_control_hover != last_control_hover)
