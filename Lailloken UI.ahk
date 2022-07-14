@@ -2701,7 +2701,7 @@ Else
 		Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % A_Loopfield
 	}
 }
-Gui, legion_help: Show, % "NA x"mouseXpos*1.1 " y"mouseYpos*0.98 " AutoSize"
+Gui, legion_help: Show, % "NA x"mouseXpos + fSize0*2 " y"mouseYpos " AutoSize"
 
 If (hwnd_win_hover != hwnd_legion_window)
 	SetTimer, Legion_seeds_hover_check
