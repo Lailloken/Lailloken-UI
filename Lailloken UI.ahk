@@ -2708,6 +2708,8 @@ If (modtext = "") || (!LLK_ArrayHasVal(legion_tooltips_array, modtext) && !LLK_A
 	Return
 }
 
+width_hover := (fSize0 + fSize_offset_legion)*25
+
 If !LLK_ArrayHasVal(legion_notables_socket_array, modtext)
 {
 	IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % modtext, 0
@@ -2716,23 +2718,24 @@ If !LLK_ArrayHasVal(legion_notables_socket_array, modtext)
 		If (A_Loopfield = "")
 			continue
 		If (A_Index = 1)
-			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"fSize0*15, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
-		Else Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
+			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"width_hover, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
+		Else Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"width_hover, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
 	}
 }
 Else
 {
 	target_column := LLK_ArrayHasVal(legion_notables_array, modtext)
 	target_key := legion_csvline_array[target_column]
-	Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"fSize0*15, % legion_%legion_type_parse2%_mod%target_key%
+	Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"width_hover, % legion_%legion_type_parse2%_mod%target_key%
 	IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % legion_%legion_type_parse2%_mod%target_key%, 0
-	If (text = 0)
-		Return
-	Loop, Parse, text, ??, ??
+	If (text != 0)
 	{
-		If (A_Loopfield = "")
-			continue
-		Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % A_Loopfield
+		Loop, Parse, text, ??, ??
+		{
+			If (A_Loopfield = "")
+				continue
+			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"width_hover, % A_Loopfield
+		}
 	}
 }
 mouseYpos := (mouseYpos < yScreenOffSet + poe_height/2) ? mouseYpos : (mouseYpos - yScreenOffSet)*0.95
