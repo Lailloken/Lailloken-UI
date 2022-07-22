@@ -166,9 +166,10 @@ If (custom_resolution_setting = 1)
 		WinMove, ahk_group poe_window,, % xScreenOffset_monitor, % yScreenOffset_monitor, % poe_width, %custom_resolution%
 	Else
 	{
-		WinMove, ahk_group poe_window,, % xScreenOffset_monitor + (width_native - custom_width)/2 - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
-		xScreenOffSet := xScreenOffset_monitor + (width_native - custom_width)/2
-		yScreenOffSet := (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 + yborder + caption : yScreenOffSet_monitor + caption + yborder
+		WinMove, ahk_group poe_window,,, % (window_docking = 0) ? "" : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
+		WinGetPos, xScreenOffSet, yScreenOffSet,,, ahk_group poe_window
+		xScreenOffSet += xborder
+		yScreenOffSet += caption + yborder
 		poe_width := custom_width
 	}
 	poe_height := custom_resolution
@@ -703,18 +704,25 @@ Apply_settings_notepad:
 If (A_GuiControl = "enable_notepad")
 {
 	Gui, settings_menu: Submit, NoHide
-	If WinExist("ahk_id " hwnd_notepad_sample) && (enable_notepad = 0)
+	
+	If (enable_notepad = 0)
 	{
 		Gui, notepad_sample: Destroy
 		hwnd_notepad_sample := ""
-	}
-	If WinExist("ahk_id " hwnd_notepad) && (enable_notepad = 0)
-	{
-		Gui, Notepad: Submit, NoHide
+		Gui, notepad_edit: Submit, NoHide
 		notepad_text := StrReplace(notepad_text, "[", "(")
 		notepad_text := StrReplace(notepad_text, "]", ")")
+		Gui, notepad_edit: Destroy
+		hwnd_notepad_edit := ""
 		Gui, notepad: Destroy
 		hwnd_notepad := ""
+		Loop 100
+		{
+			Gui, notepad%A_Index%: Destroy
+			hwnd_notepad%A_Index% := ""
+			Gui, notepad_drag%A_Index%: Destroy
+			hwnd_notepad_drag%A_Index% := ""
+		}
 	}
 	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
 	GoSub, GUI
@@ -2902,6 +2910,7 @@ If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeou
 	ExitApp
 If WinExist("ahk_group poe_window")
 {
+	
 	last_check := A_TickCount
 	If (hwnd_poe_client = "")
 		hwnd_poe_client := WinExist("ahk_group poe_window")
@@ -2910,10 +2919,10 @@ If WinExist("ahk_group poe_window")
 		Sleep, 4000
 		If (fullscreen = "true")
 			WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
-		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
+		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset - caption - yborder : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
 		poe_height := custom_resolution
 	}
-	If (poe_window_closed) && (custom_resolution_setting = 0) && (fullscreen != "true")
+	If (poe_window_closed = 1) && (custom_resolution_setting = 0) && (fullscreen != "true")
 	{
 		Sleep, 4000
 		WinMove, ahk_group poe_window,, % xScreenOffSet - xborder, % yScreenOffSet - caption - yborder
