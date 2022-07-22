@@ -216,7 +216,7 @@ If (clone_frames_enabled != "")
 GoSub, Screenchecks_gamescreen
 SetTimer, MainLoop, 100
 If (update_available = 1)
-	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to update.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
+	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
 #If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
