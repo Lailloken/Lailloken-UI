@@ -121,15 +121,12 @@ Gui, Test: Destroy
 IniRead, supported_resolutions, data\Resolutions.ini
 supported_resolutions := "," StrReplace(supported_resolutions, "`n", ",")
 
-;poe_height += (poe_height > height_native) || ((poe_height = height_native) && (yScreenOffSet < yScreenOffset_monitor)) ? 1 : 0
-
 If (fullscreen = "false")
 {
 	poe_width -= xborder*2
 	poe_height := poe_height - caption - yborder*2
 	xScreenOffSet += xborder
 	yScreenOffSet += caption + yborder
-	;IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 }
 
 IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
@@ -169,12 +166,13 @@ If (custom_resolution_setting = 1)
 		WinMove, ahk_group poe_window,, % xScreenOffset_monitor, % yScreenOffset_monitor, % poe_width, %custom_resolution%
 	Else
 	{
-		WinMove, ahk_group poe_window,, % xScreenOffset_monitor + (width_native - custom_width)/2 - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
-		xScreenOffSet := xScreenOffset_monitor + (width_native - custom_width)/2
-		yScreenOffSet := (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 + yborder + caption : yScreenOffSet_monitor + caption + yborder
+		WinMove, ahk_group poe_window,,, % (window_docking = 0) ? "" : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
+		WinGetPos, xScreenOffSet, yScreenOffSet,,, ahk_group poe_window
+		xScreenOffSet += xborder
+		yScreenOffSet += caption + yborder
 		poe_width := custom_width
 	}
-	poe_height := custom_resolution ;(fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution
+	poe_height := custom_resolution
 	IniRead, fSize_config0, data\Resolutions.ini, %poe_height%p, font-size0, 16
 	IniRead, fSize_config1, data\Resolutions.ini, %poe_height%p, font-size1, 14
 	fSize0 := fSize_config0
@@ -186,307 +184,30 @@ If !FileExist("img\Recognition (" poe_height "p\GUI\")
 If !FileExist("img\Recognition (" poe_height "p\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
 
-trans := 220
-pixelchecks_enabled := "gamescreen,"
-imagesearch_variation := 25
-pixelsearch_variation := 0
-stash_search_usecases := "stash,vendor"
-Sort, stash_search_usecases, D`,
-pixelchecks_list := "gamescreen"
-Sort, pixelchecks_list, D`,
-Loop, Parse, pixelchecks_list, `,, `,
-	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
-
-imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
-Sort, imagechecks_list, D`,
-Loop, Parse, imagechecks_list, `,, `,
-	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
-
-IniRead, panel_position0, ini\config.ini, UI, panel-position0, bottom
-IniRead, panel_position1, ini\config.ini, UI, panel-position1, left
-IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
-
-IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
-IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
-IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
-IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
-
-IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
-IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
-fSize0 := fSize_config0 + fSize_offset
-fSize1 := fSize_config1 + fSize_offset
-
-IniRead, alarm_xpos, ini\alarm.ini, UI, xcoord, % xScreenOffset+poe_width//2
-alarm_xpos := (alarm_xpos = "") ? xScreenOffset+poe_width//2 : alarm_xpos
-IniRead, alarm_ypos, ini\alarm.ini, UI, ycoord, % yScreenOffset+poe_height//2
-alarm_ypos := (alarm_ypos = "") ? yScreenOffset+poe_height//2 : alarm_ypos
-IniRead, fSize_offset_alarm, ini\alarm.ini, Settings, font-offset
-If fSize_offset_alarm is not number
-	fSize_offset_alarm := 0
-IniRead, alarm_fontcolor, ini\alarm.ini, Settings, font-color, %A_Space%
-alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
-IniRead, alarm_trans, ini\alarm.ini, Settings, transparency
-If alarm_trans is not number
-	alarm_trans := 255
-IniRead, alarm_timestamp, ini\alarm.ini, Settings, alarm-timestamp, %A_Space%
-alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
-If (alarm_timestamp != "")
-	continue_alarm := 1
-
-betrayal_divisions := "transportation,fortification,research,intervention"
-betrayal_divisions_alt := " ,transportation,fortification,research,intervention, "
-betrayal_color := ["White", "00D000", "Yellow", "E90000", "Aqua"]
-betrayal_shift_clicks := 0
-IniRead, betrayal_list, data\Betrayal.ini
-betrayal_list := StrReplace(betrayal_list, "version`n")
-Sort, betrayal_list, D`n
-IniRead, betrayal_ini_version_data, data\Betrayal.ini, Version, version, 1
-IniRead, betrayal_ini_version_user, ini\betrayal info.ini, Version, version, 0
-If !FileExist("ini\betrayal info.ini") || (betrayal_ini_version_user < betrayal_ini_version_data)
-{
-	betrayal_info_exists := FileExist("ini\betrayal info.ini") ? 1 : 0
-	IniWrite, %betrayal_ini_version_data%, ini\betrayal info.ini, Version, version
-	If (betrayal_info_exists = 0)
-	{
-		IniWrite, 0, ini\betrayal info.ini, Settings, font-offset
-		IniWrite, 220, ini\betrayal info.ini, Settings, transparency
-	}
-	Loop, Parse, betrayal_list, `n, `n
-	{
-		check := A_Loopfield
-		If (A_LoopField = "settings") || (A_Loopfield = "version")
-			continue
-		If (betrayal_info_exists = 0)
-			IniWrite, transportation=1`nfortification=1`nresearch=1`nintervention=1, ini\betrayal info.ini, %check%
-	}
-}
-IniRead, fSize_offset_betrayal, ini\betrayal info.ini, Settings, font-offset, 0
-IniRead, betrayal_trans, ini\betrayal info.ini, Settings, transparency, 220
-IniRead, betrayal_enable_recognition, ini\betrayal info.ini, Settings, enable image recognition, 0
-IniRead, betrayal_perma_table, ini\betrayal info.ini, Settings, permanent table, 0
-IniRead, betrayal_info_table_pos, ini\betrayal info.ini, Settings, table-position, left
-IniRead, betrayal_info_prio_dimensions, ini\betrayal info.ini, Settings, prioview-dimensions, 0
-IniRead, betrayal_info_prio_transportation, ini\betrayal info.ini, Settings, transportation coords, 0`,0
-IniRead, betrayal_info_prio_fortification, ini\betrayal info.ini, Settings, fortification coords, 0`,0
-IniRead, betrayal_info_prio_research, ini\betrayal info.ini, Settings, research coords, 0`,0
-IniRead, betrayal_info_prio_intervention, ini\betrayal info.ini, Settings, intervention coords, 0`,0
-Loop, Parse, betrayal_divisions, `,, `,
-{
-	%A_LoopField%_xcoord := (betrayal_info_prio_%A_LoopField% != "0,0") ? SubStr(betrayal_info_prio_%A_LoopField%, 1, InStr(betrayal_info_prio_%A_LoopField%, ",") - 1) : ""
-	%A_LoopField%_ycoord := (betrayal_info_prio_%A_LoopField% != "0,0") ? SubStr(betrayal_info_prio_%A_LoopField%, InStr(betrayal_info_prio_%A_LoopField%, ",") + 1) : ""
-}
-
-If !FileExist("ini\clone frames.ini")
-	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-IniRead, clone_frames_list, ini\clone frames.ini
-IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 1
-Loop, Parse, clone_frames_list, `n, `n
-{
-	If (A_LoopField = "Settings")
-		continue
-	IniRead, clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable, 0
-	If (clone_frame_%A_LoopField%_enable = 1)
-		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
-	IniRead, clone_frame_%A_LoopField%_topleft_x, ini\clone frames.ini, %A_LoopField%, source x-coordinate, 0
-	IniRead, clone_frame_%A_LoopField%_topleft_y, ini\clone frames.ini, %A_LoopField%, source y-coordinate, 0
-	IniRead, clone_frame_%A_LoopField%_width, ini\clone frames.ini, %A_LoopField%, frame-width, 200
-	IniRead, clone_frame_%A_LoopField%_height, ini\clone frames.ini, %A_LoopField%, frame-height, 200
-	IniRead, clone_frame_%A_LoopField%_target_x, ini\clone frames.ini, %A_LoopField%, target x-coordinate, % xScreenOffset + poe_width//2
-	IniRead, clone_frame_%A_LoopField%_target_y, ini\clone frames.ini, %A_LoopField%, target y-coordinate, % yScreenOffset + poe_height//2
-	IniRead, clone_frame_%A_LoopField%_scale_x, ini\clone frames.ini, %A_LoopField%, scaling x-axis, 100
-	IniRead, clone_frame_%A_LoopField%_scale_y, ini\clone frames.ini, %A_LoopField%, scaling y-axis, 100
-	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
-}
-
-IniRead, gwennen_regex, ini\gwennen.ini, regex, regex
-
-IniRead, fSize_offset_legion, ini\timeless jewels.ini, Settings, font-offset, 0
-
-Loop 16
-{
-	IniRead, maps_tier%A_Index%, data\Atlas.ini, Maps, tier%A_Index%
-	maps_list := (maps_list = "") ? StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),") : maps_list StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),")
-	Sort, maps_tier%A_Index%, D`,
-	maps_tier%A_Index% := SubStr(maps_tier%A_Index%, 1, -1)
-	maps_tier%A_Index% := StrReplace(maps_tier%A_Index%, ",", "`n")
-}
-Sort, maps_list, D`,
-Loop, Parse, maps_list, `,, `,
-{
-	If (A_Loopfield = "")
-		break
-	letter := SubStr(A_Loopfield, 1, 1)
-	maps_%letter% := (maps_%letter% = "") ? A_Loopfield : maps_%letter% "`n" A_Loopfield
-}
-
-IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
-If (map_info_pixelcheck_enable = 1)
-	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
-IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
-IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
-If fSize_offset_map_info is not number
-	fSize_offset_map_info := 0
-IniRead, map_info_short, ini\map info.ini, Settings, short descriptions, 1
-IniRead, map_info_xPos, ini\map info.ini, Settings, x-coordinate, 0
-map_info_side := (map_info_xPos >= xScreenOffSet + poe_width//2) ? "right" : "left"
-IniRead, map_info_yPos, ini\map info.ini, Settings, y-coordinate, 0
-IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
-IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
-If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
-{
-	map_info_exists := FileExist("ini\map info.ini") ? 1 : 0
-	IniWrite, %map_mod_ini_version_data%, ini\map info.ini, Version, version
-	If (map_info_exists = 0)
-	{
-		IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
-		IniWrite, 0, ini\map info.ini, Settings, font-offset
-		IniWrite, 220, ini\map info.ini, Settings, transparency
-	}
-	IniRead, map_info_parse, data\Map mods.ini
-	Loop, Parse, map_info_parse, `n, `n
-	{
-		If (A_LoopField = "sample map") || (A_LoopField = "version")
-			continue
-		IniRead, parse_ID, data\Map mods.ini, %A_LoopField%, ID
-		If (map_info_short = 1)
-			IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text
-		Else IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text1
-		IniRead, parse_type, data\Map mods.ini, %A_LoopField%, type
-		IniRead, parse_rank, ini\map info.ini, %parse_ID%, rank
-		IniWrite, %parse_text%, ini\map info.ini, %parse_ID%, text
-		IniWrite, %parse_type%, ini\map info.ini, %parse_ID%, type
-		If (map_info_exists = 0) || (parse_rank = "") || (parse_rank = "ERROR")
-			IniWrite, 1, ini\map info.ini, %parse_ID%, rank
-	}
-}
-
-IniRead, notepad_xpos, ini\notepad.ini, UI, xcoord, % xScreenOffset + poe_width//2
-notepad_xpos := (notepad_xpos = "") ? xScreenOffset+poe_width//2 : notepad_xpos
-IniRead, notepad_ypos, ini\notepad.ini, UI, ycoord, % yScreenOffset + poe_height//2
-notepad_ypos := (notepad_ypos = "") ? yScreenOffset+poe_height//2 : notepad_ypos
-IniRead, notepad_width, ini\notepad.ini, UI, width, 400
-IniRead, notepad_height, ini\notepad.ini, UI, height, 400
-IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
-If (notepad_text != "")
-	notepad_text := StrReplace(notepad_text, ",,", "`n")
-IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset, 0
-If fSize_offset_notepad is not number
-	fSize_offset_notepad := 0
-IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
-notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
-IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
-If notepad_trans is not number
-	notepad_trans := 255
-
-IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
-If (omnikey_hotkey != "")
-{
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~%omnikey_hotkey%, Omnikey, On
-	Hotkey, *~MButton, Omnikey, Off
-	omnikey_hotkey_old := omnikey_hotkey
-}
-Else
-{
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~MButton, Omnikey, On
-	omnikey_hotkey_old := "MButton"
-}
-
-IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
-IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1
-IniRead, pixel_gamescreen_color1, ini\screen checks (%poe_height%p).ini, gamescreen, color 1
-
+GoSub, Init_variables
+GoSub, Init_screenchecks
+GoSub, Init_general
+GoSub, Init_alarm
+GoSub, Init_betrayal
+GoSub, Init_cloneframes
 If WinExist("ahk_exe GeForceNOW.exe")
-{
-	IniRead, pixelsearch_variation, ini\geforce now.ini, Settings, pixel-check variation, 0
-	IniRead, imagesearch_variation, ini\geforce now.ini, Settings, image-check variation, 25
-}
-
-If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
-{
-	clone_frames_pixelcheck_enable := 0
-	map_info_pixelcheck_enable := 0
-	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-}
-
-If !FileExist("ini\stash search.ini")
-	IniWrite, stash=`nvendor=, ini\stash search.ini, Settings
-IniRead, stash_search_check, ini\stash search.ini, Settings
-Loop, Parse, stash_search_usecases, `,, `,
-{
-	If !InStr(stash_search_check, A_Loopfield "=")
-		IniWrite, % A_Space, ini\stash search.ini, Settings, % A_Loopfield
-}
-
-
-IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
-If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini")
-{
-	IniRead, pixel_gamescreen_color1, ini\pixel checks (%poe_height%p).ini, gamescreen, color 1
-	IniRead, convert_pixelchecks, ini\pixel checks (%poe_height%p).ini, gamescreen
-	IniWrite, % convert_pixelchecks, ini\screen checks (%poe_height%p).ini, gamescreen
-	FileDelete, ini\pixel checks*.ini
-}
-IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410
+	GoSub, Init_geforce
+GoSub, Init_gwennen
+GoSub, Init_legion
+GoSub, Init_maps
+GoSub, Init_notepad
+GoSub, Init_omnikey
+GoSub, Init_searchstrings
+GoSub, Init_conversions
 
 SetTimer, Loop, 1000
-
-guilist := "LLK_panel|notepad|notepad_sample|settings_menu|alarm|alarm_sample|clone_frames_window|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
-guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|"
-buggy_resolutions := "768,1024,1050"
-allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
 
-If InStr(buggy_resolutions, poe_height) || !InStr(supported_resolutions, "," poe_height "p")
-{
-	If InStr(buggy_resolutions, poe_height)
-	{
-text =
-(
-Unsupported resolution detected!
-
-The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
-
-I have decided to end support for this resolution.
-You have to run the client with a custom resolution, which you can do in the following window, to use this script.
-
-You also have to enable "confine mouse to window" in the game's UI options.
-)
-	}
-	Else If !InStr(supported_resolutions, "," poe_height "p")
-	{
-	
-text =
-(
-Unsupported resolution detected!
-
-The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
-
-You have to run the client with a custom resolution, which you can do in the following window, to use this script.
-
-You also have to enable "confine mouse to window" in the game's UI options.
-)
-	}
-	MsgBox, % text
-	safe_mode := 1
-	GoSub, settings_menu
-	sleep, 2000
-	Loop
-	{
-		If !WinExist("ahk_id " hwnd_settings_menu)
-		{
-			MsgBox, The script will now shut down.
-			ExitApp
-		}
-		Sleep, 100
-	}
-	Return
-}
+GoSub, Resolution_check
 
 SoundBeep, 100
 GoSub, GUI
@@ -495,6 +216,8 @@ If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
 GoSub, Screenchecks_gamescreen
 SetTimer, MainLoop, 100
+If (update_available = 1)
+	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
 #If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
@@ -575,10 +298,22 @@ If (lab_mode = 1)
 		}
 	}
 }
+If (update_available = 1)
+{
+	Run, https://github.com/Lailloken/Lailloken-UI/releases
+	ExitApp
+	Return
+}
 SendInput, {Tab}
 Return
 
 ESC::
+If (update_available = 1)
+{
+	ToolTip
+	update_available := 0
+	Return
+}
 If WinActive("ahk_id " hwnd_recombinator_window)
 {
 	Gosub, Recombinator_windowGuiClose
@@ -631,8 +366,8 @@ Return
 
 F1::
 MouseGetPos, mouseXpos, mouseYpos
-clone_frame_new_topleft_x := mouseXpos
-clone_frame_new_topleft_y := mouseYpos
+clone_frame_new_topleft_x := mouseXpos - xScreenOffSet
+clone_frame_new_topleft_y := mouseYpos - yScreenOffSet
 GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_x, % clone_frame_new_topleft_x
 GuiControl, clone_frames_menu: Text, clone_frame_new_topleft_y, % clone_frame_new_topleft_y
 GoSub, Clone_frames_dimensions
@@ -640,8 +375,8 @@ Return
 
 F2::
 MouseGetPos, mouseXpos, mouseYpos
-clone_frame_new_width := mouseXpos - clone_frame_new_topleft_x
-clone_frame_new_height := mouseYpos - clone_frame_new_topleft_y
+clone_frame_new_width := mouseXpos - clone_frame_new_topleft_x - xScreenOffSet
+clone_frame_new_height := mouseYpos - clone_frame_new_topleft_y - yScreenOffSet
 GuiControl, clone_frames_menu: Text, clone_frame_new_width, % clone_frame_new_width
 GuiControl, clone_frames_menu: Text, clone_frame_new_height, % clone_frame_new_height
 GoSub, Clone_frames_dimensions
@@ -649,8 +384,8 @@ Return
 
 F3::
 MouseGetPos, mouseXpos, mouseYpos
-clone_frame_new_target_x := (mouseXpos + clone_frame_new_width * clone_frame_new_scale_x//100 > xScreenOffset + poe_width) ? xScreenOffSet + poe_width - clone_frame_new_width * clone_frame_new_scale_x//100 : mouseXpos
-clone_frame_new_target_y := (mouseYpos + clone_frame_new_height * clone_frame_new_scale_y//100 > yScreenOffset + poe_height) ? yScreenOffSet + poe_height - clone_frame_new_height * clone_frame_new_scale_y//100 : mouseYpos
+clone_frame_new_target_x := (mouseXpos + clone_frame_new_width * clone_frame_new_scale_x//100 > xScreenOffset + poe_width) ? poe_width - clone_frame_new_width * clone_frame_new_scale_x//100 : mouseXpos - xScreenOffSet
+clone_frame_new_target_y := (mouseYpos + clone_frame_new_height * clone_frame_new_scale_y//100 > yScreenOffset + poe_height) ? poe_height - clone_frame_new_height * clone_frame_new_scale_y//100 : mouseYpos - yScreenOffSet
 GuiControl, clone_frames_menu: Text, clone_frame_new_target_x, % clone_frame_new_target_x
 GuiControl, clone_frames_menu: Text, clone_frame_new_target_y, % clone_frame_new_target_y
 GoSub, Clone_frames_dimensions
@@ -688,6 +423,23 @@ z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
 #If
 
 Alarm:
+start := A_TickCount
+While GetKeyState("LButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		alarm_panel_xpos := panelXpos
+		alarm_panel_ypos := panelYpos
+		IniWrite, % alarm_panel_xpos, ini\alarm.ini, UI, button xcoord
+		IniWrite, % alarm_panel_ypos, ini\alarm.ini, UI, button ycoord
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
 alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
 fSize_alarm := fSize0 + fSize_offset_alarm
 If (alarm_timestamp != "") && (alarm_timestamp < A_Now)
@@ -707,14 +459,9 @@ If (A_Gui = "settings_menu")
 	WinSet, Transparent, %alarm_trans%
 	Gui, alarm_sample: Font, c%alarm_fontcolor% s%fSize_alarm%, Fontin SmallCaps
 	Gui, alarm_sample: Add, Text, BackgroundTrans, % "  00:00  "
-	If (alarm_sample_xpos != "") && (alarm_sample_ypos != "")
-		Gui, alarm_sample: Show, Hide x%alarm_sample_xpos% y%alarm_sample_ypos% AutoSize
-	Else
-	{
-		Gui, alarm_sample: Show, Hide AutoSize
-		WinGetPos,,, win_width, win_height
-		Gui, alarm_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet
-	}
+	Gui, alarm_sample: Show, Hide AutoSize
+	WinGetPos,,, win_width, win_height
+	Gui, alarm_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet
 	LLK_Overlay("alarm_sample", "show", 0)
 	Return
 }
@@ -727,6 +474,8 @@ If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
 		alarm_minutes := (alarm_minutes > 60) ? 60 : alarm_minutes
 		alarm_minutes *= 60
 		WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
+		alarm_xpos := (alarm_xpos <= xScreenOffSet) ? 0 : alarm_xpos - xScreenOffSet
+		alarm_ypos := (alarm_ypos <= yScreenOffSet) ? 0 : alarm_ypos - yScreenOffSet
 		alarm_timestamp := A_Now
 		EnvAdd, alarm_timestamp, %alarm_minutes%, S
 	}
@@ -737,7 +486,11 @@ If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
 	Gui, alarm: Font, s%fSize_alarm% c%alarm_fontcolor%, Fontin SmallCaps
 	Gui, alarm: Add, Text, xp BackgroundTrans Center valarm_countdown, XX:XX
 	GuiControl, Text, alarm_countdown,
-	Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos% AutoSize
+	Gui, alarm: Show, % "NA Autosize"
+	WinGetPos,,, width, height, ahk_id %hwnd_alarm%
+	alarm_xpos := (alarm_xpos + width > poe_width) ? poe_width - width : alarm_xpos
+	alarm_ypos := (alarm_ypos + height > poe_height) ? poe_height - height: alarm_ypos
+	Gui, alarm: Show, % "Hide AutoSize x"xScreenOffSet + alarm_xpos " y"yScreenOffSet + alarm_ypos
 	LLK_Overlay("alarm", "show")
 	WinActivate, ahk_group poe_window
 	continue_alarm := 0
@@ -772,9 +525,11 @@ If (click = 2) || (hwnd_alarm = "")
 		Gui, alarm: Font, s%fSize0%
 		Gui, alarm: Add, Text, ys x+6 BackgroundTrans Center, minute(s)
 		Gui, alarm: Add, Button, xp hp BackgroundTrans Hidden Default valarm_start gAlarm, OK
-		If (alarm_xpos = "") || (alarm_ypos = "")
-			Gui, alarm: Show, Hide Center
-		Else Gui, alarm: Show, Hide x%alarm_xpos% y%alarm_ypos%
+		Gui, alarm: Show, % "NA"
+		WinGetPos,,, width, height, ahk_id %hwnd_alarm%
+		alarm_xpos := (alarm_xpos + width > poe_width) ? poe_width - width : alarm_xpos
+		alarm_ypos := (alarm_ypos + height > poe_height) ? poe_height - height: alarm_ypos
+		Gui, alarm: Show, % "Hide x"xScreenOffSet + alarm_xpos " y"yScreenOffSet + alarm_ypos
 		LLK_Overlay("alarm", "show", 0)
 		Return
 	}
@@ -785,6 +540,8 @@ If !WinExist("ahk_id " hwnd_alarm)
 Else
 {
 	WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
+	alarm_xpos := (alarm_xpos <= xScreenOffSet) ? 0 : alarm_xpos - xScreenOffSet
+	alarm_ypos := (alarm_ypos <= yScreenOffSet) ? 0 : alarm_ypos - yScreenOffSet
 	LLK_Overlay("alarm", "hide")
 	WinActivate, ahk_group poe_window
 }
@@ -813,7 +570,7 @@ If (A_GuiControl = "window_docking")
 }
 custom_width := (custom_width > width_native) ? width_native : custom_width
 poe_width := (fullscreen = "true") ? width_native : custom_width
-If (fullscreen = "false") ;|| !InStr(supported_resolutions, "," poe_height "p")
+If (fullscreen = "false")
 {
 	custom_resolution += caption + yborder*2
 	poe_width += (poe_width > width_native) ? 0 : xborder*2
@@ -852,6 +609,19 @@ If (A_GuiControl = "enable_alarm")
 	GoSub, Settings_menu
 	Return
 }
+If InStr(A_GuiControl, "button_alarm")
+{
+	If (A_GuiControl = "button_alarm_minus")
+		alarm_panel_offset -= (alarm_panel_offset > 0.4) ? 0.1 : 0
+	If (A_GuiControl = "button_alarm_reset")
+		alarm_panel_offset := 1
+	If (A_GuiControl = "button_alarm_plus")
+		alarm_panel_offset += (alarm_panel_offset < 1) ? 0.1 : 0
+	IniWrite, % alarm_panel_offset, ini\alarm.ini, Settings, button-offset
+	alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
+	GoSub, GUI
+	Return
+}
 If (A_GuiControl = "fSize_alarm_minus")
 {
 	fSize_offset_alarm -= 1
@@ -877,7 +647,6 @@ If (A_GuiControl = "alarm_opac_plus")
 	alarm_trans += (alarm_trans < 250) ? 30 : 0
 	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
 }
-WinGetPos, alarm_sample_xpos, alarm_sample_ypos,,, ahk_id %hwnd_alarm_sample%
 If InStr(A_GuiControl, "fontcolor_")
 {
 	alarm_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
@@ -935,20 +704,42 @@ Apply_settings_notepad:
 If (A_GuiControl = "enable_notepad")
 {
 	Gui, settings_menu: Submit, NoHide
-	If WinExist("ahk_id " hwnd_notepad_sample) && (enable_notepad = 0)
+	
+	If (enable_notepad = 0)
 	{
 		Gui, notepad_sample: Destroy
 		hwnd_notepad_sample := ""
-	}
-	If WinExist("ahk_id " hwnd_notepad) && (enable_notepad = 0)
-	{
-		Gui, Notepad: Submit, NoHide
+		Gui, notepad_edit: Submit, NoHide
+		notepad_text := StrReplace(notepad_text, "[", "(")
+		notepad_text := StrReplace(notepad_text, "]", ")")
+		Gui, notepad_edit: Destroy
+		hwnd_notepad_edit := ""
 		Gui, notepad: Destroy
 		hwnd_notepad := ""
+		Loop 100
+		{
+			Gui, notepad%A_Index%: Destroy
+			hwnd_notepad%A_Index% := ""
+			Gui, notepad_drag%A_Index%: Destroy
+			hwnd_notepad_drag%A_Index% := ""
+		}
 	}
 	IniWrite, %enable_notepad%, ini\config.ini, Features, enable notepad
 	GoSub, GUI
 	GoSub, Settings_menu
+	Return
+}
+If InStr(A_GuiControl, "button_notepad")
+{
+	If (A_GuiControl = "button_notepad_minus")
+		notepad_panel_offset -= (notepad_panel_offset > 0.4) ? 0.1 : 0
+	If (A_GuiControl = "button_notepad_reset")
+		notepad_panel_offset := 1
+	If (A_GuiControl = "button_notepad_plus")
+		notepad_panel_offset += (notepad_panel_offset < 1) ? 0.1 : 0
+	IniWrite, % notepad_panel_offset, ini\notepad.ini, Settings, button-offset
+	notepad_panel_dimensions := poe_width*0.03*notepad_panel_offset
+	GoSub, GUI
 	Return
 }
 If (A_GuiControl = "fSize_notepad_minus")
@@ -976,7 +767,6 @@ If (A_GuiControl = "notepad_opac_plus")
 	notepad_trans += (notepad_trans < 250) ? 30 : 0
 	IniWrite, %notepad_trans%, ini\notepad.ini, Settings, transparency
 }
-WinGetPos, notepad_sample_xpos, notepad_sample_ypos,,, ahk_id %hwnd_notepad_sample%
 If InStr(A_GuiControl, "fontcolor_")
 {
 	notepad_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
@@ -1132,7 +922,6 @@ If InStr(A_GuiControl, "betrayal_info_combo_")
 	betrayal_info_click_member := ""
 	betrayal_info_click_member2 := ""
 	WinGetPos,,, wMembers,, ahk_id %hwnd_betrayal_info_members%
-	;WinGetPos,,,, hInfo, ahk_id %hwnd_betrayal_info%
 	If InStr(A_GuiControl, parse_member1) && (parse_member1 != "") && (betrayal_clicks != 0)
 	{
 		LLK_ToolTip("same member selected twice")
@@ -1197,12 +986,6 @@ If (click != 2)
 	betrayal_%parse_member%_%parse_division% -= (betrayal_%parse_member%_%parse_division% < 4) ? -1 : 2
 Else betrayal_%parse_member%_%parse_division% := (betrayal_%parse_member%_%parse_division% = 1) ? 5 : 1
 color := betrayal_color[betrayal_%parse_member%_%parse_division%]
-/*
-color := (betrayal_%parse_member%_%parse_division% = 2) ? "Lime" : color
-color := (betrayal_%parse_member%_%parse_division% = 3) ? "Yellow" : color
-color := (betrayal_%parse_member%_%parse_division% = 4) ? "Red" : color
-color := (betrayal_%parse_member%_%parse_division% = 5) ? "Fuchsia" : color
-*/
 IniWrite, % betrayal_%parse_member%_%parse_division%, ini\betrayal info.ini, %parse_member%, %parse_division%
 GuiControl, +c%color%, %A_GuiControl%
 WinSet, Redraw,, % "ahk_id " hwnd_%parse_gui%
@@ -1222,8 +1005,6 @@ If (betrayal_list_width = "")
 	Gui, betrayal_info_members: Show, Hide
 	ControlGetPos,,, betrayal_list_width, betrayal_list_height,, ahk_id %gravicius%
 	ControlGetPos,,, tWidth,,, ahk_id %gravicius_t%
-	;tWidth *= 1.75
-	;betrayal_list_width += 16
 	While (Mod(betrayal_list_width, 4) != 0)
 		betrayal_list_width += 1
 }
@@ -1245,8 +1026,6 @@ If (betrayal_perma_table = 1) || (betrayal_scan_failed = 1) || (betrayal_enable_
 		check := A_Loopfield
 		Loop, Parse, betrayal_divisions, `,, `,
 		{
-			;Gui, betrayal_info_members: Font, % "s"fSize0 + fSize_offset_betrayal " bold"
-			;style := (A_Index = 1) ? "xs Section" : "ys"
 			IniRead, rank, ini\betrayal info.ini, % check, % A_Loopfield, 1
 			color := (rank = 1) ? "Black" : betrayal_color[rank]
 			Gui, betrayal_info_members: Add, Progress, % "ys x+-1 Disabled Background"color " w"tWidth " hp"
@@ -1297,7 +1076,7 @@ Loop, Parse, betrayal_divisions, `,, `,
 		}
 		Else Gui, betrayal_info: Add, Text, % "ys Section BackgroundTrans Center Border vbetrayal_info_" A_Index "_" betrayal_member "_" A_Loopfield " gBetrayal_apply w"poe_width/4 " c"color, % %A_Loopfield%_text
 	}
-	Else ;if (betrayal_layout = 2)
+	Else
 	{
 		ToolTip,,,,
 		If (A_Index < 3)
@@ -1343,7 +1122,6 @@ If (betrayal_layout = 2)
 	Gui, betrayal_info_overview: Show, % "NA x" xScreenOffSet " y"yScreenOffset + height
 	LLK_Overlay("betrayal_info_overview", "show")
 }
-
 Return
 
 Betrayal_prio_drag:
@@ -1497,7 +1275,6 @@ If (betrayal_enable_recognition = 1) && (A_Gui = "")
 	If FileExist("img\Recognition (" poe_height "p)\Betrayal\.bmp")
 		FileDelete, img\Recognition (%poe_height%p)\Betrayal\.bmp
 	pHaystack_betrayal := Gdip_BitmapFromHWND(hwnd_poe_client)
-	;Gdip_SaveBitmapToFile(pHaystack_betrayal, "test.bmp", 100)
 	Loop, Files, img\Recognition (%poe_height%p)\Betrayal\*.bmp
 	{
 		If InStr(A_LoopFilePath, "transportation") || InStr(A_LoopFilePath, "fortification") || InStr(A_LoopFilePath, "research") || InStr(A_LoopFilePath, "intervention")
@@ -1515,10 +1292,7 @@ If (betrayal_enable_recognition = 1) && (A_Gui = "")
 	}
 	Gdip_DisposeImage(pHaystack_betrayal)
 	If (parse_member1 = parse_member2) && (parse_member1 != "")
-	{
-		;GoSub, Betrayal_search
 		Return
-	}
 	If (parse_member1 != "")
 	{
 		pHaystack_betrayal := Gdip_BitmapFromHWND(hwnd_poe_client)
@@ -1644,7 +1418,7 @@ Gui, clone_frame_preview_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +To
 Gui, clone_frame_preview_frame: Color, Black
 WinSet, TransColor, Black
 If ((clone_frame_new_width > 1) && (clone_frame_new_height > 1))
-	Gui, clone_frame_preview_frame: Show, % "NA x"clone_frame_new_topleft_x - 1 " y"clone_frame_new_topleft_y - 1 " w"clone_frame_new_width " h"clone_frame_new_height
+	Gui, clone_frame_preview_frame: Show, % "NA x"xScreenOffset + clone_frame_new_topleft_x - 1 " y"yScreenOffset + clone_frame_new_topleft_y - 1 " w"clone_frame_new_width " h"clone_frame_new_height
 Else Gui, clone_frame_preview_frame: Hide
 SetTimer, Clone_frames_preview, 100
 Return
@@ -1684,8 +1458,8 @@ Else
 	clone_frame_edit_topleft_y := 0
 	clone_frame_edit_width := 0
 	clone_frame_edit_height := 0
-	clone_frame_edit_target_x := xScreenOffSet
-	clone_frame_edit_target_y := yScreenOffSet
+	clone_frame_edit_target_x := 0
+	clone_frame_edit_target_y := 0
 	clone_frame_edit_scale_x := 100
 	clone_frame_edit_scale_y := 100
 	clone_frame_edit_opacity := 5
@@ -1764,7 +1538,7 @@ Gui, clone_frames_menu: Destroy
 Return
 
 Clone_frames_preview:
-pPreview := Gdip_BitmapFromScreen(clone_frame_new_topleft_x "|" clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
+pPreview := Gdip_BitmapFromScreen(xScreenOffset + clone_frame_new_topleft_x "|" yScreenOffset + clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
 wPreview := clone_frame_new_width
 hPreview := clone_frame_new_height
 wPreview_dest := clone_frame_new_width * clone_frame_new_scale_x//100
@@ -1775,7 +1549,7 @@ obmPreview := SelectObject(hdcPreview, hbmPreview)
 gPreview := Gdip_GraphicsFromHDC(hdcPreview)
 Gdip_SetInterpolationMode(gPreview, 0)
 Gdip_DrawImage(gPreview, pPreview, 0, 0, wPreview_dest, hPreview_dest, 0, 0, wPreview, hPreview, 0.2 + 0.16 * clone_frame_new_opacity)
-UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, clone_frame_new_target_x, clone_frame_new_target_y, wPreview_dest, hPreview_dest)
+UpdateLayeredWindow(hwnd_clone_frame_preview, hdcPreview, xScreenOffset + clone_frame_new_target_x, yScreenOffset + clone_frame_new_target_y, wPreview_dest, hPreview_dest)
 SelectObject(hdcPreview, obmPreview)
 DeleteObject(hbmPreview)
 DeleteDC(hdcPreview)
@@ -1785,6 +1559,7 @@ Return
 
 Clone_frames_preview_list:
 MouseGetPos, mouseXpos, mouseYpos
+mouseXpos += fSize0
 If (click = 2)
 {
 	Gui, clone_frame_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_context_menu
@@ -1805,7 +1580,7 @@ Gui, clone_frame_preview_list: New, -Caption +E0x80000 +E0x20 +LastFound +Always
 Gui, clone_frame_preview_list: Show, NA
 Gui, clone_frame_preview_list_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview_list_frame
 Gui, clone_frame_preview_list_frame: Color, Red
-bmpPreview_list := Gdip_BitmapFromScreen(clone_frame_%A_GuiControl%_topleft_x "|" clone_frame_%A_GuiControl%_topleft_y "|" clone_frame_%A_GuiControl%_width "|" clone_frame_%A_GuiControl%_height)
+bmpPreview_list := Gdip_BitmapFromScreen(xScreenOffset + clone_frame_%A_GuiControl%_topleft_x "|" yScreenoffset + clone_frame_%A_GuiControl%_topleft_y "|" clone_frame_%A_GuiControl%_width "|" clone_frame_%A_GuiControl%_height)
 Gdip_GetImageDimensions(bmpPreview_list, WidthPreview_list, HeightPreview_list)
 hbmPreview_list := CreateDIBSection(WidthPreview_list, HeightPreview_list)
 hdcPreview_list := CreateCompatibleDC()
@@ -1892,8 +1667,6 @@ If (timeout != 1)
 	alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
 	IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
 	
-	IniWrite, %notepad_xpos%, ini\notepad.ini, UI, xcoord
-	IniWrite, %notepad_ypos%, ini\notepad.ini, UI, ycoord
 	IniWrite, %notepad_width%, ini\notepad.ini, UI, width
 	IniWrite, %notepad_height%, ini\notepad.ini, UI, height
 	notepad_text := StrReplace(notepad_text, "`n", ",,")
@@ -1922,26 +1695,70 @@ If (A_GuiControl = "imagesearch_variation")
 Return
 
 GUI:
+guilist .= InStr(guilist, "LLK_panel|") ? "" : "LLK_panel|"
 Gui, LLK_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_LLK_panel
 Gui, LLK_panel: Margin, 2, 2
 Gui, LLK_panel: Color, Black
 WinSet, Transparent, %trans%
 Gui, LLK_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
-If (enable_notepad = 1) || (enable_alarm = 1)
-	Gui, LLK_panel: Add, Text, Section Center BackgroundTrans vLLK_panel HWNDmain_text gSettings_menu, % "LLK:"
-Else Gui, LLK_panel: Add, Text, Section Center BackgroundTrans vLLK_panel HWNDmain_text gSettings_menu, % "LLK"
-ControlGetPos,, ypos,, height,, ahk_id %main_text%
-If (enable_notepad = 1)
-	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gNotepad", img\GUI\notepad.jpg
+Gui, LLK_panel: Add, Text, Section Center BackgroundTrans vLLK_panel HWNDmain_text gSettings_menu, % " LLK-UI "
+Gui, LLK_panel: Show, % "NA"
+WinGetPos,,, wPanel, hPanel, ahk_id %hwnd_LLK_panel%
+panel_xpos_target := (panel_xpos + wPanel > poe_width) ? poe_width - wPanel : panel_xpos ;correct coordinates if panel would end up out of client-bounds
+panel_ypos_target := (panel_ypos + hPanel > poe_height) ? poe_height - hPanel : panel_ypos ;correct coordinates if panel would end up out of client-bounds
+If (panel_xpos_target + wPanel >= poe_width - pixel_gamescreen_x1 - 1) && (panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+	panel_ypos_target := pixel_gamescreen_y1 + 2
+Gui, LLK_panel: Show, % "Hide x"xScreenOffset + panel_xpos_target " y"yScreenOffset + panel_ypos_target
+LLK_Overlay("LLK_panel", (hide_panel = 1) ? "hide" : "show")
+
 If (enable_alarm = 1)
-	Gui, LLK_panel: Add, Picture, % "ys x+6 Center BackgroundTrans hp w-1 gAlarm", img\GUI\alarm.jpg
-Gui, LLK_panel: Show, Hide
-WinGetPos,,, panel_width, panel_height
-panel_style := (hide_panel = 1) ? "hide" : "show"
-panel_xpos := (panel_position1 = "left") ? xScreenOffset : xScreenOffset + poe_width - panel_width
-panel_ypos := (panel_position0 = "bottom") ? yScreenOffset + poe_height - panel_height : yScreenOffset
-Gui, LLK_panel: Show, % "Hide x"panel_xpos " y"panel_ypos
-LLK_Overlay("LLK_panel", panel_style)
+{
+	guilist .= InStr(guilist, "alarm_panel|") ? "" : "alarm_panel|"
+	Gui, alarm_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_alarm_panel
+	Gui, alarm_panel: Margin, 0, 0
+	Gui, alarm_panel: Color, Black
+	;WinSet, TransColor, Black
+	;WinSet, Transparent, %trans%
+	Gui, alarm_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+	Gui, alarm_panel: Add, Picture, % "Center BackgroundTrans Border gAlarm w" alarm_panel_dimensions " h-1", img\GUI\alarm.jpg
+	alarm_panel_xpos_target := (alarm_panel_xpos + alarm_panel_dimensions + 2 > poe_width) ? poe_width - alarm_panel_dimensions - 1 : alarm_panel_xpos ;correct coordinates if panel would end up out of client-bounds
+	alarm_panel_ypos_target := (alarm_panel_ypos + alarm_panel_dimensions + 2 > poe_height) ? poe_height - alarm_panel_dimensions - 1 : alarm_panel_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (alarm_panel_xpos_target + alarm_panel_dimensions + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (alarm_panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		alarm_panel_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, alarm_panel: Show, % "NA x"xScreenOffset + alarm_panel_xpos_target  " y"yScreenoffset + alarm_panel_ypos_target
+	LLK_Overlay("alarm_panel", "show")
+}
+Else
+{
+	guilist := StrReplace(guilist, "alarm_panel|")
+	Gui, alarm_panel: Destroy
+	hwnd_alarm_panel := ""
+}
+
+If (enable_notepad = 1)
+{
+	guilist .= InStr(guilist, "notepad_panel|") ? "" : "notepad_panel|"
+	Gui, notepad_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_notepad_panel
+	Gui, notepad_panel: Margin, 0, 0
+	Gui, notepad_panel: Color, Black
+	;WinSet, TransColor, Black
+	;WinSet, Transparent, %trans%
+	Gui, notepad_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+	Gui, notepad_panel: Add, Picture, % "Center BackgroundTrans Border gNotepad w" notepad_panel_dimensions " h-1", img\GUI\notepad.jpg
+	notepad_panel_xpos_target := (notepad_panel_xpos + notepad_panel_dimensions + 2 > poe_width) ? poe_width - notepad_panel_dimensions - 1 : notepad_panel_xpos ;correct coordinates if panel would end up out of client-bounds
+	notepad_panel_ypos_target := (notepad_panel_ypos + notepad_panel_dimensions + 2 > poe_height) ? poe_height - notepad_panel_dimensions - 1 : notepad_panel_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (notepad_panel_xpos_target + notepad_panel_dimensions + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (notepad_panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		notepad_panel_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, notepad_panel: Show, % "NA x"xScreenOffset + notepad_panel_xpos_target " y"yScreenoffset + notepad_panel_ypos_target
+	LLK_Overlay("notepad_panel", "show")
+}
+Else
+{
+	guilist := StrReplace(guilist, "notepad_panel|")
+	Gui, notepad_panel: Destroy
+	hwnd_notepad_panel := ""
+}
+
 If (continue_alarm = 1)
 	GoSub, Alarm
 Return
@@ -2025,6 +1842,308 @@ If (hotstringboard = "") && (gwennen_regex != "ERROR" && gwennen_regex != "")
 }
 Return
 
+Init_alarm:
+IniRead, alarm_xpos, ini\alarm.ini, UI, xcoord, % poe_width/2
+IniRead, alarm_ypos, ini\alarm.ini, UI, ycoord, % poe_height/2
+IniRead, fSize_offset_alarm, ini\alarm.ini, Settings, font-offset
+If fSize_offset_alarm is not number
+	fSize_offset_alarm := 0
+IniRead, alarm_fontcolor, ini\alarm.ini, Settings, font-color, %A_Space%
+alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
+IniRead, alarm_trans, ini\alarm.ini, Settings, transparency
+If alarm_trans is not number
+	alarm_trans := 255
+IniRead, alarm_timestamp, ini\alarm.ini, Settings, alarm-timestamp, %A_Space%
+alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
+If (alarm_timestamp != "")
+	continue_alarm := 1
+IniRead, alarm_panel_offset, ini\alarm.ini, Settings, button-offset, 1
+alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
+IniRead, alarm_panel_xpos, ini\alarm.ini, UI, button xcoord, % poe_width/2 - (alarm_panel_dimensions + 2)/2
+IniRead, alarm_panel_ypos, ini\alarm.ini, UI, button ycoord, % poe_height - (alarm_panel_dimensions + 2)
+Return
+
+Init_betrayal:
+betrayal_divisions := "transportation,fortification,research,intervention"
+betrayal_color := ["White", "00D000", "Yellow", "E90000", "Aqua"]
+betrayal_shift_clicks := 0
+IniRead, betrayal_list, data\Betrayal.ini
+betrayal_list := StrReplace(betrayal_list, "version`n")
+Sort, betrayal_list, D`n
+IniRead, betrayal_ini_version_data, data\Betrayal.ini, Version, version, 1
+IniRead, betrayal_ini_version_user, ini\betrayal info.ini, Version, version, 0
+If !FileExist("ini\betrayal info.ini") || (betrayal_ini_version_user < betrayal_ini_version_data)
+{
+	betrayal_info_exists := FileExist("ini\betrayal info.ini") ? 1 : 0
+	IniWrite, %betrayal_ini_version_data%, ini\betrayal info.ini, Version, version
+	If (betrayal_info_exists = 0)
+	{
+		IniWrite, 0, ini\betrayal info.ini, Settings, font-offset
+		IniWrite, 220, ini\betrayal info.ini, Settings, transparency
+	}
+	Loop, Parse, betrayal_list, `n, `n
+	{
+		check := A_Loopfield
+		If (A_LoopField = "settings") || (A_Loopfield = "version")
+			continue
+		If (betrayal_info_exists = 0)
+			IniWrite, transportation=1`nfortification=1`nresearch=1`nintervention=1, ini\betrayal info.ini, %check%
+	}
+}
+IniRead, fSize_offset_betrayal, ini\betrayal info.ini, Settings, font-offset, 0
+IniRead, betrayal_trans, ini\betrayal info.ini, Settings, transparency, 220
+IniRead, betrayal_enable_recognition, ini\betrayal info.ini, Settings, enable image recognition, 0
+IniRead, betrayal_perma_table, ini\betrayal info.ini, Settings, permanent table, 0
+IniRead, betrayal_info_table_pos, ini\betrayal info.ini, Settings, table-position, left
+IniRead, betrayal_info_prio_dimensions, ini\betrayal info.ini, Settings, prioview-dimensions, 0
+IniRead, betrayal_info_prio_transportation, ini\betrayal info.ini, Settings, transportation coords, 0`,0
+IniRead, betrayal_info_prio_fortification, ini\betrayal info.ini, Settings, fortification coords, 0`,0
+IniRead, betrayal_info_prio_research, ini\betrayal info.ini, Settings, research coords, 0`,0
+IniRead, betrayal_info_prio_intervention, ini\betrayal info.ini, Settings, intervention coords, 0`,0
+Loop, Parse, betrayal_divisions, `,, `,
+{
+	%A_LoopField%_xcoord := (betrayal_info_prio_%A_LoopField% != "0,0") ? SubStr(betrayal_info_prio_%A_LoopField%, 1, InStr(betrayal_info_prio_%A_LoopField%, ",") - 1) : ""
+	%A_LoopField%_ycoord := (betrayal_info_prio_%A_LoopField% != "0,0") ? SubStr(betrayal_info_prio_%A_LoopField%, InStr(betrayal_info_prio_%A_LoopField%, ",") + 1) : ""
+}
+Return
+
+Init_cloneframes:
+If !FileExist("ini\clone frames.ini")
+	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
+IniRead, clone_frames_list, ini\clone frames.ini
+IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 1
+Loop, Parse, clone_frames_list, `n, `n
+{
+	If (A_LoopField = "Settings")
+		continue
+	IniRead, clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable, 0
+	If (clone_frame_%A_LoopField%_enable = 1)
+		clone_frames_enabled := (clone_frames_enabled = "") ? A_LoopField "," : A_LoopField "," clone_frames_enabled
+	IniRead, clone_frame_%A_LoopField%_topleft_x, ini\clone frames.ini, %A_LoopField%, source x-coordinate, 0
+	IniRead, clone_frame_%A_LoopField%_topleft_y, ini\clone frames.ini, %A_LoopField%, source y-coordinate, 0
+	IniRead, clone_frame_%A_LoopField%_width, ini\clone frames.ini, %A_LoopField%, frame-width, 200
+	IniRead, clone_frame_%A_LoopField%_height, ini\clone frames.ini, %A_LoopField%, frame-height, 200
+	IniRead, clone_frame_%A_LoopField%_target_x, ini\clone frames.ini, %A_LoopField%, target x-coordinate, % xScreenOffset + poe_width//2
+	IniRead, clone_frame_%A_LoopField%_target_y, ini\clone frames.ini, %A_LoopField%, target y-coordinate, % yScreenOffset + poe_height//2
+	IniRead, clone_frame_%A_LoopField%_scale_x, ini\clone frames.ini, %A_LoopField%, scaling x-axis, 100
+	IniRead, clone_frame_%A_LoopField%_scale_y, ini\clone frames.ini, %A_LoopField%, scaling y-axis, 100
+	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
+}
+Return
+
+Init_conversions:
+IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
+If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini") ;migrate pixel-check settings to screen-checks ini
+{
+	IniRead, pixel_gamescreen_color1, ini\pixel checks (%poe_height%p).ini, gamescreen, color 1
+	IniRead, convert_pixelchecks, ini\pixel checks (%poe_height%p).ini, gamescreen
+	IniWrite, % convert_pixelchecks, ini\screen checks (%poe_height%p).ini, gamescreen
+	FileDelete, ini\pixel checks*.ini
+}
+IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+FileReadLine, version_installed, version.txt, 1
+version_installed := StrReplace(version_installed, "`n")
+whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+whr.Open("GET", "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/version.txt", true)
+whr.Send()
+whr.WaitForResponse()
+version_online := StrReplace(whr.ResponseText, "`n")
+update_available := IsNumber(version_online) && (version_online > version_installed) ? 1 : 0
+Loop, 2
+{
+	Loop, Parse, % (A_Index = 1) ? version_installed : version_online
+	{
+		If (A_Index = 1)
+			parse := "v"
+		If (A_Index = 1 || A_Index = 3)
+			parse .= A_Loopfield "."
+		Else If (A_Index = 4 && A_Loopfield = 0)
+			continue
+		Else If (A_Loopfield = ".")
+			parse .= "-hotfix"
+		Else parse .= A_Loopfield
+	}
+	If (A_Index = 1)
+		version_installed := parse
+	Else version_online := parse
+}
+Return
+
+Init_geforce:
+IniRead, pixelsearch_variation, ini\geforce now.ini, Settings, pixel-check variation, 0
+IniRead, imagesearch_variation, ini\geforce now.ini, Settings, image-check variation, 25
+Return
+
+Init_general:
+IniRead, panel_xpos, ini\config.ini, UI, button xcoord, 0
+IniRead, panel_ypos, ini\config.ini, UI, button ycoord, 0
+IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
+
+IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
+IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
+IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
+IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
+
+IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
+IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
+fSize0 := fSize_config0 + fSize_offset
+fSize1 := fSize_config1 + fSize_offset
+Return
+
+Init_gwennen:
+IniRead, gwennen_regex, ini\gwennen.ini, regex, regex
+Return
+
+Init_legion:
+IniRead, fSize_offset_legion, ini\timeless jewels.ini, Settings, font-offset, 0
+Return
+
+Init_maps:
+Loop 16
+{
+	IniRead, maps_tier%A_Index%, data\Atlas.ini, Maps, tier%A_Index%
+	maps_list := (maps_list = "") ? StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),") : maps_list StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),")
+	Sort, maps_tier%A_Index%, D`,
+	maps_tier%A_Index% := SubStr(maps_tier%A_Index%, 1, -1)
+	maps_tier%A_Index% := StrReplace(maps_tier%A_Index%, ",", "`n")
+}
+Sort, maps_list, D`,
+Loop, Parse, maps_list, `,, `,
+{
+	If (A_Loopfield = "")
+		break
+	letter := SubStr(A_Loopfield, 1, 1)
+	maps_%letter% := (maps_%letter% = "") ? A_Loopfield : maps_%letter% "`n" A_Loopfield
+}
+
+IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
+If (map_info_pixelcheck_enable = 1)
+	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
+IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
+IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
+If fSize_offset_map_info is not number
+	fSize_offset_map_info := 0
+IniRead, map_info_short, ini\map info.ini, Settings, short descriptions, 1
+IniRead, map_info_xPos, ini\map info.ini, Settings, x-coordinate, 0
+map_info_side := (map_info_xPos >= poe_width//2) ? "right" : "left"
+IniRead, map_info_yPos, ini\map info.ini, Settings, y-coordinate, 0
+IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
+IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
+If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
+{
+	map_info_exists := FileExist("ini\map info.ini") ? 1 : 0
+	IniWrite, %map_mod_ini_version_data%, ini\map info.ini, Version, version
+	If (map_info_exists = 0)
+	{
+		IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
+		IniWrite, 0, ini\map info.ini, Settings, font-offset
+		IniWrite, 220, ini\map info.ini, Settings, transparency
+	}
+	IniRead, map_info_parse, data\Map mods.ini
+	Loop, Parse, map_info_parse, `n, `n
+	{
+		If (A_LoopField = "sample map") || (A_LoopField = "version")
+			continue
+		IniRead, parse_ID, data\Map mods.ini, %A_LoopField%, ID
+		If (map_info_short = 1)
+			IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text
+		Else IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text1
+		IniRead, parse_type, data\Map mods.ini, %A_LoopField%, type
+		IniRead, parse_rank, ini\map info.ini, %parse_ID%, rank
+		IniWrite, %parse_text%, ini\map info.ini, %parse_ID%, text
+		IniWrite, %parse_type%, ini\map info.ini, %parse_ID%, type
+		If (map_info_exists = 0) || (parse_rank = "") || (parse_rank = "ERROR")
+			IniWrite, 1, ini\map info.ini, %parse_ID%, rank
+	}
+}
+Return
+
+Init_notepad:
+IniRead, notepad_width, ini\notepad.ini, UI, width, 400
+IniRead, notepad_height, ini\notepad.ini, UI, height, 400
+IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
+If (notepad_text != "")
+	notepad_text := StrReplace(notepad_text, ",,", "`n")
+IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset, 0
+If fSize_offset_notepad is not number
+	fSize_offset_notepad := 0
+IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
+notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
+IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
+If notepad_trans is not number
+	notepad_trans := 255
+IniRead, notepad_panel_offset, ini\notepad.ini, Settings, button-offset, 1
+notepad_panel_dimensions := poe_width*0.03*notepad_panel_offset
+IniRead, notepad_panel_xpos, ini\notepad.ini, UI, button xcoord, % poe_width/2 - (notepad_panel_dimensions + 2)/2
+IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % poe_height - (notepad_panel_dimensions + 2)
+Return
+
+Init_omnikey:
+IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
+If (omnikey_hotkey != "")
+{
+	Hotkey, IfWinActive, ahk_group poe_ahk_window
+	Hotkey, *~%omnikey_hotkey%, Omnikey, On
+	Hotkey, *~MButton, Omnikey, Off
+	omnikey_hotkey_old := omnikey_hotkey
+}
+Else
+{
+	Hotkey, IfWinActive, ahk_group poe_ahk_window
+	Hotkey, *~MButton, Omnikey, On
+	omnikey_hotkey_old := "MButton"
+}
+Return
+
+Init_screenchecks:
+Sort, pixelchecks_list, D`,
+Loop, Parse, pixelchecks_list, `,, `,
+	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
+
+
+Sort, imagechecks_list, D`,
+Loop, Parse, imagechecks_list, `,, `,
+	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
+
+IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
+IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1
+IniRead, pixel_gamescreen_color1, ini\screen checks (%poe_height%p).ini, gamescreen, color 1
+
+If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+{
+	clone_frames_pixelcheck_enable := 0
+	map_info_pixelcheck_enable := 0
+	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+}
+Return
+
+Init_searchstrings:
+If !FileExist("ini\stash search.ini")
+	IniWrite, stash=`nvendor=, ini\stash search.ini, Settings
+IniRead, stash_search_check, ini\stash search.ini, Settings
+Loop, Parse, stash_search_usecases, `,, `,
+{
+	If !InStr(stash_search_check, A_Loopfield "=")
+		IniWrite, % A_Space, ini\stash search.ini, Settings, % A_Loopfield
+}
+Return
+
+Init_variables:
+trans := 220
+pixelchecks_enabled := "gamescreen,"
+imagesearch_variation := 25
+pixelsearch_variation := 0
+stash_search_usecases := "stash,vendor"
+Sort, stash_search_usecases, D`,
+pixelchecks_list := "gamescreen"
+imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
+guilist := "notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
+guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|"
+buggy_resolutions := "768,1024,1050"
+allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
+Return
+
 Lab_info:
 If (A_Gui = "context_menu") || InStr(A_ThisHotkey, ":")
 {
@@ -2090,27 +2209,25 @@ Legion_seeds:
 If (legion_profile = "")
 	IniRead, legion_profile, ini\timeless jewels.ini, Settings, profile, %A_Space%
 
-;If (legion_notables_array[1] = "") ;create array with all socket-relevant notables
+;create array with all socket-relevant notables
+legion_notables_array := []
+legion_tooltips_array := []
+IniRead, parse, data\timeless jewels\mod descriptions.ini, descriptions
+Loop, Parse, parse, `n, `n
+	legion_tooltips_array.Push(SubStr(A_Loopfield, 1, InStr(A_Loopfield, "=")-1))
+FileReadLine, legion_csv_parse, data\timeless jewels\brutal restraint.csv, 1
+Loop, Parse, legion_csv_parse, CSV
+	legion_notables_array.Push(StrReplace(A_LoopField, """"))
+legion_csv_parse := ""
+
+Loop, Files, data\timeless jewels\*.csv
 {
-	legion_notables_array := []
-	legion_tooltips_array := []
-	IniRead, parse, data\timeless jewels\mod descriptions.ini, descriptions
-	Loop, Parse, parse, `n, `n
-		legion_tooltips_array.Push(SubStr(A_Loopfield, 1, InStr(A_Loopfield, "=")-1))
-	FileReadLine, legion_csv_parse, data\timeless jewels\brutal restraint.csv, 1
-	Loop, Parse, legion_csv_parse, CSV
-		legion_notables_array.Push(StrReplace(A_LoopField, """"))
-	legion_csv_parse := ""
-	
-	Loop, Files, data\timeless jewels\*.csv
-	{
-		parse := StrReplace(A_LoopFileName, ".csv")
-		parse := StrReplace(parse, " ", "_")
-		IniRead, legion_%parse%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % StrReplace(parse, "_", " "), % A_Space
-	}
-		
-	IniRead, legion_treemap_notables, data\timeless jewels\Treemap.ini, all notables
+	parse := StrReplace(A_LoopFileName, ".csv")
+	parse := StrReplace(parse, " ", "_")
+	IniRead, legion_%parse%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % StrReplace(parse, "_", " "), % A_Space
 }
+	
+IniRead, legion_treemap_notables, data\timeless jewels\Treemap.ini, all notables
 
 If !WinExist("ahk_id " hwnd_legion_window) ;create GUI with blank text labels
 {
@@ -2148,16 +2265,9 @@ If !WinExist("ahk_id " hwnd_legion_window) ;create GUI with blank text labels
 	Gui, legion_window: Font, underline
 	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans y+8", resulting modifications:
 	Gui, legion_window: Font, norm
-	;Gui, legion_window: Add, Text, % "ys BackgroundTrans vlegion_toggle gLegion_seeds3 hp x"poe_height/2*0.95, % " > " ;img\GUI\legion_toggle1.png
 	
 	Loop 22
-	{
-		;If (A_Index = 1)
-			Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans", night of a thousand ribbons (11x)
-		;Else If (A_Index = 12)
-		;	Gui, legion_window: Add, Text, % "ys Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans w"(poe_height/4)*0.95, % A_Space
-		;Else Gui, legion_window: Add, Text, % "xs vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans wp", % A_Space
-	}
+		Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans", night of a thousand ribbons (11x)
 }
 
 If (legion_type_parse = "") ;placeholder values in case UI is accessed via .legion
@@ -2412,7 +2522,6 @@ If InStr(A_GuiControl, "legion_profile")
 		{
 			IniRead, ini_copy, ini\timeless jewels.ini, favorites%legion_profile%
 			IniWrite, % ini_copy, ini\timeless jewels.ini, % (StrReplace(A_GuiControl, "legion_profile") = "") ? "favorites" : "favorites_" StrReplace(A_GuiControl, "legion_profile")
-			;IniWrite, % ini_copy, ini\timeless jewels.ini, %
 		}
 		GoSub, Legion_seeds
 		Return
@@ -2465,20 +2574,9 @@ Else
 	Gui, legion_treemap2: Show, % "NA x"xScreenOffset " y"yScreenOffSet + poe_height - legion_window_width
 	LLK_Overlay("legion_treemap2", "show")
 }
-;LLK_Overlay("legion_treemap", "show")
 Return
 
-Legion_seeds3: ;create toggle-able list of all modifications
-/*
-If WinExist("ahk_id " hwnd_legion_list) && (A_Gui != "") && (A_Gui != "legion_treemap")
-{
-	Gui, legion_list: Destroy
-	hwnd_legion_list := ""
-	GuiControl, legion_window: text, legion_toggle, % " > "
-	Return
-}
-*/
-
+Legion_seeds3: ;create list of all modifications or notables
 If !WinExist("ahk_id " hwnd_legion_list)
 {
 	GuiControl, legion_window: text, legion_toggle, % " < "
@@ -2598,63 +2696,9 @@ If (click = 2) ;right-click notable labels to mark as desired
 		legion_%legion_type_parse2%_favs := InStr(legion_%legion_type_parse2%_favs, modtext) ? StrReplace(legion_%legion_type_parse2%_favs, modtext ",") : (legion_%legion_type_parse2%_favs = "") ? modtext "," : legion_%legion_type_parse2%_favs modtext ","
 		IniWrite, % legion_%legion_type_parse2%_favs, ini\timeless jewels.ini, favorites%legion_profile%, % legion_type_parse
 	}
-	;WinSet, Redraw,, ahk_id %hwnd_legion_window%
-	;WinSet, Redraw,, ahk_id %hwnd_legion_list%
 	GoSub, Legion_seeds
 	Return
 }
-
-/*
-start := A_TickCount
-While GetKeyState("LButton", "P") ;long-click keystone and notable labels to show their description
-{
-	If (A_TickCount >= start + 150)
-	{
-		MouseGetPos, mouseXpos, mouseYpos
-		Gui, legion_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu_help
-		Gui, legion_help: Color, Black
-		Gui, legion_help: Margin, 0, 0
-		;WinSet, Transparent, %trans%
-		Gui, legion_help: Font, s%fSize1% cWhite, Fontin SmallCaps
-
-		GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
-		modtext := InStr(modtext, "x)") ? SubStr(modtext, 1, -5) : modtext
-		If !LLK_ArrayHasVal(legion_notables_socket_array, modtext)
-		{
-			IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % modtext, 0
-			Loop, Parse, text, ?, ?
-			{
-				If (A_Loopfield = "")
-					continue
-				If (A_Index = 1)
-					Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"fSize0*15, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
-				Else Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
-			}
-		}
-		Else
-		{
-			target_column := LLK_ArrayHasVal(legion_notables_array, modtext)
-			target_key := legion_csvline_array[target_column]
-			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"fSize0*15, % legion_%legion_type_parse2%_mod%target_key%
-			IniRead, text, data\timeless jewels\mod descriptions.ini, descriptions, % legion_%legion_type_parse2%_mod%target_key%, n/a
-			Loop, Parse, text, ??, ??
-			{
-				If (A_Loopfield = "")
-					continue
-				Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"fSize0*15, % A_Loopfield
-			}
-		}
-		Gui, legion_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
-
-		WinGetPos, winx, winy, width, height, ahk_id %hwnd_settings_menu_help%
-		newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
-		Gui, legion_help: Show, % "NA x" mouseXpos + fSize0 " y"newypos
-		KeyWait, LButton
-		Gui, legion_help: Destroy
-		Return
-	}
-}
-*/
 
 GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
 If (InStr(A_GuiControl, "legion_modtext") || LLK_ArrayHasVal(legion_notables_socket_array, modtext)) && (modtext != "") && !InStr(modtext, "+5 devotion") ;click mod labels to highlight affected notables on the in-game passive tree
@@ -2697,7 +2741,6 @@ MouseGetPos, mouseXpos, mouseYpos,
 Gui, legion_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_legion_help
 Gui, legion_help: Color, Black
 Gui, legion_help: Margin, 0, 0
-;WinSet, Transparent, %trans%
 Gui, legion_help: Font, % "s"fSize1 + fSize_offset_legion " cWhite", Fontin SmallCaps
 
 GuiControlGet, modtext,, % hwnd_control_hover
@@ -2718,8 +2761,8 @@ If !LLK_ArrayHasVal(legion_notables_socket_array, modtext)
 		If (A_Loopfield = "")
 			continue
 		If (A_Index = 1)
-			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"width_hover, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
-		Else Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"width_hover, % (text = 0) ? "n/a" : A_Loopfield ;StrReplace(text, "?", "`n")
+			Gui, legion_help: Add, Text, % "BackgroundTrans Center Border w"width_hover, % (text = 0) ? "n/a" : A_Loopfield
+		Else Gui, legion_help: Add, Text, % "BackgroundTrans Center Border y+-1 w"width_hover, % (text = 0) ? "n/a" : A_Loopfield
 	}
 }
 Else
@@ -2862,11 +2905,14 @@ If !WinExist("ahk_group poe_window")
 {
 	poe_window_closed := 1
 	hwnd_poe_client := ""
+	ToolTip
+	update_available := 0
 }
 If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
 	ExitApp
 If WinExist("ahk_group poe_window")
 {
+	
 	last_check := A_TickCount
 	If (hwnd_poe_client = "")
 		hwnd_poe_client := WinExist("ahk_group poe_window")
@@ -2875,9 +2921,13 @@ If WinExist("ahk_group poe_window")
 		Sleep, 4000
 		If (fullscreen = "true")
 			WinMove, ahk_group poe_window,, %xScreenOffset%, %yScreenOffset%, %poe_width%, %custom_resolution%
-		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
+		Else WinMove, ahk_group poe_window,, % xScreenOffset - xborder, % (window_docking = 0) ? yScreenOffset - caption - yborder : yScreenOffset_monitor, % custom_width + xborder*2, % custom_resolution + caption + yborder*2
 		poe_height := custom_resolution
-		hwnd_poe_client := WinExist("ahk_group poe_window")
+	}
+	If (poe_window_closed = 1) && (custom_resolution_setting = 0) && (fullscreen != "true")
+	{
+		Sleep, 4000
+		WinMove, ahk_group poe_window,, % xScreenOffSet - xborder, % yScreenOffSet - caption - yborder
 	}
 	poe_window_closed := 0
 }
@@ -2918,6 +2968,7 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 	inactive_counter += 1
 	If (inactive_counter = 3)
 	{
+		;Gui, notepad_contextmenu: Destroy
 		Gui, context_menu: Destroy
 		Gui, stash_search_context_menu: Destroy
 		Gui, bestiary_menu: Destroy
@@ -2976,7 +3027,7 @@ If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) &
 				Break
 			If !WinExist("ahk_id " hwnd_%A_Loopfield%)
 				Gui, clone_frames_%A_Loopfield%: Show, NA
-			p%A_LoopField% := Gdip_BitmapFromScreen(clone_frame_%A_LoopField%_topleft_x "|" clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
+			p%A_LoopField% := Gdip_BitmapFromScreen(xScreenOffset + clone_frame_%A_LoopField%_topleft_x "|" yScreenOffset + clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
 			w%A_LoopField% := clone_frame_%A_LoopField%_width
 			h%A_LoopField% := clone_frame_%A_LoopField%_height
 			w%A_LoopField%_dest := clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100
@@ -2988,35 +3039,12 @@ If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) &
 			Gdip_SetInterpolationMode(g%A_LoopField%, 0)
 			Gdip_DrawImage(g%A_LoopField%, p%A_LoopField%, 0, 0, w%A_LoopField%_dest, h%A_LoopField%_dest, 0, 0, w%A_LoopField%, h%A_LoopField%, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
 			Gdip_DisposeImage(p%A_LoopField%)
-			UpdateLayeredWindow(hwnd_%A_LoopField%, hdc%A_LoopField%, clone_frame_%A_LoopField%_target_x, clone_frame_%A_LoopField%_target_y, w%A_LoopField%_dest, h%A_LoopField%_dest)
+			UpdateLayeredWindow(hwnd_%A_LoopField%, hdc%A_LoopField%, xScreenOffset + clone_frame_%A_LoopField%_target_x, yScreenOffset + clone_frame_%A_LoopField%_target_y, w%A_LoopField%_dest, h%A_LoopField%_dest)
 			SelectObject(hdc%A_Loopfield%, obm%A_Loopfield%)
 			DeleteObject(hbm%A_Loopfield%)
 			DeleteDC(hdc%A_Loopfield%)
 			Gdip_DeleteGraphics(g%A_Loopfield%)
 		}
-		
-		/*
-		hbmClone_frames := CreateDIBSection(poe_width, poe_height)
-		hdcClone_frames := CreateCompatibleDC()
-		obmClone_frames := SelectObject(hdcClone_frames, hbmClone_frames)
-		GClone_frames := Gdip_GraphicsFromHDC(hdcClone_frames)
-		Gdip_SetInterpolationMode(GClone_frames, 0)
-		
-		Loop, Parse, clone_frames_enabled, `,, `,
-		{
-			If (A_LoopField = "")
-				Break
-			bmpClone_frames := Gdip_BitmapFromScreen(clone_frame_%A_LoopField%_topleft_x "|" clone_frame_%A_LoopField%_topleft_y "|" clone_frame_%A_LoopField%_width "|" clone_frame_%A_LoopField%_height)
-			Gdip_GetImageDimensions(bmpClone_frames, WidthClone_frames, HeightClone_frames)
-			Gdip_DrawImage(GClone_frames, bmpClone_frames, clone_frame_%A_LoopField%_target_x - xScreenOffSet, clone_frame_%A_LoopField%_target_y - yScreenOffSet, clone_frame_%A_LoopField%_width * clone_frame_%A_LoopField%_scale_x//100, clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100, 0, 0, WidthClone_frames, HeightClone_frames, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
-			Gdip_DisposeImage(bmpClone_frames)
-		}
-		UpdateLayeredWindow(hwnd_clone_frames_window, hdcClone_frames, xScreenOffSet, yScreenOffSet, poe_width, poe_height)
-		SelectObject(hdcClone_frames, obmClone_frames)
-		DeleteObject(hbmClone_frames)
-		DeleteDC(hdcClone_frames)
-		Gdip_DeleteGraphics(GClone_frames)
-		*/
 	}
 	Else
 	{
@@ -3230,8 +3258,8 @@ Loop 2
 	}
 	If (A_Index = 1)
 	{
-		Gui, map_mods_window: Show, Hide
-		WinGetPos,,, width
+		Gui, map_mods_window: Show, NA
+		WinGetPos,,, width,, ahk_id %hwnd_map_mods_window%
 	}
 	Else
 	{
@@ -3240,25 +3268,27 @@ Loop 2
 		Gui, map_mods_toggle: Color, Black
 		WinSet, Transparent, %map_info_trans%
 		Gui, map_mods_toggle: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
-		Gui, map_mods_window: Show, NA
 		Gui, map_mods_toggle: Add, Text, BackgroundTrans %style_map_mods% Center gMap_mods_toggle, % map_mods_mod_count " + " Format("{:0.2f}", map_info_difficulty/map_info_mod_count)
 		Gui, map_mods_toggle: Show, NA
-		WinGetPos,,, width, height
-		map_info_xPos_target := (map_info_xPos > xScreenOffSet + poe_width//2) ? map_info_xPos - width : map_info_xPos
-		map_info_yPos_target := (map_info_yPos > yScreenOffSet + poe_height//2) ? map_info_yPos - height : map_info_yPos
+		WinGetPos,,, width, height, ahk_id %hwnd_map_mods_toggle%
+		map_info_xPos_target := (map_info_xPos > poe_width) ? poe_width : map_info_xPos
+		map_info_xPos_target := (map_info_xPos_target >= poe_width/2) ? map_info_xPos_target - width : map_info_xPos_target
+		map_info_yPos_target := (map_info_yPos + height > poe_height) ? poe_height - height : map_info_yPos
+		If (map_info_xPos >= poe_width - pixel_gamescreen_x1 - 1) && (map_info_yPos_target <= pixel_gamescreen_y1 + 1)
+			map_info_yPos_target := pixel_gamescreen_y1 + 1
 		Gui, map_mods_window: Show, NA
 		WinGetPos,,, width_window, height_window, ahk_id %hwnd_map_mods_window%
-		map_info_yPos_target1 := (map_info_yPos > yScreenOffSet + poe_height//2) ? map_info_yPos - height - height_window + 1 : map_info_yPos + height - 1
-		Gui, map_mods_window: Show, NA x%map_info_xPos_target% y%map_info_yPos_target1%
-		Gui, map_mods_toggle: Show, Hide x%map_info_xPos_target% y%map_info_yPos_target%
+		map_info_yPos_target1 := (map_info_yPos > poe_height/2) ? map_info_yPos_target - height_window + 1 : map_info_yPos_target + height - 1
+		Gui, map_mods_window: Show, % "NA x"xScreenOffset + map_info_xPos_target " y"yScreenOffset + map_info_yPos_target1
+		Gui, map_mods_toggle: Show, % "Hide x"xScreenOffset + map_info_xPos_target " y"yScreenOffset + map_info_yPos_target
 		LLK_Overlay("map_mods_toggle", "show")		
 		LLK_Overlay("map_mods_window", "show")
 		If WinExist("ahk_id " hwnd_map_info_menu) && !WinExist("ahk_id " hwnd_settings_menu)
 		{
-			WinGetPos, edit_x, edit_y, edit_width, edit_height, ahk_id %hwnd_map_info_menu%
-			edit_xPos := (map_info_xPos_target >= xScreenOffSet + poe_width//2) ? map_info_xPos_target - edit_width + 1 : map_info_xPos_target + width_window - 1
-			edit_yPos := (map_info_yPos_target1 + edit_height >= yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - edit_height : map_info_yPos_target1
-			WinMove, ahk_id %hwnd_map_info_menu%,, % edit_xPos, % edit_yPos
+			WinGetPos,,, edit_width, edit_height, ahk_id %hwnd_map_info_menu%
+			edit_xPos := (map_info_xPos_target >= poe_width/2) ? map_info_xPos_target - edit_width + 1 : map_info_xPos_target + width_window - 1
+			edit_yPos := (map_info_yPos_target1 + edit_height >= poe_height) ? poe_height - edit_height : map_info_yPos_target1
+			WinMove, ahk_id %hwnd_map_info_menu%,, % xScreenOffset + edit_xPos, % yScreenoffset +  edit_yPos
 		}
 		toggle_map_mods_panel := 1
 		map_mods_panel_fresh := 1
@@ -3318,9 +3348,7 @@ If (GuiControl_copy = "Map_info_search")
 	If (section != 0)
 	{
 		WinGetPos, winXpos, winYpos, winwidth, winheight, ahk_id %hwnd_settings_menu%
-		show_search_x := winXpos
-		show_search_y := winYpos + winheight
-		Gui, map_info_menu: Show, NA x%show_search_x% y%show_search_y%
+		Gui, map_info_menu: Show, % "NA x"winXpos " y"winYpos + winheight
 	}
 	Return
 }
@@ -3371,17 +3399,6 @@ If (map_info_side = "right")
 Else Gui, map_info_menu: Show, % "x"winx + winw - 1 " y"winy
 If (winy + height > yScreenOffSet + poe_height)
 	WinMove, ahk_id %hwnd_map_info_menu%,,, % yScreenOffSet + poe_height - height
-Return
-
-Map_info_drag:
-MouseGetPos, mouseXpos, mouseYpos
-mouseXpos := (mouseXpos >= width_native * 0.998) ? width_native : mouseXpos
-mouseYpos := (mouseYpos >= height_native * 0.998) ? height_native : mouseYpos
-xPos := (mouseXpos > xScreenOffSet + poe_width//2) ? mouseXpos - wToggle : mouseXpos
-yPos := (mouseYpos > yScreenOffSet + poe_height//2) ? mouseYpos - hToggle : mouseYpos
-yPos1 := (mouseYpos > yScreenOffSet + poe_height//2) ? mouseYpos - hToggle - hWindow + 1 : mouseYpos + hToggle - 1
-Gui, map_mods_toggle: Show, NA x%xPos% y%yPos%
-Gui, map_mods_window: Show, % "NA x"xPos " y"yPos1
 Return
 
 Map_info_settings_apply:
@@ -3468,23 +3485,18 @@ While GetKeyState("LButton", "P")
 		}
 		If !WinExist("ahk_id " hwnd_map_mods_window)
 			LLK_Overlay("map_mods_window", "show")
-		WinGetPos,,, wToggle, hToggle, ahk_id %hwnd_map_mods_toggle%
-		WinGetPos,,,, hWindow, ahk_id %hwnd_map_mods_window%
+		WinGetPos,,, wGui, hGui, ahk_id %hwnd_map_mods_toggle%
+		WinGetPos,,,, hGui2, ahk_id %hwnd_map_mods_window%
 		While GetKeyState("LButton", "P")
-			GoSub, Map_info_drag
+			GoSub, Panel_drag
 		KeyWait, LButton
-		If (mouseXpos >= xScreenOffSet + poe_width - pixel_gamescreen_x1 - 1) && (mouseYpos <= yScreenOffSet + pixel_gamescreen_y1 + 1)
-		{
-			WinMove, ahk_id %hwnd_map_mods_toggle%,,, % yScreenOffSet + pixel_gamescreen_y1 + 2
-			WinMove, ahk_id %hwnd_map_mods_window%,,, % yScreenOffSet + pixel_gamescreen_y1 + 1 + hToggle
-			mouseYpos := yScreenOffSet + pixel_gamescreen_y1 + 2
-		}
-		map_info_xPos := mouseXpos
-		map_info_yPos := mouseYpos
-		map_info_side := (mouseXpos > xScreenOffSet + poe_width//2) ? "right" : "left"
-		IniWrite, % mouseXpos, ini\map info.ini, Settings, x-coordinate
-		IniWrite, % mouseYpos, ini\map info.ini, Settings, y-coordinate
+		map_info_xPos := (panelXpos >= poe_width/2) ? panelXpos + wGui : panelXpos
+		map_info_yPos := panelYpos
+		map_info_side := (map_info_xPos > poe_width//2) ? "right" : "left"
+		IniWrite, % map_info_xPos, ini\map info.ini, Settings, x-coordinate
+		IniWrite, % map_info_yPos, ini\map info.ini, Settings, y-coordinate
 		GoSub, map_info
+		WinActivate, ahk_group poe_window
 		Return
 	}
 }
@@ -3513,93 +3525,371 @@ WinActivate, ahk_group poe_window
 Return
 
 Notepad:
+start := A_TickCount
+Gui, notepad_edit: Submit, NoHide
+While GetKeyState("LButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		If InStr(A_Gui, "notepad_drag")
+		{
+			notepad_gui := "notepad" StrReplace(A_Gui, "notepad_drag")
+			WinGetPos,,, wGui2, hGui2, % "ahk_id " hwnd_%notepad_gui%
+		}
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		If InStr(A_GuiControl, "notepad_drag")
+		{
+			LLK_Overlay(notepad_gui, "show")
+			LLK_Overlay(A_Gui, "show")
+		}
+		Else
+		{
+			notepad_panel_xpos := panelXpos
+			notepad_panel_ypos := panelYpos
+			IniWrite, % notepad_panel_xpos, ini\notepad.ini, UI, button xcoord
+			IniWrite, % notepad_panel_ypos, ini\notepad.ini, UI, button ycoord
+		}
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
+If InStr(A_GuiControl, "notepad_drag")
+{
+	If (A_GuiControl = "notepad_drag_grouped")
+	{
+		notepad_grouptext := (click = 1) ? (notepad_grouptext > 1) ? notepad_grouptext - 1 : notepad_grouptext : (notepad_grouptext < notepad_notes.Length()) ? notepad_grouptext + 1 : notepad_grouptext
+		SetTextAndResize(hwnd_notepad_header, "note " notepad_grouptext "/" notepad_notes.Length() , "s" fSize_notepad, "Fontin SmallCaps")
+		SetTextAndResize(hwnd_notepad_text, notepad_notes[notepad_grouptext] , "s" fSize_notepad, "Fontin SmallCaps")
+		Gui, notepad: Show, NA Autosize
+		WinGetPos, notepad_drag_xPos, notepad_drag_yPos, wDrag, hDrag, ahk_id %hwnd_notepad_drag%
+		WinGetPos,,, width, height, ahk_id %hwnd_notepad%
+		xPos := (notepad_drag_xPos > xScreenOffSet + poe_width/2) ? notepad_drag_xPos - width + wDrag : notepad_drag_xPos
+		yPos := (notepad_drag_yPos > yScreenOffSet + poe_height/2) ? notepad_drag_yPos - height + hDrag : notepad_drag_yPos
+		Gui, notepad: Show, % "NA x"xPos " y"yPos
+		Gui, notepad_drag: Show, NA
+	}
+	If (A_GuiControl = "notepad_drag") && (click = 2)
+	{
+		gui := StrReplace(A_Gui, "notepad_drag")
+		LLK_Overlay("notepad" gui, "hide")
+		LLK_Overlay("notepad_drag" gui, "hide")
+		Gui, notepad%gui%: Destroy
+		hwnd_notepad%gui% := ""
+		Gui, notepad_drag%gui%: Destroy
+		hwnd_notepad_drag%gui% := ""
+	}
+	WinActivate, ahk_group poe_window
+	Return
+}
 notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
 fSize_notepad := fSize0 + fSize_offset_notepad
+
+If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_context_")
+{	
+	LLK_Overlay("notepad_edit", "hide")
+	notepad_text := StrReplace(notepad_text, "[", "(")
+	notepad_text := StrReplace(notepad_text, "]", ")")
+	notepad_anchor := poe_height*0.14
+	
+	If (A_GuiControl = "notepad_context_simple") || (GuiControl_copy = "notepad_context_simple")
+	{
+		Gui, notepad_drag: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad_drag
+		Gui, notepad_drag: Margin, 0, 0
+		Gui, notepad_drag: Color, Black
+		WinSet, Transparent, % (notepad_trans < 250) ? notepad_trans + 30 : notepad_trans
+		Gui, notepad_drag: Font, % "s"fSize_notepad//2, Fontin SmallCaps
+		Gui, notepad_drag: Add, Text, x0 y0 BackgroundTrans Center vnotepad_drag gNotepad HWNDhwnd_notepad_dragbutton, % "    "
+		ControlGetPos,,, wDrag,,, ahk_id %hwnd_notepad_dragbutton%
+		
+		text := ""
+		If InStr(notepad_text, "#") && InStr(notepad_text, "endignore")
+		{
+			Loop, Parse, notepad_text, "#", "#"
+			{
+				If (A_Loopfield = "") || InStr(A_Loopfield, "endignore")
+					continue
+				text := A_Loopfield
+				text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : text
+				text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
+				break
+			}
+		}
+		
+		Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
+		Gui, notepad: Margin, % wDrag + 2, 0
+		Gui, notepad: Color, Black
+		WinSet, Transparent, %notepad_trans%
+		Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
+		Gui, notepad: Add, Text, BackgroundTrans, % (text = "") ? (SubStr(notepad_text, 0) = "`n")? SubStr(notepad_text, 1, -1) : notepad_text : text
+		Gui, notepad: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+		Gui, notepad_drag: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+		LLK_Overlay("notepad", "show")
+		LLK_Overlay("notepad_drag", "show")
+		notepad_edit := 0
+		WinActivate, ahk_group poe_window
+	}
+	If (A_GuiControl = "notepad_context_multi") || (GuiControl_copy = "notepad_context_multi")
+	{
+		loop := ""
+		Loop, Parse, notepad_text, "#", "#"
+		{
+			If (A_Loopfield = "") || InStr(A_Loopfield, "endignore")
+				continue
+			gui := loop
+			loop += 1
+			Gui, notepad_drag%gui%: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad_drag%gui%
+			Gui, notepad_drag%gui%: Margin, 0, 0
+			Gui, notepad_drag%gui%: Color, Black
+			WinSet, Transparent, % (notepad_trans < 250) ? notepad_trans + 30 : notepad_trans
+			Gui, notepad_drag%gui%: Font, % "s"fSize_notepad//2, Fontin SmallCaps
+			Gui, notepad_drag%gui%: Add, Text, x0 y0 BackgroundTrans Center vnotepad_drag gNotepad HWNDhwnd_notepad_dragbutton, % "    "
+			ControlGetPos,,, wDrag,,, ahk_id %hwnd_notepad_dragbutton%
+			
+			Gui, notepad%gui%: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad%gui%, notepad
+			Gui, notepad%gui%: Margin, % wDrag + 2, 0
+			Gui, notepad%gui%: Color, Black
+			WinSet, Transparent, %notepad_trans%
+			Gui, notepad%gui%: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
+			text := (SubStr(A_Loopfield, 1, 1) = " ") ? SubStr(A_Loopfield, 2) : A_Loopfield
+			text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
+			Gui, notepad%gui%: Add, Text, BackgroundTrans, % text
+			Gui, notepad%gui%: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+			Gui, notepad_drag%gui%: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+			WinGetPos,,,, height, % "ahk_id " hwnd_notepad%gui%
+			notepad_anchor += height*1.1
+			
+			guilist .= InStr(guilist, "notepad_drag" gui "|") ? "" : "notepad_drag" gui "|"
+			guilist .= InStr(guilist, "notepad" gui "|") ? "" : "notepad" gui "|"
+			LLK_Overlay("notepad" gui, "show")
+			LLK_Overlay("notepad_drag" gui, "show")
+		}
+		notepad_edit := 0
+		WinActivate, ahk_group poe_window
+	}
+	If (A_GuiControl = "notepad_context_grouped") || (GuiControl_copy = "notepad_context_grouped")
+	{
+		loop := 0
+		notepad_notes := []
+		Loop, Parse, notepad_text, "#", "#"
+		{
+			If (A_LoopField = "") || InStr(A_Loopfield, "endignore")
+				continue
+			loop += 1
+			text := (SubStr(A_Loopfield, 1, 1) = " ") ? SubStr(A_Loopfield, 2) : A_Loopfield
+			text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
+			notepad_notes.Push(text)
+		}
+		Gui, notepad_drag: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad_drag
+		Gui, notepad_drag: Margin, 0, 0
+		Gui, notepad_drag: Color, Black
+		WinSet, Transparent, % (notepad_trans < 250) ? notepad_trans + 30 : notepad_trans
+		Gui, notepad_drag: Font, % "s"fSize_notepad//2, Fontin SmallCaps
+		Gui, notepad_drag: Add, Text, x0 y0 BackgroundTrans Center vnotepad_drag_grouped gNotepad HWNDhwnd_notepad_dragbutton, % "    "
+		ControlGetPos,,, wDrag,,, ahk_id %hwnd_notepad_dragbutton%
+		
+		Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
+		Gui, notepad: Margin, % wDrag + 2, 0
+		Gui, notepad: Color, Black
+		WinSet, Transparent, %notepad_trans%
+		Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad% underline, Fontin SmallCaps
+		Gui, notepad: Add, Text, BackgroundTrans HWNDhwnd_notepad_header, % "note 1/" loop
+		Gui, notepad: Font, norm
+		Gui, notepad: Add, Text, BackgroundTrans HWNDhwnd_notepad_text y+0, % notepad_notes[1]
+		Gui, notepad: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+		Gui, notepad_drag: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
+		LLK_Overlay("notepad", "show")
+		LLK_Overlay("notepad_drag", "show")
+		notepad_edit := 0
+		notepad_grouptext := 1
+		WinActivate, ahk_group poe_window
+	}
+	GuiControl_copy := ""
+	Return
+}
+
 If (A_Gui = "settings_menu")
 {
-	Gui, notepad: Submit, NoHide
-	Gui, notepad: Destroy
-	hwnd_notepad := ""
+	Gui, notepad_edit: Submit, NoHide
+	notepad_text := StrReplace(notepad_text, "[", "(")
+	notepad_text := StrReplace(notepad_text, "]", ")")
+	Loop
+	{
+		If !LLK_hwnd("hwnd_notepad")
+			break
+		If (A_Index = 1)
+		{
+			Gui, notepad: Destroy
+			hwnd_notepad := ""
+			Gui, notepad_drag: Destroy
+			hwnd_notepad_drag := ""
+		}
+		Gui, notepad%A_Index%: Destroy
+		hwnd_notepad%A_Index% := ""
+		Gui, notepad_drag%A_Index%: Destroy
+		hwnd_notepad_drag%A_Index% := ""
+	}
 	Gui, notepad_sample: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_notepad_sample, Lailloken UI: overlay-text preview
 	Gui, notepad_sample: Margin, 12, 4
 	Gui, notepad_sample: Color, Black
 	WinSet, Transparent, %notepad_trans%
 	Gui, notepad_sample: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
 	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what the`nnotepad-overlay looks`nlike with the current`nsettings
-	If (notepad_sample_xpos != "") && (notepad_sample_ypos != "")
-		Gui, notepad_sample: Show, Hide x%notepad_sample_xpos% y%notepad_sample_ypos% AutoSize
-	Else
-	{
-		Gui, notepad_sample: Show, % "Hide AutoSize"
-		WinGetPos,,, win_width, win_height
-		Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width//2 - win_width//2 " y"yScreenOffSet
-	}
+	Gui, notepad_sample: Show, % "NA AutoSize"
+	WinGetPos,,, win_width, win_height, ahk_id %hwnd_notepad_sample%
+	Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width/2 - win_width/2 " y"yScreenOffSet
 	LLK_Overlay("notepad_sample", "show")
 	Return
 }
-If (click = 2) || (hwnd_notepad = "")
+
+If (click = 2) || (!WinExist("ahk_id " hwnd_notepad_edit) && !LLK_hwnd("hwnd_notepad"))
 {
-	If !WinExist("ahk_id " hwnd_notepad) && (click = 2)
+	If !WinExist("ahk_id " hwnd_notepad_edit) && (click = 2) && !LLK_WinExist("hwnd_notepad")
 	{
 		WinActivate, ahk_group poe_window
 		Return
 	}
-	If WinExist("ahk_id " hwnd_notepad)
-		Gui, notepad: Submit, NoHide
-	If (notepad_text != "") || (hwnd_notepad = "")
+	If WinExist("ahk_id " hwnd_notepad_edit)
 	{
-		If (notepad_edit = 1) || (hwnd_notepad = "")
+		Gui, notepad_edit: Submit, NoHide
+		WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
+		notepad_width -= xborder*2
+		notepad_height -= caption + yborder*2
+		notepad_text := StrReplace(notepad_text, "[", "(")
+		notepad_text := StrReplace(notepad_text, "]", ")")
+	}
+	If (notepad_text != "") || !WinExist("ahk_id " hwnd_notepad_edit)
+	{
+		If (notepad_edit = 0) || !WinExist("ahk_id " hwnd_notepad_edit)
 		{
-			Gui, notepad: New, -DPIScale +Resize +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_notepad, Lailloken-UI: notepad
-			Gui, notepad: Margin, 12, 4
-			Gui, notepad: Color, Black
+			Loop
+			{
+				If (A_Index = 1)
+				{
+					Gui, notepad: Destroy
+					hwnd_notepad := ""
+					Gui, notepad_drag: Destroy
+					hwnd_notepad_drag := ""
+				}
+				If (hwnd_notepad%A_Index% = "")
+					break
+				Gui, notepad%A_Index%: Destroy
+				hwnd_notepad%A_Index% := ""
+				Gui, notepad_drag%A_Index%: Destroy
+				hwnd_notepad_drag%A_Index% := ""
+			}
+			;LLK_Overlay("notepad_drag", "hide")
+			Gui, notepad_edit: New, -DPIScale +Resize +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_notepad_edit, Lailloken-UI: notepad
+			Gui, notepad_edit: Margin, 12, 4
+			Gui, notepad_edit: Color, Black
 			WinSet, Transparent, 220
-			Gui, notepad: Font, cBlack s%fSize_notepad%, Fontin SmallCaps
-			Gui, notepad: Add, Edit, x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
-			Gui, notepad: Show, x%notepad_xpos% y%notepad_ypos% w%notepad_width% h%notepad_height%
+			Gui, notepad_edit: Font, cBlack s%fSize_notepad%, Fontin SmallCaps
+			Gui, notepad_edit: Add, Edit, x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
+			Gui, notepad_edit: Show, % "x"xScreenOffset + poe_width/2 - notepad_width/2 " y"yScreenOffset + poe_height/2 - notepad_height/2 " w"notepad_width " h"notepad_height
 			SendInput, {Right}
-			notepad_edit := 0
+			notepad_edit := 1
 		}
 		Else
 		{
-			WinGetPos, notepad_xpos, notepad_ypos,,, ahk_id %hwnd_notepad%
-			Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
-			Gui, notepad: Margin, 12, 4
-			Gui, notepad: Color, Black
-			WinSet, Transparent, %notepad_trans%
-			Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
-			Gui, notepad: Add, Text, BackgroundTrans, %notepad_text%
-			Gui, notepad: Show, NA x%notepad_xpos% y%notepad_ypos% AutoSize
-			notepad_edit := 1
-			WinActivate, ahk_group poe_window
+			If LLK_InStrCount(notepad_text, "#")
+			{
+				MouseGetPos, mouseXpos, mouseYpos
+				Gui, notepad_contextmenu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_notepad_contextmenu
+				Gui, notepad_contextmenu: Margin, 4, 2
+				Gui, notepad_contextmenu: Color, Black
+				WinSet, Transparent, %trans%
+				Gui, notepad_contextmenu: Font, s%fSize0% cWhite, Fontin SmallCaps
+				Gui, notepad_contextmenu: Add, Text, vnotepad_context_simple gNotepad BackgroundTrans Center, simple
+				Gui, notepad_contextmenu: Add, Text, vnotepad_context_multi gNotepad BackgroundTrans Center, multi
+				Gui, notepad_contextmenu: Add, Text, vnotepad_context_grouped gNotepad BackgroundTrans Center, grouped
+				Gui, notepad_contextmenu: Show, NA
+				WinGetPos,,, width, height, ahk_id %hwnd_notepad_contextmenu%
+				mouseXpos := (mouseXpos + width > xScreenOffSet + poe_width) ? xScreenOffset + poe_width - width : mouseXpos
+				mouseYpos := (mouseYpos + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : mouseYpos
+				Gui, notepad_contextmenu: Show, % "x"mouseXpos " y"mouseYpos
+				WinWaitNotActive, ahk_id %hwnd_notepad_contextmenu%
+				Gui, notepad_contextmenu: destroy
+			}
+			Else
+			{
+				GuiControl_copy := "notepad_context_simple"
+				GoSub, Notepad
+				Return
+			}
 		}
 	}
 	Return
 }
 
-If WinExist("ahk_id " hwnd_notepad)
+If WinExist("ahk_id " hwnd_notepad_edit)
 {
-	If (notepad_edit != 1)
-		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
-	Gui, notepad: Submit, NoHide
-	If notepad_edit = 0
+	If (notepad_edit != 0)
 	{
-		Gui, notepad: Destroy
-		hwnd_notepad := ""
+		WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
+		notepad_width -= xborder*2
+		notepad_height -= caption + yborder*2
 	}
-	Else LLK_Overlay("notepad", "hide")
-	WinActivate, ahk_group poe_window
+	Gui, notepad: Submit, NoHide
+	notepad_text := StrReplace(notepad_text, "[", "(")
+	notepad_text := StrReplace(notepad_text, "]", ")")
+	If (notepad_edit = 1)
+		LLK_Overlay("notepad_edit", "hide")
 }
-Else LLK_Overlay("notepad", "show", 1)
+Else
+{
+	If LLK_WinExist("hwnd_notepad")
+	{
+		Loop 100
+		{
+			If (A_Index = 1) && (hwnd_notepad != "")
+			{
+				LLK_Overlay("notepad", "hide")
+				LLK_Overlay("notepad_drag", "hide")
+			}
+			If (hwnd_notepad%A_Index% != "")
+			{
+				LLK_Overlay("notepad" A_Index, "hide")
+				LLK_Overlay("notepad_drag" A_Index, "hide")
+			}
+		}
+		WinActivate, ahk_group poe_window
+	}
+	Else
+	{
+		Loop 100
+		{
+			If (A_Index = 1) && (hwnd_notepad != "")
+			{
+				LLK_Overlay("notepad", "show")
+				LLK_Overlay("notepad_drag", "show")
+			}
+			If (hwnd_notepad%A_Index% != "")
+			{
+				LLK_Overlay("notepad" A_Index, "show")
+				LLK_Overlay("notepad_drag" A_Index, "show")
+			}
+		}
+	}
+}
+WinActivate, ahk_group poe_window
 Return
 
-NotepadGuiClose:
-If WinExist("ahk_id " hwnd_notepad)
+Notepad_editGuiClose:
+If WinExist("ahk_id " hwnd_notepad_edit)
 {
-	If (notepad_edit != 1)
-		WinGetPos, notepad_xpos, notepad_ypos, notepad_width, notepad_height, ahk_id %hwnd_notepad%
-	Gui, notepad: Submit, NoHide
-	LLK_Overlay("notepad", "hide")
+	If (notepad_edit != 0)
+	{
+		WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
+		notepad_width -= xborder*2
+		notepad_height -= caption + yborder*2
+	}
+	Gui, notepad_edit: Submit, NoHide
+	notepad_text := StrReplace(notepad_text, "[", "(")
+	notepad_text := StrReplace(notepad_text, "]", ")")
+	Gui, notepad_edit: Destroy
+	hwnd_notepad_edit := ""
 }
 Return
 
@@ -3672,7 +3962,6 @@ If (clipboard != "")
 	}
 	If InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Fragment")
 	{
-		
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
 		{
@@ -3704,29 +3993,15 @@ If (clipboard != "")
 			LLK_ToolTip("pixel-check setup required")
 			Return
 		}
+		Gui, map_info_menu: Destroy
+		hwnd_map_info_menu := ""
 		GoSub, Map_info
 		Return
 	}
 }
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
-/*
-If (clipboard = "") && WinExist("ahk_id " hwnd_legion_window)
-{
-	If WinExist("ahk_id " hwnd_legion_list)
-	{
-		Gui, legion_list: Destroy
-		hwnd_legion_list := ""
-		GuiControl, legion_window: text, legion_toggle, % " > "
-		Return
-	}
-	Else
-	{
-		GoSub, Legion_seeds3
-		Return
-	}
-}
-*/
+
 If (clipboard = "") && (gamescreen = 0)
 {
 	LLK_ImageSearch()
@@ -3870,6 +4145,14 @@ If (class="Gloves") || (class="Boots") || (class="Body Armours") || (class="Helm
 }
 If InStr(A_GuiControl, "crafting_table")
 {
+	If InStr(clipboard, "unset ring")
+		wiki_term := "Unset_Ring"
+	If InStr(clipboard, "iron flask")
+		wiki_term := "Iron_Flask"
+	If InStr(clipboard, "convoking wand")
+		wiki_term := "Convoking_Wand"
+	If InStr(clipboard, "silver flask")
+		wiki_term := "Silver_Flask"
 	If InStr(wiki_term, "abyss_jewel")
 	{
 		wiki_index := InStr(clipboard, "rarity: normal") ? 3 : 4
@@ -4046,6 +4329,35 @@ If (InStr(clipboard, "runic") && InStr(clipboard, "ward:"))
 Else Run, https://poewiki.net/wiki/%wiki_term%
 Return
 
+Panel_drag:
+MouseGetPos, panelXpos, panelYpos
+panelXpos := (panelXpos >= xScreenOffSet + poe_width*0.998) ? xScreenOffSet + poe_width : panelXpos ;snap panel to edge when close (MouseGetPos coords are off by one pixel when on the edge)
+panelXpos := (panelXpos < xScreenOffSet) ? xScreenOffSet : panelXpos
+panelXpos := (panelXpos >= xScreenOffSet + poe_width/2) ? panelXpos - wGui : panelXpos
+panelYpos := (panelYpos >= yScreenOffset + poe_height*0.998) ? yScreenOffSet + poe_height : panelYpos ;snap panel to edge when close (MouseGetPos coords are off by one pixel when on the edge)
+panelYpos := (panelYpos < yScreenOffset) ? yScreenOffset : panelYpos
+panelYpos := (panelYpos >= yScreenOffSet + poe_height/2) ? panelYpos - hGui : panelYpos
+panelXpos -= xScreenOffSet
+panelYpos -= yScreenOffSet
+If (panelXpos + wGui >= poe_width - pixel_gamescreen_x1 - 1) && (panelYpos <= pixel_gamescreen_y1 + 1) ;protect pixel-check area
+	panelYpos := pixel_gamescreen_y1 + 2
+Gui, %A_Gui%: Show, % "NA x"xScreenOffSet + panelXpos " y"yScreenOffSet + panelYpos
+If InStr(A_Gui, "map_mods")
+{
+	panelYpos2 := (panelYpos >= poe_height/2) ? panelYpos - hGui2 + 1 : panelYpos + hGui - 1
+	Gui, map_mods_window: Show, % "NA x"xScreenOffSet + panelXpos " y"yScreenOffSet + panelYpos2
+}
+If InStr(A_Gui, "notepad_drag")
+{
+	notepad_drag_xPos := panelXpos
+	notepad_drag_yPos := panelYpos
+	notepad_gui := "notepad" StrReplace(A_Gui, "notepad_drag")
+	panelXpos2 := (panelXpos >= poe_width/2) ? panelXpos - wGui2 + wGui : panelXpos
+	panelYpos2 := (panelYpos >= poe_height/2) ? panelYpos - hGui2 + hGui : panelYpos
+	Gui, %notepad_gui%: Show, % "NA x"xScreenOffSet + panelXpos2 " y"yScreenOffSet + panelYpos2
+}
+Return
+
 Recombinators:
 mod_pool_count := []
 mod_pool_count[0] := 1 "," 1 "," 1
@@ -4154,34 +4466,6 @@ Loop, Parse, parse_clipboard, `n, `n
 		prefix_%A_Index% := StrReplace(prefix_%A_Index%, " (crafted)")
 		suffix_%A_Index% := StrReplace(suffix_%A_Index%, " (crafted)")
 	}
-	/*
-	If ((SubStr(A_Loopfield, 1, 1) = "{") && InStr(A_LoopField, "prefix"))
-	{
-		prefixes += 1
-		affix := "prefix"
-		brace_expected := 0
-	}
-	Else If (SubStr(A_LoopField, 1, 1) != "{") && (SubStr(A_LoopField, 1, 1) != "(")
-	{
-		If (brace_expected = 1)
-			break
-		%affix%_%prefixes% := (%affix%_%prefixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%prefixes% " / " StrReplace(A_Loopfield, "`r")
-		brace_expected := InStr(A_Loopfield, "`r") ? 1 : 0
-	}
-	If ((SubStr(A_Loopfield, 1, 1) = "{") && InStr(A_LoopField, "suffix"))
-	{
-		suffixes += 1
-		affix := "suffix"
-		brace_expected := 0
-	}
-	Else If (SubStr(A_LoopField, 1, 1) != "{") && (SubStr(A_LoopField, 1, 1) != "(")
-	{
-		If (brace_expected = 1)
-			break
-		%affix%_%suffixes% := (%affix%_%suffixes% = "") ? StrReplace(A_Loopfield, "`r") : %affix%_%suffixes% " / " StrReplace(A_Loopfield, "`r")
-		brace_expected := InStr(A_Loopfield, "`r") ? 1 : 0
-	}
-	*/
 }
 
 remove_chars := "+-0123456789()%."
@@ -4217,27 +4501,6 @@ Loop 3
 		StringLower, %affix%_%loop%, %affix%_%loop%_clean
 		%affix%_%loop% := (%affix%_%loop% = "") ? "(empty " affix " slot)" : %affix%_%loop%
 	}
-	/*
-	prefix_%A_Index% := (prefix_%A_Index% = "") ? "(empty prefix slot)" : prefix_%A_Index%
-	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 4) = " to ") ? SubStr(prefix_%A_Index%_clean, 5) : prefix_%A_Index%_clean
-	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 4) = " of ") ? SubStr(prefix_%A_Index%_clean, 5) : prefix_%A_Index%_clean
-	prefix_%A_Index%_clean := (SubStr(prefix_%A_Index%_clean, 1, 1) = " ") ? SubStr(prefix_%A_Index%_clean, 2) : prefix_%A_Index%_clean
-	prefix_%A_Index%_clean := InStr(prefix_%A_Index%_clean, "/  to ") ? StrReplace(prefix_%A_Index%_clean, "/  to ", "/ ") : prefix_%A_Index%_clean
-	prefix_%A_Index%_clean := InStr(prefix_%A_Index%_clean, "/  ") ? StrReplace(prefix_%A_Index%_clean, "/  ", "/ ") : prefix_%A_Index%_clean
-	prefix_%A_Index%_clean := StrReplace(prefix_%A_Index%_clean, "  to  ", " ")
-	prefix_%A_Index%_clean := StrReplace(prefix_%A_Index%_clean, "  ", " ")
-	StringLower, prefix_%A_Index%, prefix_%A_Index%_clean
-	prefix_%A_Index% := (prefix_%A_Index% = "") ? "(empty prefix slot)" : prefix_%A_Index%
-	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 4) = " to ") ? SubStr(suffix_%A_Index%_clean, 5) : suffix_%A_Index%_clean
-	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 4) = " of ") ? SubStr(suffix_%A_Index%_clean, 5) : suffix_%A_Index%_clean
-	suffix_%A_Index%_clean := (SubStr(suffix_%A_Index%_clean, 1, 1) = " ") ? SubStr(suffix_%A_Index%_clean, 2) : suffix_%A_Index%_clean
-	suffix_%A_Index%_clean := InStr(suffix_%A_Index%_clean, "/  to ") ? StrReplace(suffix_%A_Index%_clean, "/  to ", "/ ") : suffix_%A_Index%_clean
-	suffix_%A_Index%_clean := InStr(suffix_%A_Index%_clean, "/  ") ? StrReplace(suffix_%A_Index%_clean, "/  ", "/ ") : suffix_%A_Index%_clean
-	suffix_%A_Index%_clean := StrReplace(suffix_%A_Index%_clean, "  to  ", " ")
-	suffix_%A_Index%_clean := StrReplace(suffix_%A_Index%_clean, "  ", " ")
-	StringLower, suffix_%A_Index%, suffix_%A_Index%_clean
-	suffix_%A_Index% := (suffix_%A_Index% = "") ? "(empty suffix slot)" : suffix_%A_Index%
-	*/
 }
 
 recomb_item2 := (recomb_item1 = "") ? "" : recomb_item1
@@ -4300,7 +4563,6 @@ If (recomb_item2 != "")
 			continue
 		If (A_Index < 8)
 			prefix_pool_unique := !InStr(prefix_pool_unique, "[" A_LoopField "],") ? prefix_pool_unique "[" A_Loopfield "]," : prefix_pool_unique
-			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
 		If (A_Index > 7)
 			suffix_pool_unique := !InStr(suffix_pool_unique, "[" A_LoopField "],") ? suffix_pool_unique "[" A_LoopField "]," : suffix_pool_unique
 	}
@@ -4310,7 +4572,6 @@ If (recomb_item2 != "")
 			continue
 		If (A_Index < 8)
 			prefix_pool_unique := !InStr(prefix_pool_unique, "[" A_LoopField "],") ? prefix_pool_unique "[" A_Loopfield "]," : prefix_pool_unique
-			;prefix_pool := !InStr(prefix_pool, A_LoopField) ? prefix_pool "`n" A_LoopField : prefix_pool
 		If (A_Index > 7)
 			suffix_pool_unique := !InStr(suffix_pool_unique, "[" A_LoopField "],") ? suffix_pool_unique "[" A_LoopField "]," : suffix_pool_unique
 	}
@@ -4322,8 +4583,6 @@ If (recomb_item2 != "")
 	Gui, recombinator_window: Font, % "norm s"fSize0 - 3
 	Loop, Parse, prefix_pool_unique, `,, `,
 	{
-		;If InStr(A_LoopField, "(empty")
-		;	continue
 		If (A_Loopfield = "")
 			continue
 		Gui, recombinator_window: Add, Checkbox, % "xs wp BackgroundTrans gRecombinators_calc vCheckbox_prefix"A_Index, % SubStr(A_LoopField, 2, -1)
@@ -4373,9 +4632,6 @@ ControlFocus,, ahk_id %prefix_header%
 If (recomb_regular != 1)
 	Gui, recombinator_window: Show, %style_recomb_window%
 Else Gui, recombinator_window: Show, NA %style_recomb_window%
-;If (recomb_regular = 1)
-;	LLK_Overlay("recombinator_window", "show")
-;Else LLK_Overlay("recombinator_window", "show")
 KeyWait, LButton
 Gui, context_menu: Destroy
 If (recomb_apply != 1) && (recomb_regular = 1)
@@ -4414,7 +4670,7 @@ Loop 3
 }
 recomb_item1 := recomb_item1_name "`n" recomb_item1_class "`n`n" recomb_item1_prefix1 "`n" recomb_item1_prefix2 "`n" recomb_item1_prefix3 "`n`n" recomb_item1_suffix1 "`n" recomb_item1_suffix2 "`n" recomb_item1_suffix3
 recomb_item2 := recomb_item2_name "`n" recomb_item2_class "`n`n" recomb_item2_prefix1 "`n" recomb_item2_prefix2 "`n" recomb_item2_prefix3 "`n`n" recomb_item2_suffix1 "`n" recomb_item2_suffix2 "`n" recomb_item2_suffix3
-;ToolTip, % recomb_item1_prefix1 "," recomb_item1_prefix2 "," recomb_item1_prefix3 "," recomb_item1_suffix1 "," recomb_item1_suffix2 "," recomb_item1_suffix3 "`n" recomb_item2_prefix1 "," recomb_item2_prefix2 "," recomb_item2_prefix3 "," recomb_item2_suffix1 "," recomb_item2_suffix2 "," recomb_item2_suffix3 "`n"
+;(debugging) ToolTip, % recomb_item1_prefix1 "," recomb_item1_prefix2 "," recomb_item1_prefix3 "," recomb_item1_suffix1 "," recomb_item1_suffix2 "," recomb_item1_suffix3 "`n" recomb_item2_prefix1 "," recomb_item2_prefix2 "," recomb_item2_prefix3 "," recomb_item2_suffix1 "," recomb_item2_suffix2 "," recomb_item2_suffix3 "`n"
 GoSub, Recombinators_add2
 Return
 
@@ -4516,6 +4772,54 @@ refresh_needed := 1
 GuiControl, Text, recomb_success, refresh
 Return
 
+Resolution_check:
+If InStr(buggy_resolutions, poe_height) || !InStr(supported_resolutions, "," poe_height "p")
+{
+	If InStr(buggy_resolutions, poe_height)
+	{
+text =
+(
+Unsupported resolution detected!
+
+The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
+
+I have decided to end support for this resolution.
+You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+
+You also have to enable "confine mouse to window" in the game's UI options.
+)
+	}
+	Else If !InStr(supported_resolutions, "," poe_height "p")
+	{
+	
+text =
+(
+Unsupported resolution detected!
+
+The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
+
+You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+
+You also have to enable "confine mouse to window" in the game's UI options.
+)
+	}
+	MsgBox, % text
+	safe_mode := 1
+	GoSub, settings_menu
+	sleep, 2000
+	Loop
+	{
+		If !WinExist("ahk_id " hwnd_settings_menu)
+		{
+			MsgBox, The script will now shut down.
+			ExitApp
+		}
+		Sleep, 100
+	}
+	Return
+}
+Return
+
 Screenchecks:
 If (click = 2)
 {
@@ -4579,15 +4883,6 @@ If InStr(A_GuiControl, "disable_imagecheck")
 	GoSub, Settings_menu
 	Return
 }
-/*
-If InStr(A_GuiControl, "disable_pixelcheck")
-{
-	IniWrite, % %A_GuiControl%, ini\screen checks (%poe_height%p).ini, % StrReplace(A_GuiControl, "disable_pixelcheck_"), disable
-	IniDelete, ini\screen checks (%poe_height%p).ini, % StrReplace(A_GuiControl, "disable_pixelcheck_")
-	GoSub, Settings_menu
-	Return
-}
-*/
 If (A_GuiControl = "image_folder")
 {
 	Run, explore img\Recognition (%poe_height%p)\GUI\
@@ -4614,8 +4909,26 @@ Return
 
 Settings_menu:
 SetTimer, Settings_menu, Delete
+start := A_TickCount
+While GetKeyState("LButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		panel_xpos := panelXpos
+		panel_ypos := panelYpos
+		IniWrite, % panel_xpos, ini\config.ini, UI, button xcoord
+		IniWrite, % panel_ypos, ini\config.ini, UI, button ycoord
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
 If (A_GuiControl = "LLK_panel") && (click = 2)
 {
+	KeyWait, RButton
 	Reload
 	ExitApp
 }
@@ -4644,7 +4957,7 @@ If (A_Gui = "settings_menu")
 	Gui, settings_menu: Submit
 	kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 }
-Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu, Lailloken UI: settings
+Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu, Lailloken UI: settings
 Gui, settings_menu: Color, Black
 Gui, settings_menu: Margin, 12, 4
 WinSet, Transparent, %trans%
@@ -4791,6 +5104,11 @@ If (enable_alarm = 1)
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_minus gApply_settings_alarm Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_plus gApply_settings_alarm Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_minus gApply_settings_alarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gApply_settings_alarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_plus gApply_settings_alarm Border x+2 wp", % "+"
 }
 Return
 
@@ -4884,51 +5202,39 @@ Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack Number gApply
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) w/o poe-client"
 
-;If (windowed_mode != 1)
+Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
+If (fullscreen = "true")	
+	Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans HWNDmain_text vcustom_width x+"fSize0//2, % poe_width
+Else
 {
-	Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
-	If (fullscreen = "true") ;InStr(supported_resolutions, poe_height "p")	
-		Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans HWNDmain_text vcustom_width x+"fSize0//2, % poe_width
-	Else
-	{
-		Gui, settings_menu: Font, % "s"fSize0-4
-		Gui, settings_menu: Add, Edit, % "ys hp Limit4 Number Right cBlack BackgroundTrans vcustom_width HWNDmain_text x+"fSize0//2, % width_native ;(poe_width > width_native) ? width_native : poe_width
-		GuiControl, text, custom_width, % poe_width
-		Gui, settings_menu: Font, % "s"fSize0
-	}
-	Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans x+0", %  " x "
-	ControlGetPos,,,, height,, ahk_id %main_text%
-	ControlGetPos,,, width,,, ahk_id %main_text%
-	resolutionsDDL := ""
-	IniRead, resolutions_all, data\Resolutions.ini
-	choice := 0
-	Loop, Parse, resolutions_all, `n,`n
-		If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native) && !((StrReplace(A_Loopfield, "p") >= height_native) && (fullscreen != "true"))
-			resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
-	resolutionsDDL := (resolutionsDDL = "") ? height_native : resolutionsDDL
-	Loop, Parse, resolutionsDDL, |, |
-		If (A_LoopField = poe_height)
-			choice := A_Index
-	choice := (choice = 0) ? 1 : choice
 	Gui, settings_menu: Font, % "s"fSize0-4
-	Gui, settings_menu: Add, DDL, % "ys BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " x+0 w"width*1.5 " hp", % resolutionsDDL
+	Gui, settings_menu: Add, Edit, % "ys hp Limit4 Number Right cBlack BackgroundTrans vcustom_width HWNDmain_text x+"fSize0//2, % width_native
+	GuiControl, text, custom_width, % poe_width
 	Gui, settings_menu: Font, % "s"fSize0
-	If (fullscreen = "false")
-		Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" window_docking " vwindow_docking gApply_resolution", % "top-docked"
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
-	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_resolution", % "apply on startup "
 }
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center HWNDmain_text y+"fSize0*1.2, % "panel position:"
+Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans x+0", %  " x "
+ControlGetPos,,,, height,, ahk_id %main_text%
 ControlGetPos,,, width,,, ahk_id %main_text%
+resolutionsDDL := ""
+IniRead, resolutions_all, data\Resolutions.ini
+choice := 0
+Loop, Parse, resolutions_all, `n,`n
+	If !(InStr(A_LoopField, "768") || InStr(A_LoopField, "1024") || InStr(A_LoopField, "1050")) && !(StrReplace(A_LoopField, "p", "") > height_native) && !((StrReplace(A_Loopfield, "p") >= height_native) && (fullscreen != "true"))
+		resolutionsDDL := (resolutionsDDL = "") ? StrReplace(A_LoopField, "p", "") : StrReplace(A_LoopField, "p", "") "|" resolutionsDDL
+resolutionsDDL := (resolutionsDDL = "") ? height_native : resolutionsDDL
+Loop, Parse, resolutionsDDL, |, |
+	If (A_LoopField = poe_height)
+		choice := A_Index
+choice := (choice = 0) ? 1 : choice
 Gui, settings_menu: Font, % "s"fSize0-4
-If (panel_position0 = "top")
-	Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top||bottom"
-Else Gui, settings_menu: Add, DDL, % "hp x+6 ys BackgroundTrans Border Center vpanel_position0 gApply_settings_general r2 w"width*0.6, % "top|bottom||"
-If (panel_position1 = "left") || (panel_position1 = "")
-	Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left||right"
-Else Gui, settings_menu: Add, DDL, % "hp x+2 ys BackgroundTrans Border Center vpanel_position1 gApply_settings_general r2 w"width*0.6, % "left|right||"
-	Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide panel"
+Gui, settings_menu: Add, DDL, % "ys BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " x+0 w"width*1.5 " hp", % resolutionsDDL
+Gui, settings_menu: Font, % "s"fSize0
+If (fullscreen = "false")
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" window_docking " vwindow_docking gApply_resolution", % "top-docked"
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
+Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_resolution", % "apply on startup "
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general y+"fSize0*1.2, % "hide llk-ui panel"
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
@@ -5243,6 +5549,11 @@ If (enable_notepad = 1)
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_minus gApply_settings_notepad Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_plus gApply_settings_notepad Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_minus gApply_settings_notepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_reset gApply_settings_notepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_plus gApply_settings_notepad Border x+2 wp", % "+"
 }
 Return
 
@@ -5325,8 +5636,6 @@ Loop, Parse, stash_search_list, `n, `n
 		continue
 	If stash_search_%loopfield_copy%_enable is not number
 		IniRead, stash_search_%loopfield_copy%_enable, ini\stash search.ini, %A_LoopField%, enable, 1
-	;If (stash_search_%loopfield_copy%_enable = 1)
-	;	stash_searches_enabled := (stash_searches_enabled = "") ? A_LoopField "," : A_LoopField "," stash_searches_enabled
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gStash_search_apply Checked" stash_search_%loopfield_copy%_enable " vStash_search_" loopfield_copy "_enable", % "enable: "
 	Gui, settings_menu: Font, underline
 	text := StrReplace(A_Loopfield, "_", " ")
@@ -5443,16 +5752,6 @@ GuiControl_copy := StrReplace(A_GuiControl, "stash_search_")
 GuiControl_copy := StrReplace(GuiControl_copy, "_enable")
 GuiControl_copy := StrReplace(GuiControl_copy, "vertbar", "|")
 IniWrite, % %A_GuiControl%, ini\stash search.ini, % GuiControl_copy, enable
-/*
-Loop, Parse, stash_search_usecases, `,, `,
-{
-	IniRead, stash_search_%A_Loopfield%_parse, ini\stash search.ini, Settings, % A_Loopfield
-	If (%A_GuiControl% = 1) && !InStr(stash_search_%A_Loopfield%_parse, "(" GuiControl_copy "),")
-		IniWrite, % stash_search_%A_Loopfield%_parse "(" GuiControl_copy "),", ini\stash search.ini, Settings, % A_Loopfield
-	Else If (%A_GuiControl% = 0) && InStr(stash_search_%A_Loopfield%_parse, "(" GuiControl_copy "),")
-		IniWrite, % StrReplace(stash_search_%A_Loopfield%_parse, "(" GuiControl_copy "),"), ini\stash search.ini, Settings, % A_Loopfield
-}
-*/
 Return
 
 Stash_search_delete:
@@ -5674,62 +5973,6 @@ Loop 2
 	}
 }
 
-/*
-If (stash_search_new_scroll = 1)
-{
-	parse_string := ""
-	numbers := 0
-	Loop, Parse, stash_search_new_string
-	{
-		If A_Loopfield is number
-			parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
-		Else parse_string := (parse_string = "") ? "," : parse_string ","
-	}
-	Loop, Parse, parse_string, `,, `,
-	{
-		If A_Loopfield is number
-			numbers += 1
-		If (numbers > 1)
-		{
-			LLK_ToolTip("cannot scroll:`nstring 1 has more than`none number", 2)
-			Return
-		}
-	}
-	If (numbers = 0)
-	{
-		LLK_ToolTip("cannot scroll:`nstring 1 has no number")
-		Return
-	}
-}
-
-If (stash_search_new_scroll1 = 1)
-{
-	parse_string := ""
-	numbers := 0
-	Loop, Parse, stash_search_new_string1
-	{
-		If A_Loopfield is number
-			parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
-		Else parse_string := (parse_string = "") ? "," : parse_string ","
-	}
-	Loop, Parse, parse_string, `,, `,
-	{
-		If A_Loopfield is number
-			numbers += 1
-		If (numbers > 1)
-		{
-			LLK_ToolTip("cannot scroll:`nstring 2 has more than`none number", 2)
-			Return
-		}
-	}
-	If (numbers = 0)
-	{
-		LLK_ToolTip("cannot scroll:`nstring 2 has no number")
-		Return
-	}
-}
-*/
-
 stash_search_new_name_save := ""
 Loop, Parse, stash_search_new_name
 {
@@ -5752,20 +5995,6 @@ Loop, Parse, stash_search_usecases, `,, `,
 	Else If (stash_search_use_%A_Loopfield% = 0) && InStr(ThisUsecase, "(" stash_search_new_name_save "),")
 		IniWrite, % StrReplace(ThisUsecase, "(" stash_search_new_name_save "),"), ini\stash search.ini, Settings, % A_Loopfield
 }
-/*
-Loop, Parse, usecases, `,, `,
-{
-	If (A_Loopfield = "")
-		continue
-	IniRead, ThisUsecase, ini\stash search.ini, Settings, % SubStr(A_Loopfield, 2, -1), % A_Space
-	If !InStr(ThisUsecase, "(" stash_search_new_name_save "),")
-	{
-		If (ThisUsecase = "")
-			IniWrite, % "(" stash_search_new_name_save "),", ini\stash search.ini, Settings, % SubStr(A_Loopfield, 2, -1)
-		Else IniWrite, % ThisUsecase "(" stash_search_new_name_save "),", ini\stash search.ini, Settings, % SubStr(A_Loopfield, 2, -1)
-	}
-}
-*/
 
 stash_search_new_string := (SubStr(stash_search_new_string, 0) = ";") ? SubStr(stash_search_new_string, 1, -1) : stash_search_new_string
 stash_search_new_string := StrReplace(stash_search_new_string, ";;", ";")
@@ -6017,6 +6246,30 @@ LLK_Omnikey_ToolTip(text:=0)
 	Gui, omnikey_tooltip: Show, % "NA AutoSize x"tooltip_posX " y"tooltip_posy
 }
 
+LLK_WinExist(hwnd)
+{
+	global
+	Loop, 100
+	{
+		check := hwnd A_Index
+		If WinExist("ahk_id " %hwnd%) || WinExist("ahk_id " %check%)
+			Return 1
+	}
+	Return 0
+}
+
+LLK_hwnd(hwnd)
+{
+	global
+	Loop, 100
+	{
+		check := hwnd A_Index
+		If (%hwnd% != "") || (%check% != "")
+			Return 1
+	}
+	Return 0
+}
+
 LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
 {
 	global
@@ -6108,28 +6361,27 @@ LLK_Rightclick()
 LLK_MouseMove()
 {
 	global
-	If (A_TickCount < last_hover + 25) && (last_hover != "")
+	If (A_TickCount < last_hover + 25) && (last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
 		Return
 	last_hover := A_TickCount
 	MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
 	If (hwnd_win_hover = hwnd_legion_help)
 		Gui, legion_help: Destroy
-	If (hwnd_win_hover = hwnd_legion_treemap2) && !WinExist("ahk_id " hwnd_legion_treemap)
+	
+	If (hwnd_win_hover = hwnd_legion_treemap2) && !WinExist("ahk_id " hwnd_legion_treemap) ;magnify passive tree on hover
 	{
 		LLK_Overlay("legion_treemap", "show")
 		SetTimer, Legion_seeds_hover_check, 250
 	}
 	Else If (hwnd_win_hover != hwnd_legion_treemap) && WinExist("ahk_id " hwnd_legion_treemap)
 		LLK_Overlay("legion_treemap", "hide")
-	;If (hwnd_win_hover = hwnd_legion_window || hwnd_win_hover = hwnd_legion_list || hwnd_win_hover = hwnd_legion_treemap) && !WinActive("ahk_id " hwnd_win_hover)
-	;	WinActivate, ahk_id %hwnd_win_hover%
-	If (hwnd_control_hover != last_control_hover)
+	
+	If (hwnd_control_hover != last_control_hover) ;only update hover-tooltip when hovered control is different from previous update
 	{
 		last_control_hover := hwnd_control_hover
 		If (hwnd_win_hover = hwnd_legion_window || hwnd_win_hover = hwnd_legion_list)
 			GoSub, Legion_seeds_hover
 	}
-	
 }
 
 LLK_ToolTip(message, duration := 1, x := "", y := "")
