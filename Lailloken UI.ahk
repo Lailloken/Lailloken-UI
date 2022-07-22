@@ -2905,6 +2905,8 @@ If !WinExist("ahk_group poe_window")
 {
 	poe_window_closed := 1
 	hwnd_poe_client := ""
+	ToolTip
+	update_available := 0
 }
 If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
 	ExitApp
