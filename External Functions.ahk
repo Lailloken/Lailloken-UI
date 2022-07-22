@@ -9780,3 +9780,13 @@ Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight,
     , "int",sd, "cdecl int")
     Return ( E == "" ? -3007 : E )
 }
+
+SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
+{
+	Gui 9: Font, %fontOptions%, %fontName%
+	Gui 9: Add, Text, R1, %newText%
+	GuiControlGet T, 9: Pos, Static1
+	Gui 9: Destroy
+	GuiControl,, %controlHwnd%, %newText%
+	GuiControl, Move, %controlHwnd%, % "h" TH " w" TW
+}
