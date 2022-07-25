@@ -4,6 +4,8 @@
 #InstallMouseHook
 #Hotstring NoMouse
 #Hotstring EndChars `n
+#MaxThreads 100
+#MaxMem 1024
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "LLK_Rightclick")
 OnMessage(0x0200, "LLK_MouseMove")
@@ -121,6 +123,14 @@ Gui, Test: Destroy
 IniRead, supported_resolutions, data\Resolutions.ini
 supported_resolutions := "," StrReplace(supported_resolutions, "`n", ",")
 
+WinGet, poe_log_file, ProcessPath, ahk_group poe_window
+poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
+If FileExist(poe_log_file)
+{
+	Loop, Read, % poe_log_file
+		log_linecount += 1
+}
+
 If (fullscreen = "false")
 {
 	poe_width -= xborder*2
@@ -190,6 +200,7 @@ GoSub, Init_general
 GoSub, Init_alarm
 GoSub, Init_betrayal
 GoSub, Init_cloneframes
+GoSub, Init_delve
 If WinExist("ahk_exe GeForceNOW.exe")
 	GoSub, Init_geforce
 GoSub, Init_gwennen
@@ -201,6 +212,8 @@ GoSub, Init_searchstrings
 GoSub, Init_conversions
 
 SetTimer, Loop, 1000
+If (enable_delve = 1) && (enable_delvelog = 1) && FileExist(poe_log_file)
+	SetTimer, Log_loop, 5000
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -212,6 +225,7 @@ GoSub, Resolution_check
 SoundBeep, 100
 GoSub, GUI
 GoSub, Recombinators
+GoSub, Delve
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
 GoSub, Screenchecks_gamescreen
@@ -312,6 +326,11 @@ If (update_available = 1)
 {
 	ToolTip
 	update_available := 0
+	Return
+}
+If WinExist("ahk_id " hwnd_delve_grid)
+{
+	LLK_Overlay("delve_grid", "hide")
 	Return
 }
 If WinActive("ahk_id " hwnd_recombinator_window)
@@ -1658,6 +1677,402 @@ guilist := InStr(guilist, clone_frame_new_name_save) ? guilist : guilist "clone_
 GoSub, Clone_frames_menuGuiClose
 Return
 
+Delve:
+If (A_GuiControl = "enable_delve")
+{
+	Gui, settings_menu: Submit, NoHide
+	If (enable_delve = 0)
+	{
+		LLK_Overlay("delve_panel", "hide")
+		Gui, delve_grid: Destroy
+		hwnd_delve_grid := ""
+	}
+	If (enable_delve = 1) && FileExist(poe_log_file) && (enable_delvelog = 1)
+		SetTimer, Log_loop, 5000
+	If (enable_delve = 1) && !FileExist(poe_log_file)
+		LLK_Overlay("delve_panel", "show")
+	IniWrite, % enable_delve, ini\config.ini, Features, enable delve
+	GoSub, Settings_menu
+	Return
+}
+If (A_GuiControl = "enable_delvelog")
+{
+	Gui, settings_menu: Submit, NoHide
+	If (enable_delvelog = 1) && (enable_delve = 1) && FileExist(poe_log_file)
+	{
+		SetTimer, Log_loop, 5000
+		LLK_Overlay("delve_panel", "hide")
+	}
+	If (enable_delvelog = 0)
+		LLK_Overlay("delve_panel", "show")
+	IniWrite, % enable_delvelog, ini\delve.ini, Settings, enable log-scanning
+	Return
+}
+
+If InStr(A_GuiControl, "delvegrid_")
+{
+	If (A_GuiControl = "delvegrid_minus")
+		delve_gridwidth -= 1
+	If (A_GuiControl = "delvegrid_reset")
+		delve_gridwidth := Floor(poe_height*0.73/8)
+	If (A_GuiControl = "delvegrid_plus")
+		delve_gridwidth += 1
+	IniWrite, % delve_gridwidth, ini\delve.ini, UI, grid dimensions
+}
+start := A_TickCount
+While GetKeyState("LButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		delve_panel_xpos := panelXpos
+		delve_panel_ypos := panelYpos
+		IniWrite, % delve_panel_xpos, ini\delve.ini, UI, button xcoord
+		IniWrite, % delve_panel_ypos, ini\delve.ini, UI, button ycoord
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
+
+If WinExist("ahk_id " hwnd_delve_grid) && (A_Gui != "settings_menu")
+	LLK_Overlay("delve_grid", "hide")
+Else If !WinExist("ahk_id " hwnd_delve_grid) && (hwnd_delve_grid != "") && (A_Gui != "settings_menu")
+	LLK_Overlay("delve_grid", "show")
+
+If (click = 2) || (hwnd_delve_grid = "") || (A_Gui = "settings_menu")
+{
+	Gui, delve_grid: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_delve_grid
+	Gui, delve_grid: Margin, 0, 0
+	Gui, delve_grid: Color, White
+	WinSet, Transparent, 75
+	Gui, delve_grid: Font, % "s"fSize1 " cRed", Fontin SmallCaps
+	loop := 0
+	delve_hidden_nodes := ","
+	Loop 64
+	{
+		delve_node_%A_Index% := ""
+		delve_node%A_Index%_toggle := ""
+		delve_node_u%A_Index%_toggle := ""
+		delve_node_d%A_Index%_toggle := ""
+		delve_node_l%A_Index%_toggle := ""
+		delve_node_r%A_Index%_toggle := ""
+	}
+
+	Loop, % (Floor((poe_height*0.73)/(delve_gridwidth + 2)) < 9) ? Floor((poe_height*0.73)/(delve_gridwidth + 2)) : 8
+	{
+		Loop 8
+		{
+			loop += 1
+			If (A_Index = 1)
+				Gui, delve_grid: Add, Text, % "xs Section BackgroundTrans Center HWNDhwnd_delvenode" loop " Border w"delve_gridwidth + 2 " h"delve_gridwidth + 2, % (A_Gui = "settings_menu") ? "sample" : ""
+			Else Gui, delve_grid: Add, Text, % "ys BackgroundTrans Center HWNDhwnd_delvenode" loop " Border w"delve_gridwidth + 2 " h"delve_gridwidth + 2, % (A_Gui = "settings_menu") ? "sample" : ""
+			If (A_Gui != "settings_menu")
+			{
+				ControlGetPos, delve_nodeXpos, delve_nodeYpos,,,, % "ahk_id " hwnd_delvenode%loop%
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y"delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans Border vdelve_node" loop "  gDelve_calc w"delve_gridwidth/3 - 1 " h"delve_gridwidth/3 - 1, % "img\GUI\square_blank.png"
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y" delve_nodeYpos " BackgroundTrans vdelve_node_u" loop " gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos " y"delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans vdelve_node_l" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth*2/3 " y" delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans vdelve_node_r" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y" delve_nodeYpos + delve_gridwidth*2/3 " BackgroundTrans vdelve_node_d" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
+			}
+		}
+	}
+	Gui, delve_grid: Show, % "NA"
+	WinGetPos,,, width,, ahk_id %hwnd_delve_grid%
+	Gui, delve_grid: Show, % "NA y"yScreenOffSet + poe_height*0.08 " x"xScreenOffSet + poe_width/2 - width/2
+	LLK_Overlay("delve_grid", "show")
+	guilist .= InStr(guilist, "delve_grid|") ? "" : "delve_grid|"
+}
+Return
+
+Delve_calc:
+If InStr(A_GuiControl, "delve_node_") && (click = 1) ;clicking paths
+{
+	If (delve_hidden_nodes != ",")
+	{
+		LLK_ToolTip("uncheck the hidden node(s) before`nchanging surrounding paths")
+		Return
+	}
+	parse := A_GuiControl
+	While !IsNumber(SubStr(parse, 1, 1))
+		parse := SubStr(parse, 2)
+	If InStr(delve_hidden_nodes, "," parse ",")
+		Return
+	
+	GuiControlGet, test, delve_grid:, % A_GuiControl
+	%A_GuiControl%_toggle := (%A_GuiControl%_toggle = "") ? test : %A_GuiControl%_toggle
+	%A_GuiControl%_toggle := InStr(%A_GuiControl%_toggle, "blank") ? "img\GUI\square_black_opaque.png" : "img\GUI\square_blank.png"
+	GuiControl, delve_grid:, % A_GuiControl, % %A_GuiControl%_toggle
+	
+	delve_node_%parse% := InStr(delve_node_%parse%, SubStr(StrReplace(A_GuiControl, "delve_node_"), 1, 1) ",") ? StrReplace(delve_node_%parse%, SubStr(StrReplace(A_GuiControl, "delve_node_"), 1, 1) ",") : delve_node_%parse% SubStr(StrReplace(A_GuiControl, "delve_node_"), 1, 1) ","
+	If (delve_node_%parse% != "")
+		GuiControl, delve_grid:, delve_node%parse%, % "img\GUI\square_black_opaque.png"
+	Else GuiControl, delve_grid:, delve_node%parse%, % "img\GUI\square_blank.png"
+}
+
+If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") && (click = 1) ;QoL: toggle between four and zero connections when left-clicking nodes
+{
+	If (delve_hidden_nodes != ",")
+	{
+		LLK_ToolTip("uncheck the hidden node(s) before`nchanging surrounding paths")
+		Return
+	}
+	If (%A_GuiControl%_toggle = "") || InStr(%A_GuiControl%_toggle, "blank")
+	{
+		parse := StrReplace(A_GuiControl, "delve_node", "delve_node_")
+		%parse% := "u,d,l,r,"
+		%A_GuiControl%_toggle := "img\GUI\square_black_opaque.png"
+		GuiControl, delve_grid:, % A_GuiControl, % %A_GuiControl%_toggle
+		Loop, parse, delve_directions, `,, `,
+		{
+			parse := StrReplace(A_GuiControl, "delve_node", "delve_node_" A_Loopfield)
+			%parse%_toggle := "img\GUI\square_black_opaque.png"
+			GuiControl, delve_grid:, % parse, % %parse%_toggle
+		}
+	}
+	Else
+	{
+		parse := StrReplace(A_GuiControl, "delve_node", "delve_node_")
+		%parse% := ""
+		%A_GuiControl%_toggle := "img\GUI\square_blank.png"
+		GuiControl, delve_grid:, % A_GuiControl, % %A_GuiControl%_toggle
+		Loop, parse, delve_directions, `,, `,
+		{
+			parse := StrReplace(A_GuiControl, "delve_node", "delve_node_" A_Loopfield)
+			%parse%_toggle := "img\GUI\square_blank.png"
+			GuiControl, delve_grid:, % parse, % %parse%_toggle
+		}
+	}
+	Return
+}
+	
+If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;right-clicking nodes
+{
+	check := 0
+	Loop 64
+	{
+		If (delve_node_%A_Index% != "")
+		{
+			check := 1
+			break
+		}
+	}
+	If (check = 0) && !InStr(%A_GuiControl%_toggle, "fuchsia")
+	{
+		LLK_ToolTip("mark surrounding nodes first")
+		Return
+	}
+	parse := StrReplace(A_GuiControl, "delve_node", "delve_node_")
+	If (%parse% != "")
+		Return
+	GuiControlGet, test, delve_grid:, % A_GuiControl
+	%A_GuiControl%_toggle := (%A_GuiControl%_toggle = "") ? test : %A_GuiControl%_toggle
+	%A_GuiControl%_toggle := InStr(%A_GuiControl%_toggle, "blank") ? "img\GUI\square_fuchsia_opaque.png" : "img\Gui\square_blank.png"
+	delve_hidden_nodes := InStr(delve_hidden_nodes, "," StrReplace(A_GuiControl, "delve_node") ",") ? StrReplace(delve_hidden_nodes, StrReplace(A_GuiControl, "delve_node") ",") : delve_hidden_nodes StrReplace(A_GuiControl, "delve_node") ","
+	GuiControl, delve_grid:, % A_GuiControl, % %A_GuiControl%_toggle
+	
+	
+	If (delve_hidden_nodes = ",") ;reset all node markings if no hidden node is marked
+	{
+		Loop 64
+		{
+			If InStr(delve_node%A_Index%_toggle, "red") || InStr(delve_node%A_Index%_toggle, "orange") || InStr(delve_node%A_Index%_toggle, "green")
+			{
+				delve_node%A_Index%_toggle := "img\GUI\square_black_opaque.png"
+				GuiControl, delve_grid:, delve_node%A_Index%, % delve_node%A_Index%_toggle
+			}
+		}
+		Return
+	}
+	
+	twoway_nodes := 0
+	threeway_nodes := 0
+	red_nodes := ","
+	
+	Loop 64 ;immediately mark nodes with four connections red
+	{
+		If (StrLen(delve_node_%A_Index%) = 8)
+		{
+			delve_node%A_Index%_toggle := "img\GUI\square_red_opaque.png"
+			GuiControl, delve_grid:, delve_node%A_Index%, % delve_node%A_Index%_toggle
+			red_nodes .= InStr(red_nodes, "," A_Index ",") ? "" : A_Index ","
+		}
+	}
+	
+	Loop 64 ;check nodes with two connections first as they are most likely to have the hidden passage
+	{
+		check := A_Index
+		If (StrLen(delve_node_%A_Index%) = 4)
+		{
+			twoway_nodes += 1
+			Loop, Parse, delve_hidden_nodes, `,, `,
+			{
+				If (A_Loopfield = "")
+					continue
+				If !InStr(red_nodes, "," check ",") && ((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) ;check for adjacency to hidden node
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					twoway_nodes -= 1
+				}
+				Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) ;check for adjacency to hidden node
+				{
+					delve_node%check%_toggle := "img\GUI\square_green_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
+			}
+			blocked_directions := 0
+			If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = 2)
+			{
+				Loop, Parse, % LLK_DelveDir(A_Index, A_GuiControl) ;check if hidden node is in unreachable direction
+				{
+					If InStr(delve_node_%check%, A_Loopfield)
+						blocked_directions += 1
+				}
+					
+				If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = blocked_directions) ;mark red if unreachable
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					threeway_nodes -= 1
+				}
+			}
+		}
+	}
+	
+	Loop 64 ;check nodes with three connections
+	{
+		check := A_Index
+		blocked := 0
+		If (StrLen(delve_node_%A_Index%) = 6)
+		{
+			threeway_nodes += 1
+			Loop, Parse, delve_directions, `,, `, ;check if open passage is blocked by something else
+			{
+				If InStr(delve_node_%check%, A_Loopfield)
+					continue
+				If (A_LoopField = "u")
+					parse := check - 8
+				If (A_LoopField = "d")
+					parse := check + 8
+				If (A_LoopField = "l")
+					parse := check - 1
+				If (A_LoopField = "r")
+					parse := check + 1
+				If (delve_node_%parse% != "")
+					blocked := 1
+				If (blocked = 1) ;mark red if blocked
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					threeway_nodes -= 1
+					break
+				}
+			}
+			
+			blocked_directions := 0
+			If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = 2)
+			{
+				Loop, Parse, % LLK_DelveDir(A_Index, A_GuiControl) ;check if hidden node is in unreachable direction
+				{
+					If InStr(delve_node_%check%, A_Loopfield)
+						blocked_directions += 1
+				}
+					
+				If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = blocked_directions) ;mark red if unreachable
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					threeway_nodes -= 1
+				}
+			}
+			Else
+			{
+				If (LLK_DelveDir(A_Index, A_GuiControl) = "u") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
+					blocked_directions := 1
+				If (LLK_DelveDir(A_Index, A_GuiControl) = "d") && !InStr(delve_node_%check%, "u")
+					blocked_directions := 1
+				If (LLK_DelveDir(A_Index, A_GuiControl) = "l") && !InStr(delve_node_%check%, "r")
+					blocked_directions := 1
+				If (LLK_DelveDir(A_Index, A_GuiControl) = "r") && !InStr(delve_node_%check%, "l")
+					blocked_directions := 1
+				If (blocked_directions = 1) ;mark red if unreachable
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					threeway_nodes -= 1
+				}
+			}
+			
+			Loop, Parse, delve_hidden_nodes, `,, `,
+			{
+				If (A_LoopField = "")
+					continue
+				If !InStr(red_nodes, "," check ",") && ((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) ;check for adjacency to hidden node, and mark red
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+					threeway_nodes -= 1
+				}
+				Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && (twoway_nodes = 0) ;mark node green in case no two-way node exists
+				{
+					delve_node%check%_toggle := "img\GUI\square_green_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
+				Else If !InStr(red_nodes, "," check ",")
+				{
+					delve_node%check%_toggle := "img\GUI\square_black_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
+				;Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && (twoway_nodes != 0) ;mark node orange in case two-way node(s) exist(s)
+				;{
+				;	delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
+				;	GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				;}
+			}
+		}
+	}
+	
+	Loop 64 ;check nodes with one connection
+	{
+		check := A_Index
+		If (StrLen(delve_node_%A_Index%) = 2)
+		{
+			Loop, Parse, delve_hidden_nodes, `,, `,
+			{
+				If (A_LoopField = "")
+					continue
+				If !InStr(red_nodes, "," check ",") && ((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) || ((twoway_nodes != 0) || (threeway_nodes != 0)) && (LLK_InStrCount(delve_hidden_nodes, ",") < 3) ;check for adjacency to hidden node, and mark red if there are two-/three-way nodes
+				{
+					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+					red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+				}
+				Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && (twoway_nodes = 0) && (threeway_nodes = 0) && (LLK_InStrCount(delve_hidden_nodes, ",") > 2) ;mark node green if it's possible it branches into two hidden paths
+				{
+					delve_node%check%_toggle := "img\GUI\square_green_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
+				;Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && ((twoway_nodes != 0) || (threeway_nodes != 0))
+				;{
+				;	delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
+				;	GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				;}
+			}
+		}
+	}
+}
+Return
+
 Exit:
 Gdip_Shutdown(pToken)
 If (timeout != 1)
@@ -1733,6 +2148,32 @@ Else
 	guilist := StrReplace(guilist, "alarm_panel|")
 	Gui, alarm_panel: Destroy
 	hwnd_alarm_panel := ""
+}
+
+If (enable_delve = 1)
+{
+	guilist .= InStr(guilist, "delve_panel|") ? "" : "delve_panel|"
+	Gui, delve_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_delve_panel
+	Gui, delve_panel: Margin, 0, 0
+	Gui, delve_panel: Color, Black
+	;WinSet, TransColor, Black
+	;WinSet, Transparent, %trans%
+	Gui, delve_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+	Gui, delve_panel: Add, Picture, % "Center BackgroundTrans Border gdelve w" delve_panel_dimensions " h-1", img\GUI\delve.jpg
+	delve_panel_xpos_target := (delve_panel_xpos + delve_panel_dimensions + 2 > poe_width) ? poe_width - delve_panel_dimensions - 1 : delve_panel_xpos ;correct coordinates if panel would end up out of client-bounds
+	delve_panel_ypos_target := (delve_panel_ypos + delve_panel_dimensions + 2 > poe_height) ? poe_height - delve_panel_dimensions - 1 : delve_panel_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (delve_panel_xpos_target + delve_panel_dimensions + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (delve_panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		delve_panel_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, delve_panel: Show, % "NA x"xScreenOffset + delve_panel_xpos_target " y"yScreenoffset + delve_panel_ypos_target
+	If (enable_delvelog = 1)
+		LLK_Overlay("delve_panel", "hide")
+	Else LLK_Overlay("delve_panel", "show")
+}
+Else
+{
+	guilist := StrReplace(guilist, "delve_panel|")
+	Gui, delve_panel: Destroy
+	hwnd_delve_panel := ""
 }
 
 If (enable_notepad = 1)
@@ -1970,6 +2411,17 @@ Loop, 2
 }
 Return
 
+Init_delve:
+IniRead, enable_delve, ini\config.ini, Features, enable delve, 0
+IniRead, delve_panel_offset, ini\delve.ini, Settings, button-offset, 1
+delve_panel_dimensions := poe_width*0.03*delve_panel_offset
+IniRead, delve_panel_xpos, ini\delve.ini, UI, button xcoord, % poe_width/2 - (delve_panel_dimensions + 2)/2
+IniRead, delve_panel_ypos, ini\delve.ini, UI, button ycoord, % poe_height - (delve_panel_dimensions + 2)
+IniRead, delve_gridwidth, ini\delve.ini, UI, grid dimensions, % Floor(poe_height*0.045)
+IniRead, enable_delvelog, ini\delve.ini, Settings, enable log-scanning, 0
+enable_delvelog := !FileExist(poe_log_file) ? 0 : enable_delvelog
+Return
+
 Init_geforce:
 IniRead, pixelsearch_variation, ini\geforce now.ini, Settings, pixel-check variation, 0
 IniRead, imagesearch_variation, ini\geforce now.ini, Settings, image-check variation, 25
@@ -2130,6 +2582,7 @@ Loop, Parse, stash_search_usecases, `,, `,
 Return
 
 Init_variables:
+click := 1
 trans := 220
 pixelchecks_enabled := "gamescreen,"
 imagesearch_variation := 25
@@ -2142,6 +2595,7 @@ guilist := "notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample
 guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
+delve_directions := "u,d,l,r"
 Return
 
 Lab_info:
@@ -2898,6 +3352,28 @@ If (A_GuiControl = previous_socket)
 Else GuiControl,, % A_GuiControl, img\GUI\square_red.png
 previous_socket := A_GuiControl
 GoSub, Legion_seeds
+Return
+
+Log_loop:
+If (enable_delve = 0) || (enable_delvelog = 0)
+{
+	SetTimer, Log_loop, Delete
+	Return
+}
+current_location := ""
+If !WinActive("ahk_group poe_window")
+	Return
+FileRead, poe_log_content, % poe_log_file
+poe_log_content := SubStr(poe_log_content, -5000)
+Loop, Parse, poe_log_content, `n, `n
+{
+	If InStr(A_Loopfield, "you have entered")
+		current_location := InStr(A_Loopfield, "azurite mine") ? "azurite mine" : ""
+}
+If (current_location = "azurite mine")
+	LLK_Overlay("delve_panel", "show")
+Else LLK_Overlay("delve_panel", "hide")
+poe_log_content := ""
 Return
 
 Loop:
@@ -4941,9 +5417,10 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 	Return
 }
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "cAqua" : "cWhite"
-alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : ""
+alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : "cWhite"
 betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "cAqua" : "cWhite"
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
+delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
 map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
@@ -4997,6 +5474,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_clone_frames%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %delve_style% gSettings_menu HWNDhwnd_settings_delve, % "delve-helper"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_delve%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %map_mods_style% gSettings_menu HWNDhwnd_settings_map_mods, % "map-info"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_map_mods%
@@ -5045,6 +5526,12 @@ If !InStr(GuiControl_copy, "alarm") && WinExist("ahk_id " hwnd_alarm_sample)
 	hwnd_alarm_sample := ""
 }
 
+If !InStr(GuiControl_copy, "delve") && WinExist("ahk_id " hwnd_delve_grid)
+{
+	Gui, delve_grid: Destroy
+	hwnd_delve_grid := ""
+}
+
 If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
@@ -5053,6 +5540,12 @@ Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image")
 	GoSub, Settings_menu_betrayal
 Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
+Else If InStr(GuiControl_copy, "delve")
+{
+	xsettings_menu := xScreenOffSet
+	ysettings_menu := yScreenOffSet + poe_height/3
+	GoSub, Settings_menu_delve
+}
 Else If InStr(GuiControl_copy, "map")
 	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad")
@@ -5176,6 +5669,29 @@ Loop, Parse, clone_frames_list, `n, `n
 Gui, settings_menu: Add, Text, % "xs Section Border gClone_frames_new vClone_frames_add BackgroundTrans y+"fSize0*1.2, % " add frame "
 Return
 
+Settings_menu_delve:
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_delve gDelve checked"enable_delve " xp+"spacing_settings*1.2, enable delve-helper
+If (enable_delve = 1)
+{
+	GoSub, Delve
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, grid size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_minus gDelve Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_reset gDelve Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_plus gDelve Border x+2 wp", % "+"
+	
+	If FileExist(poe_log_file)
+	{
+		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_delvelog gDelve checked"enable_delvelog " y+"fSize0*1.2, % "only show icon while delving"
+		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vdelve_help hp w-1", img\GUI\help.png
+	}
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_minus gApply_settings_alarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_reset gApply_settings_alarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_plus gApply_settings_alarm Border x+2 wp", % "+"
+}
+Return
+
 Settings_menu_geforce_now:
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, % "pixel-check allowed variation: "
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
@@ -5253,6 +5769,19 @@ Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWi
 Gui, settings_menu_help: Color, Black
 Gui, settings_menu_help: Margin, 12, 4
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
+
+If (A_GuiControl = "delve_help")
+{
+text =
+(
+explanation
+checking this option will enable scanning the client-log generated by the game-client.
+
+depending on its file-size and other factors, this may affect general performance.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
 
 If (A_GuiControl = "map_info")
 {
@@ -5657,6 +6186,10 @@ LLK_Overlay("betrayal_info_overview", "hide")
 LLK_Overlay("betrayal_info_members", "hide")
 Loop, Parse, betrayal_divisions, `,, `,
 	LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
+
+Gui, delve_grid: Destroy
+hwnd_delve_grid := ""
+
 If WinExist("ahk_id " hwnd_notepad_sample)
 {
 	Gui, notepad_sample: Destroy
@@ -6009,6 +6542,10 @@ GoSub, settings_menu
 Gui, stash_search_menu: Destroy
 Return
 
+Test:
+SoundBeep
+Return
+
 Timeout_chromatics:
 KeyWait, v, D T0.5
 If !ErrorLevel
@@ -6124,6 +6661,44 @@ LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
 			count += 1
 	}
 	Return count
+}
+
+LLK_DelveDir(hidden_node, node)
+{
+	direction := ""
+	Loop 2
+	{
+		parse := ""
+		loop := 1
+		Loop, Parse, % (A_Index = 1) ? hidden_node : node
+		{
+			If !IsNumber(A_Loopfield)
+				continue
+			parse .= A_Loopfield
+		}
+		While (parse > 8)
+		{
+			parse -= 8
+			loop += 1
+		}
+		If (A_Index = 1)
+		{
+			xcoord1 := parse
+			ycoord1 := loop
+		}
+		Else
+		{
+			xcoord2 := parse
+			ycoord2 := loop
+		}
+	}
+	If (ycoord1 = ycoord2)
+		direction .= ""
+	Else direction .= (ycoord1 < ycoord2) ? "d" : "u"
+	If (xcoord1 = xcoord2)
+		direction .= ""
+	Else direction .= (xcoord1 < xcoord2) ? "r" : "l"
+	Return direction
 }
 
 LLK_InStrCount(string, character, delimiter := "")
