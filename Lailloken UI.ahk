@@ -213,7 +213,10 @@ GoSub, Init_conversions
 
 SetTimer, Loop, 1000
 If (enable_delve = 1) && (enable_delvelog = 1) && FileExist(poe_log_file)
+{
+	GoSub, Log_loop
 	SetTimer, Log_loop, 5000
+}
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -1678,6 +1681,19 @@ GoSub, Clone_frames_menuGuiClose
 Return
 
 Delve:
+If InStr(A_GuiControl, "button_delve_")
+{
+	If (A_GuiControl = "button_delve_minus")
+		delve_panel_offset -= (delve_panel_offset > 0.4) ? 0.1 : 0
+	If (A_GuiControl = "button_delve_reset")
+		delve_panel_offset := 1
+	If (A_GuiControl = "button_delve_plus")
+		delve_panel_offset += (delve_panel_offset < 1) ? 0.1 : 0
+	IniWrite, % delve_panel_offset, ini\delve.ini, Settings, button-offset
+	delve_panel_dimensions := poe_width*0.03*delve_panel_offset
+	GoSub, GUI
+	Return
+}
 If (A_GuiControl = "enable_delve")
 {
 	Gui, settings_menu: Submit, NoHide
@@ -1688,7 +1704,11 @@ If (A_GuiControl = "enable_delve")
 		hwnd_delve_grid := ""
 	}
 	If (enable_delve = 1) && FileExist(poe_log_file) && (enable_delvelog = 1)
+	{
+		WinActivate, ahk_group poe_window
+		GoSub, Log_loop
 		SetTimer, Log_loop, 5000
+	}
 	If (enable_delve = 1) && !FileExist(poe_log_file)
 		LLK_Overlay("delve_panel", "show")
 	IniWrite, % enable_delve, ini\config.ini, Features, enable delve
@@ -1700,8 +1720,9 @@ If (A_GuiControl = "enable_delvelog")
 	Gui, settings_menu: Submit, NoHide
 	If (enable_delvelog = 1) && (enable_delve = 1) && FileExist(poe_log_file)
 	{
+		WinActivate, ahk_group poe_window
+		GoSub, Log_loop
 		SetTimer, Log_loop, 5000
-		LLK_Overlay("delve_panel", "hide")
 	}
 	If (enable_delvelog = 0)
 		LLK_Overlay("delve_panel", "show")
@@ -5674,6 +5695,7 @@ Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans venable_delve g
 If (enable_delve = 1)
 {
 	GoSub, Delve
+	GoSub, GUI
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, grid size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_minus gDelve Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_reset gDelve Border x+2 wp", % "0"
@@ -5686,9 +5708,9 @@ If (enable_delve = 1)
 	}
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_minus gApply_settings_alarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_reset gApply_settings_alarm Border x+2 wp", % "0"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_plus gApply_settings_alarm Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_minus gDelve Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_reset gDelve Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_plus gDelve Border x+2 wp", % "+"
 }
 Return
 
