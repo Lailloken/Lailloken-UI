@@ -225,7 +225,7 @@ GoSub, Resolution_check
 SoundBeep, 100
 GoSub, GUI
 GoSub, Recombinators
-GoSub, Delve
+
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
 GoSub, Screenchecks_gamescreen
@@ -2417,7 +2417,7 @@ IniRead, delve_panel_offset, ini\delve.ini, Settings, button-offset, 1
 delve_panel_dimensions := poe_width*0.03*delve_panel_offset
 IniRead, delve_panel_xpos, ini\delve.ini, UI, button xcoord, % poe_width/2 - (delve_panel_dimensions + 2)/2
 IniRead, delve_panel_ypos, ini\delve.ini, UI, button ycoord, % poe_height - (delve_panel_dimensions + 2)
-IniRead, delve_gridwidth, ini\delve.ini, UI, grid dimensions, % Floor(poe_height*0.045)
+IniRead, delve_gridwidth, ini\delve.ini, UI, grid dimensions, % Floor(poe_height*0.73/8)
 IniRead, enable_delvelog, ini\delve.ini, Settings, enable log-scanning, 0
 enable_delvelog := !FileExist(poe_log_file) ? 0 : enable_delvelog
 Return
