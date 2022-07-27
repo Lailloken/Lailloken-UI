@@ -2595,7 +2595,7 @@ If (poe_config_file != "")
 }
 IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
 Loop, Parse, blocked_hotkeys, `,, `,
-	omnikey_hotkey := (SubStr(omnikey_hotkey, 1, 1) = A_Loopfield) ? "" : omnikey_hotkey
+	omnikey_hotkey := InStr(omnikey_hotkey, A_Loopfield) ? "" : omnikey_hotkey
 
 If (omnikey_hotkey != "") ;custom omni-key
 {
@@ -4152,8 +4152,8 @@ fSize_notepad := fSize0 + fSize_offset_notepad
 
 If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_context_")
 {	
-	LLK_Overlay("notepad_edit", "hide")
 	Gui, notepad_edit: Submit, NoHide
+	LLK_Overlay("notepad_edit", "hide")
 	notepad_text := StrReplace(notepad_text, "[", "(")
 	notepad_text := StrReplace(notepad_text, "]", ")")
 	notepad_anchor := poe_height*0.14
