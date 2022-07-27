@@ -336,6 +336,17 @@ If WinExist("ahk_id " hwnd_delve_grid)
 	LLK_Overlay("delve_grid", "hide")
 	Return
 }
+If WinActive("ahk_id " hwnd_notepad_edit)
+{
+	Gui, notepad_edit: Submit, NoHide
+	WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
+	notepad_width -= xborder*2
+	notepad_height -= caption + yborder*2
+	notepad_text := StrReplace(notepad_text, "[", "(")
+	notepad_text := StrReplace(notepad_text, "]", ")")
+	LLK_Overlay("notepad_edit", "hide")
+	Return
+}
 If WinActive("ahk_id " hwnd_recombinator_window)
 {
 	Gosub, Recombinator_windowGuiClose
@@ -799,6 +810,20 @@ Return
 
 Apply_settings_omnikey:
 Gui, settings_menu: Submit, NoHide
+Loop, Parse, blocked_hotkeys, `,, `,
+{
+	If (SubStr(omnikey_hotkey, 1, 1) = A_Loopfield)
+	{
+		LLK_ToolTip("Chosen omni-hotkey not supported")
+		GuiControl, settings_menu: text, omnikey_hotkey,
+		omnikey_hotkey := ""
+		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+		KeyWait, Alt
+		KeyWait, Control
+		KeyWait, Shift
+		Return
+	}
+}
 If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 {
 	If (omnikey_hotkey_old != omnikey_hotkey) && (omnikey_hotkey_old != "")
@@ -811,7 +836,6 @@ If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 	Hotkey, *~%omnikey_hotkey%, Omnikey, On
 	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
 }
-GoSub, Settings_menu
 Return
 
 Bestiary_search:
@@ -1796,16 +1820,21 @@ If (click = 2) || (hwnd_delve_grid = "") || (A_Gui = "settings_menu")
 				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y"delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans Border vdelve_node" loop "  gDelve_calc w"delve_gridwidth/3 - 1 " h"delve_gridwidth/3 - 1, % "img\GUI\square_blank.png"
 				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y" delve_nodeYpos " BackgroundTrans vdelve_node_u" loop " gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
 				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos " y"delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans vdelve_node_l" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
-				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth*2/3 " y" delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans vdelve_node_r" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
+				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth*2/3 - 1 " y" delve_nodeYpos + delve_gridwidth/3 " BackgroundTrans vdelve_node_r" loop "  gDelve_calc w"delve_gridwidth/3 + 2 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
 				Gui, delve_grid: Add, Picture, % "x" delve_nodeXpos + delve_gridwidth/3 " y" delve_nodeYpos + delve_gridwidth*2/3 " BackgroundTrans vdelve_node_d" loop "  gDelve_calc w"delve_gridwidth/3 + 1 " h"delve_gridwidth/3 + 1, % "img\GUI\square_blank.png"
 			}
 		}
 	}
+	Gui, delve_grid: Font, % "bold s"fSize_config0 + 2
+	Gui, delve_grid: Add, Text, % "xs BackgroundTrans cRed Hidden Border Center w"8*delve_gridwidth + 16,
+	Gui, delve_grid: Add, Progress, % "xp yp BackgroundTrans BackgroundRed Disabled Center wp hp",
+	Gui, delve_grid: Add, Text, % "xp yp BackgroundTrans cWhite Border Center wp hp", hidden passage can only lead through empty squares
 	Gui, delve_grid: Show, % "NA"
 	WinGetPos,,, width,, ahk_id %hwnd_delve_grid%
 	Gui, delve_grid: Show, % "NA y"yScreenOffSet + poe_height*0.08 " x"xScreenOffSet + poe_width/2 - width/2
 	LLK_Overlay("delve_grid", "show")
 	guilist .= InStr(guilist, "delve_grid|") ? "" : "delve_grid|"
+	WinActivate, ahk_group poe_window
 }
 Return
 
@@ -2024,7 +2053,7 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 					blocked_directions := 1
 				If (LLK_DelveDir(A_Index, A_GuiControl) = "r") && !InStr(delve_node_%check%, "l")
 					blocked_directions := 1
-				If (blocked_directions = 1) ;mark red if unreachable
+				If (blocked_directions = 1) ;mark red if opposite
 				{
 					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
@@ -2049,16 +2078,18 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 					delve_node%check%_toggle := "img\GUI\square_green_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
 				}
+				Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && (twoway_nodes != 0) ;mark node orange in case two-way node(s) exist(s)
+				{
+					delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
+				/*
 				Else If !InStr(red_nodes, "," check ",")
 				{
 					delve_node%check%_toggle := "img\GUI\square_black_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
 				}
-				;Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && (twoway_nodes != 0) ;mark node orange in case two-way node(s) exist(s)
-				;{
-				;	delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
-				;	GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
-				;}
+				*/
 			}
 		}
 	}
@@ -2072,7 +2103,7 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 			{
 				If (A_LoopField = "")
 					continue
-				If !InStr(red_nodes, "," check ",") && ((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) || ((twoway_nodes != 0) || (threeway_nodes != 0)) && (LLK_InStrCount(delve_hidden_nodes, ",") < 3) ;check for adjacency to hidden node, and mark red if there are two-/three-way nodes
+				If !InStr(red_nodes, "," check ",") && ((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) ;|| (LLK_InStrCount(delve_hidden_nodes, ",") < 3) ;check for adjacency to hidden node, and mark red if there are two-/three-way nodes
 				{
 					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
@@ -2083,11 +2114,11 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 					delve_node%check%_toggle := "img\GUI\square_green_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
 				}
-				;Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) && ((twoway_nodes != 0) || (threeway_nodes != 0))
-				;{
-				;	delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
-				;	GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
-				;}
+				Else If !InStr(red_nodes, "," check ",") && !((check = A_Loopfield - 1) || (check = A_Loopfield - 8) || (check = A_Loopfield + 1) || (check = A_Loopfield + 8)) ;&& ((twoway_nodes != 0) || (threeway_nodes != 0))
+				{
+					delve_node%check%_toggle := "img\GUI\square_orange_opaque.png"
+					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				}
 			}
 		}
 	}
@@ -2300,7 +2331,7 @@ If (hotstringboard = "") && (gwennen_regex != "ERROR" && gwennen_regex != "")
 {
 	Clipboard := gwennen_regex
 	ClipWait
-	SendInput, ^{a}{v}
+	SendInput, ^{a}^{v}
 }
 Return
 
@@ -2553,19 +2584,53 @@ IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % poe_height - 
 Return
 
 Init_omnikey:
-IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
-If (omnikey_hotkey != "")
+If (poe_config_file != "")
 {
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~%omnikey_hotkey%, Omnikey, On
-	Hotkey, *~MButton, Omnikey, Off
-	omnikey_hotkey_old := omnikey_hotkey
+	FileRead, all_hotkeys, % poe_config_file
+	If InStr(all_hotkeys, "=67`n") && !InStr(all_hotkeys, "open_character_panel=67")
+		omnikey_conflict_c := 1
+	omnikey_conflict_alt := !InStr(all_hotkeys, "highlight=18") ? 1 : ""
+	IniRead, alt_modifier, ini\config.ini, Settings, highlight-key, % A_Space
+	all_hotkeys := ""
 }
-Else
+IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
+Loop, Parse, blocked_hotkeys, `,, `,
+	omnikey_hotkey := (SubStr(omnikey_hotkey, 1, 1) = A_Loopfield) ? "" : omnikey_hotkey
+
+If (omnikey_hotkey != "") ;custom omni-key
 {
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~MButton, Omnikey, On
-	omnikey_hotkey_old := "MButton"
+	If (omnikey_conflict_c != 1)
+	{
+		Hotkey, *~%omnikey_hotkey%, Omnikey, On
+		Hotkey, *~MButton, Omnikey, Off
+		omnikey_hotkey_old := omnikey_hotkey
+	}
+	Else
+	{
+		IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
+		Hotkey, *~%omnikey_hotkey%, Omnikey2, On
+		Hotkey, *~MButton, Omnikey2, Off
+		If (omnikey_hotkey2 != "")
+			Hotkey, *~%omnikey_hotkey2%, Omnikey, On
+	}
+}
+Else ;standard omni-key
+{
+	Hotkey, IfWinActive, ahk_group poe_ahk_window
+	If (omnikey_conflict_c != 1)
+	{
+		Hotkey, *~MButton, Omnikey, On
+		omnikey_hotkey_old := "MButton"
+	}
+	Else
+	{
+		IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
+		Hotkey, *~MButton, Omnikey2, On
+		omnikey_hotkey_old := "MButton"
+		If (omnikey_hotkey2 != "")
+			Hotkey, *~%omnikey_hotkey2%, Omnikey, On
+	}
 }
 Return
 
@@ -2605,6 +2670,7 @@ Return
 Init_variables:
 click := 1
 trans := 220
+blocked_hotkeys := "!,^,+"
 pixelchecks_enabled := "gamescreen,"
 imagesearch_variation := 25
 pixelsearch_variation := 0
@@ -4087,6 +4153,7 @@ fSize_notepad := fSize0 + fSize_offset_notepad
 If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_context_")
 {	
 	LLK_Overlay("notepad_edit", "hide")
+	Gui, notepad_edit: Submit, NoHide
 	notepad_text := StrReplace(notepad_text, "[", "(")
 	notepad_text := StrReplace(notepad_text, "]", ")")
 	notepad_anchor := poe_height*0.14
@@ -4102,17 +4169,12 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 		ControlGetPos,,, wDrag,,, ahk_id %hwnd_notepad_dragbutton%
 		
 		text := ""
-		If InStr(notepad_text, "#") && InStr(notepad_text, "endignore")
+		If InStr(notepad_text, "#")
 		{
-			Loop, Parse, notepad_text, "#", "#"
-			{
-				If (A_Loopfield = "") || InStr(A_Loopfield, "endignore")
-					continue
-				text := A_Loopfield
-				text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : text
-				text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
-				break
-			}
+			text := SubStr(notepad_text, InStr(notepad_text, "#") + 1)
+			text := (SubStr(text, 1, 1) = "`n") ? SubStr(text, 2) : text
+			text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : text
+			text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
 		}
 		
 		Gui, notepad: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_notepad
@@ -4120,7 +4182,7 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 		Gui, notepad: Color, Black
 		WinSet, Transparent, %notepad_trans%
 		Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
-		Gui, notepad: Add, Text, BackgroundTrans, % (text = "") ? (SubStr(notepad_text, 0) = "`n")? SubStr(notepad_text, 1, -1) : notepad_text : text
+		Gui, notepad: Add, Text, BackgroundTrans, % (text = "") ? (SubStr(notepad_text, 0) = "`n")? StrReplace(SubStr(notepad_text, 1, -1), "&", "&&") : StrReplace(notepad_text, "&", "&&") : StrReplace(text, "&", "&&")
 		Gui, notepad: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 		Gui, notepad_drag: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 		LLK_Overlay("notepad", "show")
@@ -4133,7 +4195,7 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 		loop := ""
 		Loop, Parse, notepad_text, "#", "#"
 		{
-			If (A_Loopfield = "") || InStr(A_Loopfield, "endignore")
+			If (A_Loopfield = "") || (A_Index = 1)
 				continue
 			gui := loop
 			loop += 1
@@ -4152,14 +4214,15 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 			Gui, notepad%gui%: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
 			text := (SubStr(A_Loopfield, 1, 1) = " ") ? SubStr(A_Loopfield, 2) : A_Loopfield
 			text := (SubStr(text, 0) = "`n") ? SubStr(text, 1, -1) : text
-			Gui, notepad%gui%: Add, Text, BackgroundTrans, % text
+			Gui, notepad%gui%: Add, Text, BackgroundTrans, % StrReplace(text, "&", "&&")
 			Gui, notepad%gui%: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 			Gui, notepad_drag%gui%: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 			WinGetPos,,,, height, % "ahk_id " hwnd_notepad%gui%
 			notepad_anchor += height*1.1
 			
-			guilist .= InStr(guilist, "notepad_drag" gui "|") ? "" : "notepad_drag" gui "|"
 			guilist .= InStr(guilist, "notepad" gui "|") ? "" : "notepad" gui "|"
+			guilist .= InStr(guilist, "notepad_drag" gui "|") ? "" : "notepad_drag" gui "|"
+			
 			LLK_Overlay("notepad" gui, "show")
 			LLK_Overlay("notepad_drag" gui, "show")
 		}
@@ -4172,7 +4235,7 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 		notepad_notes := []
 		Loop, Parse, notepad_text, "#", "#"
 		{
-			If (A_LoopField = "") || InStr(A_Loopfield, "endignore")
+			If (A_LoopField = "") || (A_Index = 1)
 				continue
 			loop += 1
 			text := (SubStr(A_Loopfield, 1, 1) = " ") ? SubStr(A_Loopfield, 2) : A_Loopfield
@@ -4194,7 +4257,7 @@ If InStr(A_GuiControl, "notepad_context_") || InStr(GuiControl_copy, "notepad_co
 		Gui, notepad: Font, c%notepad_fontcolor% s%fSize_notepad% underline, Fontin SmallCaps
 		Gui, notepad: Add, Text, BackgroundTrans HWNDhwnd_notepad_header, % "note 1/" loop
 		Gui, notepad: Font, norm
-		Gui, notepad: Add, Text, BackgroundTrans HWNDhwnd_notepad_text y+0, % notepad_notes[1]
+		Gui, notepad: Add, Text, BackgroundTrans HWNDhwnd_notepad_text y+0, % StrReplace(notepad_notes[1], "&", "&&")
 		Gui, notepad: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 		Gui, notepad_drag: Show, % "NA AutoSize x"xScreenOffSet " y"yScreenOffSet + notepad_anchor
 		LLK_Overlay("notepad", "show")
@@ -4233,7 +4296,7 @@ If (A_Gui = "settings_menu")
 	Gui, notepad_sample: Color, Black
 	WinSet, Transparent, %notepad_trans%
 	Gui, notepad_sample: Font, c%notepad_fontcolor% s%fSize_notepad%, Fontin SmallCaps
-	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what the`nnotepad-overlay looks`nlike with the current`nsettings
+	Gui, notepad_sample: Add, Text, BackgroundTrans, this is what text-`nwidgets look like with`nthe current settings
 	Gui, notepad_sample: Show, % "NA AutoSize"
 	WinGetPos,,, win_width, win_height, ahk_id %hwnd_notepad_sample%
 	Gui, notepad_sample: Show, % "Hide AutoSize x"xScreenOffSet + poe_width/2 - win_width/2 " y"yScreenOffSet
@@ -4286,6 +4349,7 @@ If (click = 2) || (!WinExist("ahk_id " hwnd_notepad_edit) && !LLK_hwnd("hwnd_not
 			Gui, notepad_edit: Add, Edit, x0 y0 w1000 h1000 vnotepad_text Lowercase, %notepad_text%
 			Gui, notepad_edit: Show, % "x"xScreenOffset + poe_width/2 - notepad_width/2 " y"yScreenOffset + poe_height/2 - notepad_height/2 " w"notepad_width " h"notepad_height
 			SendInput, {Right}
+			LLK_Overlay("notepad_edit", "show")
 			notepad_edit := 1
 		}
 		Else
@@ -4391,10 +4455,17 @@ If WinExist("ahk_id " hwnd_notepad_edit)
 Return
 
 Omnikey:
+If (omnikey_conflict_alt = 1) && (alt_modifier = "")
+{
+	LLK_ToolTip("custom highlight-key detected:`nomni-key setup required", 2)
+	Return
+}
 clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
-SendInput !^{c}
+If (omnikey_conflict_alt = 1)
+	SendInput {%alt_modifier% down}^{c}{%alt_modifier% up}
+Else SendInput !^{c}
 ClipWait, 0.05
 If (clipboard != "")
 {
@@ -4496,6 +4567,11 @@ If (clipboard != "")
 		Return
 	}
 }
+Else GoSub, Omnikey2
+Return
+
+Omnikey2:
+Clipboard := ""
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
@@ -5407,7 +5483,7 @@ Return
 Settings_menu:
 SetTimer, Settings_menu, Delete
 start := A_TickCount
-While GetKeyState("LButton", "P")
+While GetKeyState("LButton", "P") && (A_Gui = "LLK_panel")
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -5703,7 +5779,7 @@ If (enable_delve = 1)
 	
 	If FileExist(poe_log_file)
 	{
-		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_delvelog gDelve checked"enable_delvelog " y+"fSize0*1.2, % "only show icon while delving"
+		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_delvelog gDelve checked"enable_delvelog " y+"fSize0*1.2, % "only show button while delving"
 		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vdelve_help hp w-1", img\GUI\help.png
 	}
 	
@@ -6109,13 +6185,30 @@ If (enable_notepad = 1)
 Return
 
 Settings_menu_omnikey:
+If (A_GuiControl = "omnikey_restart")
+{
+	Gui, settings_menu: Submit, NoHide
+	Loop, Parse, blocked_hotkeys, `,, `,
+	{
+		If (SubStr(omnikey_hotkey2, 1, 1) = A_Loopfield)
+		{
+			LLK_ToolTip("Chosen omni-hotkey is not supported")
+			Return
+		}
+	}
+	IniWrite, % alt_modifier, ini\config.ini, Settings, highlight-key
+	IniWrite, % omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2
+	Reload
+	ExitApp
+	Return
+}
 If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
 {
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, *~%omnikey_hotkey%,, Off
 	omnikey_hotkey := ""
 	Hotkey, *~MButton, Omnikey, On
-	IniWrite, %A_Space%, ini\config.ini, Settings, omni-hotkey
+	IniWrite, % omnikey_hotkey, ini\config.ini, Settings, omni-hotkey
 }
 
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, replace mbutton with:
@@ -6125,18 +6218,26 @@ Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans vomnikey_hotkey gApply
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_omnikey_hotkey gSettings_menu", % " clear "
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
-text =
-(
-used to access:
-- context-menu for items
-- map-info panel
-- map horizons tooltip
-- orb of horizons tooltip && search
-- beastcrafting search
-- betrayal info-sheet
-- gwennen regex
-)
-Gui, settings_menu: Add, Text, % "xs BackgroundTrans", % text
+
+If (omnikey_conflict_alt = 1) || (omnikey_conflict_c = 1)
+{
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0, % "troubleshooting (custom keybinds):"
+	If (omnikey_conflict_alt = 1)
+	{
+		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "highlight-key:"
+		Gui, settings_menu: Font, % "s"fSize0 - 4
+		Gui, settings_menu: Add, Edit, % "ys hp valt_modifier BackgroundTrans cBlack w"width//3, % alt_modifier
+		Gui, settings_menu: Font, % "s"fSize0
+	}
+	If (omnikey_conflict_c = 1)
+	{
+		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "omni-key (items):"
+		Gui, settings_menu: Font, % "s"fSize0 - 4
+		Gui, settings_menu: Add, Hotkey, % "ys hp vomnikey_hotkey2 BackgroundTrans w"width//3, % omnikey_hotkey2
+		Gui, settings_menu: Font, % "s"fSize0
+	}
+	Gui, settings_menu: Add, Text, % "xs Border vomnikey_restart gSettings_menu_omnikey Section BackgroundTrans", % " apply && restart "
+}
 Return
 
 Settings_menu_screenchecks:
