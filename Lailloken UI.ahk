@@ -833,8 +833,16 @@ If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
 	}
 	omnikey_hotkey_old := omnikey_hotkey
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~%omnikey_hotkey%, Omnikey, On
-	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+	If (omnikey_conflict_c != 1)
+	{
+		Hotkey, *~%omnikey_hotkey%, Omnikey, On
+		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+	}
+	Else
+	{
+		Hotkey, *~%omnikey_hotkey%, Omnikey2, On
+		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+	}
 }
 Return
 
@@ -4572,6 +4580,8 @@ Return
 
 Omnikey2:
 Clipboard := ""
+ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
+ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
@@ -6113,6 +6123,8 @@ explanation
 this hotkey is context-sensitive and used to access the majority of this script's features. it's meant to be the only hotkey you have to use while playing.
 
 this feature does not block the key-press from being sent to the client. if you still want/need to rebind it, bind it to a key that's not used for chatting.
+
+rebinding it will also require clicking certain UI elements (e.g. search fields) in the game first, which is not necessary with the middle mouse-button since it also acts like a click.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
