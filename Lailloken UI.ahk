@@ -6219,7 +6219,9 @@ If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, *~%omnikey_hotkey%,, Off
 	omnikey_hotkey := ""
-	Hotkey, *~MButton, Omnikey, On
+	If (omnikey_conflict_c != 1)
+		Hotkey, *~MButton, Omnikey, On
+	Else Hotkey, *~MButton, Omnikey2, On
 	IniWrite, % omnikey_hotkey, ini\config.ini, Settings, omni-hotkey
 }
 
