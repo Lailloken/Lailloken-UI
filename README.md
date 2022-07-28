@@ -8,7 +8,7 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ***
 <br>
 
-## Windowed-mode support ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Windowed-mode))
+## Full windowed-mode support ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Windowed-mode))
 ![image](https://user-images.githubusercontent.com/61888437/175769799-cb0f8ef2-1800-44ad-8442-fb28179314bb.png)  
 ***
 <br>
@@ -43,12 +43,12 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 ***
 <br>
 
-## Search-strings: customizable quick-access menu for frequent in-game searches ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings))  
+## Search-strings: customizable quick-access menu for stash and vendor searches ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings))  
 ![image](https://user-images.githubusercontent.com/61888437/174295941-6ef1eb44-756e-4e4a-83be-3eeedf62298b.png)  
 ***
 <br>
 
-## Customizable & searchable betrayal info-sheet (with optional image recognition) ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
+## Streamlined & customizable betrayal info-sheet (with optional image recognition) ([more info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info))  
 ### simple search + customization:
 ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
 <br>
@@ -98,7 +98,7 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).  
 <br>
 
-# Motivation & Philosophy
-This script is my personal collection of QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. This includes an easy and straight-forward setup, visual clarity, customizability, the ability to decide which features to enable/disable, and a lack of required extra hotkeys and alt-tabbing.
+# Philosophy & Motivation
+This script is my personal collection of QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. It emphasizes easy and straight-forward setup, visual clarity, customizability, enabling/disabling individual features to prevent feature-bloat, and a lack of required extra hotkeys and alt-tabbing.
 
 That being said, I am a self-taught tinkerer, and this is a merely a fun project and learning experience for me that I decided to share. This means I will not be taking code input or optimizations from people (unless critical bugs need to be fixed or I am hard-stuck) because learning-by-doing and problem-solving is what makes this project fun for me.
