@@ -2312,9 +2312,9 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 				GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
 			}
 			blocked_directions := 0
-			If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = 4)
+			If (StrLen(LLK_DelveDir(A_Index, delve_hidden_nodes)) = 4)
 			{
-				Loop, Parse, % LLK_DelveDir(A_Index, A_GuiControl), `,, `, ;check if hidden node is in unreachable direction
+				Loop, Parse, % LLK_DelveDir(A_Index, delve_hidden_nodes), `,, `, ;check if hidden node is in unreachable direction
 				{
 					If (A_Loopfield = "")
 						break
@@ -2322,7 +2322,7 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 						blocked_directions += 1
 				}
 					
-				If (StrLen(LLK_DelveDir(A_Index, A_GuiControl))/2 = blocked_directions) ;mark red if unreachable
+				If (StrLen(LLK_DelveDir(A_Index, delve_hidden_nodes))/2 = blocked_directions) ;mark red if unreachable
 				{
 					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
@@ -2367,9 +2367,9 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 			}
 			
 			blocked_directions := 0
-			If (StrLen(LLK_DelveDir(A_Index, A_GuiControl)) = 4)
+			If (StrLen(LLK_DelveDir(A_Index, delve_hidden_nodes)) = 4)
 			{
-				Loop, Parse, % LLK_DelveDir(A_Index, A_GuiControl), `,, `, ;check if hidden node is in unreachable direction
+				Loop, Parse, % LLK_DelveDir(A_Index, delve_hidden_nodes), `,, `, ;check if hidden node is in unreachable direction
 				{
 					If (A_Loopfield = "")
 						break
@@ -2377,7 +2377,7 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 						blocked_directions += 1
 				}
 					
-				If (StrLen(LLK_DelveDir(A_Index, A_GuiControl))/2 = blocked_directions) ;mark red if unreachable
+				If (StrLen(LLK_DelveDir(A_Index, delve_hidden_nodes))/2 = blocked_directions) ;mark red if unreachable
 				{
 					delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
 					GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
@@ -2387,13 +2387,13 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 			}
 			Else
 			{
-				If (LLK_DelveDir(A_Index, A_GuiControl) = "u,") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
+				If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "u,") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
 					blocked_directions := 1
-				If (LLK_DelveDir(A_Index, A_GuiControl) = "d,") && !InStr(delve_node_%check%, "u")
+				If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "d,") && !InStr(delve_node_%check%, "u")
 					blocked_directions := 1
-				If (LLK_DelveDir(A_Index, A_GuiControl) = "l,") && !InStr(delve_node_%check%, "r")
+				If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "l,") && !InStr(delve_node_%check%, "r")
 					blocked_directions := 1
-				If (LLK_DelveDir(A_Index, A_GuiControl) = "r,") && !InStr(delve_node_%check%, "l")
+				If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "r,") && !InStr(delve_node_%check%, "l")
 					blocked_directions := 1
 				If (blocked_directions = 1) ;mark red if opposite
 				{
@@ -2430,13 +2430,13 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 		If (StrLen(delve_node_%A_Index%) = 2) && !InStr(red_nodes, "," A_Index ",")
 		{
 			blocked_directions := 0
-			If (LLK_DelveDir(A_Index, A_GuiControl) = "u,") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
+			If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "u,") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
 				blocked_directions := 1
-			If (LLK_DelveDir(A_Index, A_GuiControl) = "d,") && !InStr(delve_node_%check%, "u")
+			If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "d,") && !InStr(delve_node_%check%, "u")
 				blocked_directions := 1
-			If (LLK_DelveDir(A_Index, A_GuiControl) = "l,") && !InStr(delve_node_%check%, "r")
+			If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "l,") && !InStr(delve_node_%check%, "r")
 				blocked_directions := 1
-			If (LLK_DelveDir(A_Index, A_GuiControl) = "r,") && !InStr(delve_node_%check%, "l")
+			If (LLK_DelveDir(A_Index, delve_hidden_nodes) = "r,") && !InStr(delve_node_%check%, "l")
 				blocked_directions := 1
 			If (blocked_directions = 1) ;mark red if opposite
 			{
