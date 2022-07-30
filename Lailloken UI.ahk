@@ -2443,7 +2443,6 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 				delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
 				GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
 				red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
-				threeway_nodes -= 1
 			}
 			If !InStr(red_nodes, "," check ",") && ((check = delve_hidden_nodes - 1) || (check = delve_hidden_nodes - 7) || (check = delve_hidden_nodes + 1) || (check = delve_hidden_nodes + 7)) ;check for adjacency to hidden node, and mark red if there are two-/three-way nodes
 			{
