@@ -2429,6 +2429,22 @@ If InStr(A_GuiControl, "delve_node") && !InStr(A_GuiControl, "delve_node_") ;rig
 		check := A_Index
 		If (StrLen(delve_node_%A_Index%) = 2) && !InStr(red_nodes, "," A_Index ",")
 		{
+			blocked_directions := 0
+			If (LLK_DelveDir(A_Index, A_GuiControl) = "u,") && !InStr(delve_node_%check%, "d") ;check if hidden node is opposite the only open passage
+				blocked_directions := 1
+			If (LLK_DelveDir(A_Index, A_GuiControl) = "d,") && !InStr(delve_node_%check%, "u")
+				blocked_directions := 1
+			If (LLK_DelveDir(A_Index, A_GuiControl) = "l,") && !InStr(delve_node_%check%, "r")
+				blocked_directions := 1
+			If (LLK_DelveDir(A_Index, A_GuiControl) = "r,") && !InStr(delve_node_%check%, "l")
+				blocked_directions := 1
+			If (blocked_directions = 1) ;mark red if opposite
+			{
+				delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
+				GuiControl, delve_grid:, delve_node%check%, % delve_node%check%_toggle
+				red_nodes .= InStr(red_nodes, "," check ",") ? "" : check ","
+				threeway_nodes -= 1
+			}
 			If !InStr(red_nodes, "," check ",") && ((check = delve_hidden_nodes - 1) || (check = delve_hidden_nodes - 7) || (check = delve_hidden_nodes + 1) || (check = delve_hidden_nodes + 7)) ;check for adjacency to hidden node, and mark red if there are two-/three-way nodes
 			{
 				delve_node%check%_toggle := "img\GUI\square_red_opaque.png"
