@@ -1884,22 +1884,17 @@ If (hwnd_delve_grid = "") || (A_Gui = "settings_menu")
 	Gui, delve_grid2: Font, % "underline s"fSize_config0 + 2
 	Gui, delve_grid2: Add, Text, % "Section BackgroundTrans cRed Center w"7 * delve_gridwidth, hidden passage can only lead through empty squares
 	Gui, delve_grid2: Font, % "norm s"fSize0
-	IniRead, delve_pixelcolors, ini\delve calibration.ini, pixelcolors,, % A_Space
-	style := (delve_pixelcolors = "") ? "cRed" : "cLime"
-	Gui, delve_grid2: Add, Text, % "xs Section BackgroundTrans Center", % " image recognition enabled: "
-	Gui, delve_grid2: Add, Text, % style " ys BackgroundTrans Center", % LLK_InStrCount(delve_pixelcolors, "`n") " pixel values saved  "
-	Gui, delve_grid2: Add, Text, % "ys Border vdelve_calibration gDelve_scan BackgroundTrans Center", % " calibrate "
-	Gui, delve_grid2: Add, Text, % "ys x+4 Border vdelve_delete gDelve_scan BackgroundTrans Center", % " delete data "
-	Gui, delve_grid2: Show, % "NA x"xScreenOffSet + poe_width/2 - width/2 " y"yScreenOffSet + poe_height*0.09 + height - 2
-	LLK_Overlay("delve_grid2", "show")
-	/*
 	If (delve_enable_recognition = 1) && (A_Gui != "settings_menu")
 	{
-		Gui, delve_grid: Add, Progress, % "xs BackgroundTrans BackgroundBlack Disabled Center wp hp",
-		Gui, delve_grid: Add, Text, % "xs Section BackgroundTrans"
+		IniRead, delve_pixelcolors, ini\delve calibration.ini, pixelcolors,, % A_Space
+		style := (delve_pixelcolors = "") ? "cRed" : "cLime"
+		Gui, delve_grid2: Add, Text, % "xs Section BackgroundTrans Center", % " image recognition enabled: "
+		Gui, delve_grid2: Add, Text, % style " ys BackgroundTrans Center", % LLK_InStrCount(delve_pixelcolors, "`n") " pixel values saved  "
+		Gui, delve_grid2: Add, Text, % "ys Border vdelve_calibration gDelve_scan BackgroundTrans Center", % " calibrate "
+		Gui, delve_grid2: Add, Text, % "ys x+4 Border vdelve_delete gDelve_scan BackgroundTrans Center", % " delete data "
 	}
-	*/
-	
+	Gui, delve_grid2: Show, % "NA x"xScreenOffSet + poe_width/2 - width/2 " y"yScreenOffSet + poe_height*0.09 + height - 2
+	LLK_Overlay("delve_grid2", "show")
 	
 	guilist .= InStr(guilist, "delve_grid|") ? "" : "delve_grid|"
 	guilist .= InStr(guilist, "delve_grid2|") ? "" : "delve_grid2|"
