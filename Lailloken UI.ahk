@@ -18,8 +18,8 @@ SetWorkingDir %A_ScriptDir%
 SetBatchLines, -1
 OnExit, Exit
 Menu, Tray, Tip, Lailloken UI
-#Include Class_CustomFont.ahk
-font1 := New CustomFont("Fontin-SmallCaps.ttf")
+#Include data\Class_CustomFont.ahk
+font1 := New CustomFont("data\Fontin-SmallCaps.ttf")
 timeout := 1
 Menu, Tray, Icon, img\GUI\tray.ico
 
@@ -49,7 +49,13 @@ Loop, Parse, clone_frames_failcheck, `n, `n
 }
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
-If !FileExist("data\Resolutions.ini") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\")
+If FileExist("Class_CustomFont.ahk")
+	FileDelete, Class_CustomFont.ahk
+If FileExist("External Functions.ahk")
+	FileDelete, External Functions.ahk
+If FileExist("Fontin-SmallCaps.ttf")
+	FileDelete, Fontin-SmallCaps.ttf
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
 	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
@@ -210,12 +216,25 @@ GoSub, Init_notepad
 GoSub, Init_omnikey
 GoSub, Init_searchstrings
 GoSub, Init_conversions
+GoSub, Init_leveling_guide
 
 SetTimer, Loop, 1000
-If (enable_delve = 1) && (enable_delvelog = 1) && FileExist(poe_log_file)
+If FileExist(poe_log_file)
 {
+	If (enable_leveling_guide = 1)
+	{
+		FileRead, poe_log_content, % poe_log_file
+		Loop, Parse, poe_log_content, `r`n, `r`n
+		{
+			If InStr(A_Loopfield, "is now level ")
+			{
+				current_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+				current_level := StrReplace(current_level, "is now level ")
+			}
+		}
+	}
 	GoSub, Log_loop
-	SetTimer, Log_loop, 5000
+	SetTimer, Log_loop, 2500
 }
 
 timeout := 0
@@ -480,28 +499,42 @@ z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
 
 Alarm:
 start := A_TickCount
-While GetKeyState("LButton", "P")
+While GetKeyState("LButton", "P") && (A_Gui = "alarm_panel")
 {
 	If (A_TickCount >= start + 300)
 	{
 		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		If InStr(A_Gui, "alarm_drag")
+			WinGetPos,,, wGui2, hGui2, % "ahk_id " hwnd_alarm
 		While GetKeyState("LButton", "P")
 			GoSub, Panel_drag
 		KeyWait, LButton
-		alarm_panel_xpos := panelXpos
-		alarm_panel_ypos := panelYpos
-		IniWrite, % alarm_panel_xpos, ini\alarm.ini, UI, button xcoord
-		IniWrite, % alarm_panel_ypos, ini\alarm.ini, UI, button ycoord
+		If (A_Gui = "alarm_drag")
+		{
+			LLK_Overlay("alarm", "show")
+			LLK_Overlay(A_Gui, "show")
+		}
+		Else
+		{
+			alarm_panel_xpos := panelXpos
+			alarm_panel_ypos := panelYpos
+			IniWrite, % alarm_panel_xpos, ini\alarm.ini, UI, button xcoord
+			IniWrite, % alarm_panel_ypos, ini\alarm.ini, UI, button ycoord
+		}
 		WinActivate, ahk_group poe_window
 		Return
 	}
 }
+If (A_Gui = "alarm_drag") && (click = 1)
+	Return
 alarm_fontcolor := (alarm_fontcolor = "") ? "White" : alarm_fontcolor
 fSize_alarm := fSize0 + fSize_offset_alarm
 If (alarm_timestamp != "") && (alarm_timestamp < A_Now)
 {
 	Gui, alarm: Destroy
 	hwnd_alarm := ""
+	Gui, alarm_drag: Destroy
+	hwnd_alarm_drag := ""
 	alarm_timestamp := ""
 	WinActivate, ahk_group poe_window
 	Return
@@ -535,19 +568,28 @@ If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
 		alarm_timestamp := A_Now
 		EnvAdd, alarm_timestamp, %alarm_minutes%, S
 	}
+	Gui, alarm_drag: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_alarm_drag
+	Gui, alarm_drag: Margin, 0, 0
+	Gui, alarm_drag: Color, Black
+	WinSet, Transparent, % alarm_trans
+	Gui, alarm_drag: Font, % "s"fSize_alarm//3, Fontin SmallCaps
+	Gui, alarm_drag: Add, Text, x0 y0 BackgroundTrans Center valarm_drag gAlarm HWNDhwnd_alarm_dragbutton, % "    "
+	ControlGetPos,,, wDrag,,, ahk_id %hwnd_alarm_dragbutton%
+	guilist .= InStr(guilist, "alarm_drag|") ? "" : "alarm_drag|"
+	
 	Gui, alarm: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_alarm,
 	Gui, alarm: Color, Black
-	Gui, alarm: Margin, 12, 4
+	Gui, alarm: Margin, % wDrag + 2, 4
 	WinSet, Transparent, %alarm_trans%
 	Gui, alarm: Font, s%fSize_alarm% c%alarm_fontcolor%, Fontin SmallCaps
 	Gui, alarm: Add, Text, xp BackgroundTrans Center valarm_countdown, XX:XX
 	GuiControl, Text, alarm_countdown,
 	Gui, alarm: Show, % "NA Autosize"
 	WinGetPos,,, width, height, ahk_id %hwnd_alarm%
-	alarm_xpos := (alarm_xpos + width > poe_width) ? poe_width - width : alarm_xpos
-	alarm_ypos := (alarm_ypos + height > poe_height) ? poe_height - height: alarm_ypos
-	Gui, alarm: Show, % "Hide AutoSize x"xScreenOffSet + alarm_xpos " y"yScreenOffSet + alarm_ypos
+	Gui, alarm: Show, % "Hide AutoSize x"xScreenOffSet + poe_width/2 - width/2 " y"yScreenOffSet
+	Gui, alarm_drag: Show, % "Hide AutoSize x"xScreenOffSet + poe_width/2 - width/2 " y"yScreenOffSet
 	LLK_Overlay("alarm", "show")
+	LLK_Overlay("alarm_drag", "show")
 	WinActivate, ahk_group poe_window
 	continue_alarm := 0
 	Return
@@ -565,8 +607,11 @@ If (click = 2) || (hwnd_alarm = "")
 		alarm_timestamp := ""
 		If (hwnd_alarm != "")
 		{
+			Gui, alarm_drag: Destroy
+			hwnd_alarm_drag := ""
 			Gui, alarm: Destroy
 			hwnd_alarm := ""
+			IniWrite, % "", ini\alarm.ini, Settings, alarm-timestamp
 			WinActivate, ahk_group poe_window
 			Return
 		}
@@ -582,23 +627,21 @@ If (click = 2) || (hwnd_alarm = "")
 		Gui, alarm: Add, Text, ys x+6 BackgroundTrans Center, minute(s)
 		Gui, alarm: Add, Button, xp hp BackgroundTrans Hidden Default valarm_start gAlarm, OK
 		Gui, alarm: Show, % "NA"
-		WinGetPos,,, width, height, ahk_id %hwnd_alarm%
-		alarm_xpos := (alarm_xpos + width > poe_width) ? poe_width - width : alarm_xpos
-		alarm_ypos := (alarm_ypos + height > poe_height) ? poe_height - height: alarm_ypos
-		Gui, alarm: Show, % "Hide x"xScreenOffSet + alarm_xpos " y"yScreenOffSet + alarm_ypos
+		Gui, alarm: Show, % "Hide Center"
 		LLK_Overlay("alarm", "show", 0)
 		Return
 	}
 }
 
 If !WinExist("ahk_id " hwnd_alarm)
+{
 	LLK_Overlay("alarm", "show", 1)
+	LLK_Overlay("alarm_drag", "show", 1)
+}
 Else
 {
-	WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
-	alarm_xpos := (alarm_xpos <= xScreenOffSet) ? 0 : alarm_xpos - xScreenOffSet
-	alarm_ypos := (alarm_ypos <= yScreenOffSet) ? 0 : alarm_ypos - yScreenOffSet
 	LLK_Overlay("alarm", "hide")
+	LLK_Overlay("alarm_drag", "hide")
 	WinActivate, ahk_group poe_window
 }
 Return
@@ -1768,7 +1811,6 @@ If (A_GuiControl = "enable_delve")
 	{
 		WinActivate, ahk_group poe_window
 		GoSub, Log_loop
-		SetTimer, Log_loop, 5000
 	}
 	If (enable_delve = 1) && !FileExist(poe_log_file)
 		LLK_Overlay("delve_panel", "show")
@@ -1783,7 +1825,6 @@ If (A_GuiControl = "enable_delvelog")
 	{
 		WinActivate, ahk_group poe_window
 		GoSub, Log_loop
-		SetTimer, Log_loop, 5000
 	}
 	If (enable_delvelog = 0)
 		LLK_Overlay("delve_panel", "show")
@@ -1802,7 +1843,7 @@ If InStr(A_GuiControl, "delvegrid_")
 	IniWrite, % delve_gridwidth, ini\delve.ini, UI, grid dimensions
 }
 start := A_TickCount
-While GetKeyState("LButton", "P")
+While GetKeyState("LButton", "P") && (A_Gui = "delve_panel")
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -1882,14 +1923,16 @@ If (hwnd_delve_grid = "") || (A_Gui = "settings_menu")
 	WinSet, Transparent, %trans%
 	Gui, delve_grid2: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 	Gui, delve_grid2: Font, % "underline s"fSize_config0 + 2
-	Gui, delve_grid2: Add, Text, % "Section BackgroundTrans cRed Center w"7 * delve_gridwidth, hidden passage can only lead through empty squares
+	If (delve_enable_recognition = 0)
+		Gui, delve_grid2: Add, Text, % "Section BackgroundTrans cRed Center w"7 * delve_gridwidth, hidden passage can only lead through empty squares
+	Else Gui, delve_grid2: Add, Text, % "Section BackgroundTrans cRed Center w"7 * delve_gridwidth, hidden passage can only start at checkpoints
 	Gui, delve_grid2: Font, % "norm s"fSize0
 	If (delve_enable_recognition = 1) && (A_Gui != "settings_menu")
 	{
 		IniRead, delve_pixelcolors, ini\delve calibration.ini, pixelcolors,, % A_Space
 		style := (delve_pixelcolors = "") ? "cRed" : "cLime"
-		Gui, delve_grid2: Add, Text, % "xs Section BackgroundTrans Center", % " image recognition enabled: "
-		Gui, delve_grid2: Add, Text, % style " ys BackgroundTrans Center", % LLK_InStrCount(delve_pixelcolors, "`n") " pixel values saved  "
+		Gui, delve_grid2: Add, Text, % "xs Section BackgroundTrans Center", % " mode: recognition "
+		Gui, delve_grid2: Add, Text, % style " ys BackgroundTrans Center", % "(" LLK_InStrCount(delve_pixelcolors, "`n") " pixel values saved) "
 		Gui, delve_grid2: Add, Text, % "ys Border vdelve_calibration gDelve_scan BackgroundTrans Center", % " calibrate "
 		Gui, delve_grid2: Add, Text, % "ys x+4 Border vdelve_delete gDelve_scan BackgroundTrans Center", % " delete data "
 	}
@@ -2642,10 +2685,8 @@ Exit:
 Gdip_Shutdown(pToken)
 If (timeout != 1)
 {
-	IniWrite, %alarm_xpos%, ini\alarm.ini, UI, xcoord
-	IniWrite, %alarm_ypos%, ini\alarm.ini, UI, ycoord
-	alarm_timestamp := (alarm_timestamp < A_Now) ? "" : alarm_timestamp
-	IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
+	If !(alarm_timestamp < A_Now)
+		IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
 	
 	IniWrite, %notepad_width%, ini\notepad.ini, UI, width
 	IniWrite, %notepad_height%, ini\notepad.ini, UI, height
@@ -2657,6 +2698,13 @@ If (timeout != 1)
 		If (A_LoopField = "Settings")
 			continue
 		IniWrite, % clone_frame_%A_LoopField%_enable, ini\clone frames.ini, %A_LoopField%, enable
+	}
+	
+	IniRead, guide_progress_ini, ini\leveling guide.ini, Progress,, % A_Space
+	If (guide_progress != "") && (guide_progress != guide_progress_ini)
+	{
+		IniDelete, ini\leveling guide.ini, Progress
+		IniWrite, % guide_progress, ini\leveling guide.ini, Progress
 	}
 }
 ExitApp
@@ -2763,6 +2811,30 @@ Else
 	guilist := StrReplace(guilist, "notepad_panel|")
 	Gui, notepad_panel: Destroy
 	hwnd_notepad_panel := ""
+}
+
+If (enable_leveling_guide = 1)
+{
+	guilist .= InStr(guilist, "leveling_guide_panel|") ? "" : "leveling_guide_panel|"
+	Gui, leveling_guide_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_leveling_guide_panel
+	Gui, leveling_guide_panel: Margin, 0, 0
+	Gui, leveling_guide_panel: Color, Black
+	;WinSet, TransColor, Black
+	;WinSet, Transparent, %trans%
+	Gui, leveling_guide_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+	Gui, leveling_guide_panel: Add, Picture, % "Center BackgroundTrans Border gleveling_guide w" leveling_guide_panel_dimensions " h-1", img\GUI\leveling_guide.jpg
+	leveling_guide_panel_xpos_target := (leveling_guide_panel_xpos + leveling_guide_panel_dimensions + 2 > poe_width) ? poe_width - leveling_guide_panel_dimensions - 1 : leveling_guide_panel_xpos ;correct coordinates if panel would end up out of client-bounds
+	leveling_guide_panel_ypos_target := (leveling_guide_panel_ypos + leveling_guide_panel_dimensions + 2 > poe_height) ? poe_height - leveling_guide_panel_dimensions - 1 : leveling_guide_panel_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (leveling_guide_panel_xpos_target + leveling_guide_panel_dimensions + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (leveling_guide_panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		leveling_guide_panel_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, leveling_guide_panel: Show, % "NA x"xScreenOffset + leveling_guide_panel_xpos_target " y"yScreenoffset + leveling_guide_panel_ypos_target
+	LLK_Overlay("leveling_guide_panel", "show")
+}
+Else
+{
+	guilist := StrReplace(guilist, "leveling_guide_panel|")
+	Gui, leveling_guide_panel: Destroy
+	hwnd_leveling_guide_panel := ""
 }
 
 If (continue_alarm = 1)
@@ -3017,6 +3089,19 @@ Init_legion:
 IniRead, fSize_offset_legion, ini\timeless jewels.ini, Settings, font-offset, 0
 Return
 
+Init_leveling_guide:
+IniRead, enable_leveling_guide, ini\config.ini, Features, enable leveling guide, 0
+IniRead, fSize_offset_leveling_guide, ini\leveling tracker.ini, Settings, font-offset, 0
+fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
+IniRead, leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color, White
+IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency, 250
+IniRead, leveling_guide_panel_offset, ini\leveling tracker.ini, Settings, button-offset, 1
+IniRead, leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position, bottom
+leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
+IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
+IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
+Return
+
 Init_maps:
 Loop 16
 {
@@ -3084,13 +3169,8 @@ IniRead, notepad_text, ini\notepad.ini, Text, text, %A_Space%
 If (notepad_text != "")
 	notepad_text := StrReplace(notepad_text, ",,", "`n")
 IniRead, fSize_offset_notepad, ini\notepad.ini, Settings, font-offset, 0
-If fSize_offset_notepad is not number
-	fSize_offset_notepad := 0
-IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, %A_Space%
-notepad_fontcolor := (notepad_fontcolor = "") ? "White" : notepad_fontcolor
-IniRead, notepad_trans, ini\notepad.ini, Settings, transparency
-If notepad_trans is not number
-	notepad_trans := 255
+IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, White
+IniRead, notepad_trans, ini\notepad.ini, Settings, transparency, 250
 IniRead, notepad_panel_offset, ini\notepad.ini, Settings, button-offset, 1
 notepad_panel_dimensions := poe_width*0.03*notepad_panel_offset
 IniRead, notepad_panel_xpos, ini\notepad.ini, UI, button xcoord, % poe_width/2 - (notepad_panel_dimensions + 2)/2
@@ -3197,6 +3277,7 @@ guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|le
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
+log_keywords := "➞,"
 Return
 
 Lab_info:
@@ -3955,25 +4036,570 @@ previous_socket := A_GuiControl
 GoSub, Legion_seeds
 Return
 
-Log_loop:
-If (enable_delve = 0) || (enable_delvelog = 0)
+Leveling_guide:
+start := A_TickCount
+While GetKeyState("LButton", "P") && (A_Gui = "leveling_guide_panel") ;dragging the button
 {
-	SetTimer, Log_loop, Delete
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		leveling_guide_panel_xpos := panelXpos
+		leveling_guide_panel_ypos := panelYpos
+		IniWrite, % leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord
+		IniWrite, % leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
+If (A_Gui = "leveling_guide_panel") ;clicking the button
+{
+	If WinExist("ahk_id " hwnd_leveling_guide2)
+	{
+		;LLK_Overlay("leveling_guide1", "hide")
+		LLK_Overlay("leveling_guide2", "hide")
+		LLK_Overlay("leveling_guide3", "hide")
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	If !WinExist("ahk_id " hwnd_leveling_guide2) || (A_Gui = "settings_menu")
+	{
+		If (hwnd_leveling_guide2 = "")
+		{
+			GoSub, Leveling_guide_progress
+		}
+		Else
+		{
+			;LLK_Overlay("leveling_guide1", "show")
+			LLK_Overlay("leveling_guide2", "show")
+			LLK_Overlay("leveling_guide3", "show")
+		}
+		WinActivate, ahk_group poe_window
+	}
 	Return
 }
+If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the settings menu
+{
+	Gui, settings_menu: Submit, NoHide
+	GoSub, GUI
+	IniWrite, % enable_leveling_guide, ini\config.ini, Features, enable leveling guide
+	GoSub, Settings_menu
+	Return
+}
+If (A_GuiControl = "leveling_guide_generate") ;generate-button in the settings menu
+{
+	Run, https://heartofphos.github.io/exile-leveling/
+	Return
+}
+If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
+{
+	Gui, leveling_guide1: Destroy
+	Gui, leveling_guide2: Destroy
+	Gui, leveling_guide3: Destroy
+	hwnd_leveling_guide1 := ""
+	hwnd_leveling_guide2 := ""
+	hwnd_leveling_guide3 := ""
+	FileRead, json_areas, data\leveling tracker\areas.json
+	FileRead, json_gems, data\leveling tracker\gems.json
+	FileRead, json_quests, data\leveling tracker\quests.json
+	json_import := (SubStr(clipboard, 1, 2) = "[[") ? clipboard : ""
+	If (json_import = "")
+	{
+		LLK_ToolTip("invalid import data")
+		json_areas := ""
+		json_gems := ""
+		json_quests := ""
+		Return
+	}
+
+	parsed := Json.Load(json_import)
+	areas := Json.Load(json_areas)
+	gems := Json.Load(json_gems)
+	quests := Json.Load(json_quests)
+	guide_text := ""
+
+	Loop, % parsed.Length() ;parse all acts
+	{
+		loop := A_Index
+		Loop, % parsed[loop].Length() ;parse steps in individual acts
+		{
+			step := parsed[loop][A_Index]
+			step_text := ""
+			If (step.type = "fragment_step")
+			{
+				parts := step.parts
+				Loop, % parts.Length()
+				{
+					If !IsObject(parts[A_Index])
+					{
+						If (SubStr(parts[A_Index], -3) = "get ")
+							text := StrReplace(parts[A_Index], "get ", "activate the ")
+						Else If (InStr(parts[A_Index], "take") && InStr(step_text, "kill"))
+							text := ""
+						Else text := InStr(parts[A_Index], " ➞ ") ? StrReplace(parts[A_Index], " ➞", ", enter") : StrReplace(parts[A_Index], "➞", "enter")
+						step_text .= text
+					}
+					Else
+					{
+						type := parts[A_Index].type
+						value := parts[A_Index].value
+						areaID := parts[A_Index].areaId
+						target_areaID := parts[A_Index].targetAreaId
+						questID := parts[A_Index].questId
+						version := parts[A_Index].version
+						direction := StrReplace(parts[A_Index].dirIndex, 0, "north,")
+						direction := StrReplace(direction, 1, "north-east,")
+						direction := StrReplace(direction, 2, "east,")
+						direction := StrReplace(direction, 3, "south-east,")
+						direction := StrReplace(direction, 4, "south,")
+						direction := StrReplace(direction, 5, "south-west,")
+						direction := !InStr(step_text, "follow") && !InStr(step_text, "search") ? StrReplace(direction, 6, "west,") : StrReplace(direction, 6, "west")
+						direction := StrReplace(direction, 7, "north-west,")
+						Switch type  ;thing I never knew existed but really wanted
+						{
+							Case "enter":
+								step_text .= areas[areaID].name
+							Case "kill":
+								step_text .= InStr(value, ",") ? SubStr(parts[A_Index].value, 1, InStr(parts[A_Index].value, ",") - 1) : StrReplace(value, "alira darktongue", "alira")
+							Case "quest":
+								step_text .= quests[questID].name
+							Case "quest_text":
+								step_text .= !InStr(step_text, "kill") ? value : ""
+							Case "get_waypoint":
+								step_text .= "waypoint"
+							Case "waypoint":
+								step_text .= (areaID != "") ? "waypoint-travel to " areas[areaID].name : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+							Case "logout":
+								step_text .= "relog, enter " areas[areaID].name
+							Case "portal":
+								If (target_areaID = "")
+									step_text .= "portal"
+								Else step_text .= "portal to " areas[target_areaID].name
+							Case "trial":
+								step_text .= "the lab-trial"
+							Case "arena":
+								step_text .= value
+							Case "area":
+								step_text .= areas[areaID].name
+							Case "dir":
+								step_text .= direction
+							Case "crafting":
+								step_text .= "crafting recipe"
+							Case "generic":
+								step_text .= value
+							Case "ascend":
+								step_text .= "enter and complete the " version " lab"
+						}
+					}
+				}
+			}
+			If (step.type = "gem_step")
+			{
+				rewardType := step.rewardType
+				gemID := step.requiredGem.id
+				step_text .= (rewardType = "vendor") ? "buy " : "take reward: "
+				step_text .= gems[gemID].name
+			}
+			guide_text .= StrReplace(step_text, ",,", ",") "`n"
+		}
+	}
+	
+	guide_text := StrReplace(guide_text, "&", "&&")
+	StringLower, guide_text, guide_text
+	IniDelete, ini\leveling guide.ini, Steps
+	IniWrite, % guide_text, ini\leveling guide.ini, Steps
+	
+	If (guide_progress = "")
+		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
+	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
+	guide_progress_percent := (guide_progress != "" & guide_text_original != "") ? Format("{:0.2f}", (LLK_InStrCount(guide_progress, "`n")/LLK_InStrCount(guide_text_original, "`n"))*100) : 0
+	GuiControl, settings_menu:, leveling_guide_progress, % "current progress: " guide_progress_percent "%"
+	
+	guide_text := ""
+	parsed := ""
+	areas := ""
+	gems := ""
+	quests := ""
+	clipboard := ""
+	LLK_ToolTip("success")
+	Return
+}
+If (A_GuiControl = "leveling_guide_reset") ;reset-button in the settings menu
+{
+	IniDelete, ini\leveling guide.ini, Progress
+	guide_progress := ""
+	GuiControl, settings_menu:, leveling_guide_progress, % "current progress: 0%"
+	hwnd_leveling_guide2 := ""
+	guide_panel1_text := "n/a"
+	GoSub, Leveling_guide_progress
+	Return
+}
+If InStr(A_GuiControl, "button_leveling_guide") ;button-settings in the settings menu
+{
+	If (A_GuiControl = "button_leveling_guide_minus")
+		leveling_guide_panel_offset -= (leveling_guide_panel_offset > 0.4) ? 0.1 : 0
+	If (A_GuiControl = "button_leveling_guide_reset")
+		leveling_guide_panel_offset := 1
+	If (A_GuiControl = "button_leveling_guide_plus")
+		leveling_guide_panel_offset += (leveling_guide_panel_offset < 1) ? 0.1 : 0
+	IniWrite, % leveling_guide_panel_offset, ini\leveling tracker.ini, Settings, button-offset
+	leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
+	GoSub, GUI
+	Return
+}
+;UI-settings in the settings menu
+If (A_GuiControl = "fSize_leveling_guide_minus")
+{
+	fSize_offset_leveling_guide -= 1
+	IniWrite, %fSize_offset_leveling_guide%, ini\leveling tracker.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_leveling_guide_plus")
+{
+	fSize_offset_leveling_guide += 1
+	IniWrite, %fSize_offset_leveling_guide%, ini\leveling tracker.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_leveling_guide_reset")
+{
+	fSize_offset_leveling_guide := 0
+	IniWrite, %fSize_offset_leveling_guide%, ini\leveling tracker.ini, Settings, font-offset
+}
+If (A_GuiControl = "leveling_guide_opac_minus")
+{
+	leveling_guide_trans -= (leveling_guide_trans > 100) ? 30 : 0
+	IniWrite, %leveling_guide_trans%, ini\leveling tracker.ini, Settings, transparency
+}
+If (A_GuiControl = "leveling_guide_opac_plus")
+{
+	leveling_guide_trans += (leveling_guide_trans < 250) ? 30 : 0
+	IniWrite, %leveling_guide_trans%, ini\leveling tracker.ini, Settings, transparency
+}
+If InStr(A_GuiControl, "fontcolor_")
+{
+	leveling_guide_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
+	IniWrite, %leveling_guide_fontcolor%, ini\leveling tracker.ini, Settings, font-color
+}
+If InStr(A_GuiControl, "leveling_guide_position_")
+{
+	leveling_guide_position := StrReplace(A_GuiControl, "leveling_guide_position_")
+	IniWrite, % leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position
+}
+fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
+If (hwnd_leveling_guide2 != "")
+{
+	hwnd_leveling_guide2 := ""
+	GoSub, Leveling_guide_progress
+}
+Return
+
+Leveling_guide_progress:
+If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiControl = "leveling_guide_reset") || InStr(A_GuiControl, "jump")
+{
+	If InStr(A_GuiControl, "jump")
+	{
+		If (A_GuiControl = "leveling_guide_jump_forward")
+			guide_progress .= (guide_progress = "") ? guide_panel2_text : "`n" guide_panel2_text
+		Else
+		{
+			guide_text := guide_text_original
+			guide_progress := StrReplace(guide_progress, "`n" guide_panel1_text)
+		}
+	}
+	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
+	;IniRead, guide_text, ini\leveling guide.ini, Steps,, % A_Space
+	If (guide_progress = "")
+		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
+
+	If (guide_text_original = "")
+	{
+		LLK_ToolTip("no imported guide")
+		Return
+	}
+	guide_text := guide_text_original
+	Loop, Parse, guide_progress, `n, `n
+	{
+		If (A_Loopfield = "")
+			break
+		guide_text := StrReplace(guide_text, A_LoopField "`n",,, 1)
+	}
+}
+/*
+Else
+{
+	IniRead, guide_text, ini\leveling guide.ini, Steps,, % A_Space
+	Loop, Parse, guide_progress, `n, `n
+		guide_text := StrReplace(guide_text, A_LoopField "`n",,, 1)
+}
+*/
+
+If (guide_progress = "")
+	guide_panel1_text := "n/a"
+
+Loop, Parse, guide_progress, `n, `n
+{
+	If (A_LoopField = "")
+		break
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || InStr(A_Loopfield, "sail to") || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	{
+		parsed_step1 .= (parsed_step1 = "") ? A_Loopfield : "`n" A_Loopfield
+		guide_section1 := 1
+	}
+	Else
+	{
+		parsed_step1 := (guide_section1 = 1) ? A_Loopfield : parsed_step1 "`n" A_Loopfield
+		guide_section1 := 0
+	}
+	
+	If (guide_section1 = 1)
+	{
+		parsed_step1 := (SubStr(parsed_step1, 1, 1) = "`n") ? SubStr(parsed_step1, 2) : parsed_step1
+		guide_panel1_text := parsed_step1
+		guide_section1 := 0
+		parsed_step1 := ""
+	}
+}
+
+Loop, Parse, guide_text, `n, `n ;check progression and create texts for panels
+{
+	If (A_Loopfield = "") 
+		break
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || InStr(A_Loopfield, "sail to the") || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	{
+		parsed_step .= (parsed_step = "") ? A_Loopfield : "`n" A_Loopfield
+		guide_section := 1
+	}
+	Else
+	{
+		parsed_step := (guide_section = 1) ? A_Loopfield : parsed_step "`n" A_Loopfield
+		guide_section := 0
+	}
+	
+	If (guide_section = 1 || InStr(A_Loopfield, "an end to hunger"))
+	{
+		parsed_step := (SubStr(parsed_step, 1, 1) = "`n") ? SubStr(parsed_step, 2) : parsed_step
+		guide_panel2_text := parsed_step
+		guide_section := 0
+		parsed_step := ""
+		break
+	}
+}
+
+;text1 := StrReplace(guide_panel1_text, ", kill", "`nkill")
+;text1 := ((InStr(text1, ",") > 20) && (StrLen(text1) > 30)) ? StrReplace(text1, ", ", "`n",, 1) : text1
+;text1 := "- " StrReplace(text1, "`n", "`n- ")
+text1 := "- " StrReplace(guide_panel1_text, "`n", "`n- ")
+
+;text2 := StrReplace(guide_panel2_text, ", kill", "`nkill")
+;text2 := ((InStr(text2, ",") > 20) && (StrLen(text2) > 30)) ? StrReplace(text2, ", ", "`n",, 1) : text2
+;text2 := "- " StrReplace(text2, "`n", "`n- ")
+text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text
+
+If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
+{
+	If (all_gems = "")
+		FileRead, all_gems, data\leveling tracker\gems.txt
+	loop := 0
+	required_gems := LLK_SubStrCount(guide_panel2_text, "buy ", "`n")
+	Loop, Parse, guide_panel2_text, `n, `n ;check how many gems fit into the search-string
+	{
+		If InStr(A_Loopfield, "buy")
+		{
+			loop += 1
+			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
+			parsed_gem := ""
+			Loop, Parse, parse
+			{
+				parsed_gem .= A_Loopfield
+				If (LLK_SubStrCount(all_gems, parsed_gem, "`n", 1) = 1) && (StrLen(parsed_gem) > 2)
+				{
+					parse := parsed_gem
+					break
+				}
+			}
+			If (StrLen(search parse) >= 47)
+				break
+			search .= parse "|"
+		}
+	}
+	parsed_gems := LLK_InStrCount(search, "|")
+	skipped_gems := 0
+	Loop, Parse, text2, `n, `n ;merge gem-buy bullet-points into a collective one
+	{
+		If (A_Index = 1)
+			text2 := ""
+		If InStr(A_Loopfield, "buy")
+		{
+			If !InStr(text2, "buy gems")
+				text2 .= (text2 = "") ? "- buy gems (paste search-string)" : "`n- buy gems (paste search-string)"
+			skipped_gems += 1
+			If (skipped_gems <= parsed_gems) ;only merge gems that fit into search-string
+				continue
+		}
+		text2 .= (text2 = "") ? A_Loopfield : "`n" A_Loopfield
+	}
+}
+
+If (InStr(text2, "kill doedre") && InStr(text2, "kill maligaro") && InStr(text2, "kill shavronne")) ;merge multi-boss kills into a single line
+{
+	Loop, Parse, text2, `n, `n
+	{
+		If (A_Index = 1)
+			text2 := ""
+		If InStr(A_Loopfield, "find and kill")
+		{
+			If !InStr(text2, "find and kill")
+				text2 .= (text2 = "") ? "- find and kill doedre, maligaro, and shavronne" : "`n- find and kill doedre, maligaro, and shavronne"
+			continue
+		}
+		Else If InStr(A_Loopfield, "kill") && !InStr(A_Loopfield, "depraved trinity")
+		{
+			If !InStr(text2, "kill")
+				text2 .= (text2 = "") ? "- kill doedre, maligaro, and shavronne" : "`n- kill doedre, maligaro, and shavronne"
+			continue
+		}
+		text2 .= (text2 = "") ? A_Loopfield : "`n" A_Loopfield
+	}
+}
+
+text2 := StrReplace(text2, "shavronne the returned && reassembled brutus", "shavronne && brutus")
+
+/*
+Loop, Parse, text2, `n, `n
+{
+	If (A_Index = 1)
+		text2 := ""
+	If ((InStr(A_Loopfield, ",") > 20) && (StrLen(A_Loopfield) > 30))
+		text2 := (text2 = "") ? StrReplace(A_Loopfield, ", ", ",`n",, 1) : text2 "`n" StrReplace(A_Loopfield, ", ", ",`n",, 1)
+	Else text2 := (text2 = "") ? A_Loopfield : text2 "`n" A_Loopfield
+}
+*/
+
+If (hwnd_leveling_guide2 = "")
+{
+	Gui, leveling_guide1: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide1
+	Gui, leveling_guide1: Margin, 12, 0
+	Gui, leveling_guide1: Color, Black
+	WinSet, Transparent, %leveling_guide_trans%
+	Gui, leveling_guide1: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
+	Gui, leveling_guide1: Add, Text, % "BackgroundTrans HWNDhwnd_levelingguidetext1", % (guide_panel1_text = "") ? "n/a" : text1
+
+	Gui, leveling_guide2: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide2
+	Gui, leveling_guide2: Margin, 12, 0
+	Gui, leveling_guide2: Color, Black
+	WinSet, Transparent, %leveling_guide_trans%
+	Gui, leveling_guide2: Font, cWhite s%fSize_leveling_guide%, Fontin SmallCaps
+	Gui, leveling_guide2: Add, Text, % "BackgroundTrans HWNDhwnd_levelingguidetext2", % text2
+
+	;Gui, leveling_guide1: Show, NA x10000 y10000
+	Gui, leveling_guide2: Show, NA x10000 y10000
+	guilist .= InStr(guilist, "|leveling_guide2|leveling_guide3|") ? "" : "leveling_guide2|leveling_guide3|"
+}
+Else
+{
+	SetTextAndResize(hwnd_levelingguidetext2, text2, "s" fSize_leveling_guide, "Fontin SmallCaps")
+	;SetTextAndResize(hwnd_levelingguidetext1, text1, "s" fSize_leveling_guide, "Fontin SmallCaps")
+	;Gui, leveling_guide1: Show, NA x10000 y10000 AutoSize
+	Gui, leveling_guide2: Show, NA x10000 y10000 AutoSize
+}
+
+;WinGetPos,,, width, height, ahk_id %hwnd_leveling_guide1%
+WinGetPos,,, width2, height, ahk_id %hwnd_leveling_guide2%
+;width := (width > width2) ? width : width2
+;height := (height > height2) ? height : height2
+height := height
+
+Gui, leveling_guide3: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide3
+Gui, leveling_guide3: Margin, 0, 0
+Gui, leveling_guide3: Color, Black
+WinSet, Transparent, %leveling_guide_trans%
+Gui, leveling_guide3: Font, % "cWhite s"fSize_leveling_guide*(2/3), Fontin SmallCaps
+Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2, % " < "
+Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2, % " > "
+Gui, leveling_guide3: Show, NA x10000 y10000
+WinGetPos,,, width3, height3, ahk_id %hwnd_leveling_guide3%
+
+Switch leveling_guide_position
+{
+	Case "top":
+		;Gui, leveling_guide1: Show, % "NA x"xScreenOffSet + poe_width/2 - width - width3/2 + 1 " y"yScreenOffSet " h"height
+		Gui, leveling_guide2: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + height3 - 1 " h"height
+		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet " w"width2 - 2
+	Case "bottom":
+		;Gui, leveling_guide1: Show, % "NA x"xScreenOffSet + poe_width/2 - width - width3/2 + 1 " y"yScreenOffSet + (47/48)*poe_height - height " h"height
+		Gui, leveling_guide2: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + (47/48)*poe_height - height - height3 " h"height
+		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + (47/48)*poe_height - height3 + 1 " w"width2 - 2
+}
+;LLK_Overlay("leveling_guide1", "show")
+LLK_Overlay("leveling_guide2", "show")
+LLK_Overlay("leveling_guide3", "show")
+Return
+
+Log_loop:
+If (enable_delvelog = 0 || enable_delve = 0) && !WinExist("ahk_id " hwnd_leveling_guide2)
+	Return
 current_location := ""
 If !WinActive("ahk_group poe_window")
 	Return
 FileRead, poe_log_content, % poe_log_file
-poe_log_content := SubStr(poe_log_content, -5000)
-Loop, Parse, poe_log_content, `n, `n
+poe_log_content := SubStr(poe_log_content, -50000)
+StringLower, poe_log_content, poe_log_content
+Loop, Parse, poe_log_content, `r`n, `r`n
 {
 	If InStr(A_Loopfield, "you have entered")
-		current_location := InStr(A_Loopfield, "azurite mine") ? "azurite mine" : ""
+	{
+		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "you have entered "))
+		current_location := SubStr(StrReplace(current_location, "you have entered "), 1, -1)
+	}
 }
-If (current_location = "azurite mine")
-	LLK_Overlay("delve_panel", "show")
-Else LLK_Overlay("delve_panel", "hide")
+
+If WinExist("ahk_id " hwnd_leveling_guide2)
+{
+	target_location := InStr(guide_panel2_text, "`n") ? SubStr(guide_panel2_text, InStr(guide_panel2_text, "`n",,, LLK_InStrCount(guide_panel2_text, "`n"))) : guide_panel2_text
+	target_location := SubStr(target_location, -1*StrLen(current_location) + 1)
+	If (target_location = current_location) ;InStr(SubStr(guide_panel2_text, InStr(guide_panel2_text, "`n",,, LLK_InStrCount(guide_panel2_text, "`n")) + 1), current_location)
+	{
+		guide_progress .= (guide_progress = "") ? guide_panel2_text : "`n" guide_panel2_text
+		guide_text := StrReplace(guide_text, guide_panel2_text "`n",,, 1)
+		GoSub, Leveling_guide_progress
+	}
+}
+
+If InStr(text2, "search-string")
+{
+	search := ""
+	If (all_gems = "")
+		FileRead, all_gems, data\leveling tracker\gems.txt
+	Loop, Parse, guide_panel2_text, `n, `n
+	{
+		If InStr(A_Loopfield, "buy")
+		{
+			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
+			parsed_gem := ""
+			Loop, Parse, parse
+			{
+				parsed_gem .= A_Loopfield
+				If (LLK_SubStrCount(all_gems, parsed_gem, "`n", 1) = 1) && (StrLen(parsed_gem) > 2)
+				{
+					parse := parsed_gem
+					break
+				}
+			}
+			If (StrLen(search parse) >= 47)
+				break
+			search .= parse "|"
+		}
+	}
+	search := "^(" SubStr(StrReplace(search, " ", "."), 1, -1) ")"
+	clipboard := search
+}
+
+If (enable_delvelog = 1)
+{
+	If (current_location = "azurite mine")
+		LLK_Overlay("delve_panel", "show")
+	Else LLK_Overlay("delve_panel", "hide")
+}
 poe_log_content := ""
 Return
 
@@ -4032,6 +4658,8 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 			WinSet, Style, +0xC00000, ahk_id %hwnd_alarm%
 			WinSet, ExStyle, -0x20, ahk_id %hwnd_alarm%
 			Gui, alarm: Show, % "NA AutoSize"
+			Gui, alarm_drag: Destroy
+			hwnd_alarm_drag := ""
 		}
 		If !WinExist("ahk_id " hwnd_alarm) && WinExist("ahk_group poe_window")
 			LLK_Overlay("alarm", "show")
@@ -4604,7 +5232,7 @@ Return
 Notepad:
 start := A_TickCount
 Gui, notepad_edit: Submit, NoHide
-While GetKeyState("LButton", "P")
+While GetKeyState("LButton", "P") && InStr(A_Gui, "notepad")
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -5097,6 +5725,15 @@ ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
+If InStr(text2, "search-string") && LLK_ImageSearch("vendor")
+{
+	clipboard := search
+	SendInput, ^{f}
+	sleep, 200
+	SendInput, ^{a}^{v}
+	Return
+}
+
 If (clipboard = "") && (gamescreen = 0)
 {
 	LLK_ImageSearch()
@@ -5113,6 +5750,25 @@ If (clipboard = "") && (gamescreen = 0)
 	}
 	If (disable_imagecheck_vendor = 0) && (vendor = 1)
 	{
+		/*
+		If InStr(text2, "omni-click")
+		{
+			search := ""
+			Loop, Parse, guide_panel2_text, `n, `n
+			{
+				If InStr(A_Loopfield, "buy")
+				{
+					parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
+					parse := InStr(parse, "increased") ? SubStr(parse, 1, 11) : SubStr(parse, 1, 5)
+					search .= parse "|"
+				}
+			}
+			search := SubStr(StrReplace(search, " ", "."), 1, -1)
+			clipboard := "^(" search ")"
+			SendInput, ^{a}^{v}
+			Return
+		}
+		*/
 		stash_search_type := "vendor"
 		GoSub, Stash_search
 	}
@@ -5444,12 +6100,16 @@ If InStr(A_Gui, "map_mods")
 }
 If InStr(A_Gui, "notepad_drag")
 {
-	notepad_drag_xPos := panelXpos
-	notepad_drag_yPos := panelYpos
 	notepad_gui := "notepad" StrReplace(A_Gui, "notepad_drag")
 	panelXpos2 := (panelXpos >= poe_width/2) ? panelXpos - wGui2 + wGui : panelXpos
 	panelYpos2 := (panelYpos >= poe_height/2) ? panelYpos - hGui2 + hGui : panelYpos
 	Gui, %notepad_gui%: Show, % "NA x"xScreenOffSet + panelXpos2 " y"yScreenOffSet + panelYpos2
+}
+If (A_Gui = "alarm_drag")
+{
+	panelXpos2 := (panelXpos >= poe_width/2) ? panelXpos - wGui2 + wGui : panelXpos
+	panelYpos2 := (panelYpos >= poe_height/2) ? panelYpos - hGui2 + hGui : panelYpos
+	Gui, alarm: Show, % "NA x"xScreenOffSet + panelXpos2 " y"yScreenOffSet + panelYpos2
 }
 Return
 
@@ -6041,6 +6701,7 @@ betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "imag
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
+leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
 map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
@@ -6096,6 +6757,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %delve_style% gSettings_menu HWNDhwnd_settings_delve, % "delve-helper"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_delve%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %leveling_style% gSettings_menu HWNDhwnd_settings_leveling, % "leveling tracker"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_leveling%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %map_mods_style% gSettings_menu HWNDhwnd_settings_map_mods, % "map-info"
@@ -6167,6 +6832,8 @@ Else If InStr(GuiControl_copy, "delve")
 	ysettings_menu := yScreenOffSet + poe_height/3
 	GoSub, Settings_menu_delve
 }
+Else If InStr(GuiControl_copy, "leveling")
+	GoSub, Settings_menu_leveling_guide
 Else If InStr(GuiControl_copy, "map")
 	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad")
@@ -6392,6 +7059,19 @@ Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWi
 Gui, settings_menu_help: Color, Black
 Gui, settings_menu_help: Margin, 12, 4
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
+
+If (A_GuiControl = "leveling_guide_help")
+{
+text =
+(
+explanation
+checking this option will enable scanning the client-log generated by the game-client.
+
+depending on its file-size and other factors, this may affect general performance.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
 
 If (A_GuiControl = "delve_help")
 {
@@ -6652,6 +7332,64 @@ KeyWait, LButton
 Gui, settings_menu_help: Destroy
 Return
 
+Settings_menu_leveling_guide:
+Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gLeveling_guide xp+"spacing_settings*1.2 " venable_leveling_guide Checked"enable_leveling_guide, % "enable leveling tracker"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help hp w-1", img\GUI\help.png
+If (enable_leveling_guide = 1)
+{
+	/*
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color:
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vfontcolor_white cWhite gLeveling_guide Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gLeveling_guide Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gLeveling_guide Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gLeveling_guide Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gLeveling_guide Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gLeveling_guide Border x+"fSize0//4, % " purple "
+	*/
+	
+	Gui, settings_menu: Font, underline bold
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings:"
+	Gui, settings_menu: Font, norm
+	Gui, settings_menu: Add, Text, % "xs Section Border Center gLeveling_guide vLeveling_guide_generate BackgroundTrans", % " generate guide "
+	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_import BackgroundTrans", % " import guide "
+	
+	If (guide_progress = "")
+		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
+	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
+	guide_progress_percent := (guide_progress != "" && guide_text_original != "") ? Format("{:0.2f}", (LLK_InStrCount(guide_progress, "`n")/LLK_InStrCount(guide_text_original, "`n"))*100) : 0
+	Gui, settings_menu: Add, Text, % "xs Section vLeveling_guide_progress BackgroundTrans", % "current progress: " guide_progress_percent "%"
+	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_reset BackgroundTrans", % " reset progress "
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", % "credit: "
+	Gui, settings_menu: Add, Link, % "ys x+0 hp", <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans x+"fSize0//3, % "created by"
+	Gui, settings_menu: Add, Link, % "ys hp x+"fSize0//3, <a href="https://github.com/HeartofPhos">HeartofPhos</a>
+	
+	Gui, settings_menu: Font, underline bold
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "ui settings:"
+	Gui, settings_menu: Font, norm
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size offset:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_minus gLeveling_guide Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_reset gLeveling_guide Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_plus gLeveling_guide Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_minus gLeveling_guide Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_plus gLeveling_guide Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", position:
+	Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "top") ? "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide", top
+	;Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "right") ? "ys BackgroundTrans vleveling_guide_position_right gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_right gLeveling_guide", right
+	Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "bottom") ? "ys BackgroundTrans vleveling_guide_position_bottom gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_bottom gLeveling_guide", bottom
+	;Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "left") ? "ys BackgroundTrans vleveling_guide_position_left gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_left gLeveling_guide", left
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", button size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_minus gLeveling_guide Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_reset gLeveling_guide Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_plus gLeveling_guide Border x+2 wp", % "+"
+}
+Return
+
 Settings_menu_map_info:
 map_info_primary := 0
 If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
@@ -6687,7 +7425,7 @@ Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gApply_settings
 If (enable_notepad = 1)
 {
 	GoSub, Notepad
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color (overlay):
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color (widget):
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gApply_settings_notepad Border", % " white "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gApply_settings_notepad Border x+"fSize0//4, % " red "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gApply_settings_notepad Border x+"fSize0//4, % " cyan "
@@ -7638,4 +8376,5 @@ LLK_ToolTip(message, duration := 1, x := "", y := "")
 	SetTimer, ToolTip_clear, % 1000 * duration
 }
 
-#include External Functions.ahk
+#include data\External Functions.ahk
+#include data\JSON.ahk
