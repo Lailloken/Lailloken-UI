@@ -3277,7 +3277,6 @@ guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|le
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
-log_keywords := "➞,"
 Return
 
 Lab_info:
@@ -4397,6 +4396,7 @@ text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n
 
 If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 {
+	search2 := ""
 	If (all_gems = "")
 		FileRead, all_gems, data\leveling tracker\gems.txt
 	loop := 0
@@ -4417,12 +4417,12 @@ If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 					break
 				}
 			}
-			If (StrLen(search parse) >= 47)
+			If (StrLen(search2 parse) >= 47)
 				break
-			search .= parse "|"
+			search2 .= parse "|"
 		}
 	}
-	parsed_gems := LLK_InStrCount(search, "|")
+	parsed_gems := LLK_InStrCount(search2, "|")
 	skipped_gems := 0
 	Loop, Parse, text2, `n, `n ;merge gem-buy bullet-points into a collective one
 	{
