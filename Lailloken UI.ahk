@@ -131,11 +131,6 @@ supported_resolutions := "," StrReplace(supported_resolutions, "`n", ",")
 
 WinGet, poe_log_file, ProcessPath, ahk_group poe_window
 poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
-If FileExist(poe_log_file)
-{
-	Loop, Read, % poe_log_file
-		log_linecount += 1
-}
 
 If (fullscreen = "false")
 {
@@ -4135,7 +4130,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 					{
 						If (SubStr(parts[A_Index], -3) = "get ")
 							text := StrReplace(parts[A_Index], "get ", "activate the ")
-						Else If (InStr(parts[A_Index], "take") && InStr(step_text, "kill"))
+						Else If (InStr(parts[A_Index], "take") && InStr(step_text, "kill")) ;omit quest-items related to killing bosses
 							text := ""
 						Else text := InStr(parts[A_Index], " ➞ ") ? StrReplace(parts[A_Index], " ➞", ", enter") : StrReplace(parts[A_Index], "➞", "enter")
 						step_text .= text
@@ -4159,23 +4154,23 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						Switch type  ;thing I never knew existed but really wanted
 						{
 							Case "enter":
-								step_text .= areas[areaID].name
+								step_text .= "areaID" areaID
 							Case "kill":
-								step_text .= InStr(value, ",") ? SubStr(parts[A_Index].value, 1, InStr(parts[A_Index].value, ",") - 1) : StrReplace(value, "alira darktongue", "alira")
+								step_text .= InStr(value, ",") ? SubStr(parts[A_Index].value, 1, InStr(parts[A_Index].value, ",") - 1) : StrReplace(value, "alira darktongue", "alira") ;shorten boss names
 							Case "quest":
 								step_text .= quests[questID].name
 							Case "quest_text":
-								step_text .= !InStr(step_text, "kill") ? value : ""
+								step_text .= !InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
 							Case "get_waypoint":
 								step_text .= "waypoint"
 							Case "waypoint":
-								step_text .= (areaID != "") ? "waypoint-travel to " areas[areaID].name : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+								step_text .= (areaID != "") ? "waypoint-travel to areaID" areaID : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
 							Case "logout":
-								step_text .= "relog, enter " areas[areaID].name
+								step_text .= "relog, enter areaID" areaID
 							Case "portal":
 								If (target_areaID = "")
 									step_text .= "portal"
-								Else step_text .= "portal to " areas[target_areaID].name
+								Else step_text .= "portal to areaID" target_areaID
 							Case "trial":
 								step_text .= "the lab-trial"
 							Case "arena":
@@ -4221,6 +4216,9 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	areas := ""
 	gems := ""
 	quests := ""
+	json_areas := ""
+	json_gems := ""
+	json_quests := ""
 	clipboard := ""
 	LLK_ToolTip("success")
 	Return
@@ -4293,12 +4291,21 @@ If (hwnd_leveling_guide2 != "")
 Return
 
 Leveling_guide_progress:
+If (areas = "")
+{
+	FileRead, json_areas, data\leveling tracker\areas.json
+	areas := Json.Load(json_areas)
+}
 If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiControl = "leveling_guide_reset") || InStr(A_GuiControl, "jump")
 {
 	If InStr(A_GuiControl, "jump")
 	{
 		If (A_GuiControl = "leveling_guide_jump_forward")
+		{
+			If InStr(guide_panel2_text, "an end to hunger")
+				Return
 			guide_progress .= (guide_progress = "") ? guide_panel2_text : "`n" guide_panel2_text
+		}
 		Else
 		{
 			guide_text := guide_text_original
@@ -4339,7 +4346,7 @@ Loop, Parse, guide_progress, `n, `n
 {
 	If (A_LoopField = "")
 		break
-	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || InStr(A_Loopfield, "sail to") || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
 	{
 		parsed_step1 .= (parsed_step1 = "") ? A_Loopfield : "`n" A_Loopfield
 		guide_section1 := 1
@@ -4363,7 +4370,7 @@ Loop, Parse, guide_text, `n, `n ;check progression and create texts for panels
 {
 	If (A_Loopfield = "") 
 		break
-	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || InStr(A_Loopfield, "sail to the") || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
 	{
 		parsed_step .= (parsed_step = "") ? A_Loopfield : "`n" A_Loopfield
 		guide_section := 1
@@ -4388,11 +4395,15 @@ Loop, Parse, guide_text, `n, `n ;check progression and create texts for panels
 ;text1 := ((InStr(text1, ",") > 20) && (StrLen(text1) > 30)) ? StrReplace(text1, ", ", "`n",, 1) : text1
 ;text1 := "- " StrReplace(text1, "`n", "`n- ")
 text1 := "- " StrReplace(guide_panel1_text, "`n", "`n- ")
+If InStr(text1, "areaID")
+	text1 := LLK_ReplaceAreaID(text1)
 
 ;text2 := StrReplace(guide_panel2_text, ", kill", "`nkill")
 ;text2 := ((InStr(text2, ",") > 20) && (StrLen(text2) > 30)) ? StrReplace(text2, ", ", "`n",, 1) : text2
 ;text2 := "- " StrReplace(text2, "`n", "`n- ")
 text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text
+If InStr(text2, "areaID")
+	text2 := LLK_ReplaceAreaID(text2)
 
 If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 {
@@ -4431,7 +4442,7 @@ If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 		If InStr(A_Loopfield, "buy")
 		{
 			If !InStr(text2, "buy gems")
-				text2 .= (text2 = "") ? "- buy gems (paste search-string)" : "`n- buy gems (paste search-string)"
+				text2 .= (text2 = "") ? "- buy gems (paste/omni search-string)" : "`n- buy gems (paste/omni search-string)"
 			skipped_gems += 1
 			If (skipped_gems <= parsed_gems) ;only merge gems that fit into search-string
 				continue
@@ -4546,12 +4557,20 @@ poe_log_content := SubStr(poe_log_content, -50000)
 StringLower, poe_log_content, poe_log_content
 Loop, Parse, poe_log_content, `r`n, `r`n
 {
-	If InStr(A_Loopfield, "you have entered")
+	If InStr(A_Loopfield, "generating level")
 	{
-		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "you have entered "))
-		current_location := SubStr(StrReplace(current_location, "you have entered "), 1, -1)
+		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
+		Loop, Parse, current_location
+		{
+			If (A_Index = 1)
+				current_location := ""
+			If (A_Loopfield = """")
+				break
+			current_location .= A_Loopfield
+		}
 	}
 }
+
 
 If WinExist("ahk_id " hwnd_leveling_guide2)
 {
@@ -7065,7 +7084,7 @@ If (A_GuiControl = "leveling_guide_help")
 text =
 (
 explanation
-checking this option will enable scanning the client-log generated by the game-client.
+checking this option will enable scanning the client-log generated by the game-client in order to track your character's current location and level.
 
 depending on its file-size and other factors, this may affect general performance.
 )
@@ -7078,7 +7097,7 @@ If (A_GuiControl = "delve_help")
 text =
 (
 explanation
-checking this option will enable scanning the client-log generated by the game-client.
+checking this option will enable scanning the client-log generated by the game-client in order to check whether your character is in the azurite mine.
 
 depending on its file-size and other factors, this may affect general performance.
 )
@@ -8372,6 +8391,20 @@ LLK_ToolTip(message, duration := 1, x := "", y := "")
 		ToolTip, % message, %x%, %mouseYpos%, 17
 	Else ToolTip, % message, %x%, %y%, 17
 	SetTimer, ToolTip_clear, % 1000 * duration
+}
+
+LLK_ReplaceAreaID(string)
+{
+	global areas
+	Loop, Parse, string, % A_Space, % A_Space
+	{
+		If !InStr(A_Loopfield, "areaid")
+			continue
+		areaID := StrReplace(A_Loopfield, "areaid")
+		string := StrReplace(string, A_Loopfield, areas[areaID].name,, 1)
+	}
+	StringLower, string, string
+	Return string
 }
 
 #include data\External Functions.ahk
