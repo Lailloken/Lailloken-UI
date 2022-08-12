@@ -4488,7 +4488,7 @@ If (hwnd_leveling_guide2 = "")
 	Gui, leveling_guide2: Margin, 12, 0
 	Gui, leveling_guide2: Color, Black
 	WinSet, Transparent, %leveling_guide_trans%
-	Gui, leveling_guide2: Font, cWhite s%fSize_leveling_guide%, Fontin SmallCaps
+	Gui, leveling_guide2: Font, c%leveling_guide_fontcolor% s%fSize_leveling_guide%, Fontin SmallCaps
 	Gui, leveling_guide2: Add, Text, % "BackgroundTrans HWNDhwnd_levelingguidetext2", % text2
 
 	;Gui, leveling_guide1: Show, NA x10000 y10000
@@ -4513,7 +4513,7 @@ Gui, leveling_guide3: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindo
 Gui, leveling_guide3: Margin, 0, 0
 Gui, leveling_guide3: Color, Black
 WinSet, Transparent, %leveling_guide_trans%
-Gui, leveling_guide3: Font, % "cWhite s"fSize_leveling_guide*(2/3), Fontin SmallCaps
+Gui, leveling_guide3: Font, % "c" leveling_guide_fontcolor " s"fSize_leveling_guide*(2/3), Fontin SmallCaps
 Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2, % " < "
 Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2, % " > "
 Gui, leveling_guide3: Show, NA x10000 y10000
@@ -7337,16 +7337,6 @@ Gui, settings_menu: Add, Checkbox, % "ys Section BackgroundTrans gLeveling_guide
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help hp w-1", img\GUI\help.png
 If (enable_leveling_guide = 1)
 {
-	/*
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color:
-	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vfontcolor_white cWhite gLeveling_guide Border", % " white "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gLeveling_guide Border x+"fSize0//4, % " red "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gLeveling_guide Border x+"fSize0//4, % " cyan "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gLeveling_guide Border x+"fSize0//4, % " yellow "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gLeveling_guide Border x+"fSize0//4, % " lime "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gLeveling_guide Border x+"fSize0//4, % " purple "
-	*/
-	
 	Gui, settings_menu: Font, underline bold
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings:"
 	Gui, settings_menu: Font, norm
@@ -7368,6 +7358,14 @@ If (enable_leveling_guide = 1)
 	Gui, settings_menu: Font, underline bold
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "ui settings:"
 	Gui, settings_menu: Font, norm
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text color:
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vfontcolor_white cWhite gLeveling_guide Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gLeveling_guide Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gLeveling_guide Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gLeveling_guide Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gLeveling_guide Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gLeveling_guide Border x+"fSize0//4, % " purple "
+	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size offset:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_minus gLeveling_guide Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_reset gLeveling_guide Border x+2 wp", % "0"
