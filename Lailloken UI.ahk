@@ -271,7 +271,7 @@ Else
 	clipboard := scrollboard%scrollboard_active%
 	ClipWait, 0.05
 }
-SendInput, ^{v}^{a}
+SendInput, ^{f}^{v}
 sleep, 50
 scroll_in_progress := 0
 Return
@@ -294,7 +294,7 @@ Else
 	clipboard := scrollboard%scrollboard_active%
 	ClipWait, 0.05
 }
-SendInput, ^{v}^{a}
+SendInput, ^{f}^{v}
 sleep, 50
 scroll_in_progress := 0
 Return
@@ -306,6 +306,10 @@ LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
 :?:.llk::
+LLK_HotstringClip(A_ThisHotkey, 1)
+Return
+
+:?:.wiki::
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
@@ -360,6 +364,8 @@ SendInput, {Tab}
 Return
 
 ESC::
+If (stash_search_scroll_mode = 1)
+	Return
 If (update_available = 1)
 {
 	ToolTip
@@ -940,7 +946,7 @@ Else If (A_GuiControl = "poison")
 Else clipboard := ""
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-SendInput, ^{a}^{v}
+SendInput, ^{f}^{v}
 Gui, bestiary_menu: Destroy
 Return
 
@@ -2911,7 +2917,7 @@ If (hotstringboard = "") && (gwennen_regex != "ERROR" && gwennen_regex != "")
 {
 	Clipboard := gwennen_regex
 	ClipWait
-	SendInput, ^{a}^{v}
+	SendInput, ^{f}^{v}
 }
 Return
 
@@ -4079,6 +4085,13 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 	Gui, settings_menu: Submit, NoHide
 	GoSub, GUI
 	IniWrite, % enable_leveling_guide, ini\config.ini, Features, enable leveling guide
+	If (enable_leveling_guide = 0)
+	{
+		Gui, leveling_guide2: Destroy
+		Gui, leveling_guide3: Destroy
+		hwnd_leveling_guide2 := ""
+		hwnd_leveling_guide3 := ""
+	}
 	GoSub, Settings_menu
 	Return
 }
@@ -4095,6 +4108,12 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	hwnd_leveling_guide1 := ""
 	hwnd_leveling_guide2 := ""
 	hwnd_leveling_guide3 := ""
+	build_gems_skill_str := ""
+	build_gems_supp_str := ""
+	build_gems_skill_dex := ""
+	build_gems_supp_dex := ""
+	build_gems_skill_int := ""
+	build_gems_supp_int := ""
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
@@ -4195,10 +4214,109 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 				gemID := step.requiredGem.id
 				step_text .= (rewardType = "vendor") ? "buy " : "take reward: "
 				step_text .= gems[gemID].name
+				Switch gems[gemID].primary_attribute ;group gems into strings for search-strings feature
+				{
+					Case "strength":
+						If !InStr(gems[gemID].name, "support")
+							build_gems_skill_str .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+						If InStr(gems[gemID].name, "support")
+							build_gems_supp_str .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+					Case "dexterity":
+						If !InStr(gems[gemID].name, "support")
+							build_gems_skill_dex .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+						If InStr(gems[gemID].name, "support")
+							build_gems_supp_dex .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+					Case "intelligence":
+						If !InStr(gems[gemID].name, "support")
+							build_gems_skill_int .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+						If InStr(gems[gemID].name, "support") || InStr(gems[gemID].name, "arcanist brand")
+							build_gems_supp_int .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+				}
 			}
 			guide_text .= StrReplace(step_text, ",,", ",") "`n"
 		}
 	}
+	
+	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int ;create single gem-string for gear tracker feature
+	
+	IniDelete, ini\leveling tracker.ini, Gems
+	If (build_gems_all != "")
+	{
+		Sort, build_gems_all, D`, P2 N
+		Sort, build_gems_skill_str, D`, P2 N
+		Sort, build_gems_supp_str, D`, P2 N
+		Sort, build_gems_skill_dex, D`, P2 N
+		Sort, build_gems_supp_dex, D`, P2 N
+		Sort, build_gems_skill_int, D`, P2 N
+		Sort, build_gems_supp_int, D`, P2 N
+		
+		build_gems_all := StrReplace(build_gems_all, ")", ") ")		
+		IniWrite, % SubStr(StrReplace(build_gems_all, ",", "`n"), 1, -1), ini\leveling tracker.ini, Gems ;save gems for gear tracker feature
+	}
+	
+	parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int"
+	
+	search_string_skill_str := ""
+	search_string_supp_str := ""
+	search_string_skill_dex := ""
+	search_string_supp_dex := ""
+	search_string_skill_int := ""
+	search_string_supp_int := ""
+	search_string_all := ""
+	
+	If (all_gems = "")
+		FileRead, all_gems, data\leveling tracker\gems.txt
+	
+	Loop, Parse, parse, `,, `,
+	{
+		loop := A_Loopfield
+		parse_string := ""
+		If (build_gems_%A_Loopfield% = "")
+			continue
+		Loop, Parse, build_gems_%A_Loopfield%, `,, `,
+		{
+			If (A_Loopfield = "")
+				break
+			parse_gem := SubStr(A_Loopfield, 5)
+			Loop, Parse, parse_gem
+			{
+				If (A_Index = 1)
+					parse_gem := ""
+				parse_gem .= A_Loopfield
+				If (LLK_SubStrCount(all_gems, parse_gem, "`n", 1) = 1) && (StrLen(parse_gem) >= 3)
+					break
+			}
+			If (StrLen(parse_string parse_gem) <= 47)
+				parse_string .= parse_gem "|"
+			Else
+			{
+				search_string_%loop% .= "^(" StrReplace(SubStr(parse_string, 1, -1), " ", ".") ");"
+				parse_string := parse_gem "|"
+			}
+		}
+		search_string_%loop% .= "^(" StrReplace(SubStr(parse_string, 1, -1), " ", ".") ")"
+	}
+	
+	Loop, Parse, parse, `,, `,
+	{
+		If (search_string_%A_Loopfield% != "")
+			search_string_all .= search_string_%A_Loopfield% ";"
+	}
+	
+	If (search_string_all != "")
+	{
+		search_string_all := SubStr(search_string_all, 1, -1)
+		IniRead, placeholder, ini\stash search.ini, Settings, vendor, % A_Space
+		If !InStr(placeholder, "(tracker_gems)")
+			IniWrite, % placeholder "(tracker_gems),", ini\stash search.ini, Settings, vendor
+		IniWrite, 1, ini\stash search.ini, tracker_gems, enable
+		IniWrite, "%search_string_all%", ini\stash search.ini, tracker_gems, string 1
+		IniWrite, 1, ini\stash search.ini, tracker_gems, string 1 enable scrolling
+		IniWrite, "", ini\stash search.ini, tracker_gems, string 2
+		IniWrite, 0, ini\stash search.ini, tracker_gems, string 2 enable scrolling
+	}
+	
+	Return
 	
 	guide_text := StrReplace(guide_text, "&", "&&")
 	StringLower, guide_text, guide_text
@@ -4209,6 +4327,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
 	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
 	guide_progress_percent := (guide_progress != "" & guide_text_original != "") ? Format("{:0.2f}", (LLK_InStrCount(guide_progress, "`n")/LLK_InStrCount(guide_text_original, "`n"))*100) : 0
+	guide_progress_percent := (guide_progress_percent >= 99) ? 100 : guide_progress_percent
 	GuiControl, settings_menu:, leveling_guide_progress, % "current progress: " guide_progress_percent "%"
 	
 	guide_text := ""
@@ -4442,7 +4561,7 @@ If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 		If InStr(A_Loopfield, "buy")
 		{
 			If !InStr(text2, "buy gems")
-				text2 .= (text2 = "") ? "- buy gems (paste/omni search-string)" : "`n- buy gems (paste/omni search-string)"
+				text2 .= (text2 = "") ? "- buy gems (highlight: ctrl-f-v)" : "`n- buy gems (highlight: ctrl-f-v)"
 			skipped_gems += 1
 			If (skipped_gems <= parsed_gems) ;only merge gems that fit into search-string
 				continue
@@ -4584,7 +4703,7 @@ If WinExist("ahk_id " hwnd_leveling_guide2)
 	}
 }
 
-If InStr(text2, "search-string")
+If InStr(text2, "ctrl-f-v")
 {
 	search := ""
 	If (all_gems = "")
@@ -5744,15 +5863,6 @@ ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
-If InStr(text2, "search-string") && LLK_ImageSearch("vendor")
-{
-	clipboard := search
-	SendInput, ^{f}
-	sleep, 200
-	SendInput, ^{a}^{v}
-	Return
-}
-
 If (clipboard = "") && (gamescreen = 0)
 {
 	LLK_ImageSearch()
@@ -5769,25 +5879,6 @@ If (clipboard = "") && (gamescreen = 0)
 	}
 	If (disable_imagecheck_vendor = 0) && (vendor = 1)
 	{
-		/*
-		If InStr(text2, "omni-click")
-		{
-			search := ""
-			Loop, Parse, guide_panel2_text, `n, `n
-			{
-				If InStr(A_Loopfield, "buy")
-				{
-					parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
-					parse := InStr(parse, "increased") ? SubStr(parse, 1, 11) : SubStr(parse, 1, 5)
-					search .= parse "|"
-				}
-			}
-			search := SubStr(StrReplace(search, " ", "."), 1, -1)
-			clipboard := "^(" search ")"
-			SendInput, ^{a}^{v}
-			Return
-		}
-		*/
 		stash_search_type := "vendor"
 		GoSub, Stash_search
 	}
@@ -7366,6 +7457,7 @@ If (enable_leveling_guide = 1)
 		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
 	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
 	guide_progress_percent := (guide_progress != "" && guide_text_original != "") ? Format("{:0.2f}", (LLK_InStrCount(guide_progress, "`n")/LLK_InStrCount(guide_text_original, "`n"))*100) : 0
+	guide_progress_percent := (guide_progress_percent >= 99) ? 100 : guide_progress_percent
 	Gui, settings_menu: Add, Text, % "xs Section vLeveling_guide_progress BackgroundTrans", % "current progress: " guide_progress_percent "%"
 	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_reset BackgroundTrans", % " reset progress "
 	
@@ -7643,10 +7735,10 @@ If (A_Gui != "")
 	}
 	clipboard := (scrollboard1 = "") ? stash_search_string : scrollboard1
 	ClipWait, 0.05
-	SendInput, ^{a}^{v}^{a}
+	SendInput, ^{f}^{v}
 	If (stash_search_scroll = 1)
 	{
-		SetTimer, Stash_search_scroll
+		SetTimer, Stash_search_scroll, 100
 		stash_search_scroll_mode := 1
 	}
 	Return
@@ -7831,8 +7923,8 @@ Gui, stash_search_preview_list: Destroy
 Return
 
 Stash_search_scroll:
-ToolTip, % "          scrolling...`n          click to exit",,, 11
-KeyWait, LButton, D T0.5
+ToolTip, % "              scrolling...`n              ESC to exit",,, 11
+KeyWait, ESC, D T0.05
 If !ErrorLevel
 {
 	SetTimer, stash_search_scroll, delete
@@ -8204,6 +8296,12 @@ LLK_HotstringClip(hotstring, mode := 0)
 			hwnd_lab_layout := ""
 			hwnd_lab_marker := ""
 		}
+	}
+	If (hotstring = "wiki")
+	{
+		hotstringboard := StrReplace(hotstringboard, A_Space, "+")
+		hotstringboard := StrReplace(hotstringboard, "'", "%27")
+		Run, https://www.poewiki.net/w/index.php?search=%hotstringboard%
 	}
 	hotstringboard := ""
 }
