@@ -4316,8 +4316,6 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		IniWrite, 0, ini\stash search.ini, tracker_gems, string 2 enable scrolling
 	}
 	
-	Return
-	
 	guide_text := StrReplace(guide_text, "&", "&&")
 	StringLower, guide_text, guide_text
 	IniDelete, ini\leveling guide.ini, Steps
