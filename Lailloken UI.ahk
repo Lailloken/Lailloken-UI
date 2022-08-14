@@ -387,6 +387,7 @@ If (update_available = 1)
 If WinExist("ahk_id " hwnd_gear_tracker)
 {
 	LLK_GearTrackerGUI(1)
+	GoSub, Log_loop
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
 	WinActivate, ahk_group poe_window
@@ -4542,6 +4543,7 @@ If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") ;clicking a
 			IniDelete, ini\leveling tracker.ini, gems
 			IniWrite, % gear_tracker_gems, ini\leveling tracker.ini, gems
 		}
+		GoSub, Log_loop
 	}
 }
 
@@ -4555,6 +4557,7 @@ If (A_GuiControl = "gear_tracker_char") ;clicking the drop-down list
 If (WinExist("ahk_id " hwnd_gear_tracker) && (A_Gui != "gear_tracker") && (update_gear_tracker != 1))
 {
 	LLK_GearTrackerGUI(1)
+	GoSub, Log_loop
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
 	WinActivate, ahk_group poe_window
@@ -4564,6 +4567,7 @@ Else
 {
 	LLK_GearTrackerGUI()
 	update_gear_tracker := 0
+	GoSub, Log_loop
 	Gui, gear_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_gear_tracker
 	Gui, gear_tracker: Margin, 12, 4
 	Gui, gear_tracker: Color, Black
@@ -4868,7 +4872,7 @@ Log_loop:
 If (enable_delvelog = 0 || enable_delve = 0) && !WinExist("ahk_id " hwnd_leveling_guide2) && (gear_tracker_char = "")
 	Return
 current_location := ""
-If !WinActive("ahk_group poe_window")
+If !WinActive("ahk_group poe_window") && (A_Gui != "leveling_guide_panel") && (A_ThisHotkey != "ESC") && (A_Gui != "gear_tracker")
 	Return
 FileRead, poe_log_content, % poe_log_file
 poe_log_content := SubStr(poe_log_content, -50000)
