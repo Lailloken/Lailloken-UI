@@ -219,14 +219,26 @@ If FileExist(poe_log_file)
 	If (enable_leveling_guide = 1)
 	{
 		FileRead, poe_log_content, % poe_log_file
-		Loop, Parse, poe_log_content, `r`n, `r`n
+		gear_tracker_characters := []
+		Loop
 		{
-			If InStr(A_Loopfield, "is now level ")
+			poe_log_content_short := SubStr(poe_log_content, -0.1*A_Index*StrLen(poe_log_content))
+			Loop, Parse, poe_log_content_short, `r`n, `r`n
 			{
-				current_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
-				current_level := StrReplace(current_level, "is now level ")
+				If InStr(A_Loopfield, "is now level ")
+				{
+					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+					parsed_level := StrReplace(parsed_level, "is now level ")
+					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+					gear_tracker_characters[parsed_character] := parsed_level
+				}
 			}
+			If (gear_tracker_characters.Count() > 0)
+				break
 		}
+		poe_log_content := ""
+		poe_log_content_short := ""
 	}
 	GoSub, Log_loop
 	SetTimer, Log_loop, 2500
@@ -370,6 +382,14 @@ If (update_available = 1)
 {
 	ToolTip
 	update_available := 0
+	Return
+}
+If WinExist("ahk_id " hwnd_gear_tracker)
+{
+	LLK_GearTrackerGUI(1)
+	Gui, gear_tracker: Destroy
+	hwnd_gear_tracker := ""
+	WinActivate, ahk_group poe_window
 	Return
 }
 If WinExist("ahk_id " hwnd_delve_grid)
@@ -1844,7 +1864,7 @@ If InStr(A_GuiControl, "delvegrid_")
 	IniWrite, % delve_gridwidth, ini\delve.ini, UI, grid dimensions
 }
 start := A_TickCount
-While GetKeyState("LButton", "P") && (A_Gui = "delve_panel")
+While GetKeyState("LButton", "P") && (A_Gui = "delve_panel") ;dragging the delve-button
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -2830,6 +2850,16 @@ If (enable_leveling_guide = 1)
 		leveling_guide_panel_ypos_target := pixel_gamescreen_y1 + 2
 	Gui, leveling_guide_panel: Show, % "NA x"xScreenOffset + leveling_guide_panel_xpos_target " y"yScreenoffset + leveling_guide_panel_ypos_target
 	LLK_Overlay("leveling_guide_panel", "show")
+	
+	If (gear_tracker_char != "")
+	{
+		IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
+		IniRead, gear_tracker_gems, ini\leveling tracker.ini, gems,, % A_Space
+		
+		gear_tracker_parse := gear_tracker_items "`n" gear_tracker_gems
+		Sort, gear_tracker_parse, P2 D`n N
+		LLK_GearTrackerGUI(1)
+	}
 }
 Else
 {
@@ -3101,6 +3131,9 @@ IniRead, leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-po
 leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
 IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
 IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
+IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
+IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, 0
+IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, 0
 Return
 
 Init_maps:
@@ -4054,7 +4087,7 @@ While GetKeyState("LButton", "P") && (A_Gui = "leveling_guide_panel") ;dragging 
 		Return
 	}
 }
-If (A_Gui = "leveling_guide_panel") ;clicking the button
+If (A_Gui = "leveling_guide_panel") && (click = 1) ;left-clicking the button
 {
 	If WinExist("ahk_id " hwnd_leveling_guide2)
 	{
@@ -4067,9 +4100,7 @@ If (A_Gui = "leveling_guide_panel") ;clicking the button
 	If !WinExist("ahk_id " hwnd_leveling_guide2) || (A_Gui = "settings_menu")
 	{
 		If (hwnd_leveling_guide2 = "")
-		{
 			GoSub, Leveling_guide_progress
-		}
 		Else
 		{
 			;LLK_Overlay("leveling_guide1", "show")
@@ -4080,6 +4111,13 @@ If (A_Gui = "leveling_guide_panel") ;clicking the button
 	}
 	Return
 }
+
+If (A_Gui = "leveling_guide_panel") && (click = 2) ;right-clicking the button
+{
+	GoSub, Leveling_guide_gear
+	Return
+}
+
 If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the settings menu
 {
 	Gui, settings_menu: Submit, NoHide
@@ -4091,6 +4129,12 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		Gui, leveling_guide3: Destroy
 		hwnd_leveling_guide2 := ""
 		hwnd_leveling_guide3 := ""
+		Gui, gear_tracker: Destroy
+		hwnd_gear_tracker := ""
+		Gui, gear_tracker_indicator: Destroy
+		hwnd_gear_tracker_indicator := ""
+		gear_tracker_char := ""
+		IniWrite, % "", ini\leveling tracker.ini, Settings, character
 	}
 	GoSub, Settings_menu
 	Return
@@ -4240,6 +4284,10 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int ;create single gem-string for gear tracker feature
 	
 	IniDelete, ini\leveling tracker.ini, Gems
+	IniDelete, ini\stash search.ini, tracker_gems
+	IniRead, placeholder, ini\stash search.ini, Settings, vendor, % A_Space
+	If InStr(placeholder, "(tracker_gems)")
+		IniWrite, % StrReplace(placeholder, "(tracker_gems),"), ini\stash search.ini, Settings, vendor
 	If (build_gems_all != "")
 	{
 		Sort, build_gems_all, D`, P2 N
@@ -4267,7 +4315,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	If (all_gems = "")
 		FileRead, all_gems, data\leveling tracker\gems.txt
 	
-	Loop, Parse, parse, `,, `,
+	Loop, Parse, parse, `,, `, ;create advanced search-string
 	{
 		loop := A_Loopfield
 		parse_string := ""
@@ -4278,8 +4326,14 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 			If (A_Loopfield = "")
 				break
 			parse_gem := SubStr(A_Loopfield, 5)
+			MsgBox, % parse_gem
 			Loop, Parse, parse_gem
 			{
+				If (parse_gem = "arc") && (A_Index = 1)
+				{
+					parse_gem := "arc$"
+					break
+				}
 				If (A_Index = 1)
 					parse_gem := ""
 				parse_gem .= A_Loopfield
@@ -4404,6 +4458,148 @@ If (hwnd_leveling_guide2 != "")
 {
 	hwnd_leveling_guide2 := ""
 	GoSub, Leveling_guide_progress
+}
+If (hwnd_gear_tracker != "")
+{
+	hwnd_gear_tracker := ""
+	GoSub, Leveling_guide_gear
+}
+Return
+
+Leveling_guide_gear:
+start := A_TickCount
+While GetKeyState("LButton", "P") && (A_Gui = "gear_tracker_indicator") ;dragging the gear tracker indicator
+{
+	If (A_TickCount >= start + 300)
+	{
+		WinGetPos,,, wGui, hGui, % "ahk_id " hwnd_%A_Gui%
+		While GetKeyState("LButton", "P")
+			GoSub, Panel_drag
+		KeyWait, LButton
+		gear_tracker_indicator_xpos := panelXpos
+		gear_tracker_indicator_ypos := panelYpos
+		IniWrite, % gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord
+		IniWrite, % gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}
+
+If InStr(A_GuiControl, "select character") ;clicking the 'select character' label to highlight all gear upgrades
+{
+	If (gear_tracker_parse = "`n")
+		Return
+	regex_length := Floor((47 - gear_tracker_count)/gear_tracker_count)
+	regex_string := "^("
+	Loop, Parse, gear_tracker_parse, `n, `n
+	{
+		If (A_Loopfield = "")
+			continue
+		
+		If (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char])
+		{
+			If (SubStr(A_Loopfield, 6) = "arc")
+			{
+				regex_string .= "arc$|"
+				continue
+			}
+			regex_string .= InStr(A_Loopfield, ":") ? SubStr(A_Loopfield, InStr(A_Loopfield, ":") + 2, regex_length) "|" : SubStr(A_Loopfield, 6, regex_length) "|"
+		}
+	}
+	regex_string := StrReplace(SubStr(regex_string, 1, -1), " ", ".") ")"
+	clipboard := regex_string
+	KeyWait, LButton
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
+	SendInput, ^{f}^{v}
+	Return
+}
+
+If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") ;clicking anything but the drop-down list
+{
+	If (click = 1)
+	{
+		clipboard := (SubStr(A_GuiControl, 6) = "arc") ? "arc$" : InStr(A_GuiControl, ":") ? SubStr(A_GuiControl, InStr(A_GuiControl, ":") + 2) : SubStr(A_GuiControl, 6)
+		KeyWait, LButton
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window
+		SendInput, ^{f}^{v}
+		Return
+	}
+	Else
+	{
+		IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
+		IniRead, gear_tracker_gems, ini\leveling tracker.ini, gems,, % A_Space
+		If InStr(gear_tracker_items, A_GuiControl)
+		{
+			gear_tracker_items := InStr(gear_tracker_items, A_GuiControl "`n") ? StrReplace(gear_tracker_items, A_GuiControl "`n") : StrReplace(gear_tracker_items, A_GuiControl)
+			IniDelete, ini\leveling tracker.ini, gear
+			IniWrite, % gear_tracker_items, ini\leveling tracker.ini, gear
+		}
+		If InStr(gear_tracker_gems, A_GuiControl)
+		{
+			gear_tracker_gems := InStr(gear_tracker_gems, A_GuiControl "`n") ? StrReplace(gear_tracker_gems, A_GuiControl "`n") : StrReplace(gear_tracker_gems, A_GuiControl)
+			IniDelete, ini\leveling tracker.ini, gems
+			IniWrite, % gear_tracker_gems, ini\leveling tracker.ini, gems
+		}
+	}
+}
+
+If (A_GuiControl = "gear_tracker_char") ;clicking the drop-down list
+{
+	Gui, gear_tracker: Submit, NoHide
+	gear_tracker_char := SubStr(gear_tracker_char, 1, InStr(gear_tracker_char, "(") - 2)
+	IniWrite, % gear_tracker_char, ini\leveling tracker.ini, Settings, character
+}
+
+If (WinExist("ahk_id " hwnd_gear_tracker) && (A_Gui != "gear_tracker") && (update_gear_tracker != 1))
+{
+	LLK_GearTrackerGUI(1)
+	Gui, gear_tracker: Destroy
+	hwnd_gear_tracker := ""
+	WinActivate, ahk_group poe_window
+	Return
+}
+Else
+{
+	LLK_GearTrackerGUI()
+	update_gear_tracker := 0
+	Gui, gear_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_gear_tracker
+	Gui, gear_tracker: Margin, 12, 4
+	Gui, gear_tracker: Color, Black
+	WinSet, Transparent, %leveling_guide_trans%
+	Gui, gear_tracker: Font, % "cWhite s"fSize_leveling_guide, Fontin SmallCaps
+	gear_tracker_DDL := ""
+	For a, b in gear_tracker_characters
+		gear_tracker_DDL .= (a = gear_tracker_char) ? a " (" b ")||" : a " (" b ")|"
+	;gear_tracker_DDL := (SubStr(gear_tracker_DDL, -2) = "||") ? SubStr(gear_tracker_DDL, 1, -2) : SubStr(gear_tracker_DDL, 1, -1)
+	Gui, gear_tracker: Add, Text, % "Section BackgroundTrans gLeveling_guide_gear", % "select character: "
+	Gui, gear_tracker: Font, % "s"fSize_leveling_guide - 4
+	Gui, gear_tracker: Add, DDL, % "ys x+0 BackgroundTrans cBlack vgear_tracker_char gLeveling_guide_gear wp hp r"gear_tracker_characters.Count(), % gear_tracker_DDL
+	Gui, gear_tracker: Font, % "s"fSize_leveling_guide
+	
+	IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
+	IniRead, gear_tracker_gems, ini\leveling tracker.ini, gems,, % A_Space
+	
+	gear_tracker_parse := gear_tracker_items "`n" gear_tracker_gems
+	Sort, gear_tracker_parse, P2 D`n N
+	Loop, Parse, gear_tracker_parse, `n, `n
+	{
+		If (A_Loopfield = "")
+			continue
+		If (SubStr(A_Loopfield, 2, 2) < gear_tracker_characters[gear_tracker_char] + 6)
+			Gui, gear_tracker: Add, Text, % (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char]) ? "xs cLime gLeveling_guide_gear BackgroundTrans" : "xs gLeveling_guide_gear BackgroundTrans", % A_Loopfield
+	}
+	
+	If (gear_tracker_parse = "`n")
+		Gui, gear_tracker: Add, Text, % "xs BackgroundTrans", % "no items to track"
+	Gui, gear_tracker: Show, NA x10000 y10000
+	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker%
+	Gui, gear_tracker: Show, % "NA xCenter y"yScreenOffSet + poe_height - height
+
+	guilist .= InStr(guilist, "|gear_tracker|") ? "" : "gear_tracker|"
+	LLK_Overlay("gear_tracker", "show")
+	WinActivate, ahk_group poe_window
 }
 Return
 
@@ -4538,6 +4734,11 @@ If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
 			parsed_gem := ""
 			Loop, Parse, parse
 			{
+				If (parse = "arc")
+				{
+					parse := "arc$"
+					break
+				}
 				parsed_gem .= A_Loopfield
 				If (LLK_SubStrCount(all_gems, parsed_gem, "`n", 1) = 1) && (StrLen(parsed_gem) > 2)
 				{
@@ -4664,7 +4865,7 @@ LLK_Overlay("leveling_guide3", "show")
 Return
 
 Log_loop:
-If (enable_delvelog = 0 || enable_delve = 0) && !WinExist("ahk_id " hwnd_leveling_guide2)
+If (enable_delvelog = 0 || enable_delve = 0) && !WinExist("ahk_id " hwnd_leveling_guide2) && (gear_tracker_char = "")
 	Return
 current_location := ""
 If !WinActive("ahk_group poe_window")
@@ -4686,8 +4887,25 @@ Loop, Parse, poe_log_content, `r`n, `r`n
 			current_location .= A_Loopfield
 		}
 	}
+	If (gear_tracker_char != "")
+	{
+		If InStr(A_Loopfield, "is now level") && InStr(A_Loopfield, gear_tracker_char)
+			gear_tracker_characters[gear_tracker_char] := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ") + 13)
+	}
 }
 
+If (gear_tracker_parse != "`n") && WinExist("ahk_id " hwnd_gear_tracker_indicator)
+{
+	gear_tracker_count := 0
+	Loop, Parse, gear_tracker_parse, `n, `n
+	{
+		If (A_Loopfield = "")
+			continue
+		If (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char])
+			gear_tracker_count += 1
+	}
+	GuiControl, gear_tracker_indicator:, gear_tracker_upgrades, % (gear_tracker_count = 0) ? "" : gear_tracker_count
+}
 
 If WinExist("ahk_id " hwnd_leveling_guide2)
 {
@@ -4701,7 +4919,7 @@ If WinExist("ahk_id " hwnd_leveling_guide2)
 	}
 }
 
-If InStr(text2, "ctrl-f-v")
+If InStr(text2, "ctrl-f-v") && WinExist("ahk_id " hwnd_leveling_guide2)
 {
 	search := ""
 	If (all_gems = "")
@@ -4732,9 +4950,10 @@ If InStr(text2, "ctrl-f-v")
 
 If (enable_delvelog = 1)
 {
-	If (current_location = "azurite mine")
+	If (current_location = "delve_main" && !WinExist("ahk_id " hwnd_delve_panel))
 		LLK_Overlay("delve_panel", "show")
-	Else LLK_Overlay("delve_panel", "hide")
+	If (current_location != "delve_main" && WinExist("ahk_id " hwnd_delve_panel))
+		LLK_Overlay("delve_panel", "hide")
 }
 poe_log_content := ""
 Return
@@ -5747,6 +5966,42 @@ Else SendInput !^{c}
 ClipWait, 0.05
 If (clipboard != "")
 {
+	If WinExist("ahk_id " hwnd_gear_tracker) && InStr(clipboard, "requirements:`r`nlevel:") && !InStr(clipboard, "rarity: normal") && !InStr(clipboard, "unidentified")
+	{
+		Loop, Parse, clipboard, `n, `r
+		{
+			If InStr(A_Loopfield, "class")
+			{
+				class := StrReplace(A_Loopfield, "item class: ")
+				class := (!InStr(class, "boots") && !InStr(class, "gloves")) ? SubStr(class, InStr(class, " ",,, LLK_InStrCount(class, " ")) +1, -1) : SubStr(class, InStr(class, " ",,, LLK_InStrCount(class, " ")) +1)
+			}
+			If (A_Index = 3)
+			{
+				name := StrReplace(A_Loopfield, "`r")
+				break
+			}
+		}
+		IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
+		If InStr(gear_tracker_items, name)
+		{
+			LLK_ToolTip("item already added")
+			Return
+		}
+		required_level := SubStr(clipboard, InStr(clipboard, "requirements:`r`nlevel:"))
+		required_level := StrReplace(required_level, "requirements:`r`nlevel: ")
+		required_level := SubStr(required_level, 1, InStr(required_level, "`r`n") - 1)
+		required_level := (StrLen(required_level) = 1) ? 0 required_level : required_level
+		If (required_level <= gear_tracker_characters[gear_tracker_char])
+		{
+			LLK_ToolTip("item can already be equipped")
+			Return
+		}
+		update_gear_tracker := 1
+		IniWrite, % (InStr(clipboard, "rarity: rare") || InStr(clipboard, "rarity: magic")) ? "(" required_level ") " class ": " name : "(" required_level ") " name, ini\leveling tracker.ini, gear
+		GoSub, Leveling_guide_gear
+		Return
+	}
+	
 	Loop, Parse, clipboard, `n, `n
 	{
 		If InStr(A_LoopField, "item class:")
@@ -6867,10 +7122,12 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_delve%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	
-	Gui, settings_menu: Add, Text, xs BackgroundTrans %leveling_style% gSettings_menu HWNDhwnd_settings_leveling, % "leveling tracker"
-	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_leveling%
-	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
+	If FileExist(poe_log_file)
+	{
+		Gui, settings_menu: Add, Text, xs BackgroundTrans %leveling_style% gSettings_menu HWNDhwnd_settings_leveling, % "leveling tracker"
+		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_leveling%
+		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	}
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %map_mods_style% gSettings_menu HWNDhwnd_settings_map_mods, % "map-info"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_map_mods%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
@@ -7411,6 +7668,9 @@ to recalibrate, open the purchase-window of a vendor and screen-cap the plate di
 
 explanation
 this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to trigger the search-string features.
+
+limitation
+campaign-lilly and hideout-lilly use different vendor windows. if you don't use search-strings with general vendors, you can calibrate this image-check with hideout-lilly's window. otherwise, you'll have to buy gems from lilly in Act 10 when using the tracker-gems string.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\vendor.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
@@ -7704,21 +7964,31 @@ WinActivate, ahk_group poe_window
 Return
 
 Stash_search:
-If (A_Gui != "")
+If (A_Gui != "") || (stash_search_trigger = 1)
 {
-	string_number := (click = 2) ? 2 : 1
-	IniRead, stash_search_string, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number%
-	IniRead, stash_search_scroll, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number% enable scrolling, 0
-	KeyWait, LButton
-	Gui, stash_search_context_menu: Destroy
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
+	If (stash_search_trigger != 1)
+	{
+		string_number := (click = 2) ? 2 : 1
+		IniRead, stash_search_string, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number%
+		IniRead, stash_search_scroll, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number% enable scrolling, 0
+		KeyWait, LButton
+		Gui, stash_search_context_menu: Destroy
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window
+	}
+	Else
+	{
+		IniRead, stash_search_string, ini\stash search.ini, % Loopfield_copy, string 1
+		IniRead, stash_search_scroll, ini\stash search.ini, % Loopfield_copy, string 1 enable scrolling, 0
+	}
+	
 	Loop
 	{
 		If (scrollboard%A_Index% != "")
 			scrollboard%A_Index% := ""
 		Else break
 	}
+	
 	If InStr(stash_search_string, ";")
 	{
 		scrollboards := 0
@@ -7731,6 +8001,7 @@ If (A_Gui != "")
 		}
 		scrollboard_active := 1
 	}
+	
 	clipboard := (scrollboard1 = "") ? stash_search_string : scrollboard1
 	ClipWait, 0.05
 	SendInput, ^{f}^{v}
@@ -7750,6 +8021,8 @@ Gui, stash_search_context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
 
 IniRead, stash_search_shortcuts, ini\stash search.ini, Settings, % stash_search_type, % A_Space
 stash_search_shortcuts_enabled := 0
+enabled_shortcuts := ""
+
 Loop, Parse, stash_search_shortcuts, `,,`,
 {
 	If (A_Loopfield = "")
@@ -7757,12 +8030,29 @@ Loop, Parse, stash_search_shortcuts, `,,`,
 	Loopfield_copy := StrReplace(SubStr(A_Loopfield, 2, -1), "|", "vertbar")
 	IniRead, stash_search_%Loopfield_copy%_enabled, ini\stash search.ini, % StrReplace(Loopfield_copy, "vertbar", "|"), enable, 0
 	stash_search_shortcuts_enabled += stash_search_%Loopfield_copy%_enabled
+	enabled_shortcuts .= (stash_search_%Loopfield_copy%_enabled = 1) ? Loopfield_copy "," : ""
 }
 If (stash_search_shortcuts = "" || stash_search_shortcuts_enabled < 1)
 {
 	LLK_ToolTip("no strings for this search")
 	Return
 }
+
+If (stash_search_shortcuts_enabled = 1) ;if only one search-string is enabled, check whether it has two strings
+{
+	Loopfield_copy := StrReplace(SubStr(enabled_shortcuts, 1, -1), "vertbar", "|")
+	IniRead, parse_secondary_click, ini\stash search.ini, % Loopfield_copy, string 2
+	If (parse_secondary_click = "")
+	{
+		Gui, stash_search_context_menu: Destroy
+		hwnd_stash_search_context_menu := ""
+		stash_search_trigger := 1
+		GoSub, Stash_search
+		stash_search_trigger := 0
+		Return
+	}
+}
+
 Loop, Parse, stash_search_shortcuts, `,, `,
 {
 	If (A_LoopField = "")
@@ -8361,6 +8651,30 @@ LLK_hwnd(hwnd)
 			Return 1
 	}
 	Return 0
+}
+
+LLK_GearTrackerGUI(mode:=0)
+{
+	global
+	guilist .= InStr(guilist, "gear_tracker_indicator|") ? "" : "gear_tracker_indicator|"
+	If (mode = 0)
+		Gui, gear_tracker_indicator: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_gear_tracker_indicator
+	Else Gui, gear_tracker_indicator: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gear_tracker_indicator
+	Gui, gear_tracker_indicator: Margin, 0, 0
+	Gui, gear_tracker_indicator: Color, Black
+	If (mode = 0)
+		WinSet, Transparent, %leveling_guide_trans%
+	Else WinSet, TransColor, Black
+	Gui, gear_tracker_indicator: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
+	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "    "
+	Gui, gear_tracker_indicator: Show, NA x10000 y10000
+	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker_indicator%
+	gear_tracker_indicator_xpos_target := (gear_tracker_indicator_xpos + width + 2 > poe_width) ? poe_width - width - 1 : gear_tracker_indicator_xpos ;correct coordinates if panel would end up out of client-bounds
+	gear_tracker_indicator_ypos_target := (gear_tracker_indicator_ypos + height + 2 > poe_height) ? poe_height - height - 1 : gear_tracker_indicator_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (gear_tracker_indicator_xpos_target + width + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (gear_tracker_indicator_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		gear_tracker_indicator_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, gear_tracker_indicator: Show, % "NA x"xScreenOffset + gear_tracker_indicator_xpos_target " y"yScreenoffset + gear_tracker_indicator_ypos_target
+	LLK_Overlay("gear_tracker_indicator", "show")
 }
 
 LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
