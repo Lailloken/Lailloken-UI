@@ -4327,7 +4327,6 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 			If (A_Loopfield = "")
 				break
 			parse_gem := SubStr(A_Loopfield, 5)
-			MsgBox, % parse_gem
 			Loop, Parse, parse_gem
 			{
 				If (parse_gem = "arc") && (A_Index = 1)
