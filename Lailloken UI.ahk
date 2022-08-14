@@ -216,7 +216,7 @@ GoSub, Init_leveling_guide
 SetTimer, Loop, 1000
 If FileExist(poe_log_file)
 {
-	If (enable_leveling_guide = 1)
+	;If (enable_leveling_guide = 1)
 	{
 		FileRead, poe_log_content, % poe_log_file
 		gear_tracker_characters := []
@@ -3132,8 +3132,8 @@ leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
 IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
 IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
 IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
-IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, 0
-IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, 0
+IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
+IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height
 Return
 
 Init_maps:
@@ -4519,7 +4519,7 @@ If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") ;clicking a
 {
 	If (click = 1)
 	{
-		clipboard := (SubStr(A_GuiControl, 6) = "arc") ? "arc$" : InStr(A_GuiControl, ":") ? SubStr(A_GuiControl, InStr(A_GuiControl, ":") + 2) : SubStr(A_GuiControl, 6)
+		clipboard := (SubStr(A_GuiControl, 6) = "arc") ? "arc$" : InStr(A_GuiControl, ":") ? SubStr(A_GuiControl, InStr(A_GuiControl, ":") + 2, 47) : SubStr(A_GuiControl, 6, 47)
 		KeyWait, LButton
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
@@ -4592,7 +4592,7 @@ Else
 	}
 	
 	If (gear_tracker_parse = "`n")
-		Gui, gear_tracker: Add, Text, % "xs BackgroundTrans", % "no items to track"
+		Gui, gear_tracker: Add, Text, % "xs BackgroundTrans", % "no items added"
 	Gui, gear_tracker: Show, NA x10000 y10000
 	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker%
 	Gui, gear_tracker: Show, % "NA xCenter y"yScreenOffSet + poe_height - height
@@ -8666,7 +8666,7 @@ LLK_GearTrackerGUI(mode:=0)
 		WinSet, Transparent, %leveling_guide_trans%
 	Else WinSet, TransColor, Black
 	Gui, gear_tracker_indicator: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
-	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "    "
+	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "00"
 	Gui, gear_tracker_indicator: Show, NA x10000 y10000
 	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker_indicator%
 	gear_tracker_indicator_xpos_target := (gear_tracker_indicator_xpos + width + 2 > poe_width) ? poe_width - width - 1 : gear_tracker_indicator_xpos ;correct coordinates if panel would end up out of client-bounds
