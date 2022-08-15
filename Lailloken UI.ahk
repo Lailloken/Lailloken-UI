@@ -4415,6 +4415,8 @@ If (A_GuiControl = "leveling_guide_delete") ;delete-button in the settings menu
 	hwnd_leveling_guide2 := ""
 	Gui, leveling_guide3: Destroy
 	hwnd_leveling_guide3 := ""
+	Gui, gear_tracker: Destroy
+	hwnd_gear_tracker := ""
 	Return
 }
 If (A_GuiControl = "leveling_guide_reset") ;reset-button in the settings menu
