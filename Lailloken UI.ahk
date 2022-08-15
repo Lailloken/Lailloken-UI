@@ -394,6 +394,7 @@ If WinExist("ahk_id " hwnd_gear_tracker)
 	GoSub, Log_loop
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
+	gear_tracker_limit := 6
 	WinActivate, ahk_group poe_window
 	Return
 }
@@ -525,7 +526,7 @@ z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
 
 Alarm:
 start := A_TickCount
-While GetKeyState("LButton", "P") && (A_Gui = "alarm_panel")
+While GetKeyState("LButton", "P") && (A_Gui = "alarm_panel" || A_Gui = "alarm_drag")
 {
 	If (A_TickCount >= start + 300)
 	{
@@ -3317,6 +3318,7 @@ guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|le
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
+gear_tracker_limit := 6
 Return
 
 Lab_info:
@@ -4137,6 +4139,7 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		hwnd_leveling_guide3 := ""
 		Gui, gear_tracker: Destroy
 		hwnd_gear_tracker := ""
+		gear_tracker_limit := 6
 		Gui, gear_tracker_indicator: Destroy
 		hwnd_gear_tracker_indicator := ""
 		gear_tracker_char := ""
@@ -4400,6 +4403,17 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	LLK_ToolTip("success")
 	Return
 }
+If (A_GuiControl = "leveling_guide_delete") ;delete-button in the settings menu
+{
+	IniDelete, ini\leveling guide.ini, Steps
+	IniDelete, ini\leveling tracker.ini, gems
+	GuiControl, settings_menu:, leveling_guide_progress, % "current progress: 0%"
+	Gui, leveling_guide2: Destroy
+	hwnd_leveling_guide2 := ""
+	Gui, leveling_guide3: Destroy
+	hwnd_leveling_guide3 := ""
+	Return
+}
 If (A_GuiControl = "leveling_guide_reset") ;reset-button in the settings menu
 {
 	IniDelete, ini\leveling guide.ini, Progress
@@ -4494,42 +4508,56 @@ While GetKeyState("LButton", "P") && (A_Gui = "gear_tracker_indicator") ;draggin
 If (A_Gui = "gear_tracker_indicator")
 	Return
 
-If InStr(A_GuiControl, "select character") ;clicking the 'select character' label to highlight all gear upgrades
+If (A_GuiControl = "gear_tracker_filter") ;clicking the checkbox
 {
-	If (gear_tracker_parse = "`n")
-		Return
-	regex_length := Floor((47 - gear_tracker_count)/gear_tracker_count)
-	regex_string := "^("
-	Loop, Parse, gear_tracker_parse, `n, `n
+	gear_tracker_char_backup := gear_tracker_char
+	Gui, gear_tracker: Submit, NoHide
+	gear_tracker_char := gear_tracker_char_backup
+	gear_tracker_limit := (gear_tracker_filter = 1) ? 6 : 100
+}
+
+If InStr(A_GuiControl, "select character") ;clicking the 'select character' label
+{
+	If (click = 1)
 	{
-		If (A_Loopfield = "")
-			continue
-		
-		If (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char])
+		If (gear_tracker_parse = "`n")
 		{
-			If (SubStr(A_Loopfield, 6) = "arc")
-			{
-				regex_string .= "arc$|"
-				continue
-			}
-			regex_string .= InStr(A_Loopfield, ":") ? SubStr(A_Loopfield, InStr(A_Loopfield, ":") + 2, regex_length) "|" : SubStr(A_Loopfield, 6, regex_length) "|"
+			LLK_ToolTip("nothing to highlight")
+			Return
 		}
+		regex_length := Floor((47 - gear_tracker_count)/gear_tracker_count)
+		regex_string := "^("
+		Loop, Parse, gear_tracker_parse, `n, `n
+		{
+			If (A_Loopfield = "")
+				continue
+			
+			If (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char])
+			{
+				If (SubStr(A_Loopfield, 6) = "arc")
+				{
+					regex_string .= "arc$|"
+					continue
+				}
+				regex_string .= InStr(A_Loopfield, ":") ? SubStr(A_Loopfield, InStr(A_Loopfield, ":") + 2, regex_length) "|" : SubStr(A_Loopfield, 6, regex_length) "|"
+			}
+		}
+		regex_string := StrReplace(SubStr(regex_string, 1, -1), " ", ".") ")"
+		If (StrLen(regex_string) <= 3)
+		{
+			LLK_ToolTip("nothing to highlight")
+			Return
+		}
+		clipboard := regex_string
+		KeyWait, LButton
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window
+		SendInput, ^{f}^{v}
 	}
-	regex_string := StrReplace(SubStr(regex_string, 1, -1), " ", ".") ")"
-	If (StrLen(regex_string) <= 3)
-	{
-		LLK_ToolTip("nothing to highlight")
-		Return
-	}
-	clipboard := regex_string
-	KeyWait, LButton
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	SendInput, ^{f}^{v}
 	Return
 }
 
-If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") ;clicking anything but the drop-down list
+If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") && (A_GuiControl != "gear_tracker_filter") ;clicking anything but the drop-down list and checkbox
 {
 	If (click = 1)
 	{
@@ -4573,6 +4601,7 @@ If (WinExist("ahk_id " hwnd_gear_tracker) && (A_Gui != "gear_tracker") && (updat
 	GoSub, Log_loop
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
+	gear_tracker_limit := 6
 	WinActivate, ahk_group poe_window
 	Return
 }
@@ -4595,6 +4624,7 @@ Else
 	Gui, gear_tracker: Add, DDL, % "ys x+0 BackgroundTrans cBlack vgear_tracker_char gLeveling_guide_gear wp hp r"gear_tracker_characters.Count(), % gear_tracker_DDL
 	Gui, gear_tracker: Add, Picture, ys BackgroundTrans vMap_info vgear_tracker_help gSettings_menu_help hp w-1, img\GUI\help.png
 	Gui, gear_tracker: Font, % "s"fSize_leveling_guide
+	Gui, gear_tracker: Add, Checkbox, % "xs BackgroundTrans vgear_tracker_filter gLeveling_guide_gear Checked"gear_tracker_filter, % "limit to +5 levels"
 	
 	IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
 	IniRead, gear_tracker_gems, ini\leveling tracker.ini, gems,, % A_Space
@@ -4606,7 +4636,7 @@ Else
 	{
 		If (A_Loopfield = "")
 			continue
-		If (SubStr(A_Loopfield, 2, 2) < gear_tracker_characters[gear_tracker_char] + 6)
+		If (SubStr(A_Loopfield, 2, 2) < gear_tracker_characters[gear_tracker_char] + gear_tracker_limit)
 			Gui, gear_tracker: Add, Text, % (SubStr(A_Loopfield, 2, 2) <= gear_tracker_characters[gear_tracker_char]) ? "xs cLime gLeveling_guide_gear BackgroundTrans" : "xs gLeveling_guide_gear BackgroundTrans", % A_Loopfield
 	}
 	
@@ -7479,6 +7509,22 @@ depending on its file-size and other factors, this may affect general performanc
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "leveling_guide_help2")
+{
+text =
+(
+generate guide: opens exile-leveling created by HeartofPhos.
+
+import guide: imports a guide from exile-leveling.
+
+delete guide: deletes the imported guide and removes included gems from gear tracker.
+
+reset progress: resets the campaign progress and starts over.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "delve_help")
 {
 text =
@@ -7747,10 +7793,12 @@ Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help 
 If (enable_leveling_guide = 1)
 {
 	Gui, settings_menu: Font, underline bold
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings:"
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings: "
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help2 hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, norm
 	Gui, settings_menu: Add, Text, % "xs Section Border Center gLeveling_guide vLeveling_guide_generate BackgroundTrans", % " generate guide "
 	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_import BackgroundTrans", % " import guide "
+	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_delete BackgroundTrans", % " delete guide "
 	
 	If (guide_progress = "")
 		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
@@ -7785,7 +7833,7 @@ If (enable_leveling_guide = 1)
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_minus gLeveling_guide Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_plus gLeveling_guide Border x+2 wp", % "+"
 	
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", position:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", guide position:
 	Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "top") ? "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide", top
 	;Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "right") ? "ys BackgroundTrans vleveling_guide_position_right gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_right gLeveling_guide", right
 	Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "bottom") ? "ys BackgroundTrans vleveling_guide_position_bottom gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_bottom gLeveling_guide", bottom
@@ -8707,7 +8755,7 @@ LLK_GearTrackerGUI(mode:=0)
 		WinSet, Transparent, %leveling_guide_trans%
 	Else WinSet, TransColor, Black
 	Gui, gear_tracker_indicator: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
-	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "00"
+	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "    "
 	Gui, gear_tracker_indicator: Show, NA x10000 y10000
 	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker_indicator%
 	gear_tracker_indicator_xpos_target := (gear_tracker_indicator_xpos + width + 2 > poe_width) ? poe_width - width - 1 : gear_tracker_indicator_xpos ;correct coordinates if panel would end up out of client-bounds
