@@ -283,8 +283,10 @@ Else
 	clipboard := scrollboard%scrollboard_active%
 	ClipWait, 0.05
 }
-SendInput, ^{f}^{v}
-sleep, 50
+SendInput, ^{f}
+sleep, 25
+SendInput, ^{v}
+sleep, 200
 scroll_in_progress := 0
 Return
 
@@ -306,8 +308,10 @@ Else
 	clipboard := scrollboard%scrollboard_active%
 	ClipWait, 0.05
 }
-SendInput, ^{f}^{v}
-sleep, 50
+SendInput, ^{f}
+sleep, 25
+SendInput, ^{v}
+sleep, 200
 scroll_in_progress := 0
 Return
 
@@ -2859,6 +2863,7 @@ If (enable_leveling_guide = 1)
 		
 		gear_tracker_parse := gear_tracker_items "`n" gear_tracker_gems
 		Sort, gear_tracker_parse, P2 D`n N
+		StringLower, gear_tracker_parse, gear_tracker_parse
 		LLK_GearTrackerGUI(1)
 	}
 }
@@ -4299,7 +4304,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		Sort, build_gems_skill_int, D`, P2 N
 		Sort, build_gems_supp_int, D`, P2 N
 		
-		build_gems_all := StrReplace(build_gems_all, ")", ") ")		
+		build_gems_all := StrReplace(build_gems_all, ")", ") ")	
+		build_gems_all := StrReplace(build_gems_all, " support", "")	
 		IniWrite, % SubStr(StrReplace(build_gems_all, ",", "`n"), 1, -1), ini\leveling tracker.ini, Gems ;save gems for gear tracker feature
 	}
 	
@@ -4485,6 +4491,9 @@ While GetKeyState("LButton", "P") && (A_Gui = "gear_tracker_indicator") ;draggin
 	}
 }
 
+If (A_Gui = "gear_tracker_indicator")
+	Return
+
 If InStr(A_GuiControl, "select character") ;clicking the 'select character' label to highlight all gear upgrades
 {
 	If (gear_tracker_parse = "`n")
@@ -4507,6 +4516,11 @@ If InStr(A_GuiControl, "select character") ;clicking the 'select character' labe
 		}
 	}
 	regex_string := StrReplace(SubStr(regex_string, 1, -1), " ", ".") ")"
+	If (StrLen(regex_string) <= 3)
+	{
+		LLK_ToolTip("nothing to highlight")
+		Return
+	}
 	clipboard := regex_string
 	KeyWait, LButton
 	WinActivate, ahk_group poe_window
@@ -4579,6 +4593,7 @@ Else
 	Gui, gear_tracker: Add, Text, % "Section BackgroundTrans gLeveling_guide_gear", % "select character: "
 	Gui, gear_tracker: Font, % "s"fSize_leveling_guide - 4
 	Gui, gear_tracker: Add, DDL, % "ys x+0 BackgroundTrans cBlack vgear_tracker_char gLeveling_guide_gear wp hp r"gear_tracker_characters.Count(), % gear_tracker_DDL
+	Gui, gear_tracker: Add, Picture, ys BackgroundTrans vMap_info vgear_tracker_help gSettings_menu_help hp w-1, img\GUI\help.png
 	Gui, gear_tracker: Font, % "s"fSize_leveling_guide
 	
 	IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
@@ -4586,6 +4601,7 @@ Else
 	
 	gear_tracker_parse := gear_tracker_items "`n" gear_tracker_gems
 	Sort, gear_tracker_parse, P2 D`n N
+	StringLower, gear_tracker_parse, gear_tracker_parse
 	Loop, Parse, gear_tracker_parse, `n, `n
 	{
 		If (A_Loopfield = "")
@@ -5969,8 +5985,13 @@ Else SendInput !^{c}
 ClipWait, 0.05
 If (clipboard != "")
 {
-	If WinExist("ahk_id " hwnd_gear_tracker) && InStr(clipboard, "requirements:`r`nlevel:") && !InStr(clipboard, "rarity: normal") && !InStr(clipboard, "unidentified")
+	If WinExist("ahk_id " hwnd_gear_tracker)
 	{
+		If !InStr(clipboard, "requirements:`r`nlevel:") || InStr(clipboard, "unidentified")
+		{
+			LLK_ToolTip("item cannot be added")
+			Return
+		}
 		Loop, Parse, clipboard, `n, `r
 		{
 			If InStr(A_Loopfield, "class")
@@ -5992,6 +6013,7 @@ If (clipboard != "")
 		}
 		required_level := SubStr(clipboard, InStr(clipboard, "requirements:`r`nlevel:"))
 		required_level := StrReplace(required_level, "requirements:`r`nlevel: ")
+		required_level := StrReplace(required_level, " (unmet)")
 		required_level := SubStr(required_level, 1, InStr(required_level, "`r`n") - 1)
 		required_level := (StrLen(required_level) = 1) ? 0 required_level : required_level
 		If (required_level <= gear_tracker_characters[gear_tracker_char])
@@ -7427,6 +7449,22 @@ Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWi
 Gui, settings_menu_help: Color, Black
 Gui, settings_menu_help: Margin, 12, 4
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
+
+If (A_GuiControl = "gear_tracker_help")
+{
+text =
+(
+the drop-down list contains the most recent characters found in the client-log.
+
+items that are ready to be equipped are highlighted green. the list only shows items up to 5 levels higher than your character.
+
+clicking an item on the list will highlight it in game (stash and vendors). right-clicking will remove it from the list.
+
+you can click the 'select character' label to highlight all green items at once.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
 
 If (A_GuiControl = "leveling_guide_help")
 {
