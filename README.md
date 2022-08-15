@@ -1,5 +1,5 @@
 # About:
-A light-weight AHK script with UI extensions and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, and seamless integration into the game-client.  
+A light-weight AHK script with UI extensions and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, and seamless integration into the game-client. This project is **not** affiliated with or endorsed by Grinding Gear Games (GGG) in any way.
 <br>
 
 # Features:
