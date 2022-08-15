@@ -395,6 +395,7 @@ If WinExist("ahk_id " hwnd_gear_tracker)
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
 	gear_tracker_limit := 6
+	gear_tracker_filter := 1
 	WinActivate, ahk_group poe_window
 	Return
 }
@@ -3319,6 +3320,7 @@ buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
 gear_tracker_limit := 6
+gear_tracker_filter := 1
 Return
 
 Lab_info:
@@ -4140,6 +4142,7 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		Gui, gear_tracker: Destroy
 		hwnd_gear_tracker := ""
 		gear_tracker_limit := 6
+		gear_tracker_filter := 1
 		Gui, gear_tracker_indicator: Destroy
 		hwnd_gear_tracker_indicator := ""
 		gear_tracker_char := ""
@@ -4602,6 +4605,7 @@ If (WinExist("ahk_id " hwnd_gear_tracker) && (A_Gui != "gear_tracker") && (updat
 	Gui, gear_tracker: Destroy
 	hwnd_gear_tracker := ""
 	gear_tracker_limit := 6
+	gear_tracker_filter := 1
 	WinActivate, ahk_group poe_window
 	Return
 }
