@@ -65,6 +65,15 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 <br>
 
 #
+## [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
+### dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/):
+![image](https://user-images.githubusercontent.com/61888437/184829974-6c10b92e-0c8e-4069-98ed-8db6d38feac1.png)  
+
+### (leveling) gear tracker with notifications:
+![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png)  
+<br>
+
+#
 ## Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
 ### countdown/alarm-timer:
 ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
