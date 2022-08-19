@@ -214,35 +214,7 @@ GoSub, Init_conversions
 GoSub, Init_leveling_guide
 
 SetTimer, Loop, 1000
-If FileExist(poe_log_file)
-{
-	;If (enable_leveling_guide = 1)
-	{
-		FileRead, poe_log_content, % poe_log_file
-		gear_tracker_characters := []
-		Loop
-		{
-			poe_log_content_short := SubStr(poe_log_content, -0.1*A_Index*StrLen(poe_log_content))
-			Loop, Parse, poe_log_content_short, `r`n, `r`n
-			{
-				If InStr(A_Loopfield, "is now level ")
-				{
-					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
-					parsed_level := StrReplace(parsed_level, "is now level ")
-					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
-					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
-					gear_tracker_characters[parsed_character] := parsed_level
-				}
-			}
-			If (gear_tracker_characters.Count() > 0)
-				break
-		}
-		poe_log_content := ""
-		poe_log_content_short := ""
-	}
-	GoSub, Log_loop
-	SetTimer, Log_loop, 2500
-}
+SetTimer, Log_loop, 2500
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -3142,6 +3114,36 @@ IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord,
 IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
 IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
 IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height
+If FileExist(poe_log_file)
+{
+	If (enable_leveling_guide = 1)
+	{
+		FileRead, poe_log_content, % poe_log_file
+		gear_tracker_characters := []
+		Loop
+		{
+			poe_log_content_short := SubStr(poe_log_content, -0.1*A_Index*StrLen(poe_log_content))
+			Loop, Parse, poe_log_content_short, `r`n, `r`n
+			{
+				If InStr(A_Loopfield, "is now level ")
+				{
+					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+					parsed_level := StrReplace(parsed_level, "is now level ")
+					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+					gear_tracker_characters[parsed_character] := parsed_level
+				}
+			}
+			If (A_Index = 5)
+				gear_tracker_characters["none found, restart"] := 0
+			If (gear_tracker_characters.Count() > 0)
+				break
+		}
+		poe_log_content := ""
+		poe_log_content_short := ""
+	}
+	GoSub, Log_loop
+}
 Return
 
 Init_maps:
@@ -4148,6 +4150,7 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		gear_tracker_char := ""
 		IniWrite, % "", ini\leveling tracker.ini, Settings, character
 	}
+	Else GoSub, Init_leveling_guide
 	GoSub, Settings_menu
 	Return
 }

@@ -3435,5 +3435,33 @@
     "primary_attribute": "strength",
     "required_level": 38,
     "cost": "CurrencyUpgradeToRare"
+  },
+  "Metadata/Items/Gems/SupportGemOvercharge": {
+    "id": "Metadata/Items/Gems/SupportGemOvercharge",
+    "name": "Overcharge Support",
+    "primary_attribute": "intelligence",
+    "required_level": 18,
+    "cost": "CurrencyRerollMagic"
+  },
+  "Metadata/Items/Gems/SkillGemLightningConduit": {
+    "id": "Metadata/Items/Gems/SkillGemLightningConduit",
+    "name": "Lightning Conduit",
+    "primary_attribute": "intelligence",
+    "required_level": 28,
+    "cost": "CurrencyUpgradeRandomly"
+  },
+  "Metadata/Items/Gems/SkillGemGalvanicField": {
+    "id": "Metadata/Items/Gems/SkillGemGalvanicField",
+    "name": "Galvanic Field",
+    "primary_attribute": "intelligence",
+    "required_level": 16,
+    "cost": "CurrencyRerollMagic"
+  },
+  "Metadata/Items/Gems/SkillGemAlchemistsMark": {
+    "id": "Metadata/Items/Gems/SkillGemAlchemistsMark",
+    "name": "Alchemist's Mark",
+    "primary_attribute": "dexterity",
+    "required_level": 24,
+    "cost": "CurrencyRerollMagic"
   }
 }
