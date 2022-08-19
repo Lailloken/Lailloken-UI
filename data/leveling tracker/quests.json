@@ -6675,15 +6675,7 @@
             ]
           },
           "Metadata/Items/Gems/SupportGemChain": {
-            "classes": [
-              "Witch",
-              "Templar",
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow",
-              "Scion"
-            ]
+            "classes": []
           },
           "Metadata/Items/Gems/SupportGemClusterTrap": {
             "classes": [
@@ -6709,15 +6701,7 @@
             ]
           },
           "Metadata/Items/Gems/SupportGemGreaterMultipleProjectiles": {
-            "classes": [
-              "Witch",
-              "Templar",
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow",
-              "Scion"
-            ]
+            "classes": []
           },
           "Metadata/Items/Gems/SupportGemGreaterVolley": {
             "classes": [
@@ -6754,26 +6738,10 @@
             ]
           },
           "Metadata/Items/Gems/SupportGemMultistrike": {
-            "classes": [
-              "Witch",
-              "Templar",
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow",
-              "Scion"
-            ]
+            "classes": []
           },
           "Metadata/Items/Gems/SupportGemMulticast": {
-            "classes": [
-              "Witch",
-              "Templar",
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow",
-              "Scion"
-            ]
+            "classes": []
           },
           "Metadata/Items/Gems/SupportGemHandcastAnticipation": {
             "classes": [
@@ -10117,6 +10085,17 @@
   "sentinel_tutorial": {
     "id": "sentinel_tutorial",
     "name": "Sentinel",
+    "act": "1",
+    "reward_offers": [
+      {
+        "quest": {},
+        "vendor": {}
+      }
+    ]
+  },
+  "lake_tutorial": {
+    "id": "lake_tutorial",
+    "name": "Lake of Kalandra",
     "act": "1",
     "reward_offers": [
       {

@@ -5,6 +5,7 @@ Added Fire Damage Support
 Added Lightning Damage Support
 Additional Accuracy Support
 Advanced Traps Support
+Alchemist's Mark
 Ambush
 Ancestral Call Support
 Ancestral Cry
@@ -181,6 +182,7 @@ Frostbite
 Frostblink
 Frostbolt
 Galvanic Arrow
+Galvanic Field
 General's Cry
 Generosity Support
 Glacial Cascade
@@ -244,6 +246,7 @@ Life Gain on Hit Support
 Life Leech Support
 Lifetap Support
 Lightning Arrow
+Lightning Conduit
 Lightning Penetration Support
 Lightning Spire Trap
 Lightning Strike
@@ -272,6 +275,7 @@ Multistrike Support
 Nightblade Support
 Onslaught Support
 Orb of Storms
+Overcharge
 Penance Brand
 Perforate
 Pestilent Strike
