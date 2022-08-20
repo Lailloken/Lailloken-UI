@@ -4529,6 +4529,7 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		gear_tracker_char := ""
 		IniWrite, % "", ini\leveling tracker.ini, Settings, character
 	}
+	Else GoSub, Init_leveling_guide
 	GoSub, Settings_menu
 	Return
 }
