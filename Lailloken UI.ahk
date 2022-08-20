@@ -205,6 +205,7 @@ GoSub, Init_delve
 If WinExist("ahk_exe GeForceNOW.exe")
 	GoSub, Init_geforce
 GoSub, Init_gwennen
+GoSub, Init_lake_helper
 GoSub, Init_legion
 GoSub, Init_maps
 GoSub, Init_notepad
@@ -308,6 +309,18 @@ GoSub, Legion_seeds2
 Return
 
 Tab::
+If WinExist("ahk_id " hwnd_lakeboard)
+{
+	Loop 25
+	{
+		lake_tile%A_Index%_toggle := "img\GUI\square_blank.png"
+		GuiControl, lakeboard:, lake_tile%A_Index%, img\GUI\square_blank.png
+		GuiControl, lakeboard:, lake_tile%A_Index%_text1, % ""
+		lake_entrance := ""
+		lake_distances[A_Index] := ""
+	}
+	Return
+}
 If WinExist("ahk_id " hwnd_delve_grid)
 {
 	Loop 49
@@ -358,6 +371,11 @@ If (update_available = 1)
 {
 	ToolTip
 	update_available := 0
+	Return
+}
+If WinExist("ahk_id " hwnd_lakeboard)
+{
+	LLK_Overlay("lakeboard", "hide")
 	Return
 }
 If WinExist("ahk_id " hwnd_gear_tracker)
@@ -494,6 +512,44 @@ w::
 x::
 y::
 z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
+
+#If WinExist("ahk_id " hwnd_lakeboard)
+	
+Left::
+If (SubStr(lake_tiles, 1, 1) = 3)
+	Return
+lake_tiles := (SubStr(lake_tiles, 1, 1) > 3) ? SubStr(lake_tiles, 1, 1) - 1 . SubStr(lake_tiles, 2, 1) : lake_tiles
+hwnd_lakeboard := ""
+IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
+GoSub, Lake_helper
+Return
+
+Right::
+If (SubStr(lake_tiles, 1, 1) = 5)
+	Return
+lake_tiles := (SubStr(lake_tiles, 1, 1) < 5) ? SubStr(lake_tiles, 1, 1) + 1 . SubStr(lake_tiles, 2, 1) : lake_tiles
+hwnd_lakeboard := ""
+IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
+GoSub, Lake_helper
+Return
+
+Down::
+If (SubStr(lake_tiles, 2, 1) = 3)
+	Return
+lake_tiles := (SubStr(lake_tiles, 2, 1) > 3) ? SubStr(lake_tiles, 1, 1) . SubStr(lake_tiles, 2, 1) - 1 : lake_tiles
+hwnd_lakeboard := ""
+IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
+GoSub, Lake_helper
+Return
+
+Up::
+If (SubStr(lake_tiles, 2, 1) = 5)
+	Return
+lake_tiles := (SubStr(lake_tiles, 2, 1) < 5) ? SubStr(lake_tiles, 1, 1) . SubStr(lake_tiles, 2, 1) + 1 : lake_tiles
+hwnd_lakeboard := ""
+IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
+GoSub, Lake_helper
+Return
 
 #If
 
@@ -2058,15 +2114,15 @@ If (delve_enable_recognition = 1)
 			success := 0
 			Loop ;trace all paths to the hidden node and check if connection is possible
 			{
-				If (StrLen(LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node"))) = 1) ;prevent path from going into the opposite direction
+				If (StrLen(LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node"))) = 2) ;prevent path from going into the opposite direction
 				{
-					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "u")
+					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "u,")
 						general_direction := StrReplace(delve_directions, "d,")
-					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "r")
+					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "r,")
 						general_direction := StrReplace(delve_directions, "l,")
-					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "d")
+					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "d,")
 						general_direction := StrReplace(delve_directions, "u,")
-					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "l")
+					If (LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) = "l,")
 						general_direction := StrReplace(delve_directions, "r,")
 				}
 				Else general_direction := LLK_DelveDir(check2, StrReplace(A_GuiControl, "delve_node")) ;only let path go towards the hidden node
@@ -2529,8 +2585,8 @@ If (A_GuiControl = "delve_calibration")
 {
 	clipboard := ""
 	SetTimer, MainLoop, Off
-	sleep, 500
 	LLK_Overlay("hide")
+	sleep, 500
 	KeyWait, LButton
 	SendInput, #+{s}
 	Sleep, 2000
@@ -3096,6 +3152,37 @@ Init_gwennen:
 IniRead, gwennen_regex, ini\gwennen.ini, regex, regex
 Return
 
+Init_lake_helper:
+IniRead, lake_tile_dimensions, ini\lake helper.ini, UI, tile size
+If !IsNumber(lake_tile_dimensions) ;this is to make sure the UI section in the ini-file is on top
+{
+	lake_tile_dimensions := poe_height//18
+	IniWrite, lake_tile_dimensions, ini\lake helper.ini, UI, tile size
+}
+IniRead, lake_tile_gap, ini\lake helper.ini, UI, gap size
+If !IsNumber(lake_tile_gap)
+{
+	lake_tile_gap := 0
+	IniWrite, 0, ini\lake helper.ini, UI, gap size
+}
+IniRead, lake_tiles, ini\lake helper.ini, UI, board size
+If !IsNumber(lake_tiles)
+{
+	lake_tiles := 33
+	IniWrite, 33, ini\lake helper.ini, UI, board size
+}
+IniRead, lake_xpos, ini\lake helper.ini, UI, x-coordinate, % A_Space
+IniRead, lake_ypos, ini\lake helper.ini, UI, y-coordinate, % A_Space
+IniRead, lake_enable_stats, ini\lake helper.ini, Settings, enable stats, 0
+IniRead, lake_hotkey, ini\lake helper.ini, Settings, hotkey, % A_Space
+
+If (lake_hotkey != "")
+{
+	Hotkey, IfWinActive, ahk_group poe_ahk_window
+	Hotkey, % lake_hotkey, Lake_helper, On
+}
+Return
+
 Init_legion:
 IniRead, fSize_offset_legion, ini\timeless jewels.ini, Settings, font-offset, 0
 Return
@@ -3323,6 +3410,8 @@ allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,
 delve_directions := "u,d,l,r,"
 gear_tracker_limit := 6
 gear_tracker_filter := 1
+global lake_entrance
+global lake_distances := []
 Return
 
 Lab_info:
@@ -3384,6 +3473,296 @@ If (A_ThisHotkey = "Tab")
 	}
 	KeyWait, Tab
 }
+Return
+
+Lake_helper:
+If (A_Gui = "")
+{
+	While GetKeyState(ThisHotkey_copy, "P")
+	{
+		If (A_TickCount >= start + 200)
+		{
+			GoSub, Omnikey_dps
+			KeyWait, %ThisHotkey_copy%
+			Return
+		}
+	}
+	If WinExist("ahk_id " hwnd_lakeboard)
+		LLK_Overlay("lakeboard", "hide")
+	Else If !WinExist("ahk_id" hwnd_lakeboard) && (hwnd_lakeboard != "")
+		LLK_Overlay("lakeboard", "show")
+}
+
+If InStr(A_GuiControl, "lake_tile") && (A_Gui != "settings_menu") ;clicking a tile
+{
+	If (click = 2)
+	{
+		red_check := 0
+		Loop 25
+		{
+			If InStr(lake_tile%A_Index%_toggle, "red")
+			{
+				red_check += 1
+				break
+			}
+		}
+		If (red_check = 0)
+		{
+			LLK_ToolTip("scan the tablet first")
+			Return
+		}
+		If !InStr(%A_GuiControl%_toggle, "blank") && !InStr(%A_GuiControl%_toggle, "teal")
+		{
+			LLK_ToolTip("entrance cannot be on water")
+			Return
+		}
+		If InStr(%A_GuiControl%_toggle, "teal")
+		{
+			lake_entrance := ""
+			%A_GuiControl%_toggle := "img\GUI\square_blank.png"
+				GuiControl, lakeboard:, %A_GuiControl%, img\GUI\square_blank.png
+			Loop 25
+				GuiControl, lakeboard:, lake_tile%A_Index%_text1, % ""
+			GuiControl, lakeboard:, lake_stats_text, % ""
+			Return
+		}
+		Loop 25
+		{
+			If InStr(lake_tile%A_Index%_toggle, "teal")
+			{
+				lake_tile%A_Index%_toggle := "img\GUI\square_blank.png"
+				GuiControl, lakeboard:, lake_tile%A_Index%, img\GUI\square_blank.png
+			}
+		}
+		%A_GuiControl%_toggle := "img\GUI\square_teal_opaque.png"
+		GuiControl, lakeboard:, %A_GuiControl%, % %A_GuiControl%_toggle
+		lake_stats := ""
+		lake_stats_avg := 0
+		lake_distances := []
+		LLK_LakePath(StrReplace(A_GuiControl, "lake_tile"))
+		Loop, % lake_tile_pos.Length()
+		{
+			GuiControl, lakeboard:, lake_tile%A_Index%_text1, % lake_distances[A_Index]
+			If (lake_distances[A_Index] != "")
+				lake_stats .= (lake_stats = "") ? lake_distances[A_Index] : "`n" lake_distances[A_Index]
+		}
+		Sort, lake_stats, N D`n R
+		count := 0
+		Loop, Parse, lake_stats, `n, `n
+		{
+			If (A_Index = 1)
+				lake_stats := ""
+			If (A_LoopField = "")
+				continue
+			lake_stats_avg += A_LoopField
+			count += 1
+			If (count <= 2*SubStr(lake_tiles, 2, 1) - 2)
+				lake_stats .= (lake_stats = "") ? A_Loopfield : "`n" A_Loopfield
+		}
+		lake_stats_avg := lake_stats_avg / count
+		If (lake_enable_stats = 1)
+			GuiControl, lakeboard:, lake_stats_text, % lake_stats "`n(" Format("{:0.2f}", lake_stats_avg) ")"
+		Return
+	}
+	start := A_TickCount
+	While GetKeyState("LButton", "P") ;holding click to drag the tile
+	{
+		If (A_TickCount >= start + 300)
+		{
+			While GetKeyState("LButton", "P")
+			{
+				MouseGetPos, lake_xpos, lake_ypos
+				Gui, lakeboard: Show, NA x%lake_xpos% y%lake_ypos%
+			}
+			KeyWait, LButton 
+			IniWrite, % lake_xpos, ini\lake helper.ini, UI, x-coordinate
+			IniWrite, % lake_ypos, ini\lake helper.ini, UI, y-coordinate
+			Return
+		}
+	}
+	red_check := 0
+	Loop 25
+	{
+		If InStr(lake_tile%A_Index%_toggle, "red")
+		{
+			red_check += 1
+			break
+		}
+	}
+	If (red_check = 0)
+	{
+		LLK_ToolTip("scan the tablet first")
+		Return
+	}
+	If InStr(%A_GuiControl%_toggle, "teal")
+	{
+		LLK_ToolTip("cannot place water on entrance")
+		Return
+	}
+	If InStr(%A_GuiControl%_toggle, "red")
+	{
+		%A_GuiControl%_toggle := "img\GUI\square_blank.png"
+		GuiControl, lakeboard:, %A_GuiControl%, img\GUI\square_blank.png
+	}
+	Else If InStr(%A_GuiControl%_toggle, "blank")
+	{
+		%A_GuiControl%_toggle := "img\GUI\square_red_opaque.png"
+		GuiControl, lakeboard:, %A_GuiControl%, img\GUI\square_red_opaque.png
+	}
+	If (lake_entrance != "")
+	{
+		lake_stats := ""
+		lake_stats_avg := 0
+		lake_distances := []
+		LLK_LakePath(lake_entrance)
+		Loop, % lake_tile_pos.Length()
+		{
+			;If InStr(lake_tile%A_Index%_toggle, "red") || InStr(lake_tile%A_Index%_toggle, "teal") ;|| (A_Index = StrReplace(A_GuiControl, "lake_tile"))
+				GuiControl, lakeboard:, lake_tile%A_Index%_text1, % lake_distances[A_Index]
+			If (lake_distances[A_Index] != "")
+				lake_stats .= (lake_stats = "") ? lake_distances[A_Index] : "`n" lake_distances[A_Index]
+		}
+		Sort, lake_stats, N D`n R
+		count := 0
+		Loop, Parse, lake_stats, `n, `n
+		{
+			If (A_Index = 1)
+				lake_stats := ""
+			If (A_LoopField = "")
+				continue
+			lake_stats_avg += A_LoopField
+			count += 1
+			If (count <= 2*SubStr(lake_tiles, 2, 1) - 2)
+				lake_stats .= (lake_stats = "") ? A_Loopfield : "`n" A_Loopfield
+		}
+		lake_stats_avg := lake_stats_avg / count
+		If (lake_enable_stats = 1)
+			GuiControl, lakeboard:, lake_stats_text, % lake_stats "`n(" Format("{:0.2f}", lake_stats_avg) ")"
+	}
+	Return
+}
+
+If InStr(A_GuiControl, "tiles")
+{
+	If InStr(A_GuiControl, "minus")
+		lake_tile_dimensions -= 1
+	If InStr(A_GuiControl, "reset")
+		lake_tile_dimensions := poe_height//18
+	If InStr(A_GuiControl, "plus")
+		lake_tile_dimensions += 1
+	IniWrite, % lake_tile_dimensions, ini\lake helper.ini, UI, tile size
+}
+If InStr(A_GuiControl, "gap")
+{
+	If InStr(A_GuiControl, "minus")
+		lake_tile_gap -= (lake_tile_gap > 0) ? 1 : 0
+	If InStr(A_GuiControl, "reset")
+		lake_tile_gap := 0
+	If InStr(A_GuiControl, "plus")
+		lake_tile_gap += 1
+	IniWrite, % lake_tile_gap, ini\lake helper.ini, UI, gap size
+}
+
+If (hwnd_lakeboard = "") || (A_Gui = "settings_menu")
+{
+	fSize_lake_helper := fSize_config0
+	font_height := 0
+	While (font_height <= lake_tile_dimensions*(7/16))
+	{
+		Gui, font_test: New
+		Gui, font_test: Font, % "s"fSize_lake_helper, Fontin SmallCaps
+		Gui, font_test: Add, Text, HWNDhwnd_font_test, 1
+		ControlGetPos,,,, font_height,, ahk_id %hwnd_font_test%
+		fSize_lake_helper += 1
+	}
+	
+	guilist .= InStr(guilist, "lakeboard|") ? "" : "lakeboard|"
+	Gui, lakeboard: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lakeboard
+	Gui, lakeboard: Margin, % lake_tile_gap, % lake_tile_gap
+	Gui, lakeboard: Color, White
+	WinSet, Transparent, 100
+	Gui, lakeboard: Font, % "s"fSize_lake_helper " cBlack Bold", Fontin SmallCaps
+	loop := 0
+	lake_tile_pos := []
+	Loop 25
+		lake_tile%A_Index%_toggle := "img\GUI\square_blank.png"
+	Loop, % SubStr(lake_tiles, 2, 1)
+	{
+		Loop, % SubStr(lake_tiles, 1, 1)
+		{
+			loop += 1
+			style := (loop = 1) ? "" : "xs"
+			If (A_Index = 1)
+				Gui, lakeboard: Add, Picture, % style " Section BackgroundTrans Border HWNDhwnd_lake_tile vlake_tile" loop " gLake_helper w"lake_tile_dimensions " h-1", % "img\GUI\square_blank.png"
+			Else Gui, lakeboard: Add, Picture, % "ys BackgroundTrans Border HWNDhwnd_lake_tile vlake_tile" loop " gLake_helper w"lake_tile_dimensions " h-1", % "img\GUI\square_blank.png"
+			If (loop = 1)
+				ControlGetPos,, lake_stats_ypos,,,, ahk_id %hwnd_lake_tile%
+			ControlGetPos, tileXpos, tileYpos, tilewidth,,, ahk_id %hwnd_lake_tile%
+			lake_tile_pos[loop] := tileXpos "," tileYpos "," tilewidth
+			Gui, lakeboard: Add, Text, % "BackgroundTrans Center vlake_tile" loop "_text1 xp yp w"lake_tile_dimensions, % "77"
+			GuiControl, lakeboard:, lake_tile%loop%_text1, % ""
+		}
+	}
+	If (lake_enable_stats = 1)
+		Gui, lakeboard: Add, Text, % "ys BackgroundTrans Center vlake_stats_text h"lake_tile_dimensions*SubStr(lake_tiles, 2, 1)*0.95 " y"lake_stats_ypos, % "(7.77)"
+	GuiControl, lakeboard:, lake_stats_text, % ""
+	If !IsNumber(lake_xpos) || !IsNumber(lake_ypos)
+		Gui, lakeboard: Show, NA
+	Else Gui, lakeboard: Show, % "NA x"xScreenOffSet + lake_xpos " y"yScreenOffSet + lake_ypos
+	LLK_Overlay("lakeboard", "show")
+}
+Return
+
+Lake_helper_scan:
+IniRead, lake_pixels_water, ini\lake helper.ini, water tile,, % A_Space
+If (lake_pixels_water = "")
+{
+	LLK_ToolTip("no calibration data: water tile")
+	Return
+}
+pHaystack_lake := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
+tile_hits_summary := ""
+Loop, % lake_tile_pos.Length() ;scan every tile
+{
+	tile_hits := 0
+	Loop, Parse, % lake_tile_pos[A_Index], `,, `, ;parse coordinates of every tile
+	{
+		Switch A_Index
+		{
+			Case 1:
+				tileXpos := A_LoopField + lake_xpos
+			Case 2:
+				tileYpos := A_LoopField + lake_ypos
+			Case 3:
+				tileWidth := A_LoopField
+		}
+	}
+	Loop, % tileWidth//2
+	{
+		loop := A_Index
+		Loop, % tileWidth//2
+		{
+			test += 1
+			pixel_get := Gdip_GetPixelColor(pHaystack_lake, tileXpos + tileWidth//4 + A_Index - 1, tileYpos + tileWidth//4 + loop - 1, 3)
+			If InStr(lake_pixels_water, pixel_get)
+				tile_hits += 1
+			lake_distances[loop] := ""
+		}
+	}
+	;tile_hits_summary .= (tile_hits_summary = "") ? 100*tile_hits/((tileWidth//2)*(tileWidth//2)) : "`n" 100*tile_hits/((tileWidth//2)*(tileWidth//2))
+	GuiControl, lakeboard:, lake_tile%A_Index%_text1, % ""
+	If (tile_hits >= 0.4*((tileWidth//2)*(tileWidth//2)))
+	{
+		lake_tile%A_Index%_toggle := "img\GUI\square_red_opaque.png"
+		GuiControl, lakeboard:, lake_tile%A_Index%, img\GUI\square_red_opaque.png
+	}
+	Else
+	{
+		lake_tile%A_Index%_toggle := "img\GUI\square_blank.png"
+		GuiControl, lakeboard:, lake_tile%A_Index%, img\GUI\square_blank.png
+	}
+}
+Gdip_DisposeImage(pHaystack_lake)
 Return
 
 Legion_seeds:
@@ -4150,7 +4529,6 @@ If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the
 		gear_tracker_char := ""
 		IniWrite, % "", ini\leveling tracker.ini, Settings, character
 	}
-	Else GoSub, Init_leveling_guide
 	GoSub, Settings_menu
 	Return
 }
@@ -6174,6 +6552,11 @@ If WinExist("ahk_id " hwnd_delve_grid)
 		GoSub, Delve_scan
 	Return
 }
+If WinExist("ahk_id " hwnd_lakeboard)
+{
+	GoSub, Lake_helper_scan
+	Return
+}
 Clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
@@ -7128,6 +7511,7 @@ betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "imag
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
+lake_style := InStr(A_GuiControl, "overlayke") ? "cAqua" : "cWhite"
 leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
 map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
@@ -7204,6 +7588,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %lake_style% gSettings_menu HWNDhwnd_settings_lake, % "overlayke"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_lake%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+
 	If pixel_gamescreen_x1 is number
 	{
 		If (screenchecks_all_valid = 0)
@@ -7246,6 +7634,13 @@ If !InStr(GuiControl_copy, "delve") && WinExist("ahk_id " hwnd_delve_grid)
 	Gui, delve_grid2: Destroy
 	hwnd_delve_grid2 := ""
 }
+/*
+If !InStr(GuiControl_copy, "overlayke") && WinExist("ahk_id " hwnd_lakeboard)
+{
+	Gui, lakeboard: Destroy
+	hwnd_lakeboard := ""
+}
+*/
 
 If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
 	GoSub, Settings_menu_general
@@ -7261,6 +7656,8 @@ Else If InStr(GuiControl_copy, "delve")
 	ysettings_menu := yScreenOffSet + poe_height/3
 	GoSub, Settings_menu_delve
 }
+Else If InStr(GuiControl_copy, "overlayke")
+	GoSub, Settings_menu_lake_helper
 Else If InStr(GuiControl_copy, "leveling")
 	GoSub, Settings_menu_leveling_guide
 Else If InStr(GuiControl_copy, "map")
@@ -7290,6 +7687,7 @@ Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
 If ((xsettings_menu != "") && (ysettings_menu != ""))
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
 Else Gui, settings_menu: Show, Hide
+
 LLK_Overlay("settings_menu", "show", 1)
 Return
 
@@ -7794,6 +8192,102 @@ newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_he
 Gui, Settings_menu_help: Show, NA x%newxpos% y%newypos%
 KeyWait, LButton
 Gui, settings_menu_help: Destroy
+Return
+
+Settings_menu_lake_helper:
+If (A_GuiControl = "lake_hotkey_apply")
+{
+	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
+		Return
+	Gui, settings_menu: Submit, NoHide
+	
+	IniWrite, "%lake_hotkey%", ini\lake helper.ini, Settings, hotkey
+	Reload
+	ExitApp
+}
+
+If InStr(A_GuiControl, "lake_delete")
+{
+	calibrate_type := StrReplace(A_GuiControl, "lake_delete_")
+	IniDelete, ini\lake helper.ini, %calibrate_type% tile,
+	Return
+}
+If (A_GuiControl = "lake_enable_stats")
+{
+	Gui, settings_menu: Submit, NoHide
+	IniWrite, % lake_enable_stats, ini\lake helper.ini, Settings, enable stats
+	GoSub, Lake_helper
+	Return
+}
+If InStr(A_GuiControl, "lake_calibrate")
+{
+	calibrate_type := StrReplace(A_GuiControl, "lake_calibrate_")
+	Clipboard := ""
+	SetTimer, MainLoop, Off
+	LLK_Overlay("hide")
+	sleep, 500
+	KeyWait, LButton
+	SendInput, #+{s}
+	Sleep, 2000
+	WinWaitActive, ahk_group poe_window
+	SetTimer, MainLoop, On
+	LLK_Overlay("show")
+	If (Gdip_CreateBitmapFromClipboard() < 0)
+	{
+		LLK_ToolTip("screen-cap failed")
+		Return
+	}
+	Else
+	{
+		ToolTip, calibrating...,,, 17
+		lake_pixelcolors2 := ""
+		IniRead, lake_pixelcolors, ini\lake helper.ini, %calibrate_type% tile,, % A_Space
+		lake_pixelcolors .= (lake_pixelcolors != "") ? "`n" : ""
+		pLake_screencap := Gdip_CreateBitmapFromClipboard()
+		Loop, % Gdip_GetImageHeight(pLake_screencap)
+		{
+			check := A_Index - 1
+			Loop, % Gdip_GetImageWidth(pLake_screencap)
+				lake_pixelcolors2 .= Gdip_GetPixelColor(pLake_screencap, A_Index - 1, check, 3) "`n"
+		}
+		Gdip_DisposeImage(pLake_screencap)
+		Loop, Parse, lake_pixelcolors2, `n, `n
+			lake_pixelcolors .= !InStr(lake_pixelcolors, A_Loopfield) && (LLK_InStrCount(lake_pixelcolors2, A_Loopfield, "`n") >= 2) ? A_Loopfield "`n" : ""
+		lake_pixelcolors := (SubStr(lake_pixelcolors, 0, 1) = "`n") ? SubStr(lake_pixelcolors, 1, -1) : lake_pixelcolors
+		IniDelete, ini\lake helper.ini, %calibrate_type% tile
+		IniWrite, % lake_pixelcolors, ini\lake helper.ini, %calibrate_type% tile
+		lake_pixelcolors := ""
+		lake_pixelcolors2 := ""
+		LLK_ToolTip("calibration finished")
+	}
+	Return
+}
+
+GoSub, Lake_helper
+Gui, settings_menu: Add, Text, % "ys Section Center BackgroundTrans xp+"spacing_settings*1.2, tile size:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_minus gLake_helper Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_reset gLake_helper Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_plus gLake_helper Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", gap size:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_minus gLake_helper Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_reset gLake_helper Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_plus gLake_helper Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Checkbox, % "xs Section Center BackgroundTrans vlake_enable_stats gSettings_menu_lake_helper checked"lake_enable_stats, % " enable tile statistics "
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, hotkey:
+Gui, settings_menu: Add, Text, % "xs Section Border Center vlake_hotkey_apply cRed gSettings_menu_lake_helper BackgroundTrans", % " apply && restart "
+/*
+Gui, settings_menu: Add, Checkbox, % "xs Section Center BackgroundTrans vlake_hotkey_alt checked"lake_hotkey_alt, % "alt+"
+Gui, settings_menu: Add, Checkbox, % "ys Center BackgroundTrans vlake_hotkey_ctrl checked"lake_hotkey_ctrl, % "ctrl+"
+Gui, settings_menu: Add, Checkbox, % "ys Center BackgroundTrans vlake_hotkey_shift checked"lake_hotkey_shift, % "shift+"
+*/
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Hotkey, % "ys Center BackgroundTrans vlake_hotkey hp wp", % lake_hotkey
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vlake_calibrate_water gSettings_menu_lake_helper Border y+"fSize0*1.2, % " calibrate recognition "
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vlake_delete_water gSettings_menu_lake_helper Border", % " reset "
 Return
 
 Settings_menu_leveling_guide:
@@ -8550,6 +9044,100 @@ LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
 	Return count
 }
 
+LLK_LakePath(entrance)
+{
+	global
+	lake_entrance := entrance
+	lake_distances[entrance] := 0
+	Loop 20
+	{
+		Loop, % lake_tile_pos.Length()
+		{
+			If (A_Index = entrance)
+				continue
+			LLK_LakeAdjacent(A_Index)
+		}
+	}
+	Loop, % lake_distances.Length()
+	{
+		If InStr(lake_tile%A_Index%_toggle, "red") || (lake_distances[A_Index] = 0)
+			lake_distances[A_Index] := ""
+	}
+}
+
+LLK_LakeAdjacent(tile)
+{
+	global
+	Loop 4
+	{
+		lake_parse_adjacent := ""
+		lake_parse_adjacent%A_Index% := ""
+	}
+	Loop, Parse, delve_directions, `,, `,
+	{
+		If (A_Loopfield = "") || IsNumber(lake_distances[tile]) ;|| InStr(lake_tile%tile%_toggle, "red")
+			continue
+		If (A_Loopfield = "u") && (SubStr(LLK_LakeGrid(tile), 3, 1) > 1) ;&& !IsNumber(lake_distances[tile])
+		{
+			lake_parse_adjacent := tile - SubStr(lake_tiles, 1, 1)
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent]) ;&& (lake_distances[tile] < lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent1 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent1 := ""
+		}
+		If (A_Loopfield = "d") && (SubStr(LLK_LakeGrid(tile), 3, 1) < SubStr(lake_tiles, 2, 1)) ;&& !IsNumber(lake_distances[tile])
+		{
+			lake_parse_adjacent := tile + SubStr(lake_tiles, 1, 1)
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent]) ;&& (lake_distances[tile] < lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent2 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent2 := ""
+		}
+		If (A_Loopfield = "l") && (SubStr(LLK_LakeGrid(tile), 1, 1) > 1) ;&& !IsNumber(lake_distances[tile])
+		{
+			lake_parse_adjacent := tile - 1
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent]) ;&& (lake_distances[tile] < lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent3 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent3 := ""
+		}
+		If (A_Loopfield = "r") && (SubStr(LLK_LakeGrid(tile), 1, 1) < SubStr(lake_tiles, 1, 1)) ;&& !IsNumber(lake_distances[tile])
+		{
+			lake_parse_adjacent := tile + 1
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent]) ;&& (lake_distances[tile] < lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent4 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent4 := ""
+		}
+	}
+	lake_parse_adjacent := lake_parse_adjacent1 "," lake_parse_adjacent2 "," lake_parse_adjacent3 "," lake_parse_adjacent4
+	Loop, Parse, lake_parse_adjacent, `,, `,
+	{
+		If (A_Index = 1)
+			lake_parse_adjacent_array := []
+		If (A_Loopfield != "")
+			lake_parse_adjacent_array.Push(A_Loopfield)
+	}
+	/*
+	If InStr(lake_tile%tile%_toggle, "red")
+	{
+		lake_distances[tile] := 0
+		GuiControl, lakeboard:, lake_tile%tile%_text1, % lake_distances[tile]
+	}
+	Else
+	*/
+	If (lake_parse_adjacent_array.Length() != 0)
+		lake_distances[tile] := Min(lake_parse_adjacent_array*)
+}
+
+LLK_LakeGrid(tile)
+{
+	global lake_tiles
+	loop := 1
+	While (tile > SubStr(lake_tiles, 1, 1))
+	{
+		tile -= SubStr(lake_tiles, 1, 1)
+		loop += 1
+	}
+	Return tile "," loop
+}
+
 LLK_DelveGrid(node)
 {
 	loop := 1
@@ -8558,8 +9146,6 @@ LLK_DelveGrid(node)
 		node -= 7
 		loop += 1
 	}
-	xcoord := node
-	ycoord := look
 	Return node "," loop
 }
 
