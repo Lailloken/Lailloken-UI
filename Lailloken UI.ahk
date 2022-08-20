@@ -3162,8 +3162,8 @@ If !IsNumber(lake_tile_dimensions) ;this is to make sure the UI section in the i
 IniRead, lake_tile_gap, ini\lake helper.ini, UI, gap size
 If !IsNumber(lake_tile_gap)
 {
-	lake_tile_gap := 0
-	IniWrite, 0, ini\lake helper.ini, UI, gap size
+	lake_tile_gap := 2
+	IniWrite, 2, ini\lake helper.ini, UI, gap size
 }
 IniRead, lake_tiles, ini\lake helper.ini, UI, board size
 If !IsNumber(lake_tiles)
@@ -3645,7 +3645,7 @@ If InStr(A_GuiControl, "lake_tile") && (A_Gui != "settings_menu") ;clicking a ti
 If InStr(A_GuiControl, "tiles")
 {
 	If InStr(A_GuiControl, "minus")
-		lake_tile_dimensions -= 1
+		lake_tile_dimensions -= (lake_tile_dimensions > 0) ? 1 : 0
 	If InStr(A_GuiControl, "reset")
 		lake_tile_dimensions := poe_height//18
 	If InStr(A_GuiControl, "plus")
