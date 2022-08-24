@@ -33,6 +33,11 @@ A light-weight AHK script with UI extensions and QoL features for Path of Exile,
 <br>
 
 #
+## [Overlayke](https://github.com/Lailloken/Lailloken-UI/wiki/Overlayke): planner/preview overlay for the Lake of Kalandra mechanic
+![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png)  
+<br>
+
+#
 ## [Notepad & text-widgets](https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets): in-client notepad & free-floating sticky-notes  
 ![image](https://user-images.githubusercontent.com/61888437/181029221-6b6a2f27-cb70-4954-a3d0-a3239f87b263.png)  
 <br>
