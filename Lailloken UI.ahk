@@ -616,8 +616,13 @@ If (A_GuiControl = "alarm_start") || (continue_alarm = 1)
 	If (continue_alarm != 1)
 	{
 		Gui, alarm: Submit, NoHide
+		If !IsNumber(alarm_minutes)
+		{
+			LLK_ToolTip("incorrect input", 2)
+			Return
+		}
 		alarm_minutes := (alarm_minutes > 60) ? 60 : alarm_minutes
-		alarm_minutes *= 60
+		alarm_minutes := Floor(alarm_minutes*60)
 		WinGetPos, alarm_xpos, alarm_ypos,,, ahk_id %hwnd_alarm%
 		alarm_xpos := (alarm_xpos <= xScreenOffSet) ? 0 : alarm_xpos - xScreenOffSet
 		alarm_ypos := (alarm_ypos <= yScreenOffSet) ? 0 : alarm_ypos - yScreenOffSet
@@ -678,9 +683,10 @@ If (click = 2) || (hwnd_alarm = "")
 		Gui, alarm: Font, s%fSize0% cWhite, Fontin SmallCaps
 		Gui, alarm: Add, Text, Section BackgroundTrans Center, set timer to
 		Gui, alarm: Font, % "s"fSize0-4
-		Gui, alarm: Add, Edit, % "ys hp x+6 cBlack BackgroundTrans Center valarm_minutes Limit2 Number w"fSize0*1.8, 0
+		Gui, alarm: Add, Edit, % "ys hp x+6 cBlack BackgroundTrans Center valarm_minutes Limit4 w"fSize0*1.8, 0
 		Gui, alarm: Font, s%fSize0%
 		Gui, alarm: Add, Text, ys x+6 BackgroundTrans Center, minute(s)
+		Gui, alarm: Add, Checkbox, xs BackgroundTrans Center valarm_loop, loop && beep
 		Gui, alarm: Add, Button, xp hp BackgroundTrans Hidden Default valarm_start gAlarm, OK
 		Gui, alarm: Show, % "NA"
 		Gui, alarm: Show, % "Hide Center"
@@ -928,44 +934,6 @@ If InStr(A_GuiControl, "fontcolor_")
 	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
 }
 GoSub, Notepad
-Return
-
-Apply_settings_omnikey:
-Gui, settings_menu: Submit, NoHide
-Loop, Parse, blocked_hotkeys, `,, `,
-{
-	If (SubStr(omnikey_hotkey, 1, 1) = A_Loopfield)
-	{
-		LLK_ToolTip("Chosen omni-hotkey not supported")
-		GuiControl, settings_menu: text, omnikey_hotkey,
-		omnikey_hotkey := ""
-		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-		KeyWait, Alt
-		KeyWait, Control
-		KeyWait, Shift
-		Return
-	}
-}
-If (A_GuiControl = "omnikey_hotkey") && (omnikey_hotkey != "")
-{
-	If (omnikey_hotkey_old != omnikey_hotkey) && (omnikey_hotkey_old != "")
-	{
-		Hotkey, IfWinActive, ahk_group poe_ahk_window
-		Hotkey, *~%omnikey_hotkey_old%,, Off
-	}
-	omnikey_hotkey_old := omnikey_hotkey
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	If (omnikey_conflict_c != 1)
-	{
-		Hotkey, *~%omnikey_hotkey%, Omnikey, On
-		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-	}
-	Else
-	{
-		Hotkey, *~%omnikey_hotkey%, Omnikey2, On
-		IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-	}
-}
 Return
 
 Bestiary_search:
@@ -1362,7 +1330,7 @@ While GetKeyState(ThisHotkey_copy, "P")
 	
 }
 
-If GetKeyState("LAlt", "P") && (betrayal_enable_recognition = 1)
+If GetKeyState("Alt", "P") && GetKeyState("Control", "P") && (betrayal_enable_recognition = 1)
 {
 	Clipboard := ""
 	SendInput, +#{s}
@@ -1860,6 +1828,8 @@ If (A_GuiControl = "enable_delve")
 	If (enable_delve = 0)
 	{
 		LLK_Overlay("delve_panel", "hide")
+		Gui, delve_grid2: Destroy
+		hwnd_delve_grid2 := ""
 		Gui, delve_grid: Destroy
 		hwnd_delve_grid := ""
 	}
@@ -2741,7 +2711,7 @@ Exit:
 Gdip_Shutdown(pToken)
 If (timeout != 1)
 {
-	If !(alarm_timestamp < A_Now)
+	If !(alarm_timestamp < A_Now) && (alarm_loop != 1)
 		IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
 	
 	IniWrite, %notepad_width%, ini\notepad.ini, UI, width
@@ -3309,53 +3279,17 @@ IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % poe_height - 
 Return
 
 Init_omnikey:
-If (poe_config_file != "")
-{
-	FileRead, all_hotkeys, % poe_config_file
-	If InStr(all_hotkeys, "=67`n") && !InStr(all_hotkeys, "open_character_panel=67")
-		omnikey_conflict_c := 1
-	omnikey_conflict_alt := !InStr(all_hotkeys, "highlight=18") ? 1 : ""
-	IniRead, alt_modifier, ini\config.ini, Settings, highlight-key, % A_Space
-	all_hotkeys := ""
-}
-IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, %A_Space%
-Loop, Parse, blocked_hotkeys, `,, `,
-	omnikey_hotkey := InStr(omnikey_hotkey, A_Loopfield) ? "" : omnikey_hotkey
+IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, % A_Space
+IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
+IniRead, alt_modifier, ini\config.ini, Settings, highlight-key, % A_Space
 
-If (omnikey_hotkey != "") ;custom omni-key
+Hotkey, IfWinActive, ahk_group poe_ahk_window
+If (omnikey_hotkey2 = "")
+	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey, On
+Else
 {
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	If (omnikey_conflict_c != 1)
-	{
-		Hotkey, *~%omnikey_hotkey%, Omnikey, On
-		Hotkey, *~MButton, Omnikey, Off
-		omnikey_hotkey_old := omnikey_hotkey
-	}
-	Else
-	{
-		IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
-		Hotkey, *~%omnikey_hotkey%, Omnikey2, On
-		Hotkey, *~MButton, Omnikey2, Off
-		If (omnikey_hotkey2 != "")
-			Hotkey, *~%omnikey_hotkey2%, Omnikey, On
-	}
-}
-Else ;standard omni-key
-{
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	If (omnikey_conflict_c != 1)
-	{
-		Hotkey, *~MButton, Omnikey, On
-		omnikey_hotkey_old := "MButton"
-	}
-	Else
-	{
-		IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
-		Hotkey, *~MButton, Omnikey2, On
-		omnikey_hotkey_old := "MButton"
-		If (omnikey_hotkey2 != "")
-			Hotkey, *~%omnikey_hotkey2%, Omnikey, On
-	}
+	Hotkey, *~%omnikey_hotkey2%, Omnikey, On
+	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
 }
 Return
 
@@ -3478,15 +3412,6 @@ Return
 Lake_helper:
 If (A_Gui = "")
 {
-	While GetKeyState(ThisHotkey_copy, "P")
-	{
-		If (A_TickCount >= start + 200)
-		{
-			GoSub, Omnikey_dps
-			KeyWait, %ThisHotkey_copy%
-			Return
-		}
-	}
 	If WinExist("ahk_id " hwnd_lakeboard)
 		LLK_Overlay("lakeboard", "hide")
 	Else If !WinExist("ahk_id" hwnd_lakeboard) && (hwnd_lakeboard != "")
@@ -3574,9 +3499,11 @@ If InStr(A_GuiControl, "lake_tile") && (A_Gui != "settings_menu") ;clicking a ti
 				MouseGetPos, lake_xpos, lake_ypos
 				Gui, lakeboard: Show, NA x%lake_xpos% y%lake_ypos%
 			}
-			KeyWait, LButton 
-			IniWrite, % lake_xpos, ini\lake helper.ini, UI, x-coordinate
-			IniWrite, % lake_ypos, ini\lake helper.ini, UI, y-coordinate
+			KeyWait, LButton
+			lake_xpos -= xScreenOffSet
+			lake_ypos -= yScreenOffSet
+			IniWrite, % lake_xpos, ini\lake helper.ini, UI, x-coordinate (%lake_tiles%)
+			IniWrite, % lake_ypos, ini\lake helper.ini, UI, y-coordinate (%lake_tiles%)
 			Return
 		}
 	}
@@ -3706,8 +3633,10 @@ If (hwnd_lakeboard = "") || (A_Gui = "settings_menu")
 	If (lake_enable_stats = 1)
 		Gui, lakeboard: Add, Text, % "ys BackgroundTrans Center vlake_stats_text h"lake_tile_dimensions*SubStr(lake_tiles, 2, 1)*0.95 " y"lake_stats_ypos, % "(7.77)"
 	GuiControl, lakeboard:, lake_stats_text, % ""
+	IniRead, lake_xpos, ini\lake helper.ini, UI, x-coordinate (%lake_tiles%), % A_Space
+	IniRead, lake_ypos, ini\lake helper.ini, UI, y-coordinate (%lake_tiles%), % A_Space
 	If !IsNumber(lake_xpos) || !IsNumber(lake_ypos)
-		Gui, lakeboard: Show, NA
+		Gui, lakeboard: Show, NA Center
 	Else Gui, lakeboard: Show, % "NA x"xScreenOffSet + lake_xpos " y"yScreenOffSet + lake_ypos
 	LLK_Overlay("lakeboard", "show")
 }
@@ -3720,6 +3649,7 @@ If (lake_pixels_water = "")
 	LLK_ToolTip("no calibration data: water tile")
 	Return
 }
+lake_entrance := ""
 pHaystack_lake := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
 tile_hits_summary := ""
 Loop, % lake_tile_pos.Length() ;scan every tile
@@ -3742,7 +3672,6 @@ Loop, % lake_tile_pos.Length() ;scan every tile
 		loop := A_Index
 		Loop, % tileWidth//2
 		{
-			test += 1
 			pixel_get := Gdip_GetPixelColor(pHaystack_lake, tileXpos + tileWidth//4 + A_Index - 1, tileYpos + tileWidth//4 + loop - 1, 3)
 			If InStr(lake_pixels_water, pixel_get)
 				tile_hits += 1
@@ -5218,7 +5147,7 @@ If (InStr(text2, "kill doedre") && InStr(text2, "kill maligaro") && InStr(text2,
 				text2 .= (text2 = "") ? "- find and kill doedre, maligaro, and shavronne" : "`n- find and kill doedre, maligaro, and shavronne"
 			continue
 		}
-		Else If InStr(A_Loopfield, "kill") && !InStr(A_Loopfield, "depraved trinity")
+		Else If InStr(A_Loopfield, "kill") && !InStr(A_Loopfield, "depraved trinity") && !InStr(A_Loopfield, "malachai")
 		{
 			If !InStr(text2, "kill")
 				text2 .= (text2 = "") ? "- kill doedre, maligaro, and shavronne" : "`n- kill doedre, maligaro, and shavronne"
@@ -5403,7 +5332,7 @@ If !WinExist("ahk_group poe_window")
 	ToolTip
 	update_available := 0
 }
-If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && (alarm_timestamp = "")
+If !WinExist("ahk_group poe_window") && (A_TickCount >= last_check + kill_timeout*60000) && (kill_script = 1) && ((alarm_timestamp = "") || (alarm_loop = 1))
 	ExitApp
 If WinExist("ahk_group poe_window")
 {
@@ -5439,6 +5368,12 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 	}
 	Else
 	{
+		If (alarm_loop = 1) && (alarm_minutes > 0)
+		{
+			SoundBeep, 500, 100
+			EnvAdd, alarm_timestamp, % alarm_minutes, S
+			Return
+		}
 		alarm_fontcolor0 := (alarm_fontcolor0 = "Blue") ? alarm_fontcolor : "Blue"
 		Gui, alarm: Font, c%alarm_fontcolor0%
 		GuiControl, alarm: Font, alarm_countdown
@@ -5623,7 +5558,7 @@ Loop, Parse, parseboard, `n, `n
 				map_mods_panel_player := (map_mods_panel_player = "") ? map_mod_text : map_mods_panel_player "`n" map_mod_text
 			Else If (map_mod_type = "monsters")
 			{
-				If InStr(map_mods_panel_monsters, map_mod_text)
+				If (map_mod_text = "more life") && InStr(map_mods_panel_monsters, map_mod_text)
 				{
 					map_mod_pretext := SubStr(map_mod_pretext, 1, 2)
 					more_life := SubStr(monsters, InStr(monsters, "," map_mod_ID) - 3, 2)
@@ -5656,7 +5591,6 @@ Loop, Parse, parseboard, `n, `n
 		}
 	}
 }
-
 map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" map_mods_panel_bosses "`n" map_mods_panel_area
 width := ""
 Loop 2
@@ -6397,7 +6331,7 @@ If (omnikey_conflict_alt = 1) && (alt_modifier = "")
 clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
-If (omnikey_conflict_alt = 1)
+If (alt_modifier != "")
 	SendInput {%alt_modifier% down}^{c}{%alt_modifier% up}
 Else SendInput !^{c}
 ClipWait, 0.05
@@ -6947,6 +6881,11 @@ recomb_regular := 1
 item_name := ""
 item_class := ""
 allowed := 0
+If !InStr(clipboard, "prefix modifier") || !InStr(clipboard, "suffix modifier")
+{
+	LLK_ToolTip("no item in clipboard")
+	Return
+}
 Loop, Parse, clipboard, `n, `n
 {
 	If InStr(A_LoopField, "item class:")
@@ -8180,9 +8119,7 @@ text =
 explanation
 this hotkey is context-sensitive and used to access the majority of this script's features. it's meant to be the only hotkey you have to use while playing.
 
-this feature does not block the key-press from being sent to the client. if you still want/need to rebind it, bind it to a key that's not used for chatting.
-
-rebinding it will also require clicking certain UI elements (e.g. search fields) in the game first, which is not necessary with the middle mouse-button since it also acts like a click.
+this feature does not block the key-press from being sent to the client, so you can still use skills bound to the middle mouse-button. if you still want/need to rebind it, bind it to a key that's not used for chatting.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -8410,61 +8347,51 @@ If (enable_notepad = 1)
 Return
 
 Settings_menu_omnikey:
+If (A_GuiControl = "omnikey_apply")
+{
+	Gui, settings_menu: Submit, NoHide
+	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P") ||
+		Return
+	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+	Reload
+	ExitApp
+}
 If (A_GuiControl = "omnikey_restart")
 {
 	Gui, settings_menu: Submit, NoHide
-	Loop, Parse, blocked_hotkeys, `,, `,
-	{
-		If (SubStr(omnikey_hotkey2, 1, 1) = A_Loopfield)
-		{
-			LLK_ToolTip("Chosen omni-hotkey is not supported")
-			Return
-		}
-	}
+	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
+		Return
 	IniWrite, % alt_modifier, ini\config.ini, Settings, highlight-key
 	IniWrite, % omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2
 	Reload
 	ExitApp
 	Return
 }
-If (GuiControl_copy = "reset_omnikey_hotkey") && (omnikey_hotkey != "")
-{
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, *~%omnikey_hotkey%,, Off
-	omnikey_hotkey := ""
-	If (omnikey_conflict_c != 1)
-		Hotkey, *~MButton, Omnikey, On
-	Else Hotkey, *~MButton, Omnikey2, On
-	IniWrite, % omnikey_hotkey, ini\config.ini, Settings, omni-hotkey
-}
 
-Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, replace mbutton with:
+Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, replace middle mouse-button with:
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
 ControlGetPos,,, width,,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4
-Gui, settings_menu: Add, Hotkey, % "ys hp BackgroundTrans vomnikey_hotkey gApply_settings_omnikey w"width//3, %omnikey_hotkey%
+Gui, settings_menu: Add, Hotkey, % "xs Section hp BackgroundTrans vomnikey_hotkey w"width//2, %omnikey_hotkey%
 Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vreset_omnikey_hotkey gSettings_menu", % " clear "
-Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vomnikey_apply gSettings_menu_omnikey", % " apply && restart "
 
-If (omnikey_conflict_alt = 1) || (omnikey_conflict_c = 1)
-{
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0, % "troubleshooting (custom keybinds):"
-	If (omnikey_conflict_alt = 1)
-	{
-		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "highlight-key:"
-		Gui, settings_menu: Font, % "s"fSize0 - 4
-		Gui, settings_menu: Add, Edit, % "ys hp valt_modifier BackgroundTrans cBlack w"width//3, % alt_modifier
-		Gui, settings_menu: Font, % "s"fSize0
-	}
-	If (omnikey_conflict_c = 1)
-	{
-		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "omni-key (items):"
-		Gui, settings_menu: Font, % "s"fSize0 - 4
-		Gui, settings_menu: Add, Hotkey, % "ys hp vomnikey_hotkey2 BackgroundTrans w"width//3, % omnikey_hotkey2
-		Gui, settings_menu: Font, % "s"fSize0
-	}
-	Gui, settings_menu: Add, Text, % "xs Border vomnikey_restart gSettings_menu_omnikey Section BackgroundTrans", % " apply && restart "
-}
+Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
+Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
+Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % "only for custom alt && c in-game keybinds, read: "
+Gui, settings_menu: Add, Link, % "ys x+0 hp", <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#custom-poe-keybinds-alt--c">wiki</a>
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "highlight-key:"
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Edit, % "ys hp valt_modifier BackgroundTrans cBlack w"width//2, % alt_modifier
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "omni-key (items):"
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Hotkey, % "ys hp vomnikey_hotkey2 BackgroundTrans w"width//2, % omnikey_hotkey2
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Add, Text, % "xs Border vomnikey_restart gSettings_menu_omnikey Section BackgroundTrans", % " apply && restart "
 Return
 
 Settings_menu_screenchecks:
@@ -9232,8 +9159,6 @@ LLK_HotstringClip(hotstring, mode := 0)
 	hotstring := StrReplace(hotstring, "?")
 	hotstring := StrReplace(hotstring, ".")
 	hotstring := StrReplace(hotstring, "*")
-	If (hotstring = "gwen")
-		gwennen_regex := clipboard
 	clipboard := ""
 	SendInput, ^{a}^{c}
 	If (mode = 1)
@@ -9274,7 +9199,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 	{
 		hotstringboard := StrReplace(hotstringboard, A_Space, "+")
 		hotstringboard := StrReplace(hotstringboard, "'", "%27")
-		Run, https://www.poewiki.net/w/index.php?search=%hotstringboard%
+		Run, https://www.poewiki.net/index.php?search=%hotstringboard%
 	}
 	hotstringboard := ""
 }
