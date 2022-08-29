@@ -8350,7 +8350,7 @@ Settings_menu_omnikey:
 If (A_GuiControl = "omnikey_apply")
 {
 	Gui, settings_menu: Submit, NoHide
-	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P") ||
+	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
 		Return
 	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
 	Reload
