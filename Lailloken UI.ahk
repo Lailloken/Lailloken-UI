@@ -1187,7 +1187,7 @@ LLK_ItemCheck()
 {
 	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker
 	global itemchecker_panel1, itemchecker_panel2, itemchecker_panel3, itemchecker_panel4, itemchecker_panel5, itemchecker_panel6, itemchecker_panel7, itemchecker_panel8, itemchecker_panel9, itemchecker_panel10, itemchecker_panel11, itemchecker_panel12, itemchecker_panel13, itemchecker_panel14, itemchecker_panel15
-	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier"))
+	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) || InStr(Clipboard, "`nUnmodifiable", 1)
 	{
 		LLK_ToolTip("item cannot be checked")
 		Return
@@ -1330,7 +1330,7 @@ LLK_ItemCheck()
 	While (SubStr(itemcheck_clip, 0) = "`n") ;remove white-space at the end
 		itemcheck_clip := SubStr(itemcheck_clip, 1, -1)
 	
-	;combine hybrid mods into a single line, and put lines into affix-groups
+	;mark lines belonging to hybrid mods, and put lines of an affix into a group
 	itemcheck_clip := StrReplace(itemcheck_clip, "}`n", "};;")
 	itemcheck_clip := StrReplace(itemcheck_clip, "`n{", "|{")
 	If !unique
@@ -1443,8 +1443,9 @@ LLK_ItemCheck()
 		Gui, itemchecker: Add, Text, % "xs Hidden Border w"poe_width/12, placeholder
 		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range66-86 BackgroundBlack c%color%, % item_lvl
 		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans w"poe_width/12, % " ilvl: " item_lvl
-		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < 6) ? "Green" : "505050"
-		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-6 BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
+		max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6
+		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) ? "Green" : "505050"
+		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
 		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes
 	}
 	;Else Gui, itemchecker: Add, Text, % "ys Border BackgroundTrans w"poe_width/12, % " "
