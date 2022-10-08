@@ -1,9 +1,4 @@
 ﻿Omnikey:
-If (omnikey_conflict_alt = 1) && (alt_modifier = "")
-{
-	LLK_ToolTip("custom highlight-key detected:`nomni-key setup required", 2)
-	Return
-}
 clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
@@ -13,6 +8,22 @@ Else SendInput !^{c}
 ClipWait, 0.05
 If (clipboard != "")
 {
+	start := A_TickCount
+	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon")
+	{
+		LLK_ItemCheck()
+		Return
+	}
+	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon")
+	{
+		If (A_TickCount >= start + 300)
+		{
+			LLK_ItemCheck()
+			;GoSub, Itemchecker
+			KeyWait, % ThisHotkey_copy
+			Return
+		}
+	}
 	If WinExist("ahk_id " hwnd_gear_tracker)
 	{
 		If !InStr(clipboard, "requirements:`r`nlevel:") || InStr(clipboard, "unidentified")
