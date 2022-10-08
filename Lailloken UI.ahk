@@ -1333,7 +1333,8 @@ LLK_ItemCheck()
 	;combine hybrid mods into a single line, and put lines into affix-groups
 	itemcheck_clip := StrReplace(itemcheck_clip, "}`n", "};;")
 	itemcheck_clip := StrReplace(itemcheck_clip, "`n{", "|{")
-	itemcheck_clip := StrReplace(itemcheck_clip, "`n", "(hybrid)`n(hybrid)")
+	If !unique
+		itemcheck_clip := StrReplace(itemcheck_clip, "`n", "(hybrid)`n(hybrid)")
 	itemcheck_clip := StrReplace(itemcheck_clip, "};;", "}`n")
 	
 	Loop, Parse, itemcheck_clip, |
