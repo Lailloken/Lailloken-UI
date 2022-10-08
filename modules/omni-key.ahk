@@ -93,18 +93,6 @@ If (clipboard != "")
 		GoSub, Recombinators_add
 		Return
 	}
-	If InStr(clipboard, "Attacks per Second:")
-	{
-		While GetKeyState(ThisHotkey_copy, "P")
-		{
-			If (A_TickCount >= start + 200)
-			{
-				GoSub, Omnikey_dps
-				KeyWait, %ThisHotkey_copy%
-				Return
-			}
-		}
-	}
 	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
@@ -386,96 +374,6 @@ If (A_GuiControl = "chrome_calc")
 		SetTimer, Timeout_chromatics
 	}
 }
-Return
-
-Omnikey_dps:
-phys_dmg := 0
-pdps := 0
-ele_dmg := 0
-ele_dmg3 := 0
-ele_dmg4 := 0
-ele_dmg5 := 0
-edps0 := 0
-chaos_dmg := 0
-cdps := 0
-speed := 0
-Loop, Parse, clipboard, `r`n, `r`n
-{
-	If InStr(A_LoopField,"Physical Damage: ")
-	{
-		phys_dmg := A_LoopField
-		Loop, Parse, phys_dmg, " "
-			If (A_Index=3)
-				phys_dmg := A_LoopField
-	}
-	If InStr(A_LoopField,"Elemental Damage: ")
-	{
-		ele_dmg := StrReplace(A_LoopField, "`r`n")
-		ele_dmg := StrReplace(ele_dmg, " (augmented)")
-		ele_dmg := StrReplace(ele_dmg, ",")
-		Loop, Parse, ele_dmg, " "
-			If A_Index between 3 and 5
-				ele_dmg%A_Index% := A_LoopField
-	}
-	If InStr(A_LoopField, "Chaos Damage: ")
-	{
-		chaos_dmg := StrReplace(A_LoopField, "`r`n")
-		chaos_dmg := StrReplace(chaos_dmg, " (augmented)")
-		Loop, Parse, chaos_dmg, " "
-			If (A_Index=3)
-				chaos_dmg := A_LoopField
-	}
-	If InStr(A_LoopField, "Attacks per Second: ")
-	{
-		speed := A_LoopField
-		Loop, Parse, speed, " "
-			If (A_Index=4)
-				speed := SubStr(A_LoopField,1,4)
-		break
-	}
-}
-If (phys_dmg!=0)
-{
-	Loop, Parse, phys_dmg, "-"
-		phys%A_Index% := A_LoopField
-	pdps := ((phys1+phys2)/2)*speed
-	pdps := Format("{:0.2f}", pdps)
-}
-If (ele_dmg!=0)
-{
-	edps2 := 0
-	edps3 := 0
-	Loop, Parse, ele_dmg3, "-"
-		ele_dmg3_%A_Index% := A_LoopField
-	edps1 := ((ele_dmg3_1+ele_dmg3_2)/2)*speed
-	If (ele_dmg4!=0)
-	{
-		Loop, Parse, ele_dmg4, "-"
-			ele_dmg4_%A_Index% := A_LoopField
-		edps2 := ((ele_dmg4_1+ele_dmg4_2)/2)*speed
-	}
-	If (ele_dmg5!=0)
-	{
-		Loop, Parse, ele_dmg5, "-"
-			ele_dmg5_%A_Index% := A_LoopField
-		edps3 := ((ele_dmg5_1+ele_dmg5_2)/2)*speed
-	}
-	edps0 := edps1+edps2+edps3
-	edps0 := Format("{:0.2f}", edps0)
-}
-If (chaos_dmg!=0)
-{
-	Loop, Parse, chaos_dmg, "-"
-		chaos_dmg%A_Index% := A_LoopField
-	cdps := ((chaos_dmg1+chaos_dmg2)/2)*speed
-	cdps := Format("{:0.2f}", cdps)
-}
-tdps := pdps+edps0+cdps
-tdps := Format("{:0.2f}", tdps)
-MouseGetPos, mousex, mousey
-ToolTip, % "pDPS: " pdps "`neDPS: " edps0 "`ncDPS: " cdps "`n-----------`ntDPS: " tdps, % mousex-80, mouseY-20, 1
-KeyWait, %ThisHotkey_copy%
-ToolTip,,,,1
 Return
 
 Omnikey_menu_selection:
