@@ -210,6 +210,7 @@ GoSub, Init_delve
 If WinExist("ahk_exe GeForceNOW.exe")
 	GoSub, Init_geforce
 GoSub, Init_gwennen
+GoSub, Init_itemchecker
 GoSub, Init_lake_helper
 GoSub, Init_legion
 GoSub, Init_maps
@@ -378,6 +379,18 @@ If (update_available = 1)
 {
 	ToolTip
 	update_available := 0
+	Return
+}
+If WinExist("ahk_id " hwnd_itemchecker)
+{
+	Gui, itemchecker: Destroy
+	hwnd_itemchecker := ""
+	Return
+}
+If WinExist("ahk_id " hwnd_context_menu)
+{
+	Gui, context_menu: Destroy
+	hwnd_context_menu := ""
 	Return
 }
 If WinExist("ahk_id " hwnd_lakeboard)
@@ -767,17 +780,16 @@ Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen"
 imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
 guilist := "notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
-guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|"
+guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
 gear_tracker_limit := 6
 gear_tracker_filter := 1
-global lake_entrance
-global lake_distances := []
-global delve_hidden_node
-global delve_distances := []
+global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := []
 Return
+
+#Include modules\item-checker.ahk
 
 #Include modules\lab-info.ahk
 
@@ -1170,6 +1182,437 @@ ToolTip_clear:
 SetTimer, ToolTip_clear, delete
 ToolTip,,,, 17
 Return
+
+LLK_ItemCheck()
+{
+	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker
+	global itemchecker_panel1, itemchecker_panel2, itemchecker_panel3, itemchecker_panel4, itemchecker_panel5, itemchecker_panel6, itemchecker_panel7, itemchecker_panel8, itemchecker_panel9, itemchecker_panel10, itemchecker_panel11, itemchecker_panel12, itemchecker_panel13, itemchecker_panel14, itemchecker_panel15
+	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) || InStr(Clipboard, "`nUnmodifiable", 1)
+	{
+		LLK_ToolTip("item cannot be checked")
+		Return
+	}
+	
+	If InStr(Clipboard, "attacks per second: ")
+	{
+		phys_dmg := 0
+		pdps := 0
+		ele_dmg := 0
+		ele_dmg3 := 0
+		ele_dmg4 := 0
+		ele_dmg5 := 0
+		edps0 := 0
+		chaos_dmg := 0
+		cdps := 0
+		speed := 0
+		Loop, Parse, clipboard, `r`n, `r`n
+		{
+			If InStr(A_LoopField,"Physical Damage: ")
+			{
+				phys_dmg := A_LoopField
+				Loop, Parse, phys_dmg, " "
+					If (A_Index=3)
+						phys_dmg := A_LoopField
+			}
+			If InStr(A_LoopField,"Elemental Damage: ")
+			{
+				ele_dmg := StrReplace(A_LoopField, "`r`n")
+				ele_dmg := StrReplace(ele_dmg, " (augmented)")
+				ele_dmg := StrReplace(ele_dmg, ",")
+				Loop, Parse, ele_dmg, " "
+					If A_Index between 3 and 5
+						ele_dmg%A_Index% := A_LoopField
+			}
+			If InStr(A_LoopField, "Chaos Damage: ")
+			{
+				chaos_dmg := StrReplace(A_LoopField, "`r`n")
+				chaos_dmg := StrReplace(chaos_dmg, " (augmented)")
+				Loop, Parse, chaos_dmg, " "
+					If (A_Index=3)
+						chaos_dmg := A_LoopField
+			}
+			If InStr(A_LoopField, "Attacks per Second: ")
+			{
+				speed := A_LoopField
+				Loop, Parse, speed, " "
+					If (A_Index=4)
+						speed := SubStr(A_LoopField,1,4)
+				break
+			}
+		}
+		If (phys_dmg!=0)
+		{
+			Loop, Parse, phys_dmg, "-"
+				phys%A_Index% := A_LoopField
+			pdps := ((phys1+phys2)/2)*speed
+			pdps := Format("{:0.2f}", pdps)
+		}
+		If (ele_dmg!=0)
+		{
+			edps2 := 0
+			edps3 := 0
+			Loop, Parse, ele_dmg3, "-"
+				ele_dmg3_%A_Index% := A_LoopField
+			edps1 := ((ele_dmg3_1+ele_dmg3_2)/2)*speed
+			If (ele_dmg4!=0)
+			{
+				Loop, Parse, ele_dmg4, "-"
+					ele_dmg4_%A_Index% := A_LoopField
+				edps2 := ((ele_dmg4_1+ele_dmg4_2)/2)*speed
+			}
+			If (ele_dmg5!=0)
+			{
+				Loop, Parse, ele_dmg5, "-"
+					ele_dmg5_%A_Index% := A_LoopField
+				edps3 := ((ele_dmg5_1+ele_dmg5_2)/2)*speed
+			}
+			edps0 := edps1+edps2+edps3
+			edps0 := Format("{:0.2f}", edps0)
+		}
+		If (chaos_dmg!=0)
+		{
+			Loop, Parse, chaos_dmg, "-"
+				chaos_dmg%A_Index% := A_LoopField
+			cdps := ((chaos_dmg1+chaos_dmg2)/2)*speed
+			cdps := Format("{:0.2f}", cdps)
+		}
+		tdps := pdps+edps0+cdps
+		tdps := Format("{:0.2f}", tdps)
+	}
+	
+	;wanted to calculate the roll of the defense stat, but you can't copy it from item-info
+	/*
+	Loop, Parse, Clipboard, `n, `r
+	{
+		If InStr(A_LoopField, "armour:") || InStr(A_LoopField, "evasion rating:") || InStr(A_LoopField, "energy shield:")
+		{
+			defense := StrReplace(A_LoopField, "armour: ")
+			defense := StrReplace(defense, "evasion rating: ")
+			defense := StrReplace(defense, "energy shield: ")
+			MsgBox, % defense
+		}
+	}
+	*/
+	
+	itemcheck_affixes := " affixes: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") " + " LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
+	itemcheck_clip := SubStr(Clipboard, InStr(Clipboard, "item level:"))
+	item_lvl := SubStr(itemcheck_clip, 1, InStr(itemcheck_clip, "`r`n",,, 1) - 1)
+	item_lvl := StrReplace(item_lvl, "item level:")
+	itemcheck_clip := StrReplace(itemcheck_clip, "`r`n", "|")
+	StringLower, itemcheck_clip, itemcheck_clip
+	;MsgBox, % itemcheck_clip
+	itemcheck_parse := "(-.)|"
+	loop := 0
+	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0
+	mirrored := InStr(Clipboard, "`nMirrored", 1) ? 1 : 0
+	affixes := []
+	Loop, Parse, itemcheck_clip, | ;remove unnecessary item-info: implicits, crafted mods, etc.
+	{
+		If (A_Index = 1)
+			itemcheck_clip := ""
+		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") || InStr(A_LoopField, "crafted")
+			continue
+		itemcheck_clip .= A_LoopField "`n"
+	}
+	
+	Loop, Parse, itemcheck_clip, `n ;remove tooltips from item-info
+	{
+		If (A_Index = 1)
+			itemcheck_clip := ""
+		If (SubStr(A_LoopField, 1, 1) = "(")
+			continue
+		itemcheck_clip .= A_LoopField "`n"
+	}
+	
+	;itemcheck_clip := StrReplace(itemcheck_clip, " (fractured)")
+	itemcheck_clip := StrReplace(itemcheck_clip, " — Unscalable Value")
+	
+	While (SubStr(itemcheck_clip, 0) = "`n") ;remove white-space at the end
+		itemcheck_clip := SubStr(itemcheck_clip, 1, -1)
+	
+	;mark lines belonging to hybrid mods, and put lines of an affix into a group
+	itemcheck_clip := StrReplace(itemcheck_clip, "}`n", "};;")
+	itemcheck_clip := StrReplace(itemcheck_clip, "`n{", "|{")
+	If !unique
+		itemcheck_clip := StrReplace(itemcheck_clip, "`n", "(hybrid)`n(hybrid)")
+	itemcheck_clip := StrReplace(itemcheck_clip, "};;", "}`n")
+	
+	Loop, Parse, itemcheck_clip, |
+	{
+		If (unique = 1) && !InStr(A_LoopField, "(") ;skip unscalable unique affix
+			continue
+		loop += 1
+		tier := (unique = 1) ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : 0
+		Loop, Parse, A_LoopField, `n
+		{
+			If InStr(A_LoopField, "'s veiled")
+				betrayal := SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s v") - InStr(A_LoopField, """") + 1)
+			If InStr(A_LoopField, "s' veiled")
+				betrayal := SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """") + 2)
+			If (A_Index = 1)
+				Continue
+			tier .= (tier != "u") && InStr(A_LoopField, "(hybrid)") && !InStr(tier, "h") ? "h" : ""
+			mod := betrayal StrReplace(A_LoopField, "(hybrid)")
+			mod1 := InStr(mod, "adds") && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod
+			mods.Push(A_LoopField ";;" tier)
+			roll := ""
+			Loop, Parse, % StrReplace(mod1, " (fractured)")
+			{
+				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField)
+					roll .= A_LoopField ;(A_LoopField = ")") ? A_LoopField "," : A_LoopField
+			}
+			
+			If InStr(roll, "(")
+			{
+				Loop, Parse, roll, `|
+				{
+					If (A_Index = 1)
+						roll_count := 0
+					If (A_LoopField = "")
+						continue
+					roll_count += 1
+					roll_trigger := 0
+					trigger_index := 0
+					Loop, Parse, % InStr(A_LoopField, "(") ? A_LoopField : A_LoopField "(" A_LoopField "-" A_LoopField ")"
+					{
+						If (A_Index = 1)
+						{
+							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : ""
+							roll%roll_count%_1 := ""
+							roll%roll_count%_2 := ""
+						}
+						If IsNumber(A_LoopField) || (A_LoopField = ".") || (A_LoopField = "-" && A_Index = trigger_index + 1)
+						{
+							If (roll_trigger = 0)
+								roll%roll_count% .= A_LoopField
+							If (roll_trigger = 1)
+								roll%roll_count%_1 .= A_LoopField
+							If (roll_trigger = 2)
+								roll%roll_count%_2 .= A_LoopField
+						}
+						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1)
+						{
+							roll_trigger += 1
+							trigger_index := A_Index
+						}
+					}
+				}
+				;MsgBox, % roll1 " " roll1_1 " " roll1_2 "`n" roll2 " " roll2_1 " " roll2_2
+				roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
+				/*
+				Loop, % roll_count
+				{
+					range := Max(roll%A_Index%_1, roll%A_Index%_2) - Min(roll%A_Index%_1, roll%A_Index%_2) + 1
+					roll_qual += (roll%A_Index% - Min(roll%A_Index%_1, roll%A_Index%_2) + 1)/range
+				}
+				roll_qual := Format("{:0.2f}", (roll_qual/roll_count)*100)
+				*/
+			}
+			Else roll_qual := "0," roll "," roll
+			affixes.Push(mod ";" tier ";" roll_qual)
+		}
+	}
+	
+	If (loop = 0)
+	{
+		LLK_ToolTip("item is not scalable")
+		Return
+	}
+	
+	Gui, itemchecker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_itemchecker
+	Gui, itemchecker: Margin, 0, 0
+	Gui, itemchecker: Color, Black
+	;WinSet, Transparent, %trans%
+	Gui, itemchecker: Font, % "cWhite s"fSize0, Fontin SmallCaps
+	loop := A_Index
+	;total_quality := 0
+	;total_affixes := 0
+	
+	If InStr(Clipboard, "attacks per second: ")
+	{
+		Gui, itemchecker: Add, Text, % "Section xs Border w"poe_width/12, % " p-dps: " pdps
+		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " c-dps: " cdps
+		Gui, itemchecker: Add, Text, % "Section xs Border w"poe_width/12, % " e-dps: " edps0
+		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " total: " tdps
+	}
+	
+	color := (item_lvl >= 86) ? "Green" : "505050"
+	;Gui, itemchecker: Add, Progress, ys hp Border wp range0-100 BackgroundBlack cRed, 80
+	If !unique
+	{
+		Gui, itemchecker: Add, Text, % "xs Hidden Border w"poe_width/12, placeholder
+		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range66-86 BackgroundBlack c%color%, % item_lvl
+		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans w"poe_width/12, % " ilvl: " item_lvl
+		max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6
+		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) ? "Green" : "505050"
+		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
+		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes
+	}
+	;Else Gui, itemchecker: Add, Text, % "ys Border BackgroundTrans w"poe_width/12, % " "
+	
+	Loop, % affixes.Count()
+	{
+		style := !unique ? "w"poe_width*(18/120) : "w"poe_width*(20/120)
+		;MsgBox, % affixes[A_Index]
+		
+		Loop, Parse, % affixes[A_Index], % ";"
+		{
+			Switch A_Index
+			{
+				Case 1:
+					mod := A_LoopField
+				Case 2:
+					tier := A_LoopField
+				Case 3:
+					quality := A_LoopField
+			}
+		}
+		;total_quality += InStr(mod, "fractured") ? 0 : quality
+		;total_affixes += InStr(mod, "fractured") ? 0 : 1
+		
+		Loop, Parse, quality, `,
+		{
+			Switch A_Index
+			{
+				Case 1:
+					lower_bound := A_LoopField ;(A_LoopField < 0) ? A_LoopField * 1.01 : A_LoopField * 0.99
+				Case 2:
+					value := A_LoopField
+				Case 3:
+					upper_bound := A_LoopField
+			}
+		}
+		
+		color := (unique = 0) ? "505050" : "994C00"
+		
+		If InStr(mod, "fractured")
+			Gui, itemchecker: Font, bold, Fontin SmallCaps
+		Gui, itemchecker: Add, Text, % "Section xs Border hidden "style, % mod
+		If InStr(mod, "fractured")
+			Gui, itemchecker: Font, norm, Fontin SmallCaps
+		Gui, itemchecker: Add, Progress, % (A_Index = 1) ? "xp yp Section Disabled Border hp wp range" lower_bound "-" upper_bound " BackgroundBlack c"color : "xp yp hp wp Disabled Border range" lower_bound "-" upper_bound " BackgroundBlack c"color, % value
+		If InStr(mod, "fractured")
+			Gui, itemchecker: Font, bold, Fontin SmallCaps
+		
+		If !unique
+		{
+			If (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 0)
+				color := "White"
+			Else color := (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 1) ? "Aqua" : "Red"
+		}
+		Else color := "White"
+		
+		If !unique
+			Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% gItemchecker %style% Border BackgroundTrans xp yp, % mod ;(StrLen(mod) > 36) ? " " SubStr(mod, 1, 36) " [...] " : " " mod " "
+		Else Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% %style% Border BackgroundTrans xp yp, % mod ;(StrLen(mod) > 36) ? " " SubStr(mod, 1, 36) " [...] " : " " mod " "
+		If InStr(mod, "fractured")
+			Gui, itemchecker: Font, norm, Fontin SmallCaps
+		
+		Switch StrReplace(tier, "h")
+		{
+			Case 0:
+				color := "Teal" ;"A6829F"
+			Case "u":
+				color := "994C00"
+			Case 1:
+				color := "Lime" ;"8FB98C"
+			Case 2:
+				color := "Green"
+			Case 3:
+				color := "Yellow"
+			Case 4:
+				color := "FF8C00"
+			Case 5:
+				color := "DC143C"
+			Default:
+				color := "Maroon" ;"CE8179"
+		}
+		
+		If !unique
+		{
+			Gui, itemchecker: Add, Progress, % "ys hp w"poe_width*(2/120) " BackgroundBlack Border C"color, 100
+			Gui, itemchecker: Add, Text, yp xp Border Center cBlack hp wp BackgroundTrans, % (tier = "u") ? " " : tier
+		}
+	}
+	;Gui, itemchecker: Add, Text, Section xs Border hidden, placeholder
+	;Gui, itemchecker: Add, Progress, % "xp yp hp range0-100 " style " BackgroundBlack c00CCCC", % total_quality/total_affixes
+	;Gui, itemchecker: Add, Text, Center %style% Border BackgroundTrans xp yp HWNDmain_text, % " average rolls: " Format("{:0.2f}", total_quality/total_affixes) "%"
+	Gui, itemchecker: Show, NA x10000 y10000
+	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker%
+	MouseGetPos, mouseXpos, mouseYpos
+	winXpos := (mouseXpos - 15 - width < xScreenOffSet) ? xScreenOffSet : mouseXpos - width - 15
+	winYpos := (mouseypos - 15 - height < yScreenOffSet) ? yScreenOffSet : mouseYpos - height - 15
+	Gui, itemchecker: Show, % "NA x"winXpos " y"winYpos
+	LLK_Overlay("itemchecker", "show")
+}
+
+LLK_ItemCheckHighlight(string, mode := 0)
+{
+	global itemchecker_highlight, itemchecker_blacklist
+	itemchecker_highlight_parse := "+-()%"
+	Loop, Parse, string
+	{
+		If (A_Index = 1)
+			string := ""
+		If !IsNumber(A_LoopField) && !InStr(itemchecker_highlight_parse, A_LoopField)
+			string .= A_LoopField
+	}
+	Loop, Parse, string, %A_Space%, %A_Space%
+	{
+		If (A_Index = 1)
+			string := ""
+		string .= (string = "") ? A_LoopField : " " A_LoopField
+	}
+	If (mode = 0)
+	{
+		If !InStr(itemchecker_highlight, "|" string "|") && !InStr(itemchecker_blacklist, "|" string "|")
+			Return 0
+		Else If InStr(itemchecker_highlight, "|" string "|")
+			Return 1
+		Else If InStr(itemchecker_blacklist, "|" string "|")
+			Return -1
+	}
+	If (mode = 1)
+	{
+		If InStr(itemchecker_blacklist, "|" string "|")
+		{
+			LLK_ToolTip("set to neutral first")
+			Return -1
+		}
+		If !InStr(itemchecker_highlight, "|" string "|")
+		{
+			itemchecker_highlight .= "|" string "|"
+			IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
+			Return 1
+		}
+		Else
+		{
+			itemchecker_highlight := StrReplace(itemchecker_highlight, "|" string "|")
+			IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
+			Return 0
+		}
+	}
+	If (mode = 2)
+	{
+		If InStr(itemchecker_highlight, "|" string "|")
+		{
+			LLK_ToolTip("set to neutral first")
+			Return -1
+		}
+		If !InStr(itemchecker_blacklist, "|" string "|")
+		{
+			itemchecker_blacklist .= "|" string "|"
+			IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
+			Return 1
+		}
+		Else
+		{
+			itemchecker_blacklist := StrReplace(itemchecker_blacklist, "|" string "|")
+			IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
+			Return 0
+		}
+	}
+}
 
 LLK_ImageSearch(name := "")
 {
