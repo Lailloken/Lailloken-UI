@@ -22,15 +22,19 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ![image](https://user-images.githubusercontent.com/61888437/175769799-cb0f8ef2-1800-44ad-8442-fb28179314bb.png)  
 <br>
 
+## [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
+![image](https://user-images.githubusercontent.com/61888437/194871824-f8fa7f55-605d-4210-b2ca-a57eb80473e9.png)  
+<br>
+
 ## [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator): in-client calculator for recombinators  
 ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png)  
 <br>
 
-## [Seed-explorer](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer): In-client UI to quickly check the effects of a seed across the skill-tree  
+## [Seed-explorer](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer): in-client UI to quickly check the effects of a seed across the skill-tree  
 ![image](https://user-images.githubusercontent.com/61888437/179220178-b4007adb-aca3-4a55-9e4d-adc0cbfb3fbf.png)  
 <br>
 
-## Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): Streamlined, customizable, and movable UI for map mods  
+## Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined, customizable, and movable UI for map mods  
 ![Untitled 1](https://user-images.githubusercontent.com/61888437/171627970-630e6dca-4ed2-487a-827a-6de66dcbcc0b.png)  
 <br>
 
@@ -54,7 +58,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ![image](https://user-images.githubusercontent.com/61888437/174295941-6ef1eb44-756e-4e4a-83be-3eeedf62298b.png)  
 <br>
 
-## [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): Streamlined & customizable info-sheet (with optional image recognition)  
+## [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
 ### simple search + customization:
 ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
 <br>
@@ -62,7 +66,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ### advanced search:
 ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png)  
 
-![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)
+![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)  
 <br>
 
 ## [Lab-layout overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay)
