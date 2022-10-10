@@ -1183,17 +1183,26 @@ SetTimer, ToolTip_clear, delete
 ToolTip,,,, 17
 Return
 
-LLK_ItemCheck()
+LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 {
-	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker
+	global itemchecker_t0_color, itemchecker_t1_color, itemchecker_t2_color, itemchecker_t3_color, itemchecker_t4_color, itemchecker_t5_color, itemchecker_t6_color
+	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker, fSize_offset_itemchecker, xPos_itemchecker, yPos_itemchecker, itemchecker_clipboard
 	global itemchecker_panel1, itemchecker_panel2, itemchecker_panel3, itemchecker_panel4, itemchecker_panel5, itemchecker_panel6, itemchecker_panel7, itemchecker_panel8, itemchecker_panel9, itemchecker_panel10, itemchecker_panel11, itemchecker_panel12, itemchecker_panel13, itemchecker_panel14, itemchecker_panel15
-	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) || InStr(Clipboard, "`nUnmodifiable", 1)
+	
+	If config ;for changing UI settings in the menu
+	{
+		WinGetPos, xPos_itemchecker, yPos_itemchecker,,, ahk_id %hwnd_itemchecker%
+		Clipboard := itemchecker_clipboard
+	}
+	Else itemchecker_clipboard := Clipboard
+	
+	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) || InStr(Clipboard, "`nUnmodifiable", 1) ;certain exclusion criteria
 	{
 		LLK_ToolTip("item cannot be checked")
 		Return
 	}
 	
-	If InStr(Clipboard, "attacks per second: ")
+	If InStr(Clipboard, "attacks per second: ") ;calculate dps values if item is a weapon
 	{
 		phys_dmg := 0
 		pdps := 0
@@ -1294,18 +1303,18 @@ LLK_ItemCheck()
 	}
 	*/
 	
-	itemcheck_affixes := " affixes: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") " + " LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
+	itemcheck_affixes := " affixes: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") " + " LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;affix configuration label
 	itemcheck_clip := SubStr(Clipboard, InStr(Clipboard, "item level:"))
 	item_lvl := SubStr(itemcheck_clip, 1, InStr(itemcheck_clip, "`r`n",,, 1) - 1)
 	item_lvl := StrReplace(item_lvl, "item level:")
-	itemcheck_clip := StrReplace(itemcheck_clip, "`r`n", "|")
+	itemcheck_clip := StrReplace(itemcheck_clip, "`r`n", "|") ;combine single item-info lines into affix groups
 	StringLower, itemcheck_clip, itemcheck_clip
-	;MsgBox, % itemcheck_clip
-	itemcheck_parse := "(-.)|"
-	loop := 0
-	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0
-	mirrored := InStr(Clipboard, "`nMirrored", 1) ? 1 : 0
-	affixes := []
+
+	itemcheck_parse := "(-.)|" ;characters that indicate numerical values/strings
+	loop := 0 ;count affixes
+	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0 ;is item unique?
+	affixes := [] ;array to store affix information
+	
 	Loop, Parse, itemcheck_clip, | ;remove unnecessary item-info: implicits, crafted mods, etc.
 	{
 		If (A_Index = 1)
@@ -1324,7 +1333,6 @@ LLK_ItemCheck()
 		itemcheck_clip .= A_LoopField "`n"
 	}
 	
-	;itemcheck_clip := StrReplace(itemcheck_clip, " (fractured)")
 	itemcheck_clip := StrReplace(itemcheck_clip, " — Unscalable Value")
 	
 	While (SubStr(itemcheck_clip, 0) = "`n") ;remove white-space at the end
@@ -1337,51 +1345,58 @@ LLK_ItemCheck()
 		itemcheck_clip := StrReplace(itemcheck_clip, "`n", "(hybrid)`n(hybrid)")
 	itemcheck_clip := StrReplace(itemcheck_clip, "};;", "}`n")
 	
-	Loop, Parse, itemcheck_clip, |
+	Loop, Parse, itemcheck_clip, | ;parse the item-info affix by affix
 	{
 		If (unique = 1) && !InStr(A_LoopField, "(") ;skip unscalable unique affix
 			continue
 		loop += 1
-		tier := (unique = 1) ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : 0
-		Loop, Parse, A_LoopField, `n
+		tier := (unique = 1) ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : 0 ;determine affix tier
+		Loop, Parse, A_LoopField, `n ;parse affix info line by line
 		{
+			;check if affix is veiled
 			If InStr(A_LoopField, "'s veiled")
 				betrayal := SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s v") - InStr(A_LoopField, """") + 1)
-			If InStr(A_LoopField, "s' veiled")
+			Else If InStr(A_LoopField, "s' veiled")
 				betrayal := SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """") + 2)
-			If (A_Index = 1)
+			Else If InStr(A_LoopField, """veiled""") || InStr(A_LoopField, """of the veil""")
+				betrayal := ""
+
+			If (A_Index = 1) ;skip first line of affix group (containing tier, tags, etc.)
 				Continue
-			tier .= (tier != "u") && InStr(A_LoopField, "(hybrid)") && !InStr(tier, "h") ? "h" : ""
-			mod := betrayal StrReplace(A_LoopField, "(hybrid)")
-			mod1 := InStr(mod, "adds") && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod
+			
+			tier .= (tier != "u") && InStr(A_LoopField, "(hybrid)") && !InStr(tier, "h") ? "h" : "" ;mark tier as hybrid if applicable
+			mod := betrayal StrReplace(A_LoopField, "(hybrid)") ;store mod-text in variable
+			mod1 := InStr(mod, "adds") && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
 			mods.Push(A_LoopField ";;" tier)
-			roll := ""
-			Loop, Parse, % StrReplace(mod1, " (fractured)")
+			
+			roll := "" ;variable in which to store the numerical values of the affix
+			Loop, Parse, % StrReplace(mod1, " (fractured)") ;parse mod-text character by character
 			{
-				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField)
-					roll .= A_LoopField ;(A_LoopField = ")") ? A_LoopField "," : A_LoopField
+				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField) ;number or numerical character
+					roll .= A_LoopField
 			}
 			
-			If InStr(roll, "(")
+			If InStr(roll, "(") ;numerical value has scaling
 			{
-				Loop, Parse, roll, `|
+				Loop, Parse, roll, `| ;parse numerical value string value by value (in 'adds x to y damage', x and y are values)
 				{
 					If (A_Index = 1)
-						roll_count := 0
+						roll_count := 0 ;count number of values, i.e. does the mod only have x, or x and y
 					If (A_LoopField = "")
 						continue
 					roll_count += 1
-					roll_trigger := 0
-					trigger_index := 0
-					Loop, Parse, % InStr(A_LoopField, "(") ? A_LoopField : A_LoopField "(" A_LoopField "-" A_LoopField ")"
+					roll_trigger := 0 ;three-step trigger to deconstruct the string
+					trigger_index := 0 ;position within the string at which something was triggered
+					
+					Loop, Parse, % InStr(A_LoopField, "(") ? A_LoopField : A_LoopField "(" A_LoopField "-" A_LoopField ")" ;if given value is scalable, parse string character by character as is: x(x_lower-x_upper) | otherwise, create pseudo-string and parse: x(x-x)
 					{
 						If (A_Index = 1)
 						{
-							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : ""
-							roll%roll_count%_1 := ""
-							roll%roll_count%_2 := ""
+							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
+							roll%roll_count%_1 := "" ;lower bound of the affix roll
+							roll%roll_count%_2 := "" ;upper bound of the affix roll
 						}
-						If IsNumber(A_LoopField) || (A_LoopField = ".") || (A_LoopField = "-" && A_Index = trigger_index + 1)
+						If IsNumber(A_LoopField) || (A_LoopField = ".") || (A_LoopField = "-" && A_Index = trigger_index + 1) ;3rd condition = only include minus-sign if it immediately follows a trigger, i.e. '('
 						{
 							If (roll_trigger = 0)
 								roll%roll_count% .= A_LoopField
@@ -1390,26 +1405,18 @@ LLK_ItemCheck()
 							If (roll_trigger = 2)
 								roll%roll_count%_2 .= A_LoopField
 						}
-						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1)
+						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1) ;'(' and minus-sign increase trigger, but minus-sign only if not preceded by trigger, i.e. if it means 'to' and not 'minus'
 						{
 							roll_trigger += 1
 							trigger_index := A_Index
 						}
 					}
 				}
-				;MsgBox, % roll1 " " roll1_1 " " roll1_2 "`n" roll2 " " roll2_1 " " roll2_2
+				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
 				roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-				/*
-				Loop, % roll_count
-				{
-					range := Max(roll%A_Index%_1, roll%A_Index%_2) - Min(roll%A_Index%_1, roll%A_Index%_2) + 1
-					roll_qual += (roll%A_Index% - Min(roll%A_Index%_1, roll%A_Index%_2) + 1)/range
-				}
-				roll_qual := Format("{:0.2f}", (roll_qual/roll_count)*100)
-				*/
 			}
-			Else roll_qual := "0," roll "," roll
-			affixes.Push(mod ";" tier ";" roll_qual)
+			Else roll_qual := "0," roll "," roll ;if numerical value doesn't scale, create a string "0,x,x" where 0 serves as x_lower and x itself as x_upper
+			affixes.Push(mod ";" tier ";" roll_qual) ;push mod-text, tier, and roll-values into array
 		}
 	}
 	
@@ -1419,16 +1426,13 @@ LLK_ItemCheck()
 		Return
 	}
 	
+	;create tooltip GUI
 	Gui, itemchecker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_itemchecker
 	Gui, itemchecker: Margin, 0, 0
 	Gui, itemchecker: Color, Black
-	;WinSet, Transparent, %trans%
-	Gui, itemchecker: Font, % "cWhite s"fSize0, Fontin SmallCaps
-	loop := A_Index
-	;total_quality := 0
-	;total_affixes := 0
+	Gui, itemchecker: Font, % "cWhite s"fSize0 + fSize_offset_itemchecker, Fontin SmallCaps
 	
-	If InStr(Clipboard, "attacks per second: ")
+	If InStr(Clipboard, "attacks per second: ") ;create top-area with DPS values if item is weapon
 	{
 		Gui, itemchecker: Add, Text, % "Section xs Border w"poe_width/12, % " p-dps: " pdps
 		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " c-dps: " cdps
@@ -1436,26 +1440,27 @@ LLK_ItemCheck()
 		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " total: " tdps
 	}
 	
-	color := (item_lvl >= 86) ? "Green" : "505050"
-	;Gui, itemchecker: Add, Progress, ys hp Border wp range0-100 BackgroundBlack cRed, 80
-	If !unique
-	{
-		Gui, itemchecker: Add, Text, % "xs Hidden Border w"poe_width/12, placeholder
-		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range66-86 BackgroundBlack c%color%, % item_lvl
-		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans w"poe_width/12, % " ilvl: " item_lvl
-		max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6
-		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) ? "Green" : "505050"
-		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n")
-		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes
-	}
-	;Else Gui, itemchecker: Add, Text, % "ys Border BackgroundTrans w"poe_width/12, % " "
+	color := (item_lvl >= 86) ? "Green" : "505050" ;highlight ilvl bar green if ilvl >= 86
 	
-	Loop, % affixes.Count()
+	If !unique ;if item is not unique, determine affix configuration and add bar to visualize it and ilvl
 	{
-		style := !unique ? "w"poe_width*(18/120) : "w"poe_width*(20/120)
-		;MsgBox, % affixes[A_Index]
+		Gui, itemchecker: Add, Text, % "xs Hidden Border w"poe_width/12, placeholder ;add hidden text label as dummy to get the correct dimensions
+		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range66-86 BackgroundBlack c%color%, % item_lvl ;place progress bar on top of dummy label and inherit dimensions
+		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans w"poe_width/12, % " ilvl: " item_lvl ;add actual text label
 		
-		Loop, Parse, % affixes[A_Index], % ";"
+		If InStr(Clipboard, "right click to drink")
+			max_affixes := 2
+		Else max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6 ;set max value for the affix bar (4 for jewels, 6 for the rest)
+		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
+		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;add affix bar
+		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes ;add affix text label
+	}
+	
+	Loop, % affixes.Count() ;n = number of parsed mod lines
+	{
+		style := !unique ? "w"poe_width*(18/120) : "w"poe_width*(20/120) ;width of the mod list: non-unique list narrower for extra tier-column on the far right
+		
+		Loop, Parse, % affixes[A_Index], % ";" ;parse info from current array entry
 		{
 			Switch A_Index
 			{
@@ -1467,15 +1472,13 @@ LLK_ItemCheck()
 					quality := A_LoopField
 			}
 		}
-		;total_quality += InStr(mod, "fractured") ? 0 : quality
-		;total_affixes += InStr(mod, "fractured") ? 0 : 1
 		
-		Loop, Parse, quality, `,
+		Loop, Parse, quality, `, ;determine lower & upper bound, and value
 		{
 			Switch A_Index
 			{
 				Case 1:
-					lower_bound := A_LoopField ;(A_LoopField < 0) ? A_LoopField * 1.01 : A_LoopField * 0.99
+					lower_bound := A_LoopField
 				Case 2:
 					value := A_LoopField
 				Case 3:
@@ -1483,87 +1486,91 @@ LLK_ItemCheck()
 			}
 		}
 		
-		color := (unique = 0) ? "505050" : "994C00"
+		color := (unique = 0) ? "505050" : "994C00" ;gray or brown color for background bars
 		
-		If InStr(mod, "fractured")
+		If InStr(mod, "fractured") ;bold text if mod is fractured
 			Gui, itemchecker: Font, bold, Fontin SmallCaps
-		Gui, itemchecker: Add, Text, % "Section xs Border hidden "style, % mod
+		Gui, itemchecker: Add, Text, % "Section xs Border hidden "style, % mod ;add dummy text label for dimensions
 		If InStr(mod, "fractured")
 			Gui, itemchecker: Font, norm, Fontin SmallCaps
+		
+		;add progress bar and inherit dimensions from dummy label
 		Gui, itemchecker: Add, Progress, % (A_Index = 1) ? "xp yp Section Disabled Border hp wp range" lower_bound "-" upper_bound " BackgroundBlack c"color : "xp yp hp wp Disabled Border range" lower_bound "-" upper_bound " BackgroundBlack c"color, % value
+		
 		If InStr(mod, "fractured")
 			Gui, itemchecker: Font, bold, Fontin SmallCaps
-		
 		If !unique
 		{
-			If (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 0)
+			If (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
 				color := "White"
-			Else color := (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 1) ? "Aqua" : "Red"
+			Else color := (LLK_ItemCheckHighlight(StrReplace(mod, " (fractured)")) = 1) ? "Aqua" : "Red" ;determine which is the case
 		}
-		Else color := "White"
+		Else color := "White" ;uniques always have white text
 		
 		If !unique
-			Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% gItemchecker %style% Border BackgroundTrans xp yp, % mod ;(StrLen(mod) > 36) ? " " SubStr(mod, 1, 36) " [...] " : " " mod " "
-		Else Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% %style% Border BackgroundTrans xp yp, % mod ;(StrLen(mod) > 36) ? " " SubStr(mod, 1, 36) " [...] " : " " mod " "
+			Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% gItemchecker %style% Border BackgroundTrans xp yp, % mod ;non-unique items have clickable mod-texts for highlighting/blacklisting
+		Else Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% %style% Border BackgroundTrans xp yp, % mod ;unique items don't need that
+		
 		If InStr(mod, "fractured")
 			Gui, itemchecker: Font, norm, Fontin SmallCaps
 		
-		Switch StrReplace(tier, "h")
+		Switch StrReplace(tier, "h") ;set correct highlight color according to tier
 		{
 			Case 0:
-				color := "Teal" ;"A6829F"
+				color := itemchecker_t0_color ;untiered affixes, e.g. delve, veiled, etc.
 			Case "u":
-				color := "994C00"
+				color := "994C00" ;unique
 			Case 1:
-				color := "Lime" ;"8FB98C"
+				color := itemchecker_t1_color ;tier x
 			Case 2:
-				color := "Green"
+				color := itemchecker_t2_color
 			Case 3:
-				color := "Yellow"
+				color := itemchecker_t3_color
 			Case 4:
-				color := "FF8C00"
+				color := itemchecker_t4_color
 			Case 5:
-				color := "DC143C"
+				color := itemchecker_t5_color
 			Default:
-				color := "Maroon" ;"CE8179"
+				color := itemchecker_t6_color
 		}
 		
 		If !unique
 		{
-			Gui, itemchecker: Add, Progress, % "ys hp w"poe_width*(2/120) " BackgroundBlack Border C"color, 100
-			Gui, itemchecker: Add, Text, yp xp Border Center cBlack hp wp BackgroundTrans, % (tier = "u") ? " " : tier
+			Gui, itemchecker: Add, Progress, % "ys hp w"poe_width*(2/120) " BackgroundBlack Border C"color, 100 ;add colored progress bar as background for tier-column
+			Gui, itemchecker: Add, Text, yp xp Border Center cBlack hp wp BackgroundTrans, % (tier = "u") ? " " : tier ;add number label to tier-column
 		}
 	}
-	;Gui, itemchecker: Add, Text, Section xs Border hidden, placeholder
-	;Gui, itemchecker: Add, Progress, % "xp yp hp range0-100 " style " BackgroundBlack c00CCCC", % total_quality/total_affixes
-	;Gui, itemchecker: Add, Text, Center %style% Border BackgroundTrans xp yp HWNDmain_text, % " average rolls: " Format("{:0.2f}", total_quality/total_affixes) "%"
-	Gui, itemchecker: Show, NA x10000 y10000
-	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker%
+	
+	Gui, itemchecker: Show, NA x10000 y10000 ;show GUI outside of monitor
+	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI position and dimensions
 	MouseGetPos, mouseXpos, mouseYpos
-	winXpos := (mouseXpos - 15 - width < xScreenOffSet) ? xScreenOffSet : mouseXpos - width - 15
+	mouseXpos := (config != 0) ? xPos_itemchecker + width + 15 : mouseXpos ;override cursor-position if feature is being configured in settings menu
+	mouseYpos := (config != 0) ? yPos_itemchecker + height + 15 : mouseYpos
+	winXpos := (mouseXpos - 15 - width < xScreenOffSet) ? xScreenOffSet : mouseXpos - width - 15 ;reposition coordinates in case tooltip would land outside monitor area
 	winYpos := (mouseypos - 15 - height < yScreenOffSet) ? yScreenOffSet : mouseYpos - height - 15
-	Gui, itemchecker: Show, % "NA x"winXpos " y"winYpos
-	LLK_Overlay("itemchecker", "show")
+	Gui, itemchecker: Show, % "NA x"winXpos " y"winYpos ;show GUI next to cursor
+	LLK_Overlay("itemchecker", "show") ;trigger GUI for auto-hiding when alt-tabbed
 }
 
-LLK_ItemCheckHighlight(string, mode := 0)
+LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blacklisted
 {
 	global itemchecker_highlight, itemchecker_blacklist
 	itemchecker_highlight_parse := "+-()%"
-	Loop, Parse, string
+	Loop, Parse, string ;parse string handed to function character by character
 	{
 		If (A_Index = 1)
-			string := ""
-		If !IsNumber(A_LoopField) && !InStr(itemchecker_highlight_parse, A_LoopField)
+			string := "" ;clear string
+		If !IsNumber(A_LoopField) && !InStr(itemchecker_highlight_parse, A_LoopField) ;remove numbers and numerical signs
 			string .= A_LoopField
 	}
-	Loop, Parse, string, %A_Space%, %A_Space%
+	
+	Loop, Parse, string, %A_Space%, %A_Space% ;clean up double-spaces
 	{
 		If (A_Index = 1)
 			string := ""
 		string .= (string = "") ? A_LoopField : " " A_LoopField
 	}
-	If (mode = 0)
+	If (mode = 0) ;check if mod is highlighted/blacklisted in order to determine color
 	{
 		If !InStr(itemchecker_highlight, "|" string "|") && !InStr(itemchecker_blacklist, "|" string "|")
 			Return 0
@@ -1572,40 +1579,40 @@ LLK_ItemCheckHighlight(string, mode := 0)
 		Else If InStr(itemchecker_blacklist, "|" string "|")
 			Return -1
 	}
-	If (mode = 1)
+	If (mode = 1) ;mod was left-clicked: check for current highlight-state
 	{
-		If InStr(itemchecker_blacklist, "|" string "|")
+		If InStr(itemchecker_blacklist, "|" string "|") ;first, check if mod is actually blacklisted
 		{
 			LLK_ToolTip("set to neutral first")
 			Return -1
 		}
-		If !InStr(itemchecker_highlight, "|" string "|")
+		If !InStr(itemchecker_highlight, "|" string "|") ;mod is not highlighted: add it to highlighted mods and save
 		{
 			itemchecker_highlight .= "|" string "|"
 			IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
 			Return 1
 		}
-		Else
+		Else ;mod is highlighted: remove it from highlighted mods and save
 		{
 			itemchecker_highlight := StrReplace(itemchecker_highlight, "|" string "|")
 			IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
 			Return 0
 		}
 	}
-	If (mode = 2)
+	If (mode = 2) ;mod was right-clicked: check for current blacklist-state
 	{
-		If InStr(itemchecker_highlight, "|" string "|")
+		If InStr(itemchecker_highlight, "|" string "|") ;first, check if mod is actually highlighted
 		{
 			LLK_ToolTip("set to neutral first")
 			Return -1
 		}
-		If !InStr(itemchecker_blacklist, "|" string "|")
+		If !InStr(itemchecker_blacklist, "|" string "|") ;mod is not blacklisted: add it to blacklisted mods and save
 		{
 			itemchecker_blacklist .= "|" string "|"
 			IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
 			Return 1
 		}
-		Else
+		Else ;mod is blacklisted: remove it from blacklisted mods and save
 		{
 			itemchecker_blacklist := StrReplace(itemchecker_blacklist, "|" string "|")
 			IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
@@ -2088,8 +2095,8 @@ LLK_PixelSearch(name)
 	If (ErrorLevel = 0) && !InStr(name, "gamescreen")
 		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
 	%name% := (ErrorLevel=0) ? 1 : 0
-	value := %name%
-	Return value
+	value_pixel := %name%
+	Return value_pixel
 }
 
 LLK_Rightclick()
