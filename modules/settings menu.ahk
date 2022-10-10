@@ -37,6 +37,7 @@ betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "imag
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
+itemchecker_style := InStr(A_GuiControl, "item-info") ? "cAqua" : "cWhite"
 lake_style := InStr(A_GuiControl, "overlayke") ? "cAqua" : "cWhite"
 leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
 map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
@@ -48,7 +49,7 @@ geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
 {
-	Gui, settings_menu: Submit
+	Gui, settings_menu: Submit, NoHide
 	kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 }
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu, Lailloken UI: settings
@@ -94,6 +95,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %delve_style% gSettings_menu HWNDhwnd_settings_delve, % "delve-helper"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_delve%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %itemchecker_style% gSettings_menu HWNDhwnd_settings_itemchecker, % "item-info"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_itemchecker%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	
 	If FileExist(poe_log_file)
@@ -179,6 +184,8 @@ Else If InStr(GuiControl_copy, "delve")
 	ysettings_menu := yScreenOffSet + poe_height/3
 	GoSub, Settings_menu_delve
 }
+Else If InStr(GuiControl_copy, "item-info")
+	GoSub, Settings_menu_itemchecker
 Else If InStr(GuiControl_copy, "overlayke")
 	GoSub, Settings_menu_lake_helper
 Else If InStr(GuiControl_copy, "leveling")
@@ -719,6 +726,34 @@ newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_he
 Gui, Settings_menu_help: Show, NA x%newxpos% y%newypos%
 KeyWait, LButton
 Gui, settings_menu_help: Destroy
+Return
+
+Settings_menu_itemchecker:
+Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2.5, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb color picker</a>
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_minus gItemchecker Border", % " – "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_reset gItemchecker Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_plus gItemchecker Border x+2 wp", % "+"
+
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, % "highlight colors (rgb hex-code): "
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_apply_color gItemchecker Border x+0", % " save "
+
+Loop, 7
+{
+	value := A_Index - 1
+	If (A_Index = 1)
+	{
+		Gui, settings_menu: Add, Edit, % "xs Center hp BackgroundTrans Hidden cBlack Limit6 HWNDmain_text", DDDDDD
+		ControlGetPos,,, width,,, ahk_id %main_text%
+		Gui, settings_menu: Add, Edit, % "xp yp Center Section hp BackgroundTrans vitemchecker_t" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_t%value%_color
+	}
+	Else Gui, settings_menu: Add, Edit, % "xs Center Section hp BackgroundTrans vitemchecker_t" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_t%value%_color
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans Border Hidden", % "777"
+	Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
+	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center BackgroundTrans", % value
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_t" value "_reset gItemchecker Border", % " reset "
+}
 Return
 
 Settings_menu_lake_helper:
