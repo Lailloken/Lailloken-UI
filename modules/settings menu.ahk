@@ -40,7 +40,8 @@ flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
 itemchecker_style := InStr(A_GuiControl, "item-info") ? "cAqua" : "cWhite"
 lake_style := InStr(A_GuiControl, "overlayke") ? "cAqua" : "cWhite"
 leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
-map_mods_style := InStr(A_GuiControl, "map") ? "cAqua" : "cWhite"
+map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") ? "cAqua" : "cWhite"
+map_mods_style := InStr(A_GuiControl, "map-info") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
 pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
@@ -105,6 +106,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	{
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %leveling_style% gSettings_menu HWNDhwnd_settings_leveling, % "leveling tracker"
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_leveling%
+		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+		
+		Gui, settings_menu: Add, Text, xs BackgroundTrans %map_tracker_style% gSettings_menu HWNDhwnd_settings_map_tracker, % "mapping tracker"
+		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_map_tracker%
 		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	}
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %map_mods_style% gSettings_menu HWNDhwnd_settings_map_mods, % "map-info"
@@ -190,7 +195,12 @@ Else If InStr(GuiControl_copy, "overlayke")
 	GoSub, Settings_menu_lake_helper
 Else If InStr(GuiControl_copy, "leveling")
 	GoSub, Settings_menu_leveling_guide
-Else If InStr(GuiControl_copy, "map")
+Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker"))
+{
+	map_tracker_clicked := A_TickCount ;workaround for stupid UpDown behavior that leads to rare error message
+	GoSub, Settings_menu_map_tracker
+}
+Else If InStr(GuiControl_copy, "map-info")
 	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
@@ -945,6 +955,35 @@ Gui, settings_menu: Font, % "s"fSize0
 GoSub, Map_info
 Return
 
+Settings_menu_map_tracker:
+Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-tracker">wiki page</a>
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker y+"fSize0*1.2 " venable_map_tracker Checked"enable_map_tracker, enable mapping tracker
+If (enable_map_tracker = 1)
+{
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size offset:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_minus gMap_tracker Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_reset gMap_tracker Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_plus gMap_tracker Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", button size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_minus gMap_tracker Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_reset gMap_tracker Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_plus gMap_tracker Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans HWNDmain_text", panel offset (x/y):
+	WinGetPos,,, width,, ahk_id %main_text%
+	Gui, settings_menu: Font, % "s"fSize0 - 4
+	Gui, settings_menu: Add, Edit, % "ys hp BackgroundTrans cBlack vxpos_offset_map_tracker gMap_tracker w"width/3,
+	Gui, settings_menu: Add, UpDown, % "ys range-10000-10000", % xpos_offset_map_tracker
+	
+	Gui, settings_menu: Add, Edit, % "ys x+0 hp BackgroundTrans vypos_offset_map_tracker gMap_tracker cBlack w"width/3,
+	Gui, settings_menu: Font, % "s"fSize0
+	Gui, settings_menu: Add, UpDown, % "ys range-10000-10000", % ypos_offset_map_tracker
+	
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker venable_loottracker Checked"enable_loottracker " y+"fSize0*1.2, enable loot tracker
+}
+Return
+
 Settings_menu_notepad:
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gApply_settings_notepad y+"fSize0*1.2 " venable_notepad Checked"enable_notepad, enable notepad
@@ -1100,6 +1139,8 @@ Gui, delve_grid: Destroy
 hwnd_delve_grid := ""
 Gui, delve_grid2: Destroy
 hwnd_delve_grid2 := ""
+Gui, loottracker: Destroy
+hwnd_loottracker := ""
 
 If WinExist("ahk_id " hwnd_notepad_sample)
 {
