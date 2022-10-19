@@ -219,9 +219,10 @@ GoSub, Init_omnikey
 GoSub, Init_searchstrings
 GoSub, Init_conversions
 GoSub, Init_leveling_guide
+GoSub, Init_map_tracker
 
 SetTimer, Loop, 1000
-SetTimer, Log_loop, 1500
+SetTimer, Log_loop, 1000
 
 timeout := 0
 If (custom_resolution_setting = 1)
@@ -240,6 +241,16 @@ GoSub, Screenchecks_gamescreen
 SetTimer, MainLoop, 100
 If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
+Return
+
+#If (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused
+
+^+LButton::
+^LButton::
+MouseGetPos, mouseX
+If (map_tracker_map != "") && (mouseX > poe_width//2) && LLK_ImageSearch("stash")
+	LLK_MapTrack("add")
+Else	SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{LButton}{LControl Up}"
 Return
 
 #If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
@@ -381,6 +392,11 @@ If (update_available = 1)
 	update_available := 0
 	Return
 }
+If WinExist("ahk_id " hwnd_map_tracker_log)
+{
+	LLK_MapTrackGUI()
+	Return
+}
 If WinExist("ahk_id " hwnd_itemchecker)
 {
 	Gui, itemchecker: Destroy
@@ -391,6 +407,12 @@ If WinExist("ahk_id " hwnd_context_menu)
 {
 	Gui, context_menu: Destroy
 	hwnd_context_menu := ""
+	Return
+}
+If WinExist("ahk_id " hwnd_map_tracker) && (map_tracker_display_loot = 1)
+{
+	map_tracker_display_loot := 0
+	LLK_MapTrack()
 	Return
 }
 If WinExist("ahk_id " hwnd_lakeboard)
@@ -665,6 +687,8 @@ Return
 Exit:
 Gdip_Shutdown(pToken)
 poe_log.Close()
+If (map_tracker_map != "")
+	LLK_MapTrackSave()
 If (timeout != 1)
 {
 	If !(alarm_timestamp < A_Now) && (alarm_loop != 1)
@@ -761,6 +785,7 @@ IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
 IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
 IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
 IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
+IniRead, enable_map_tracker, ini\config.ini, Features, enable map tracker, 0
 
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
@@ -780,13 +805,18 @@ Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen"
 imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
 guilist := "notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
-guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|"
+guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
 gear_tracker_limit := 6
 gear_tracker_filter := 1
-global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := []
+imagechecks_coords_bestiary := "0,0," poe_width//2 "," poe_height//2
+imagechecks_coords_betrayal := "0," poe_height//2 "," poe_width//2 ",0"
+imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
+imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
+imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
+global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
 Return
 
 #Include modules\item-checker.ahk
@@ -800,24 +830,67 @@ Return
 #Include modules\leveling tracker.ahk
 
 Log_loop:
+;function quick-jump: LLK_MapTrack(), LLK_MapTrackSave()
 If !WinActive("ahk_group poe_ahk_window")
 	Return
-test_start := A_TickCount
+If !map_tracker_paused
+{
+	map_tracker_ticks := InStr(map_tracker_map, current_location) ? A_TickCount - map_entered : map_tracker_ticks
+	If InStr(map_tracker_map, current_location) && WinExist("ahk_id " hwnd_map_tracker)
+	{
+		map_tracker_time := Format("{:0.0f}", map_tracker_ticks//1000)
+		map_tracker_time := (Mod(map_tracker_time, 60) >= 10) ? map_tracker_time//60 ":" Mod(map_tracker_time, 60) : map_tracker_time//60 ":0" Mod(map_tracker_time, 60)
+		map_tracker_time := (StrLen(map_tracker_time) < 5) ? 0 map_tracker_time : map_tracker_time
+		GuiControl, map_tracker: text, map_tracker_label_time, % map_tracker_time
+	}
+}
 poe_log_content := poe_log.Read()
 StringLower, poe_log_content, poe_log_content
-Loop, Parse, poe_log_content, `r`n, `r`n
+Loop, Parse, poe_log_content, `n, `r
 {
 	If InStr(A_Loopfield, "generating level")
 	{
 		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
-		Loop, Parse, current_location
+		current_location := SubStr(current_location, 1, InStr(current_location, """") -1)
+		
+		If !map_tracker_paused
 		{
-			If (A_Index = 1)
-				current_location := ""
-			If (A_Loopfield = """")
-				break
-			current_location .= A_Loopfield
+			current_seed := SubStr(A_LoopField, InStr(A_LoopField, "seed ") + 5)
+			current_seed := StrReplace(current_seed, "`n")
+			
+			current_area_tier := SubStr(A_LoopField, InStr(A_LoopField, "level ") + 6, InStr(A_LoopField, " area """) - InStr(A_LoopField, "level ") - 6) - 67
+			current_area_tier := (current_area_tier < 10) ? 0 current_area_tier : current_area_tier
+			date_time := SubStr(A_LoopField, 1, InStr(A_LoopField, " ",,, 2) - 1)
+			
+			If (InStr(A_LoopField, "mapworlds") || InStr(A_LoopField, "LakePrototype"))
+			{
+				If (map_tracker_map = "") || (map_tracker_map != current_location "|" current_area_tier "|" current_seed)
+				{
+					map_tracker_map := (map_tracker_map = "") ? current_location "|" current_area_tier "|" current_seed : map_tracker_map
+					If (map_tracker_map != current_location "|" current_area_tier "|" current_seed)
+					{
+						map_tracker_map := current_location "|" current_area_tier "|" current_seed
+						LLK_MapTrackSave()
+					}
+					current_location_verbose := ""
+					map_tracker_ticks := 0
+					portals := 0
+					map_tracker_deaths := 0
+					map_entered_date_time := date_time
+				}
+				portals += 1
+				map_entered := A_TickCount - map_tracker_ticks
+			}
 		}
+	}
+	If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused
+		map_tracker_deaths += 1
+	If InStr(A_LoopField, "you have entered ") && (current_location_verbose = "") && (map_tracker_map != "") && !map_tracker_paused
+	{
+		current_location_verbose := SubStr(A_LoopField, InStr(A_LoopField, "you have entered ") + 17)
+		current_location_verbose := StrReplace(current_location_verbose, ".")
+		current_map_tier := current_area_tier
+		LLK_MapTrack()
 	}
 	If (gear_tracker_char != "")
 	{
@@ -961,7 +1034,7 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 Return
 
 MainLoop:
-If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
+If !WinActive("ahk_group poe_ahk_window")
 {
 	inactive_counter += 1
 	If (inactive_counter = 3)
@@ -976,7 +1049,7 @@ If !WinActive("ahk_group poe_window") && !WinActive("ahk_class AutoHotkeyGUI")
 		LLK_Overlay("hide")
 	}
 }
-If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) && (poe_window_closed != 1)
+If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 {
 	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
 		Gui, bestiary_menu: Destroy
@@ -1017,7 +1090,7 @@ If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) &
 			}
 		}
 	}
-	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1))
+	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0) && !WinExist("ahk_id " hwnd_map_tracker_log)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1) && !WinExist("ahk_id " hwnd_map_tracker_log))
 	{
 		Loop, Parse, clone_frames_enabled, `,, `,
 		{
@@ -1056,6 +1129,8 @@ If (WinActive("ahk_group poe_window") || WinActive("ahk_class AutoHotkeyGUI")) &
 Return
 
 #Include modules\map-info.ahk
+
+#Include modules\map tracker.ahk
 
 #Include modules\notepad.ahk
 
@@ -1198,7 +1273,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	If InStr(Clipboard, "`nUnidentified", 1) || (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) || InStr(Clipboard, "`nUnmodifiable", 1) ;certain exclusion criteria
 	{
-		LLK_ToolTip("item cannot be checked")
+		LLK_ToolTip("item-info: not supported", 1)
 		Return
 	}
 	
@@ -1451,7 +1526,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		If InStr(Clipboard, "right click to drink")
 			max_affixes := 2
 		Else max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6 ;set max value for the affix bar (4 for jewels, 6 for the rest)
-		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
+		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) && !InStr(Clipboard, "`nMirrored", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
 		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;add affix bar
 		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes ;add affix text label
 	}
@@ -1552,6 +1627,26 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	LLK_Overlay("itemchecker", "show") ;trigger GUI for auto-hiding when alt-tabbed
 }
 
+LLK_ProgressBar(gui, control_id)
+{
+	progress := 0
+	start := A_TickCount
+	While GetKeyState("LButton", "P") || GetKeyState("RButton", "P")
+	{
+		If (progress >= 700)
+			Return 1
+		If (A_TickCount >= start + 10)
+		{
+			progress += 10
+			start := A_TickCount
+			GuiControl, %gui%:, %control_id%, % progress
+		}
+	}
+	GuiControl, %gui%:, %control_id%, 0
+	WinActivate, ahk_group poe_window
+	Return 0
+}
+
 LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blacklisted
 {
 	global itemchecker_highlight, itemchecker_blacklist
@@ -1621,12 +1716,327 @@ LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blackl
 	}
 }
 
+LLK_MapTrack(mode := "")
+{
+	global
+	If (mode = "add")
+	{
+		Clipboard := ""
+		SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{c}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{c}{LButton}{LControl Up}"
+		ClipWait, 0.05
+		If (Clipboard = "")
+			Return
+		loottracker_stack_size := ""
+		Loop, Parse, Clipboard, `n, `r
+		{
+			If (A_Index = 3)
+				loottracker_item_name := StrReplace(A_LoopField, "superior ")
+			If InStr(A_LoopField, "stack size:")
+				loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13)
+		}
+		StringLower, loottracker_item_name, loottracker_item_name
+		loottracker_stack_size := (loottracker_stack_size = "") ? "" : " (" loottracker_stack_size ")"
+		loottracker_loot .= (loottracker_loot = "") ? loottracker_item_name loottracker_stack_size : "," loottracker_item_name loottracker_stack_size
+	}
+	
+	Gui, map_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_tracker
+	Gui, map_tracker: Margin, % fSize0//2, 0
+	Gui, map_tracker: Color, Black
+	WinSet, Trans, %trans%
+	Gui, map_tracker: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
+	
+	Gui, map_tracker: Add, Text, % "xs Section BackgroundTrans vmap_tracker_button_complete gMap_tracker", % (current_location_verbose = "") ? "not tracking" : current_location_verbose " (" current_map_tier ")"
+	Gui, map_tracker: Add, Progress, % "xs Disabled BackgroundTrans cGreen wp range0-700 vmap_tracker_button_complete_bar h"fSize0//2, 0
+	Gui, map_tracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
+	
+	If (mode = "add" || mode = "refresh")
+	{
+		map_tracker_display_loot := 1
+		Loop, Parse, loottracker_loot, `,, %A_Space%
+			Gui, map_tracker: Add, Text, % "xs Section BackgroundTrans vloottracker_item" A_Index " gMap_tracker", % A_LoopField
+	}
+	
+	Gui, map_tracker: Show, NA x10000 y10000
+	WinGetPos,,, width, height, ahk_id %hwnd_map_tracker%
+	Gui, map_tracker: Show, % "NA x"xScreenOffSet + poe_width - poe_height*0.6155 - width + xpos_offset_map_tracker " y"yScreenOffSet + poe_height - poe_height*0.0215 - height + ypos_offset_map_tracker
+	LLK_Overlay("map_tracker", "show")
+}
+
+LLK_MapTrackExport(date := "")
+{
+	IniRead, ini_read, ini\map tracker log.ini
+	If (date != "") && FileExist("Mapping tracker " StrReplace(date, "/", "-") ".csv")
+		FileDelete, % "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+	Else If (date = "") && FileExist("Mapping tracker.csv")
+		FileDelete, % "Mapping tracker.csv"
+	Loop, Parse, ini_read, `n
+	{
+		If (A_Index = 1)
+			FileAppend, % "date,map,tier,time,portals,deaths,loot`n" , % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+		If (date != "") && !InStr(A_LoopField, date)
+			continue
+		IniRead, ini_read_map, ini\map tracker log.ini, % A_LoopField, map, unknown map
+		ini_read_map := (ini_read_map = "") ? "unknown map" : ini_read_map
+		IniRead, ini_read_tier, ini\map tracker log.ini, % A_LoopField, tier, 00
+		ini_read_tier := (ini_read_tier = "") ? 00 : ini_read_tier
+		IniRead, ini_read_time, ini\map tracker log.ini, % A_LoopField, time, 00:00
+		ini_read_time := (ini_read_time = "") ? "00:00" : ini_read_time
+		IniRead, ini_read_portals, ini\map tracker log.ini, % A_LoopField, portals, 0
+		ini_read_portals := (ini_read_portals = "") ? 0 : ini_read_portals
+		IniRead, ini_read_loot, ini\map tracker log.ini, % A_LoopField, loot, % A_Space
+		ini_read_loot := StrReplace(ini_read_loot, ", ", "`n")
+		IniRead, ini_read_deaths, ini\map tracker log.ini, % A_LoopField, deaths, 0
+		ini_read_deaths := (ini_read_deaths = "") ? 0 : ini_read_deaths
+		FileAppend, % A_LoopField "," ini_read_map "," ini_read_tier "," ini_read_time "," ini_read_portals "," ini_read_deaths ",""" ini_read_loot """`n", % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+	}
+	If (date = "")
+		LLK_ToolTip("all logs exported")
+	Else LLK_ToolTip("selected log exported")
+}
+
+LLK_MapTrackGUI(mode := "")
+{
+	global
+	FormatTime, today, % A_Now, yyyy/MM/dd
+
+	If WinExist("ahk_id " hwnd_map_tracker_log) && (mode != "refresh")
+	{
+		Gui, map_tracker_log: Destroy
+		hwnd_map_tracker_log := ""
+		map_tracker_log_selected_date := ""
+		Return
+	}
+	
+	IniRead, map_tracker_logs, ini\map tracker log.ini,
+	Loop, Parse, map_tracker_logs, `n
+	{
+		If (A_Index = 1)
+			map_tracker_dates := ""
+		parse_date := SubStr(A_LoopField, 1, 10)
+		If (map_tracker_log_selected_date = "")
+			map_tracker_dates .= (map_tracker_dates = "") ? parse_date "|" : !InStr(map_tracker_dates, parse_date) ? (parse_date = today) ? parse_date "||" : parse_date "|" : ""
+		Else map_tracker_dates .= (map_tracker_dates = "") ? (parse_date = map_tracker_log_selected_date) ? parse_date "||" : parse_date "|" : !InStr(map_tracker_dates, parse_date) ? (parse_date = map_tracker_log_selected_date) ? parse_date "||" : parse_date "|" : ""
+	}
+	map_tracker_dates .= InStr(map_tracker_dates, "||") ? "" : "|"
+	
+	Gui, map_tracker_log: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_tracker_log
+	Gui, map_tracker_log: Margin, % fSize0//2, % fSize0//2
+	Gui, map_tracker_log: Color, Black
+	WinSet, Trans, %trans%
+	Gui, map_tracker_log: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker + 2, Fontin SmallCaps
+	
+	Gui, map_tracker_log: Add, Text, % "Section BackgroundTrans", % "available logs:"
+	Gui, map_tracker_log: Font, % "s"fSize0 + fSize_offset_map_tracker - 2
+	Gui, map_tracker_log: Add, DDL, % "ys BackgroundTrans hp wp cBlack vmap_tracker_log_ddl gMap_tracker r"LLK_InStrCount(map_tracker_dates, "|") + 1, % map_tracker_dates
+	Gui, map_tracker_log: Font, % "s"fSize0 + fSize_offset_map_tracker + 2
+	Gui, map_tracker_log: Add, Progress, % "ys x+0 hp Disabled BackgroundTrans cRed vmap_tracker_log_delete_bar range0-700 Vertical w"fSize0, 0
+	Gui, map_tracker_log: Add, Text, % "ys x+0 Border BackgroundTrans vmap_tracker_log_delete_day gMap_tracker", % " delete "
+	If (StrLen(map_tracker_dates) >= 10)
+		Gui, map_tracker_log: Add, Text, % "ys Border BackgroundTrans vmap_tracker_log_export gMap_tracker", % " export "
+	
+	Gui, map_tracker_log: Submit, NoHide
+	GuiControlGet, map_tracker_log_selected_date,, map_tracker_log_ddl
+	
+	map_tracker_log_entries := 0
+	map_tracker_log_section := 0
+	map_tracker_log_section_count := 0
+	map_tracker_log_x_offset := 0
+	map_tracker_log_height := 0
+	
+	Loop, Parse, map_tracker_logs, `n
+	{
+		If InStr(A_LoopField, map_tracker_log_selected_date)
+		{
+			map_tracker_log_entries += 1
+			map_tracker_log_ini%map_tracker_log_entries% := A_LoopField
+			map_tracker_log_datetime := SubStr(A_LoopField, -7)
+			IniRead, map_tracker_log_map, ini\map tracker log.ini, % A_LoopField, map, unknown map
+			map_tracker_log_map := (map_tracker_log_map = "") ? "unknown map" : map_tracker_log_map
+			IniRead, map_tracker_log_tier, ini\map tracker log.ini, % A_LoopField, tier, 00
+			map_tracker_log_tier := (map_tracker_log_tier = "") ? 00 : map_tracker_log_tier
+			IniRead, map_tracker_log_time, ini\map tracker log.ini, % A_LoopField, time, 00:00
+			map_tracker_log_time := (map_tracker_log_time = "") ? "00:00" : map_tracker_log_time
+			IniRead, map_tracker_log_portals, ini\map tracker log.ini, % A_LoopField, portals, 0
+			map_tracker_log_portals := (map_tracker_log_portals = "") ? 0 : map_tracker_log_portals
+			IniRead, map_tracker_log_loot%map_tracker_log_entries%, ini\map tracker log.ini, % A_LoopField, loot, % A_Space
+			map_tracker_log_loot%map_tracker_log_entries% := (map_tracker_log_loot%map_tracker_log_entries% != "") ? StrReplace(map_tracker_log_loot%map_tracker_log_entries%, ", ", "`n") : "no loot"
+			IniRead, map_tracker_log_deaths, ini\map tracker log.ini, % A_LoopField, deaths, 0
+			map_tracker_log_deaths := (map_tracker_log_deaths = "") ? 0 : map_tracker_log_deaths
+			
+			
+			map_tracker_log_text := " " map_tracker_log_datetime " t" map_tracker_log_tier " " map_tracker_log_time " " map_tracker_log_portals "p " map_tracker_log_deaths "d " map_tracker_log_map " "
+			If (map_tracker_log_entries = 1)
+				Gui, map_tracker_log: Add, Text, % "xs Section BackgroundTrans Border gMap_tracker HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries, % map_tracker_log_text
+			Else Gui, map_tracker_log: Add, Text, % (map_tracker_log_section = 1) || (!Mod(map_tracker_log_entries, map_tracker_log_section_count) && (map_tracker_log_section_count != 0)) ? "ys Section BackgroundTrans Border gMap_tracker HWNDmain_text x"map_tracker_log_x_offset + fSize0 " vmap_tracker_log_entry"map_tracker_log_entries : "xs y+0 BackgroundTrans Border gMap_tracker HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries, % map_tracker_log_text
+			Gui, map_tracker_log: Add, Progress, % "xs y+0 wp BackgroundTrans cRed range0-700 vmap_tracker_log_delete_entry"map_tracker_log_entries " h"fSize0//2, 0
+			ControlGetPos, map_tracker_log_x,, map_tracker_log_width,,, ahk_id %main_text%
+			map_tracker_log_x_offset := (map_tracker_log_x + map_tracker_log_width > map_tracker_log_x_offset) ? map_tracker_log_x + map_tracker_log_width : map_tracker_log_x_offset
+			Gui, map_tracker_log: Show, NA AutoSize
+			WinGetPos,,,, map_tracker_log_height, ahk_id %hwnd_map_tracker_log%
+			map_tracker_log_section += (map_tracker_log_height >= poe_height*0.85) ? 1 : 0
+			If (map_tracker_log_height >= poe_height*0.85) && (map_tracker_log_section_count = 0)
+				map_tracker_log_section_count := map_tracker_log_entries
+		}
+	}
+	WinSet, Redraw,, ahk_id %hwnd_map_tracker_log%
+	
+	Gui, Show, NA Center AutoSize
+	LLK_Overlay("map_tracker_log", "show")
+}
+
+LLK_MapTrackLoot(entry)
+{
+	global
+	MouseGetPos, map_tracker_loot_mouseX, map_tracker_loot_mouseY
+	Gui, map_tracker_loot: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_tracker_loot
+	Gui, map_tracker_loot: Margin, % fSize0//2, % fSize0//2
+	Gui, map_tracker_loot: Color, Black
+	Gui, map_tracker_loot: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
+	
+	Gui, map_tracker_loot: Add, Text, % "BackgroundTrans", % map_tracker_log_loot%entry%
+	Gui, map_tracker_loot: Show, NA x10000 y10000
+	WinGetPos, map_tracker_loot_xpos, map_tracker_loot_ypos, map_tracker_loot_width, map_tracker_loot_height, ahk_id %hwnd_map_tracker_loot%
+	map_tracker_loot_mouseX := (map_tracker_loot_mouseX + map_tracker_loot_width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - map_tracker_loot_width : map_tracker_loot_mouseX
+	map_tracker_loot_mouseY := (map_tracker_loot_mouseY + map_tracker_loot_height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - map_tracker_loot_height : map_tracker_loot_mouseY
+	Gui, map_tracker_loot: Show, NA x%map_tracker_loot_mouseX% y%map_tracker_loot_mouseY%
+	KeyWait, LButton
+	Gui, map_tracker_loot: Destroy
+}
+
+LLK_LootTrackClick(mode := 0)
+{
+	global
+	If (mode = 0)
+	{
+		SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{c}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{c}{LButton}{LControl Up}"
+		;loottracker_rarity := ""
+		loottracker_stack_size := ""
+		Loop, Parse, Clipboard, `n, `r
+		{
+			If (A_Index = 3)
+				loottracker_item_name := StrReplace(A_LoopField, "superior ")
+			If InStr(A_LoopField, "stack size:")
+				loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13)
+			;If InStr(A_LoopField, "rarity: ")
+			;	loottracker_rarity := "[" SubStr(A_LoopField, InStr(A_LoopField, "rarity: ") + 8, 1) "] "
+		}
+		;StringLower, loottracker_rarity, loottracker_rarity
+		StringLower, loottracker_item_name, loottracker_item_name
+		;loottracker_rarity := (loottracker_rarity = "") ? "[o] " : loottracker_rarity
+		;loottracker_item_name := loottracker_rarity loottracker_item_name
+		loottracker_stack_size := (loottracker_stack_size = "") ? "" : " (" loottracker_stack_size ")"
+		loottracker_loot .= (loottracker_loot = "") ? loottracker_item_name loottracker_stack_size : "," loottracker_item_name loottracker_stack_size
+	}
+	If (loottracker_loot = "") && (mode != 2)
+	{
+		Gui, loottracker: Destroy
+		hwnd_loottracker := ""
+		Return
+	}
+	loottracker_loot_sample := "divine orb,chaos orb (3),exalted orb (2),mirror of kalandra,mageblood"
+	Gui, loottracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_loottracker
+	Gui, loottracker: Margin, % fSize0//2, 0
+	Gui, loottracker: Color, Black
+	Gui, loottracker: Font, % "cWhite bold s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
+	
+	If (mode = 2)
+		Gui, loottracker: Add, Text, % "xs Section BackgroundTrans Border vloottracker_button_complete", % " crimson temple (16): "
+	Else Gui, loottracker: Add, Text, % "xs Section BackgroundTrans Border vloottracker_button_complete gMap_tracker", % " " current_location_verbose " (" SubStr(map_tracker_map, InStr(map_tracker_map, "|") + 1, InStr(map_tracker_map, "|",,, 2) - InStr(map_tracker_map, "|") - 1) ") "
+	Gui, loottracker: Add, Progress, % "xs wp Disabled BackgroundBlack cGreen range0-700 vloottracker_button_complete_bar h"fSize0//2, 0
+	Gui, loottracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % "00:00"
+	Gui, loottracker: Font, norm
+	
+	Loop, Parse, % (mode != 2) ? loottracker_loot : loottracker_loot_sample, `,, %A_Space%
+		Gui, loottracker: Add, Text, % "xs Section BackgroundTrans vloottracker_item" A_Index " gMap_tracker", % A_LoopField
+	Gui, loottracker: Show, NA x10000 y10000
+	WinGetPos,,, width, height
+	Gui, loottracker: Show, % "NA x"xScreenOffSet + poe_width - poe_height*0.6155 - width + xpos_offset_loottracker " y"yScreenOffSet + poe_height - height - poe_height*0.0215
+	LLK_Overlay("loottracker", "show")
+}
+
+LLK_MapTrackSave()
+{
+	global loottracker_loot, map_tracker_deaths, map_tracker_time, current_location_verbose, map_tracker_map, portals, date_time, hwnd_loottracker
+	parsed_loot := []
+	Sort, loottracker_loot, D`,
+	Loop, Parse, loottracker_loot, `,, %A_Space%
+	{
+		If (A_LoopField = "")
+			continue
+		item := InStr(A_LoopField, "(") ? StrReplace(SubStr(A_LoopField, 1, InStr(A_LoopField, "(") - 2), A_Space, "_") : StrReplace(A_LoopField, A_Space, "_")
+		item := StrReplace(item, "'", "_apostrophe_")
+		item := StrReplace(item, "-", "_dash_")
+		If !LLK_ArrayHasVal(parsed_loot, item)
+			parsed_loot.Push(item)
+		%item% += InStr(A_LoopField, "(") ? SubStr(A_LoopField, InStr(A_LoopField, "(") + 1, InStr(A_LoopField, ")") - InStr(A_LoopField, "(") + 1) : 1
+	}
+	Loop, % parsed_loot.Count()
+	{
+		item := parsed_loot[A_Index]
+		item_name := StrReplace(parsed_loot[A_Index], "_apostrophe_", "'")
+		item_name := StrReplace(item_name, "_dash_", "-")
+		item_name := StrReplace(item_name, "_", A_Space)
+		item_count := (%item% > 1) ? " (" %item% ")" : ""
+		loottracker_loot := (A_Index = 1) ? item_name item_count : loottracker_loot ", " item_name item_count
+	}
+	IniWrite, % "map=" current_location_verbose "`ntier=" SubStr(map_tracker_map, InStr(map_tracker_map, "|",,, 1) + 1, InStr(map_tracker_map, "|",,, 2) - InStr(map_tracker_map, "|",,, 1) - 1) "`ntime=" map_tracker_time "`nportals=" portals "`ndeaths=" map_tracker_deaths "`nloot=" loottracker_loot, ini\map tracker log.ini, % date_time
+	loottracker_loot := ""
+	map_tracker_map := ""
+	current_location_verbose := ""
+	map_tracker_time := ""
+	map_tracker_deaths := 0
+	LLK_MapTrack()
+}
+
 LLK_ImageSearch(name := "")
 {
 	global
 	Loop, Parse, imagechecks_list, `,, `,
 		%A_Loopfield% := 0
 	pHaystack_ImageSearch := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
+	Loop, Parse, % (name = "") ? imagechecks_list : name, `,
+	{
+		If (A_Gui = "settings_menu")
+			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
+		Else
+		{
+			Loop, Parse, imagechecks_coords_%A_LoopField%, `,
+			{
+				Switch A_Index
+				{
+					Case 1:
+						imagesearch_x1 := A_LoopField
+					Case 2:
+						imagesearch_y1 := A_LoopField
+					Case 3:
+						imagesearch_x2 := A_LoopField
+					Case 4:
+						imagesearch_y2 := A_LoopField
+				}
+			}
+		}
+		
+		If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
+			continue
+		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
+		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
+		{
+			%A_Loopfield% := 1
+			If !InStr(imagechecks_coords_%A_LoopField%, LIST)
+			{
+				Gdip_GetImageDimension(pNeedle_ImageSearch, width, height)
+				imagechecks_coords_%A_LoopField% := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height) ;SubStr(imagechecks_coords_%A_LoopField%, InStr(imagechecks_coords_%A_LoopField%, ",",,, 2) + 1)
+				IniWrite, % imagechecks_coords_%A_LoopField%, ini\screen checks (%poe_height%p).ini, %A_LoopField%, last coordinates
+			}
+			Gdip_DisposeImage(pNeedle_ImageSearch)
+			Gdip_DisposeImage(pHaystack_ImageSearch)
+			Return 1
+		}
+		Else Gdip_DisposeImage(pNeedle_ImageSearch)
+	}
+	Return 0
+	
+	/*
 	If (name = "")
 	{
 		Loop, Parse, imagechecks_list, `,, `,
@@ -1652,6 +2062,7 @@ LLK_ImageSearch(name := "")
 			{
 				%A_Loopfield% := 1
 				Gdip_DisposeImage(pNeedle_ImageSearch)
+				ToolTip, % A_TickCount - start,,, 2
 				break
 			}
 			Else Gdip_DisposeImage(pNeedle_ImageSearch)
@@ -1674,7 +2085,7 @@ LLK_ImageSearch(name := "")
 			imagesearch_x2 := poe_width//2
 		}
 		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
-		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch,, imagesearch_x1,imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
+		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1,imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
 		{
 			Gdip_DisposeImage(pNeedle_ImageSearch)
 			Gdip_DisposeImage(pHaystack_ImageSearch)
@@ -1688,6 +2099,7 @@ LLK_ImageSearch(name := "")
 		}
 	}
 	Gdip_DisposeImage(pHaystack_ImageSearch)
+	*/
 }
 
 LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
