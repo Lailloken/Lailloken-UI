@@ -29,12 +29,9 @@ If (A_GuiControl = "enable_delve")
 		Gui, delve_grid: Destroy
 		hwnd_delve_grid := ""
 	}
-	If (enable_delve = 1) && FileExist(poe_log_file) && (enable_delvelog = 1)
-	{
+	If (enable_delve = 1) && (poe_log_file != 0) && (enable_delvelog = 1)
 		WinActivate, ahk_group poe_window
-		GoSub, Log_loop
-	}
-	If (enable_delve = 1) && !FileExist(poe_log_file)
+	If (enable_delve = 1) && (poe_log_file = 0)
 		LLK_Overlay("delve_panel", "show")
 	IniWrite, % enable_delve, ini\config.ini, Features, enable delve
 	GoSub, Settings_menu
@@ -43,7 +40,7 @@ If (A_GuiControl = "enable_delve")
 If (A_GuiControl = "enable_delvelog")
 {
 	Gui, settings_menu: Submit, NoHide
-	If (enable_delvelog = 1) && (enable_delve = 1) && FileExist(poe_log_file)
+	If (enable_delvelog = 1) && (enable_delve = 1) && (poe_log_file != 0)
 	{
 		WinActivate, ahk_group poe_window
 		GoSub, Log_loop
@@ -925,6 +922,55 @@ IniRead, delve_panel_xpos, ini\delve.ini, UI, button xcoord, % poe_width/2 - (de
 IniRead, delve_panel_ypos, ini\delve.ini, UI, button ycoord, % poe_height - (delve_panel_dimensions + 2)
 IniRead, delve_gridwidth, ini\delve.ini, UI, grid dimensions, % Floor(poe_height*0.73/8)
 IniRead, enable_delvelog, ini\delve.ini, Settings, enable log-scanning, 0
-enable_delvelog := !FileExist(poe_log_file) ? 0 : enable_delvelog
+enable_delvelog := (poe_log_file = 0) ? 0 : enable_delvelog
 IniRead, delve_enable_recognition, ini\delve.ini, Settings, enable image-recognition, 0
 Return
+
+LLK_DelveDir(hidden_node, node)
+{
+	direction := ""
+	Loop 2
+	{
+		parse := ""
+		loop := 1
+		Loop, Parse, % (A_Index = 1) ? hidden_node : node
+		{
+			If !IsNumber(A_Loopfield)
+				continue
+			parse .= A_Loopfield
+		}
+		While (parse > 7)
+		{
+			parse -= 7
+			loop += 1
+		}
+		If (A_Index = 1)
+		{
+			xcoord1 := parse
+			ycoord1 := loop
+		}
+		Else
+		{
+			xcoord2 := parse
+			ycoord2 := loop
+		}
+	}
+	If (ycoord1 = ycoord2)
+		direction .= ""
+	Else direction .= (ycoord1 < ycoord2) ? "d," : "u,"
+	If (xcoord1 = xcoord2)
+		direction .= ""
+	Else direction .= (xcoord1 < xcoord2) ? "r," : "l,"
+	Return direction
+}
+
+LLK_DelveGrid(node)
+{
+	loop := 1
+	While (node > 7)
+	{
+		node -= 7
+		loop += 1
+	}
+	Return node "," loop
+}

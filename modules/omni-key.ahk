@@ -150,6 +150,8 @@ If (clipboard != "")
 			LLK_ToolTip("pixel-check setup required")
 			Return
 		}
+		If !LLK_itemInfoCheck()
+			Return
 		Gui, map_info_menu: Destroy
 		hwnd_map_info_menu := ""
 		GoSub, Map_info
@@ -220,6 +222,8 @@ Else If InStr(clipboard, "other oils")
 }
 Else If InStr(clipboard, "cluster jewel")
 {
+	If !LLK_itemInfoCheck()
+		Return
 	If InStr(clipboard, "small cluster")
 		cluster_type := "Small"
 	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
@@ -230,6 +234,8 @@ Else If InStr(clipboard, "cluster jewel")
 }
 Else
 {
+	If !LLK_itemInfoCheck()
+		Return
 	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
 	If !InStr(Clipboard, "`nUnidentified", 1)
 		Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
@@ -237,7 +243,11 @@ Else
 }
 
 If InStr(clipboard, "limited to: 1 historic")
+{
+	If !LLK_itemInfoCheck()
+		Return
 	Gui, context_menu: Add, Text, vlegion_seed_explore gOmnikey_menu_selection BackgroundTrans Center, explore seed
+}
 
 If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
 	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
@@ -245,6 +255,8 @@ If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(c
 Loop, Parse, allowed_recomb_classes, `,, `,
 	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified")
 	{
+		If !LLK_itemInfoCheck()
+			Return
 		Gui, context_menu: Add, Text, gRecombinators_add BackgroundTrans Center, recombinator
 		break
 	}
@@ -456,3 +468,38 @@ Else
 	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
 }
 Return
+
+LLK_Omnikey_ToolTip(text:=0)
+{
+	global
+	If (text = 0)
+	{
+		Gui, omnikey_tooltip: Destroy
+		Return
+	}
+	If (text = "")
+	{
+		SoundBeep
+		Return
+	}
+	Gui, omnikey_tooltip: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_omnikey_tooltip,
+	Gui, omnikey_tooltip: Color, Black
+	Gui, omnikey_tooltip: Margin, 12, 4
+	WinSet, Transparent, %trans%
+	Gui, omnikey_tooltip: Font, s%fSize0% cWhite, Fontin SmallCaps
+	If InStr(text, "horizons:")
+	{
+		text := StrReplace(text, "horizons:")
+		Gui, omnikey_tooltip: Font, underline
+		Gui, omnikey_tooltip: Add, Text, Section BackgroundTrans, % "horizons:"
+		Gui, omnikey_tooltip: Font, norm
+		Gui, omnikey_tooltip: Add, Text, xs BackgroundTrans, % text
+	}
+	Else Gui, omnikey_tooltip: Add, Text, BackgroundTrans, % text
+	Gui, omnikey_tooltip: Show, Hide AutoSize
+	MouseGetPos, mouseXpos, mouseYpos
+	WinGetPos, winX, winY, winW, winH
+	tooltip_posX := (mouseXpos - winW < xScreenOffSet) ? xScreenOffSet : mouseXpos - winW
+	tooltip_posy := (mouseYpos - winH < yScreenOffSet) ? yScreenOffSet : mouseYpos - winH
+	Gui, omnikey_tooltip: Show, % "NA AutoSize x"tooltip_posX " y"tooltip_posy
+}

@@ -853,7 +853,7 @@ IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord,
 IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
 IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
 IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height
-If FileExist(poe_log_file)
+If (poe_log_file != 0)
 {
 	poe_log_content_short := SubStr(poe_log_content, -5000)
 	Loop, Parse, poe_log_content_short, `r`n, `r`n
@@ -900,3 +900,41 @@ If FileExist(poe_log_file)
 	GoSub, Log_loop
 }
 Return
+
+LLK_GearTrackerGUI(mode:=0)
+{
+	global
+	guilist .= InStr(guilist, "gear_tracker_indicator|") ? "" : "gear_tracker_indicator|"
+	If (mode = 0)
+		Gui, gear_tracker_indicator: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_gear_tracker_indicator
+	Else Gui, gear_tracker_indicator: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gear_tracker_indicator
+	Gui, gear_tracker_indicator: Margin, 0, 0
+	Gui, gear_tracker_indicator: Color, Black
+	If (mode = 0)
+		WinSet, Transparent, %leveling_guide_trans%
+	Else WinSet, TransColor, Black
+	Gui, gear_tracker_indicator: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
+	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "    "
+	Gui, gear_tracker_indicator: Show, NA x10000 y10000
+	WinGetPos,,, width, height, ahk_id %hwnd_gear_tracker_indicator%
+	gear_tracker_indicator_xpos_target := (gear_tracker_indicator_xpos + width + 2 > poe_width) ? poe_width - width - 1 : gear_tracker_indicator_xpos ;correct coordinates if panel would end up out of client-bounds
+	gear_tracker_indicator_ypos_target := (gear_tracker_indicator_ypos + height + 2 > poe_height) ? poe_height - height - 1 : gear_tracker_indicator_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (gear_tracker_indicator_xpos_target + width + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (gear_tracker_indicator_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		gear_tracker_indicator_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, gear_tracker_indicator: Show, % "NA x"xScreenOffset + gear_tracker_indicator_xpos_target " y"yScreenoffset + gear_tracker_indicator_ypos_target
+	LLK_Overlay("gear_tracker_indicator", "show")
+}
+
+LLK_ReplaceAreaID(string)
+{
+	global areas
+	Loop, Parse, string, % A_Space, % A_Space
+	{
+		If !InStr(A_Loopfield, "areaid")
+			continue
+		areaID := StrReplace(A_Loopfield, "areaid")
+		string := StrReplace(string, A_Loopfield, areas[areaID].name,, 1)
+	}
+	StringLower, string, string
+	Return string
+}
