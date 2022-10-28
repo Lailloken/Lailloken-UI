@@ -124,6 +124,31 @@ Else
 	hwnd_leveling_guide_panel := ""
 }
 
+If (enable_map_tracker = 1)
+{
+	guilist .= InStr(guilist, "map_tracker_panel|") ? "" : "map_tracker_panel|"
+	Gui, map_tracker_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_map_tracker_panel
+	Gui, map_tracker_panel: Margin, 0, 0
+	Gui, map_tracker_panel: Color, Black
+	Gui, map_tracker_panel: Font, % "s"fSize1 " cWhite underline", Fontin SmallCaps
+	Gui, map_tracker_panel: Add, Picture, % "Center BackgroundTrans Border gMap_tracker vmap_tracker_panel_img w" map_tracker_panel_dimensions " h-1", img\GUI\map_tracker.jpg
+	map_tracker_panel_xpos_target := (map_tracker_panel_xpos + map_tracker_panel_dimensions + 2 > poe_width) ? poe_width - map_tracker_panel_dimensions - 1 : map_tracker_panel_xpos ;correct coordinates if panel would end up out of client-bounds
+	map_tracker_panel_ypos_target := (map_tracker_panel_ypos + map_tracker_panel_dimensions + 2 > poe_height) ? poe_height - map_tracker_panel_dimensions - 1 : map_tracker_panel_ypos ;correct coordinates if panel would end up out of client-bounds
+	If (map_tracker_panel_xpos_target + map_tracker_panel_dimensions + 2 >= poe_width - pixel_gamescreen_x1 - 1) && (map_tracker_panel_ypos_target <= pixel_gamescreen_y1 + 1) ;protect pixel-check area in case panel gets resized
+		map_tracker_panel_ypos_target := pixel_gamescreen_y1 + 2
+	Gui, map_tracker_panel: Show, % "NA x"xScreenOffset + map_tracker_panel_xpos_target " y"yScreenoffset + map_tracker_panel_ypos_target
+	LLK_Overlay("map_tracker_panel", "show")
+	LLK_MapTrack()
+}
+Else
+{
+	guilist := StrReplace(guilist, "map_tracker_panel|")
+	Gui, map_tracker_panel: Destroy
+	hwnd_map_tracker_panel := ""
+	Gui, map_tracker: Destroy
+	hwnd_map_tracker := ""
+}
+
 If (continue_alarm = 1)
 	GoSub, Alarm
 Return

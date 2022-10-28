@@ -19,16 +19,20 @@ If (clipboard != "")
 		If (A_TickCount >= start + 300)
 		{
 			LLK_ItemCheck()
-			;GoSub, Itemchecker
 			KeyWait, % ThisHotkey_copy
 			Return
 		}
 	}
 	If WinExist("ahk_id " hwnd_gear_tracker)
 	{
-		If !InStr(clipboard, "requirements:`r`nlevel:") || InStr(clipboard, "unidentified")
+		If !InStr(clipboard, "requirements:`r`nlevel:")
 		{
-			LLK_ToolTip("item cannot be added")
+			LLK_ToolTip("no lvl requirement")
+			Return
+		}
+		If InStr(clipboard, "unidentified")
+		{
+			LLK_ToolTip("not identified")
 			Return
 		}
 		Loop, Parse, clipboard, `n, `r
@@ -47,7 +51,7 @@ If (clipboard != "")
 		IniRead, gear_tracker_items, ini\leveling tracker.ini, gear,, % A_Space
 		If InStr(gear_tracker_items, name)
 		{
-			LLK_ToolTip("item already added")
+			LLK_ToolTip("already added")
 			Return
 		}
 		required_level := SubStr(clipboard, InStr(clipboard, "requirements:`r`nlevel:"))
@@ -57,7 +61,7 @@ If (clipboard != "")
 		required_level := (StrLen(required_level) = 1) ? 0 required_level : required_level
 		If (required_level <= gear_tracker_characters[gear_tracker_char])
 		{
-			LLK_ToolTip("item can already be equipped")
+			LLK_ToolTip("already equippable")
 			Return
 		}
 		update_gear_tracker := 1
@@ -93,7 +97,7 @@ If (clipboard != "")
 		GoSub, Recombinators_add
 		Return
 	}
-	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Unidentified") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
+	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
 		Return
@@ -146,6 +150,8 @@ If (clipboard != "")
 			LLK_ToolTip("pixel-check setup required")
 			Return
 		}
+		If !LLK_itemInfoCheck()
+			Return
 		Gui, map_info_menu: Destroy
 		hwnd_map_info_menu := ""
 		GoSub, Map_info
@@ -201,6 +207,7 @@ Gui, context_menu: Margin, 4, 2
 Gui, context_menu: Color, Black
 WinSet, Transparent, %trans%
 Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+
 If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
 	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
 Else If InStr(clipboard, "to the goddess")
@@ -215,22 +222,32 @@ Else If InStr(clipboard, "other oils")
 }
 Else If InStr(clipboard, "cluster jewel")
 {
+	If !LLK_itemInfoCheck()
+		Return
 	If InStr(clipboard, "small cluster")
 		cluster_type := "Small"
 	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
 	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: all
 	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type%
+	Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
 Else
 {
+	If !LLK_itemInfoCheck()
+		Return
 	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
-	Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
+	If !InStr(Clipboard, "`nUnidentified", 1)
+		Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
 
 If InStr(clipboard, "limited to: 1 historic")
+{
+	If !LLK_itemInfoCheck()
+		Return
 	Gui, context_menu: Add, Text, vlegion_seed_explore gOmnikey_menu_selection BackgroundTrans Center, explore seed
+}
 
 If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
 	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
@@ -238,6 +255,8 @@ If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(c
 Loop, Parse, allowed_recomb_classes, `,, `,
 	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified")
 	{
+		If !LLK_itemInfoCheck()
+			Return
 		Gui, context_menu: Add, Text, gRecombinators_add BackgroundTrans Center, recombinator
 		break
 	}
@@ -286,6 +305,12 @@ Loop, Parse, clipboard, `r`n, `r`n
 		strength := StrReplace(strength, " (augmented)")
 		strength := StrReplace(strength, " (unmet)")
 	}
+	Else If InStr(A_LoopField, "Strength: ")
+	{
+		strength := StrReplace(A_LoopField, "Strength: ")
+		strength := StrReplace(strength, " (augmented)")
+		strength := StrReplace(strength, " (unmet)")
+	}
 	Else strength := (strength="") ? 0 : strength
 	If InStr(A_LoopField, "Dex: ")
 	{
@@ -293,10 +318,22 @@ Loop, Parse, clipboard, `r`n, `r`n
 		dexterity := StrReplace(dexterity, " (augmented)")
 		dexterity := StrReplace(dexterity, " (unmet)")
 	}
+	Else If InStr(A_LoopField, "Dexterity: ")
+	{
+		dexterity := StrReplace(A_LoopField, "Dexterity: ")
+		dexterity := StrReplace(dexterity, " (augmented)")
+		dexterity := StrReplace(dexterity, " (unmet)")
+	}
 	Else dexterity := (dexterity="") ? 0 : dexterity
 	If InStr(A_LoopField, "Int: ")
 	{
 		intelligence := StrReplace(A_LoopField, "Int: ")
+		intelligence := StrReplace(intelligence, " (augmented)")
+		intelligence := StrReplace(intelligence, " (unmet)")
+	}
+	If InStr(A_LoopField, "Intelligence: ")
+	{
+		intelligence := StrReplace(A_LoopField, "Intelligence: ")
 		intelligence := StrReplace(intelligence, " (augmented)")
 		intelligence := StrReplace(intelligence, " (unmet)")
 	}
@@ -353,7 +390,7 @@ If InStr(A_GuiControl, "crafting_table")
 			Run, https://poedb.tw/us/Cluster_Jewel#EnchantmentModifiers
 		Else Run, https://poedb.tw/us/%cluster_type%_Cluster_Jewel#%cluster_type%ClusterJewelEnchantmentModifiers
 		wiki_cluster := SubStr(wiki_cluster, 1, InStr(wiki_cluster, "(")-2)
-		If (enable_browser_features = 1)
+		If (enable_browser_features = 1) && (A_GuiControl = "crafting_table_all_cluster")
 		{
 			ToolTip, % "Press F3 to highlight the jewel's enchant/type", % xScreenOffset + poe_width//2, yScreenOffset + poe_height//2, 15
 			SetTimer, Timeout_cluster_jewels
@@ -431,3 +468,38 @@ Else
 	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
 }
 Return
+
+LLK_Omnikey_ToolTip(text:=0)
+{
+	global
+	If (text = 0)
+	{
+		Gui, omnikey_tooltip: Destroy
+		Return
+	}
+	If (text = "")
+	{
+		SoundBeep
+		Return
+	}
+	Gui, omnikey_tooltip: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_omnikey_tooltip,
+	Gui, omnikey_tooltip: Color, Black
+	Gui, omnikey_tooltip: Margin, 12, 4
+	WinSet, Transparent, %trans%
+	Gui, omnikey_tooltip: Font, s%fSize0% cWhite, Fontin SmallCaps
+	If InStr(text, "horizons:")
+	{
+		text := StrReplace(text, "horizons:")
+		Gui, omnikey_tooltip: Font, underline
+		Gui, omnikey_tooltip: Add, Text, Section BackgroundTrans, % "horizons:"
+		Gui, omnikey_tooltip: Font, norm
+		Gui, omnikey_tooltip: Add, Text, xs BackgroundTrans, % text
+	}
+	Else Gui, omnikey_tooltip: Add, Text, BackgroundTrans, % text
+	Gui, omnikey_tooltip: Show, Hide AutoSize
+	MouseGetPos, mouseXpos, mouseYpos
+	WinGetPos, winX, winY, winW, winH
+	tooltip_posX := (mouseXpos - winW < xScreenOffSet) ? xScreenOffSet : mouseXpos - winW
+	tooltip_posy := (mouseYpos - winH < yScreenOffSet) ? yScreenOffSet : mouseYpos - winH
+	Gui, omnikey_tooltip: Show, % "NA AutoSize x"tooltip_posX " y"tooltip_posy
+}

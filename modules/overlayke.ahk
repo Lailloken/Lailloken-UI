@@ -310,3 +310,97 @@ If (lake_hotkey != "")
 	Hotkey, % lake_hotkey, Lake_helper, On
 }
 Return
+
+LLK_LakeAdjacent(tile)
+{
+	global
+	Loop 4
+	{
+		lake_parse_adjacent := ""
+		lake_parse_adjacent%A_Index% := ""
+	}
+	Loop, Parse, delve_directions, `,, `, ;up, down, left, right
+	{
+		If (A_Loopfield = "") || IsNumber(lake_distances[tile]) ;skip if tile already has a distance value
+			continue
+		If (A_Loopfield = "u") && (SubStr(LLK_LakeGrid(tile), 3, 1) > 1) ;check if 'up' is inside the tablet
+		{
+			lake_parse_adjacent := tile - SubStr(lake_tiles, 1, 1) ;declare var for the 'up' tile
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent]) ;check whether 'up' tile is water and whether it has a distance value
+				lake_parse_adjacent1 := lake_distances[lake_parse_adjacent] + 1 ;add 1 to 'up' tile's distance and save it as one of four possible distances
+			Else lake_parse_adjacent1 := ""
+		}
+		If (A_Loopfield = "d") && (SubStr(LLK_LakeGrid(tile), 3, 1) < SubStr(lake_tiles, 2, 1))
+		{
+			lake_parse_adjacent := tile + SubStr(lake_tiles, 1, 1)
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent2 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent2 := ""
+		}
+		If (A_Loopfield = "l") && (SubStr(LLK_LakeGrid(tile), 1, 1) > 1)
+		{
+			lake_parse_adjacent := tile - 1
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent3 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent3 := ""
+		}
+		If (A_Loopfield = "r") && (SubStr(LLK_LakeGrid(tile), 1, 1) < SubStr(lake_tiles, 1, 1))
+		{
+			lake_parse_adjacent := tile + 1
+			If !InStr(lake_tile%lake_parse_adjacent%_toggle, "red") && IsNumber(lake_distances[lake_parse_adjacent])
+				lake_parse_adjacent4 := lake_distances[lake_parse_adjacent] + 1
+			Else lake_parse_adjacent4 := ""
+		}
+	}
+	lake_parse_adjacent := lake_parse_adjacent1 "," lake_parse_adjacent2 "," lake_parse_adjacent3 "," lake_parse_adjacent4 ;collect the four possible distances in a string
+	Loop, Parse, lake_parse_adjacent, `,, `,
+	{
+		If (A_Index = 1)
+			lake_parse_adjacent_array := []
+		If (A_Loopfield != "")
+			lake_parse_adjacent_array.Push(A_Loopfield) ;collect valid distances in an array
+	}
+	/*
+	If InStr(lake_tile%tile%_toggle, "red")
+	{
+		lake_distances[tile] := 0
+		GuiControl, lakeboard:, lake_tile%tile%_text1, % lake_distances[tile]
+	}
+	Else
+	*/
+	If (lake_parse_adjacent_array.Length() != 0) ;array is not empty
+		lake_distances[tile] := Min(lake_parse_adjacent_array*) ;the shortest of four possible distances is the correct distance to the entrance
+}
+
+LLK_LakeGrid(tile) ;convert tile number into coordinates
+{
+	global lake_tiles
+	loop := 1
+	While (tile > SubStr(lake_tiles, 1, 1))
+	{
+		tile -= SubStr(lake_tiles, 1, 1)
+		loop += 1
+	}
+	Return tile "," loop
+}
+
+LLK_LakePath(entrance)
+{
+	global
+	lake_entrance := entrance
+	lake_distances[entrance] := 0 ;set distance to entrance to 0
+	Loop 25 ;arbitrary number (needs to repeat often enough to assign a distance to each tile)
+	{
+		Loop, % lake_tile_pos.Length() ;go through all tiles
+		{
+			If (A_Index = entrance)
+				continue
+			LLK_LakeAdjacent(A_Index) ;check surrounding tiles
+		}
+	}
+	Loop, % lake_distances.Length() ;check all distance values and clear them if 0 or tile is a water tile
+	{
+		If InStr(lake_tile%A_Index%_toggle, "red") || (lake_distances[A_Index] = 0)
+			lake_distances[A_Index] := ""
+	}
+}
