@@ -842,7 +842,7 @@ If !map_tracker_paused && (map_tracker_map != "")
 	If InStr(map_tracker_map, current_location) || ((map_tracker_enable_side_areas = 1) && (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea"))) ;advance map-timer only while in specific map (or side area within it)
 		map_tracker_ticks := A_TickCount - map_entered
 
-	If (InStr(map_tracker_map, current_location) || ((map_tracker_enable_side_areas = 1) && (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials")))) && WinExist("ahk_id " hwnd_map_tracker) ;update timer UI
+	If (InStr(map_tracker_map, current_location) || ((map_tracker_enable_side_areas = 1) && (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea")))) && WinExist("ahk_id " hwnd_map_tracker) ;update timer UI
 	{
 		map_tracker_time := Format("{:0.0f}", map_tracker_ticks//1000)
 		map_tracker_time := (Mod(map_tracker_time, 60) >= 10) ? map_tracker_time//60 ":" Mod(map_tracker_time, 60) : map_tracker_time//60 ":0" Mod(map_tracker_time, 60)
@@ -868,17 +868,17 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		current_seed := SubStr(A_LoopField, InStr(A_LoopField, "seed ") + 5)
 		current_seed := StrReplace(current_seed, "`n") ;save map seed in var
 		
-		If (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea")) && (map_tracker_side_area = "" || map_tracker_side_area != current_location "|" current_area_tier "|" current_seed)
-		{
-			map_tracker_side_area := current_location "|" current_area_tier "|" current_seed
-			map_tracker_verbose_side_area := 0
-		}
-		
-		If !map_tracker_paused
+		If !map_tracker_paused && enable_map_tracker
 		{
 			date_time := SubStr(A_LoopField, 1, InStr(A_LoopField, " ",,, 2) - 1) ;save date & time from client.txt
 			
-			If InStr(A_LoopField, "mapworlds") || InStr(A_LoopField, "LakePrototype") || InStr(A_LoopField, "Maven") ;check if current area is the right 'instance type' (map, league-area, boss, etc.)
+			If (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea")) && (map_tracker_side_area = "" || map_tracker_side_area != current_location "|" current_area_tier "|" current_seed)
+			{
+				map_tracker_side_area := current_location "|" current_area_tier "|" current_seed
+				map_tracker_verbose_side_area := 0
+			}
+			
+			If LLK_MapTrackInstance(A_LoopField)
 			{
 				If (map_tracker_map = "") || (map_tracker_map != current_location "|" current_area_tier "|" current_seed) ;current area is the first since launch, or current area is different from previous one
 				{
@@ -900,25 +900,32 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			}
 		}
 	}
-	If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused ;count deaths
-		map_tracker_deaths += 1
-	If InStr(A_LoopField, "you have entered ") && (map_tracker_verbose_side_area = 0) && !map_tracker_paused
+	If !map_tracker_paused && enable_map_tracker
 	{
-		map_tracker_verbose_side_area := SubStr(A_LoopField, InStr(A_LoopField, "you have entered ") + 17)
-		map_tracker_verbose_side_area := StrReplace(map_tracker_verbose_side_area, ".")
-		If InStr(current_location, "abyssleagueboss")
-			map_tracker_verbose_side_area .= " (boss)"
-		If InStr(current_location, "mapsidearea")
-			map_tracker_verbose_side_area := "vaal: " map_tracker_verbose_side_area
-		map_tracker_content .= map_tracker_verbose_side_area "|"
+		If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused ;count deaths
+			map_tracker_deaths += 1
+		If InStr(A_LoopField, "you have entered ") && (map_tracker_verbose_side_area = 0)
+		{
+			map_tracker_verbose_side_area := SubStr(A_LoopField, InStr(A_LoopField, "you have entered ") + 17)
+			map_tracker_verbose_side_area := StrReplace(map_tracker_verbose_side_area, ".")
+			If InStr(current_location, "abyssleagueboss")
+				map_tracker_verbose_side_area .= " (boss)"
+			If InStr(current_location, "mapsidearea")
+				map_tracker_verbose_side_area .= " (vaal area)"
+			map_tracker_content .= map_tracker_verbose_side_area "|"
+		}
+		If InStr(A_LoopField, "you have entered ") && (current_location_verbose = "") && (map_tracker_map != "") ;parse verbose area name
+		{
+			current_location_verbose := SubStr(A_LoopField, InStr(A_LoopField, "you have entered ") + 17)
+			current_location_verbose := StrReplace(current_location_verbose, ".")
+			current_location_verbose := (SubStr(current_location_verbose, 1, 4) = "the ") ? SubStr(current_location_verbose, 5) : current_location_verbose
+			current_location_verbose := InStr(map_tracker_map, "heist") ? "heist: " current_location_verbose : current_location_verbose
+			current_location_verbose := InStr(map_tracker_map, "expedition") ? "logbook: " current_location_verbose : current_location_verbose
+			current_map_tier := current_area_tier
+			LLK_MapTrack()
+		}
 	}
-	If InStr(A_LoopField, "you have entered ") && (current_location_verbose = "") && (map_tracker_map != "") && !map_tracker_paused ;parse verbose area name
-	{
-		current_location_verbose := SubStr(A_LoopField, InStr(A_LoopField, "you have entered ") + 17)
-		current_location_verbose := StrReplace(current_location_verbose, ".")
-		current_map_tier := current_area_tier
-		LLK_MapTrack()
-	}
+	
 	If (gear_tracker_char != "")
 	{
 		If InStr(A_Loopfield, "is now level") && InStr(A_Loopfield, gear_tracker_char)
