@@ -362,6 +362,7 @@ LLK_MapTrackGUI(mode := "")
 	map_tracker_log_section_count := 0
 	map_tracker_log_x_offset := 0
 	map_tracker_log_height := 0
+	map_tracker_entry_width := poe_width*0.95//4
 	
 	Loop, Parse, map_tracker_logs, `n
 	{
@@ -386,11 +387,12 @@ LLK_MapTrackGUI(mode := "")
 			IniRead, map_tracker_log_content%map_tracker_log_entries%, ini\map tracker log.ini, % A_LoopField, content, % A_Space
 			map_tracker_log_content%map_tracker_log_entries% := (map_tracker_log_content%map_tracker_log_entries% != "") ? StrReplace(map_tracker_log_content%map_tracker_log_entries%, ", ", "`n") : "none"
 			map_tracker_log_content_count := (map_tracker_log_content%map_tracker_log_entries% = "none") ? 0 : LLK_InStrCount(map_tracker_log_content%map_tracker_log_entries%, "`n") + 1
+			color := (map_tracker_log_content_count + map_tracker_log_loot_binary = 0) ? "White" : "Aqua"
 			
-			map_tracker_log_text := " " map_tracker_log_datetime " t" map_tracker_log_tier " " map_tracker_log_time " " map_tracker_log_portals "p " map_tracker_log_deaths "d " map_tracker_log_loot_binary "l " map_tracker_log_content_count "c " map_tracker_log_map " " 
+			map_tracker_log_text := " " map_tracker_log_datetime " t" map_tracker_log_tier " " map_tracker_log_time " " map_tracker_log_portals "p " map_tracker_log_deaths "d " map_tracker_log_map " " 
 			If (map_tracker_log_entries = 1)
-				Gui, map_tracker_log: Add, Text, % "xs hp Section BackgroundTrans Border gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"poe_width//5, % map_tracker_log_text
-			Else Gui, map_tracker_log: Add, Text, % (map_tracker_log_section = 1) || (!Mod(map_tracker_log_entries, map_tracker_log_section_count) && (map_tracker_log_section_count != 0)) ? "ys hp Section BackgroundTrans Border gMap_tracker -wrap HWNDmain_text x"map_tracker_log_x_offset + fSize0 " vmap_tracker_log_entry"map_tracker_log_entries " w"poe_width//5 " h"map_tracker_log_height0 : "xs hp y+0 BackgroundTrans Border gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"poe_width//5 " h"map_tracker_log_height0, % map_tracker_log_text
+				Gui, map_tracker_log: Add, Text, % "xs hp Section BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width, % map_tracker_log_text
+			Else Gui, map_tracker_log: Add, Text, % (map_tracker_log_section = 1) || (!Mod(map_tracker_log_entries, map_tracker_log_section_count) && (map_tracker_log_section_count != 0)) ? "ys hp Section BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text x"map_tracker_log_x_offset + fSize0 " vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width " h"map_tracker_log_height0 : "xs hp y+0 BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width " h"map_tracker_log_height0, % map_tracker_log_text
 			Gui, map_tracker_log: Add, Progress, % "xs y+0 wp BackgroundTrans cRed range0-700 vmap_tracker_log_delete_entry"map_tracker_log_entries " h"fSize0//2, 0
 			ControlGetPos, map_tracker_log_x,, map_tracker_log_width, map_tracker_log_height0,, ahk_id %main_text%
 			map_tracker_log_x_offset := (map_tracker_log_x + map_tracker_log_width > map_tracker_log_x_offset) ? map_tracker_log_x + map_tracker_log_width : map_tracker_log_x_offset
@@ -405,6 +407,13 @@ LLK_MapTrackGUI(mode := "")
 	
 	Gui, Show, NA Center AutoSize
 	LLK_Overlay("map_tracker_log", "show")
+}
+
+LLK_MapTrackInstance(log_line)
+{
+	If InStr(log_line, "mapworlds") || InStr(log_line, "LakePrototype") || InStr(log_line, "Maven") || InStr(log_line, "betrayal") || InStr(log_line, "incursion") || (InStr(log_line, "heist") && !InStr(log_line, "heisthub")) || InStr(log_line, "mapatziri") || InStr(log_line, "legionleague") || InStr(log_line, "expedition") || InStr(log_line, "atlasexilesboss")
+		Return 1
+	Else Return 0
 }
 
 LLK_MapTrackLoot(entry)
@@ -432,7 +441,7 @@ LLK_MapTrackLoot(entry)
 
 LLK_MapTrackSave()
 {
-	global loottracker_loot, map_tracker_deaths, map_tracker_time, current_location_verbose, map_tracker_map, portals, date_time, hwnd_loottracker, map_tracker_content
+	global loottracker_loot, map_tracker_deaths, map_tracker_time, current_location_verbose, map_tracker_map, portals, date_time, hwnd_loottracker, map_tracker_content, map_tracker_side_area
 	parsed_loot := []
 	Sort, loottracker_loot, D`,
 	Loop, Parse, loottracker_loot, `,, %A_Space%
@@ -470,5 +479,6 @@ LLK_MapTrackSave()
 	map_tracker_time := ""
 	map_tracker_deaths := 0
 	map_tracker_content := "|"
+	map_tracker_side_area := ""
 	LLK_MapTrack()
 }

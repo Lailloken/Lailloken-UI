@@ -982,7 +982,7 @@ GoSub, Map_info
 Return
 
 Settings_menu_map_tracker:
-Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-tracker">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker y+"fSize0*1.2 " venable_map_tracker Checked"enable_map_tracker, enable mapping tracker
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_help hp w-1 x+0", img\GUI\help.png
 

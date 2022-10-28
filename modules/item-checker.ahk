@@ -108,15 +108,15 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	}
 	Else itemchecker_clipboard := Clipboard
 	
-	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Normal", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces")
+	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Normal", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") ;certain exclusion criteria
 	{
 		LLK_ToolTip("item-info: item not supported")
 		Return
 	}
 	
-	If !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") ;certain exclusion criteria
+	If !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") ;could not copy advanced item-info
 	{
-		LLK_ToolTip("item-info: omni-key setup required (?)")
+		LLK_ToolTip("item-info: omni-key setup required (?)", 2)
 		Return
 	}
 	
@@ -333,7 +333,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
 				roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
 			}
-			Else roll_qual := "0," roll "," roll ;if numerical value doesn't scale, create a string "0,x,x" where 0 serves as x_lower and x itself as x_upper
+			Else roll_qual := 0 "," 100 "," 100 ;if numerical value doesn't scale, create a string "0,100,100" where 0 serves as x_lower and 100 as x and x_upper
 			affixes.Push(mod ";" tier ";" roll_qual) ;push mod-text, tier, and roll-values into array
 		}
 	}
@@ -396,11 +396,11 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Switch A_Index
 			{
 				Case 1:
-					lower_bound := A_LoopField
+					lower_bound := A_LoopField*100
 				Case 2:
-					value := A_LoopField
+					value := A_LoopField*100
 				Case 3:
-					upper_bound := A_LoopField
+					upper_bound := A_LoopField*100
 			}
 		}
 		
