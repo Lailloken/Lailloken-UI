@@ -851,6 +851,9 @@ If !map_tracker_paused && (map_tracker_map != "")
 	}
 }
 
+If map_tracker_paused
+	map_entered += 1000
+
 poe_log_content := poe_log.Read() ;read newest lines from client.txt
 StringLower, poe_log_content, poe_log_content
 Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
