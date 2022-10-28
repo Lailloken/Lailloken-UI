@@ -99,6 +99,6 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 # Philosophy & Motivation
-This script is my personal collection of UI and QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. It emphasizes easy and straight-forward setup, visual clarity, customizability, enabling/disabling individual features to prevent feature-bloat, and a lack of required extra hotkeys and alt-tabbing.
+This script is my personal collection of UI and QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. It emphasizes easy and straight-forward setup, visual clarity, customizability, enabling/disabling individual features to prevent feature-bloat, and minimal hotkey requirements.
 
 That being said, I am a self-taught tinkerer (with no prior experience), and this is a merely a fun project and learning experience for me that I decided to share. This means I will not be taking code input or optimizations from people (unless critical bugs need to be fixed or I am hard-stuck) because learning-by-doing and problem-solving is what makes this project fun for me.
