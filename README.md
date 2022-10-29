@@ -81,6 +81,10 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png)  
 <br>
 
+## [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
+![image](https://user-images.githubusercontent.com/61888437/198815516-31d88bfb-9ff1-4010-b8d7-7c6b7425ffee.png)  
+<br>
+
 ## Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
 ### countdown/alarm-timer:
 ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
