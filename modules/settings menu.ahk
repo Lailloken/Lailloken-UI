@@ -233,31 +233,31 @@ Return
 
 Settings_menu_alarm:
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans venable_alarm gApply_settings_alarm checked"enable_alarm " y+"fSize0*1.2, enable alarm-timer
+Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans venable_alarm gAlarm checked"enable_alarm " y+"fSize0*1.2, enable alarm-timer
 If (enable_alarm = 1)
 {
 	GoSub, Alarm
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color:
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gApply_settings_alarm Border", % " white "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gApply_settings_alarm Border x+"fSize0//4, % " red "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gApply_settings_alarm Border x+"fSize0//4, % " cyan "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gApply_settings_alarm Border x+"fSize0//4, % " yellow "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gApply_settings_alarm Border x+"fSize0//4, % " lime "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gApply_settings_alarm Border x+"fSize0//4, % " purple "
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gAlarm Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gAlarm Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gAlarm Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gAlarm Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gAlarm Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gAlarm Border x+"fSize0//4, % " purple "
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_minus gApply_settings_alarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gApply_settings_alarm Border x+2 wp", % "0"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_plus gApply_settings_alarm Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_minus gAlarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gAlarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_plus gAlarm Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_minus gApply_settings_alarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_plus gApply_settings_alarm Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_minus gAlarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center valarm_opac_plus gAlarm Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_minus gApply_settings_alarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gApply_settings_alarm Border x+2 wp", % "0"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_plus gApply_settings_alarm Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_minus gAlarm Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gAlarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_plus gAlarm Border x+2 wp", % "+"
 }
 Return
 
@@ -409,9 +409,9 @@ Gui, settings_menu: Font, % "s"fSize0-4
 Gui, settings_menu: Add, DDL, % "ys BackgroundTrans HWNDmain_text vcustom_resolution r10 Choose" choice " x+0 w"width*1.5 " hp", % resolutionsDDL
 Gui, settings_menu: Font, % "s"fSize0
 If (fullscreen = "false")
-	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" window_docking " vwindow_docking gApply_resolution", % "top-docked"
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gApply_resolution", % " apply && restart "
-Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_resolution", % "apply on startup "
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans Checked" window_docking " vwindow_docking gApply_settings_general", % "top-docked"
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border vcustom_resolution_apply gApply_settings_general", % " apply && restart "
+Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_settings_general", % "apply on startup "
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general y+"fSize0*1.2, % "hide llk-ui panel"
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "interface size:"
@@ -752,6 +752,20 @@ this feature does not block the key-press from being sent to the client, so you 
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+
+If (A_GuiControl = "itemchecker_ID_help")
+{
+text =
+(
+hold shift BEFORE right-clicking wisdom-scrolls for the first time.
+
+while holding shift, left-click items to identify and trigger the item-info tooltip.
+	
+while holding shift, right-click items to place a red marker.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
 WinGetPos, winx, winy, width, height, ahk_id %hwnd_settings_menu_help%
 newxpos := (winx + width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - width : winx
 newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
@@ -785,11 +799,14 @@ Loop, 8
 	Gui, settings_menu: Font, % "s"fSize0
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans Border Hidden", % "777"
 	Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
-	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center BackgroundTrans", % (A_Index = 1) ? "f" : value
+	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center BackgroundTrans", % (A_Index = 1) ? "x" : value
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_t" value "_reset gItemchecker Border", % " reset "
 	If (A_Index = 1 || A_Index = 2)
 		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", % (A_Index = 1) ? "(fractured)" : "(veiled, delve, etc.)"
 }
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker y+"fSize0*1.2 " venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
 Return
 
 Settings_menu_lake_helper:
@@ -1018,31 +1035,31 @@ Return
 
 Settings_menu_notepad:
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gApply_settings_notepad y+"fSize0*1.2 " venable_notepad Checked"enable_notepad, enable notepad
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gNotepad y+"fSize0*1.2 " venable_notepad Checked"enable_notepad, enable notepad
 If (enable_notepad = 1)
 {
 	GoSub, Notepad
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color (widget):
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gApply_settings_notepad Border", % " white "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gApply_settings_notepad Border x+"fSize0//4, % " red "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gApply_settings_notepad Border x+"fSize0//4, % " cyan "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gApply_settings_notepad Border x+"fSize0//4, % " yellow "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gApply_settings_notepad Border x+"fSize0//4, % " lime "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gApply_settings_notepad Border x+"fSize0//4, % " purple "
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gNotepad Border", % " white "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gNotepad Border x+"fSize0//4, % " red "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gNotepad Border x+"fSize0//4, % " cyan "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gNotepad Border x+"fSize0//4, % " yellow "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gNotepad Border x+"fSize0//4, % " lime "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gNotepad Border x+"fSize0//4, % " purple "
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_minus gApply_settings_notepad Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_reset gApply_settings_notepad Border x+2 wp", % "0"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_plus gApply_settings_notepad Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_minus gNotepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_reset gNotepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_plus gNotepad Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_minus gApply_settings_notepad Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_plus gApply_settings_notepad Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_minus gNotepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vnotepad_opac_plus gNotepad Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_minus gApply_settings_notepad Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_reset gApply_settings_notepad Border x+2 wp", % "0"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_plus gApply_settings_notepad Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_minus gNotepad Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_reset gNotepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_plus gNotepad Border x+2 wp", % "+"
 }
 Return
 
@@ -1097,30 +1114,31 @@ Return
 
 Settings_menu_screenchecks:
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Screen-checks">wiki page</a>
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "list of integrated pixel-checks: "
-ControlGetPos,,,, height,, ahk_id %main_text%
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of integrated pixel-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
 Loop, Parse, pixelchecks_list, `,, `,
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gScreenchecks v" A_Loopfield "_pixel y+"fSize0*0.6, % " test | calibrate "
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_pixel_test y+"fSize0*0.6, % " test "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_pixel_calibrate", % " calibrate "
 	If (screenchecks_%A_Loopfield%_valid = 0)
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help HWNDmain_text", % A_Loopfield
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help", % A_Loopfield
 	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
-Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gScreenchecks_settings_apply vEnable_pixelchecks Center Checked"enable_pixelchecks, % "enable background pixel-checks"
+Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gScreenchecks vEnable_pixelchecks Center Checked"enable_pixelchecks, % "enable background pixel-checks"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_enable_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.5, % "list of integrated image-checks: "
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of integrated image-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
 Loop, Parse, imagechecks_list, `,, `,
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text border gScreenchecks v" A_Loopfield "_image y+"fSize0*0.6, % " test | calibrate "
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_image_test y+"fSize0*0.6, % " test "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_image_calibrate", % " calibrate "
 	loopfield_copy := StrReplace(A_Loopfield, "-", "_")
 	loopfield_copy := StrReplace(loopfield_copy, " ", "_")
-	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans gScreenchecks_settings_apply Checked" disable_imagecheck_%loopfield_copy% " vDisable_imagecheck_" loopfield_copy, % "disable: "
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans gScreenchecks Checked" disable_imagecheck_%loopfield_copy% " vDisable_imagecheck_" loopfield_copy, % "disable: "
 	If (screenchecks_%A_Loopfield%_valid = 0)
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
@@ -1128,8 +1146,7 @@ Loop, Parse, imagechecks_list, `,, `,
 	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
-ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center Border gScreenchecks_settings_apply vImage_folder HWNDmain_text y+"fSize0*0.6 " w"width, % " img folder "
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center Border gScreenchecks vImage_folder y+"fSize0*0.6, % " open img folder "
 Return
 
 Settings_menu_stash_search:

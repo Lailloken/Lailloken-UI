@@ -1,6 +1,7 @@
 ﻿Init_itemchecker:
 IniRead, itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods, %A_Space%
 IniRead, itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods, %A_Space%
+IniRead, enable_itemchecker_ID, ini\item-checker.ini, settings, enable wisdom-scroll trigger, 0
 IniRead, fSize_offset_itemchecker, ini\item-checker.ini, UI, font-offset, 0
 itemchecker_default_colors := ["3399ff", "00ff00", "008000", "ffff00", "ff8c00", "dc143c", "800000", "00ffff"]
 IniRead, itemchecker_t0_color, ini\item-checker.ini, UI, tier 0, % "3399ff"
@@ -80,9 +81,17 @@ If (A_GuiControl = "itemchecker_apply_color") ;save-button was clicked
 	Return
 }
 
+If (A_GuiControl = "enable_itemchecker_ID")
+{
+	Gui, settings_menu: Submit, NoHide
+	IniWrite, % enable_itemchecker_ID, ini\item-checker.ini, Settings, enable wisdom-scroll trigger
+	Return
+}
+
 If (A_Gui = "itemchecker") ;an item affix was clicked
 {
 	GuiControlGet, itemchecker_mod,, % A_GuiControl
+	itemchecker_mod := StrReplace(itemchecker_mod, "`n", ";")
 	itemchecker_errorlvl := LLK_ItemCheckHighlight(StrReplace(itemchecker_mod, " (fractured)"), click)
 	color := (click = 1) ? "Aqua" : "Red"
 	If (itemchecker_errorlvl = 1)
@@ -98,8 +107,10 @@ Return
 LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 {
 	global itemchecker_t0_color, itemchecker_t1_color, itemchecker_t2_color, itemchecker_t3_color, itemchecker_t4_color, itemchecker_t5_color, itemchecker_t6_color, itemchecker_t7_color
-	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker, fSize_offset_itemchecker, xPos_itemchecker, yPos_itemchecker, itemchecker_clipboard
+	global ThisHotkey_copy, fSize0, xScreenOffSet, yScreenOffset, poe_height, poe_width, hwnd_itemchecker, fSize_offset_itemchecker, xPos_itemchecker, yPos_itemchecker, itemchecker_clipboard, itemchecker_panel_cluster, shift_down
 	global itemchecker_panel1, itemchecker_panel2, itemchecker_panel3, itemchecker_panel4, itemchecker_panel5, itemchecker_panel6, itemchecker_panel7, itemchecker_panel8, itemchecker_panel9, itemchecker_panel10, itemchecker_panel11, itemchecker_panel12, itemchecker_panel13, itemchecker_panel14, itemchecker_panel15
+	
+	itemchecker_width := poe_width//65
 	
 	If config ;for changing UI settings in the menu
 	{
@@ -108,15 +119,17 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	}
 	Else itemchecker_clipboard := Clipboard
 	
-	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Normal", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") ;certain exclusion criteria
+	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Normal", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") ;certain exclusion criteria
 	{
-		LLK_ToolTip("item-info: item not supported")
+		If (shift_down != "wisdom")
+			LLK_ToolTip("item-info: item not supported")
 		Return
 	}
 	
 	If !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") ;could not copy advanced item-info
 	{
-		LLK_ToolTip("item-info: omni-key setup required (?)", 2)
+		If (shift_down != "wisdom")
+			LLK_ToolTip("item-info: omni-key setup required (?)", 2)
 		Return
 	}
 	
@@ -221,7 +234,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	}
 	*/
 	
-	itemcheck_affixes := " affixes: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") " + " LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;affix configuration label
+	;itemcheck_affixes := " affixes: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") " + " LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;affix configuration label
+	itemcheck_prefixes := "prefix: " LLK_SubStrCount(Clipboard, "prefix modifier", "`n") ;prefix-label text
+	itemcheck_suffixes := "suffix: " LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;suffix-label text
 	itemcheck_clip := SubStr(Clipboard, InStr(Clipboard, "item level:"))
 	item_lvl := SubStr(itemcheck_clip, 1, InStr(itemcheck_clip, "`r`n",,, 1) - 1)
 	item_lvl := StrReplace(item_lvl, "item level:")
@@ -231,16 +246,63 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	itemcheck_parse := "(-.)|" ;characters that indicate numerical values/strings
 	loop := 0 ;count affixes
 	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0 ;is item unique?
+	;jewel := InStr(Clipboard, "viridian jewel") || InStr(Clipboard, "crimson jewel") || InStr(Clipboard, "cobalt jewel") ? 1 : 0 ;is item a jewel?
 	affixes := [] ;array to store affix information
 	
 	Loop, Parse, itemcheck_clip, | ;remove unnecessary item-info: implicits, crafted mods, etc.
 	{
 		If (A_Index = 1)
 			itemcheck_clip := ""
+		If InStr(A_LoopField, "passive skills (enchant)") ;is the item a cluster jewel?
+		{
+			If InStr(Clipboard, "small cluster jewel") ;is it a small one?
+			{
+				cluster_type := "small" ;define type
+				cluster_passives_min := 2
+				cluster_passives_max := -3 ;negative values for better representation in bars (full bar shows optimal count)
+				cluster_passives_optimal := -2
+			}
+			Else
+			{
+				cluster_type := InStr(Clipboard, "medium cluster jewel") ? "medium" : "large"
+				cluster_passives_min := (cluster_type = "medium") ? 4 : 8
+				cluster_passives_max := (cluster_type = "medium") ? -6 : -12
+				cluster_passives_optimal := (cluster_type = "medium") ? -5 : -8
+			}
+			cluster_passives := "-" SubStr(A_LoopField, 6, 2) ;save passive-count
+			cluster_passives := StrReplace(cluster_passives, " ")
+		}
+		If (cluster_type != "") && InStr(A_LoopField, "Added Small Passive Skills grant: ") && InStr(A_LoopField, "(enchant)") ;parse cluster enchant
+		{
+			cluster_parse := "+%"
+			Loop, Parse, A_LoopField, `n, `n
+			{
+				If (SubStr(A_LoopField, 1, 1) = "(")
+					continue
+				cluster_enchant .= (cluster_enchant = "") ? A_LoopField : "`n" A_LoopField
+				cluster_enchant := StrReplace(cluster_enchant, "Added Small Passive Skills grant: ")
+				cluster_enchant := StrReplace(cluster_enchant, " (enchant)")
+			}
+		}
 		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") || InStr(A_LoopField, "crafted")
 			continue
 		itemcheck_clip .= A_LoopField "`n"
 	}
+	
+	Loop, Parse, cluster_enchant
+	{
+		If (A_Index = 1)
+			cluster_enchant := ""
+		If IsNumber(A_LoopField) || InStr(cluster_parse, A_LoopField)
+			continue
+		cluster_enchant .= A_LoopField
+	}
+	
+	cluster_enchant := StrReplace(cluster_enchant, "  ", " ")
+	cluster_enchant := StrReplace(cluster_enchant, "`n ", "`n")
+	cluster_enchant := StrReplace(cluster_enchant, "damage over time", "dmg over time")
+	cluster_enchant := (SubStr(cluster_enchant, 1, 1) = " ") ? SubStr(cluster_enchant, 2) : cluster_enchant
+	cluster_enchant := (SubStr(cluster_enchant, 1, 3) = "to ") ? SubStr(cluster_enchant, 4) : cluster_enchant
 	
 	Loop, Parse, itemcheck_clip, `n ;remove tooltips from item-info
 	{
@@ -252,6 +314,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	}
 	
 	itemcheck_clip := StrReplace(itemcheck_clip, " — Unscalable Value")
+	itemcheck_clip := StrReplace(itemcheck_clip, "Added Small Passive Skills also grant: ")
+	itemcheck_clip := StrReplace(itemcheck_clip, "1 Added Passive Skill is ")
 	
 	While (SubStr(itemcheck_clip, 0) = "`n") ;remove white-space at the end
 		itemcheck_clip := SubStr(itemcheck_clip, 1, -1)
@@ -352,31 +416,49 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	If InStr(Clipboard, "attacks per second: ") ;create top-area with DPS values if item is weapon
 	{
-		Gui, itemchecker: Add, Text, % "Section xs Border w"poe_width/12, % " p-dps: " pdps
-		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " c-dps: " cdps
-		Gui, itemchecker: Add, Text, % "Section xs Border w"poe_width/12, % " e-dps: " edps0
-		Gui, itemchecker: Add, Text, % "ys Border w"poe_width/12, % " total: " tdps
+		Gui, itemchecker: Add, Text, % "Section xs Border w"itemchecker_width*6, % " p-dps: " pdps
+		Gui, itemchecker: Add, Text, % "ys Border wp", % " c-dps: " cdps
+		Gui, itemchecker: Add, Text, % "Section xs Border wp", % " e-dps: " edps0
+		Gui, itemchecker: Add, Text, % "ys Border wp", % " total: " tdps
 	}
 	
 	color := (item_lvl >= 86) ? "Green" : "505050" ;highlight ilvl bar green if ilvl >= 86
 	
 	If !unique ;if item is not unique, determine affix configuration and add bar to visualize it and ilvl
 	{
-		Gui, itemchecker: Add, Text, % "xs Hidden Border w"poe_width/12, placeholder ;add hidden text label as dummy to get the correct dimensions
+		Gui, itemchecker: Add, Text, % "xs Hidden Border w"itemchecker_width*6, placeholder ;add hidden text label as dummy to get the correct dimensions
 		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range66-86 BackgroundBlack c%color%, % item_lvl ;place progress bar on top of dummy label and inherit dimensions
-		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans w"poe_width/12, % " ilvl: " item_lvl ;add actual text label
+		Gui, itemchecker: Add, Text, % "xp yp Border BackgroundTrans wp", % " ilvl:" item_lvl ;add actual text label
 		
 		If InStr(Clipboard, "right click to drink")
-			max_affixes := 2
-		Else max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 4 : 6 ;set max value for the affix bar (4 for jewels, 6 for the rest)
-		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) && !InStr(Clipboard, "`nMirrored", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
-		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") + LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;add affix bar
-		Gui, itemchecker: Add, Text, % "yp xp Border BackgroundTrans wp", % itemcheck_affixes ;add affix text label
+			max_affixes := 1
+		Else max_affixes := InStr(Clipboard, "Right click to remove from the Socket") ? 2 : 3 ;set max value for the affix bar (4 for jewels, 6 for the rest)
+		
+		color := (LLK_SubStrCount(Clipboard, "prefix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) && !InStr(Clipboard, "`nMirrored", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
+		Gui, itemchecker: Add, Progress, % "ys w"itemchecker_width*3 " hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "prefix modifier", "`n") ;add prefix bar
+		Gui, itemchecker: Add, Text, % "yp xp Center Border BackgroundTrans wp", % itemcheck_prefixes ;add affix text label
+		
+		color := (LLK_SubStrCount(Clipboard, "suffix modifier", "`n") < max_affixes) && !InStr(Clipboard, "`nCorrupted", 1) && !InStr(Clipboard, "`nMirrored", 1) ? "Green" : "505050" ;determine bar-color for affixes: green if open affix-slots available
+		Gui, itemchecker: Add, Progress, % "ys wp hp Border BackgroundTrans range0-"max_affixes " BackgroundBlack c"color, % LLK_SubStrCount(Clipboard, "suffix modifier", "`n") ;add suffix bar
+		Gui, itemchecker: Add, Text, % "yp xp Center Border BackgroundTrans wp", % itemcheck_suffixes ;add affix text label
+	}
+	
+	If (cluster_type != "") ;if item is a cluster jewel, add passive-skills and enchant info
+	{
+		color := (cluster_passives >= cluster_passives_optimal) ? "Green" : "505050"
+		Gui, itemchecker: Add, Text, % "xs Hidden Border w"itemchecker_width*12, placeholder ;add hidden text label as dummy to get the correct dimensions
+		Gui, itemchecker: Add, Progress, xp yp Border Section hp wp range%cluster_passives_max%-%cluster_passives_optimal% BackgroundBlack c%color%, % cluster_passives ;place progress bar on top of dummy label and inherit dimensions
+		Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp", % " passive skills: " cluster_passives*(-1) "(" cluster_passives_min "-" cluster_passives_max*(-1) ")" ;add actual text label
+		
+		If (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";")) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
+			color := "White"
+		Else color := (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";")) = 1) ? "Aqua" : "Red" ;determine which is the case
+		Gui, itemchecker: Add, Text, % "xs Border Center BackgroundTrans vitemchecker_panel_cluster gItemchecker wp c"color, % cluster_enchant ;add actual text label
 	}
 	
 	Loop, % affixes.Count() ;n = number of parsed mod lines
 	{
-		style := !unique ? "w"poe_width*(18/120) : "w"poe_width*(20/120) ;width of the mod list: non-unique list narrower for extra tier-column on the far right
+		style := !unique ? "w"itemchecker_width*11 : "w"itemchecker_width*12 ;width of the mod list: non-unique list narrower for extra tier-column on the far right
 		
 		Loop, Parse, % affixes[A_Index], % ";" ;parse info from current array entry
 		{
@@ -390,6 +472,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					quality := A_LoopField
 			}
 		}
+		
+		If !InStr(mod, "(") && !InStr(mod, "(hybrid)") && unique ;skip unscalable values within hybrid affixes
+			continue
 		
 		Loop, Parse, quality, `, ;determine lower & upper bound, and value
 		{
@@ -448,7 +533,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		{
 			If InStr(mod, "fractured") ;override color in case mod is fractured
 				color := itemchecker_t7_color
-			Gui, itemchecker: Add, Progress, % "ys hp w"poe_width*(2/120) " BackgroundBlack Border C"color, 100 ;add colored progress bar as background for tier-column
+			Gui, itemchecker: Add, Progress, % "ys hp w"itemchecker_width " BackgroundBlack Border C"color, 100 ;add colored progress bar as background for tier-column
 			Gui, itemchecker: Add, Text, yp xp Border Center cBlack hp wp BackgroundTrans, % (tier = "u") ? " " : tier ;add number label to tier-column
 		}
 	}
@@ -531,4 +616,20 @@ LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blackl
 			Return 0
 		}
 	}
+}
+
+LLK_ItemCheckVendor()
+{
+	global
+	MouseGetPos, itemchecker_vendor_mouseX, itemchecker_vendor_mouseY
+	itemchecker_vendor_dimensions := poe_height*0.047*0.50
+	itemchecker_vendor_count += 1
+	;create GUI
+	Gui, itemchecker_vendor%itemchecker_vendor_count%: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_itemchecker_vendor%itemchecker_vendor_count%
+	Gui, itemchecker_vendor%itemchecker_vendor_count%: Margin, 0, 0
+	Gui, itemchecker_vendor%itemchecker_vendor_count%: Color, Red
+	WinSet, Trans, 250
+	Gui, itemchecker_vendor%itemchecker_vendor_count%: Font, % "cWhite s"fSize0 + fSize_offset_itemchecker, Fontin SmallCaps
+	Gui, itemchecker_vendor%itemchecker_vendor_count%: Add, Text, % "Center BackgroundTrans Border w"itemchecker_vendor_dimensions " h"itemchecker_vendor_dimensions,
+	Gui, Show, % "NA x"itemchecker_vendor_mouseX - 0.5*itemchecker_vendor_dimensions " y"itemchecker_vendor_mouseY - 0.5*itemchecker_vendor_dimensions
 }

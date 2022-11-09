@@ -128,7 +128,11 @@ If (A_GuiControl = "enable_map_tracker") ;toggling mapping tracker feature on/of
 		hwnd_loottracker := ""
 		Gui, map_tracker_panel: Destroy
 		hwnd_map_tracker_panel := ""
-		LLK_MapTrackGUI()
+		map_tracker_paused := 0
+		Gui, map_tracker_log: Destroy
+		hwnd_map_tracker_log := ""
+		map_tracker_log_selected_date := ""
+		;LLK_MapTrackGUI()
 	}
 	IniWrite, %enable_map_tracker%, ini\config.ini, Features, enable map tracker
 	GoSub, GUI

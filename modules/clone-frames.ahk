@@ -9,10 +9,8 @@ If InStr(A_GuiControl, "pixel")
 		GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
 		Return
 	}
-	If (clone_frames_pixelcheck_enable = 0)
-		IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-	Else IniWrite, 1, ini\clone frames.ini, Settings, enable pixel-check
-	GoSub, Screenchecks_gamescreen
+	IniWrite, % clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check
+	LLK_GameScreenCheck()
 	Return
 }
 clone_frames_enabled := ""
@@ -176,7 +174,6 @@ Return
 
 Clone_frames_preview_list:
 MouseGetPos, mouseXpos, mouseYpos
-mouseXpos += fSize0
 If (click = 2)
 {
 	Gui, clone_frame_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_context_menu
@@ -187,7 +184,7 @@ If (click = 2)
 	clone_frames_edit_mode := 1
 	Gui, clone_frame_context_menu: Add, Text, Section BackgroundTrans vEdit_%A_GuiControl% gClone_frames_new, edit
 	Gui, clone_frame_context_menu: Add, Text, % "xs BackgroundTrans vDelete_" A_GuiControl " gClone_frames_delete y+"fSize0//2, delete
-	Gui, clone_frame_context_menu: Show, % "AutoSize x"mouseXpos + fSize0 " y"mouseYpos + fSize0
+	Gui, clone_frame_context_menu: Show, % "AutoSize x"mouseXpos " y"mouseYpos
 	WinWaitNotActive, ahk_id %hwnd_clone_frame_context_menu%
 	clone_frames_edit_mode := 0
 	Gui, clone_frame_context_menu: Destroy

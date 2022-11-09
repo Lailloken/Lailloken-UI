@@ -25,42 +25,45 @@ IniRead, legion_treemap_notables, data\timeless jewels\Treemap.ini, all notables
 If !WinExist("ahk_id " hwnd_legion_window) ;create GUI with blank text labels
 {
 	Gui, legion_window: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_window
-	Gui, legion_window: Margin, 12, 0
+	Gui, legion_window: Margin, % fSize0//3, % fSize0//4
 	Gui, legion_window: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, legion_window: Font, % "s"fSize0 + fSize_offset_legion " cWhite", Fontin SmallCaps
 	
-	Gui, legion_window: Add, Text, Section y4 BackgroundTrans Center, % "profile: "
+	Gui, legion_window: Add, Text, Section y4 BackgroundTrans Center, % "profile:"
 	Loop 5
 	{
 		If (A_Index = 1)
-			Gui, legion_window: Add, Text, ys x+4 Border BackgroundTrans Center vlegion_profile gLegion_seeds_apply, % " " A_Index " "
-		Else Gui, legion_window: Add, Text, ys x+4 Border BackgroundTrans Center vlegion_profile%A_Index% gLegion_seeds_apply, % " " A_Index " "
+			Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_profile gLegion_seeds_apply, % " " A_Index " "
+		Else Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_profile%A_Index% gLegion_seeds_apply, % " " A_Index " "
 	}
 	
 	GuiControl, legion_window: +cFuchsia, % "legion_profile" StrReplace(legion_profile, "_")
 	
-	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans Left vlegion_type y+8", % "type: brutal restraint"
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed wp", % "seed:"
-	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name wp", % "name:"
-	Gui, legion_window: Add, Text, xs Section Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse y+8, % " import | trade-check "
-	Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_minus gLegion_seeds_apply, % " – "
-	Gui, legion_window: Add, Text, ys x+4 Border wp BackgroundTrans Center vlegion_zero gLegion_seeds_apply, % "0"
-	Gui, legion_window: Add, Text, ys x+4 Border wp BackgroundTrans Center vlegion_plus gLegion_seeds_apply, % "+"
+	Gui, legion_window: Add, Text, xs Section BackgroundTrans Center, % "ui size:"
+	Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_minus gLegion_seeds_apply, % " - "
+	Gui, legion_window: Add, Text, ys Border wp BackgroundTrans Center vlegion_zero gLegion_seeds_apply, % "0"
+	Gui, legion_window: Add, Text, ys Border wp BackgroundTrans Center vlegion_plus gLegion_seeds_apply, % "+"
+	Gui, legion_window: Add, Text, xs Section Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse, % " import jewel "
+	Gui, legion_window: Add, Text, % "ys Border BackgroundTrans Center vlegion_trade gLegion_seeds_parse", % " trade-check "
+	
+	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans Left vlegion_type y+"fSize0//3, % "type: brutal restraint"
+	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_seed wp y+0", % "seed:"
+	Gui, legion_window: Add, Text, % "xs BackgroundTrans Left vlegion_name wp y+0", % "name:"
 	
 	Gui, legion_window: Font, underline
 	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans Left y+8", % "keystones:"
 	Gui, legion_window: Font, norm
 	Loop 3
-		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help", supreme grandstanding
+		Gui, legion_window: Add, Text, % "xs BackgroundTrans vlegion_keystonetext" A_Index " gLegion_seeds_help y+0", supreme grandstanding
 	
 	
 	Gui, legion_window: Font, underline
-	Gui, legion_window: Add, Text, % "xs Section x12 BackgroundTrans y+8", resulting modifications:
+	Gui, legion_window: Add, Text, % "xs Section BackgroundTrans y+"fSize0//3, resulting modifications:
 	Gui, legion_window: Font, norm
 	
 	Loop 22
-		Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans", night of a thousand ribbons (11x)
+		Gui, legion_window: Add, Text, % "xs Section vlegion_modtext" A_Index " gLegion_seeds_help BackgroundTrans y+0", night of a thousand ribbons (11x)
 }
 
 If (legion_type_parse = "") ;placeholder values in case UI is accessed via .legion
@@ -239,7 +242,7 @@ If (A_Gui = "legion_treemap") && (legion_socket != "") ;auto-highlight notables 
 				legion_highlight .= SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))) "|"
 				If (LLK_SubStrCount(legion_treemap_notables, SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))), "`n", 1) > 1) && (SubStr(legion_notables_array[A_Loopfield], 1, Floor((100-3-legion_%legion_socket%_notables+1)/(legion_%legion_socket%_notables))) != legion_notables_array[A_Loopfield])
 				{
-					LLK_ToolTip("auto-highlight unavailable:`ntoo many desired mods around this socket", 1)
+					LLK_ToolTip("auto-highlight unavailable:`ntoo many desired mods around this socket", 2)
 					WinActivate, ahk_group poe_window
 					WinWaitActive, ahk_group poe_window
 					sleep, 50
@@ -335,9 +338,9 @@ If InStr(A_GuiControl, "legion_profile")
 Return
 
 Legion_seeds2:
-If (hwnd_legion_treemap != "") ;create passive tree GUI & place squares and number labels
+If (hwnd_legion_treemap != "")
 	Return
-Else
+Else ;create passive tree GUI & place squares and number labels
 {
 	Gui, legion_treemap2: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_treemap2
 	Gui, legion_treemap2: Margin, 0, 0
@@ -374,18 +377,18 @@ If !WinExist("ahk_id " hwnd_legion_list)
 {
 	GuiControl, legion_window: text, legion_toggle, % " < "
 	Gui, legion_list: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_legion_list
-	Gui, legion_list: Margin, 12, 0
+	Gui, legion_list: Margin, % fSize0//3, % fSize0//4
 	Gui, legion_list: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, legion_list: Font, % "s"fSize0 + fSize_offset_legion " cWhite underline", Fontin SmallCaps
-	Gui, legion_list: Add, Text, % "Section BackgroundTrans y4 vlegion_list_header", notables around socket:
+	Gui, legion_list: Add, Text, % "Section BackgroundTrans vlegion_list_header", notables around socket:
 	Gui, legion_list: Font, norm
 
 	Loop, 45
 	{
 		If (A_Index = 1)
-			Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help vlegion_list_text" A_Index " y+4", night of a thousand ribbons
-		Else Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help wp vlegion_list_text" A_Index, % ""
+			Gui, legion_list: Add, Text, % "xs BackgroundTrans gLegion_seeds_help vlegion_list_text" A_Index, night of a thousand ribbons
+		Else Gui, legion_list: Add, Text, % "xs y+0 BackgroundTrans gLegion_seeds_help wp vlegion_list_text" A_Index, % ""
 	}
 }
 
@@ -593,7 +596,7 @@ If (hwnd_win_hover2 != hwnd_legion_treemap) && (hwnd_win_hover2 != hwnd_legion_l
 Return
 
 Legion_seeds_parse:
-If (click = 2) ;right-click button to open trade site with currently loaded jewel
+If (A_GuiControl = "legion_trade") ;right-click button to open trade site with currently loaded jewel
 {
 	legion_trade := "{%22query%22:{%22status%22:{%22option%22:%22any%22},%22stats%22:[{%22type%22:%22count%22,%22filters%22:[{%22id%22:%22explicit.pseudo_timeless_jewel_" legion_name1 "%22,%22value%22:{%22min%22:" legion_seed_parse ",%22max%22:" legion_seed_parse
 	legion_trade .= "},%22disabled%22:false},{%22id%22:%22explicit.pseudo_timeless_jewel_" legion_name2 "%22,%22value%22:{%22min%22:" legion_seed_parse ",%22max%22:" legion_seed_parse
