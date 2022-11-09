@@ -344,6 +344,11 @@ Return
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
+::r.llk::
+Reload
+ExitApp
+Return
+
 :?:.llk::
 LLK_HotstringClip(A_ThisHotkey, 1)
 Return
