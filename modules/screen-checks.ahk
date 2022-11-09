@@ -1,9 +1,33 @@
 ﻿Screenchecks:
-If (click = 2)
+Gui, settings_menu: Submit, NoHide
+If InStr(A_GuiControl, "disable_imagecheck")
+{
+	IniWrite, % %A_GuiControl%, ini\screen checks (%poe_height%p).ini, % StrReplace(A_GuiControl, "disable_imagecheck_"), disable
+	FileDelete, % "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "disable_imagecheck_") ".bmp"
+	GoSub, Settings_menu
+	Return
+}
+If (A_GuiControl = "image_folder")
+{
+	Run, explore img\Recognition (%poe_height%p)\GUI\
+	Return
+}
+If (A_GuiControl = "enable_pixelchecks")
+{
+	IniWrite, %enable_pixelchecks%, ini\config.ini, Settings, background pixel-checks
+	gamescreen := (enable_pixelchecks = 0) ? 0 : gamescreen
+	clone_frames_pixelcheck_enable := enable_pixelchecks
+	IniWrite, % enable_pixelchecks, ini\clone frames.ini, Settings, enable pixel-check
+	map_info_pixelcheck_enable := enable_pixelchecks
+	IniWrite, % enable_pixelchecks, ini\map info.ini, Settings, enable pixel-check
+	Return
+}
+
+If InStr(A_GuiControl, "_calibrate")
 {
 	If InStr(A_GuiControl, "_pixel")
 	{
-		LLK_PixelRecalibrate(StrReplace(A_GuiControl, "_pixel"))
+		LLK_PixelRecalibrate(StrReplace(A_GuiControl, "_pixel_calibrate"))
 		GoSub, Settings_menu
 		sleep, 100
 		While !WinExist("ahk_id " hwnd_settings_menu)
@@ -23,7 +47,7 @@ If (click = 2)
 			LLK_ToolTip("screen-cap failed")
 			Return
 		}
-		Else Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "_image") ".bmp", 100)
+		Else Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "_image_calibrate") ".bmp", 100)
 		GoSub, Settings_menu
 	}
 	Return
@@ -32,56 +56,16 @@ Else
 {
 	If InStr(A_GuiControl, "_pixel")
 	{
-		If LLK_PixelSearch(StrReplace(A_GuiControl, "_pixel"))
+		If LLK_PixelSearch(StrReplace(A_GuiControl, "_pixel_test"))
 			LLK_ToolTip("test positive")
 		Else LLK_ToolTip("test negative")
 	}
 	Else
 	{
-		If (LLK_ImageSearch(StrReplace(A_GuiControl, "_image")) > 0)
+		If (LLK_ImageSearch(StrReplace(A_GuiControl, "_image_test")) > 0)
 			LLK_ToolTip("test positive")
 		Else LLK_ToolTip("test negative")
 	}
-}
-Return
-
-Screenchecks_gamescreen:
-total_pixelcheck_enable := clone_frames_pixelcheck_enable + map_info_pixelcheck_enable
-If (total_pixelcheck_enable = 0)
-	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
-Return
-
-Screenchecks_settings_apply:
-Gui, settings_menu: Submit, NoHide
-If InStr(A_GuiControl, "disable_imagecheck")
-{
-	IniWrite, % %A_GuiControl%, ini\screen checks (%poe_height%p).ini, % StrReplace(A_GuiControl, "disable_imagecheck_"), disable
-	FileDelete, % "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "disable_imagecheck_") ".bmp"
-	GoSub, Settings_menu
-	Return
-}
-If (A_GuiControl = "image_folder")
-{
-	Run, explore img\Recognition (%poe_height%p)\GUI\
-	Return
-}
-If (A_GuiControl = "enable_pixelchecks")
-	IniWrite, %enable_pixelchecks%, ini\config.ini, Settings, background pixel-checks
-If (enable_pixelchecks = 0)
-{
-	gamescreen := 0
-	clone_frames_pixelcheck_enable := 0
-	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-	map_info_pixelcheck_enable := 0
-	IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
-}
-Else
-{
-	clone_frames_pixelcheck_enable := 1
-	IniWrite, 1, ini\clone frames.ini, Settings, enable pixel-check
-	map_info_pixelcheck_enable := 1
-	IniWrite, 1, ini\map info.ini, Settings, enable pixel-check
 }
 Return
 
@@ -113,12 +97,13 @@ Return
 LLK_ImageSearch(name := "")
 {
 	global
+	start := A_TickCount
 	Loop, Parse, imagechecks_list, `,, `,
 		%A_Loopfield% := 0
 	pHaystack_ImageSearch := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
 	Loop, Parse, % (name = "") ? imagechecks_list : name, `,
 	{
-		If (A_Gui = "settings_menu")
+		If (A_Gui = "settings_menu") || (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
 		Else
 		{
@@ -144,7 +129,7 @@ LLK_ImageSearch(name := "")
 		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
 		{
 			%A_Loopfield% := 1
-			If !InStr(imagechecks_coords_%A_LoopField%, LIST)
+			If (A_LoopField != "betrayal") && !InStr(imagechecks_coords_%A_LoopField%, LIST)
 			{
 				Gdip_GetImageDimension(pNeedle_ImageSearch, width, height)
 				imagechecks_coords_%A_LoopField% := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height) ;SubStr(imagechecks_coords_%A_LoopField%, InStr(imagechecks_coords_%A_LoopField%, ",",,, 2) + 1)
@@ -156,6 +141,7 @@ LLK_ImageSearch(name := "")
 		}
 		Else Gdip_DisposeImage(pNeedle_ImageSearch)
 	}
+	Gdip_DisposeImage(pHaystack_ImageSearch)
 	Return 0
 	
 	/*

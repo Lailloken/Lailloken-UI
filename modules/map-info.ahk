@@ -370,7 +370,7 @@ If (A_GuiControl = "Map_info_pixelcheck_enable")
 		Return
 	}
 	IniWrite, %map_info_pixelcheck_enable%, ini\map info.ini, Settings, enable pixel-check
-	GoSub, Screenchecks_gamescreen
+	LLK_GameScreenCheck()
 	Return
 }
 If (A_GuiControl = "fSize_map_info_minus")

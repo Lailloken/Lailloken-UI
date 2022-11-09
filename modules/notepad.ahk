@@ -1,4 +1,4 @@
-﻿Apply_settings_notepad:
+﻿Notepad:
 If (A_GuiControl = "enable_notepad")
 {
 	Gui, settings_menu: Submit, NoHide
@@ -70,10 +70,7 @@ If InStr(A_GuiControl, "fontcolor_")
 	notepad_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
 	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
 }
-GoSub, Notepad
-Return
 
-Notepad:
 start := A_TickCount
 Gui, notepad_edit: Submit, NoHide
 While GetKeyState("LButton", "P") && InStr(A_Gui, "notepad")

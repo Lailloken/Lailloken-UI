@@ -1,4 +1,68 @@
 ﻿Alarm:
+If (A_GuiControl = "enable_alarm")
+{
+	Gui, settings_menu: Submit, NoHide
+	If WinExist("ahk_id " hwnd_alarm_sample) && (enable_alarm = 0)
+	{
+		Gui, alarm_sample: Destroy
+		hwnd_alarm_sample := ""
+	}
+	If WinExist("ahk_id " hwnd_alarm) && (enable_alarm = 0)
+	{
+		Gui, alarm: Destroy
+		hwnd_alarm := ""
+	}
+	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
+	GoSub, GUI
+	GoSub, Settings_menu
+	Return
+}
+
+If InStr(A_GuiControl, "button_alarm")
+{
+	If (A_GuiControl = "button_alarm_minus")
+		alarm_panel_offset -= (alarm_panel_offset > 0.4) ? 0.1 : 0
+	If (A_GuiControl = "button_alarm_reset")
+		alarm_panel_offset := 1
+	If (A_GuiControl = "button_alarm_plus")
+		alarm_panel_offset += (alarm_panel_offset < 1) ? 0.1 : 0
+	IniWrite, % alarm_panel_offset, ini\alarm.ini, Settings, button-offset
+	alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
+	GoSub, GUI
+	Return
+}
+
+If (A_GuiControl = "fSize_alarm_minus")
+{
+	fSize_offset_alarm -= 1
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_alarm_plus")
+{
+	fSize_offset_alarm += 1
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_alarm_reset")
+{
+	fSize_offset_alarm := 0
+	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
+}
+If (A_GuiControl = "alarm_opac_minus")
+{
+	alarm_trans -= (alarm_trans > 100) ? 30 : 0
+	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
+}
+If (A_GuiControl = "alarm_opac_plus")
+{
+	alarm_trans += (alarm_trans < 250) ? 30 : 0
+	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
+}
+If InStr(A_GuiControl, "fontcolor_")
+{
+	alarm_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
+	IniWrite, %alarm_fontcolor%, ini\alarm.ini, Settings, font-color
+}
+
 start := A_TickCount
 While GetKeyState("LButton", "P") && (A_Gui = "alarm_panel" || A_Gui = "alarm_drag")
 {
@@ -160,71 +224,6 @@ If !WinExist("ahk_group poe_window") || (alarm_timestamp < A_Now)
 	hwnd_alarm := ""
 }
 LLK_Overlay("alarm", "hide")
-Return
-
-Apply_settings_alarm:
-If (A_GuiControl = "enable_alarm")
-{
-	Gui, settings_menu: Submit, NoHide
-	If WinExist("ahk_id " hwnd_alarm_sample) && (enable_alarm = 0)
-	{
-		Gui, alarm_sample: Destroy
-		hwnd_alarm_sample := ""
-	}
-	If WinExist("ahk_id " hwnd_alarm) && (enable_alarm = 0)
-	{
-		Gui, alarm: Destroy
-		hwnd_alarm := ""
-	}
-	IniWrite, %enable_alarm%, ini\config.ini, Features, enable alarm
-	GoSub, GUI
-	GoSub, Settings_menu
-	Return
-}
-If InStr(A_GuiControl, "button_alarm")
-{
-	If (A_GuiControl = "button_alarm_minus")
-		alarm_panel_offset -= (alarm_panel_offset > 0.4) ? 0.1 : 0
-	If (A_GuiControl = "button_alarm_reset")
-		alarm_panel_offset := 1
-	If (A_GuiControl = "button_alarm_plus")
-		alarm_panel_offset += (alarm_panel_offset < 1) ? 0.1 : 0
-	IniWrite, % alarm_panel_offset, ini\alarm.ini, Settings, button-offset
-	alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
-	GoSub, GUI
-	Return
-}
-If (A_GuiControl = "fSize_alarm_minus")
-{
-	fSize_offset_alarm -= 1
-	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
-}
-If (A_GuiControl = "fSize_alarm_plus")
-{
-	fSize_offset_alarm += 1
-	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
-}
-If (A_GuiControl = "fSize_alarm_reset")
-{
-	fSize_offset_alarm := 0
-	IniWrite, %fSize_offset_alarm%, ini\alarm.ini, Settings, font-offset
-}
-If (A_GuiControl = "alarm_opac_minus")
-{
-	alarm_trans -= (alarm_trans > 100) ? 30 : 0
-	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
-}
-If (A_GuiControl = "alarm_opac_plus")
-{
-	alarm_trans += (alarm_trans < 250) ? 30 : 0
-	IniWrite, %alarm_trans%, ini\alarm.ini, Settings, transparency
-}
-If InStr(A_GuiControl, "fontcolor_")
-{
-	alarm_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
-	IniWrite, %alarm_fontcolor%, ini\alarm.ini, Settings, font-color
-}
-GoSub, Alarm
 Return
 
 Init_alarm:
