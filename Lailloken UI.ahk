@@ -862,6 +862,7 @@ click := 1
 trans := 220
 blocked_hotkeys := "!,^,+"
 pixelchecks_enabled := "gamescreen,"
+gamescreen := 0
 imagesearch_variation := 25
 pixelsearch_variation := 0
 stash_search_usecases := "stash,vendor"
@@ -1382,6 +1383,17 @@ LLK_Error(ErrorMessage)
 	global
 	MsgBox, % ErrorMessage
 	ExitApp
+}
+
+LLK_GameScreenCheck()
+{
+	global
+	If (clone_frames_pixelcheck_enable + map_info_pixelcheck_enable = 0)
+	{
+		pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
+		gamescreen := 0
+	}
+	Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
 }
 
 LLK_HotstringClip(hotstring, mode := 0)
