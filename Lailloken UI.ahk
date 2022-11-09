@@ -218,9 +218,9 @@ GoSub, Init_maps
 GoSub, Init_notepad
 GoSub, Init_omnikey
 GoSub, Init_searchstrings
-GoSub, Init_conversions
 GoSub, Init_leveling_guide
 GoSub, Init_map_tracker
+GoSub, Init_conversions
 
 SetTimer, Loop, 1000
 SetTimer, Log_loop, 1000
@@ -238,13 +238,43 @@ GoSub, Recombinators
 
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
-GoSub, Screenchecks_gamescreen
+LLK_GameScreenCheck()
 SetTimer, MainLoop, 100
 If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
-#If (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (shift_down = "wisdom")
+
++RButton::LLK_ItemCheckVendor()
+
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0)
+	
+~+RButton::
+Clipboard := ""
+SendInput, ^{c}
+ClipWait, 0.05
+If InStr(Clipboard, "scroll of wisdom")
+	shift_down := "wisdom"
+KeyWait, Shift
+shift_down := ""
+If WinExist("ahk_id " hwnd_itemchecker)
+{
+	Gui, itemchecker: Destroy
+	hwnd_itemchecker := ""
+}
+Return
+
+~+LButton::
+Clipboard := ""
+sleep, 250
+SendInput, ^!{c}
+ClipWait, 0.05
+If (shift_down = "wisdom")
+	LLK_ItemCheck()
+Return
+
+#If WinActive("ahk_group poe_window") && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused
 
 ^+LButton::
 ^LButton::
@@ -397,6 +427,20 @@ If WinExist("ahk_id " hwnd_itemchecker)
 {
 	Gui, itemchecker: Destroy
 	hwnd_itemchecker := ""
+	Return
+}
+If WinExist("ahk_id " hwnd_itemchecker_vendor1)
+{
+	Loop
+	{
+		If (hwnd_itemchecker_vendor%A_Index% != "")
+		{
+			Gui, itemchecker_vendor%A_Index%: Destroy
+			hwnd_itemchecker_vendor%A_Index% := ""
+		}
+		Else Break
+	}
+	itemchecker_vendor_count := 0
 	Return
 }
 If WinExist("ahk_id " hwnd_map_tracker_log)
@@ -598,8 +642,32 @@ Return
 
 #Include modules\alarm-timer.ahk
 
-Apply_resolution:
+Apply_settings_general:
 Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "custom_resolution_apply")
+{
+	custom_width := (custom_width > width_native) ? width_native : custom_width
+	poe_width := (fullscreen = "true") ? width_native : custom_width
+	If (fullscreen = "false")
+	{
+		custom_resolution += caption + yborder*2
+		poe_width += (poe_width > width_native) ? 0 : xborder*2
+	}
+	WinMove, ahk_group poe_window,, % (fullscreen = "false") ? xScreenOffset_monitor - xborder : xScreenOffset_monitor, %yScreenOffset_monitor%, %poe_width%, %custom_resolution%
+	WinGetPos,,, poe_width, custom_resolution, ahk_group poe_window
+	If (fullscreen = "false")
+	{
+		xScreenOffSet := (poe_width < width_native) ? xScreenOffset_monitor + (width_native - poe_width)/2 : xScreenOffset_monitor - xborder
+		yScreenOffSet := (custom_resolution < height_native) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor - yborder - caption
+		WinMove, ahk_group poe_window,, %xScreenOffSet%, % (window_docking = 1) ? yScreenOffset_monitor : yScreenOffSet_monitor + (height_native - custom_resolution)/2, %poe_width%, %custom_resolution%
+	}
+	IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
+	IniWrite, % (fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution, ini\config.ini, Settings, custom-resolution
+	IniWrite, % (fullscreen = "false") ? custom_width : width_native, ini\config.ini, Settings, custom-width
+	Reload
+	ExitApp
+}
+
 If (A_GuiControl = "custom_resolution_setting")
 {
 	IniWrite, % %A_GuiControl%, ini\config.ini, Settings, enable custom-resolution
@@ -610,29 +678,7 @@ If (A_GuiControl = "window_docking")
 	IniWrite, % %A_GuiControl%, ini\config.ini, Settings, top-docking
 	Return
 }
-custom_width := (custom_width > width_native) ? width_native : custom_width
-poe_width := (fullscreen = "true") ? width_native : custom_width
-If (fullscreen = "false")
-{
-	custom_resolution += caption + yborder*2
-	poe_width += (poe_width > width_native) ? 0 : xborder*2
-}
-WinMove, ahk_group poe_window,, % (fullscreen = "false") ? xScreenOffset_monitor - xborder : xScreenOffset_monitor, %yScreenOffset_monitor%, %poe_width%, %custom_resolution%
-WinGetPos,,, poe_width, custom_resolution, ahk_group poe_window
-If (fullscreen = "false")
-{
-	xScreenOffSet := (poe_width < width_native) ? xScreenOffset_monitor + (width_native - poe_width)/2 : xScreenOffset_monitor - xborder
-	yScreenOffSet := (custom_resolution < height_native) ? yScreenOffset_monitor + (height_native - custom_resolution)/2 : yScreenOffset_monitor - yborder - caption
-	WinMove, ahk_group poe_window,, %xScreenOffSet%, % (window_docking = 1) ? yScreenOffset_monitor : yScreenOffSet_monitor + (height_native - custom_resolution)/2, %poe_width%, %custom_resolution%
-}
-IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
-IniWrite, % (fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution, ini\config.ini, Settings, custom-resolution
-IniWrite, % (fullscreen = "false") ? custom_width : width_native, ini\config.ini, Settings, custom-width
-Reload
-ExitApp
-Return
 
-Apply_settings_general:
 If (A_GuiControl = "interface_size_minus")
 {
 	fSize_offset -= 1
@@ -650,7 +696,7 @@ If (A_GuiControl = "interface_size_reset")
 }
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
-Gui, settings_menu: Submit, NoHide
+
 If (A_GuiControl = "kill_script")
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 If (A_GuiControl = "kill_timeout")
@@ -742,7 +788,18 @@ If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini") 
 	IniWrite, % convert_pixelchecks, ini\screen checks (%poe_height%p).ini, gamescreen
 	FileDelete, ini\pixel checks*.ini
 }
-IniWrite, 12406, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+If (ini_version < 12808)
+{
+	itemchecker_highlight := StrReplace(itemchecker_highlight, "added small passive skills also grant: ")
+	itemchecker_highlight := StrReplace(itemchecker_highlight, "added Passive Skill is ")
+	itemchecker_blacklist := StrReplace(itemchecker_blacklist, "added small passive skills also grant: ")
+	itemchecker_blacklist := StrReplace(itemchecker_blacklist, "added Passive Skill is ")
+	
+	IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
+	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
+}
+IniWrite, 12808, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -805,7 +862,7 @@ stash_search_usecases := "stash,vendor"
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen"
 imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
-guilist := "notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
+guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
 guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
@@ -1329,10 +1386,13 @@ LLK_HotstringClip(hotstring, mode := 0)
 	hotstring := StrReplace(hotstring, ".")
 	hotstring := StrReplace(hotstring, "*")
 	clipboard := ""
-	SendInput, ^{a}^{c}
+	SendInput, ^{a}
+	sleep, 100
+	SendInput, ^{c}
+	ClipWait, 1
+
 	If (mode = 1)
 		SendInput, {ESC}
-	ClipWait, 0.1
 	hotstringboard := InStr(clipboard, "@") ? SubStr(clipboard, InStr(clipboard, " ") + 1) : clipboard
 	hotstringboard := (SubStr(hotstringboard, 0) = " ") ? SubStr(hotstringboard, 1, -1) : hotstringboard
 	If (hotstring = "best")
@@ -1550,6 +1610,17 @@ LLK_WinExist(hwnd)
 			Return 1
 	}
 	Return 0
+}
+
+SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
+{
+	Gui 9: New, -DPIscale
+	Gui 9: Font, %fontOptions%, %fontName%
+	Gui 9: Add, Text, R1, %newText%
+	GuiControlGet T, 9: Pos, Static1
+	Gui 9: Destroy
+	GuiControl,, %controlHwnd%, %newText%
+	GuiControl, Move, %controlHwnd%, % "h" TH " w" TW
 }
 
 #include data\External Functions.ahk
