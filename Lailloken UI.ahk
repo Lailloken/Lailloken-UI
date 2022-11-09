@@ -345,6 +345,7 @@ LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
 ::r.llk::
+SendInput, {ESC}
 Reload
 ExitApp
 Return
