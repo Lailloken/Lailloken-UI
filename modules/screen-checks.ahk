@@ -57,7 +57,10 @@ Else
 	If InStr(A_GuiControl, "_pixel")
 	{
 		If LLK_PixelSearch(StrReplace(A_GuiControl, "_pixel_test"))
+		{
 			LLK_ToolTip("test positive")
+			pixelchecks_enabled .= InStr(pixelchecks_enabled, "gamescreen,") ? "" : "gamescreen,"
+		}
 		Else LLK_ToolTip("test negative")
 	}
 	Else

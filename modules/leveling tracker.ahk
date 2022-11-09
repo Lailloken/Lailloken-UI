@@ -901,14 +901,6 @@ If (poe_log_file != 0)
 }
 Return
 
-LLK_GameScreenCheck()
-{
-	global
-	If (clone_frames_pixelcheck_enable + map_info_pixelcheck_enable = 0)
-		pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-	Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
-}
-
 LLK_GearTrackerGUI(mode:=0)
 {
 	global
