@@ -2369,26 +2369,26 @@ Gdip_GetPixel(pBitmap, x, y) {
    ; should use Format("{1:#x}", ARGB)
 }
 
-Gdip_GetPixelColor(pBitmap, x, y, Format) {
-   ARGBdec := Gdip_GetPixel(pBitmap, x, y)
-   If !ARGBdec
-      Return
-
-   If (format=1)  ; in ARGB [HEX; 00-FF] with 0x prefix
-   {
-      Return Format("{1:#x}", ARGBdec)
-   } Else If (format=2)  ; in RGBA [0-255]
-   {
-      Gdip_FromARGB(ARGBdec, A, R, G, B)
-      Return R "," G "," B "," A
-   } Else If (format=3)  ; in BGR [HEX; 00-FF] with 0x prefix
-   {
-      clr := Format("{1:#x}", ARGBdec)
-      Return "0x" SubStr(clr, -1) SubStr(clr, 7, 2) SubStr(clr, 5, 2)
-   } Else If (format=4)  ; in RGB [HEX; 00-FF] with no prefix
-   {
-      Return SubStr(Format("{1:#x}", ARGBdec), 5)
-   } Else Return ARGBdec
+Gdip_GetPixelColor(pBitmap, x, y, Format)
+{
+	ARGBdec := Gdip_GetPixel(pBitmap, x, y)
+	If !ARGBdec
+		Return
+	If (format=1)  ; in ARGB [HEX; 00-FF] with 0x prefix
+		Return Format("{1:#x}", ARGBdec)
+	Else If (format=2)  ; in RGBA [0-255]
+	{
+		Gdip_FromARGB(ARGBdec, A, R, G, B)
+		Return R "," G "," B "," A
+	}
+	Else If (format=3)  ; in BGR [HEX; 00-FF] with 0x prefix
+	{
+		clr := Format("{1:#x}", ARGBdec)
+		Return "0x" SubStr(clr, -1) SubStr(clr, 7, 2) SubStr(clr, 5, 2)
+	}
+	Else If (format=4)  ; in RGB [HEX; 00-FF] with no prefix
+		Return SubStr(Format("{1:#x}", ARGBdec), 5)
+	Else Return ARGBdec
 }
 
 ;#####################################################################################
@@ -9779,15 +9779,4 @@ Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight,
     , "int",hStride, "int",nStride, "int",sx1, "int",sy1, "int",sx2, "int",sy2, "int",Variation
     , "int",sd, "cdecl int")
     Return ( E == "" ? -3007 : E )
-}
-
-SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
-{
-	Gui 9: New, -DPIscale
-	Gui 9: Font, %fontOptions%, %fontName%
-	Gui 9: Add, Text, R1, %newText%
-	GuiControlGet T, 9: Pos, Static1
-	Gui 9: Destroy
-	GuiControl,, %controlHwnd%, %newText%
-	GuiControl, Move, %controlHwnd%, % "h" TH " w" TW
 }
