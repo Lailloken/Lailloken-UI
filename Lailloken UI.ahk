@@ -882,6 +882,7 @@ imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
 Loop 20
 	hwnd_itemchecker_panel%A_Index% := ""
+hwnd_itemchecker_panel_cluster := ""
 Return
 
 #Include modules\item-checker.ahk
