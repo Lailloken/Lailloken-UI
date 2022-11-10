@@ -248,7 +248,7 @@ Return
 
 +RButton::LLK_ItemCheckVendor()
 
-#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0)
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0) && (hwnd_win_hover != hwnd_itemchecker)
 	
 ~+RButton::
 Clipboard := ""
@@ -259,10 +259,7 @@ If InStr(Clipboard, "scroll of wisdom")
 KeyWait, Shift
 shift_down := ""
 If WinExist("ahk_id " hwnd_itemchecker)
-{
-	Gui, itemchecker: Destroy
-	hwnd_itemchecker := ""
-}
+	LLK_ItemCheckClose()
 Return
 
 ~+LButton::
@@ -431,8 +428,7 @@ If (update_available = 1)
 }
 If WinExist("ahk_id " hwnd_itemchecker)
 {
-	Gui, itemchecker: Destroy
-	hwnd_itemchecker := ""
+	LLK_ItemCheckClose()
 	Return
 }
 If WinExist("ahk_id " hwnd_itemchecker_vendor1)
@@ -860,6 +856,8 @@ Return
 Init_variables:
 click := 1
 trans := 220
+hwnd_win_hover := 0
+hwnd_control_hover := 0
 blocked_hotkeys := "!,^,+"
 pixelchecks_enabled := "gamescreen,"
 gamescreen := 0
@@ -882,6 +880,8 @@ imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
+Loop 20
+	hwnd_itemchecker_panel%A_Index% := ""
 Return
 
 #Include modules\item-checker.ahk
@@ -1150,8 +1150,17 @@ If !WinActive("ahk_group poe_ahk_window")
 		LLK_Overlay("hide")
 	}
 }
+If WinActive("ahk_id " hwnd_itemchecker)
+	WinActivate, ahk_group poe_window
 If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 {
+	If (last_hover <= A_TickCount - 100) && (last_hover != 0) && (mousemove = 0)
+	{
+		MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
+		last_hover := 0
+		hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
+		hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
+	}
 	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
 		Gui, bestiary_menu: Destroy
 	If (inactive_counter != 0)
@@ -1487,10 +1496,13 @@ LLK_ItemInfoCheck()
 LLK_MouseMove()
 {
 	global
-	If (A_TickCount < last_hover + 25) && (last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
+	mousemove := 1
+	If (A_TickCount < last_hover + 25) (&& last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
 		Return
 	last_hover := A_TickCount
 	MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
+	hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
+	hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
 	If (hwnd_win_hover = hwnd_legion_help)
 		Gui, legion_help: Destroy
 	
@@ -1508,6 +1520,7 @@ LLK_MouseMove()
 		If (hwnd_win_hover = hwnd_legion_window || hwnd_win_hover = hwnd_legion_list)
 			GoSub, Legion_seeds_hover
 	}
+	mousemove := 0
 }
 
 LLK_Overlay(gui, toggleshowhide:="toggle", NA:=1)
