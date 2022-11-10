@@ -119,14 +119,14 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	}
 	Else itemchecker_clipboard := Clipboard
 	
-	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Normal", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") ;certain exclusion criteria
+	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || (InStr(Clipboard, "`nRarity: Normal", 1) && !InStr(Clipboard, "cluster jewel")) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") || InStr(Clipboard, "timeless jewel") ;certain exclusion criteria
 	{
 		If (shift_down != "wisdom")
 			LLK_ToolTip("item-info: item not supported")
 		Return
 	}
 	
-	If !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") ;could not copy advanced item-info
+	If (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) && !(InStr(Clipboard, "`nRarity: Normal", 1) && InStr(Clipboard, "cluster jewel")) ;could not copy advanced item-info
 	{
 		If (shift_down != "wisdom")
 			LLK_ToolTip("item-info: omni-key setup required (?)", 2)
@@ -402,7 +402,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		}
 	}
 	
-	If (loop = 0)
+	If (loop = 0) && (cluster_type = "")
 	{
 		LLK_ToolTip("item is not scalable")
 		Return
@@ -453,7 +453,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		If (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";")) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
 			color := "White"
 		Else color := (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";")) = 1) ? "Aqua" : "Red" ;determine which is the case
-		Gui, itemchecker: Add, Text, % "xs Border Center BackgroundTrans vitemchecker_panel_cluster gItemchecker wp c"color, % cluster_enchant ;add actual text label
+		Gui, itemchecker: Add, Text, % "xs Border Center BackgroundTrans vitemchecker_panel_cluster HWNDhwnd_itemchecker_panel_cluster gItemchecker wp c"color, % cluster_enchant ;add actual text label
 	}
 	
 	Loop, % affixes.Count() ;n = number of parsed mod lines
@@ -506,8 +506,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		Else color := "White" ;uniques always have white text
 		
 		If !unique
-			Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% gItemchecker %style% Border BackgroundTrans xp yp, % StrReplace(mod, " (fractured)") ;non-unique items have clickable mod-texts for highlighting/blacklisting
+			Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% gItemchecker %style% Border HWNDhwnd_itemchecker_panel%A_Index% BackgroundTrans xp yp, % StrReplace(mod, " (fractured)") ;non-unique items have clickable mod-texts for highlighting/blacklisting
 		Else Gui, itemchecker: Add, Text, Center c%color% vitemchecker_panel%A_Index% %style% Border BackgroundTrans xp yp, % mod ;unique items don't need that
+		
 		
 		Switch StrReplace(tier, "h") ;set correct highlight color according to tier
 		{
@@ -547,6 +548,20 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	winYpos := (mouseypos - 15 - height < yScreenOffSet) ? yScreenOffSet : mouseYpos - height - 15
 	Gui, itemchecker: Show, % "NA x"winXpos " y"winYpos ;show GUI next to cursor
 	LLK_Overlay("itemchecker", "show") ;trigger GUI for auto-hiding when alt-tabbed
+}
+
+LLK_ItemCheckClose()
+{
+	global
+	Gui, itemchecker: Destroy
+	hwnd_itemchecker := ""
+	hwnd_itemchecker_panel_cluster := ""
+	Loop
+	{
+		If (hwnd_itemchecker_panel%A_Index% = "")
+			break
+		hwnd_itemchecker_panel%A_Index% := ""
+	}
 }
 
 LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blacklisted
@@ -621,7 +636,42 @@ LLK_ItemCheckHighlight(string, mode := 0) ;check if mod is highlighted or blackl
 LLK_ItemCheckVendor()
 {
 	global
-	MouseGetPos, itemchecker_vendor_mouseX, itemchecker_vendor_mouseY
+	MouseGetPos, itemchecker_vendor_mouseX, itemchecker_vendor_mouseY, itemchecker_win_hover, itemchecker_control_hover, 2
+	itemchecker_highlightable := 0
+	Loop
+	{
+		If (hwnd_itemchecker_panel%A_Index% = "")
+			break
+		If (itemchecker_control_hover = hwnd_itemchecker_panel%A_Index%) || (itemchecker_control_hover = hwnd_itemchecker_panel_cluster)
+		{
+			itemchecker_highlightable := 1
+			break
+		}
+	}
+	
+	If !itemchecker_highlightable
+	{
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	
+	If (itemchecker_win_hover = hwnd_itemchecker)
+	{
+		GuiControlGet, itemchecker_panel_text,, % itemchecker_control_hover
+		itemchecker_errorlvl := LLK_ItemCheckHighlight(itemchecker_panel_text, 2)
+		Switch itemchecker_errorlvl
+		{
+			Case -1:
+				Return
+			Case 0:
+				color := "White"
+			Case 1:
+				color := "Red"
+		}
+		GuiControl, +c%color%, %itemchecker_control_hover%
+		WinSet, Redraw,, ahk_id %hwnd_itemchecker%
+		Return
+	}
 	itemchecker_vendor_dimensions := poe_height*0.047*0.50
 	itemchecker_vendor_count += 1
 	;create GUI

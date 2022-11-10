@@ -533,7 +533,7 @@ If InStr(modtext, "+5 devotion")
 Return
 
 Legion_seeds_hover:
-MouseGetPos, mouseXpos, mouseYpos,
+MouseGetPos, mouseXpos, mouseYpos
 Gui, legion_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_legion_help
 Gui, legion_help: Color, Black
 Gui, legion_help: Margin, 0, 0
