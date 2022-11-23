@@ -227,8 +227,9 @@ Else If InStr(clipboard, "cluster jewel")
 	If InStr(clipboard, "small cluster")
 		cluster_type := "Small"
 	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
+	StringLower, cluster_type1, cluster_type
 	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: all
-	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type%
+	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type1%
 	Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
@@ -368,6 +369,12 @@ If InStr(A_GuiControl, "crafting_table")
 		wiki_term := "Convoking_Wand"
 	If InStr(clipboard, "silver flask")
 		wiki_term := "Silver_Flask"
+	If InStr(clipboard, "crimson jewel")
+		wiki_term := "Crimson_Jewel"
+	If InStr(clipboard, "viridian jewel")
+		wiki_term := "Viridian_Jewel"
+	If InStr(clipboard, "cobalt jewel")
+		wiki_term := "Cobalt_Jewel"
 	If InStr(wiki_term, "abyss_jewel")
 	{
 		wiki_index := InStr(clipboard, "rarity: normal") ? 3 : 4

@@ -102,6 +102,14 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png)  
 <br>
 
+# Acknowledgements
+- item-info uses a custom version of the datamined databases provided via [RePoE](https://github.com/brather1ng/RePoE)
+
+- leveling-tracker uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
+- seed-explorer uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
+- recombinator calculator is based on [The Complete Guide to Recombinators](https://www.reddit.com/r/pathofexile/comments/v0nm0c/the_complete_guide_to_recombinators/) and this [Recombinator Calculator GoogleDoc](https://docs.google.com/spreadsheets/d/1-LO-sgiyMGLE_E7AdaeG7OB-bOoJV6c4XO0kAX8OTG0/edit?usp=sharing)
+<br>
+
 # Philosophy & Motivation
 This script is my personal collection of UI and QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. It emphasizes easy and straight-forward setup, visual clarity, customizability, enabling/disabling individual features to prevent feature-bloat, and minimal hotkey requirements.
 

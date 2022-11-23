@@ -37,7 +37,7 @@ betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "imag
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
-itemchecker_style := InStr(A_GuiControl, "item-info") ? "cAqua" : "cWhite"
+itemchecker_style := InStr(A_GuiControl, "item-info") || InStr(A_GuiControl, "itemchecker") ? "cAqua" : "cWhite"
 lake_style := InStr(A_GuiControl, "overlayke") ? "cAqua" : "cWhite"
 leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
 map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") ? "cAqua" : "cWhite"
@@ -56,7 +56,7 @@ If (A_Gui = "settings_menu")
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu, Lailloken UI: settings
 Gui, settings_menu: Color, Black
 Gui, settings_menu: Margin, 12, 4
-WinSet, Transparent, %trans%
+WinSet, Transparent, % InStr(GuiControl_copy, "itemchecker") || InStr(GuiControl_copy, "item-info") ? 255 : trans
 Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 
 Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSettings_menu HWNDhwnd_settings_general", % "general"
@@ -189,7 +189,7 @@ Else If InStr(GuiControl_copy, "delve")
 	ysettings_menu := yScreenOffSet + poe_height/3
 	GoSub, Settings_menu_delve
 }
-Else If InStr(GuiControl_copy, "item-info")
+Else If InStr(GuiControl_copy, "item-info") || InStr(GuiControl_copy, "itemchecker")
 	GoSub, Settings_menu_itemchecker
 Else If InStr(GuiControl_copy, "overlayke")
 	GoSub, Settings_menu_lake_helper
@@ -474,6 +474,22 @@ If (A_GuiControl = "map_tracker_loot_help")
 text =
 (
 checking this option will also log items that are being ctrl-clicked from the inventory into the stash.
+
+note: 'stash' image-check has to be set up in the screen-checks settings
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "map_tracker_kill_help")
+{
+text =
+(
+checking this option will also log the number of kills in a map.
+
+note: the map-tracker panel will start flashing at the start of a map, and you have to click the timer once to set the starting point.
+
+whenever you leave the map device, the panel will turn green, indicating the kill-count has to be updated by clicking the timer again. this only needs to be done if the map is completed and you want to open a new one.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -610,7 +626,7 @@ If (A_GuiControl = "pixelcheck_help")
 text =
 (
 explanation
-left-click the button to test the pixel-check, right-click the button to calibrate.
+click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value.
 
 ui textures in PoE sometimes get updated in patches, which leads to screen-checks failing. this is where you recalibrate the checks in order to continue using the script.
 
@@ -653,9 +669,11 @@ If (A_GuiControl = "imagecheck_help")
 {
 text =
 (
-left-click the button to test the image-check, right-click the button to screen-cap.
+click 'test' to verify if the image-check is working, click 'calibrate' to screen-cap the required image.
 
 same concept as pixel-checks (see top of this section) but with images instead of pixels. image-checks are used when pixel-checks are unreliable due to movement on screen.
+
+individual checks can be disabled if you know you won't be using the connected feature, and want to hide the red highlighting.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -766,6 +784,32 @@ while holding shift, right-click items to place a red marker.
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+
+If (A_GuiControl = "itemchecker_ilvl_help")
+{
+text =
+(
+this option caters to advanced users because it adds an additional column with a mod's ilvl-requirements, which may be overwhelming or confusing.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_colors_help")
+{
+text =
+(
+left: colors for mod tiers
+right: colors for mod ilvl-requirements (if enabled)
+
+tier x = fractured mods
+tier 0 = mods w/o tiers (veiled, delve, incursion, etc.)
+these two colors override ilvl highlight colors
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 WinGetPos, winx, winy, width, height, ahk_id %hwnd_settings_menu_help%
 newxpos := (winx + width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - width : winx
 newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
@@ -784,6 +828,7 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_p
 
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, % "highlight colors (rgb hex-code): "
 Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_apply_color gItemchecker Border x+0", % " save "
+Gui, settings_menu: Add, Picture, % "ys x+"fSize0//2 " BackgroundTrans gSettings_menu_help vitemchecker_colors_help hp w-1", img\GUI\help.png
 
 Loop, 8
 {
@@ -801,12 +846,28 @@ Loop, 8
 	Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
 	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center BackgroundTrans", % (A_Index = 1) ? "x" : value
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_t" value "_reset gItemchecker Border", % " reset "
-	If (A_Index = 1 || A_Index = 2)
+	If (A_Index = 1 || A_Index = 2) && !enable_itemchecker_ilvl
 		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", % (A_Index = 1) ? "(fractured)" : "(veiled, delve, etc.)"
+	If enable_itemchecker_ilvl ;&& (A_Index > 2)
+	{
+		;value1 := A_Index - 2
+		value := A_Index
+		Gui, settings_menu: Font, % "s"fSize0 - 2
+		Gui, settings_menu: Add, Edit, % "ys Center hp BackgroundTrans vitemchecker_ilvl" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_ilvl%value%_color
+		Gui, settings_menu: Font, % "s"fSize0
+		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans Border Hidden", % "7777"
+		Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar_ilvl" value " c" itemchecker_ilvl%value%_color, 100
+		color := (itemchecker_ilvl%value%_color = "ffffff") && (A_Index = 1) ? "Red" : "Black"
+		Gui, settings_menu: Add, Text, % "xp yp wp hp c"color " vitemchecker_ilvl" value "_text Center BackgroundTrans", % itemchecker_default_ilvls[value]
+		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_ilvl" value "_reset gItemchecker Border", % " reset "
+	}
 }
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker y+"fSize0*1.2 " venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ilvl Checked"enable_itemchecker_ilvl, % "also display a mod's ilvl-requirements"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ilvl_help hp w-1", img\GUI\help.png
 Return
 
 Settings_menu_lake_helper:
@@ -1028,8 +1089,11 @@ If (enable_map_tracker = 1)
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker vmap_tracker_enable_side_areas Checked"map_tracker_enable_side_areas " y+"fSize0*1.2, track side-areas in maps
 	Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_side_area_help hp w-1 x+0", img\GUI\help.png
 	
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker venable_loottracker Checked"enable_loottracker " y+"fSize0*1.2, enable loot tracker
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker venable_loottracker Checked"enable_loottracker, enable loot tracker
 	Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_loot_help hp w-1 x+0", img\GUI\help.png
+	
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker venable_killtracker Checked"enable_killtracker, enable kill tracker
+	Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_kill_help hp w-1 x+0", img\GUI\help.png
 }
 Return
 
