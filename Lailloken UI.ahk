@@ -64,6 +64,15 @@ IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
 
 startup := A_TickCount
+
+FileRead, json_mods, data\item info\mods.json
+itemchecker_mod_data := Json.Load(json_mods)
+json_mods := ""
+
+FileRead, json_base_items, data\item info\base items.json
+itemchecker_base_item_data := Json.Load(json_base_items)
+json_base_items := ""
+
 While !WinExist("ahk_group poe_window")
 {
 	If (A_TickCount >= startup + kill_timeout*60000) && (kill_script = 1)
@@ -196,10 +205,15 @@ If (custom_resolution_setting = 1)
 	fSize1 := fSize_config1
 }
 
-If !FileExist("img\Recognition (" poe_height "p\GUI\")
+If !FileExist("img\Recognition (" poe_height "p)\GUI\")
 	FileCreateDir, img\Recognition (%poe_height%p)\GUI\
-If !FileExist("img\Recognition (" poe_height "p\Betrayal\")
+If !FileExist("img\Recognition (" poe_height "p)\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
+
+Sleep, 250
+
+If !FileExist("img\Recognition (" poe_height "p)\")
+	FileCopyDir, img\_Fallback, img\Recognition (%poe_height%p)
 
 GoSub, Init_variables
 GoSub, Init_screenchecks
@@ -429,6 +443,12 @@ If (update_available = 1)
 If WinExist("ahk_id " hwnd_itemchecker)
 {
 	LLK_ItemCheckClose()
+	Return
+}
+If WinExist("ahk_id " hwnd_stash_search_context_menu)
+{
+	Gui, stash_search_context_menu: Destroy
+	hwnd_stash_search_context_menu := ""
 	Return
 }
 If WinExist("ahk_id " hwnd_itemchecker_vendor1)
@@ -881,7 +901,10 @@ imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
 Loop 20
+{
 	hwnd_itemchecker_panel%A_Index% := ""
+	hwnd_itemchecker_corruption_implicit%A_Index% := ""
+}
 hwnd_itemchecker_panel_cluster := ""
 Return
 
@@ -904,11 +927,31 @@ If !WinActive("ahk_group poe_ahk_window") || (poe_log_file = 0)
 }
 If !map_tracker_paused && (map_tracker_map != "")
 {
+	If (map_tracker_refresh_kills = 1)
+	{
+		map_tracker_panel_color := (map_tracker_panel_color = "green") ? "black" : "green"
+		Gui, map_tracker: Color, % map_tracker_panel_color
+		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+	}
+	Else If (map_tracker_refresh_kills = 2)
+	{
+		Gui, map_tracker: Color, Green
+		map_tracker_panel_color := "Green"
+		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+		map_tracker_refresh_kills := 3
+	}
+	
 	If InStr(map_tracker_map, current_location) || ((map_tracker_enable_side_areas = 1) && (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea"))) ;advance map-timer only while in specific map (or side area within it)
 		map_tracker_ticks := A_TickCount - map_entered
 
 	If (InStr(map_tracker_map, current_location) || ((map_tracker_enable_side_areas = 1) && (InStr(current_location, "abyssleague") || InStr(current_location, "labyrinth_trials") || InStr(current_location, "mapsidearea")))) && WinExist("ahk_id " hwnd_map_tracker) ;update timer UI
 	{
+		If (map_tracker_refresh_kills = 3)
+		{
+			Gui, map_tracker: Color, Black
+			WinSet, Redraw,, ahk_group poe_window
+			map_tracker_refresh_kills := 0
+		}
 		map_tracker_time := Format("{:0.0f}", map_tracker_ticks//1000)
 		map_tracker_time := (Mod(map_tracker_time, 60) >= 10) ? map_tracker_time//60 ":" Mod(map_tracker_time, 60) : map_tracker_time//60 ":0" Mod(map_tracker_time, 60)
 		map_tracker_time := (StrLen(map_tracker_time) < 5) ? 0 map_tracker_time : map_tracker_time
@@ -946,10 +989,18 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 				map_tracker_verbose_side_area := 0
 			}
 			
+			If enable_killtracker && (map_tracker_map != "") && InStr(A_LoopField, """Hideout")
+				map_tracker_refresh_kills := 2
+			
 			If LLK_MapTrackInstance(A_LoopField)
 			{
 				If (map_tracker_map = "") || (map_tracker_map != current_location "|" current_area_tier "|" current_seed) ;current area is the first since launch, or current area is different from previous one
 				{
+					If enable_killtracker
+					{
+						map_tracker_refresh_kills := 1
+						map_tracker_kills_start := 0
+					}
 					map_tracker_map := (map_tracker_map = "") ? current_location "|" current_area_tier "|" current_seed : map_tracker_map
 					If (map_tracker_map != current_location "|" current_area_tier "|" current_seed) ;current area is different from previous -> reset tracker, and save log for previous map
 					{
@@ -970,6 +1021,21 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 	}
 	If !map_tracker_paused && enable_map_tracker
 	{
+		If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start = 0)
+		{
+			map_tracker_kills_start := SubStr(A_LoopField, InStr(A_LoopField, "you have killed ") + 16)
+			map_tracker_kills_start := StrReplace(map_tracker_kills_start, " monsters.")
+			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ".")
+			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ",")
+		}
+		Else If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start > 0)
+		{
+			map_tracker_kills_end := SubStr(A_LoopField, InStr(A_LoopField, "you have killed ") + 16)
+			map_tracker_kills_end := StrReplace(map_tracker_kills_end, " monsters.")
+			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ".")
+			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ",")
+			map_tracker_kills := map_tracker_kills_end - map_tracker_kills_start
+		}
 		If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused ;count deaths
 			map_tracker_deaths += 1
 		If InStr(A_LoopField, "you have entered ") && (map_tracker_verbose_side_area = 0)
@@ -990,6 +1056,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			current_location_verbose := InStr(map_tracker_map, "heist") ? "heist: " current_location_verbose : current_location_verbose
 			current_location_verbose := InStr(map_tracker_map, "expedition") ? "logbook: " current_location_verbose : current_location_verbose
 			current_map_tier := current_area_tier
+			map_tracker_panel_color := (enable_killtracker = 1) ? "Green" : "Black"
 			LLK_MapTrack()
 		}
 	}
@@ -1486,7 +1553,7 @@ LLK_InStrCount(string, character, delimiter := "")
 
 LLK_ItemInfoCheck()
 {
-	If !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") && !InStr(Clipboard, "unique modifier")
+	If !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") && !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "`nRarity: Normal", 1)
 	{
 		LLK_ToolTip("failed to copy advanced item-info.`nconfigure the omni-key in the settings menu.", 3)
 		Return 0
