@@ -1,5 +1,6 @@
 ﻿Init_map_tracker:
 IniRead, enable_loottracker, ini\map tracker.ini, Settings, enable loot tracker, 0
+IniRead, enable_killtracker, ini\map tracker.ini, Settings, enable kill tracker, 0
 IniRead, xpos_offset_map_tracker, ini\map tracker.ini, UI, map tracker x-offset, 0
 IniRead, ypos_offset_map_tracker, ini\map tracker.ini, UI, map tracker y-offset, 0
 IniRead, fSize_offset_map_tracker, ini\map tracker.ini, Settings, font-offset, 0
@@ -147,6 +148,13 @@ If (A_GuiControl = "enable_loottracker") ;toggling loot tracker feature on/off
 	Return
 }
 
+If (A_GuiControl = "enable_killtracker") ;toggling kill tracker feature on/off
+{
+	Gui, settings_menu: Submit, NoHide
+	IniWrite, %enable_killtracker%, ini\map tracker.ini, Settings, enable kill tracker
+	Return
+}
+
 If (A_GuiControl = "map_tracker_enable_side_areas") ;toggling side-area tracking on/off
 {
 	Gui, settings_menu: Submit, NoHide
@@ -169,6 +177,27 @@ If (A_GuiControl = "map_tracker_button_complete") ;manually marking the current 
 		sleep, 50
 		LLK_ToolTip("map logged")
 	}
+	Return
+}
+
+If (A_GuiControl = "map_tracker_label_time") ;clicking the timer to update the kill-count
+{
+	If (map_tracker_map = "")
+	{
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	Clipboard := "/kills"
+	KeyWait, LButton
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
+	SendInput, {Enter}^{a}^{v}{Enter}
+	LLK_ToolTip((map_tracker_refresh_kills = 1) ? "kill-tracker activated" : "kill-count refreshed")
+	map_tracker_refresh_kills := 0
+	map_tracker_panel_color := "Black"
+	Gui, map_tracker: Color, Black
+	WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+	WinActivate, ahk_group poe_window
 	Return
 }
 
@@ -258,13 +287,15 @@ LLK_MapTrack(mode := "")
 	
 	Gui, map_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_tracker
 	Gui, map_tracker: Margin, % fSize0//2, 0
-	Gui, map_tracker: Color, Black
+	Gui, map_tracker: Color, % (map_tracker_panel_color = "") ? "Black" : map_tracker_panel_color
 	WinSet, Trans, %trans%
 	Gui, map_tracker: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
 	
 	Gui, map_tracker: Add, Text, % "xs Section BackgroundTrans vmap_tracker_button_complete gMap_tracker", % (current_location_verbose = "") ? "not tracking" : current_location_verbose " (" current_map_tier ")"
 	Gui, map_tracker: Add, Progress, % "xs Disabled BackgroundTrans cGreen wp range0-700 vmap_tracker_button_complete_bar h"fSize0//2, 0
-	Gui, map_tracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
+	If !enable_killtracker
+		Gui, map_tracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
+	Else Gui, map_tracker: Add, Text, % "ys BackgroundTrans gMap_tracker vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
 	
 	If (mode = "add" || mode = "refresh")
 	{
@@ -289,7 +320,7 @@ LLK_MapTrackExport(date := "")
 	Loop, Parse, ini_read, `n
 	{
 		If (A_Index = 1)
-			FileAppend, % "date,map,tier,time,portals,deaths,loot,content`n" , % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+			FileAppend, % "date,map,tier,time,portals,deaths,loot,content,kills`n" , % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
 		If (date != "") && !InStr(A_LoopField, date)
 			continue
 		IniRead, ini_read_map, ini\map tracker log.ini, % A_LoopField, map, unknown map
@@ -306,7 +337,9 @@ LLK_MapTrackExport(date := "")
 		ini_read_deaths := (ini_read_deaths = "") ? 0 : ini_read_deaths
 		IniRead, ini_read_content, ini\map tracker log.ini, % A_LoopField, content, % A_Space
 		ini_read_content := StrReplace(ini_read_content, ", ", "`n")
-		FileAppend, % A_LoopField "," ini_read_map "," ini_read_tier "," ini_read_time "," ini_read_portals "," ini_read_deaths ",""" ini_read_loot """,""" ini_read_content """`n", % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+		IniRead, ini_read_kills, ini\map tracker log.ini, % A_LoopField, kills, 0
+		ini_read_kills := (ini_read_kills = "") ? 0 : ini_read_kills
+		FileAppend, % A_LoopField "," ini_read_map "," ini_read_tier "," ini_read_time "," ini_read_portals "," ini_read_deaths ",""" ini_read_loot """,""" ini_read_content """," ini_read_kills "`n", % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
 	}
 	If (date = "")
 		LLK_ToolTip("all logs exported")
@@ -391,7 +424,9 @@ LLK_MapTrackGUI(mode := "")
 			IniRead, map_tracker_log_content%map_tracker_log_entries%, ini\map tracker log.ini, % A_LoopField, content, % A_Space
 			map_tracker_log_content%map_tracker_log_entries% := (map_tracker_log_content%map_tracker_log_entries% != "") ? StrReplace(map_tracker_log_content%map_tracker_log_entries%, ", ", "`n") : "none"
 			map_tracker_log_content_count := (map_tracker_log_content%map_tracker_log_entries% = "none") ? 0 : LLK_InStrCount(map_tracker_log_content%map_tracker_log_entries%, "`n") + 1
-			color := (map_tracker_log_content_count + map_tracker_log_loot_binary = 0) ? "White" : "Aqua"
+			IniRead, map_tracker_kills%map_tracker_log_entries%, ini\map tracker log.ini, % A_LoopField, kills, 0
+			
+			color := (map_tracker_log_content_count + map_tracker_log_loot_binary + map_tracker_kills%map_tracker_log_entries% = 0) ? "White" : "Aqua"
 			
 			map_tracker_log_text := " " map_tracker_log_datetime " t" map_tracker_log_tier " " map_tracker_log_time " " map_tracker_log_portals "p " map_tracker_log_deaths "d " map_tracker_log_map " " 
 			If (map_tracker_log_entries = 1)
@@ -429,11 +464,14 @@ LLK_MapTrackLoot(entry)
 	Gui, map_tracker_loot: Color, Black
 	Gui, map_tracker_loot: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
 	
-	map_tracker_loot_style := (map_tracker_log_loot%entry% != "none") ? "ys x+" fSize0*3 : ""
+	map_tracker_loot_style := (map_tracker_log_loot%entry% != "none") ? "ys x+" fSize0*2 : ""
 	If (map_tracker_log_loot%entry% != "none")
 		Gui, map_tracker_loot: Add, Text, % "Section BackgroundTrans", % "loot:`n" map_tracker_log_loot%entry%
 	If (map_tracker_log_content%entry% != "none")
-		Gui, map_tracker_loot: Add, Text, % map_tracker_loot_style " BackgroundTrans", % "content:`n" map_tracker_log_content%entry%
+		Gui, map_tracker_loot: Add, Text, % map_tracker_loot_style " Section BackgroundTrans", % "content:`n" map_tracker_log_content%entry%
+	map_tracker_loot_style := (map_tracker_log_loot%entry% = "none") && (map_tracker_log_content%entry% = "none") ? "" : "ys x+" fSize0*2
+	If (map_tracker_kills%entry% != 0)
+		Gui, map_tracker_loot: Add, Text, % map_tracker_loot_style "BackgroundTrans", % "kills:`n" map_tracker_kills%entry%
 	Gui, map_tracker_loot: Show, NA x10000 y10000
 	WinGetPos, map_tracker_loot_xpos, map_tracker_loot_ypos, map_tracker_loot_width, map_tracker_loot_height, ahk_id %hwnd_map_tracker_loot%
 	map_tracker_loot_mouseX := (map_tracker_loot_mouseX + map_tracker_loot_width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - map_tracker_loot_width : map_tracker_loot_mouseX
@@ -445,7 +483,7 @@ LLK_MapTrackLoot(entry)
 
 LLK_MapTrackSave()
 {
-	global loottracker_loot, map_tracker_deaths, map_tracker_time, current_location_verbose, map_tracker_map, portals, date_time, hwnd_loottracker, map_tracker_content, map_tracker_side_area
+	global loottracker_loot, map_tracker_deaths, map_tracker_time, current_location_verbose, map_tracker_map, portals, date_time, hwnd_loottracker, map_tracker_content, map_tracker_side_area, map_tracker_kills, map_tracker_panel_color
 	parsed_loot := []
 	Sort, loottracker_loot, D`,
 	Loop, Parse, loottracker_loot, `,, %A_Space%
@@ -476,12 +514,15 @@ LLK_MapTrackSave()
 			continue
 		map_tracker_content .= (map_tracker_content = "") ? A_LoopField : ", " A_LoopField
 	}
-	IniWrite, % "map=" current_location_verbose "`ntier=" SubStr(map_tracker_map, InStr(map_tracker_map, "|",,, 1) + 1, InStr(map_tracker_map, "|",,, 2) - InStr(map_tracker_map, "|",,, 1) - 1) "`ntime=" map_tracker_time "`nportals=" portals "`ndeaths=" map_tracker_deaths "`nloot=" loottracker_loot "`ncontent=" map_tracker_content, ini\map tracker log.ini, % date_time
+	map_tracker_kills := (map_tracker_kills = "") ? 0 : map_tracker_kills
+	IniWrite, % "map=" current_location_verbose "`ntier=" SubStr(map_tracker_map, InStr(map_tracker_map, "|",,, 1) + 1, InStr(map_tracker_map, "|",,, 2) - InStr(map_tracker_map, "|",,, 1) - 1) "`ntime=" map_tracker_time "`nportals=" portals "`ndeaths=" map_tracker_deaths "`nloot=" loottracker_loot "`nkills=" map_tracker_kills "`ncontent=" map_tracker_content, ini\map tracker log.ini, % date_time
 	loottracker_loot := ""
 	map_tracker_map := ""
 	current_location_verbose := ""
+	map_tracker_panel_color := "Black"
 	map_tracker_time := ""
 	map_tracker_deaths := 0
+	map_tracker_kills := 0
 	map_tracker_content := "|"
 	map_tracker_side_area := ""
 	LLK_MapTrack()
