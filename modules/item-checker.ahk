@@ -108,7 +108,7 @@ If (A_GuiControl = "itemchecker_apply_color") ;save-button was clicked
 		IniWrite, % itemchecker_t%value%_color, ini\item-checker.ini, UI, % (A_Index = 8) ? "fractured" : "tier " value
 		If enable_itemchecker_ilvl && (A_Index > 2)
 		{
-			value := A_Index - 2
+			value := A_Index
 			StringLower, itemchecker_ilvl%value%_color, itemchecker_ilvl%value%_color
 			IniWrite, % itemchecker_ilvl%value%_color, ini\item-checker.ini, UI, % "ilvl tier " value
 		}
