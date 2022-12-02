@@ -1834,19 +1834,6 @@ LLK_WinExist(hwnd)
 	Return 0
 }
 
-LLK_test()
-{
-	global
-	ToolTip, % global_test
-	global_test := 1
-}
-LLK_test1()
-{
-	global
-	ToolTip, % global_test
-	global_test := 2
-}
-
 SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
 {
 	Gui 9: New, -DPIscale
