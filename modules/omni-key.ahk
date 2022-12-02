@@ -16,7 +16,7 @@ If (clipboard != "")
 	}
 	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon")
 	{
-		If (A_TickCount >= start + 300)
+		If (A_TickCount >= start + 200)
 		{
 			LLK_ItemCheck()
 			KeyWait, % ThisHotkey_copy

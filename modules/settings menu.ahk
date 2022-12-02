@@ -44,7 +44,7 @@ map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker"
 map_mods_style := InStr(A_GuiControl, "map-info") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
-pixelcheck_style := (InStr(A_GuiControl, "check") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
+pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
 stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") ||(new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
@@ -785,6 +785,22 @@ while holding shift, right-click items to place a red marker.
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "itemchecker_bases_help")
+{
+text =
+(
+shows an additional row with information on base-stats and ilvl at the top of the tooltip.
+
+this information comes in form of percentages and represents how close a given item is to the best-in-class item of that stat.
+
+these stats are visualized by a bar in the background that turns green if a given item is the best-in-class item of that stat.
+
+the ilvl maxes out dynamically depending on the item-base and is highlighted green if that value is reached.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "itemchecker_ilvl_help")
 {
 text =
@@ -799,12 +815,59 @@ If (A_GuiControl = "itemchecker_colors_help")
 {
 text =
 (
-left: colors for mod tiers
-right: colors for mod ilvl-requirements (if enabled)
-
 tier x = fractured mods
-tier 0 = mods w/o tiers (veiled, delve, incursion, etc.)
-these two colors override ilvl highlight colors
+tier 0 = un-tiered mods (veiled, delve, incursion, etc.)
+
+tier 1 is also the color that marks desired mods, tier 6 that marks undesired ones.
+
+tier x always overrides ilvl colors, tier 0 whenever ilvl is not a differentiating factor.
+
+click a field to apply an rgb-code from the clipboard, right-click a field to reset it to the default color.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_override_help")
+{
+text =
+(
+if enabled, undesired mods will always have their tier && ilvl highlighted in the t6 color, regardless of the actual tier and ilvl.
+
+hybrid mods will only be overridden if every aspect of the mod is undesired, and fractured mods will never be overridden.
+
+note: when enabled, marking as undesired should be used carefully and only for mods that are inherently bad. you may otherwise dismiss an item as bad solely based on your own preferences.
+
+overrides will be applied/reset the next time the tooltip is refreshed, not immediately after right-clicking.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_rules_help")
+{
+text =
+(
+only affects explicit item-mods, not implicits or cluster-enchants.
+
+the name indicates which stat(s) the rule affects, the color indicates what happens with the stat.
+
+green: stat will be marked as desired
+red: stat will be marked as undesired
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_dps_help")
+{
+text =
+(
+shows an additional row at the top of the tooltip with dps information.
+
+unchecked: dps will always be shown for weapons (league-start or leveling)
+
+checked: dps will be shown on every unique weapon, and rare weapons with at least 3 damage mods (work in progress, will refine it at a later date)
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -820,54 +883,89 @@ Return
 
 Settings_menu_itemchecker:
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
-Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2.5, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb color picker</a>
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
+
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", tooltip size:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_minus gItemchecker Border", % " – "
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_reset gItemchecker Border x+2 wp", % "0"
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_plus gItemchecker Border x+2 wp", % "+"
 
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, % "highlight colors (rgb hex-code): "
-Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_apply_color gItemchecker Border x+0", % " save "
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_bases Checked"enable_itemchecker_bases, % "show information on base-stats"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_bases_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_dps Checked"enable_itemchecker_dps, % "only show dps on rares with meaningful mods"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_dps_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ilvl Checked"enable_itemchecker_ilvl, % "also display a mod's ilvl-requirements"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ilvl_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "highlight options:"
+Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Picture, % "ys x+"fSize0//2 " BackgroundTrans gSettings_menu_help vitemchecker_colors_help hp w-1", img\GUI\help.png
 
 Loop, 8
 {
 	value := (A_Index = 1) ? 7 : A_Index - 2
-	Gui, settings_menu: Font, % "s"fSize0 - 2
+	
 	If (A_Index = 1)
 	{
-		Gui, settings_menu: Add, Edit, % "xs Center hp BackgroundTrans Hidden cBlack Limit6 HWNDmain_text", DDDDDD
-		ControlGetPos,,, width,,, ahk_id %main_text%
-		Gui, settings_menu: Add, Edit, % "xp yp Center Section hp BackgroundTrans vitemchecker_t" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_t%value%_color
+		Gui, settings_menu: Add, Text, % "xs Section Center hp BackgroundTrans HWNDmain_text", % "tier"
+		GuiControlGet, text_, Pos, % main_text
 	}
-	Else Gui, settings_menu: Add, Edit, % "xs Center Section hp BackgroundTrans vitemchecker_t" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_t%value%_color
-	Gui, settings_menu: Font, % "s"fSize0
-	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans Border Hidden", % "777"
-	Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
-	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center BackgroundTrans", % (A_Index = 1) ? "x" : value
-	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_t" value "_reset gItemchecker Border", % " reset "
-	If (A_Index = 1 || A_Index = 2) && !enable_itemchecker_ilvl
-		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", % (A_Index = 1) ? "(fractured)" : "(veiled, delve, etc.)"
-	If enable_itemchecker_ilvl ;&& (A_Index > 2)
+	Gui, settings_menu: Add, Progress, % "ys hp wp BackgroundBlack Disabled Border vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
+	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center gItemchecker vitemchecker_t" value "_color BackgroundTrans", % (A_Index = 1) ? "x" : value
+}
+
+Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans hp vitemchecker_apply_color gItemchecker Border", % " apply "
+
+If enable_itemchecker_ilvl
+{
+	Loop, 8
 	{
-		;value1 := A_Index - 2
-		value := A_Index
-		Gui, settings_menu: Font, % "s"fSize0 - 2
-		Gui, settings_menu: Add, Edit, % "ys Center hp BackgroundTrans vitemchecker_ilvl" value "_color gItemchecker cBlack Limit6 w"width, % itemchecker_ilvl%value%_color
-		Gui, settings_menu: Font, % "s"fSize0
-		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans Border Hidden", % "7777"
-		Gui, settings_menu: Add, Progress, % "xp yp hp wp BackgroundBlack vitemchecker_bar_ilvl" value " c" itemchecker_ilvl%value%_color, 100
-		color := (itemchecker_ilvl%value%_color = "ffffff") && (A_Index = 1) ? "Red" : "Black"
-		Gui, settings_menu: Add, Text, % "xp yp wp hp c"color " vitemchecker_ilvl" value "_text Center BackgroundTrans", % itemchecker_default_ilvls[value]
-		Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vitemchecker_ilvl" value "_reset gItemchecker Border", % " reset "
+		If (A_Index = 1)
+			Gui, settings_menu: Add, Text, % "xs Section w"text_w " Center BackgroundTrans", % "ilvl "
+		Gui, settings_menu: Add, Progress, % "ys hp wp BackgroundBlack Disabled Border vitemchecker_bar_ilvl" A_Index " c" itemchecker_ilvl%A_Index%_color, 100
+		color := (itemchecker_ilvl%A_Index%_color = "ffffff") && (A_Index = 1) ? "Red" : "Black"
+		Gui, settings_menu: Add, Text, % "xp yp wp hp c"color " gItemchecker vitemchecker_ilvl" A_Index "_color Center BackgroundTrans", % itemchecker_default_ilvls[A_Index]
 	}
 }
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker y+"fSize0*1.2 " venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Add, Checkbox, % "xs Section hp BackgroundTrans gItemchecker venable_itemchecker_override Checked"enable_itemchecker_override, % "blacklisting overrides tier && ilvl color"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_override_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ilvl Checked"enable_itemchecker_ilvl, % "also display a mod's ilvl-requirements"
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ilvl_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset all: desired "
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_highlight_bar cRed",
+Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset all: undesired "
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
+
+
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "global rules/overrides:"
+Gui, settings_menu: Add, Picture, % "ys x+"font_width " BackgroundTrans gSettings_menu_help vitemchecker_rules_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_rule_weapon_res HWNDmain_text cRed Checked"enable_itemchecker_rule_weapon_res, % "res on weapons"
+GuiControlGet, text_, Pos, % main_text
+checkbox_spacing := text_w + font_width
+
+;Gui, settings_menu: Add, Checkbox, % "ys xp+"checkbox_spacing " BackgroundTrans gItemchecker venable_itemchecker_rule_suppression HWNDmain_text c"itemchecker_t1_color " Checked"enable_itemchecker_rule_suppression, % "suppression"
+Gui, settings_menu: Add, Checkbox, % "ys xp+"checkbox_spacing " BackgroundTrans gItemchecker venable_itemchecker_rule_attacks HWNDmain_text cRed Checked"enable_itemchecker_rule_attacks, % "attack dmg"
+GuiControlGet, text_, Pos, % main_text
+checkbox_spacing1 := text_w + font_width
+
+Gui, settings_menu: Add, Checkbox, % "ys xp+"checkbox_spacing1 "BackgroundTrans gItemchecker venable_itemchecker_rule_spells HWNDmain_text cRed Checked"enable_itemchecker_rule_spells, % "spell dmg"
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_rule_res HWNDmain_text cGreen Checked"enable_itemchecker_rule_res, % "resistances"
+
+Gui, settings_menu: Add, Checkbox, % "ys xp+"checkbox_spacing " BackgroundTrans gItemchecker venable_itemchecker_rule_lifemana_gain HWNDmain_text cRed" " Checked"enable_itemchecker_rule_lifemana_gain, % "life && mana gain on hit/kill"
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_rule_crit HWNDmain_text cRed Checked"enable_itemchecker_rule_crit, % "crit"
 Return
 
 Settings_menu_lake_helper:
