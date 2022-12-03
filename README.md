@@ -23,7 +23,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
-![image](https://user-images.githubusercontent.com/61888437/203995634-02678e2f-fcb9-4f57-bca2-82ba6028a190.png)  
+![image](https://user-images.githubusercontent.com/61888437/205450947-632d6950-1af0-4918-ba2c-3a331e36c5dc.png)  
 <br>
 
 ## [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator): in-client calculator for recombinators  
