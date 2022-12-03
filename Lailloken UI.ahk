@@ -98,23 +98,33 @@ If !WinExist("ahk_exe GeForceNOW.exe")
 			Reload
 			ExitApp
 		}
-		IniRead, check_ini, % poe_config_file
-		If !InStr(check_ini, "Display")
+		FileRead, poe_config_check, % poe_config_file
+		If !InStr(poe_config_check, "[Display]")
 		{
 			Reload
 			ExitApp
 		}
 		IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 	}
-
-	IniRead, exclusive_fullscreen, % poe_config_file, DISPLAY, fullscreen
-	If (exclusive_fullscreen = "ERROR" || exclusive_fullscreen = "")
-		LLK_Error("Cannot read the PoE config-file")
+	
+	FileRead, poe_config_content, % poe_config_file
+	If (poe_config_content = "")
+		LLK_Error("Cannot read the PoE config-file. Please restart the game-client and then the script. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): PoE-config returns empty")
+	exclusive_fullscreen := InStr(poe_config_content, "`nfullscreen=true") ? "true" : InStr(poe_config_content, "fullscreen=false") ? "false" : ""
+	If (exclusive_fullscreen = "")
+	{
+		IniDelete, ini\config.ini, Settings, PoE config-file
+		LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of exclusive fullscreen", 1)
+	}
 	Else If (exclusive_fullscreen = "true")
 		LLK_Error("The game-client is set to exclusive fullscreen.`nPlease set it to windowed fullscreen.")
-	IniRead, fullscreen, % poe_config_file, DISPLAY, borderless_windowed_fullscreen,
-	If (fullscreen = "ERROR" || fullscreen = "")
-		LLK_Error("Cannot read the PoE config-file")
+	
+	fullscreen := InStr(poe_config_content, "borderless_windowed_fullscreen=true") ? "true" : InStr(poe_config_content, "borderless_windowed_fullscreen=false") ? "false" : ""
+	If (fullscreen = "")
+	{
+		IniDelete, ini\config.ini, Settings, PoE config-file
+		LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of borderless fullscreen", 1)
+	}
 	IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
 	If (fullscreen_last != fullscreen)
 	{
@@ -719,6 +729,17 @@ If (A_GuiControl = "interface_size_reset")
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
 
+Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
+Gui, font_size: Margin, 0, 0
+Gui, font_size: Color, Black
+Gui, font_size: Font, % "cWhite s"fSize0, Fontin SmallCaps
+Gui, font_size: Add, Text, % "Border HWNDmain_text", % "7"
+GuiControlGet, font_check_, Pos, % main_text
+font_height := font_check_h
+font_width := font_check_w
+Gui, font_size: Destroy
+font_size := ""
+
 If (A_GuiControl = "kill_script")
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
 If (A_GuiControl = "kill_timeout")
@@ -821,7 +842,81 @@ If (ini_version < 12808)
 	IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
 	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
 }
-IniWrite, 12808, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+If (ini_version < 12900) ;clean up item-info: highlight- and blacklist, default colors
+{
+	itemchecker_highlight := StrReplace(itemchecker_highlight, ".")
+	While InStr(itemchecker_highlight, "  ")
+		itemchecker_highlight := StrReplace(itemchecker_highlight, "  ", " ")
+	
+	Loop, parse, itemchecker_highlight, |
+	{
+		If (A_Index = 1)
+			itemchecker_highlight := ""
+		If (A_LoopField = "")
+			continue
+		parse := A_LoopField
+		While (SubStr(parse, 1, 1) = " ")
+			parse := SubStr(parse, 2)
+		While (SubStr(parse, 0) = " ")
+			parse := SubStr(parse, 1, -1)
+		itemchecker_highlight .= InStr(itemchecker_highlight, "|" parse "|") ? "" : "|" parse "|"
+	}
+	
+	itemchecker_blacklist := StrReplace(itemchecker_blacklist, ".")
+	While InStr(itemchecker_blacklist, "  ")
+		itemchecker_blacklist := StrReplace(itemchecker_blacklist, "  ", " ")
+	
+	Loop, parse, itemchecker_blacklist, |
+	{
+		If (A_Index = 1)
+			itemchecker_blacklist := ""
+		If (A_LoopField = "")
+			continue
+		parse := A_LoopField
+		While (SubStr(parse, 1, 1) = " ")
+			parse := SubStr(parse, 2)
+		While (SubStr(parse, 0) = " ")
+			parse := SubStr(parse, 1, -1)
+		itemchecker_blacklist .= InStr(itemchecker_blacklist, "|" parse "|") || InStr(itemchecker_highlight, "|" parse "|") ? "" : "|" parse "|"
+	}
+	
+	IniWrite, % itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods
+	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods
+	
+	If (itemchecker_t1_color = "00ff00")
+	{
+		itemchecker_t1_color := "00bb00"
+		IniWrite, % itemchecker_t1_color, ini\item-checker.ini, UI, tier 1
+	}
+	If (itemchecker_t5_color = "dc143c")
+	{
+		itemchecker_t5_color := "ff4040"
+		IniWrite, % itemchecker_t5_color, ini\item-checker.ini, UI, tier 5
+	}
+	If (itemchecker_t6_color = "800000")
+	{
+		itemchecker_t6_color := "aa0000"
+		IniWrite, % itemchecker_t6_color, ini\item-checker.ini, UI, tier 6
+	}
+	
+	If (itemchecker_ilvl2_color = "00ff00")
+	{
+		itemchecker_ilvl2_color := "00bb00"
+		IniWrite, % itemchecker_ilvl2_color, ini\item-checker.ini, UI, ilvl tier 2
+	}
+	If (itemchecker_ilvl6_color = "dc143c")
+	{
+		itemchecker_ilvl6_color := "ff4040"
+		IniWrite, % itemchecker_ilvl6_color, ini\item-checker.ini, UI, ilvl tier 6
+	}
+	If (itemchecker_ilvl7_color = "800000")
+	{
+		itemchecker_ilvl7_color := "aa0000"
+		IniWrite, % itemchecker_ilvl7_color, ini\item-checker.ini, UI, ilvl tier 7
+	}
+}
+IniWrite, 12900, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -900,12 +995,34 @@ imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
+global affixes := [], affix_tiers := [], affix_levels := [], item_type
 Loop 20
 {
 	hwnd_itemchecker_panel%A_Index% := ""
-	hwnd_itemchecker_corruption_implicit%A_Index% := ""
+	hwnd_itemchecker_panel%A_Index%_text := ""
+	hwnd_itemchecker_panel%A_Index%_button := ""
+	hwnd_itemchecker_implicit%A_Index% := ""
+	hwnd_itemchecker_implicit%A_Index%_text := ""
+	hwnd_itemchecker_implicit%A_Index%_button := ""
+	hwnd_itemchecker_implicit%A_Index%_button1 := ""
+	hwnd_itemchecker_tier%A_Index%_button := ""
+	hwnd_itemchecker_ilvl%A_Index%_button := ""
 }
-hwnd_itemchecker_panel_cluster := ""
+hwnd_itemchecker_cluster := ""
+hwnd_itemchecker_cluster_text := ""
+hwnd_itemchecker_cluster_button := ""
+hwnd_itemchecker_cluster_button1 := ""
+
+Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
+Gui, font_size: Margin, 0, 0
+Gui, font_size: Color, Black
+Gui, font_size: Font, % "cWhite s"fSize0, Fontin SmallCaps
+Gui, font_size: Add, Text, % "Border HWNDmain_text", % "7"
+GuiControlGet, font_check_, Pos, % main_text
+font_height := font_check_h
+font_width := font_check_w
+Gui, font_size: Destroy
+font_size := ""
 Return
 
 #Include modules\item-checker.ahk
@@ -1455,10 +1572,12 @@ LLK_ArrayHasVal(array, value, allresults := 0)
 	}
 }
 
-LLK_Error(ErrorMessage)
+LLK_Error(ErrorMessage, restart := 0)
 {
 	global
 	MsgBox, % ErrorMessage
+	If restart
+		Reload
 	ExitApp
 }
 
@@ -1651,7 +1770,10 @@ LLK_ProgressBar(gui, control_id)
 	While GetKeyState("LButton", "P") || GetKeyState("RButton", "P")
 	{
 		If (progress >= 700)
+		{
+			GuiControl, %gui%:, %control_id%, 0
 			Return 1
+		}
 		If (A_TickCount >= start + 10)
 		{
 			progress += 10
@@ -1660,6 +1782,7 @@ LLK_ProgressBar(gui, control_id)
 		}
 	}
 	GuiControl, %gui%:, %control_id%, 0
+	;WinSet, Redraw,, % "ahk_id " hwnd_%gui%
 	Return 0
 }
 
