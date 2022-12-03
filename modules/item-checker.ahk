@@ -254,6 +254,9 @@ If InStr(A_GuiControl, "itemchecker_reset_")
 			IniWrite, % itemchecker_%type%, ini\item-checker.ini, settings, %type%ed mods
 			IniWrite, % itemchecker_%type%_implicits, ini\item-checker.ini, settings, %type%ed implicits
 			LLK_ToolTip("list cleared")
+			If WinExist("ahk_id " hwnd_itemchecker)
+				LLK_ItemCheck(1)
+			KeyWait, LButton
 		}
 	}
 	Return
@@ -1356,10 +1359,10 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	Gui, itemchecker: Show, NA x10000 y10000 ;show GUI outside of monitor
 	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI position and dimensions
 	MouseGetPos, mouseXpos, mouseYpos
-	mouseXpos := (config != 0) ? xPos_itemchecker + width + poe_height*0.047*0.5 : mouseXpos ;override cursor-position if feature is being configured in settings menu
-	mouseYpos := (config != 0) ? yPos_itemchecker + height + poe_height*0.047*0.5 : mouseYpos
-	winXpos := (mouseXpos - poe_height*0.047*0.5 - width < xScreenOffSet) ? xScreenOffSet : mouseXpos - width - poe_height*0.047*0.5 ;reposition coordinates in case tooltip would land outside monitor area
-	winYpos := (mouseypos - poe_height*0.047*0.5 - height < yScreenOffSet) ? yScreenOffSet : mouseYpos - height - poe_height*0.047*0.5
+	mouseXpos := (config != 0) ? xPos_itemchecker + width + poe_height*0.047*0.25 : mouseXpos ;override cursor-position if feature is being configured in settings menu
+	mouseYpos := (config != 0) ? yPos_itemchecker + height + poe_height*0.047*0.25 : mouseYpos
+	winXpos := (mouseXpos - poe_height*0.047*0.25 - width < xScreenOffSet) ? xScreenOffSet : mouseXpos - width - poe_height*0.047*0.25 ;reposition coordinates in case tooltip would land outside monitor area
+	winYpos := (mouseypos - poe_height*0.047*0.25 - height < yScreenOffSet) ? yScreenOffSet : mouseYpos - height - poe_height*0.047*0.25
 	Gui, itemchecker: Show, % "NA x"winXpos " y"winYpos ;show GUI next to cursor
 	LLK_Overlay("itemchecker", "show") ;trigger GUI for auto-hiding when alt-tabbed
 }

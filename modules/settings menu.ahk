@@ -822,7 +822,7 @@ tier 1 is also the color that marks desired mods, tier 6 that marks undesired on
 
 tier x always overrides ilvl colors, tier 0 whenever ilvl is not a differentiating factor.
 
-click a field to apply an rgb-code from the clipboard, right-click a field to reset it to the default color.
+click a field to apply an rgb hex-code from the clipboard, right-click a field to reset it to the default color.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
