@@ -3,10 +3,10 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 # Download & Setup
-- [release notes & download](https://github.com/Lailloken/Lailloken-UI/releases)
-- this tool is an AHK script and thus requires AutoHotkey to be installed on your system
-- [setup and usage guide](https://github.com/Lailloken/Lailloken-UI/wiki) (browse the wiki for in-depth documentation on all features)
+- this tool is an AHK script and thus requires AutoHotkey to be installed on your system  
+- [setup and usage guide](https://github.com/Lailloken/Lailloken-UI/wiki) (browse the wiki for in-depth documentation on all features)  
 - [trouble-shooting, known issues & limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations)  
+- [release notes](https://github.com/Lailloken/Lailloken-UI/releases) and [latest version](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)
 <br>
 
 # Ideas & Feedback
