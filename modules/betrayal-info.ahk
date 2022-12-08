@@ -449,7 +449,7 @@ If (betrayal_enable_recognition = 1) && (A_Gui = "")
 		If InStr(A_LoopFilePath, "transportation") || InStr(A_LoopFilePath, "fortification") || InStr(A_LoopFilePath, "research") || InStr(A_LoopFilePath, "intervention")
 			continue
 		pNeedle_betrayal := Gdip_CreateBitmapFromFile(A_LoopFilePath)
-		pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation,, 1, 1)
+		pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation + 10,, 1, 1)
 		Gdip_DisposeImage(pNeedle_betrayal)
 		Gdip_DisposeImage(pSearch_betrayal)
 		If (pSearch_betrayal > 0)
@@ -468,7 +468,7 @@ If (betrayal_enable_recognition = 1) && (A_Gui = "")
 		Loop, Parse, betrayal_divisions, `,, `,
 		{
 			pNeedle_betrayal := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\Betrayal\" A_Loopfield ".bmp")
-			pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation,, 1, 1)
+			pSearch_betrayal := Gdip_ImageSearch(pHaystack_betrayal, pNeedle_betrayal,, 0, 0, poe_width, poe_height, imagesearch_variation + 10,, 1, 1)
 			Gdip_DisposeImage(pNeedle_betrayal)
 			Gdip_DisposeImage(pSearch_betrayal)
 			If (pSearch_betrayal > 0)

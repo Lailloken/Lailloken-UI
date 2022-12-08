@@ -32,6 +32,8 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 	Return
 }
 settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "cAqua" : "cWhite"
+If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
+	settings_style := "cWhite"
 alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : "cWhite"
 betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "cAqua" : "cWhite"
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
@@ -174,8 +176,16 @@ If !InStr(GuiControl_copy, "delve") && WinExist("ahk_id " hwnd_delve_grid)
 If !InStr(GuiControl_copy, "overlayke") && WinExist("ahk_id " hwnd_lakeboard)
 	LLK_Overlay("lakeboard", "hide")
 
+If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
+{
+	MsgBox, Giga-Ultrawide resolution detected. The settings section for screen-checks will now open`n`nIf your client has black bars on the sides, you need to locate the checkbox regarding black bars, read its instructions, and then click it.`n`nIf you don't have black bars, you can ignore this message.
+	IniWrite, 1, ini\config.ini, Versions, ultrawide warning
+	ultrawide_warning := 1
+	pending_ultrawide := 1
+	GoSub, Settings_menu_screenchecks
+}
 
-If InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")
+If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")) && !pending_ultrawide
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
@@ -229,9 +239,12 @@ If ((xsettings_menu != "") && (ysettings_menu != ""))
 Else Gui, settings_menu: Show, Hide
 
 LLK_Overlay("settings_menu", "show", 1)
+If pending_ultrawide
+	pending_ultrawide := ""
 Return
 
 Settings_menu_alarm:
+settings_menu_section := "alarm"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs BackgroundTrans venable_alarm gAlarm checked"enable_alarm " y+"fSize0*1.2, enable alarm-timer
 If (enable_alarm = 1)
@@ -262,6 +275,7 @@ If (enable_alarm = 1)
 Return
 
 Settings_menu_betrayal:
+settings_menu_section := "betrayal"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans y+"fSize0*1.2 " Checked"betrayal_enable_recognition, use image recognition`n(requires additional setup)
 Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_perma_table BackgroundTrans Checked"betrayal_perma_table, enable table in recognition-mode
@@ -297,6 +311,7 @@ GoSub, GUI_betrayal_prioview
 Return
 
 Settings_menu_clone_frames:
+settings_menu_section := "clone frames"
 new_clone_menu_closed := 0
 clone_frames_enabled := ""
 IniRead, clone_frames_list, ini\clone frames.ini
@@ -329,6 +344,7 @@ Gui, settings_menu: Add, Text, % "xs Section Border gClone_frames_new vClone_fra
 Return
 
 Settings_menu_delve:
+settings_menu_section := "delve"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Delve-helper">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans venable_delve gDelve checked"enable_delve " y+"fSize0*1.2, enable delve-helper
 If (enable_delve = 1)
@@ -355,6 +371,7 @@ If (enable_delve = 1)
 Return
 
 Settings_menu_geforce_now:
+settings_menu_section := "geforce"
 Gui, settings_menu: Add, Text, % "ys Section BackgroundTrans HWNDmain_text xp+"spacing_settings*1.2, % "pixel-check allowed variation: "
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
 Gui, settings_menu: Font, % "s"fSize0-4 "norm"
@@ -372,6 +389,8 @@ Gui, settings_menu: Add, Text, % "xs BackgroundTrans", % "(range: 0–255, defau
 Return
 
 Settings_menu_general:
+settings_menu_section := "general"
+
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki">llk-ui wiki</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gApply_settings_general HWNDmain_text Checked" kill_script " vkill_script y+"fSize0*1.2, % "kill script after"
 ControlGetPos,,,, controlheight,, ahk_id %main_text%
@@ -383,7 +402,7 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//2, % "minute(s) 
 
 Gui, settings_menu: Add, Link, % "xs hp Section HWNDlink_text y+"fSize0*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/discussions/49">custom resolution:</a>
 If (fullscreen = "true")	
-	Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans HWNDmain_text vcustom_width x+"fSize0//2, % poe_width
+	Gui, settings_menu: Add, Text, % "ys hp BackgroundTrans HWNDmain_text vcustom_width x+"fSize0//2, % poe_width_initial
 Else
 {
 	Gui, settings_menu: Font, % "s"fSize0-4
@@ -445,7 +464,7 @@ clicking an item on the list will highlight it in game (stash and vendors). righ
 
 you can click the 'select character' label to highlight all green items at once.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -455,7 +474,7 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to track and log your map runs.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -465,7 +484,7 @@ text =
 (
 checking this option will also include side-areas (lab trials, vaal areas, abyss, etc.) in the map time and logs.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -477,7 +496,7 @@ checking this option will also log items that are being ctrl-clicked from the in
 
 note: 'stash' image-check has to be set up in the screen-checks settings
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -491,7 +510,7 @@ note: the map-tracker panel will start flashing at the start of a map, and you h
 
 whenever you leave the map device, the panel will turn green, indicating the kill-count has to be updated by clicking the timer again. this only needs to be done if the map is completed and you want to open a new one.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -501,7 +520,7 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to track your character's current location and level.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -517,7 +536,7 @@ delete guide: deletes the imported guide and removes included gems from gear tra
 
 reset progress: resets the campaign progress and starts over.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -527,7 +546,7 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to check whether your character is in the azurite mine.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -539,7 +558,7 @@ text =
 
 it's up to you how to tier the mods and whether to use all tiers.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -554,7 +573,7 @@ examples
 - chromatics calculator: auto-input of required stats
 - cluster jewel crafting: F3 quick-search
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -570,7 +589,7 @@ the system will handle this toggling as a capslock key-press, so anything bound 
 
 uncheck this option if you have something bound to capslock (e.g. push-to-talk), but keep in mind unwanted case-inversion may occur as a consequence.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -588,7 +607,7 @@ scrolling: if enabled, scrolling will adjust a number within the string. strings
 
 string 2: an optional secondary string. this will be used when right-clicking the shortcut.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -605,7 +624,7 @@ instructions
 if you have problems with screen-checks, increase variation by 15 and see if that fixes it.
 repeat until the script's behavior becomes stable.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -617,7 +636,7 @@ allows the script to automatically hide/show its overlays by adapting to what's 
 
 requires 'gamescreen' pixel-check to be set up correctly and playing with the mini-map in the center of the screen.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -635,23 +654,51 @@ these screen-checks merely trigger actions within the script itself and will -NE
 
 they are used to let the script toggle its ui elements in order to adapt to what's happening on screen, emulating the use of an addon-api.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
-If InStr(A_GuiControl, "gamescreen")
+
+If (A_GuiControl = "Pixelcheck_blackbars_help")
+{
+text =
+(
+if the game-client has black bars on each side, pixel-checks will constantly fail because they are reading black pixels.
+
+this option will fix that by compensating for black bars. toggling this checkbox will restart the script.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "gamescreen_help")
 {
 text =
 (
 instructions
-to recalibrate, close the inventory and every menu until you're on the main screen (where you control your character). then, set the mini-map to overlay-mode on the center of the screen.
+close the inventory and every menu until you're on the main screen (where you control your character). then, set the mini-map to overlay-mode on the center of the screen, and click 'calibrate'.
 
 explanation
 this check helps the script identify whether the user is in a menu or on the regular 'gamescreen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\game_screen.jpg
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\game_screen.jpg
 	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+
+If (A_GuiControl = "inventory_help")
+{
+text =
+(
+open the inventory, then click 'calibrate'.
+
+explanation
+this check helps the script identify whether the inventory is open, which enables the item-info gear-tracker to function correctly.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\game_screen.jpg
+	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "pixelcheck_enable_help")
 {
 text =
@@ -660,7 +707,7 @@ this should only be disabled when experiencing severe performance drops while ru
 
 when disabled, overlays will not show/hide automatically (if the user navigates through in-game menus) and they have to be toggled manually.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -675,11 +722,11 @@ same concept as pixel-checks (see top of this section) but with images instead o
 
 individual checks can be disabled if you know you won't be using the connected feature, and want to hide the red highlighting.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If InStr(A_GuiControl, "bestiary")
+If (A_GuiControl = "imagecheck_help_bestiary")
 {
 text =
 (
@@ -689,12 +736,12 @@ to recalibrate, open the beastcrafting window and screen-cap the plate displayed
 explanation
 this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to trigger open the beastcrafting context-menu.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\bestiary.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\bestiary.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If InStr(A_GuiControl, "betrayal")
+If (A_GuiControl = "imagecheck_help_betrayal")
 {
 text =
 (
@@ -705,12 +752,12 @@ to recalibrate, open the syndicate board, do not zoom into or move it, and scree
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the betrayal-info feature.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\betrayal.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\betrayal.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If InStr(A_GuiControl, "gwennen")
+If (A_GuiControl = "imagecheck_help_gwennen")
 {
 text =
 (
@@ -720,12 +767,27 @@ to recalibrate, open Gwennen's gamble window and screen-cap the plate displayed 
 explanation
 this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\gwennen.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\gwennen.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If (A_GuiControl = "stash_help")
+If (A_GuiControl = "imagecheck_help_inventory")
+{
+text =
+(
+instructions
+to recalibrate, open the inventory and screen-cap the top-right corner as displayed above.
+
+explanation
+this check helps the script identify whether your inventory is open or not, which enables the item-info feature to track which items you equip.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\inventory.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "imagecheck_help_stash")
 {
 text =
 (
@@ -735,12 +797,12 @@ to recalibrate, open your stash and screen-cap the plate displayed above.
 explanation
 this check helps the script identify whether your stash is open or not, which enables the omni-key to trigger the search-string features.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\stash.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\stash.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If InStr(A_GuiControl, "vendor")
+If (A_GuiControl = "imagecheck_help_vendor")
 {
 text =
 (
@@ -753,8 +815,8 @@ this check helps the script identify whether you are interacting with a vendor-n
 limitation (leveling tracker)
 campaign-lilly and hideout-lilly use different vendor windows. if you don't use search-strings with general vendors, you can calibrate this image-check with hideout-lilly's window. otherwise, you'll have to buy gems from lilly in Act 10 when using the tracker-gems string.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"fSize0*20 " w-1", img\GUI\vendor.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\vendor.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -767,7 +829,7 @@ this hotkey is context-sensitive and used to access the majority of this script'
 
 this feature does not block the key-press from being sent to the client, so you can still use skills bound to the middle mouse-button. if you still want/need to rebind it, bind it to a key that's not used for chatting.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -781,7 +843,7 @@ while holding shift, left-click items to identify and trigger the item-info tool
 	
 while holding shift, right-click items to place a red marker.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -797,7 +859,7 @@ these stats are visualized by a bar in the background that turns green if a give
 
 the ilvl maxes out dynamically depending on the item-base and is highlighted green if that value is reached.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -807,7 +869,7 @@ text =
 (
 this option caters to advanced users because it adds an additional column with a mod's ilvl-requirements, which may be overwhelming or confusing.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -815,16 +877,16 @@ If (A_GuiControl = "itemchecker_colors_help")
 {
 text =
 (
-tier x = fractured mods
-tier 0 = un-tiered mods (veiled, delve, incursion, etc.)
+"tier x" = fractured mods
+"tier —" = un-tiered mods (veiled, delve, incursion, etc.)
 
 tier 1 is also the color that marks desired mods, tier 6 that marks undesired ones.
 
-tier x always overrides ilvl colors, tier 0 whenever ilvl is not a differentiating factor.
+tier x always overrides ilvl colors, tier — whenever ilvl is not a differentiating factor.
 
 click a field to apply an rgb hex-code from the clipboard, right-click a field to reset it to the default color.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -840,7 +902,7 @@ note: when enabled, marking as undesired should be used carefully and only for m
 
 overrides will be applied/reset the next time the tooltip is refreshed, not immediately after right-clicking.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -855,7 +917,7 @@ the name indicates which stat(s) the rule affects, the color indicates what happ
 green: stat will be marked as desired
 red: stat will be marked as undesired
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -869,7 +931,19 @@ unchecked: dps will always be shown for weapons (league-start or leveling)
 
 checked: dps will be shown on every unique weapon, and rare weapons with at least 3 damage mods (work in progress, will refine it at a later date)
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"fSize0*20, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_gear_help")
+{
+text =
+(
+when enabled, equipped items are tracked and serve as a point of comparison for the item-info tooltip.
+
+additionally, the structure of the tooltip is streamlined to account for the reduced importance of tiers and rolls at this early stage.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -882,6 +956,7 @@ Gui, settings_menu_help: Destroy
 Return
 
 Settings_menu_itemchecker:
+settings_menu_section := "itemchecker"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
 
@@ -896,11 +971,23 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_p
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_bases Checked"enable_itemchecker_bases, % "show information on base-stats"
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_bases_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_gear Checked"enable_itemchecker_gear, % "enable league-start mode "
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_gear_help hp w-1", img\GUI\help.png
+If enable_itemchecker_gear
+{
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gItemchecker vitemchecker_reset_gear", % " reset inventory "
+	;Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border gItemchecker vitemchecker_reset_arealvl", % " reset area-lvl "
+	Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_gear_bar cRed",
+}
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_dps Checked"enable_itemchecker_dps, % "only show dps on rares with meaningful mods"
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_dps_help hp w-1", img\GUI\help.png
+If !enable_itemchecker_gear
+{
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_bases Checked"enable_itemchecker_bases, % "show information on base-stats"
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_bases_help hp w-1", img\GUI\help.png
+
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_dps Checked"enable_itemchecker_dps, % "only show dps on rares with meaningful mods"
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_dps_help hp w-1", img\GUI\help.png
+}
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ilvl Checked"enable_itemchecker_ilvl, % "also display a mod's ilvl-requirements"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ilvl_help hp w-1", img\GUI\help.png
@@ -920,7 +1007,7 @@ Loop, 8
 		GuiControlGet, text_, Pos, % main_text
 	}
 	Gui, settings_menu: Add, Progress, % "ys hp wp BackgroundBlack Disabled Border vitemchecker_bar" value " c" itemchecker_t%value%_color, 100
-	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center gItemchecker vitemchecker_t" value "_color BackgroundTrans", % (A_Index = 1) ? "x" : value
+	Gui, settings_menu: Add, Text, % "xp yp wp hp cBlack Center gItemchecker vitemchecker_t" value "_color BackgroundTrans", % (A_Index = 1) ? "x" : (A_Index = 2) ? "—" : value
 }
 
 Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans hp vitemchecker_apply_color gItemchecker Border", % " apply "
@@ -969,6 +1056,7 @@ Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker ve
 Return
 
 Settings_menu_lake_helper:
+settings_menu_section := "lake helper"
 If (A_GuiControl = "lake_hotkey_apply")
 {
 	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
@@ -1071,6 +1159,7 @@ Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vlake_delete_water g
 Return
 
 Settings_menu_leveling_guide:
+settings_menu_section := "leveling guide"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide y+"fSize0*1.2 " venable_leveling_guide Checked"enable_leveling_guide, % "enable leveling tracker"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help hp w-1", img\GUI\help.png
@@ -1131,6 +1220,7 @@ If (enable_leveling_guide = 1)
 Return
 
 Settings_menu_map_info:
+settings_menu_section := "map info"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel">wiki page</a>
 If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
 {
@@ -1158,6 +1248,7 @@ GoSub, Map_info
 Return
 
 Settings_menu_map_tracker:
+settings_menu_section := "map tracker"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker y+"fSize0*1.2 " venable_map_tracker Checked"enable_map_tracker, enable mapping tracker
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_help hp w-1 x+0", img\GUI\help.png
@@ -1196,6 +1287,7 @@ If (enable_map_tracker = 1)
 Return
 
 Settings_menu_notepad:
+settings_menu_section := "notepad"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets">wiki page</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gNotepad y+"fSize0*1.2 " venable_notepad Checked"enable_notepad, enable notepad
 If (enable_notepad = 1)
@@ -1226,6 +1318,7 @@ If (enable_notepad = 1)
 Return
 
 Settings_menu_omnikey:
+settings_menu_section := "omnikey"
 If (A_GuiControl = "omnikey_apply")
 {
 	Gui, settings_menu: Submit, NoHide
@@ -1275,6 +1368,7 @@ Gui, settings_menu: Add, Text, % "xs Border vomnikey_restart gSettings_menu_omni
 Return
 
 Settings_menu_screenchecks:
+settings_menu_section := "screenchecks"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Screen-checks">wiki page</a>
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of integrated pixel-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
@@ -1292,6 +1386,12 @@ Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gScreenchecks vEnable_pixelchecks Center Checked"enable_pixelchecks, % "enable background pixel-checks"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_enable_help hp w-1", img\GUI\help.png
 
+If (poe_height_initial / poe_width_initial < (5/12))
+{
+	Gui, settings_menu: Add, Checkbox, % "hp xs Section BackgroundTrans gScreenchecks vEnable_blackbar_compensation Center Checked"enable_blackbar_compensation, % "the client has black bars on the sides"
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_blackbars_help hp w-1", img\GUI\help.png
+}
+
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of integrated image-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
 Loop, Parse, imagechecks_list, `,, `,
@@ -1304,7 +1404,7 @@ Loop, Parse, imagechecks_list, `,, `,
 	If (screenchecks_%A_Loopfield%_valid = 0)
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
-	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gSettings_menu_help v" A_Loopfield "_help", % A_Loopfield
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gSettings_menu_help vimagecheck_help_"A_LoopField, % A_Loopfield
 	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
@@ -1312,8 +1412,10 @@ Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Center Border gScre
 Return
 
 Settings_menu_stash_search:
+settings_menu_section := "stash search"
 new_stash_search_menu_closed := 0
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp x+"font_width*3, <a href="https://poe.re/">poe regex</a>
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of searches currently set up:
 IniRead, stash_search_list, ini\stash search.ini
 Sort, stash_search_list, D`n
@@ -1339,12 +1441,15 @@ Gui, settings_menu: Submit
 kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
 Gui, settings_menu: Destroy
 hwnd_settings_menu := ""
+settings_menu_section := ""
 
 LLK_Overlay("betrayal_info", "hide")
 LLK_Overlay("betrayal_info_overview", "hide")
 LLK_Overlay("betrayal_info_members", "hide")
 Loop, Parse, betrayal_divisions, `,, `,
 	LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
+
+
 
 Gui, delve_grid: Destroy
 hwnd_delve_grid := ""
