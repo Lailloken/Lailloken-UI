@@ -694,8 +694,7 @@ open the inventory, then click 'calibrate'.
 explanation
 this check helps the script identify whether the inventory is open, which enables the item-info gear-tracker to function correctly.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\game_screen.jpg
-	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
@@ -768,21 +767,6 @@ explanation
 this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\gwennen.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
-}
-
-If (A_GuiControl = "imagecheck_help_inventory")
-{
-text =
-(
-instructions
-to recalibrate, open the inventory and screen-cap the top-right corner as displayed above.
-
-explanation
-this check helps the script identify whether your inventory is open or not, which enables the item-info feature to track which items you equip.
-)
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\inventory.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
@@ -941,7 +925,7 @@ text =
 (
 when enabled, equipped items are tracked and serve as a point of comparison for the item-info tooltip.
 
-additionally, the structure of the tooltip is streamlined to account for the reduced importance of tiers and rolls at this early stage.
+additionally, some minor features are disabled while this mode is active in order to not bloat the tooltip too much.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -971,7 +955,7 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_p
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_gear Checked"enable_itemchecker_gear, % "enable league-start mode "
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_gear Checked"enable_itemchecker_gear, % "enable league-start mode"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_gear_help hp w-1", img\GUI\help.png
 If enable_itemchecker_gear
 {

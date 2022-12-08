@@ -99,7 +99,6 @@ If InStr(A_GuiControl, "_calibrate")
 		Else
 		{
 			imagecheck_parse := StrReplace(A_GuiControl, "_image_calibrate")
-			MsgBox, % "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp"
 			Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp", 100)
 			imagecheck_%imagecheck_parse%_missing := 0
 		}

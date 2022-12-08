@@ -1317,7 +1317,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						value *= (value < 0) ? -1 : 1
 						If InStr(value, ".")
 							value := Format("{:0.2f}", value)
-						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t6_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t5_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
 					}
 					;If losses_displayed
 						Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundFuchsia w"itemchecker_width*10 " h"divider_height*2, 0
