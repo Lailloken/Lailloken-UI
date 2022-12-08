@@ -1303,25 +1303,26 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					;If enable_itemchecker_gear
 					;	Gui, itemchecker: Add, Picture, % "xp+"width/2 " yp+2 BackgroundTrans h"itemchecker_height -4 " w-1", img\GUI\item_info_gear_%A_LoopField%.png
 				}
-				losses_displayed := 0
-				For key, value in losses_%loop%
-				{
-					If (value = "" || value >= 0) || (item_type = "attack" && key = "increased_attack_speed") || (LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 0) != 1 && LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 1) != 1)
-						continue
-					losses_displayed := 1
-					Gui, itemchecker: Add, Progress, % "xs Section Disabled Border BackgroundBlack w"itemchecker_width*10 " h"itemchecker_height, 0
-					parse := StrReplace(key, "adds_to_")
-					If (SubStr(parse, 1, 10) = "chance_to_") || (SubStr(parse, 1, 10) = "increased_") || (SubStr(parse, 1, 8) = "reduced_")
-						parse := "%_" parse
-					value *= (value < 0) ? -1 : 1
-					If InStr(value, ".")
-						value := Format("{:0.2f}", value)
-					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t6_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
-				}
-				;If losses_displayed
-					Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundFuchsia w"itemchecker_width*10 " h"divider_height*2, 0
 				
-				If !enable_itemchecker_gear
+				If enable_itemchecker_gear
+				{
+					For key, value in losses_%loop%
+					{
+						If (value = "" || value >= 0) || (item_type = "attack" && key = "increased_attack_speed") || (LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 0) != 1 && LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 1) != 1)
+							continue
+						Gui, itemchecker: Add, Progress, % "xs Section Disabled Border BackgroundBlack w"itemchecker_width*10 " h"itemchecker_height, 0
+						parse := StrReplace(key, "adds_to_")
+						If (SubStr(parse, 1, 10) = "chance_to_") || (SubStr(parse, 1, 10) = "increased_") || (SubStr(parse, 1, 8) = "reduced_")
+							parse := "%_" parse
+						value *= (value < 0) ? -1 : 1
+						If InStr(value, ".")
+							value := Format("{:0.2f}", value)
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t6_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
+					}
+					;If losses_displayed
+						Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundFuchsia w"itemchecker_width*10 " h"divider_height*2, 0
+				}
+				Else
 				{
 					If unique
 					{
