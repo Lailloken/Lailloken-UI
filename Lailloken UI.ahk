@@ -136,7 +136,9 @@ Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution
 	
 hwnd_poe_client := WinExist("ahk_group poe_window")
 last_check := A_TickCount
-WinGetPos, xScreenOffset, yScreenOffset, poe_width, poe_height, ahk_group poe_window
+WinGetPos, xScreenOffset_initial, yScreenOffset_initial, poe_width_initial, poe_height_initial, ahk_group poe_window
+poe_width := poe_width_initial, poe_height := poe_height_initial
+xScreenOffSet := xScreenOffset_initial, yScreenOffSet := yScreenOffset_initial
 
 ;determine native resolution of the active monitor
 Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
@@ -256,7 +258,6 @@ WinWaitActive, ahk_group poe_window
 
 GoSub, Resolution_check
 
-SoundBeep, 100
 GoSub, GUI
 GoSub, Recombinators
 
@@ -266,6 +267,12 @@ LLK_GameScreenCheck()
 SetTimer, MainLoop, 100
 If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
+Return
+
+#If WinActive("ahk_group poe_window") && InStr(text2, "ctrl-f-v") && WinExist("ahk_id " hwnd_leveling_guide2)
+	
+~^f::
+Clipboard := search
 Return
 
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (shift_down = "wisdom")
@@ -286,13 +293,45 @@ If WinExist("ahk_id " hwnd_itemchecker)
 	LLK_ItemCheckClose()
 Return
 
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0) && (shift_down = "wisdom") && (hwnd_win_hover != hwnd_itemchecker)
+
 ~+LButton::
 Clipboard := ""
-sleep, 250
+KeyWait, LButton
+Sleep, 150
 SendInput, ^!{c}
 ClipWait, 0.05
-If (shift_down = "wisdom")
-	LLK_ItemCheck()
+LLK_ItemCheck()
+Return
+
+#If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0)
+
+~RButton::
+start_rbutton := A_TickCount
+While GetKeyState("RButton", "P")
+{
+	If (A_TickCount >= start_rbutton + 500)
+	{
+		equipped_%gear_mouse_over% := ""
+		LLK_ToolTip(gear_mouse_over " cleared")
+		If WinExist("ahk_id " hwnd_itemchecker)
+			LLK_ItemCheck(1)
+		KeyWait, RButton
+		Return
+	}
+}
+Return
+
+~LButton UP::
+Clipboard := ""
+Sleep, 100
+SendInput, !^{c}
+ClipWait, 0.05
+If (Clipboard != "")
+{
+	LLK_ItemCheckGear(gear_mouse_over)
+	LLK_ToolTip(gear_mouse_over, 0.5)
+}
 Return
 
 #If WinActive("ahk_group poe_window") && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused
@@ -781,13 +820,22 @@ If (map_tracker_map != "")
 	LLK_MapTrackSave()
 If (timeout != 1)
 {
-	If !(alarm_timestamp < A_Now) && (alarm_loop != 1)
+	If !(alarm_timestamp < A_Now) && (alarm_loop != 1) && enable_alarm
 		IniWrite, %alarm_timestamp%, ini\alarm.ini, Settings, alarm-timestamp
 	
-	IniWrite, %notepad_width%, ini\notepad.ini, UI, width
-	IniWrite, %notepad_height%, ini\notepad.ini, UI, height
-	notepad_text := StrReplace(notepad_text, "`n", ",,")
-	IniWrite, %notepad_text%, ini\notepad.ini, Text, text
+	If enable_notepad
+	{
+		IniWrite, %notepad_width%, ini\notepad.ini, UI, width
+		IniWrite, %notepad_height%, ini\notepad.ini, UI, height
+		notepad_text := StrReplace(notepad_text, "`n", ",,")
+		IniWrite, %notepad_text%, ini\notepad.ini, Text, text
+	}
+	
+	If enable_itemchecker_gear
+	{
+		Loop, Parse, gear_slots, `,
+			IniWrite, % equipped_%A_LoopField%, ini\item-checker gear.ini, % A_LoopField
+	}
 	
 	Loop, Parse, clone_frames_list, `n, `n
 	{
@@ -966,6 +1014,8 @@ IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 3
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
 fSize0 := fSize_config0 + fSize_offset
 fSize1 := fSize_config1 + fSize_offset
+
+IniRead, ultrawide_warning, ini\config.ini, Versions, ultrawide warning, 0
 Return
 
 Init_variables:
@@ -975,12 +1025,15 @@ hwnd_win_hover := 0
 hwnd_control_hover := 0
 blocked_hotkeys := "!,^,+"
 pixelchecks_enabled := "gamescreen,"
+pixel_inventory_x1 := 0, pixel_inventory_x2 := 0, pixel_inventory_x3 := 6
+pixel_inventory_y1 := 0, pixel_inventory_y2 := 6, pixel_inventory_y3 := 0
 gamescreen := 0
-imagesearch_variation := 25
+inventory := 0
+imagesearch_variation := 15
 pixelsearch_variation := 0
 stash_search_usecases := "stash,vendor"
 Sort, stash_search_usecases, D`,
-pixelchecks_list := "gamescreen"
+pixelchecks_list := "gamescreen,inventory"
 imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
 guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
@@ -1012,6 +1065,9 @@ hwnd_itemchecker_cluster := ""
 hwnd_itemchecker_cluster_text := ""
 hwnd_itemchecker_cluster_button := ""
 hwnd_itemchecker_cluster_button1 := ""
+
+gear_mouse_over := 0
+gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
 
 Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
 Gui, font_size: Margin, 0, 0
@@ -1236,7 +1292,6 @@ If InStr(text2, "ctrl-f-v") && WinExist("ahk_id " hwnd_leveling_guide2)
 		}
 	}
 	search := "^(" SubStr(StrReplace(search, " ", "."), 1, -1) ")"
-	clipboard := search
 }
 
 If (enable_delvelog = 1)
@@ -1385,6 +1440,30 @@ If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 			}
 		}
 	}
+	If (!inventory && pixel_inventory_color1 != "") && WinExist("ahk_id " hwnd_itemchecker)
+	{
+		Gui, itemchecker: Destroy
+		hwnd_itemchecker := ""
+	}
+	If enable_itemchecker_gear
+	{
+		If inventory
+		{
+			MouseGetPos, gearXpos, gearYpos
+			gear_mouse_over := LLK_ItemCheckGearMouse(gearXpos, gearYpos)
+		}
+		Else gear_mouse_over := 0
+		If inventory && (settings_menu_section = "itemchecker") && !WinExist("ahk_id " hwnd_itemchecker_gear_mainhand)
+		{
+			Loop, Parse, gear_slots, `,
+				LLK_Overlay("itemchecker_gear_" A_LoopField, "show")
+		}
+		Else If (!inventory || settings_menu_section != "itemchecker") && WinExist("ahk_id " hwnd_itemchecker_gear_mainhand)
+		{
+			Loop, Parse, gear_slots, `,
+				LLK_Overlay("itemchecker_gear_" A_LoopField, "hide")
+		}
+	}
 	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0) && !WinExist("ahk_id " hwnd_map_tracker_log)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1) && !WinExist("ahk_id " hwnd_map_tracker_log))
 	{
 		Loop, Parse, clone_frames_enabled, `,, `,
@@ -1435,10 +1514,10 @@ Panel_drag:
 MouseGetPos, panelXpos, panelYpos
 panelXpos := (panelXpos >= xScreenOffSet + poe_width*0.998) ? xScreenOffSet + poe_width : panelXpos ;snap panel to edge when close (MouseGetPos coords are off by one pixel when on the edge)
 panelXpos := (panelXpos < xScreenOffSet) ? xScreenOffSet : panelXpos
-panelXpos := (panelXpos >= xScreenOffSet + poe_width/2) ? panelXpos - wGui : panelXpos
+panelXpos := (!InStr(A_Gui, "itemchecker_gear_") && (panelXpos >= xScreenOffSet + poe_width/2)) ? panelXpos - wGui : panelXpos
 panelYpos := (panelYpos >= yScreenOffset + poe_height*0.998) ? yScreenOffSet + poe_height : panelYpos ;snap panel to edge when close (MouseGetPos coords are off by one pixel when on the edge)
 panelYpos := (panelYpos < yScreenOffset) ? yScreenOffset : panelYpos
-panelYpos := (panelYpos >= yScreenOffSet + poe_height/2) ? panelYpos - hGui : panelYpos
+panelYpos := (!InStr(A_Gui, "itemchecker_gear_") && (panelYpos >= yScreenOffSet + poe_height/2)) ? panelYpos - hGui : panelYpos
 panelXpos -= xScreenOffSet
 panelYpos -= yScreenOffSet
 If (panelXpos + wGui >= poe_width - pixel_gamescreen_x1 - 1) && (panelYpos <= pixel_gamescreen_y1 + 1) ;protect pixel-check area
@@ -1668,6 +1747,13 @@ LLK_InStrCount(string, character, delimiter := "")
 			count += 1
 	}
 	Return count
+}
+
+LLK_IsAlpha(string)
+{
+	If string is alpha
+		Return 1
+	Else Return 0
 }
 
 LLK_ItemInfoCheck()

@@ -151,6 +151,33 @@ If !map_tracker_paused
 	}
 }
 
+If enable_itemchecker_gear
+{
+	Loop, Parse, gear_slots, `,
+	{
+		guilist .= InStr(guilist, "itemchecker_gear_" A_LoopField "|") ? "" : "itemchecker_gear_" A_LoopField "|"
+		;style := WinExist("ahk_id " hwnd_settings_menu) ? "" : "+E0x20"
+		Gui, itemchecker_gear_%A_LoopField%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_itemchecker_gear_%A_LoopField%
+		Gui, itemchecker_gear_%A_LoopField%: Margin, 0, 0
+		Gui, itemchecker_gear_%A_LoopField%: Color, White
+		WinSet, Trans, 150
+		;WinSet, TransColor, Blue, ahk_id %hwnd_itemchecker_gear%
+		Gui, itemchecker_gear_%A_LoopField%: Font, % "s"fSize1 " cWhite", Fontin SmallCaps
+		Gui, itemchecker_gear_%A_LoopField%: Add, Text, % "BackgroundTrans gItemchecker w"%A_LoopField%_width " h"%A_LoopField%_height,
+		Gui, itemchecker_gear_%A_LoopField%: Show, % "Hide x"xScreenOffSet + poe_width - 1 - itemchecker_gear_baseline + %A_LoopField%_x_offset " y"yScreenOffSet + %A_LoopField%_y_offset
+		;LLK_Overlay("itemchecker_gear_" A_LoopField, "hide")
+	}
+}
+Else
+{
+	Loop, Parse, gear_slots, `,
+	{
+		guilist := StrReplace(guilist, "itemchecker_gear_" A_LoopField "|")
+		Gui, itemchecker_gear_%A_LoopField%: Destroy
+		hwnd_itemchecker_gear_%A_LoopField% := ""
+	}
+}
+
 If (continue_alarm = 1)
 	GoSub, Alarm
 Return

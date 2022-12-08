@@ -167,6 +167,7 @@ If (A_GuiControl = "map_tracker_button_complete") ;manually marking the current 
 	If (map_tracker_map = "")
 	{
 		LLK_ToolTip("not tracking, cannot save", 1.5)
+		KeyWait, LButton
 		WinActivate, ahk_group poe_window
 		Return
 	}
@@ -174,7 +175,7 @@ If (A_GuiControl = "map_tracker_button_complete") ;manually marking the current 
 	{
 		LLK_MapTrackSave()
 		LLK_MapTrack()
-		sleep, 50
+		KeyWait, LButton
 		LLK_ToolTip("map logged")
 	}
 	Return

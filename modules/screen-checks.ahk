@@ -2,8 +2,10 @@
 Gui, settings_menu: Submit, NoHide
 If InStr(A_GuiControl, "disable_imagecheck")
 {
-	IniWrite, % %A_GuiControl%, ini\screen checks (%poe_height%p).ini, % StrReplace(A_GuiControl, "disable_imagecheck_"), disable
-	FileDelete, % "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "disable_imagecheck_") ".bmp"
+	imagecheck_parse := StrReplace(A_GuiControl, "disable_imagecheck_")
+	IniWrite, % %A_GuiControl%, ini\screen checks (%poe_height%p).ini, % imagecheck_parse, disable
+	FileDelete, % "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp"
+	imagecheck_%imagecheck_parse%_missing := 1
 	GoSub, Settings_menu
 	Return
 }
@@ -20,6 +22,53 @@ If (A_GuiControl = "enable_pixelchecks")
 	IniWrite, % enable_pixelchecks, ini\clone frames.ini, Settings, enable pixel-check
 	map_info_pixelcheck_enable := enable_pixelchecks
 	IniWrite, % enable_pixelchecks, ini\map info.ini, Settings, enable pixel-check
+	Return
+}
+If (A_GuiControl = "enable_blackbar_compensation")
+{
+	If enable_blackbar_compensation
+	{
+		pixel_gamescreen_offset := Format("{:0.0f}", (poe_width_initial - (poe_height_initial / (5/12))) / 2)
+		;scan-method (proof-of-concept, not required right now) in case something changes in the future
+		/*
+		pHaystack_blackbars := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
+		Loop, % Gdip_GetImageHeight(pHaystack_blackbars)
+		{
+			If (A_Index = 1)
+				black_bars_widths := ""
+			black_bars_x := 0
+			ToolTip, % "scanning: " A_Index "/" poe_height
+			While (Gdip_GetPixelColor(pHaystack_blackbars, black_bars_x , A_Index - 1, 3) = "0x000000")
+				black_bars_x += 1
+			black_bars_widths .= black_bars_x ","
+		}
+		Loop, Parse, black_bars_widths, `,
+		{
+			If (A_LoopField = "")
+				continue
+			If (LLK_SubStrCount(black_bars_widths, A_LoopField, ",", 1) >= poe_height/2)
+			{
+				pixel_gamescreen_offset := A_LoopField
+				break
+			}
+		}
+		If (pixel_gamescreen_offset = "")
+		{
+			MsgBox, Scan inconclusive. Please try again and make sure to follow the instructions closely.
+			enable_blackbar_compensation := 0
+			GuiControl, settings_menu:, enable_blackbar_compensation, 0
+			Gdip_DisposeImage(pHaystack_blackbars)
+			ToolTip
+			Return
+		}
+		*/
+		IniWrite, % pixel_gamescreen_offset, ini\config.ini, Settings, gamescreen-check offset
+		;Gdip_DisposeImage(pHaystack_blackbars)
+	}
+	IniWrite, % enable_blackbar_compensation, ini\config.ini, Settings, black-bar compensation
+	;ToolTip
+	Reload
+	ExitApp
 	Return
 }
 
@@ -47,7 +96,12 @@ If InStr(A_GuiControl, "_calibrate")
 			LLK_ToolTip("screen-cap failed")
 			Return
 		}
-		Else Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" StrReplace(A_GuiControl, "_image_calibrate") ".bmp", 100)
+		Else
+		{
+			imagecheck_parse := StrReplace(A_GuiControl, "_image_calibrate")
+			Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp", 100)
+			imagecheck_%imagecheck_parse%_missing := 0
+		}
 		GoSub, Settings_menu
 	}
 	Return
@@ -56,10 +110,11 @@ Else
 {
 	If InStr(A_GuiControl, "_pixel")
 	{
-		If LLK_PixelSearch(StrReplace(A_GuiControl, "_pixel_test"))
+		parse := StrReplace(A_GuiControl, "_pixel_test")
+		If LLK_PixelSearch(parse)
 		{
 			LLK_ToolTip("test positive")
-			pixelchecks_enabled .= InStr(pixelchecks_enabled, "gamescreen,") ? "" : "gamescreen,"
+			pixelchecks_enabled .= InStr(pixelchecks_enabled, parse ",") ? "" : parse ","
 		}
 		Else LLK_ToolTip("test negative")
 	}
@@ -77,17 +132,30 @@ Sort, pixelchecks_list, D`,
 Loop, Parse, pixelchecks_list, `,, `,
 	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 
-
 Sort, imagechecks_list, D`,
 Loop, Parse, imagechecks_list, `,, `,
 {
 	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 	IniRead, imagechecks_coords_%A_LoopField%, ini\screen checks (%poe_height%p).ini, %A_LoopField%, last coordinates, % imagechecks_coords_%A_LoopField%
+	imagecheck_%A_LoopField%_missing := !FileExist("img\Recognition ("poe_height "p)\GUI\"A_LoopField ".bmp") ? 1 : 0
 }
 
 IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-coordinate 1
 IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1
 IniRead, pixel_gamescreen_color1, ini\screen checks (%poe_height%p).ini, gamescreen, color 1
+
+Loop 3
+	IniRead, pixel_inventory_color%A_Index%, ini\screen checks (%poe_height%p).ini, inventory, color %A_Index%, %A_Space%
+
+IniRead, enable_blackbar_compensation, ini\config.ini, Settings, black-bar compensation, 0
+IniRead, pixel_gamescreen_offset, ini\config.ini, Settings, gamescreen-check offset, 0
+enable_blackbar_compensation := (poe_height_initial / poe_width_initial < (5/12)) ? enable_blackbar_compensation : 0
+
+If enable_blackbar_compensation && (pixel_gamescreen_offset != 0)
+{
+	xScreenOffSet := xScreenOffSet_initial + pixel_gamescreen_offset
+	poe_width := poe_width_initial - pixel_gamescreen_offset*2
+}
 
 If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 {
@@ -95,6 +163,8 @@ If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 	map_info_pixelcheck_enable := 0
 	pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
 }
+If (pixel_inventory_color1 != "")
+	pixelchecks_enabled .= !InStr(pixelchecks_enabled, "inventory,") ? "inventory," : ""
 Return
 
 LLK_ImageSearch(name := "")
@@ -126,7 +196,7 @@ LLK_ImageSearch(name := "")
 			}
 		}
 		
-		If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
+		If imagecheck_%A_LoopField%_missing ;!FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
 			continue
 		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
 		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
@@ -146,82 +216,21 @@ LLK_ImageSearch(name := "")
 	}
 	Gdip_DisposeImage(pHaystack_ImageSearch)
 	Return 0
-	
-	/*
-	If (name = "")
-	{
-		Loop, Parse, imagechecks_list, `,, `,
-		{
-			imagesearch_x1 := 0
-			imagesearch_y1 := 0
-			imagesearch_x2 := 0
-			imagesearch_y2 := 0
-			If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
-				continue
-			If (A_Loopfield = "bestiary" || A_Loopfield = "gwennen" || A_Loopfield = "stash" || A_Loopfield = "vendor")
-			{
-				imagesearch_x2 := poe_width//2
-				imagesearch_y2 := poe_height//2
-			}
-			Else If (A_Loopfield = "betrayal")
-			{
-				imagesearch_y1 := poe_height//2
-				imagesearch_x2 := poe_width//2
-			}
-			pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp")
-			If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
-			{
-				%A_Loopfield% := 1
-				Gdip_DisposeImage(pNeedle_ImageSearch)
-				ToolTip, % A_TickCount - start,,, 2
-				break
-			}
-			Else Gdip_DisposeImage(pNeedle_ImageSearch)
-		}
-	}
-	Else
-	{
-		imagesearch_x1 := 0
-		imagesearch_y1 := 0
-		imagesearch_x2 := 0
-		imagesearch_y2 := 0
-		If (name = "bestiary" || name = "gwennen" || name = "stash" || name = "vendor")
-		{
-			imagesearch_x2 := poe_width//2
-			imagesearch_y2 := poe_height//2
-		}
-		Else If (name = "betrayal")
-		{
-			imagesearch_y1 := poe_height//2
-			imagesearch_x2 := poe_width//2
-		}
-		pNeedle_ImageSearch := Gdip_CreateBitmapFromFile("img\Recognition (" poe_height "p)\GUI\" name ".bmp")
-		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1,imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
-		{
-			Gdip_DisposeImage(pNeedle_ImageSearch)
-			Gdip_DisposeImage(pHaystack_ImageSearch)
-			Return 1
-		}
-		Else
-		{
-			Gdip_DisposeImage(pNeedle_ImageSearch)
-			Gdip_DisposeImage(pHaystack_ImageSearch)
-			Return 0
-		}
-	}
-	Gdip_DisposeImage(pHaystack_ImageSearch)
-	*/
 }
 
-LLK_PixelRecalibrate(name) ;needs (re)work in case more pixelchecks get integrated
+LLK_PixelRecalibrate(name)
 {
 	global
-	loopcount := InStr(name, "gamescreen") ? 1 : 2
+	Switch name
+	{
+		Case "gamescreen":
+			loopcount := 1
+		Case "inventory":
+			loopcount := 3
+	}
 	Loop %loopcount%
 	{
-		If InStr(name, "gamescreen")
-			PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffset + poe_width - pixel_%name%_x%A_Index%, % yScreenOffset + pixel_%name%_y%A_Index%, RGB
-		Else PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffset + pixel_%name%_x%A_Index%, % yScreenoffset + pixel_%name%_y%A_Index%, RGB
+		PixelGetColor, pixel_%name%_color%A_Index%, % xScreenOffset + poe_width - 1 - pixel_%name%_x%A_Index%, % yScreenOffset + pixel_%name%_y%A_Index%, RGB
 		IniWrite, % pixel_%name%_color%A_Index%, ini\screen checks (%poe_height%p).ini, %name%, color %A_Index%
 	}
 }
@@ -229,12 +238,22 @@ LLK_PixelRecalibrate(name) ;needs (re)work in case more pixelchecks get integrat
 LLK_PixelSearch(name)
 {
 	global
-	If InStr(name, "gamescreen")
-		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + poe_width - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
-	Else PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
-	If (ErrorLevel = 0) && !InStr(name, "gamescreen")
-		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, xScreenOffSet + pixel_%name%_x2, yScreenOffSet + pixel_%name%_y2, pixel_%name%_color2, %pixelsearch_variation%, Fast RGB
-	%name% := (ErrorLevel=0) ? 1 : 0
+	Switch name
+	{
+		Case "gamescreen":
+			loopcount := 1
+		Case "inventory":
+			loopcount := 3
+	}
+	pixel_check := 1
+	Loop %loopcount%
+	{
+		PixelSearch, OutputVarX, OutputVarY, xScreenOffSet + poe_width - 1 - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, xScreenOffSet + poe_width - 1 - pixel_%name%_x1, yScreenOffSet + pixel_%name%_y1, pixel_%name%_color1, %pixelsearch_variation%, Fast RGB
+		pixel_check -= ErrorLevel
+		If !pixel_check
+			break
+	}
+	%name% := pixel_check ? 1 : 0
 	value_pixel := %name%
 	Return value_pixel
 }
