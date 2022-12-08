@@ -304,13 +304,6 @@ ClipWait, 0.05
 LLK_ItemCheck()
 Return
 
-#If WinActive("ahk_group poe_window") && (hwnd_control_hover = hwnd_mainhand_slot)
-	
-~RButton::
-SendInput, ^!{c}
-SoundBeep
-Return
-
 #If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0)
 
 ~RButton::
