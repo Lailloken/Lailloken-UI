@@ -11,6 +11,11 @@ If InStr(A_GuiControl, "disable_imagecheck")
 }
 If (A_GuiControl = "image_folder")
 {
+	If !FileExist("img\Recognition ("poe_height "p)\GUI\")
+	{
+		LLK_ToolTip("the folder does not exist", 2)
+		Return
+	}
 	Run, explore img\Recognition (%poe_height%p)\GUI\
 	Return
 }

@@ -40,10 +40,9 @@ clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
 itemchecker_style := InStr(A_GuiControl, "item-info") || InStr(A_GuiControl, "itemchecker") ? "cAqua" : "cWhite"
-lake_style := InStr(A_GuiControl, "overlayke") ? "cAqua" : "cWhite"
 leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
 map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") ? "cAqua" : "cWhite"
-map_mods_style := InStr(A_GuiControl, "map-info") ? "cAqua" : "cWhite"
+map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_info") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
 pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
@@ -126,10 +125,6 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
-	Gui, settings_menu: Add, Text, xs BackgroundTrans %lake_style% gSettings_menu HWNDhwnd_settings_lake, % "overlayke"
-	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_lake%
-	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
 	If pixel_gamescreen_x1 is number
 	{
 		If (screenchecks_all_valid = 0)
@@ -173,9 +168,6 @@ If !InStr(GuiControl_copy, "delve") && WinExist("ahk_id " hwnd_delve_grid)
 	hwnd_delve_grid2 := ""
 }
 
-If !InStr(GuiControl_copy, "overlayke") && WinExist("ahk_id " hwnd_lakeboard)
-	LLK_Overlay("lakeboard", "hide")
-
 If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 {
 	MsgBox, Giga-Ultrawide resolution detected. The settings section for screen-checks will now open`n`nIf your client has black bars on the sides, you need to locate the checkbox regarding black bars, read its instructions, and then click it.`n`nIf you don't have black bars, you can ignore this message.
@@ -195,14 +187,15 @@ Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
 Else If InStr(GuiControl_copy, "delve")
 {
-	xsettings_menu := xScreenOffSet
-	ysettings_menu := yScreenOffSet + poe_height/3
+	If enable_delve
+	{
+		xsettings_menu := xScreenOffSet
+		ysettings_menu := yScreenOffSet + poe_height/3
+	}
 	GoSub, Settings_menu_delve
 }
 Else If InStr(GuiControl_copy, "item-info") || InStr(GuiControl_copy, "itemchecker")
 	GoSub, Settings_menu_itemchecker
-Else If InStr(GuiControl_copy, "overlayke")
-	GoSub, Settings_menu_lake_helper
 Else If InStr(GuiControl_copy, "leveling")
 	GoSub, Settings_menu_leveling_guide
 Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker"))
@@ -210,7 +203,7 @@ Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker"))
 	map_tracker_clicked := A_TickCount ;workaround for stupid UpDown behavior that leads to rare error message
 	GoSub, Settings_menu_map_tracker
 }
-Else If InStr(GuiControl_copy, "map-info")
+Else If InStr(GuiControl_copy, "map-info") || InStr(GuiControl_copy, "map_info")
 	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad")
 	GoSub, Settings_menu_notepad
@@ -1039,109 +1032,6 @@ Gui, settings_menu: Add, Checkbox, % "ys xp+"checkbox_spacing " BackgroundTrans 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_rule_crit HWNDmain_text cRed Checked"enable_itemchecker_rule_crit, % "crit"
 Return
 
-Settings_menu_lake_helper:
-settings_menu_section := "lake helper"
-If (A_GuiControl = "lake_hotkey_apply")
-{
-	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
-		Return
-	Gui, settings_menu: Submit, NoHide
-	
-	IniWrite, "%lake_hotkey%", ini\lake helper.ini, Settings, hotkey
-	Reload
-	ExitApp
-}
-
-If InStr(A_GuiControl, "lake_delete")
-{
-	calibrate_type := StrReplace(A_GuiControl, "lake_delete_")
-	IniDelete, ini\lake helper.ini, %calibrate_type% tile,
-	Return
-}
-If (A_GuiControl = "lake_enable_stats")
-{
-	Gui, settings_menu: Submit, NoHide
-	IniWrite, % lake_enable_stats, ini\lake helper.ini, Settings, enable stats
-	GoSub, Lake_helper
-	Return
-}
-If InStr(A_GuiControl, "lake_calibrate")
-{
-	calibrate_type := StrReplace(A_GuiControl, "lake_calibrate_")
-	Clipboard := ""
-	SetTimer, MainLoop, Off
-	LLK_Overlay("hide")
-	sleep, 500
-	KeyWait, LButton
-	SendInput, #+{s}
-	Sleep, 2000
-	WinWaitActive, ahk_group poe_window
-	SetTimer, MainLoop, On
-	LLK_Overlay("show")
-	If (Gdip_CreateBitmapFromClipboard() < 0)
-	{
-		LLK_ToolTip("screen-cap failed")
-		Return
-	}
-	Else
-	{
-		ToolTip, calibrating...,,, 17
-		lake_pixelcolors2 := ""
-		IniRead, lake_pixelcolors, ini\lake helper.ini, %calibrate_type% tile,, % A_Space
-		lake_pixelcolors .= (lake_pixelcolors != "") ? "`n" : ""
-		If (Gdip_CreateBitmapFromClipboard() < 0)
-		{
-			LLK_ToolTip("screen-cap failed")
-			Return
-		}
-		pLake_screencap := Gdip_CreateBitmapFromClipboard()
-		Loop, % Gdip_GetImageHeight(pLake_screencap)
-		{
-			check := A_Index - 1
-			Loop, % Gdip_GetImageWidth(pLake_screencap)
-				lake_pixelcolors2 .= Gdip_GetPixelColor(pLake_screencap, A_Index - 1, check, 3) "`n"
-		}
-		Gdip_DisposeImage(pLake_screencap)
-		Loop, Parse, lake_pixelcolors2, `n, `n
-			lake_pixelcolors .= !InStr(lake_pixelcolors, A_Loopfield) && (LLK_InStrCount(lake_pixelcolors2, A_Loopfield, "`n") >= 2) ? A_Loopfield "`n" : ""
-		lake_pixelcolors := (SubStr(lake_pixelcolors, 0, 1) = "`n") ? SubStr(lake_pixelcolors, 1, -1) : lake_pixelcolors
-		IniDelete, ini\lake helper.ini, %calibrate_type% tile
-		IniWrite, % lake_pixelcolors, ini\lake helper.ini, %calibrate_type% tile
-		lake_pixelcolors := ""
-		lake_pixelcolors2 := ""
-		LLK_ToolTip("calibration finished")
-	}
-	Return
-}
-
-GoSub, Lake_helper
-Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Overlayke">wiki page</a>
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, tile size:
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_minus gLake_helper Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_reset gLake_helper Border x+2 wp", % "0"
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_tiles_plus gLake_helper Border x+2 wp", % "+"
-
-Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", gap size:
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_minus gLake_helper Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_reset gLake_helper Border x+2 wp", % "0"
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vlake_gap_plus gLake_helper Border x+2 wp", % "+"
-
-Gui, settings_menu: Add, Checkbox, % "xs Section Center BackgroundTrans vlake_enable_stats gSettings_menu_lake_helper checked"lake_enable_stats, % " enable tile statistics "
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, hotkey:
-Gui, settings_menu: Add, Text, % "xs Section Border Center vlake_hotkey_apply cRed gSettings_menu_lake_helper BackgroundTrans", % " apply && restart "
-/*
-Gui, settings_menu: Add, Checkbox, % "xs Section Center BackgroundTrans vlake_hotkey_alt checked"lake_hotkey_alt, % "alt+"
-Gui, settings_menu: Add, Checkbox, % "ys Center BackgroundTrans vlake_hotkey_ctrl checked"lake_hotkey_ctrl, % "ctrl+"
-Gui, settings_menu: Add, Checkbox, % "ys Center BackgroundTrans vlake_hotkey_shift checked"lake_hotkey_shift, % "shift+"
-*/
-Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, Hotkey, % "ys Center BackgroundTrans vlake_hotkey hp wp", % lake_hotkey
-Gui, settings_menu: Font, % "s"fSize0
-
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vlake_calibrate_water gSettings_menu_lake_helper Border y+"fSize0*1.2, % " calibrate recognition "
-Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vlake_delete_water gSettings_menu_lake_helper Border", % " reset "
-Return
-
 Settings_menu_leveling_guide:
 settings_menu_section := "leveling guide"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker">wiki page</a>
@@ -1206,29 +1096,34 @@ Return
 Settings_menu_map_info:
 settings_menu_section := "map info"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel">wiki page</a>
-If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info y+"font_height " venable_map_info Checked"enable_map_info, enable the map-info panel
+
+If enable_map_info
 {
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
-	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
+	If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
+	{
+		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
+		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
+	}
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+		
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info_settings_apply Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info_settings_apply Border x+2 wp", % "+"
+
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
+
+	Gui, settings_menu: Add, Checkbox, % "xs Section Center gMap_info_settings_apply vMap_info_short BackgroundTrans Checked"map_info_short " y+"fSize0*1.2, % "short mod descriptions"
+
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "search for mods: "
+	Gui, settings_menu: Font, % "s"fSize0 - 4
+	Gui, settings_menu: Add, Edit, % "ys x+0 cBlack BackgroundTrans Limit gMap_info_customization vMap_info_search wp"
+	Gui, settings_menu: Font, % "s"fSize0
+
+	;GoSub, Map_info
 }
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
-	
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info_settings_apply Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "0"
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info_settings_apply Border x+2 wp", % "+"
-
-Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
-
-Gui, settings_menu: Add, Checkbox, % "xs Section Center gMap_info_settings_apply vMap_info_short BackgroundTrans Checked"map_info_short " y+"fSize0*1.2, % "short mod descriptions"
-
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "search for mods: "
-Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, Edit, % "ys x+0 cBlack BackgroundTrans Limit gMap_info_customization vMap_info_search wp"
-Gui, settings_menu: Font, % "s"fSize0
-
-GoSub, Map_info
 Return
 
 Settings_menu_map_tracker:

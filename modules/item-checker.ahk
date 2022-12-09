@@ -783,7 +783,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		}
 		If (InStr(A_LoopField, "allocates ") && InStr(A_LoopField, "(enchant)"))
 			implicits .= StrReplace(A_LoopField, " (enchant)") "`n|`n"
-		If InStr(A_LoopField, "corruption implicit") || InStr(A_LoopField, "eater of worlds implicit") || InStr(A_LoopField, "searing exarch implicit") || (InStr(itemchecker_metadata, "synthesised ") && InStr(A_LoopField, "implicit modifier"))
+		If InStr(A_LoopField, "corruption implicit") || InStr(A_LoopField, "eater of worlds implicit") || InStr(A_LoopField, "searing exarch implicit") || (InStr(itemchecker_metadata, "synthesised ") && InStr(A_LoopField, "implicit modifier") && !enable_itemchecker_gear)
 			implicits .= StrReplace(A_LoopField, " (implicit)") "`n|`n"
 		If InStr(A_LoopField, "{ implicit modifier ") && enable_itemchecker_gear
 			implicits .= StrReplace(A_LoopField, " (implicit)") "`n|`n"
@@ -1181,9 +1181,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 							Switch A_LoopField
 							{
 								Case "cdps":
-									label := "chaos"
+									label := "cha"
 								Case "pdps":
-									label := "phys"
+									label := "phy"
 								Case "edps":
 									label := "ele"
 								Case "speed":
@@ -1320,7 +1320,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t5_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
 					}
 					;If losses_displayed
-						Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundFuchsia w"itemchecker_width*10 " h"divider_height*2, 0
+						Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundGray w"itemchecker_width*10 " h"divider_height*2.5, 0
 				}
 				Else
 				{
