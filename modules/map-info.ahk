@@ -1,4 +1,19 @@
 ﻿Map_info:
+If (A_GuiControl = "enable_map_info")
+{
+	Gui, settings_menu: Submit, NoHide
+	If (enable_map_info = 0)
+	{
+		Gui, map_mods_window: Destroy
+		hwnd_map_mods_window := ""
+		Gui, map_mods_toggle: Destroy
+		hwnd_map_mods_toggle := ""
+	}
+	IniWrite, % enable_map_info, ini\config.ini, Features, enable map-info panel
+	GoSub, Settings_menu
+	Return
+}
+
 If (A_Gui = "")
 {
 	map_mods_clipped := Clipboard

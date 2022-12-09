@@ -59,6 +59,10 @@ If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk")
 	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 If !FileExist("ini\")
 	FileCreateDir, ini\
+If FileExist("ini\lake helper.ini")
+	FileDelete, ini\lake helper.ini
+If FileExist("modules\overlayke.ahk")
+	FileDelete, modules\overlayke.ahk
 
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -151,7 +155,8 @@ IniRead, supported_resolutions, data\Resolutions.ini
 supported_resolutions := "," StrReplace(supported_resolutions, "`n", ",")
 
 WinGet, poe_log_file, ProcessPath, ahk_group poe_window
-poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
+poe_log_file := FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt") ? SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt" : SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\kakaoclient.txt"
+	
 If FileExist(poe_log_file)
 {
 	poe_log := FileOpen(poe_log_file, "r")
@@ -225,7 +230,7 @@ If !FileExist("img\Recognition (" poe_height "p)\Betrayal\")
 Sleep, 250
 
 If !FileExist("img\Recognition (" poe_height "p)\")
-	FileCopyDir, img\_Fallback, img\Recognition (%poe_height%p)
+	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location (preferably outside the C: drive), or running it as administrator, otherwise some features may not work correctly.`n`nThe script will now shut down.")
 
 GoSub, Init_variables
 GoSub, Init_screenchecks
@@ -238,7 +243,6 @@ If WinExist("ahk_exe GeForceNOW.exe")
 	GoSub, Init_geforce
 GoSub, Init_gwennen
 GoSub, Init_itemchecker
-GoSub, Init_lake_helper
 GoSub, Init_legion
 GoSub, Init_maps
 GoSub, Init_notepad
@@ -255,6 +259,9 @@ timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
+
+If enable_startup_beep
+	SoundBeep, 100
 
 GoSub, Resolution_check
 
@@ -425,18 +432,6 @@ GoSub, Legion_seeds2
 Return
 
 Tab::
-If WinExist("ahk_id " hwnd_lakeboard)
-{
-	Loop 25
-	{
-		lake_tile%A_Index%_toggle := "img\GUI\square_blank.png"
-		GuiControl, lakeboard:, lake_tile%A_Index%, img\GUI\square_blank.png
-		GuiControl, lakeboard:, lake_tile%A_Index%_text1, % ""
-		lake_entrance := ""
-		lake_distances[A_Index] := ""
-	}
-	Return
-}
 If WinExist("ahk_id " hwnd_delve_grid)
 {
 	Loop 49
@@ -489,6 +484,12 @@ If (update_available = 1)
 	update_available := 0
 	Return
 }
+If WinExist("ahk_id " hwnd_gem_notes)
+{
+	Gui, gem_notes: Destroy
+	hwnd_gem_notes := ""
+	Return
+}
 If WinExist("ahk_id " hwnd_itemchecker)
 {
 	LLK_ItemCheckClose()
@@ -529,11 +530,6 @@ If WinExist("ahk_id " hwnd_map_tracker) && (map_tracker_display_loot = 1)
 {
 	map_tracker_display_loot := 0
 	LLK_MapTrack()
-	Return
-}
-If WinExist("ahk_id " hwnd_lakeboard)
-{
-	LLK_Overlay("lakeboard", "hide")
 	Return
 }
 If WinExist("ahk_id " hwnd_gear_tracker)
@@ -670,44 +666,6 @@ w::
 x::
 y::
 z::LLK_Omnikey_ToolTip(maps_%A_ThisHotkey%)
-
-#If WinExist("ahk_id " hwnd_lakeboard)
-	
-Left::
-If (SubStr(lake_tiles, 1, 1) = 3)
-	Return
-lake_tiles := (SubStr(lake_tiles, 1, 1) > 3) ? SubStr(lake_tiles, 1, 1) - 1 . SubStr(lake_tiles, 2, 1) : lake_tiles
-hwnd_lakeboard := ""
-IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
-GoSub, Lake_helper
-Return
-
-Right::
-If (SubStr(lake_tiles, 1, 1) = 5)
-	Return
-lake_tiles := (SubStr(lake_tiles, 1, 1) < 5) ? SubStr(lake_tiles, 1, 1) + 1 . SubStr(lake_tiles, 2, 1) : lake_tiles
-hwnd_lakeboard := ""
-IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
-GoSub, Lake_helper
-Return
-
-Down::
-If (SubStr(lake_tiles, 2, 1) = 3)
-	Return
-lake_tiles := (SubStr(lake_tiles, 2, 1) > 3) ? SubStr(lake_tiles, 1, 1) . SubStr(lake_tiles, 2, 1) - 1 : lake_tiles
-hwnd_lakeboard := ""
-IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
-GoSub, Lake_helper
-Return
-
-Up::
-If (SubStr(lake_tiles, 2, 1) = 5)
-	Return
-lake_tiles := (SubStr(lake_tiles, 2, 1) < 5) ? SubStr(lake_tiles, 1, 1) . SubStr(lake_tiles, 2, 1) + 1 : lake_tiles
-hwnd_lakeboard := ""
-IniWrite, % lake_tiles, ini\lake helper.ini, UI, board size
-GoSub, Lake_helper
-Return
 
 #If
 
@@ -1000,6 +958,7 @@ IniRead, imagesearch_variation, ini\geforce now.ini, Settings, image-check varia
 Return
 
 Init_general:
+IniRead, enable_startup_beep, ini\config.ini, Settings, beep, 0
 IniRead, panel_xpos, ini\config.ini, UI, button xcoord, 0
 IniRead, panel_ypos, ini\config.ini, UI, button ycoord, 0
 IniRead, hide_panel, ini\config.ini, UI, hide panel, 0
@@ -1009,6 +968,7 @@ IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
 IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
 IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
 IniRead, enable_map_tracker, ini\config.ini, Features, enable map tracker, 0
+IniRead, enable_map_info, ini\config.ini, Features, enable map-info panel, 0
 
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
 IniRead, fSize_offset, ini\config.ini, UI, font-offset, 0
@@ -1047,7 +1007,6 @@ imagechecks_coords_betrayal := "0," poe_height//2 "," poe_width//2 ",0"
 imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
-global lake_entrance, lake_distances := [], delve_hidden_node, delve_distances := [], loottracker_loot := ""
 global affixes := [], affix_tiers := [], affix_levels := [], item_type
 Loop 20
 {
@@ -1084,8 +1043,6 @@ Return
 #Include modules\item-checker.ahk
 
 #Include modules\lab-info.ahk
-
-#Include modules\overlayke.ahk
 
 #Include modules\seed-explorer.ahk
 
@@ -1234,9 +1191,19 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		}
 	}
 	
+	If enable_leveling_guide && InStr(A_LoopField, "is now level") && InStr(A_LoopField, "/")
+	{
+		parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+		parsed_level := StrReplace(parsed_level, "is now level ")
+		parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+		parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+		gear_tracker_characters[parsed_character] := parsed_level
+		gear_tracker_characters.Delete("lvl 2 required")
+	}
+	
 	If (gear_tracker_char != "")
 	{
-		If InStr(A_Loopfield, "is now level") && InStr(A_Loopfield, gear_tracker_char)
+		If InStr(A_Loopfield, "is now level") && InStr(A_LoopField, "/") && InStr(A_Loopfield, gear_tracker_char)
 			gear_tracker_characters[gear_tracker_char] := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ") + 13)
 	}
 }

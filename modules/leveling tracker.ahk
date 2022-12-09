@@ -108,6 +108,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	gems := Json.Load(json_gems)
 	quests := Json.Load(json_quests)
 	guide_text := ""
+	gem_notes := ""
 
 	Loop, % parsed.Length() ;parse all acts
 	{
@@ -190,6 +191,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 				gemID := step.requiredGem.id
 				step_text .= (rewardType = "vendor") ? "buy " : "take reward: "
 				step_text .= gems[gemID].name
+				If (step.requiredGem.note != "")
+					gem_notes .= gems[gemID].name "=" step.requiredGem.note "`n"
 				Switch gems[gemID].primary_attribute ;group gems into strings for search-strings feature
 				{
 					Case "strength":
@@ -213,6 +216,11 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		}
 	}
 	
+	While (SubStr(gem_notes, 0) = "`n")
+		gem_notes := SubStr(gem_notes, 1, -1)
+	IniDelete, ini\leveling tracker.ini, Gem notes
+	If (gem_notes != "")
+		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int ;create single gem-string for gear tracker feature
 	
 	IniDelete, ini\leveling tracker.ini, Gems
@@ -842,6 +850,7 @@ Return
 Init_leveling_guide:
 IniRead, enable_leveling_guide, ini\config.ini, Features, enable leveling guide, 0
 IniRead, fSize_offset_leveling_guide, ini\leveling tracker.ini, Settings, font-offset, 0
+IniRead, gem_notes, ini\leveling tracker.ini, Gem notes,, %A_Space%
 fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
 IniRead, leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color, White
 IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency, 250
@@ -856,7 +865,7 @@ IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator yc
 If (poe_log_file != 0)
 {
 	poe_log_content_short := SubStr(poe_log_content, -5000)
-	Loop, Parse, poe_log_content_short, `r`n, `r`n
+	Loop, Parse, poe_log_content_short, `n, `r
 	{
 		If InStr(A_Loopfield, "generating level")
 		{
@@ -875,25 +884,57 @@ If (poe_log_file != 0)
 	{
 		;FileRead, poe_log_content, % poe_log_file
 		gear_tracker_characters := []
+		parsed_characters := ","
 		Loop
 		{
-			poe_log_content_short := SubStr(poe_log_content, -0.1*A_Index*StrLen(poe_log_content))
-			Loop, Parse, poe_log_content_short, `r`n, `r`n
+			poe_log_content_short := SubStr(poe_log_content, -0.05*A_Index*StrLen(poe_log_content)) ;parse only the last 5% of the log-file (extend on every loop if nothing found)
+			
+			If (A_Index = 10) && (gear_tracker_characters.Count() = 0) ;abort if no character found within the second half of the log-file
 			{
-				If InStr(A_Loopfield, "is now level ")
+				gear_tracker_characters["lvl 2 required"] := 0
+				break
+			}
+			
+			If !InStr(poe_log_content_short, "is now level ") ;skip current chunk if no character-info is found
+				continue
+			
+			Loop, Parse, poe_log_content_short, `n, `r ;parse current chunk for characters
+			{
+				If (A_LoopField = "")
+					continue
+				If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/") ;line contains character
 				{
 					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
 					parsed_level := StrReplace(parsed_level, "is now level ")
 					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
 					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
-					gear_tracker_characters[parsed_character] := parsed_level
+					parsed_characters .= !InStr(parsed_characters, "," parsed_character ",") ? parsed_character "," : "" ;list found characters
+					If (LLK_InStrCount(parsed_characters, ",") > 6) ;only keep the 5 most recent characters in the list
+						parsed_characters := SubStr(parsed_characters, InStr(parsed_characters, ",",,, 2))
 				}
 			}
-			If (A_Index = 5)
-				gear_tracker_characters["none found, restart"] := 0
+			
+			If (LLK_InStrCount(parsed_characters, ",") > 0) ;if list contains at least one character, parse chunk again for char-level
+			{
+				Loop, Parse, poe_log_content_short, `n, `r
+				{
+					If (A_LoopField = "")
+						continue
+					If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/")
+					{
+						parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+						parsed_level := StrReplace(parsed_level, "is now level ")
+						parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+						parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+						If InStr(parsed_characters, "," parsed_character ",")
+							gear_tracker_characters[parsed_character] := parsed_level
+					}
+				}
+			}
 			If (gear_tracker_characters.Count() > 0)
 				break
 		}
+		
 		;poe_log_content := ""
 		poe_log_content_short := ""
 	}
@@ -937,4 +978,33 @@ LLK_ReplaceAreaID(string)
 	}
 	StringLower, string, string
 	Return string
+}
+
+LLK_LevelGuideGemNote()
+{
+	global
+	gem_note_text := ""
+	Loop, Parse, gem_notes, `n
+	{
+		If (A_LoopField = "")
+			continue
+		If InStr(Clipboard, SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1))
+			gem_note_text := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+	}
+	If !gem_note_text
+		Return 0
+	Else
+	{
+		MouseGetPos, mouseXpos_gem, mouseYpos_gem
+		Gui, gem_notes: New, -DPIScale +E0x20 -Caption +Border +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gem_notes
+		Gui, gem_notes: Margin, font_width/2, font_height/2
+		Gui, gem_notes: Color, Black
+		WinSet, Transparent, %trans%
+		Gui, gem_notes: Font, % "cWhite s"fSize0, Fontin SmallCaps
+		Gui, gem_notes: Add, Text, % "xs Section Center BackgroundTrans Border w"font_width*15, % gem_note_text
+		Gui, gem_notes: Show, % "NA x"mouseXpos_gem " y"mouseYpos_gem
+		WinGetPos,,, gem_width, gem_height, ahk_id %hwnd_gem_notes%
+		Gui, gem_notes: Show, % "NA x"mouseXpos_gem - gem_width*1.1 " y"mouseYpos_gem - gem_height*1.1
+	}
+	Return 1
 }

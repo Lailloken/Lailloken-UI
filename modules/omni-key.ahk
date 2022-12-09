@@ -9,16 +9,32 @@ ClipWait, 0.05
 If (clipboard != "")
 {
 	start := A_TickCount
-	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon")
+	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem")
 	{
 		LLK_ItemCheck()
 		Return
 	}
-	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon")
+	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem")
 	{
 		If (A_TickCount >= start + 200)
 		{
 			LLK_ItemCheck()
+			KeyWait, % ThisHotkey_copy
+			Return
+		}
+	}
+	If WinExist("ahk_id " hwnd_gem_notes) && InStr(Clipboard, "rarity: gem")
+	{
+		If !LLK_LevelGuideGemNote()
+			LLK_ToolTip("no notes")
+		Return
+	}
+	While enable_leveling_guide && GetKeyState(ThisHotkey_copy, "P") && InStr(Clipboard, "rarity: gem")
+	{
+		If (A_TickCount >= start + 200)
+		{
+			If !LLK_LevelGuideGemNote()
+				LLK_ToolTip("no notes")
 			KeyWait, % ThisHotkey_copy
 			Return
 		}
@@ -166,11 +182,6 @@ If WinExist("ahk_id " hwnd_delve_grid)
 {
 	If (delve_enable_recognition = 1)
 		GoSub, Delve_scan
-	Return
-}
-If WinExist("ahk_id " hwnd_lakeboard)
-{
-	GoSub, Lake_helper_scan
 	Return
 }
 Clipboard := ""

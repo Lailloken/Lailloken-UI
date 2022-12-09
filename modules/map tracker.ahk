@@ -451,7 +451,7 @@ LLK_MapTrackGUI(mode := "")
 
 LLK_MapTrackInstance(log_line)
 {
-	If InStr(log_line, "mapworlds") || InStr(log_line, "LakePrototype") || InStr(log_line, "Maven") || InStr(log_line, "betrayal") || InStr(log_line, "incursion") || (InStr(log_line, "heist") && !InStr(log_line, "heisthub")) || InStr(log_line, "mapatziri") || InStr(log_line, "legionleague") || InStr(log_line, "expedition") || InStr(log_line, "atlasexilesboss")
+	If InStr(log_line, "mapworlds") || InStr(log_line, "Maven") || InStr(log_line, "betrayal") || InStr(log_line, "incursion") || (InStr(log_line, "heist") && !InStr(log_line, "heisthub")) || InStr(log_line, "mapatziri") || InStr(log_line, "legionleague") || InStr(log_line, "expedition") || InStr(log_line, "atlasexilesboss")
 		Return 1
 	Else Return 0
 }
