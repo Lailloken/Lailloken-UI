@@ -14,6 +14,16 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 # Features:
+<details>
+  <summary><h2>Legacy Features</h2></summary>
+  
+  ### [Archnemesis Recipe Helper](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis)
+  ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg)  
+  
+  ### [Overlayke](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke): Lake of Kalandra Planner/Preview overlay
+  ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png)  
+</details>
+ 
 ## [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
@@ -40,10 +50,6 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 
 ## [Delve-helper](https://github.com/Lailloken/Lailloken-UI/wiki/Delve-helper): in-client UI to help find hidden delve passages (with optional image recognition)  
 ![image](https://user-images.githubusercontent.com/61888437/182579413-50e1994a-768c-4e03-ab7f-46c32ec04829.png)  
-<br>
-
-## [Overlayke](https://github.com/Lailloken/Lailloken-UI/wiki/Overlayke): planner/preview overlay for the Lake of Kalandra mechanic
-![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png)  
 <br>
 
 ## [Notepad & text-widgets](https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets): in-client notepad & free-floating sticky-notes  
