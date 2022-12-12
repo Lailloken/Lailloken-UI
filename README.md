@@ -13,17 +13,14 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).  
 <br>
 
-# Features:
-<details>
-  <summary><h2>Legacy Features</h2></summary>
-  
-  ### [Archnemesis Recipe Helper](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis)
-  ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg)  
-  
-  ### [Overlayke](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke): Lake of Kalandra Planner/Preview overlay
-  ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png)  
-</details>
- 
+# Legacy Features:
+
+| [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
+|-------------|----------|
+| ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
+<br>
+
+# Current Features: 
 ## [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
