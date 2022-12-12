@@ -425,16 +425,16 @@ If (fullscreen = "false")
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border vcustom_resolution_apply gApply_settings_general", % " apply && restart "
 Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" custom_resolution_setting " vcustom_resolution_setting gApply_settings_general", % "apply on startup "
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general y+"fSize0*1.2, % "hide llk-ui panel"
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
+Gui, settings_menu: Add, Checkbox, % "ys x+"font_width*1.5 " BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide llk-ui panel"
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans y+"fSize0*1.2 " vEnable_browser_features gApply_settings_general Checked"enable_browser_features, % "enable browser features"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vBrowser_features_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans y+"fSize0*1.2 " vEnable_caps_toggling gApply_settings_general Checked"enable_caps_toggling, % "enable capslock-toggling"
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans vEnable_caps_toggling gApply_settings_general Checked"enable_caps_toggling, % "enable capslock-toggling"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vCaps_toggling_help hp w-1", img\GUI\help.png
 Return
 
@@ -570,6 +570,19 @@ examples
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "poe_config_help")
+{
+text =
+(
+explanation
+this is for users who run poe as a limited user on their pc.
+
+use this to manually locate the poe config file that belongs to the alternate user-account.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "caps_toggling_help")
 {
 text =
@@ -596,7 +609,7 @@ use-cases: select which search-fields the string will be used for.
 
 string: has to be a valid string that works in game. it will not be corrected or checked for errors here, so make sure it works before saving it.
 
-scrolling: if enabled, scrolling will adjust a number within the string. strings can only contain -one- number.
+scrolling: if enabled, scrolling will adjust a number within the string, or switch between sub-strings. strings with number-scrolling can only contain -one- number.
 
 string 2: an optional secondary string. this will be used when right-clicking the shortcut.
 )

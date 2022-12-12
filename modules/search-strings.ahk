@@ -174,8 +174,8 @@ Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y
 Loop, Parse, stash_search_usecases, `,, `,
 {
 	If (A_Index = 1 || A_Index = 5)
-		Gui, stash_search_menu: Add, Checkbox, % "xs Section BackgroundTrans vStash_search_use_" A_Loopfield " w"width/2 " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
-	Else Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_use_" A_Loopfield " w"width/2 " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
+		Gui, stash_search_menu: Add, Checkbox, % "xs Section BackgroundTrans vStash_search_use_" A_Loopfield " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
+	Else Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_use_" A_Loopfield " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
 }
 
 Gui, stash_search_menu: Font, % "s"fSize0
@@ -367,7 +367,7 @@ Return
 
 Init_searchstrings:
 If !FileExist("ini\stash search.ini")
-	IniWrite, stash=`nvendor=, ini\stash search.ini, Settings
+	IniWrite, stash=`nvendor=`ngwennen=, ini\stash search.ini, Settings
 IniRead, stash_search_check, ini\stash search.ini, Settings
 Loop, Parse, stash_search_usecases, `,, `,
 {

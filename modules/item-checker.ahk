@@ -865,7 +865,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		{
 			If (A_LoopField = "mainhand" || A_LoopField = "offhand") && InStr(Clipboard, "attacks per second: ")
 				item_slot := InStr(equipped_offhand, "speed=") ? "mainhand,offhand" : "mainhand"
-			If (A_LoopField = "offhand") && InStr(Clipboard, "item class: shield")
+			If (A_LoopField = "offhand") && (InStr(Clipboard, "item class: shield") || InStr(Clipboard, "item class: quiver"))
 				item_slot := "offhand"
 			If InStr(Clipboard, InStr(A_LoopField, "ring") ? "item class: " SubStr(A_LoopField, 1, -1) : "item class: " A_LoopField)
 				item_slot := InStr(A_LoopField, "ring") ? "ring1,ring2" : A_LoopField
@@ -2330,6 +2330,8 @@ LLK_ItemCheckRemoveRolls(string, item_type := "")
 				{
 					Loop, Parse, resists, `,
 					{
+						If (A_LoopField = "chaos")
+							continue
 						to_%A_LoopField%_resistance += parse
 						test .= InStr(test, ",to_"A_LoopField "_resistance,") ? "" : "to_"A_LoopField "_resistance,"
 					}

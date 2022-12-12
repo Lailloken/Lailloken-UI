@@ -196,7 +196,10 @@ If (clipboard = "") && (gamescreen = 0)
 	If (disable_imagecheck_bestiary = 0) && (bestiary = 1)
 		GoSub, Bestiary_search
 	If (disable_imagecheck_gwennen = 0) && (gwennen = 1)
-		GoSub, Gwennen_search
+	{
+		stash_search_type := "gwennen"
+		GoSub, Stash_search
+	}
 	If (disable_imagecheck_betrayal = 0) && (betrayal = 1)
 		GoSub, Betrayal_search
 	If (disable_imagecheck_stash = 0) && (stash = 1)
