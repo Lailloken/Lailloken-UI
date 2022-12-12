@@ -57,19 +57,14 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 ![image](https://user-images.githubusercontent.com/61888437/182583978-90fa5572-272f-4047-a0b7-09acd8e9a0a6.png)![image](https://user-images.githubusercontent.com/61888437/182584222-258be1fa-d58f-44ab-a5f3-b650d9bd7480.png)  
 <br>
 
-## [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): customizable quick-access menu for stash and vendor searches  
+## [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): customizable quick-access menu for stash, vendor, and Gwennen searches  
 ![image](https://user-images.githubusercontent.com/61888437/174295941-6ef1eb44-756e-4e4a-83be-3eeedf62298b.png)  
 <br>
 
 ## [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
-### simple search + customization:
-![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png)  
-<br>
-
-### advanced search:
-![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png)  
-
-![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png)  
+| simple search + customization | advanced search |
+|-------------------------------|-----------------|
+| ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png) | ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png) ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png) |
 <br>
 
 ## [Lab-layout overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay)
@@ -77,11 +72,9 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
-### dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/):
-![image](https://user-images.githubusercontent.com/61888437/184829974-6c10b92e-0c8e-4069-98ed-8db6d38feac1.png)  
-
-### (leveling) gear tracker with notifications:
-![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png)  
+| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | (leveling) gear tracker with notifications |
+|----------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| ![image](https://user-images.githubusercontent.com/61888437/184829974-6c10b92e-0c8e-4069-98ed-8db6d38feac1.png) | ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png) |
 <br>
 
 ## [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
@@ -89,20 +82,9 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
-### countdown/alarm-timer:
-![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png)  
-<br>
-
-### orb of horizons tooltips:
-![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png)  
-<br>
-
-### one-click Gwennen regex
-![image](https://user-images.githubusercontent.com/61888437/169816828-5e98ca38-ec54-421a-b6f6-26147805a6da.png)  
-<br>
-
-### improved beastcrafting search
-![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png)  
+| countdown/alarm-timer | orb of horizons tooltips | improved beastcrafting search |
+|-----------------------|--------------------------|-------------------------------|
+| ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png) | ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png) | ![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png) |
 <br>
 
 # Acknowledgements
