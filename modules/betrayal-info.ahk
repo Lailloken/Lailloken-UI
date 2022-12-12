@@ -355,7 +355,7 @@ While GetKeyState(ThisHotkey_copy, "P")
 	}
 }
 
-If GetKeyState("Alt", "P") && GetKeyState("Control", "P") && (betrayal_enable_recognition = 1)
+If ((GetKeyState("Alt", "P") && GetKeyState("Control", "P")) || GetKeyState("RButton", "P")) && (betrayal_enable_recognition = 1)
 {
 	Clipboard := ""
 	SendInput, +#{s}

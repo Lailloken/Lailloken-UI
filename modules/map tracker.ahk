@@ -274,12 +274,28 @@ LLK_MapTrack(mode := "")
 		If (Clipboard = "")
 			Return
 		loottracker_stack_size := ""
-		Loop, Parse, Clipboard, `n, `r
+		loottracker_item_name := ""
+		If !InStr(Clipboard, "Contract: ", 1) && !InStr(Clipboard, "Blueprint: ", 1)
 		{
-			If (A_Index = 3)
-				loottracker_item_name := StrReplace(A_LoopField, "superior ")
-			If InStr(A_LoopField, "stack size:")
-				loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13)
+			Loop, Parse, Clipboard, `n, `r
+			{
+				If (A_Index = 3)
+					loottracker_item_name := StrReplace(A_LoopField, "superior ")
+				If InStr(A_LoopField, "stack size:")
+					loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13)
+			}
+		}
+		Else If InStr(Clipboard, "Contract: ", 1) || InStr(Clipboard, "Blueprint: ", 1)
+		{
+			Loop, Parse, Clipboard, `n, `r
+			{
+				If InStr(A_LoopField, "Contract: ", 1)
+					loottracker_item_name := SubStr(A_LoopField, InStr(A_LoopField, "Contract: ", 1))
+				Else If InStr(A_LoopField, "Blueprint: ", 1)
+					loottracker_item_name := SubStr(A_LoopField, InStr(A_LoopField, "Blueprint: ", 1))
+				If InStr(loottracker_item_name, " of ")
+					loottracker_item_name := SubStr(loottracker_item_name, 1, InStr(loottracker_item_name, " of ") - 1)
+			}
 		}
 		StringLower, loottracker_item_name, loottracker_item_name
 		loottracker_stack_size := (loottracker_stack_size = "") ? "" : " (" loottracker_stack_size ")"
@@ -494,6 +510,7 @@ LLK_MapTrackSave()
 		item := InStr(A_LoopField, "(") ? StrReplace(SubStr(A_LoopField, 1, InStr(A_LoopField, "(") - 2), A_Space, "_") : StrReplace(A_LoopField, A_Space, "_")
 		item := StrReplace(item, "'", "_apostrophe_")
 		item := StrReplace(item, "-", "_dash_")
+		item := StrReplace(item, ":", "_colon_")
 		If !LLK_ArrayHasVal(parsed_loot, item)
 			parsed_loot.Push(item)
 		%item% += InStr(A_LoopField, "(") ? SubStr(A_LoopField, InStr(A_LoopField, "(") + 1, InStr(A_LoopField, ")") - InStr(A_LoopField, "(") + 1) : 1
@@ -503,6 +520,7 @@ LLK_MapTrackSave()
 		item := parsed_loot[A_Index]
 		item_name := StrReplace(parsed_loot[A_Index], "_apostrophe_", "'")
 		item_name := StrReplace(item_name, "_dash_", "-")
+		item_name := StrReplace(item_name, "_colon_", ":")
 		item_name := StrReplace(item_name, "_", A_Space)
 		item_count := (%item% > 1) ? " (" %item% ")" : ""
 		loottracker_loot := (A_Index = 1) ? item_name item_count : loottracker_loot ", " item_name item_count
