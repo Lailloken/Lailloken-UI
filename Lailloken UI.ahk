@@ -63,6 +63,8 @@ If FileExist("ini\lake helper.ini")
 	FileDelete, ini\lake helper.ini
 If FileExist("modules\overlayke.ahk")
 	FileDelete, modules\overlayke.ahk
+If FileExist("modules\gwennen regex.ahk")
+	FileDelete, modules\gwennen regex.ahk
 
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -110,6 +112,7 @@ If !WinExist("ahk_exe GeForceNOW.exe")
 		}
 		IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 	}
+	Else IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 	
 	FileRead, poe_config_content, % poe_config_file
 	If (poe_config_content = "")
@@ -230,7 +233,7 @@ If !FileExist("img\Recognition (" poe_height "p)\Betrayal\")
 Sleep, 250
 
 If !FileExist("img\Recognition (" poe_height "p)\")
-	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location (preferably outside the C: drive), or running it as administrator, otherwise some features may not work correctly.`n`nThe script will now shut down.")
+	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location or running it as administrator.`n`nThe script will now close.")
 
 GoSub, Init_variables
 GoSub, Init_screenchecks
@@ -241,7 +244,6 @@ GoSub, Init_cloneframes
 GoSub, Init_delve
 If WinExist("ahk_exe GeForceNOW.exe")
 	GoSub, Init_geforce
-GoSub, Init_gwennen
 GoSub, Init_itemchecker
 GoSub, Init_legion
 GoSub, Init_maps
@@ -592,13 +594,6 @@ If WinExist("ahk_id " hwnd_betrayal_info) || WinExist("ahk_id " hwnd_betrayal_in
 	WinActivate, ahk_group poe_window
 	Return
 }
-Else If WinExist("ahk_id " hwnd_gwennen_setup)
-{
-	Gui, gwennen_setup: Destroy
-	hwnd_gwennen_setup := ""
-	WinActivate, ahk_group poe_window
-	Return
-}
 Else If WinExist("ahk_id " hwnd_map_info_menu)
 {
 	Gui, map_info_menu: Destroy
@@ -695,6 +690,11 @@ If (A_GuiControl = "custom_resolution_apply")
 	IniWrite, % (fullscreen = "false") ? custom_width : width_native, ini\config.ini, Settings, custom-width
 	Reload
 	ExitApp
+}
+
+If (A_GuiControl = "poe_config_locate")
+{
+	
 }
 
 If (A_GuiControl = "custom_resolution_setting")
@@ -826,8 +826,6 @@ Return
 
 #Include modules\GUI.ahk
 
-#Include modules\Gwennen regex.ahk
-
 Init_conversions:
 IniRead, ini_version, ini\config.ini, Versions, ini-version, 0
 If (ini_version < 12406) && FileExist("ini\pixel checks (" poe_height "p).ini") ;migrate pixel-check settings to screen-checks ini
@@ -922,7 +920,23 @@ If (ini_version < 12900) ;clean up item-info: highlight- and blacklist, default 
 		IniWrite, % itemchecker_ilvl7_color, ini\item-checker.ini, UI, ilvl tier 7
 	}
 }
-IniWrite, 12900, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+If (ini_version < 12903) ;move Gwennen regex-string to search-strings config
+{
+	IniRead, gwennen_check, ini\gwennen.ini, regex, regex, %A_Space%
+	If (gwennen_check != "")
+	{
+		gwennen_check := """" gwennen_check """"
+		IniWrite, (gwennen_1)`,, ini\stash search.ini, Settings, gwennen
+		IniWrite, 1, ini\stash search.ini, gwennen_1, enable
+		IniWrite, "%gwennen_check%", ini\stash search.ini, gwennen_1, string 1
+		IniWrite, 0, ini\stash search.ini, gwennen_1, string 1 enable scrolling
+		IniWrite, "", ini\stash search.ini, gwennen_1, string 2
+		IniWrite, 0, ini\stash search.ini, gwennen_1, string 2 enable scrolling
+	}
+	FileDelete, ini\gwennen.ini
+}
+IniWrite, 12903, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -991,12 +1005,12 @@ gamescreen := 0
 inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
-stash_search_usecases := "stash,vendor"
+stash_search_usecases := "gwennen,stash,vendor"
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
 imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
-guilist .= "betrayal_search|gwennen_setup|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
+guilist .= "betrayal_search|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
@@ -1098,6 +1112,8 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 {
 	If InStr(A_Loopfield, "generating level")
 	{
+		If InStr(A_LoopField, "1_1_1") && WinExist("ahk_id " hwnd_alarm)
+			alarm_timestamp := A_Now
 		portal_modifier := InStr(current_location, "hideout") ? 1 : 0 ;only count portals when entering from hideout, not side-area (lab trial, abyss, etc.)
 		
 		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
@@ -1412,6 +1428,20 @@ If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 		Gui, itemchecker: Destroy
 		hwnd_itemchecker := ""
 	}
+	If (!inventory && pixel_inventory_color1 != "") && WinExist("ahk_id " hwnd_itemchecker_vendor1)
+	{
+		Loop
+		{
+			If (hwnd_itemchecker_vendor%A_Index% != "")
+			{
+				Gui, itemchecker_vendor%A_Index%: Destroy
+				hwnd_itemchecker_vendor%A_Index% := ""
+			}
+			Else Break
+		}
+		itemchecker_vendor_count := 0
+		Return
+	}
 	If enable_itemchecker_gear
 	{
 		If inventory
@@ -1657,8 +1687,6 @@ LLK_HotstringClip(hotstring, mode := 0)
 	hotstringboard := (SubStr(hotstringboard, 0) = " ") ? SubStr(hotstringboard, 1, -1) : hotstringboard
 	If (hotstring = "best")
 		GoSub, Bestiary_search
-	If (hotstring = "gwen")
-		GoSub, Gwennen_search
 	If (hotstring = "synd")
 		GoSub, Betrayal_search
 	If (hotstring = "llk")
