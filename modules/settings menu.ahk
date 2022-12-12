@@ -570,19 +570,6 @@ examples
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
-If (A_GuiControl = "poe_config_help")
-{
-text =
-(
-explanation
-this is for users who run poe as a limited user on their pc.
-
-use this to manually locate the poe config file that belongs to the alternate user-account.
-)
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
-}
-
 If (A_GuiControl = "caps_toggling_help")
 {
 text =
