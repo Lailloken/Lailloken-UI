@@ -692,11 +692,6 @@ If (A_GuiControl = "custom_resolution_apply")
 	ExitApp
 }
 
-If (A_GuiControl = "poe_config_locate")
-{
-	
-}
-
 If (A_GuiControl = "custom_resolution_setting")
 {
 	IniWrite, % %A_GuiControl%, ini\config.ini, Settings, enable custom-resolution
