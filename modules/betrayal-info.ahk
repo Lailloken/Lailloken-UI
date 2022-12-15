@@ -361,14 +361,14 @@ If ((GetKeyState("Alt", "P") && GetKeyState("Control", "P")) || GetKeyState("RBu
 	SendInput, +#{s}
 	Sleep, 1000
 	WinWaitActive, ahk_group poe_window
-	If (Gdip_CreateBitmapFromClipboard() < 0)
+	pBetrayal_screencap := Gdip_CreateBitmapFromClipboard()
+	If (pBetrayal_screencap < 0)
 	{
 		LLK_ToolTip("screen-cap failed")
 		Return
 	}
 	Else
 	{
-		pBetrayal_screencap := Gdip_CreateBitmapFromClipboard()
 		Gdip_GetImageDimensions(pBetrayal_screencap, wBetrayal_screencap, hBetrayal_screencap)
 		hbmBetrayal_screencap := CreateDIBSection(wBetrayal_screencap, hBetrayal_screencap)
 		hdcBetrayal_screencap := CreateCompatibleDC()

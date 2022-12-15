@@ -202,6 +202,8 @@ If (clipboard = "") && (gamescreen = 0)
 	}
 	If (disable_imagecheck_betrayal = 0) && (betrayal = 1)
 		GoSub, Betrayal_search
+	If (disable_imagecheck_sanctum = 0) && (sanctum = 1)
+		GoSub, Sanctum
 	If (disable_imagecheck_stash = 0) && (stash = 1)
 	{
 		stash_search_type := "stash"

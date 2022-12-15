@@ -1,5 +1,10 @@
 ﻿Clone_frames_apply:
 Gui, Settings_menu: Submit, NoHide
+If (A_GuiControl = "clone_frames_hideout_enable")
+{
+	IniWrite, % %A_GuiControl%, ini\clone frames.ini, Settings, hide in hideout
+	Return
+}
 If InStr(A_GuiControl, "pixel")
 {
 	If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
@@ -277,6 +282,7 @@ If !FileExist("ini\clone frames.ini")
 	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
 IniRead, clone_frames_list, ini\clone frames.ini
 IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 1
+IniRead, clone_frames_hideout_enable, ini\clone frames.ini, Settings, hide in hideout, 0
 Loop, Parse, clone_frames_list, `n, `n
 {
 	If (A_LoopField = "Settings")

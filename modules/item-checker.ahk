@@ -791,7 +791,11 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		;	crafted_mods .= StrReplace(A_LoopField, " (crafted)") "`n"
 		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") ;|| InStr(A_LoopField, "crafted")
 			continue
-		itemcheck_clip .= A_LoopField "`n"
+		If InStr(A_LoopField, "`n",,, 2) && (InStr(A_LoopField, "to maximum life") || InStr(A_LoopField, "increased maximum life"))
+			itemcheck_clip .= StrReplace(A_LoopField, "`n", "(llktag_life)`n") "`n"
+		Else If InStr(A_LoopField, "`n",,, 2) && ((InStr(A_LoopField, "to maximum energy") || InStr(A_LoopField, "increased energy")) && !InStr(A_LoopField, "recharge"))
+			itemcheck_clip .= StrReplace(A_LoopField, "`n", "(llktag_energy)`n") "`n"
+		Else itemcheck_clip .= A_LoopField "`n"
 	}
 	
 	Loop, Parse, implicits, |, `n
@@ -1216,7 +1220,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 								stats_present := ""
 							If (InStr(stats_item, "to_" A_LoopField "_resistance") && (to_%A_LoopField%_resistance != 0)) || (InStr(stats_equipped_%loop%, "to_" A_LoopField "_resistance") && to_%A_LoopField%_resistance_%loop% != 0)
 								stats_present .= A_LoopField ","
-							Else If InStr(stats_item, "to_maximum_" A_LoopField) || InStr(stats_equipped_%loop%, "to_maximum_" A_LoopField)
+							Else If (InStr(stats_item, "to_maximum_" A_LoopField) && !InStr(stats_item, "to_maximum_" A_LoopField "_")) || (InStr(stats_equipped_%loop%, "to_maximum_" A_LoopField) && !InStr(stats_equipped_%loop%, "to_maximum_" A_LoopField "_"))
 								stats_present .= A_LoopField ","
 						}
 						Loop, Parse, stats_present, `,
@@ -1236,7 +1240,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 								%A_LoopField%_text := SubStr(A_LoopField, 1, 5) ": +" %parse%
 								%A_LoopField%_difference := %parse%
 							}
-							If losses_%loop%.HasKey("to_maximum_"A_LoopField)
+							If losses_%loop%.HasKey("to_maximum_"A_LoopField) && !losses_%loop%.HasKey("to_maximum_"A_LoopField "_")
 							{
 								%A_LoopField%_text := (losses_%loop%["to_maximum_"A_LoopField] >= 0) ? A_LoopField ": +" losses_%loop%["to_maximum_"A_LoopField] : A_LoopField ": " losses_%loop%["to_maximum_"A_LoopField]
 								%A_LoopField%_difference := losses_%loop%["to_maximum_"A_LoopField]
@@ -1491,7 +1495,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Switch A_Index
 			{
 				Case 1:
-					mod := A_LoopField
+					parse := StrReplace(A_LoopField, "(llktag_energy)")
+					mod := StrReplace(parse, "(llktag_life)")
 				Case 2:
 					quality := A_LoopField
 			}
@@ -1620,7 +1625,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				color := itemchecker_t0_color
 				tier := "—"
 			}
-			If (itemchecker_item_class != "base jewel") && (enable_itemchecker_ilvl || LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)"))
+			If (itemchecker_item_class != "base jewel") && (enable_itemchecker_ilvl || LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)") || LLK_ItemCheckStats(affixes[A_Index]))
 				width := itemchecker_width/2
 			Else If (itemchecker_item_class = "base jewel") || !LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)
 				width := itemchecker_width
@@ -1679,7 +1684,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Gui, itemchecker: Add, Progress, % style " h"height " w"width " BackgroundBlack Border HWNDhwnd_itemchecker_tier"A_Index "_button c"color, 100 ;add colored progress bar as background for tier-column
 			Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center cBlack hp wp BackgroundTrans", % tier ;add number label to tier-column
 			
-			If !enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel") && (LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)")) ;InStr(affix_tiers[A_Index], "chosen") || InStr(affix_tiers[A_Index], "subterranean") || InStr(affix_tiers[A_Index], "of the underground") || InStr(affix_tiers[A_Index], "veil")
+			If !enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel") && (LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)") || LLK_ItemCheckStats(affixes[A_Index])) ;InStr(affix_tiers[A_Index], "chosen") || InStr(affix_tiers[A_Index], "subterranean") || InStr(affix_tiers[A_Index], "of the underground") || InStr(affix_tiers[A_Index], "veil")
 			{
 				Gui, itemchecker: Add, Progress, % "ys hp wp BackgroundBlack HWND_itemchecker_ilvl"A_Index "_button Border c"color, 100
 				Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center cBlack hp wp HWNDmain_text BackgroundTrans",
@@ -1690,7 +1695,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					itemchecker_offset -= 1
 				itemchecker_offset /= 2
 				
-				type := InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") ? "fractured" : InStr(affixes[A_Index], "(crafted)") ? "mastercraft" : LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)
+				;type := (LLK_ItemCheckResists(affixes[A_Index]) != 0) ? LLK_ItemCheckResists(affixes[A_Index]) : ""
+				type := InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") ? "fractured" : InStr(affixes[A_Index], "(crafted)") ? "mastercraft" : (LLK_ItemCheckStats(affixes[A_Index]) != 0) ? LLK_ItemCheckStats(affixes[A_Index]) : LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)
 				If (implicit_h <= itemchecker_height)
 					Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
 				Else Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+"implicit_h//2 - itemchecker_height//2 + 1 " Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
@@ -1947,6 +1953,35 @@ LLK_ItemCheckStrReplace(string, order := 0) ;was experimenting with a 'compact' 
 	Return string
 }
 
+LLK_ItemCheckStats(string)
+{
+	resists := "fire,lightning,cold,chaos"
+	stats := "strength,dexterity,intelligence"
+	Loop, Parse, % resists "," stats, `,
+	{
+		If InStr(string, A_LoopField) && !InStr(string, " and ") && ((InStr(resists, A_LoopField) && InStr(string, "resistance") && !InStr(string, " enem") && !InStr(string, "minion")) || InStr(stats, A_LoopField))
+			Return A_LoopField
+		Else If InStr(string, A_LoopField) && InStr(stats, A_LoopField) && InStr(string, " and ")
+			Return "allstats"
+	}
+	If InStr(string, "minion")
+		Return "minion"
+	Else If InStr(string, "critical strike")
+		Return "crit"
+	Else If InStr(string, "all elemental resistances")
+		Return "allres"
+	Else If InStr(string, "all attributes") || InStr(string, "increased attributes")
+		Return "allstats"
+	Else if InStr(string, "to maximum life") || InStr(string, "increased maximum life") || InStr(string, "(llktag_life)")
+		Return "life"
+	Else if InStr(string, "to maximum energy shield") || (InStr(string, "increased energy shield") && !InStr(string, "recharge")) || InStr(string, "increased maximum energy shield") || InStr(string, "(llktag_energy)")
+		Return "energy"
+	
+	If (InStr(string, "increased ") && (InStr(string, "armour") || InStr(string, "evasion"))) || (InStr(string, "+") && InStr(string, " to ") && (InStr(string, "armour") || InStr(string, "evasion")))
+		Return "armor_evasion"
+	Return 0
+}
+
 LLK_ItemCheckAffixes(string, mode := 0)
 {
 	parse := "bestiary,delve,incursion,syndicate"
@@ -1955,7 +1990,7 @@ LLK_ItemCheckAffixes(string, mode := 0)
 	bestiary := ["saqawal", "farrul", "craiceann", "fenumus"]
 	delve := ["subterranean", "of the underground"]
 	incursion := ["Citaqualotl", "Guatelitzi", "Matatl", "Tacati", "Topotante", "Xopec"]
-	syndicate := ["chosen", "veil"]
+	syndicate := ["chosen", "veil", "of the order"]
 	shaper := ["shaper", "shaping"]
 	elder := ["elder"]
 	crusader := ["crusader", " crusade"]
@@ -2337,7 +2372,7 @@ LLK_ItemCheckRemoveRolls(string, item_type := "")
 					}
 					continue
 				}
-				Else If (InStr(parse_name, "resistance") && InStr(parse_name, "and") && !InStr(parse_name, "minion"))
+				Else If (InStr(parse_name, "resistance") && InStr(parse_name, "and") && !InStr(parse_name, "minion") && !InStr(parse_name, "maximum"))
 				{
 					Loop, Parse, resists, `,
 					{
