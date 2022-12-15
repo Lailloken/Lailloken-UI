@@ -98,6 +98,7 @@ Cremation
 Critical Strike Affliction Support
 Cruelty Support
 Culling Strike Support
+Cursed Ground Support
 Cyclone
 Damage on Full Life Support
 Dark Pact
@@ -181,6 +182,7 @@ Frost Wall
 Frostbite
 Frostblink
 Frostbolt
+Frozen Legion
 Galvanic Arrow
 Galvanic Field
 General's Cry
@@ -199,6 +201,7 @@ Herald of Ash
 Herald of Ice
 Herald of Purity
 Herald of Thunder
+Hex Bloom Support
 Hexblast
 Hextouch Support
 High-Impact Mine Support
@@ -275,7 +278,7 @@ Multistrike Support
 Nightblade Support
 Onslaught Support
 Orb of Storms
-Overcharge
+Overcharge Support
 Penance Brand
 Perforate
 Pestilent Strike
@@ -392,42 +395,6 @@ Unbound Ailments Support
 Unearth
 Unleash Support
 Urgent Orders Support
-Vaal Ancestral Warchief
-Vaal Arc
-Vaal Blade Vortex
-Vaal Blight
-Vaal Breach
-Vaal Burning Arrow
-Vaal Clarity
-Vaal Cold Snap
-Vaal Cyclone
-Vaal Detonate Dead
-Vaal Discipline
-Vaal Double Strike
-Vaal Earthquake
-Vaal Fireball
-Vaal Flameblast
-Vaal Glacial Hammer
-Vaal Grace
-Vaal Ground Slam
-Vaal Haste
-Vaal Ice Nova
-Vaal Immortal Call
-Vaal Impurity of Fire
-Vaal Impurity of Ice
-Vaal Impurity of Lightning
-Vaal Lightning Strike
-Vaal Lightning Trap
-Vaal Lightning Warp
-Vaal Molten Shell
-Vaal Power Siphon
-Vaal Rain of Arrows
-Vaal Reave
-Vaal Righteous Fire
-Vaal Spark
-Vaal Spectral Throw
-Vaal Storm Call
-Vaal Summon Skeletons
 Vampiric Link
 Vengeance
 Venom Gyre
@@ -439,6 +406,7 @@ Vitality
 Void Manipulation Support
 Void Sphere
 Volatile Dead
+Volcanic Fissure
 Volley Support
 Voltaxic Burst
 Vortex

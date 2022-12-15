@@ -377,6 +377,13 @@
     "required_level": 10,
     "cost": "CurrencyUpgradeToMagic"
   },
+  "Metadata/Items/Gems/SkillGemVaalFlickerStrike": {
+    "id": "Metadata/Items/Gems/SkillGemVaalFlickerStrike",
+    "name": "Vaal Flicker Strike",
+    "primary_attribute": "dexterity",
+    "required_level": 10,
+    "cost": "CurrencyUpgradeToMagic"
+  },
   "Metadata/Items/Gems/SkillGemSpark": {
     "id": "Metadata/Items/Gems/SkillGemSpark",
     "name": "Spark",
@@ -3463,5 +3470,82 @@
     "primary_attribute": "dexterity",
     "required_level": 24,
     "cost": "CurrencyRerollMagic"
+  },
+  "Metadata/Items/Gems/SkillGemVolcanicFissure": {
+    "id": "Metadata/Items/Gems/SkillGemVolcanicFissure",
+    "name": "Volcanic Fissure",
+    "primary_attribute": "strength",
+    "required_level": 12,
+    "cost": "CurrencyUpgradeToMagic"
+  },
+  "Metadata/Items/Gems/SkillGemVaalVolcanicFissure": {
+    "id": "Metadata/Items/Gems/SkillGemVaalVolcanicFissure",
+    "name": "Vaal Volcanic Fissure",
+    "primary_attribute": "strength",
+    "required_level": 12,
+    "cost": "CurrencyUpgradeToMagic"
+  },
+  "Metadata/Items/Gems/SkillGemFrozenLegion": {
+    "id": "Metadata/Items/Gems/SkillGemFrozenLegion",
+    "name": "Frozen Legion",
+    "primary_attribute": "strength",
+    "required_level": 34,
+    "cost": "CurrencyUpgradeRandomly"
+  },
+  "Metadata/Items/Gems/SkillGemVaalCleave": {
+    "id": "Metadata/Items/Gems/SkillGemVaalCleave",
+    "name": "Vaal Cleave",
+    "primary_attribute": "strength",
+    "required_level": 1,
+    "cost": "CurrencyIdentification"
+  },
+  "Metadata/Items/Gems/SkillGemVaalCausticArrow": {
+    "id": "Metadata/Items/Gems/SkillGemVaalCausticArrow",
+    "name": "Vaal Caustic Arrow",
+    "primary_attribute": "dexterity",
+    "required_level": 1,
+    "cost": "CurrencyIdentification"
+  },
+  "Metadata/Items/Gems/SkillGemVaalMoltenStrike": {
+    "id": "Metadata/Items/Gems/SkillGemVaalMoltenStrike",
+    "name": "Vaal Molten Strike",
+    "primary_attribute": "strength",
+    "required_level": 1,
+    "cost": "CurrencyIdentification"
+  },
+  "Metadata/Items/Gems/SupportGemCursedGround": {
+    "id": "Metadata/Items/Gems/SupportGemCursedGround",
+    "name": "Cursed Ground Support",
+    "primary_attribute": "intelligence",
+    "required_level": 31,
+    "cost": "CurrencyUpgradeRandomly"
+  },
+  "Metadata/Items/Gems/SupportGemHexBloom": {
+    "id": "Metadata/Items/Gems/SupportGemHexBloom",
+    "name": "Hex Bloom Support",
+    "primary_attribute": "intelligence",
+    "required_level": 38,
+    "cost": "CurrencyUpgradeToRare"
+  },
+  "Metadata/Items/Gems/SkillGemVaalVenomGyre": {
+    "id": "Metadata/Items/Gems/SkillGemVaalVenomGyre",
+    "name": "Vaal Venom Gyre",
+    "primary_attribute": "dexterity",
+    "required_level": 12,
+    "cost": "CurrencyUpgradeToMagic"
+  },
+  "Metadata/Items/Gems/SkillGemVaalSmite": {
+    "id": "Metadata/Items/Gems/SkillGemVaalSmite",
+    "name": "Vaal Smite",
+    "primary_attribute": "strength",
+    "required_level": 1,
+    "cost": "CurrencyIdentification"
+  },
+  "Metadata/Items/Gems/SkillGemVaalChargedAttack": {
+    "id": "Metadata/Items/Gems/SkillGemVaalChargedAttack",
+    "name": "Vaal Blade Flurry",
+    "primary_attribute": "dexterity",
+    "required_level": 28,
+    "cost": "CurrencyUpgradeRandomly"
   }
 }
