@@ -37,8 +37,11 @@ SysGet, yborder, 33
 SysGet, caption, 4
 
 GroupAdd, poe_window, ahk_exe GeForceNOW.exe
+GroupAdd, poe_window, ahk_exe boosteroid.exe
 GroupAdd, poe_window, ahk_class POEWindowClass
 GroupAdd, poe_ahk_window, ahk_class POEWindowClass
+GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
+GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
 GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
 
 IniRead, clone_frames_failcheck, ini\clone frames.ini
@@ -93,7 +96,7 @@ If WinExist("ahk_group poe_window") && (win_not_exist = 1) ;band-aid fix for sit
 While (A_TickCount < client_start + 4000)
 	sleep, 100
 
-If !WinExist("ahk_exe GeForceNOW.exe")
+If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe")
 {
 	IniRead, poe_config_file, ini\config.ini, Settings, PoE config-file, %A_MyDocuments%\My Games\Path of Exile\production_Config.ini
 	If !FileExist(poe_config_file)
@@ -229,11 +232,13 @@ If !FileExist("img\Recognition (" poe_height "p)\GUI\")
 	FileCreateDir, img\Recognition (%poe_height%p)\GUI\
 If !FileExist("img\Recognition (" poe_height "p)\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
+If !FileExist("img\Recognition (" poe_height "p)\Sanctum\")
+	FileCreateDir, img\Recognition (%poe_height%p)\Sanctum\
 
 Sleep, 250
 
 If !FileExist("img\Recognition (" poe_height "p)\")
-	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location or running it as administrator.`n`nThe script will now close.")
+	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location or running it as administrator.`n`nThe script will now close.`n`n(Hold shift while clicking OK if you want to open the wiki-article with troubleshooting-steps.)")
 
 GoSub, Init_variables
 GoSub, Init_screenchecks
@@ -242,7 +247,7 @@ GoSub, Init_alarm
 GoSub, Init_betrayal
 GoSub, Init_cloneframes
 GoSub, Init_delve
-If WinExist("ahk_exe GeForceNOW.exe")
+If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 	GoSub, Init_geforce
 GoSub, Init_itemchecker
 GoSub, Init_legion
@@ -252,6 +257,7 @@ GoSub, Init_omnikey
 GoSub, Init_searchstrings
 GoSub, Init_leveling_guide
 GoSub, Init_map_tracker
+GoSub, Init_sanctum
 GoSub, Init_conversions
 
 SetTimer, Loop, 1000
@@ -1003,7 +1009,7 @@ pixelsearch_variation := 0
 stash_search_usecases := "gwennen,stash,vendor"
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
-imagechecks_list := "betrayal,bestiary,gwennen,stash,vendor"
+imagechecks_list := "betrayal,bestiary,gwennen,sanctum,stash,vendor"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
 guilist .= "betrayal_search|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 buggy_resolutions := "768,1024,1050"
@@ -1014,6 +1020,7 @@ gear_tracker_filter := 1
 imagechecks_coords_bestiary := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_betrayal := "0," poe_height//2 "," poe_width//2 ",0"
 imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
+imagechecks_coords_sanctum := poe_width/3 "," poe_height*0.5 "," poe_width*(2/3) "," poe_height
 imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
 imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global affixes := [], affix_tiers := [], affix_levels := [], item_type
@@ -1418,6 +1425,22 @@ If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 			}
 		}
 	}
+	/*
+	If clone_frames_hideout_enable && (clone_frames_enabled != "")
+	{
+		clone_frame_parse := SubStr(clone_frames_enabled, 1, InStr(clone_frames_enabled, ",") - 1)
+		If WinExist("ahk_id " hwnd_rage) && (InStr(current_location, "hideout") || InStr(current_location, "_town"))
+			clone_frame_toggle := "hide"
+		Else If !WinExist("ahk_id " hwnd_%clone_frame_parse%) && (!InStr(current_location, "hideout") && !InStr(current_location, "_town"))
+			clone_frame_toggle := "show"
+		Loop, Parse, clone_frames_enabled, `,
+		{
+			If (A_LoopField = "")
+				continue
+			LLK_Overlay("clone_frames_"A_LoopField, clone_frame_toggle)
+		}
+	}
+	*/
 	If (!inventory && pixel_inventory_color1 != "") && WinExist("ahk_id " hwnd_itemchecker)
 	{
 		Gui, itemchecker: Destroy
@@ -1456,7 +1479,7 @@ If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 				LLK_Overlay("itemchecker_gear_" A_LoopField, "hide")
 		}
 	}
-	If ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0) && !WinExist("ahk_id " hwnd_map_tracker_log)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1) && !WinExist("ahk_id " hwnd_map_tracker_log))
+	If (!clone_frames_hideout_enable || (clone_frames_hideout_enable && !InStr(current_location, "hideout") && !InStr(current_location, "_town"))) && (((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 0) && !WinExist("ahk_id " hwnd_map_tracker_log)) || ((clone_frames_enabled != "") && (clone_frames_pixelcheck_enable = 1) && (gamescreen = 1) && !WinExist("ahk_id " hwnd_map_tracker_log)))
 	{
 		Loop, Parse, clone_frames_enabled, `,, `,
 		{
@@ -1585,6 +1608,8 @@ You also have to enable "confine mouse to window" in the game's UI options.
 }
 Return
 
+#Include modules\sanctum.ahk
+
 #Include modules\screen-checks.ahk
 
 #Include modules\settings menu.ahk
@@ -1647,6 +1672,8 @@ LLK_Error(ErrorMessage, restart := 0)
 {
 	global
 	MsgBox, % ErrorMessage
+	If InStr(ErrorMessage, "write-permission") && GetKeyState("Shift", "P")
+		Run, https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#error-message-couldnt-create-some-required-folders
 	If restart
 		Reload
 	ExitApp
