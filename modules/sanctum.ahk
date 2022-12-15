@@ -74,12 +74,13 @@ If sanctum_screencap
 	WinSet, Transparent, %trans%
 	Gui, sanctum_setup: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
 	Gui, sanctum_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmSanctum_screencap%
-	Gui, sanctum_setup: Add, Edit, ys BackgroundTrans cBlack vSanctum_edit gSanctum HWNDmain_text, % sanctum_edit
+	Gui, sanctum_setup: Add, Edit, ys Section BackgroundTrans cBlack vSanctum_edit gSanctum HWNDmain_text, % sanctum_edit
+	Gui, sanctum_setup: Add, Text, % "xs BackgroundTrans Border gSanctum vsanctum_choice_abort", % " abort screen-cap "
 	LLK_Overlay("sanctum_setup", "show", 0)
 	WinGetPos, sanctum_xPos, sanctum_yPos, sanctum_w, sanctum_h, ahk_id %hwnd_sanctum_setup%
 }
 
-If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 2) || sanctum_screencap || (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) <= 1)
+If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 1) || sanctum_screencap
 {
 	sanctum_screencap := 0
 	sanctum_matches := 0
@@ -88,7 +89,7 @@ If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 2) || sanctum_scr
 	Gui, sanctum_setup2: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, sanctum_setup2: Font, % "s"fSize0 " cWhite underline", Fontin SmallCaps
-	If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 2)
+	If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 1)
 	{
 		For parse_room, parse_description in sanctum_rooms
 		{
@@ -99,8 +100,6 @@ If (A_GuiControl = "sanctum_edit") && (StrLen(sanctum_edit) >= 2) || sanctum_scr
 			}
 		}
 	}
-	If !sanctum_matches
-		Gui, sanctum_setup2: Add, Text, % "BackgroundTrans gSanctum vsanctum_choice_abort", % "abort screen-cap"
 	Gui, sanctum_setup2: Show, % "NA x10000 y10000"
 	WinGetPos,,, sanctum_w2, sanctum_h2, ahk_id %hwnd_sanctum_setup2%
 	Gui, sanctum_setup2: Show, % "NA x"sanctum_xPos + sanctum_w - sanctum_w2 " y"sanctum_yPos + sanctum_h
