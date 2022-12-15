@@ -96,7 +96,8 @@ If InStr(A_GuiControl, "_calibrate")
 		If WinExist("ahk_id " hwnd_settings_menu)
 			WinWaitActive, ahk_id %hwnd_settings_menu%
 		Else WinWaitActive, ahk_group poe_window
-		If (Gdip_CreateBitmapFromClipboard() < 0)
+		pClipboard := Gdip_CreateBitmapFromClipboard()
+		If (pClipboard < 0)
 		{
 			LLK_ToolTip("screen-cap failed")
 			Return
@@ -104,8 +105,9 @@ If InStr(A_GuiControl, "_calibrate")
 		Else
 		{
 			imagecheck_parse := StrReplace(A_GuiControl, "_image_calibrate")
-			Gdip_SaveBitmapToFile(Gdip_CreateBitmapFromClipboard(), "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp", 100)
+			Gdip_SaveBitmapToFile(pClipboard, "img\Recognition (" poe_height "p)\GUI\" imagecheck_parse ".bmp", 100)
 			imagecheck_%imagecheck_parse%_missing := 0
+			Gdip_DisposeImage(pClipboard)
 		}
 		GoSub, Settings_menu
 	}
@@ -183,6 +185,8 @@ LLK_ImageSearch(name := "")
 	{
 		If (A_Gui = "settings_menu") || (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
+		Else If (A_LoopField = "sanctum")
+			imagesearch_x1 := poe_width//3, imagesearch_y1 := poe_height*(2/3), imagesearch_x2 := poe_width//2, imagesearch_y2 := poe_height
 		Else
 		{
 			Loop, Parse, imagechecks_coords_%A_LoopField%, `,

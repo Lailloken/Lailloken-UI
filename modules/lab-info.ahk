@@ -20,13 +20,14 @@ If (A_ThisHotkey = "Tab")
 {
 	If (hwnd_lab_layout = "")
 	{
-		If (Gdip_CreateBitmapFromClipboard() < 0)
+		pLab := Gdip_CreateBitmapFromClipboard()
+		If (pLab < 0)
 		{
 			LLK_ToolTip("no image-data in clipboard", 1.5, xScreenOffSet + poe_width/2, yScreenOffSet + poe_height/2)
 			KeyWait, Tab
 			Return
 		}
-		pLab_source := Gdip_CloneBitmapArea(Gdip_CreateBitmapFromClipboard(), 257, 42, 1175, 521)
+		pLab_source := Gdip_CloneBitmapArea(pLab, 257, 42, 1175, 521)
 		wLab_source := 1175
 		hLab_source := 521
 		hbmLab_source := CreateDIBSection(wLab_source, hLab_source)
@@ -49,6 +50,7 @@ If (A_ThisHotkey = "Tab")
 		DeleteDC(hdcLab_source)
 		Gdip_DeleteGraphics(gLab_source)
 		Gdip_DisposeImage(pLab_source)
+		Gdip_DisposeImage(pLab)
 	}
 	Else
 	{

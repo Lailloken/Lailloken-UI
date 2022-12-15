@@ -765,7 +765,8 @@ If (A_GuiControl = "delve_calibration")
 	WinWaitActive, ahk_group poe_window
 	SetTimer, MainLoop, On
 	LLK_Overlay("show")
-	If (Gdip_CreateBitmapFromClipboard() < 0)
+	pDelve_section := Gdip_CreateBitmapFromClipboard()
+	If (pDelve_section < 0)
 	{
 		LLK_ToolTip("screen-cap failed")
 		Return
@@ -776,12 +777,6 @@ If (A_GuiControl = "delve_calibration")
 		delve_pixelcolors2 := ""
 		IniRead, delve_pixelcolors, ini\delve calibration.ini, pixelcolors,, % A_Space
 		delve_pixelcolors .= (delve_pixelcolors != "") ? "`n" : ""
-		If (Gdip_CreateBitmapFromClipboard() < 0)
-		{
-			LLK_ToolTip("screen-cap failed")
-			Return
-		}
-		pDelve_section := Gdip_CreateBitmapFromClipboard()
 		Loop, % Gdip_GetImageHeight(pDelve_section)
 		{
 			check := A_Index - 1

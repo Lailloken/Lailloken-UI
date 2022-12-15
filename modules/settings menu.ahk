@@ -138,7 +138,7 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_stashsearch%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	
-	If WinExist("ahk_exe GeForceNOW.exe")
+	If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 	{
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %geforce_style% gSettings_menu HWNDhwnd_settings_geforce, % "geforce now"
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_geforce%
@@ -314,9 +314,11 @@ If (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR") && (enable_pi
 {
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " y+"fSize0*1.2, toggle overlay automatically
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vpixelcheck_auto_trigger hp w-1", img\GUI\help.png
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
 }
-Else Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
+If (poe_log_file != 0)
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_hideout_enable Checked"clone_frames_hideout_enable, hide clone-frames in hideouts/towns
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
 Loop, Parse, clone_frames_list, `n, `n
 {
 	If (A_LoopField = "Settings")
@@ -760,6 +762,21 @@ explanation
 this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\gwennen.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "imagecheck_help_sanctum")
+{
+text =
+(
+instructions
+to recalibrate, open the sanctum map and screen-cap the area displayed above.
+
+explanation
+this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to trigger its cheat-sheet.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\sanctum.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
