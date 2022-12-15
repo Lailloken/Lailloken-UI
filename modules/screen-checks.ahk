@@ -186,7 +186,7 @@ LLK_ImageSearch(name := "")
 		If (A_Gui = "settings_menu") || (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
 		Else If (A_LoopField = "sanctum")
-			imagesearch_x1 := poe_width//3, imagesearch_y1 := poe_height*(2/3), imagesearch_x2 := poe_width//2, imagesearch_y2 := poe_height
+			imagesearch_x1 := poe_width//3, imagesearch_y1 := poe_height*0.5, imagesearch_x2 := poe_width*(2/3), imagesearch_y2 := poe_height
 		Else
 		{
 			Loop, Parse, imagechecks_coords_%A_LoopField%, `,
@@ -211,7 +211,7 @@ LLK_ImageSearch(name := "")
 		If (Gdip_ImageSearch(pHaystack_ImageSearch, pNeedle_ImageSearch, LIST, imagesearch_x1, imagesearch_y1, imagesearch_x2, imagesearch_y2, imagesearch_variation,, 1, 1) > 0)
 		{
 			%A_Loopfield% := 1
-			If (A_LoopField != "betrayal") && !InStr(imagechecks_coords_%A_LoopField%, LIST)
+			If (A_LoopField != "betrayal") && (A_LoopField != "sanctum") && !InStr(imagechecks_coords_%A_LoopField%, LIST)
 			{
 				Gdip_GetImageDimension(pNeedle_ImageSearch, width, height)
 				imagechecks_coords_%A_LoopField% := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height) ;SubStr(imagechecks_coords_%A_LoopField%, InStr(imagechecks_coords_%A_LoopField%, ",",,, 2) + 1)

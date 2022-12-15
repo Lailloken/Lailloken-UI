@@ -129,7 +129,7 @@ While GetKeyState(sanctum_hotkey, "P")
 		sanctum_search_y1 := (sanctum_mouseY - poe_height/4 < 0) ? 0 : sanctum_mouseY - poe_height/4
 		sanctum_search_x2 := (sanctum_mouseX + poe_width/8 > poe_width) ? poe_width : sanctum_mouseX + poe_width/8
 		sanctum_search_y2 := sanctum_mouseY
-		pSearch_sanctum := Gdip_ImageSearch(pHaystack_sanctum, pNeedle_sanctum, sanctum_matches, sanctum_search_x1, sanctum_search_y1, sanctum_search_x2, sanctum_search_y2, imagesearch_variation + 10,, 1, 1)
+		pSearch_sanctum := Gdip_ImageSearch(pHaystack_sanctum, pNeedle_sanctum, sanctum_matches, sanctum_search_x1, sanctum_search_y1, sanctum_search_x2, sanctum_search_y2, imagesearch_variation + 20,, 1, 1)
 		Gdip_DisposeImage(pNeedle_sanctum)
 		Gdip_DisposeImage(pSearch_sanctum)
 		If (pSearch_sanctum > 0)
@@ -164,6 +164,8 @@ While GetKeyState(sanctum_hotkey, "P")
 	}
 	sleep, 100
 }
+sanctum_mouseX_old := ""
+sanctum_mouseY_old := ""
 sanctum_needle_x_old := ""
 sanctum_needle_y_old := ""
 Gui, sanctum_tooltip: Destroy
