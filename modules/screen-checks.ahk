@@ -186,7 +186,7 @@ LLK_ImageSearch(name := "")
 		If (A_Gui = "settings_menu") || (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
 		Else If (A_LoopField = "sanctum")
-			imagesearch_x1 := poe_width//3, imagesearch_y1 := poe_height*0.5, imagesearch_x2 := poe_width*(2/3), imagesearch_y2 := poe_height
+			imagesearch_x1 := poe_width/2, imagesearch_y1 := poe_height*(5/8), imagesearch_x2 := poe_width*0.8, imagesearch_y2 := poe_height*0.75
 		Else
 		{
 			Loop, Parse, imagechecks_coords_%A_LoopField%, `,
