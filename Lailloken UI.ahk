@@ -937,7 +937,14 @@ If (ini_version < 12903) ;move Gwennen regex-string to search-strings config
 	}
 	FileDelete, ini\gwennen.ini
 }
-IniWrite, 12903, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+If (ini_version < 12904.1)
+{
+	FileDelete, img\Recognition (%poe_height%p)\GUI\sanctum.bmp
+	GoSub, Init_screenchecks
+}
+
+IniWrite, 12904.1, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
