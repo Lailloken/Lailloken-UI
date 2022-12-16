@@ -359,6 +359,7 @@ If ((GetKeyState("Alt", "P") && GetKeyState("Control", "P")) || GetKeyState("RBu
 {
 	Clipboard := ""
 	SendInput, +#{s}
+	WinWaitNotActive, ahk_group poe_window,, 2
 	Sleep, 1000
 	WinWaitActive, ahk_group poe_window
 	pBetrayal_screencap := Gdip_CreateBitmapFromClipboard()

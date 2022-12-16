@@ -42,7 +42,8 @@ If GetKeyState("RButton", "P")
 	sanctum_edit := ""
 	sanctum_screencap := 0
 	SendInput, +#{s}
-	Sleep, 1000
+	WinWaitNotActive, ahk_group poe_window,, 2
+	sleep, 1000
 	WinWaitActive, ahk_group poe_window
 	pSanctum_screencap := Gdip_CreateBitmapFromClipboard()
 	If (pSanctum_screencap < 0)
