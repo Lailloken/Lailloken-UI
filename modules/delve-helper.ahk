@@ -760,6 +760,7 @@ If (A_GuiControl = "delve_calibration")
 	LLK_Overlay("hide")
 	sleep, 500
 	KeyWait, LButton
+	WinWaitNotActive, ahk_group poe_window,, 2
 	SendInput, #+{s}
 	Sleep, 2000
 	WinWaitActive, ahk_group poe_window

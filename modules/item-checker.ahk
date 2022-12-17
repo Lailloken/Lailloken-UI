@@ -1034,17 +1034,28 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			affix_tiers.Push(InStr(A_LoopField, "(fractured)") ? affix_name "," tier "f" : affix_name "," tier) ;mark tier as hybrid if applicable
 			mod := betrayal A_LoopField ;StrReplace(A_LoopField, "[hybrid]") ;store mod-text in variable
 			
-			mod1 := (InStr(mod, "adds") || InStr(mod, "added")) && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
-			mod1 := StrReplace(mod1, " (fractured)")
+			parse_mod := ""
+			Loop, Parse, mod
+			{
+				If (A_LoopField = "t") || (A_LoopField = "o") || (A_LoopField = "(") || (A_LoopField = ")") || (A_LoopField = " ")
+					parse_mod .= A_LoopField
+			}
+			
+			;mod1 := (InStr(mod, "adds") || InStr(mod, "added")) && InStr(mod, "to") || (InStr(mod, "minions deal") && InStr(mod, "to")) ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
+			mod1 := InStr(parse_mod, ") to (") ? StrReplace(mod, " to ", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
+			mod1 := StrReplace(mod1, " (fractured)"), mod1 := StrReplace(mod1, "(llktag_energy)"), mod1 := StrReplace(mod1, "(llktag_life)"), mod1 := StrReplace(mod1, "[hybrid]")
 			mods.Push(A_LoopField ";;" tier)
 			
 			roll := "" ;variable in which to store the numerical values of the affix
-			Loop, Parse, % (InStr(mod1, "(") >= 5) ? SubStr(mod1, InStr(mod1, "(") - 4) : mod1 ;parse mod-text character by character
+			offset := 0
+			While (IsNumber(SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1)) || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = "."))
+				offset += 1
+			starting_point := InStr(mod1, "(") - offset
+			Loop, Parse, % InStr(mod1, "(") ? SubStr(mod1, starting_point, InStr(mod1, ")",,, LLK_InStrCount(mod1, ")")) - starting_point + 1) : mod1 ;parse mod-text character by character
 			{
 				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField) ;number or numerical character
 					roll .= A_LoopField
 			}
-			
 			If InStr(roll, "(") ;numerical value has scaling
 			{
 				Loop, Parse, roll, | ;parse numerical value string value by value (in 'adds x to y damage', x and y are values)
@@ -1082,7 +1093,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					}
 				}
 				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
-				roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
+				If (roll1_1 > roll1_2) && !InStr(mod, "--") && !InStr(mod, "(-") && !InStr(mod, "attribute requirement") && !InStr(mod, "on you")
+					roll_qual := - roll1_1 "," - roll1 "," - roll1_2
+				Else roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
 			}
 			Else roll_qual := 0 "," 100 "," 100 ;if numerical value doesn't scale, create a string "0,100,100" where 0 serves as x_lower and 100 as x and x_upper
 			/*

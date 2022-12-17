@@ -91,7 +91,11 @@ If InStr(A_GuiControl, "_calibrate")
 	Else
 	{
 		Clipboard := ""
+		KeyWait, LButton
+		WinActivate, ahk_group poe_window
+		WinWaitActive, ahk_group poe_window,, 2
 		SendInput, #+{s}
+		WinWaitNotActive, ahk_group poe_window,, 2
 		Sleep, 1000
 		If WinExist("ahk_id " hwnd_settings_menu)
 			WinWaitActive, ahk_id %hwnd_settings_menu%
