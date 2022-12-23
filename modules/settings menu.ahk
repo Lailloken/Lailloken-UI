@@ -954,6 +954,12 @@ settings_menu_section := "itemchecker"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
 
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "selected profile: "
+Loop 5
+{
+	color_profile := InStr(itemchecker_profile, A_Index) ? "Fuchsia" : "White"
+	Gui, settings_menu: Add, Text, % "ys Center Border gItemchecker c"color_profile " vitemchecker_profile"A_Index " BackgroundTrans x+2", % " "A_Index " "
+}
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
 Gui, settings_menu: Font, norm

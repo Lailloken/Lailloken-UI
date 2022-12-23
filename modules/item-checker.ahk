@@ -1,5 +1,6 @@
 ﻿Init_itemchecker:
-IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting,, % A_Space
+IniRead, itemchecker_profile, ini\item-checker.ini, settings, current profile, 1
+IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
 If (itemchecker_highlighting != "")
 {
 	Loop, Parse, itemchecker_highlighting, `n
@@ -17,7 +18,11 @@ IniRead, enable_itemchecker_override, ini\item-checker.ini, Settings, enable bla
 IniRead, enable_itemchecker_gear, ini\item-checker.ini, Settings, enable gear-tracking, 0
 
 Loop, Parse, gear_slots, `,
+{
+	If (equipped_%A_LoopField% != "") ;only read items on startup
+		continue
 	IniRead, equipped_%A_LoopField%, ini\item-checker gear.ini, % A_LoopField,, % A_Space
+}
 
 If enable_itemchecker_gear
 	enable_itemchecker_bases := 0, enable_itemchecker_dps := 0
@@ -135,7 +140,7 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 	itemchecker_last_highlight := A_TickCount
 	implicit_highlight := InStr(control_name_checkvendor, "implicit") || InStr(control_name_checkvendor, "cluster") || InStr(A_GuiControl, "implicit") || (InStr(A_GuiControl, "cluster")) ? 1 : 0
 	
-	While (GetKeyState("LButton", "P") || GetKeyState("RButton", "P")) && !implicit
+	While (GetKeyState("LButton", "P") || GetKeyState("RButton", "P")) && !implicit_highlight
 	{
 		If (A_TickCount >= start + 500)
 		{
@@ -279,6 +284,28 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 	;WinActivate, ahk_group poe_window
 	KeyWait, LButton
 	KeyWait, RButton
+	Return
+}
+
+If InStr(A_GuiControl, "itemchecker_profile")
+{
+	GuiControl, settings_menu: +cWhite, itemchecker_profile%itemchecker_profile%
+	IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
+	If (itemchecker_highlighting != "")
+	{
+		Loop, Parse, itemchecker_highlighting, `n ;clear current lists before switching profiles
+		{
+			parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
+			itemchecker_%parse% := ""
+		}
+	}
+	itemchecker_profile := StrReplace(A_GuiControl, "itemchecker_profile")
+	IniWrite, % itemchecker_profile, ini\item-checker.ini, settings, current profile
+	GuiControl, settings_menu: +cFuchsia, itemchecker_profile%itemchecker_profile%
+	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GoSub, Init_itemchecker
+	If WinExist("ahk_id " hwnd_itemchecker)
+		LLK_ItemCheck(1)
 	Return
 }
 
@@ -479,7 +506,7 @@ If InStr(A_GuiControl, "itemchecker_reset_")
 					GoSub, Init_itemchecker
 					GoSub, GUI
 				Default:
-				IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting,, % A_Space
+				IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
 				Loop, Parse, itemchecker_highlighting, `n
 				{
 					If (A_LoopField = "")
@@ -487,8 +514,8 @@ If InStr(A_GuiControl, "itemchecker_reset_")
 					parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
 					If InStr(parse, type)
 					{
-						%parse% := ""
-						IniWrite, % "", ini\item-checker.ini, highlighting, % StrReplace(parse, "_", " ")
+						itemchecker_%parse% := ""
+						IniWrite, % "", ini\item-checker.ini, highlighting %itemchecker_profile%, % StrReplace(parse, "_", " ")
 					}
 				}
 				LLK_ToolTip("list cleared")
@@ -2073,18 +2100,18 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 		If !InStr(itemchecker_highlight%implicit_check%, "|" string "|") ;mod is not highlighted: add it to highlighted mods and save
 		{
 			itemchecker_highlight%implicit_check% .= "|" string "|"
-			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "highlight" : "highlight implicits"
+			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			If InStr(itemchecker_blacklist%implicit_check%, "|" string "|")
 			{
 				itemchecker_blacklist%implicit_check% := StrReplace(itemchecker_blacklist%implicit_check%, "|" string "|")
-				IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "blacklist" : "blacklist implicits"
+				IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
 			}
 			Return 1
 		}
 		Else ;mod is highlighted: remove it from highlighted mods and save
 		{
 			itemchecker_highlight%implicit_check% := StrReplace(itemchecker_highlight%implicit_check%, "|" string "|")
-			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "highlight" : "highlight implicits"
+			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			Return 0
 		}
 	}
@@ -2093,18 +2120,18 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 		If !InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|") ;mod is not highlighted: add it to class-specific highlighted mods and save
 		{
 			itemchecker_highlight_%itemchecker_meta_itemclass% .= "|" string "|"
-			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, highlight %itemchecker_meta_itemclass%
+			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
 			If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 			{
 				itemchecker_blacklist_%itemchecker_meta_itemclass% := StrReplace(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
-				IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, blacklist %itemchecker_meta_itemclass%
+				IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, blacklist %itemchecker_meta_itemclass%
 			}
 			Return 2
 		}
 		Else ;mod is highlighted: remove it from class-specific highlighted mods and save
 		{
 			itemchecker_highlight_%itemchecker_meta_itemclass% := StrReplace(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
-			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, highlight %itemchecker_meta_itemclass%
+			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
 			Return 0
 		}
 	}
@@ -2118,18 +2145,18 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 		If !InStr(itemchecker_blacklist%implicit_check%, "|" string "|") ;mod is not blacklisted: add it to blacklisted mods and save
 		{
 			itemchecker_blacklist%implicit_check% .= "|" string "|"
-			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "blacklist" : "blacklist implicits"
+			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
 			If InStr(itemchecker_highlight%implicit_check%, "|" string "|")
 			{
 				itemchecker_highlight%implicit_check% := StrReplace(itemchecker_highlight%implicit_check%, "|" string "|")
-				IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "highlight" : "highlight implicits"
+				IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			}
 			Return 1
 		}
 		Else ;mod is blacklisted: remove it from blacklisted mods and save
 		{
 			itemchecker_blacklist%implicit_check% := StrReplace(itemchecker_blacklist%implicit_check%, "|" string "|")
-			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting, % !implicit ? "blacklist" : "blacklist implicits"
+			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
 			Return 0
 		}
 	}
@@ -2138,18 +2165,18 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 		If !InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 		{
 			itemchecker_blacklist_%itemchecker_meta_itemclass% .= "|" string "|"
-			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, blacklist %itemchecker_meta_itemclass%
+			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, blacklist %itemchecker_meta_itemclass%
 			If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
 			{
 				itemchecker_highlight_%itemchecker_meta_itemclass% := StrReplace(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
-				IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, highlight %itemchecker_meta_itemclass%
+				IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
 			}
 			Return 2
 		}
 		Else
 		{
 			itemchecker_blacklist_%itemchecker_meta_itemclass% := StrReplace(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
-			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting, blacklist %itemchecker_meta_itemclass%
+			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%*, blacklist %itemchecker_meta_itemclass%
 			Return 0
 		}
 	}
