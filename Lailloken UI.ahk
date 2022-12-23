@@ -951,10 +951,10 @@ If (ini_version < 12905)
 	IniRead, itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods, %A_Space%
 	IniRead, itemchecker_highlight_implicits, ini\item-checker.ini, settings, highlighted implicits, %A_Space%
 	IniRead, itemchecker_blacklist_implicits, ini\item-checker.ini, settings, blacklisted implicits, %A_Space%
-	IniWrite, % itemchecker_highlight, ini\item-checker.ini, highlighting, highlight
-	IniWrite, % itemchecker_highlight_implicits, ini\item-checker.ini, highlighting, highlight implicits
-	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, highlighting, blacklist
-	IniWrite, % itemchecker_blacklist_implicits, ini\item-checker.ini, highlighting, blacklist implicits
+	IniWrite, % itemchecker_highlight, ini\item-checker.ini, highlighting 1, highlight
+	IniWrite, % itemchecker_highlight_implicits, ini\item-checker.ini, highlighting 1, highlight implicits
+	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, highlighting 1, blacklist
+	IniWrite, % itemchecker_blacklist_implicits, ini\item-checker.ini, highlighting 1, blacklist implicits
 	IniDelete, ini\item-checker.ini, settings, highlighted mods
 	IniDelete, ini\item-checker.ini, settings, highlighted implicits
 	IniDelete, ini\item-checker.ini, settings, blacklisted mods
