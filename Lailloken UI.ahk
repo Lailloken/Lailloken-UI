@@ -319,7 +319,7 @@ ClipWait, 0.05
 LLK_ItemCheck()
 Return
 
-#If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0)
+#If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0) && (hwnd_win_hover != hwnd_itemchecker)
 
 ~RButton::
 start_rbutton := A_TickCount
@@ -944,7 +944,25 @@ If (ini_version < 12904.1)
 	GoSub, Init_screenchecks
 }
 
-IniWrite, 12904.1, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+If (ini_version < 12905)
+{
+	FileDelete, img\GUI\item_info_*.png
+	IniRead, itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods, %A_Space%
+	IniRead, itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods, %A_Space%
+	IniRead, itemchecker_highlight_implicits, ini\item-checker.ini, settings, highlighted implicits, %A_Space%
+	IniRead, itemchecker_blacklist_implicits, ini\item-checker.ini, settings, blacklisted implicits, %A_Space%
+	IniWrite, % itemchecker_highlight, ini\item-checker.ini, highlighting 1, highlight
+	IniWrite, % itemchecker_highlight_implicits, ini\item-checker.ini, highlighting 1, highlight implicits
+	IniWrite, % itemchecker_blacklist, ini\item-checker.ini, highlighting 1, blacklist
+	IniWrite, % itemchecker_blacklist_implicits, ini\item-checker.ini, highlighting 1, blacklist implicits
+	IniDelete, ini\item-checker.ini, settings, highlighted mods
+	IniDelete, ini\item-checker.ini, settings, highlighted implicits
+	IniDelete, ini\item-checker.ini, settings, blacklisted mods
+	IniDelete, ini\item-checker.ini, settings, blacklisted implicits
+	GoSub, Init_itemchecker
+}
+
+IniWrite, 12905, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -1036,6 +1054,7 @@ Loop 20
 	hwnd_itemchecker_panel%A_Index% := ""
 	hwnd_itemchecker_panel%A_Index%_text := ""
 	hwnd_itemchecker_panel%A_Index%_button := ""
+	itemchecker_panel%A_Index%_tooltip := ""
 	hwnd_itemchecker_implicit%A_Index% := ""
 	hwnd_itemchecker_implicit%A_Index%_text := ""
 	hwnd_itemchecker_implicit%A_Index%_button := ""
@@ -1386,12 +1405,14 @@ If WinActive("ahk_id " hwnd_itemchecker)
 	WinActivate, ahk_group poe_window
 If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 {
-	If (last_hover <= A_TickCount - 100) && (last_hover != 0) && (mousemove = 0)
+	mouse_hover += 1
+	If (mouse_hover >= 5) && (mousemove != 1)
 	{
 		MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
-		last_hover := 0
-		hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
-		hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
+		mouse_hover := 0
+		;last_hover := 0
+		;hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
+		;hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
 	}
 	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
 		Gui, bestiary_menu: Destroy
@@ -1792,10 +1813,10 @@ LLK_ItemInfoCheck()
 
 LLK_MouseMove()
 {
-	global
-	mousemove := 1
-	If (A_TickCount < last_hover + 25) (&& last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
+	global 
+	If (A_TickCount < last_hover + 25) && (last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
 		Return
+	mousemove := 1
 	last_hover := A_TickCount
 	MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
 	hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
@@ -1816,7 +1837,7 @@ LLK_MouseMove()
 		last_control_hover := hwnd_control_hover
 		If (hwnd_win_hover = hwnd_legion_window || hwnd_win_hover = hwnd_legion_list)
 			GoSub, Legion_seeds_hover
-	}
+	}	
 	mousemove := 0
 }
 

@@ -1,9 +1,15 @@
 ﻿Init_itemchecker:
-IniRead, itemchecker_highlight, ini\item-checker.ini, settings, highlighted mods, %A_Space%
-IniRead, itemchecker_blacklist, ini\item-checker.ini, settings, blacklisted mods, %A_Space%
-IniRead, itemchecker_highlight_implicits, ini\item-checker.ini, settings, highlighted implicits, %A_Space%
-IniRead, itemchecker_blacklist_implicits, ini\item-checker.ini, settings, blacklisted implicits, %A_Space%
-
+IniRead, itemchecker_profile, ini\item-checker.ini, settings, current profile, 1
+IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
+If (itemchecker_highlighting != "")
+{
+	Loop, Parse, itemchecker_highlighting, `n
+	{
+		parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
+		parse1 := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		itemchecker_%parse% := parse1
+	}
+}
 IniRead, enable_itemchecker_ID, ini\item-checker.ini, settings, enable wisdom-scroll trigger, 0
 IniRead, enable_itemchecker_ilvl, ini\item-checker.ini, Settings, enable item-levels, 0
 IniRead, enable_itemchecker_bases, ini\item-checker.ini, Settings, enable base-info, 1
@@ -12,7 +18,11 @@ IniRead, enable_itemchecker_override, ini\item-checker.ini, Settings, enable bla
 IniRead, enable_itemchecker_gear, ini\item-checker.ini, Settings, enable gear-tracking, 0
 
 Loop, Parse, gear_slots, `,
+{
+	If (equipped_%A_LoopField% != "") ;only read items on startup
+		continue
 	IniRead, equipped_%A_LoopField%, ini\item-checker gear.ini, % A_LoopField,, % A_Space
+}
 
 If enable_itemchecker_gear
 	enable_itemchecker_bases := 0, enable_itemchecker_dps := 0
@@ -122,9 +132,24 @@ Return
 Itemchecker:
 ;Function quick-jump: LLK_ItemCheck(), LLK_ItemCheckHighlight()
 start := A_TickCount
+itemchecker_click_mod := 1
 If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_down = "wisdom") && (click = 2)) ;an item mod was clicked
 {
+	If (A_TickCount < itemchecker_last_highlight + 250)
+		Return
+	itemchecker_last_highlight := A_TickCount
 	implicit_highlight := InStr(control_name_checkvendor, "implicit") || InStr(control_name_checkvendor, "cluster") || InStr(A_GuiControl, "implicit") || (InStr(A_GuiControl, "cluster")) ? 1 : 0
+	
+	While (GetKeyState("LButton", "P") || GetKeyState("RButton", "P")) && !implicit_highlight
+	{
+		If (A_TickCount >= start + 500)
+		{
+			itemchecker_click_mod := -1
+			Break
+		}
+		sleep, 25
+	}
+	
 	control_name_checkvendor := ""
 	If (A_Gui = "itemchecker")
 		GuiControlGet, itemchecker_mod,, % A_GuiControl "_text"
@@ -134,39 +159,43 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 		GuiControlGet, control_name_checkvendor, name, % itemchecker_control_hover
 		GuiControlGet, itemchecker_mod,, % hwnd_%control_name_checkvendor%_text
 	}
-	If (LLK_ItemCheckHighlight(StrReplace(itemchecker_mod, " (fractured)"), click, implicit_highlight) = -1)
+	
+	If (LLK_ItemCheckHighlight(itemchecker_mod, click * itemchecker_click_mod, implicit_highlight) = -1) ;blocked by global rule
 		Return
 	
+	highlight_check := LLK_ItemCheckHighlight(itemchecker_mod, 0, implicit_highlight)
 	If (hwnd_itemchecker_cluster_text != "")
 	{
 		GuiControlGet, itemchecker_mod,, % hwnd_itemchecker_cluster_text
-		If (LLK_ItemCheckHighlight(itemchecker_mod, 0, implicit_highlight) = 0)
+		If (highlight_check = 0)
 		{
 			color := "Black"
 			color1 := "White"
 		}
 		Else
 		{
-			color := (LLK_ItemCheckHighlight(itemchecker_mod, 0, implicit_highlight) = 1) ? itemchecker_t1_color : itemchecker_t6_color
+			color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color
 			color1 := "Black"
 		}
 		GuiControl, itemchecker: +c%color%, itemchecker_cluster_button
 		GuiControl, itemchecker: +c%color%, itemchecker_cluster_button1
 		GuiControl, itemchecker: +c%color1%, itemchecker_cluster_text
 	}
+	
 	Loop
 	{
 		If (hwnd_itemchecker_implicit%A_Index%_text = "")
 			Break
 		GuiControlGet, itemchecker_mod,, % hwnd_itemchecker_implicit%A_Index%_text
-		If (LLK_ItemCheckHighlight(itemchecker_mod, 0, 1) = 0)
+		highlight_check := LLK_ItemCheckHighlight(itemchecker_mod, 0, 1)
+		If (highlight_check = 0)
 		{
 			color := "Black"
 			color1 := "White"
 		}
 		Else
 		{
-			color := (LLK_ItemCheckHighlight(itemchecker_mod, 0, 1) = 1) ? itemchecker_t1_color : itemchecker_t6_color
+			color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color
 			color1 := "Black"
 		}
 		GuiControl, itemchecker: +c%color%, itemchecker_implicit%A_Index%_button
@@ -175,16 +204,110 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 	}
 	Loop, % affixes.Count()
 	{
-		mod_check := SubStr(StrReplace(affixes[A_Index], "[hybrid]"), 1, InStr(StrReplace(affixes[A_Index], "[hybrid]"), ";") -1)
+		mod_check := affixes[A_Index]
 		mod_check := StrReplace(mod_check, " (fractured)")
 		mod_check := StrReplace(mod_check, " (crafted)")
-		If (LLK_ItemCheckHighlight(mod_check, 0, 0) = 0)
+		highlight_check := LLK_ItemCheckHighlight(mod_check, 0, 0)
+		If (highlight_check = 0)
 			color := "Black"
-		Else color := LLK_ItemCheckHighlight(mod_check, 0, 0) = 1 ? itemchecker_t1_color : itemchecker_t6_color
+		Else color := (highlight_check = 2) ? itemchecker_t7_color : (highlight_check = 1) ? itemchecker_t1_color : (highlight_check = -2) ? itemchecker_ilvl8_color : itemchecker_t6_color
 		GuiControl, itemchecker: +c%color%, itemchecker_panel%A_Index%_button
 	}
+	If enable_itemchecker_override || (itemchecker_item_class = "base jewel")
+	{
+		Loop, % affix_groups.Count()
+		{
+			check_tier_highlight := 0
+			color := itemchecker_affixgroup%A_Index%_color
+			color1 := itemchecker_affixgroup%A_Index%_color2
+			Loop, Parse, % affix_groups[A_Index], `n
+			{
+				If (SubStr(A_LoopField, 1, 1) = "{")
+					continue
+				highlight_check := LLK_ItemCheckHighlight(A_LoopField)
+				check_tier_highlight += (highlight_check > 0) ? 1 : (highlight_check = 0) ? 0 : -1
+			}
+			GuiControl, itemchecker: -Hidden, itemchecker_affixgroup%A_Index%_icon
+			If (itemchecker_item_class = "base jewel") && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
+				color := itemchecker_t1_color
+			/*
+			Else If enable_itemchecker_override && (check_tier_highlight = - LLK_InStrCount(affix_groups[A_Index], "`n")*2)
+			{
+				color := itemchecker_ilvl8_color
+				color1 := itemchecker_ilvl8_color
+			}
+			*/
+			Else If (affix_tiers[A_Index] = 1) && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
+			{
+				color := "ffffff"
+				color1 := itemchecker_affixgroup%A_Index%_color2
+			}
+			Else If enable_itemchecker_override && (check_tier_highlight <= - LLK_InStrCount(affix_groups[A_Index], "`n")) && !InStr(affix_groups_original[A_Index], "(fractured)")
+			{
+				color := itemchecker_t6_color
+				color1 := itemchecker_t6_color
+				GuiControl, itemchecker: +Hidden, itemchecker_affixgroup%A_Index%_icon
+			}
+			/*
+			Else
+			{
+				color := itemchecker_affixgroup%A_Index%_color
+				color1 := itemchecker_affixgroup%A_Index%_color2
+			}
+			*/
+			/*
+			If LLK_ItemCheckAffixes(affix_names[A_Index]) || InStr(affix_groups_original[A_Index], "(crafted)")
+			{
+				color := itemchecker_t0_color
+				color1 := itemchecker_t0_color
+			}
+			*/
+			If InStr(affix_groups_original[A_Index], "(fractured)")
+			{
+				color := itemchecker_t7_color
+				color1 := itemchecker_t7_color
+			}
+			
+			GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier
+			GuiControl, % (color = "ffffff") ? "itemchecker: +cRed" : "itemchecker: +cBlack", itemchecker_affixgroup%A_Index%_tier_text
+			If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
+			{
+				GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2
+				color1 := (color1 = "ffffff") ? "Red" : "Black"
+				GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2_text
+			}
+			Else GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier2
+		}
+	}
+	
 	WinSet, Redraw,, ahk_id %hwnd_itemchecker%
 	;WinActivate, ahk_group poe_window
+	KeyWait, LButton
+	KeyWait, RButton
+	Return
+}
+
+If InStr(A_GuiControl, "itemchecker_profile")
+{
+	GuiControl, settings_menu: +cWhite, itemchecker_profile%itemchecker_profile%
+	IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
+	If (itemchecker_highlighting != "")
+	{
+		Loop, Parse, itemchecker_highlighting, `n ;clear current lists before switching profiles
+		{
+			If (A_LoopField = "")
+				continue
+			parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
+			itemchecker_%parse% := ""
+		}
+	}
+	itemchecker_profile := StrReplace(A_GuiControl, "itemchecker_profile")
+	IniWrite, % itemchecker_profile, ini\item-checker.ini, settings, current profile
+	GuiControl, settings_menu: +cFuchsia, itemchecker_profile%itemchecker_profile%
+	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GoSub, Init_itemchecker
+	If WinExist("ahk_id " hwnd_itemchecker)
+		LLK_ItemCheck(1)
 	Return
 }
 
@@ -385,10 +508,18 @@ If InStr(A_GuiControl, "itemchecker_reset_")
 					GoSub, Init_itemchecker
 					GoSub, GUI
 				Default:
-				itemchecker_%type% := ""
-				itemchecker_%type%_implicits := ""
-				IniWrite, % itemchecker_%type%, ini\item-checker.ini, settings, %type%ed mods
-				IniWrite, % itemchecker_%type%_implicits, ini\item-checker.ini, settings, %type%ed implicits
+				IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
+				Loop, Parse, itemchecker_highlighting, `n
+				{
+					If (A_LoopField = "")
+						continue
+					parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
+					If InStr(parse, type)
+					{
+						itemchecker_%parse% := ""
+						IniWrite, % "", ini\item-checker.ini, highlighting %itemchecker_profile%, % StrReplace(parse, "_", " ")
+					}
+				}
 				LLK_ToolTip("list cleared")
 				If WinExist("ahk_id " hwnd_itemchecker)
 					LLK_ItemCheck(1)
@@ -412,7 +543,7 @@ Return
 
 LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 {
-	global affixes := [], affix_tiers := [], affix_levels := [], gear_slots
+	global affixes := [], affix_tiers := [], affix_levels := [], affix_groups := [], affix_groups_original := [], affix_names := [], gear_slots, itemchecker_item_class := "", itemchecker_meta_itemclass := ""
 	global itemchecker_mod_data, itemchecker_base_item_data, itemchecker_width, itemchecker_height, enable_itemchecker_ilvl, enable_itemchecker_override, enable_itemchecker_bases, enable_itemchecker_dps, enable_itemchecker_gear
 	global itemchecker_t0_color, itemchecker_t1_color, itemchecker_t2_color, itemchecker_t3_color, itemchecker_t4_color, itemchecker_t5_color, itemchecker_t6_color, itemchecker_t7_color
 	global itemchecker_ilvl0_color, itemchecker_ilvl1_color, itemchecker_ilvl2_color, itemchecker_ilvl3_color, itemchecker_ilvl4_color, itemchecker_ilvl5_color, itemchecker_ilvl6_color, itemchecker_ilvl7_color, itemchecker_ilvl8_color
@@ -429,6 +560,13 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	global itemchecker_implicit1_button1, itemchecker_implicit2_button1, itemchecker_implicit3_button1, itemchecker_implicit4_button1, itemchecker_implicit5_button1, itemchecker_implicit6_button1
 	global itemchecker_gear_mainhand, itemchecker_gear_offhand, itemchecker_gear_helmet, itemchecker_gear_body, itemchecker_gear_amulet, itemchecker_gear_belt, itemchecker_gear_ring1, itemchecker_gear_ring2, itemchecker_gear_boots, itemchecker_gear_gloves
 	global equipped_mainhand, equipped_offhand, equipped_helmet, equipped_body, equipped_amulet, equipped_ring1, equipped_ring2, equipped_gloves, equipped_boots, equipped_belt
+	global itemchecker_affixgroup1_color, itemchecker_affixgroup2_color, itemchecker_affixgroup3_color, itemchecker_affixgroup4_color, itemchecker_affixgroup5_color, itemchecker_affixgroup6_color
+	global itemchecker_affixgroup1_color2, itemchecker_affixgroup2_color2, itemchecker_affixgroup3_color2, itemchecker_affixgroup4_color2, itemchecker_affixgroup5_color2, itemchecker_affixgroup6_color2
+	global itemchecker_affixgroup1_tier, itemchecker_affixgroup2_tier, itemchecker_affixgroup3_tier, itemchecker_affixgroup4_tier, itemchecker_affixgroup5_tier, itemchecker_affixgroup6_tier
+	global itemchecker_affixgroup1_icon, itemchecker_affixgroup2_icon, itemchecker_affixgroup3_icon, itemchecker_affixgroup4_icon, itemchecker_affixgroup5_icon, itemchecker_affixgroup6_icon
+	global itemchecker_affixgroup1_tier_text, itemchecker_affixgroup2_tier_text, itemchecker_affixgroup3_tier_text, itemchecker_affixgroup4_tier_text, itemchecker_affixgroup5_tier_text, itemchecker_affixgroup6_tier_text
+	global itemchecker_affixgroup1_tier2, itemchecker_affixgroup2_tier2, itemchecker_affixgroup3_tier2, itemchecker_affixgroup4_tier2, itemchecker_affixgroup5_tier2, itemchecker_affixgroup6_tier2
+	global itemchecker_affixgroup1_tier2_text, itemchecker_affixgroup2_tier2_text, itemchecker_affixgroup3_tier2_text, itemchecker_affixgroup4_tier2_text, itemchecker_affixgroup5_tier2_text, itemchecker_affixgroup6_tier2_text
 	
 	If (itemchecker_width = 0)
 	{
@@ -438,18 +576,22 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		Gui, itemchecker_width: Font, % "cWhite s"fSize0 + fSize_offset_itemchecker, Fontin SmallCaps
 		Gui, itemchecker_width: Add, Text, % "Border HWNDmain_text", % "77777"
 		GuiControlGet, itemchecker_, Pos, % main_text
-		While (Mod(itemchecker_w, 4) != 0)
-			itemchecker_w += 1
-		;While (Mod(itemchecker_h, 2) != 0)
-		;	itemchecker_h += 1
-		width_margin := itemchecker_w//16
-		While (Mod(width_margin, 4) != 0)
-			width_margin += 1
-		itemchecker_width := itemchecker_w + width_margin
+		
+		While (Mod(itemchecker_h, 4) != 0)
+			itemchecker_h += 1
+		;itemchecker_w := itemchecker_h
+		;While (Mod(itemchecker_w, 4) != 0)
+		;	itemchecker_w += 1
+		;width_margin := itemchecker_w//16
+		;While (Mod(width_margin, 4) != 0)
+		;	width_margin += 1
+		itemchecker_width := itemchecker_h*2 ;+ width_margin
 		itemchecker_height := itemchecker_h
 		Gui, itemchecker_width: Destroy
 		hwnd_itemchecker_width := ""
 	}
+	
+	itemchecker_width_segments := 10
 	
 	If config ;apply changes made in the settings menu
 	{
@@ -461,6 +603,11 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	Loop, Parse, Clipboard, `n, `r
 	{
+		If InStr(A_LoopField, "Item Class: ", 1)
+		{
+			itemchecker_meta_itemclass := SubStr(A_LoopField, InStr(A_LoopField, "Item Class: ", 1) + 12), itemchecker_meta_itemclass := StrReplace(itemchecker_meta_itemclass, " ", "_")
+			StringLower, itemchecker_meta_itemclass, itemchecker_meta_itemclass
+		}
 		If InStr(A_LoopField, "armour: ")
 		{
 			armor := StrReplace(A_LoopField, " (augmented)")
@@ -722,7 +869,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		}
 		tdps := pdps+edps0+cdps
 		tdps := Format("{:0.2f}", tdps)
-		all_dps := pdps "," edps0 "," cdps
+		all_dps := "," pdps "," edps0 "," cdps
 		offenses := "dps=" tdps "`npdps=" pdps "`nedps=" edps0 "`ncdps=" cdps "`nspeed=" speed "`n"
 	}
 	
@@ -737,6 +884,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0 ;is item unique?
 	;jewel := InStr(Clipboard, "viridian jewel") || InStr(Clipboard, "crimson jewel") || InStr(Clipboard, "cobalt jewel") ? 1 : 0 ;is item a jewel?
 	affixes := [] ;array to store affix information
+	affix_groups := [] ;array to store affix information
 	
 	If InStr(itemchecker_metadata, "crimson jewel") || InStr(itemchecker_metadata, "viridian jewel") || InStr(itemchecker_metadata, "cobalt jewel")
 	{
@@ -791,14 +939,21 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		;	crafted_mods .= StrReplace(A_LoopField, " (crafted)") "`n"
 		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") ;|| InStr(A_LoopField, "crafted")
 			continue
+		/*
 		If InStr(A_LoopField, "`n",,, 2) && (InStr(A_LoopField, "to maximum life") || InStr(A_LoopField, "increased maximum life"))
-			itemcheck_clip .= StrReplace(A_LoopField, "`n", "(llktag_life)`n") "`n"
+		{
+			parse := StrReplace(itemcheck_clip, "}`n", "};")
+			parse := StrReplace(parse, "`n", "(llktag_life)`n")
+			parse := StrReplace(parse, "};", "}`n")
+			itemcheck_clip .= parse "`n"
+		}
 		Else If InStr(A_LoopField, "`n",,, 2) && ((InStr(A_LoopField, "to maximum energy") || InStr(A_LoopField, "increased energy")) && !InStr(A_LoopField, "recharge"))
 			itemcheck_clip .= StrReplace(A_LoopField, "`n", "(llktag_energy)`n") "`n"
-		Else itemcheck_clip .= A_LoopField "`n"
+		*/
+		itemcheck_clip .= A_LoopField "`n"
 	}
 	
-	Loop, Parse, implicits, |, `n
+	Loop, Parse, implicits, |, `n ;parse implicits for league-start mode
 	{
 		If (A_LoopField = "") || InStr(A_LoopField, "searing exarch") || InStr(A_LoopField, "eater of worlds") || InStr(A_LoopField, "corruption implicit")
 			continue
@@ -834,7 +989,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		cluster_enchant .= A_LoopField
 	}
 	
-	cluster_enchant := StrReplace(cluster_enchant, "  ", " ")
+	While InStr(cluster_enchant, "  ")
+		cluster_enchant := StrReplace(cluster_enchant, "  ", " ")
 	cluster_enchant := StrReplace(cluster_enchant, "`n ", "`n")
 	cluster_enchant := StrReplace(cluster_enchant, "dagger attacks deal increased damage with hits and ailments")
 	cluster_enchant := StrReplace(cluster_enchant, "sword attacks deal increased damage with hits and ailments")
@@ -843,7 +999,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	cluster_enchant := StrReplace(cluster_enchant, "staff attacks deal increased damage with hits and ailments`n", "staff, mace or sceptre attacks deal increased damage with hits and ailments")
 	cluster_enchant := StrReplace(cluster_enchant, "claw attacks deal increased damage with hits and ailments`n", "claw && dagger attacks deal increased damage with hits and ailments")
 	cluster_enchant := StrReplace(cluster_enchant, "damage over time", "dmg over time")
-	cluster_enchant := (SubStr(cluster_enchant, 1, 1) = " ") ? SubStr(cluster_enchant, 2) : cluster_enchant
+	While (SubStr(cluster_enchant, 1, 1) = " ")
+		cluster_enchant := SubStr(cluster_enchant, 2)
 	cluster_enchant := (SubStr(cluster_enchant, 1, 3) = "to ") ? SubStr(cluster_enchant, 4) : cluster_enchant
 	
 	Loop, Parse, itemcheck_clip, `n ;remove tooltips from item-info
@@ -865,7 +1022,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	If enable_itemchecker_gear
 	{
-		Loop, Parse, gear_slots, `,
+		Loop, Parse, gear_slots, `, ;determine which item-slot the given item belongs in
 		{
 			If (A_LoopField = "mainhand" || A_LoopField = "offhand") && InStr(Clipboard, "attacks per second: ")
 				item_slot := InStr(equipped_offhand, "speed=") ? "mainhand,offhand" : "mainhand"
@@ -874,247 +1031,46 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			If InStr(Clipboard, InStr(A_LoopField, "ring") ? "item class: " SubStr(A_LoopField, 1, -1) : "item class: " A_LoopField)
 				item_slot := InStr(A_LoopField, "ring") ? "ring1,ring2" : A_LoopField
 		}
-		parse_comparison := (item_type != "attack") ? LLK_ItemCheckRemoveRolls(implicits2 defenses StrReplace(itemcheck_clip2, " (crafted)"), item_type) : LLK_ItemCheckRemoveRolls(offenses itemcheck_clip2)
-		Loop, Parse, parse_comparison, `n
+		parse_comparison := (item_type != "attack") ? LLK_ItemCheckRemoveRolls(implicits2 defenses StrReplace(itemcheck_clip2, " (crafted)"), item_type) : LLK_ItemCheckRemoveRolls(offenses itemcheck_clip2) ;create a list of summarized stats for the given item
+		Loop, Parse, parse_comparison, `n ;parse the list, read the individual stats, and declare variables
 		{
 			parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
-			%parse% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-			%parse%_1 := 0
-			%parse%_2 := 0
-			stats_item .= parse ","
+			%parse% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1) ;declare variable, e.g. to_maximum_life := 100
+			%parse%_1 := 0 ;set variable of potential slot 1 to 0
+			%parse%_2 := 0 ;set variable of potential slot 2 to 0
+			stats_item .= parse "," ;list stats that are present on the item
 		}
-		Loop, Parse, item_slot, `,
+		Loop, Parse, item_slot, `, ;read individual stats for all currently equipped items in the target slots
 		{
 			loop := A_Index
-			Loop, Parse, equipped_%A_LoopField%, `n
+			Loop, Parse, equipped_%A_LoopField%, `n ;read stats, declare variables
 			{
 				parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
-				%parse%_%loop% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-				%parse% := (%parse% = "") ? 0 : %parse%
-				stats_equipped_%loop% .= parse ","
+				%parse%_%loop% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1) ;declare variable, e.g. to_maximum_life_1 := 100 ("_n" denoting the n-th currently equipped item, e.g. ring1)
+				%parse% := (%parse% = "") ? 0 : %parse% ;if the looted item doesn't have this stat, set its variable to 0
+				stats_equipped_%loop% .= parse "," ;list stats that are present on the item
 			}
 		}
-		Loop, % loop
+		Loop, % loop ;loop n times (n=number of target slots)
 		{
 			loop1 := A_Index
-			losses_%A_Index% := {}
-			Loop, Parse, stats_equipped_%A_Index%, `,
+			losses_%A_Index% := {} ;clear array in which to store stat losses/gains
+			Loop, Parse, stats_equipped_%A_Index%, `, ;parse the stats on item in slot n
 			{
 				If (A_LoopField = "")
 					continue
-				If (%A_LoopField%_%loop1% - %A_LoopField% != "")
+				If (%A_LoopField%_%loop1% - %A_LoopField% != "") ;store the difference in stat-value in an array
 					losses_%loop1%[A_LoopField] := (%A_LoopField%_%loop1% - %A_LoopField% = 0) ? (%A_LoopField%_%loop1% - %A_LoopField%) : (%A_LoopField%_%loop1% - %A_LoopField%) * (-1)
 			}
 		}
-		item_comparisons := loop1
+		item_comparisons := loop1 ;how many items the looted item will be compared to
 	}
 	
 	;mark lines belonging to hybrid mods, and put lines of an affix into a group
-	itemcheck_clip := StrReplace(itemcheck_clip, "}`n", "};;")
 	itemcheck_clip := StrReplace(itemcheck_clip, "`n{", "|{")
-	If !unique
-		itemcheck_clip := StrReplace(itemcheck_clip, "`n", "[hybrid]`n[hybrid]")
-	itemcheck_clip := StrReplace(itemcheck_clip, "};;", "}`n")
 	affix_levels := [] ;array to store the affix level-requirements
 	affix_tiers := [] ;array to store the affix tiers
 	attack_count := 0 ;variable to store number of attack-specific affixes
-	
-	Loop, Parse, itemcheck_clip, | ;parse the item-info affix by affix
-	{
-		If (unique = 1) && !InStr(A_LoopField, "(") ;skip unscalable unique affix
-			continue
-		loop += 1
-		If (itemchecker_item_class != "base jewel")
-			tier := unique ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : InStr(A_LoopField, "crafted") ? "c" : "—" ;determine affix tier
-		affix_name := unique ? "" : SubStr(A_LoopField, InStr(A_LoopField, """",,, 1) + 1, InStr(A_LoopField, """",,, 2) - InStr(A_LoopField, """",,, 1) - 1)
-		mod := A_LoopField
-		
-		If (item_type = "attack") && ((InStr(A_LoopField, "adds ") && InStr(A_LoopField, " damage") && !InStr(A_LoopField, "spell")) || InStr(A_LoopField, "increased attack speed") || InStr(A_LoopField, "increased physical damage"))
-			attack_count += (tier <= 3) ? 1.5 : 1
-		
-		If !unique
-		{
-			Loop, % itemchecker_mod_data[affix_name].Count()
-			{
-				If InStr(affix_name, "veil")
-				{
-					item_level := 60
-					Break
-				}
-				outer_loop := A_Index
-				target_loop := 0
-				mod_check := 0
-				
-				If (itemchecker_item_class = "base jewel")
-				{
-					tag_check := 0
-					Loop, % itemchecker_mod_data[affix_name].Count()
-					{
-						tag_check += itemchecker_mod_data[affix_name][A_Index].HasKey("LLK_tag")
-						If (tag_check = 1)
-						{
-							target_loop := A_Index
-							Break
-						}
-					}
-				}
-				
-				If ((itemchecker_item_class = "base jewel") && (tag_check = 1))
-				{
-					Loop, % itemchecker_mod_data[affix_name][target_loop]["strings"].Count()
-					{
-						parse := StrReplace(itemchecker_mod_data[affix_name][target_loop]["strings"][A_Index], "1 Added Passive Skill is ")
-						mod_check += InStr(mod, parse) ? 1 : 0
-					}
-				}
-				Else
-				{
-					Loop, % itemchecker_mod_data[affix_name][outer_loop]["strings"].Count()
-					{
-						parse := StrReplace(itemchecker_mod_data[affix_name][outer_loop]["strings"][A_Index], "1 Added Passive Skill is ")
-						mod_check += InStr(mod, parse) ? 1 : 0
-					}
-				}
-				
-				If (!InStr(mod, "[hybrid]") && (mod_check != 0)) || (InStr(mod, "[hybrid]") && (mod_check >= 2))
-				{
-					If (itemchecker_item_class != "base jewel")
-						item_level := itemchecker_mod_data[affix_name][outer_loop]["level"]
-					Else
-					{
-						read_loop := (target_loop = 0) ? outer_loop : target_loop
-						Loop, % itemchecker_mod_data[affix_name][read_loop]["weights"].Count()
-						{
-							If LLK_ArrayHasVal(itemchecker_base_item_data[itemchecker_item_base]["tags"], itemchecker_mod_data[affix_name][read_loop]["weights"][A_Index]["tag"])
-							{
-								tier := itemchecker_mod_data[affix_name][read_loop]["weights"][A_Index]["weight"]
-								tier := InStr(mod, "[hybrid]") ? tier "*" : tier ;MsgBox, % itemchecker_mod_data[affix_name][outer_loop]["weights"][A_Index]["tag"] "`n" itemchecker_mod_data[affix_name][outer_loop]["weights"][A_Index]["weight"]
-								Break 2
-							}
-						}
-					}
-					;If InStr(parse_loopfield, "(hybrid)")
-					;	affix_levels.Push(itemchecker_mod_data[affix_name][outer_loop]["level"])
-					Break
-				} 
-			}
-			;If (itemchecker_item_class != "simple jewel") && (affix_levels[loop2] = "")
-			;	affix_levels.Push("?")
-			;Else If (itemchecker_item_class = "simple jewel") && (tier = "")
-			;	tier := InStr(tier, "h") ? "?h" : "?"
-		}
-		
-		Loop, Parse, A_LoopField, `n ;parse affix info line by line
-		{
-			;check if affix is veiled
-			If InStr(A_LoopField, "'s veil")
-				betrayal := InStr(A_LoopField, """of ") ? SubStr(A_LoopField, InStr(A_LoopField, """of ") + 4, InStr(A_LoopField, "s v") - InStr(A_LoopField, """of ") - 2) : SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s v") - InStr(A_LoopField, """") + 1)
-			Else If InStr(A_LoopField, "s' veil")
-				betrayal := InStr(A_LoopField, """of ") ? SubStr(A_LoopField, InStr(A_LoopField, """of ") + 4, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """of ") - 1) : SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """") + 2)
-			Else If InStr(A_LoopField, """veiled""") || InStr(A_LoopField, """of the veil""")
-				betrayal := ""
-			If (A_Index = 1) ;skip first line of affix group (containing tier, tags, etc.)
-			{
-				affix_type := InStr(A_LoopField, "prefix") ? "prefix" : "suffix"
-				Continue
-			}
-			
-			loop2 += 1
-			affix_divider += (affix_divider = "" && affix_type = "prefix") || (affix_divider = 1 && affix_type = "suffix") ? 1 : 0
-			If (affix_divider = 2)
-			{
-				affixes.Push("divider")
-				affix_tiers.Push("divider")
-				affix_levels.Push("divider")
-				affix_divider += 1
-			}
-			parse_loopfield := A_LoopField
-			tier .= (tier != "u") && InStr(A_LoopField, "[hybrid]") && !InStr(tier, "*") ? "*" : ""
-			affix_levels.Push(item_level)
-			affix_tiers.Push(InStr(A_LoopField, "(fractured)") ? affix_name "," tier "f" : affix_name "," tier) ;mark tier as hybrid if applicable
-			mod := betrayal A_LoopField ;StrReplace(A_LoopField, "[hybrid]") ;store mod-text in variable
-			
-			parse_mod := ""
-			Loop, Parse, mod
-			{
-				If (A_LoopField = "t") || (A_LoopField = "o") || (A_LoopField = "(") || (A_LoopField = ")") || (A_LoopField = " ")
-					parse_mod .= A_LoopField
-			}
-			
-			;mod1 := (InStr(mod, "adds") || InStr(mod, "added")) && InStr(mod, "to") || (InStr(mod, "minions deal") && InStr(mod, "to")) ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
-			mod1 := InStr(parse_mod, ") to (") ? StrReplace(mod, " to ", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
-			mod1 := StrReplace(mod1, " (fractured)"), mod1 := StrReplace(mod1, "(llktag_energy)"), mod1 := StrReplace(mod1, "(llktag_life)"), mod1 := StrReplace(mod1, "[hybrid]")
-			mods.Push(A_LoopField ";;" tier)
-			
-			roll := "" ;variable in which to store the numerical values of the affix
-			offset := 0
-			While (IsNumber(SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1)) || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = "."))
-				offset += 1
-			starting_point := InStr(mod1, "(") - offset
-			Loop, Parse, % InStr(mod1, "(") ? SubStr(mod1, starting_point, InStr(mod1, ")",,, LLK_InStrCount(mod1, ")")) - starting_point + 1) : mod1 ;parse mod-text character by character
-			{
-				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField) ;number or numerical character
-					roll .= A_LoopField
-			}
-			If InStr(roll, "(") ;numerical value has scaling
-			{
-				Loop, Parse, roll, | ;parse numerical value string value by value (in 'adds x to y damage', x and y are values)
-				{
-					If (A_Index = 1)
-						roll_count := 0 ;count number of values, i.e. does the mod only have x, or x and y
-					If (A_LoopField = "")
-						continue
-					roll_count += 1
-					roll_trigger := 0 ;three-step trigger to deconstruct the string
-					trigger_index := 0 ;position within the string at which something was triggered
-					
-					Loop, Parse, % InStr(A_LoopField, "(") ? A_LoopField : A_LoopField "(" A_LoopField "-" A_LoopField ")" ;if given value is scalable, parse string character by character as is: x(x_lower-x_upper) | otherwise, create pseudo-string and parse: x(x-x)
-					{
-						If (A_Index = 1)
-						{
-							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
-							roll%roll_count%_1 := "" ;lower bound of the affix roll
-							roll%roll_count%_2 := "" ;upper bound of the affix roll
-						}
-						If IsNumber(A_LoopField) || (A_LoopField = ".") || (A_LoopField = "-" && A_Index = trigger_index + 1) ;3rd condition = only include minus-sign if it immediately follows a trigger, i.e. '('
-						{
-							If (roll_trigger = 0)
-								roll%roll_count% .= A_LoopField
-							If (roll_trigger = 1)
-								roll%roll_count%_1 .= A_LoopField
-							If (roll_trigger = 2)
-								roll%roll_count%_2 .= A_LoopField
-						}
-						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1) ;'(' and minus-sign increase trigger, but minus-sign only if not preceded by trigger, i.e. if it means 'to' and not 'minus'
-						{
-							roll_trigger += 1
-							trigger_index := A_Index
-						}
-					}
-				}
-				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
-				If (roll1_1 > roll1_2) && !InStr(mod, "--") && !InStr(mod, "(-") && !InStr(mod, "attribute requirement") && !InStr(mod, "on you")
-					roll_qual := - roll1_1 "," - roll1 "," - roll1_2
-				Else roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-			}
-			Else roll_qual := 0 "," 100 "," 100 ;if numerical value doesn't scale, create a string "0,100,100" where 0 serves as x_lower and 100 as x and x_upper
-			/*
-			If (affix_divider = 2)
-			{
-				affixes.Push("divider")
-				affix_tiers.Push("divider")
-				affix_divider += 1
-			}
-			*/
-			affixes.Push(mod ";" roll_qual) ;push mod-text, tier, and roll-values into array
-		}
-	}
-
-	If (loop = 0) && (cluster_type = "") && (item_type != "defense") && (item_type != "attack")
-	{
-		LLK_ToolTip("item is not scalable")
-		Return
-	}
 	
 	;create tooltip GUI
 	Gui, itemchecker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_itemchecker
@@ -1122,20 +1078,44 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	Gui, itemchecker: Color, Black
 	Gui, itemchecker: Font, % "cWhite s"fSize0 + fSize_offset_itemchecker, Fontin SmallCaps
 	
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// DPS area
+	
 	If (item_type = "attack") && ((attack_count >= 3 && enable_itemchecker_dps) || unique || !enable_itemchecker_dps) && !enable_itemchecker_gear  ;create top-area with DPS values if item is weapon
 	{
 		Sort, all_dps, D`, N
-		
+		filler := 0, dps_added := 0, filler_width := itemchecker_width_segments - 6
 		Loop, Parse, all_dps, `,
 		{
-			style := (A_Index = 1) ? "xs Section" : "ys"
-			If (A_LoopField = 0)
-				text := "—"
-			Else text := (cdps = A_LoopField) ? "chaos: " cdps : (edps0 = A_LoopField) ? "ele: " edps0 : (pdps = A_LoopField) ? "phys: " pdps : "—"
-			Gui, itemchecker: Add, Text, % style " Center Border w"itemchecker_width*2.5, % text
+			If (A_LoopField = 0) || (A_LoopField = "")
+			{
+				filler_width += (A_LoopField = 0) ? 1.5 : 0
+				continue
+			}
+			
+			dps_added += 1
+			style := (dps_added = 1) ? "xs Section" : "ys"
+			text := (cdps = A_LoopField) ? Format("{:0.1f}", cdps) : (edps0 = A_LoopField) ? Format("{:0.1f}", edps0) : Format("{:0.1f}", pdps)
+			label := (cdps = A_LoopField) ? "chaos" : (edps0 = A_LoopField) ? "allres" : "phys"
+			If !filler
+			{
+				Gui, itemchecker: Add, Text, % style " Right Border w"filler_width*itemchecker_width " h"itemchecker_height, % "dps: "
+				style := "ys"
+				filler := 1
+			}
+			Gui, itemchecker: Add, Text, % style " Center Border w"itemchecker_width " h"itemchecker_height, % text
+			Gui, itemchecker: Add, Text, % "ys Center Border w"itemchecker_width/2 " h"itemchecker_height,
+			Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", % "img\GUI\item info\"label ".png"
 		}
-		Gui, itemchecker: Add, Text, % "ys Center Border wp", % " dps: " tdps
+		Gui, itemchecker: Add, Text, % "ys Center Border w"itemchecker_width " h"itemchecker_height, % (tdps < 1000) ? Format("{:0.1f}", tdps) : Format("{:0.0f}", tdps)
+		Gui, itemchecker: Add, Text, % "ys Center Border w"itemchecker_width/2 " h"itemchecker_height,
+		Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", % "img\GUI\item info\damage.png"
 	}
+	
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// base-info / stat-comparison area
 	
 	If (enable_itemchecker_bases && (!unique || (item_type = "defense" && defense_roll != 0))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
 	{
@@ -1145,17 +1125,17 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			{
 				Case "attack":
 					stats_present := "physical_damage,critical_strike_chance,attack_time,"
-					physical_damage_text := "dmg: " item_physical_damage_rel "%"
-					critical_strike_chance_text := "crit: " item_critical_strike_chance_rel "%"
-					attack_time_text := "speed: " item_attack_time_rel "%"
+					physical_damage_text := item_physical_damage_rel "%"
+					critical_strike_chance_text := item_critical_strike_chance_rel "%"
+					attack_time_text := item_attack_time_rel "%"
 				Case "defense":
 					stat_order := "armour,evasion,energy_shield,ward,combined,block"
-					armour_text := "arm: " item_armour_rel "%"
-					evasion_text := "eva: " item_evasion_rel "%"
-					energy_shield_text := "es: " item_energy_shield_rel "%"
-					ward_text := "wrd: " item_ward_rel "%"
-					combined_text := "hyb: " item_combined_rel "%"
-					block_text := "blk: " item_block_rel "%"
+					armour_text := item_armour_rel "%"
+					evasion_text := item_evasion_rel "%"
+					energy_shield_text := item_energy_shield_rel "%"
+					ward_text := item_ward_rel "%"
+					combined_text := item_combined_rel "%"
+					block_text := item_block_rel "%"
 					Loop, Parse, stat_order, `,
 					{
 						If LLK_ArrayHasVal(item_stats_array, A_LoopField)
@@ -1166,10 +1146,10 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						;	Break
 					}
 				Default:
-					stats_present := "filler,filler,filler,"
+					stats_present := ""
 			}
 			If unique
-				stats_present := "filler,filler,filler,"
+				stats_present := ""
 		}
 		
 		If (itemchecker_item_class != "base jewel")
@@ -1198,30 +1178,30 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 							Switch A_LoopField
 							{
 								Case "cdps":
-									label := "cha"
+									label := "chaos"
 								Case "pdps":
-									label := "phy"
+									label := "phys"
 								Case "edps":
-									label := "ele"
+									label := "allres"
 								Case "speed":
-									label := "aps"
+									label := "speed"
 								Case "dps":
-									label := "dps"
+									label := "damage"
 							}
 							If losses_%loop%.HasKey(A_LoopField)
 							{
-								decimals := (A_LoopField = "speed") ? 0.2 : 0.1
-								parse := (%A_LoopField%_%loop% != 0) ? Format("{:0.1f}", (losses_%loop%[A_LoopField] / %A_LoopField%_%loop%) * 100) : Format("{:"decimals "f}", (losses_%loop%[A_LoopField]))
-								%A_LoopField%_text := (losses_%loop%[A_LoopField] >= 0) ? label ": +"parse : label ": "parse
+								decimals := (A_LoopField = "speed") ? 0.2 : 0.0
+								parse := (%A_LoopField%_%loop% != 0) ? Format("{:0.0f}", (losses_%loop%[A_LoopField] / %A_LoopField%_%loop%) * 100) : Format("{:"decimals "f}", (losses_%loop%[A_LoopField]))
+								%A_LoopField%_text := (losses_%loop%[A_LoopField] > 0) ? parse : -parse
 								%A_LoopField%_text .= (%A_LoopField%_%loop% != 0) ? "%" : ""
 								%A_LoopField%_difference := parse
 								losses_%loop%[A_LoopField] := ""
 							}
 							Else If !losses_%loop%.HasKey(A_LoopField) && (InStr(stats_item, A_LoopField) && %A_LoopField% != 0)
 							{
-								decimals := (A_LoopField = "speed") ? 0.2 : 0.1
+								decimals := (A_LoopField = "speed") ? 0.2 : 0.0
 								parse := Format("{:"decimals "f}", %A_LoopField%)
-								%A_LoopField%_text := label ": +" parse
+								%A_LoopField%_text := parse
 								%A_LoopField%_difference := parse
 							}
 						}
@@ -1243,45 +1223,57 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 								continue
 							If losses_%loop%.HasKey("to_"A_LoopField "_resistance")
 							{
-								%A_LoopField%_text := (losses_%loop%["to_"A_LoopField "_resistance"] >= 0) ? SubStr(A_LoopField, 1, 5) ": +" losses_%loop%["to_"A_LoopField "_resistance"] : SubStr(A_LoopField, 1, 5) ": " losses_%loop%["to_"A_LoopField "_resistance"]
+								%A_LoopField%_text := (losses_%loop%["to_"A_LoopField "_resistance"] > 0) ? losses_%loop%["to_"A_LoopField "_resistance"] : -losses_%loop%["to_"A_LoopField "_resistance"]
 								%A_LoopField%_difference := losses_%loop%["to_"A_LoopField "_resistance"]
 								losses_%loop%["to_"A_LoopField "_resistance"] := ""
 							}
 							Else If !losses_%loop%.HasKey("to_"A_LoopField "_resistance") && (InStr(stats_item, "to_"A_LoopField "_resistance") && to_%A_LoopField%_resistance != 0)
 							{
 								parse := "to_"A_LoopField "_resistance"
-								%A_LoopField%_text := SubStr(A_LoopField, 1, 5) ": +" %parse%
+								%A_LoopField%_text := %parse%
 								%A_LoopField%_difference := %parse%
 							}
 							If losses_%loop%.HasKey("to_maximum_"A_LoopField) && !losses_%loop%.HasKey("to_maximum_"A_LoopField "_")
 							{
-								%A_LoopField%_text := (losses_%loop%["to_maximum_"A_LoopField] >= 0) ? A_LoopField ": +" losses_%loop%["to_maximum_"A_LoopField] : A_LoopField ": " losses_%loop%["to_maximum_"A_LoopField]
+								%A_LoopField%_text := (losses_%loop%["to_maximum_"A_LoopField] > 0) ? losses_%loop%["to_maximum_"A_LoopField] : -losses_%loop%["to_maximum_"A_LoopField]
 								%A_LoopField%_difference := losses_%loop%["to_maximum_"A_LoopField]
 								losses_%loop%["to_maximum_"A_LoopField] := ""
 							}
 							Else If !losses_%loop%.HasKey("to_maximum_"A_LoopField) && (InStr(stats_item, "to_maximum_"A_LoopField) && to_maximum_%A_LoopField% != 0)
 							{
 								parse := "to_maximum_"A_LoopField
-								%A_LoopField%_text := SubStr(A_LoopField, 1, 5) ": +" %parse%
+								%A_LoopField%_text := %parse%
 								%A_LoopField%_difference := %parse%
 							}
 						}
 					}
 				}
 				loop_count := !enable_itemchecker_gear ? LLK_InStrCount(stats_present, ",") + 1 : LLK_InStrCount(stats_present, ",")
+				/*
 				While (Mod(40, loop_count) != 0) || (loop_count < 4)
 				{
 					loop_count += 1
 					stats_present := "filler," stats_present
 				}
-				width := 40/loop_count*itemchecker_width*0.25
+				*/
+				stats_present := "filler," stats_present
+				;width := 40/loop_count*itemchecker_width*0.25 - itemchecker_width*0.5
 				
-				If (loop_count <= 4)
+				If InStr(stats_present, "life")
+					life_width := (life_difference > 99 || life_difference < -99) ? 0.25 : 0
+				Else life_width := 0
+				
+				If enable_itemchecker_gear
 				{
-					combined_text := StrReplace(combined_text, "hyb: ", "hybrid: ")
-					block_text := StrReplace(block_text, "blk: ", "block: ")
-					ward_text := StrReplace(ward_text, "wrd: ", "ward: ")
+					width := (item_type = "attack") ? itemchecker_width : itemchecker_width*0.5
+					filler_width := (item_type = "attack") ? (itemchecker_width_segments - loop_count*1.5) * itemchecker_width : (itemchecker_width_segments - loop_count - life_width) * itemchecker_width
 				}
+				Else
+				{
+					width := itemchecker_width
+					filler_width := (itemchecker_width_segments - loop_count*1.5) * itemchecker_width
+				}
+				
 				filler := ""
 				Loop, Parse, stats_present, `,
 				{
@@ -1290,13 +1282,21 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					If (A_LoopField = "filler")
 					{
 						style := (filler = "") ? "xs Section" : "ys"
-						Gui, itemchecker: Add, Text, % style " Hidden Border w"width, ;add hidden text label as dummy to get the correct dimensions
-						Gui, itemchecker: Add, Progress, xp yp Border hp wp range66-%item_lvl_max% BackgroundBlack, 0 ;place progress bar on top of dummy label and inherit dimensions
-						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp", % "—" ;add actual text label
+						;Gui, itemchecker: Add, Text, % style " Hidden Border w"filler_width " h"itemchecker_height, ;add hidden text label as dummy to get the correct dimensions
+						;Gui, itemchecker: Add, Progress, %style% Border h%itemchecker_height% w%filler_width% Disabled BackgroundBlack c646464, ;place progress bar on top of dummy label and inherit dimensions
+						If enable_itemchecker_gear
+						{
+							If InStr(item_slot, ",")
+								parse := (loop = 1) ? StrReplace(SubStr(item_slot, 1, InStr(item_slot, ",") - 1), "ring1", "l-ring") ": " : StrReplace(SubStr(item_slot, InStr(item_slot, ",") + 1), "ring2", "r-ring") ": "
+							Else parse := item_slot ": "
+						}
+						Else parse := "base: "
+						Gui, itemchecker: Add, Text, % style " Border Right BackgroundTrans w"filler_width " h"itemchecker_height, % parse
 						filler := 1
 						continue
 					}
-					style := (filler = 1) ? "ys h"itemchecker_height " w"width : "xs Section h"itemchecker_height " w"width
+					width_override := (A_LoopField = "life") ? width + itemchecker_width*life_width : width
+					style := (filler = 1) ? "ys h"itemchecker_height " w"width_override : "xs Section h"itemchecker_height " w"width_override
 					filler := 1
 					color := (base_best_%A_LoopField% = class_best_%A_LoopField%) ? itemchecker_t1_color : "505050"
 					If (%A_LoopField%_difference != "")
@@ -1315,8 +1315,26 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					;If enable_itemchecker_gear
 					;	color := InStr(%A_LoopField%_text, "-") ? itemchecker_t6_color : InStr(%A_LoopField%_text, "+0") ? "Black" : itemchecker_t1_color
 					Gui, itemchecker: Add, Progress, % style " Border range0-100 BackgroundBlack c"color, % !enable_itemchecker_gear ? item_%A_LoopField%_rel : 100 ;place progress bar on top of dummy label and inherit dimensions
-					color := (color != "505050") ? (color = "Black") ? "White" : "Black" : "White"
-					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color, % %A_LoopField%_text ;add actual text label
+					color1 := (color != "505050") ? (color = "Black") ? "White" : "Black" : "White"
+					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1, % %A_LoopField%_text ;add actual text label
+					Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
+					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
+					If enable_itemchecker_gear
+					{
+						If (item_type = "attack")
+							label := (A_LoopField = "cdps") ? "chaos" : (A_LoopField = "pdps") ? "phys" : (A_LoopField = "edps") ? "allres" : (A_LoopField = "speed") ? "speed" : "damage"
+						Else label := A_LoopField
+					}
+					Else
+					{
+						If (item_type = "attack")
+							label := (A_LoopField = "physical_damage") ? "phys" : (A_LoopField = "critical_strike_chance") ? "crit" : "speed"
+						Else label := (A_LoopField = "armour") ? "armor" : (A_LoopField = "energy_shield") ? "energy" : A_LoopField
+						
+						If (A_LoopField = "combined")
+							label := InStr(stats_present, "armour,evasion") ? "armor_evasion" : InStr(stats_present, "armour,energy") ? "armor_energy" : "evasion_energy"
+					}
+					Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", % "img\GUI\item info\"label ".png"
 					;If enable_itemchecker_gear
 					;	Gui, itemchecker: Add, Picture, % "xp+"width/2 " yp+2 BackgroundTrans h"itemchecker_height -4 " w-1", img\GUI\item_info_gear_%A_LoopField%.png
 				}
@@ -1327,7 +1345,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					{
 						If (value = "" || value >= 0) || (item_type = "attack" && key = "increased_attack_speed") || (LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 0) != 1 && LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 1) != 1)
 							continue
-						Gui, itemchecker: Add, Progress, % "xs Section Disabled Border BackgroundBlack w"itemchecker_width*10 " h"itemchecker_height, 0
+						Gui, itemchecker: Add, Progress, % "xs Section Disabled Border BackgroundBlack w"itemchecker_width*itemchecker_width_segments " h"itemchecker_height, 0
 						parse := StrReplace(key, "adds_to_")
 						If (SubStr(parse, 1, 10) = "chance_to_") || (SubStr(parse, 1, 10) = "increased_") || (SubStr(parse, 1, 8) = "reduced_")
 							parse := "%_" parse
@@ -1337,30 +1355,40 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"itemchecker_t5_color, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
 					}
 					;If losses_displayed
-						Gui, itemchecker: Add, Progress, % "xs Section Disabled BackgroundGray w"itemchecker_width*10 " h"divider_height*2.5, 0
+						Gui, itemchecker: Add, Progress, % "xs Section Disabled Background646464 w"itemchecker_width*itemchecker_width_segments " h"divider_height*2.5, 0
 				}
 				Else
 				{
 					If unique
 					{
-						Gui, itemchecker: Add, Text, % "ys Hidden Border wp", ;add hidden text label as dummy to get the correct dimensions
+						;Gui, itemchecker: Add, Text, % "ys Hidden Border wp h"itemchecker_height, ;add hidden text label as dummy to get the correct dimensions
 						color := (defense_roll >= 99) ? itemchecker_t1_color : "505050" ;highlight ilvl bar green if ilvl >= 86
-						Gui, itemchecker: Add, Progress, xp yp Border hp wp range75-100 BackgroundBlack c%color%, % defense_roll ;place progress bar on top of dummy label and inherit dimensions
-						color := (color != "505050") ? "Black" : "White"
-						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color, % "base: " defense_roll "%" ;add actual text label
+						Gui, itemchecker: Add, Progress, ys Border hp w%itemchecker_width% range75-100 BackgroundBlack c%color%, % defense_roll ;place progress bar on top of dummy label and inherit dimensions
+						color1 := (color != "505050") ? "Black" : "White"
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1, % defense_roll "%" ;add actual text label
+						Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
+						Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item info\defense.png
 					}
 					Else
 					{
-						Gui, itemchecker: Add, Text, % "ys Hidden Border wp", ;add hidden text label as dummy to get the correct dimensions
+						;Gui, itemchecker: Add, Text, % "ys Hidden Border wp h"itemchecker_height, ;add hidden text label as dummy to get the correct dimensions
 						color := (item_lvl >= item_lvl_max) ? itemchecker_t1_color : "505050" ;highlight ilvl bar green if ilvl >= 86
-						Gui, itemchecker: Add, Progress, xp yp Border hp wp range66-%item_lvl_max% BackgroundBlack c%color%, % item_lvl ;place progress bar on top of dummy label and inherit dimensions
-						color := (color != "505050") ? "Black" : "White"
-						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color, % "ilvl: " item_lvl "/" item_lvl_max ;add actual text label
+						Gui, itemchecker: Add, Progress, ys Border h%itemchecker_height% w%itemchecker_width% range66-%item_lvl_max% BackgroundBlack c%color%, % item_lvl ;place progress bar on top of dummy label and inherit dimensions
+						color1 := (color != "505050") ? "Black" : "White"
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1, % item_lvl "/" item_lvl_max ;add actual text label
+						Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
+						Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item info\ilvl.png
 					}
 				}
 			}
 		}
 	}
+	
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// implicit area
 	
 	If (implicits != "")
 	{
@@ -1410,18 +1438,22 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			If InStr(parse, ", with ") && InStr(parse, "% increased effect")
 				parse := SubStr(parse, 1, InStr(parse, ", with ") - 1)
 			
-			If (LLK_ItemCheckHighlight(StrReplace(parse, "`n", ";"), 0, 1) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
+			highlight_check := LLK_ItemCheckHighlight(StrReplace(parse, "`n", ";"), 0, 1)
+			If (highlight_check = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
 				color := "Black"
-			Else color := (LLK_ItemCheckHighlight(StrReplace(parse, "`n", ";"), 0, 1) = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
+			Else color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
 			
-			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*8.75, % parse ;add hidden text label as dummy to get the correct dimensions
-			Gui, itemchecker: Add, Progress, % "xp yp Border Disabled Section hp wp BackgroundBlack c"color " HWNDhwnd_itemchecker_implicit"loop_implicits "_button1 vitemchecker_implicit"loop_implicits "_button1", 100
+			removed_text := ""
+			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*(itemchecker_width_segments - 1.25) " HWNDmain_text", % LLK_ItemCheckRemoveRollsText(parse, removed_text) ;add hidden text label as dummy to get the correct dimensions
+			
+			GuiControlGet, check_, Pos, %main_text%
+			height_text := (check_h <= itemchecker_height) ? itemchecker_height : check_h
+			Gui, itemchecker: Add, Progress, % "xp yp Border Disabled Section h"height_text " wp BackgroundBlack c"color " HWNDhwnd_itemchecker_implicit"loop_implicits "_button1 vitemchecker_implicit"loop_implicits "_button1", 100
 			color1 := (color = "Black") ? "White" : "Black"
-			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % StrReplace(parse, " (eldritch implicit)")
+			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % LLK_ItemCheckRemoveRollsText(parse)
 			
 			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"itemchecker_width/4 " HWNDhwnd_itemchecker_implicit"loop_implicits "_button vitemchecker_implicit"loop_implicits "_button BackgroundBlack c"color, 100
 			Gui, itemchecker: Add, Text, % "xp yp Border 0x200 Center BackgroundTrans hp wp gItemchecker vitemchecker_implicit"loop_implicits " HWNDhwnd_itemchecker_implicit"loop_implicits " cBlack", % " "
-			GuiControlGet, implicit_, Pos, % hwnd_itemchecker_implicit%loop_implicits%
 			
 			switch_parse := SubStr(A_LoopField, InStr(A_LoopField, "(") + 1, InStr(A_LoopField, ")") - InStr(A_LoopField, "(") - 1)
 			
@@ -1455,34 +1487,40 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Else type := InStr(A_LoopField, "searing exarch") ? "exarch" : "eater"
 			type := InStr(A_LoopField, "item sells for much more to vendors") ? "delve" : InStr(A_LoopField, "allocates ") ? "blight" : type
 			
-			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"itemchecker_width/2 " BackgroundBlack c"color, 100
+			width := (type = "") ? itemchecker_width : itemchecker_width/2
+			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"width " BackgroundBlack c"color, 100
 			color1 := (tier = 1 || tier = 2) ? "Red" : "Black"
-			Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center BackgroundTrans w"itemchecker_width/2 " hp c"color1, % tier
+			Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center BackgroundTrans wp hp c"color1, % tier
 			;Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"itemchecker_width/2 " BackgroundWhite cBlack", 100
 			;Gui, itemchecker: Add, Text, % "ys Border Hidden Center BackgroundTrans w"itemchecker_width/2 " hp cBlack",
-			Gui, itemchecker: Add, Progress, % "ys Disabled Border hp w"itemchecker_width/2 " BackgroundBlack c"color, 100
-			Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center BackgroundTrans w"itemchecker_width/2 " hp",
-			
-			itemchecker_offset := itemchecker_width/2 - itemchecker_height
-			While (Mod(itemchecker_offset, 2) != 0)
-				itemchecker_offset -= 1
-			itemchecker_offset /= 2
-			If (implicit_h <= itemchecker_height)
-				Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", % (type != "") ? "img\GUI\item_info_"type ".png" : ""
-			Else Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+"implicit_h//2 - itemchecker_height//2 + 1 " Center BackgroundTrans h"itemchecker_height-2 " w-1", % (type != "") ? "img\GUI\item_info_"type ".png" : ""
+			If (type != "")
+			{
+				Gui, itemchecker: Add, Progress, % "ys Disabled Border hp w"itemchecker_width/2 " BackgroundBlack c"color, 100
+				Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center BackgroundTrans w"itemchecker_width/2 " hp",
+				If (height_text <= itemchecker_height)
+					Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", % (type != "") ? "img\GUI\item info\"type ".png" : ""
+				Else Gui, itemchecker: Add, Picture, % "xp+1 yp+"height_text//2 - itemchecker_height//2 + 1 " Center BackgroundTrans h"itemchecker_height-2 " w-1", % (type != "") ? "img\GUI\item info\"type ".png" : ""
+			}
 		}
-		Gui, itemchecker: Add, Progress, % "xs w"itemchecker_width*10 " Disabled h"divider_height " Background"divider_color,
+		Gui, itemchecker: Add, Progress, % "xs w"itemchecker_width*itemchecker_width_segments " Disabled h"divider_height " Background"divider_color,
 	}
+	
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// cluster-enchant area
 	
 	If (cluster_type != "") ;if item is a cluster jewel, add passive-skills and enchant info
 	{		
-		If (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";"), 0, 1) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
+		highlight_check := LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";"), 0, 1)
+		If (highlight_check = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
 			color := "Black"
-		Else color := (LLK_ItemCheckHighlight(StrReplace(cluster_enchant, "`n", ";"), 0, 1) = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
-		Gui, itemchecker: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"itemchecker_width*8.75 " cWhite", % cluster_enchant ;dummy panel
-		Gui, itemchecker: Add, Progress, % "xp yp Border Disabled HWNDhwnd_itemchecker_cluster_button1 vitemchecker_cluster_button1 hp wp BackgroundBlack c"color, 100
+		Else color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
+		Gui, itemchecker: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"itemchecker_width*(itemchecker_width_segments - 1.25) " cWhite HWNDmain_text", % cluster_enchant ;dummy panel
+		GuiControlGet, check_, Pos, %main_text%
+		height_text := (check_h <= itemchecker_height) ? itemchecker_height : check_h
+		Gui, itemchecker: Add, Progress, % "xp yp Border Disabled HWNDhwnd_itemchecker_cluster_button1 vitemchecker_cluster_button1 h"height_text " wp BackgroundBlack c"color, 100
 		color1 := (color = "Black") ? "White" : "Black"
-		Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans vitemchecker_cluster_text HWNDhwnd_itemchecker_cluster_text w"itemchecker_width*8.75 " c"color1, % cluster_enchant ;add actual text label
+		Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans vitemchecker_cluster_text HWNDhwnd_itemchecker_cluster_text hp w"itemchecker_width*(itemchecker_width_segments - 1.25) " c"color1, % cluster_enchant ;add actual text label
 		Gui, itemchecker: Add, Progress, % "ys Border Disabled HWNDhwnd_itemchecker_cluster_button vitemchecker_cluster_button hp w"itemchecker_width*0.25 " BackgroundBlack c"color, 100
 		Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans gItemchecker vitemchecker_cluster HWNDhwnd_itemchecker_cluster hp wp cBlack", % " "
 		
@@ -1491,286 +1529,429 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		color1 := (color = itemchecker_t1_color) ? "Black" : "White"
 		Gui, itemchecker: Add, Text, % "xp yp Border 0x200 Center BackgroundTrans wp hp c"color1, % cluster_passives*(-1) "/" cluster_passives_max*(-1) ;add actual text label
 		If !InStr(Clipboard, "rarity: normal")
-			Gui, itemchecker: Add, Progress, % "xs Background"divider_color " h"divider_height " w"itemchecker_width*10,
+			Gui, itemchecker: Add, Progress, % "xs Background"divider_color " h"divider_height " w"itemchecker_width*itemchecker_width_segments,
 	}
 	
-	affix_heights := [] ;array to store the heights of the individual lines
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// explicit area
 	
-	prefixes := 0
-	affixes_divided := 0
-	
-	Loop, % affixes.Count() ;n = number of parsed mod lines
+	Loop, Parse, itemcheck_clip, | ;parse the item-info affix by affix
 	{
-		style := !unique ? "w"itemchecker_width*8.75 : "w"itemchecker_width*10 ;width of the mod list: non-unique list is narrower for extra tier-column on the far right
-		
-		Loop, Parse, % affixes[A_Index], % ";" ;parse info from current array entry
-		{
-			Switch A_Index
-			{
-				Case 1:
-					parse := StrReplace(A_LoopField, "(llktag_energy)")
-					mod := StrReplace(parse, "(llktag_life)")
-				Case 2:
-					quality := A_LoopField
-			}
-		}
-		
-		If !InStr(mod, "(") && unique ;!InStr(mod, "(hybrid)") && unique ;skip unscalable values within hybrid affixes
+		If (unique = 1) && !InStr(A_LoopField, "(") ;skip unscalable unique affix
 			continue
-		
-		If !unique && (affixes[A_Index] = "divider")
-		{
-			Gui, itemchecker: Add, Progress, % "xs w"itemchecker_width*9 " Disabled h"divider_height " Background"divider_color,
-			affix_heights.Push("divider")
-			hwnd_itemchecker_panel%A_Index% := 0
-			Continue
-		}
-		
-		hybrid += (hybrid = 0 || hybrid = "") && InStr(mod, "[hybrid]") ? 1 : 0
-		
-		Loop, Parse, quality, `, ;determine lower & upper bound, and value
-		{
-			Switch A_Index
-			{
-				Case 1:
-					lower_bound := A_LoopField*100
-				Case 2:
-					value := A_LoopField*100
-				Case 3:
-					upper_bound := A_LoopField*100
-			}
-		}
-		
-		color := (unique = 0) ? "505050" : "994C00" ;gray or brown color for background bars
-		mod_text := StrReplace(mod, "[hybrid]")
-		mod_text := StrReplace(mod_text, " (crafted)")
-		Gui, itemchecker: Add, Text, % (A_Index = 1) ? "Section xs Border hidden "style : "xs Border hidden "style, % StrReplace(mod_text, " (fractured)") ;add dummy text label for dimensions
-
-		;add progress bar and inherit dimensions from dummy label
-		Gui, itemchecker: Add, Progress, % (A_Index = 1) ? "xp yp Section Disabled Border hp wp range" lower_bound "-" upper_bound " BackgroundBlack c"color : "xp yp hp wp Disabled Border range" lower_bound "-" upper_bound " BackgroundBlack c"color, % value
-		
-		If !unique
-			Gui, itemchecker: Add, Text, Center cWhite vitemchecker_panel%A_Index%_text HWNDhwnd_itemchecker_panel%A_Index%_text %style% Border BackgroundTrans xp yp, % StrReplace(mod_text, " (fractured)")
-		Else Gui, itemchecker: Add, Text, Center cWhite %style% Border BackgroundTrans xp yp, % mod_text
-			
-		If !unique
-		{
-			If (LLK_ItemCheckHighlight(StrReplace(mod_text, " (fractured)")) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
-				color := "Black"
-			Else color := (LLK_ItemCheckHighlight(StrReplace(mod_text, " (fractured)")) = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
-			Gui, itemchecker: Add, Progress, % "yp x+0 hp w"itemchecker_width/4 " Disabled Border HWNDhwnd_itemchecker_panel"A_Index "_button vitemchecker_panel"A_Index "_button BackgroundBlack c"color, 100
-			Gui, itemchecker: Add, Text, % "xp yp hp wp Border BackgroundTrans gItemchecker vitemchecker_panel"A_Index " HWNDhwnd_itemchecker_panel"A_Index, % " "
-		}
-		GuiControlGet, itemchecker_, Pos, % hwnd_itemchecker_panel%A_Index%
-		
-		affix_heights.Push(itemchecker_h)
-	}
-	
-	hybrid := 0
-	loop := 0
-	
-	Loop, % affix_tiers.Count()
-	{
-		If !unique && InStr(affixes[A_Index], "divider")
-		{
-			Gui, itemchecker: Add, Progress, % "xs w"itemchecker_width " Disabled h"divider_height " Background"divider_color,
-			hwnd_itemchecker_tier%A_Index%_button := 0
-			hwnd_itemchecker_ilvl%A_Index%_button := 0
-			Continue
-		}
-		If (hybrid != 0)
-		{
-			hybrid -= 1
-			hwnd_itemchecker_tier%A_Index%_button := 0
-			hwnd_itemchecker_ilvl%A_Index%_button := 0
-			continue
-		}
-		affix_name := SubStr(affix_tiers[A_Index], 1, InStr(affix_tiers[A_Index], ",") - 1)
-		;tier := SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1)
-		tier := StrReplace(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "*")
-		tier := StrReplace(tier, "f")
-		
-		loop += 1
-		If InStr(affix_tiers[A_Index], "*") && InStr(affix_tiers[A_Index + 1], affix_name)
-			hybrid += (InStr(affix_tiers[A_Index + 2], affix_name) && !LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)) ? 2 : 1 ; && ((affix_tiers[A_Index + 3] != "") && !InStr(affix_tiers[A_Index + 3], affix_name))
+		affix_groups_count := A_Index
 		If (itemchecker_item_class != "base jewel")
+			tier := unique ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : InStr(A_LoopField, "crafted") ? "c" : "—" ;determine affix tier
+		affix_name := unique ? "" : SubStr(A_LoopField, InStr(A_LoopField, """",,, 1) + 1, InStr(A_LoopField, """",,, 2) - InStr(A_LoopField, """",,, 1) - 1)
+		mod := A_LoopField
+		affix_original := A_LoopField
+		affix_copy := StrReplace(A_LoopField, " (fractured)"), affix_copy := StrReplace(affix_copy, " (crafted)")
+		affix_groups.Push(affix_copy)
+		affix_groups_original.Push(A_LoopField)
+		affix_names.Push(affix_name)
+		affix_tiers.Push(tier)
+		hybrid := LLK_InStrCount(A_LoopField, "`n") - 1
+		If (item_type = "attack") && ((InStr(A_LoopField, "adds ") && InStr(A_LoopField, " damage") && !InStr(A_LoopField, "spell")) || InStr(A_LoopField, "increased attack speed") || InStr(A_LoopField, "increased physical damage"))
+			attack_count += (tier <= 3) ? 1.5 : 1
+		
+		If !unique ;determine ilvl-requirements or mod weights
 		{
-			Switch tier ;set correct highlight color according to tier
+			Loop, % itemchecker_mod_data[affix_name].Count() ;parse the data for the given affix-name
 			{
-				Case "—":
-					color := itemchecker_t0_color ;untiered affixes, e.g. delve, veiled, etc.
-				Case "c":
-					color := itemchecker_t0_color ;untiered affixes, e.g. delve, veiled, etc.
-				Case "u":
-					color := "994C00" ;unique
-				Case 1:
-					color := itemchecker_t1_color ;tier x
-				Case 2:
-					color := itemchecker_t2_color
-				Case 3:
-					color := itemchecker_t3_color
-				Case 4:
-					color := itemchecker_t4_color
-				Case 5:
-					color := itemchecker_t5_color
-				Default:
-					color := itemchecker_t6_color
+				If InStr(affix_name, "veil") ;break if affix is veiled
+				{
+					item_level := 60
+					Break
+				}
+				outer_loop := A_Index
+				target_loop := 0
+				mod_check := 0
+				
+				If (itemchecker_item_class = "base jewel") ;check if the data for the given affix-name has a special tag (some jewel affixes share their name with some non-jewel ones, so I had to tag them in order to get the correct weights)
+				{
+					tag_check := 0
+					Loop, % itemchecker_mod_data[affix_name].Count()
+					{
+						tag_check += itemchecker_mod_data[affix_name][A_Index].HasKey("LLK_tag")
+						If (tag_check = 1)
+						{
+							target_loop := A_Index ;the correct information is stored in the n-th entry
+							Break
+						}
+					}
+				}
+				
+				If ((itemchecker_item_class = "base jewel") && (tag_check = 1)) ;item is jewel and there is a tagged weight-entry
+				{
+					Loop, % itemchecker_mod_data[affix_name][target_loop]["strings"].Count()
+					{
+						parse := StrReplace(itemchecker_mod_data[affix_name][target_loop]["strings"][A_Index], "1 Added Passive Skill is ")
+						mod_check += InStr(mod, parse) ? 1 : 0 ;confirm whether affix-name and mod-text correlate
+					}
+				}
+				Else
+				{
+					Loop, % itemchecker_mod_data[affix_name][outer_loop]["strings"].Count()
+					{
+						parse := StrReplace(itemchecker_mod_data[affix_name][outer_loop]["strings"][A_Index], "1 Added Passive Skill is ")
+						mod_check += InStr(mod, parse) ? 1 : 0
+					}
+				}
+				
+				If (!hybrid && (mod_check != 0)) || (hybrid && (mod_check >= 2)) ;there is confirmation
+				{
+					If (itemchecker_item_class != "base jewel")
+						item_level := itemchecker_mod_data[affix_name][outer_loop]["level"] ;save the ilvl-requirement
+					Else
+					{
+						read_loop := (target_loop = 0) ? outer_loop : target_loop
+						Loop, % itemchecker_mod_data[affix_name][read_loop]["weights"].Count() ;parse all weights for the given affix
+						{
+							If LLK_ArrayHasVal(itemchecker_base_item_data[itemchecker_item_base]["tags"], itemchecker_mod_data[affix_name][read_loop]["weights"][A_Index]["tag"]) ;current tag correlates with the item's tag
+							{
+								tier := itemchecker_mod_data[affix_name][read_loop]["weights"][A_Index]["weight"] ;save the weight
+								Break 2
+							}
+						}
+					}
+					Break
+				} 
 			}
 		}
-		Else
+		height := 0
+		Loop, Parse, A_LoopField, `n ;parse affix info line by line
 		{
-			If (tier = 100) || (tier = 150)
-				color := "e3f2fd"
-			Else If (tier = 200) || (tier = 250)
-				color := "90caf9"
-			Else If (tier = 300) || (tier = 350)
-				color := "42a5f5"
-			Else If (tier = 400) || (tier = 450)
-				color := "1e88e5"
-			Else If (tier = 500)
-				color := "1565c0"
+			;check if affix is veiled
+			If InStr(A_LoopField, "'s veil")
+				betrayal := InStr(A_LoopField, """of ") ? SubStr(A_LoopField, InStr(A_LoopField, """of ") + 4, InStr(A_LoopField, "s v") - InStr(A_LoopField, """of ") - 2) : SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s v") - InStr(A_LoopField, """") + 1)
+			Else If InStr(A_LoopField, "s' veil")
+				betrayal := InStr(A_LoopField, """of ") ? SubStr(A_LoopField, InStr(A_LoopField, """of ") + 4, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """of ") - 1) : SubStr(A_LoopField, InStr(A_LoopField, """") + 1, InStr(A_LoopField, "s' v") - InStr(A_LoopField, """") + 2)
+			Else If InStr(A_LoopField, """veiled""") || InStr(A_LoopField, """of the veil""")
+				betrayal := ""
+			If (A_Index = 1) ;skip first line of affix group (containing tier, tags, etc.)
+			{
+				affix_type := InStr(A_LoopField, "prefix") ? "prefix" : "suffix"
+				Continue
+			}
+			
+			affix_lines += 1
+			affix_divider += (affix_divider = "" && affix_type = "prefix") || (affix_divider = 1 && affix_type = "suffix") ? 1 : 0
+			If (affix_divider = 2)
+			{
+				affix_divider += 1
+				Gui, itemchecker: Add, Progress, % "xs w"itemchecker_width*itemchecker_width_segments " Disabled h"divider_height " Background"divider_color,
+			}
+			modline_copy := StrReplace(A_LoopField, " (fractured)"), modline_copy := StrReplace(modline_copy, " (crafted)")
+			mod := betrayal A_LoopField ;StrReplace(A_LoopField, "[hybrid]") ;store mod-text in variable
+			
+			mod1 := (InStr(mod, "adds") || InStr(mod, "added")) && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
+			mod1 := StrReplace(mod1, " (fractured)")
+			mods.Push(A_LoopField ";;" tier)
+			
+			roll := "" ;variable in which to store the numerical values of the affix
+			offset := 0
+			While (IsNumber(SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1)) || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = "."))
+				offset += 1
+			starting_point := InStr(mod1, "(") - offset
+			Loop, Parse, % InStr(mod1, "(") ? SubStr(mod1, starting_point, InStr(mod1, ")",,, LLK_InStrCount(mod1, ")")) - starting_point + 1) : mod1 ;parse mod-text character by character
+			{
+				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField) ;number or numerical character
+					roll .= A_LoopField
+			}
+			If InStr(roll, "(") ;numerical value has scaling
+			{
+				Loop, Parse, roll, | ;parse numerical value string value by value (in 'adds x to y damage', x and y are values)
+				{
+					If (A_Index = 1)
+						roll_count := 0 ;count number of values, i.e. does the mod only have x, or x and y
+					If (A_LoopField = "")
+						continue
+					roll_count += 1
+					roll_trigger := 0 ;three-step trigger to deconstruct the string
+					trigger_index := 0 ;position within the string at which something was triggered
+					
+					Loop, Parse, % InStr(A_LoopField, "(") ? A_LoopField : A_LoopField "(" A_LoopField "-" A_LoopField ")" ;if given value is scalable, parse string character by character as is: x(x_lower-x_upper) | otherwise, create pseudo-string and parse: x(x-x)
+					{
+						If (A_Index = 1)
+						{
+							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
+							roll%roll_count%_1 := "" ;lower bound of the affix roll
+							roll%roll_count%_2 := "" ;upper bound of the affix roll
+						}
+						If IsNumber(A_LoopField) || (A_LoopField = ".") || (A_LoopField = "-" && A_Index = trigger_index + 1) ;3rd condition = only include minus-sign if it immediately follows a trigger, i.e. '('
+						{
+							If (roll_trigger = 0)
+								roll%roll_count% .= A_LoopField
+							If (roll_trigger = 1)
+								roll%roll_count%_1 .= A_LoopField
+							If (roll_trigger = 2)
+								roll%roll_count%_2 .= A_LoopField
+						}
+						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1) ;'(' and minus-sign increase trigger, but minus-sign only if not preceded by trigger, i.e. if it means 'to' and not 'minus'
+						{
+							roll_trigger += 1
+							trigger_index := A_Index
+						}
+					}
+				}
+				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
+				roll_min := (roll_count = 1) ? Min(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2)
+				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
+				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
+				If (roll1_1 > roll1_2) && !InStr(mod, "--") && !InStr(mod, "(-") && !InStr(mod, "attribute requirement") && !InStr(mod, "on you")
+					roll_qual := - roll1_1 "," - roll1 "," - roll1_2
+				Else roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
+			}
+			Else
+			{
+				roll_min := 0
+				roll_present := 100
+				roll_max := 100
+				roll_qual := 0 "," 100 "," 100 ;if numerical value doesn't scale, create a string "0,100,100" where 0 serves as x_lower and 100 as x and x_upper
+			}
+			/*
+			If (affix_divider = 2)
+			{
+				affixes.Push("divider")
+				affix_tiers.Push("divider")
+				affix_divider += 1
+			}
+			*/
+			affixes.Push(mod) ;push mod-text, tier, and roll-values into array
+			mod := StrReplace(mod, " (crafted)")
+			mod := StrReplace(mod, " (fractured)")
+			
+			style := (A_Index = 2) ? "Section " : ""
+			width := unique ? itemchecker_width*itemchecker_width_segments : itemchecker_width*(itemchecker_width_segments - 1.25)
+			Gui, itemchecker: Add, Text, % style "xs Border Hidden BackgroundTrans w"width " vitemchecker_panel"affix_lines "_text HWNDhwnd_itemchecker_panel"affix_lines "_text", % unique ? mod : LLK_ItemCheckRemoveRollsText(mod) ;LLK_ItemCheckRemoveRollsText(mod, clipped_text)
+			GuiControlGet, check_, Pos, % hwnd_itemchecker_panel%affix_lines%_text
+			height_text := (check_h <= itemchecker_height) ? itemchecker_height : check_h
+			color := unique ? "994C00" : "505050"
+			Gui, itemchecker: Add, Progress, % "xp yp h"height_text " wp Border Disabled BackgroundBlack range"roll_min*100 "-" roll_max*100 " c"color, % roll_present*100
+			clipped_text := ""
+			Gui, itemchecker: Add, Text, % "xp yp wp hp Border Center BackgroundTrans HWNDmain_text", % unique ? mod : LLK_ItemCheckRemoveRollsText(mod) ;LLK_ItemCheckRemoveRollsText(mod, clipped_text)
+			GuiControlGet, main_text_, Pos, %main_text%
+			height += main_text_h
+			If !unique
+			{
+				highlight_check := LLK_ItemCheckHighlight(mod)
+				If (highlight_check = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
+					color := "Black"
+				Else color := (highlight_check = 2) ? itemchecker_t7_color : (highlight_check = 1) ? itemchecker_t1_color : (highlight_check = -2) ? itemchecker_ilvl8_color : itemchecker_t6_color ;determine which is the case
+				Gui, itemchecker: Add, Progress, % "x+0 hp w"itemchecker_width/4 " Border Disabled BackgroundBlack c"color "HWNDhwnd_itemchecker_panel"affix_lines "_button vitemchecker_panel"affix_lines "_button", 100
+				Gui, itemchecker: Add, Text, % "xp yp hp wp Border BackgroundTrans gItemchecker vitemchecker_panel"affix_lines " HWNDhwnd_itemchecker_panel"affix_lines,
+			}
+			Loop, Parse, clipped_text, `,
+			{
+				If (A_Index = 1)
+				{
+					multi_rolls := (LLK_InStrCount(clipped_text, "-") > 1) ? 1 : 0
+					rolls := 0
+					clipped_text := ""
+				}
+				If (A_LoopField = "") || !InStr(A_LoopField, "-")
+					continue
+				rolls += 1
+				clipped_text .= multi_rolls ? "roll #" rolls ": "A_LoopField "`n" : "roll: " A_LoopField "`n"
+			}
+			While (SubStr(clipped_text, 0) = " ")
+				clipped_text := SubStr(clipped_text, 1, -1)
+			itemchecker_panel%affix_lines%_tooltip := clipped_text
 		}
-		
+		;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		;////////////////////////////////////////// tiers & icons area
 		If !unique
 		{
-			If LLK_ItemCheckAffixes(affix_tiers[A_Index])
+			If (itemchecker_item_class != "base jewel")
+			{
+				Switch tier ;set correct highlight color according to tier
+				{
+					Case "—":
+						color := itemchecker_t0_color ;untiered affixes, e.g. delve, veiled, etc.
+					Case "c":
+						color := itemchecker_t0_color ;untiered affixes, e.g. delve, veiled, etc.
+					Case "u":
+						color := "994C00" ;unique
+					Case 1:
+						color := itemchecker_t1_color ;tier x
+					Case 2:
+						color := itemchecker_t2_color
+					Case 3:
+						color := itemchecker_t3_color
+					Case 4:
+						color := itemchecker_t4_color
+					Case 5:
+						color := itemchecker_t5_color
+					Default:
+						color := itemchecker_t6_color
+				}
+			}
+			Else
+			{
+				If (tier = 100) || (tier = 150)
+					color := "e3f2fd"
+				Else If (tier = 200) || (tier = 250)
+					color := "90caf9"
+				Else If (tier = 300) || (tier = 350)
+					color := "42a5f5"
+				Else If (tier = 400) || (tier = 450)
+					color := "1e88e5"
+				Else If (tier = 500)
+					color := "1565c0"
+				tier /= 10
+			}
+			
+			If LLK_ItemCheckAffixes(affix_name)
 			{
 				color := itemchecker_t0_color
-				tier := "—"
+				tier := !InStr(A_LoopField, "(crafted)") ? "—" : "c"
+				affix_tiers[affix_groups_count] := tier
 			}
-			If (itemchecker_item_class != "base jewel") && (enable_itemchecker_ilvl || LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)") || LLK_ItemCheckStats(affixes[A_Index]))
-				width := itemchecker_width/2
-			Else If (itemchecker_item_class = "base jewel") || !LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)
-				width := itemchecker_width
 			
-			If (hybrid = 2)
-				height := affix_heights[A_Index] + affix_heights[A_Index + 1] + affix_heights[A_Index + 2]
-			Else height := (hybrid = 1) ? affix_heights[A_Index] + affix_heights[A_Index + 1] : affix_heights[A_Index]
-				
-			style := (A_Index = 1) ? "section ys " : "Section xs "
-			
-			;mod_highlight := SubStr(affixes[A_Index], 1, InStr(affixes[A_Index], ";") - 1)
-			;If (LLK_ItemCheckHighlight(StrReplace(mod_highlight, " (fractured)")) = 0) ;mod is neither highlighted (teal) nor blacklisted (red)
-			;	color_highlight := "White"
-			;Else color_highlight := (LLK_ItemCheckHighlight(StrReplace(mod_highlight, " (fractured)")) = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
-			
-			;Gui, itemchecker: Add, Progress, % style " h"height " w"itemchecker_width/4 " BackgroundBlack Border c"color_highlight, 100 
-			;Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center cWhite hp wp BackgroundTrans", % ""
+			itemchecker_affixgroup%affix_groups_count%_color := InStr(affix_original, "(fractured)") ? itemchecker_t7_color : color
 			
 			itemchecker_override := 0
-			If enable_itemchecker_override
+			color1 := "Black"
+			Switch hybrid
 			{
-				Switch hybrid
+				Case 0:
+				highlight_check := LLK_ItemCheckHighlight(SubStr(affix_copy, InStr(affix_copy, "`n") + 1))
+				If (highlight_check < 0)
 				{
-					Case 0:
-						If (LLK_ItemCheckHighlight(StrReplace(SubStr(affixes[A_Index], 1, InStr(affixes[A_Index], ";") - 1), " (fractured)")) = -1)
-						{
-							color := itemchecker_t6_color
-							itemchecker_override := 1
-						}
-					Case 1:
-						mod_check := StrReplace(SubStr(affixes[A_Index], 1, InStr(affixes[A_Index], ";") - 1), "[hybrid]")
-						mod_check1 := StrReplace(SubStr(affixes[A_Index + 1], 1, InStr(affixes[A_Index + 1], ";") - 1), "[hybrid]")
-						If (LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)")) = -1) && (LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)")) = -1)
-						{
-							color := itemchecker_t6_color
-							itemchecker_override := 1
-						}
-					Case 2:
-						mod_check := StrReplace(SubStr(affixes[A_Index], 1, InStr(affixes[A_Index], ";") - 1), "[hybrid]")
-						mod_check1 := StrReplace(SubStr(affixes[A_Index + 1], 1, InStr(affixes[A_Index + 1], ";") - 1), "[hybrid]")
-						mod_check2 := StrReplace(SubStr(affixes[A_Index + 2], 1, InStr(affixes[A_Index + 2], ";") - 1), "[hybrid]")
-						If (LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)")) = -1) && (LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)")) = -1) && (LLK_ItemCheckHighlight(StrReplace(mod_check2, " (fractured)")) = -1)
-						{
-							color := itemchecker_t6_color
-							itemchecker_override := 1
-						}
+					color := itemchecker_t6_color
+					itemchecker_override := 1
+				}
+				Else If (tier = 1) && (highlight_check > 0)
+				{
+					color := "ffffff"
+					color1 := "Red"
+				}
+				Case 1:
+				mod_check := SubStr(affix_copy, InStr(affix_copy, "`n") + 1, InStr(affix_copy, "`n",,, 2) - InStr(affix_copy, "`n") - 1)
+				mod_check1 := SubStr(affix_copy, InStr(affix_copy, "`n",,, 2) + 1)
+				highlight_check := LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)"))
+				highlight_check1 := LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)"))
+				If (highlight_check < 0) && (highlight_check1 < 0)
+				{
+					color := itemchecker_t6_color
+					itemchecker_override := 1
+				}
+				Else If (tier = 1) && (highlight_check > 0) && (highlight_check1 > 0)
+				{
+					color := "ffffff"
+					color1 := "Red"
+				}
+				Case 2:
+				mod_check := SubStr(affix_copy, InStr(affix_copy, "`n") + 1, InStr(affix_copy, "`n",,, 2) - InStr(affix_copy, "`n") - 1)
+				mod_check1 := SubStr(affix_copy, InStr(affix_copy, "`n",,, 2) + 1, InStr(affix_copy, "`n",,, 3) - InStr(affix_copy, "`n",,, 2) - 1)
+				mod_check2 := SubStr(affix_copy, InStr(affix_copy, "`n",,, 3) + 1)
+				highlight_check := LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)"))
+				highlight_check1 := LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)"))
+				highlight_check2 := LLK_ItemCheckHighlight(StrReplace(mod_check2, " (fractured)"))
+				If (highlight_check < 0) && (highlight_check1 < 0) && (highlight_check2 < 0)
+				{
+					color := itemchecker_t6_color
+					itemchecker_override := 1
+				}
+				Else If (tier = 1) && (highlight_check > 0) && (highlight_check1 > 0) && (highlight_check2 > 0)
+				{
+					color := "ffffff"
+					color1 := "Red"
 				}
 			}
 			
-			If (itemchecker_item_class = "base jewel") && (LLK_ItemCheckHighlight(StrReplace(SubStr(affixes[A_Index], 1, InStr(affixes[A_Index], ";") - 1), " (fractured)")) = 1)
+			highlight_check := LLK_ItemCheckHighlight(modline_copy)
+			If (itemchecker_item_class = "base jewel") && (highlight_check = 1)
 				color := itemchecker_t1_color
 			
-			If InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") ;override color in case mod is fractured
+			If !itemchecker_override && (LLK_ItemCheckAffixes(affix_name) || InStr(affix_original, "(crafted)"))
+				color := itemchecker_t0_color
+			
+			If InStr(affix_original, "(fractured)") ;override color in case mod is fractured
 				color := itemchecker_t7_color
 			
-			Gui, itemchecker: Add, Progress, % style " h"height " w"width " BackgroundBlack Border HWNDhwnd_itemchecker_tier"A_Index "_button c"color, 100 ;add colored progress bar as background for tier-column
-			Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center cBlack hp wp BackgroundTrans", % tier ;add number label to tier-column
+			width := enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel") || LLK_ItemCheckAffixes(affix_name, 1) || LLK_ItemCheckStats(SubStr(affix_copy, InStr(affix_copy, "`n") + 1), item_type) || InStr(affix_original, "(crafted)") ? itemchecker_width*0.5 : itemchecker_width
+			Gui, itemchecker: Add, Progress, % "ys w"width " h"height " Border Disabled BackgroundBlack c"color " vItemchecker_affixgroup"affix_groups_count "_tier", 100
+			Gui, itemchecker: Add, Text, % "xp yp hp wp +0x200 Center Border BackgroundTrans c"color1 " vItemchecker_affixgroup"affix_groups_count "_tier_text", % tier
 			
-			If !enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel") && (LLK_ItemCheckAffixes(affix_tiers[A_Index], 1) || InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") || InStr(affixes[A_Index], "(crafted)") || LLK_ItemCheckStats(affixes[A_Index])) ;InStr(affix_tiers[A_Index], "chosen") || InStr(affix_tiers[A_Index], "subterranean") || InStr(affix_tiers[A_Index], "of the underground") || InStr(affix_tiers[A_Index], "veil")
+			If LLK_ItemCheckAffixes(affix_name, 1) || LLK_ItemCheckStats(SubStr(affix_copy, InStr(affix_copy, "`n") + 1), item_type) || enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel") || InStr(affix_original, "(crafted)")
 			{
-				Gui, itemchecker: Add, Progress, % "ys hp wp BackgroundBlack HWND_itemchecker_ilvl"A_Index "_button Border c"color, 100
-				Gui, itemchecker: Add, Text, % "xp yp 0x200 Border Center cBlack hp wp HWNDmain_text BackgroundTrans",
-				GuiControlGet, implicit_, Pos, % main_text
-				
-				itemchecker_offset := itemchecker_width/2 - itemchecker_height
-				While (Mod(itemchecker_offset, 2) != 0)
-					itemchecker_offset -= 1
-				itemchecker_offset /= 2
-				
-				;type := (LLK_ItemCheckResists(affixes[A_Index]) != 0) ? LLK_ItemCheckResists(affixes[A_Index]) : ""
-				type := InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") ? "fractured" : InStr(affixes[A_Index], "(crafted)") ? "mastercraft" : (LLK_ItemCheckStats(affixes[A_Index]) != 0) ? LLK_ItemCheckStats(affixes[A_Index]) : LLK_ItemCheckAffixes(affix_tiers[A_Index], 1)
-				If (implicit_h <= itemchecker_height)
-					Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
-				Else Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+"implicit_h//2 - itemchecker_height//2 + 1 " Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
-			}
-			;If (itemchecker_item_class != "base jewel")
-			;	Gui, itemchecker: Add, Text, ys Border Center hp wp BackgroundTrans, % affix_levels[A_Index] ;add number label to tier-column
-			
-			If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
-			{
-				level := affix_levels[A_Index]
-				If (level >= 83)
-					color := itemchecker_ilvl1_color
-				Else If (level >= 78)
-					color := itemchecker_ilvl2_color
-				Else If (level >= 73)
-					color := itemchecker_ilvl3_color
-				Else If (level >= 68)
-					color := itemchecker_ilvl4_color
-				Else If (level >= 64)
-					color := itemchecker_ilvl5_color
-				Else If (level >= 60)
-					color := itemchecker_ilvl6_color
-				Else If (level <= 59)
-					color := itemchecker_ilvl7_color
-				Else If (level <= 55)
-					color := itemchecker_ilvl8_color
-				
-				If LLK_ItemCheckAffixes(affix_tiers[A_Index]) || InStr(affixes[A_Index], "(crafted)")
-					color := itemchecker_t0_color
-				
-				color := itemchecker_override ? itemchecker_t6_color : color
-				
-				If InStr(SubStr(affix_tiers[A_Index], InStr(affix_tiers[A_Index], ",") + 1), "f") ;override color in case mod is fractured
-					color := itemchecker_t7_color
-				
-				If (hybrid = 2)
-					height := affix_heights[A_Index] + affix_heights[A_Index + 1] + affix_heights[A_Index + 2]
-				Else height := (hybrid = 1) ? affix_heights[A_Index] + affix_heights[A_Index + 1] : affix_heights[A_Index]
-				
-				Gui, itemchecker: Add, Progress, % "ys h"height " w"itemchecker_width/2 " BackgroundBlack Border HWNDhwnd_itemchecker_ilvl"A_Index "_button c"color, 100 ;add colored progress bar as background for tier-column
-				color1 := (level >= 83) && (color = "ffffff") ? "Red" : "Black"
-				Gui, itemchecker: Add, Text, % "yp xp 0x200 Border Center c"color1 " hp HWNDmain_text wp BackgroundTrans", % LLK_ItemCheckAffixes(affix_tiers[A_Index]) || InStr(affixes[A_Index], "(crafted)") ? "" : affix_levels[A_Index] ;add number label to tier-column
-				GuiControlGet, implicit_, Pos, % main_text
-				
-				itemchecker_offset := itemchecker_width/2 - itemchecker_height
-				While (Mod(itemchecker_offset, 2) != 0)
-					itemchecker_offset -= 1
-				itemchecker_offset /= 2
-				If LLK_ItemCheckAffixes(affix_tiers[A_Index])  || InStr(affixes[A_Index], "(crafted)") ;InStr(affix_tiers[A_Index], "chosen") || InStr(affix_tiers[A_Index], "subterranean") || InStr(affix_tiers[A_Index], "of the underground") || InStr(affix_tiers[A_Index], "veil")
+				If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
 				{
-					type := InStr(affixes[A_Index], "(crafted)") ? "mastercraft" : LLK_ItemCheckAffixes(affix_tiers[A_Index])
-					If (implicit_h <= itemchecker_height)
-						Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
-					Else Gui, itemchecker: Add, Picture, % "xp+"itemchecker_offset " yp+"implicit_h//2 - itemchecker_height//2 + 1 " Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item_info_%type%.png
+					If (item_level >= 83)
+						color := itemchecker_ilvl1_color
+					Else If (item_level >= 78)
+						color := itemchecker_ilvl2_color
+					Else If (item_level >= 73)
+						color := itemchecker_ilvl3_color
+					Else If (item_level >= 68)
+						color := itemchecker_ilvl4_color
+					Else If (item_level >= 64)
+						color := itemchecker_ilvl5_color
+					Else If (item_level >= 60)
+						color := itemchecker_ilvl6_color
+					Else If (item_level <= 59)
+						color := itemchecker_ilvl7_color
+					Else If (item_level <= 55)
+						color := itemchecker_ilvl8_color
+					
+					color0 := color ;pre-override color
+					
+					If LLK_ItemCheckAffixes(affix_name) || InStr(affix_original, "(crafted)")
+						color := itemchecker_t0_color
+					
+					If enable_itemchecker_override && itemchecker_override
+						color := itemchecker_t6_color
+					
+					If InStr(affix_original, "(fractured)") ;override color in case mod is fractured
+						color := itemchecker_t7_color
+					
+					itemchecker_affixgroup%affix_groups_count%_color2 := color
+				}
+				
+				style_icon := enable_itemchecker_override && itemchecker_override && !InStr(affix_original, "(fractured)") ? "Hidden" : ""
+				
+				Gui, itemchecker: Add, Progress, % "ys wp hp Border Disabled BackgroundBlack c"color " vItemchecker_affixgroup"affix_groups_count "_tier2", 100
+				If (!enable_itemchecker_ilvl && (LLK_ItemCheckAffixes(affix_name, 1) || LLK_ItemCheckStats(SubStr(affix_copy, InStr(affix_copy, "`n") + 1), item_type))) || (itemchecker_item_class = "base jewel")
+				{
+					Gui, itemchecker: Add, Text, % "xp yp hp wp +0x200 Center Border BackgroundTrans cBlack",
+					type := InStr(affix_original, "(crafted)") ? "mastercraft" : (LLK_ItemCheckStats(SubStr(affix_copy, InStr(affix_copy, "`n") + 1), item_type) != 0) ? LLK_ItemCheckStats(SubStr(affix_copy, InStr(affix_copy, "`n") + 1), item_type) : LLK_ItemCheckAffixes(affix_name, 1)
+					If (height <= itemchecker_height)
+						Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center "style_icon " BackgroundTrans h"itemchecker_height-2 " w-1 vItemchecker_affixgroup"affix_groups_count "_icon", % "img\GUI\item info\"type ".png"
+					Else Gui, itemchecker: Add, Picture, % "xp+1 yp+"height//2 - itemchecker_height//2 + 1 " Center "style_icon " BackgroundTrans h"itemchecker_height-2 " w-1 vItemchecker_affixgroup"affix_groups_count "_icon", % "img\GUI\item info\"type ".png"
+				}
+				Else
+				{
+					If LLK_ItemCheckAffixes(affix_name) || InStr(affix_original, "(crafted)")
+					{
+						type := InStr(affix_original, "(crafted)") ? "mastercraft" : LLK_ItemCheckAffixes(affix_name)
+						Gui, itemchecker: Add, Text, % "xp yp hp wp +0x200 Center Border BackgroundTrans cBlack",
+						If (height <= itemchecker_height)
+							Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center "style_icon " BackgroundTrans h"itemchecker_height-2 " w-1 vItemchecker_affixgroup"affix_groups_count "_icon", % "img\GUI\item info\"type ".png"
+						Else Gui, itemchecker: Add, Picture, % "xp+1 yp+"height//2 - itemchecker_height//2 + 1 " Center "style_icon " BackgroundTrans h"itemchecker_height-2 " w-1 vItemchecker_affixgroup"affix_groups_count "_icon", % "img\GUI\item info\"type ".png"
+					}
+					Else
+					{
+						itemchecker_affixgroup%affix_groups_count%_color2 := InStr(affix_original, "(fractured)") ? itemchecker_t7_color : color0
+						color1 := (color = "ffffff") ? "Red" : "Black"
+						Gui, itemchecker: Add, Text, % "xp yp hp wp +0x200 Center Border BackgroundTrans c"color1 " vItemchecker_affixgroup"affix_groups_count "_tier2_text", % item_level
+					}
 				}
 			}
 		}
+	}
+	
+	If (affix_groups_count = 0) && (cluster_type = "") && (item_type != "defense") && (item_type != "attack")
+	{
+		LLK_ToolTip("item is not scalable")
+		Gui, itemchecker: Destroy
+		hwnd_itemchecker := ""
+		Return
 	}
 	
 	Gui, itemchecker: Show, NA x10000 y10000 ;show GUI outside of monitor
-	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI position and dimensions
+	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI dimensions
 	MouseGetPos, mouseXpos, mouseYpos
 	mouseXpos := (config != 0) ? xPos_itemchecker + width + poe_height*0.047*0.25 : mouseXpos ;override cursor-position if feature is being configured in settings menu
 	mouseYpos := (config != 0) ? yPos_itemchecker + height + poe_height*0.047*0.25 : mouseYpos
@@ -1815,8 +1996,8 @@ LLK_ItemCheckClose()
 
 LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highlighted or blacklisted
 {
-	global itemchecker_highlight, itemchecker_blacklist, itemchecker_highlight_implicits, itemchecker_blacklist_implicits, item_type
-	, enable_itemchecker_rule_weapon_res, enable_itemchecker_rule_res, enable_itemchecker_rule_attacks, enable_itemchecker_rule_lifemana_gain, enable_itemchecker_rule_spells, enable_itemchecker_rule_crit
+	global
+	
 	itemchecker_highlight_parse := "+-.()%"
 	;string := LLK_ItemCheckStrReplace(string)
 	string := StrReplace(string, " (unique)")
@@ -1856,142 +2037,271 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	If !implicit
 	{
 		If enable_itemchecker_rule_lifemana_gain && (InStr(string, "life per enemy") || InStr(string, "mana per enemy"))
-			rule_applies := -1
+			itemchecker_rule_applies := -1
 		If enable_itemchecker_rule_spells && (InStr(string, " to spell") || (InStr(string, "spell damage") && !InStr(string, "suppress") && !InStr(string, "block")) || InStr(string, " for spell") || InStr(string, "spell skill") || InStr(string, "added spell") || InStr(string, "with spell"))
-			rule_applies := -1
+			itemchecker_rule_applies := -1
 		If enable_itemchecker_rule_attacks && (InStr(string, "increased physical damage") || (InStr(string, "adds") && InStr(string, " damage") && !InStr(string, "to spell") && (item_type = "attack")) || ((InStr(string, "increased") || InStr(string, "added") || InStr(string, "adds")) && (InStr(string, "with") && !InStr(string, "speed") || InStr(string, "to")) && InStr(string, " attack")) || InStr(string, "attack damage"))
-			rule_applies := -1
+			itemchecker_rule_applies := -1
 		If enable_itemchecker_rule_crit && (InStr(string, "critical strike"))
-			rule_applies := -1
+			itemchecker_rule_applies := -1
 		
-		If (item_type = "attack") || (rule_applies != "")
+		If (item_type = "attack") || (itemchecker_rule_applies != "")
 		{
-			If (rule_applies = "") && enable_itemchecker_rule_weapon_res && (InStr(string, "resistance") && !InStr(string, "penetrate"))
-				rule_applies := -1
-			If (rule_applies != "")
+			If (itemchecker_rule_applies = "") && enable_itemchecker_rule_weapon_res && (InStr(string, "resistance") && !InStr(string, "penetrate"))
+				itemchecker_rule_applies := -1
+			If (itemchecker_rule_applies != "")
 			{
 				If (mode != 0)
 				{
 					LLK_ToolTip("blocked by global rule")
 					Return -1
 				}
-				Return rule_applies
+				Return itemchecker_rule_applies
 			}
 		}
 		
 		If ((item_type = "defense") || (item_type = "jewelry"))
 		{
 			If enable_itemchecker_rule_res && InStr(string, "to ") && InStr(string, " resistance") && !InStr(string, "minion")
-				rule_applies := 1
-			If (rule_applies != "")
+				itemchecker_rule_applies := 1
+			If (itemchecker_rule_applies != "")
 			{
 				If (mode != 0)
 				{
 					LLK_ToolTip("blocked by global rule")
 					Return -1
 				}
-				Return rule_applies
+				Return itemchecker_rule_applies
 			}
 		}
 	}
 	implicit_check := !implicit ? "" : "_implicits"
 	If (mode = 0) ;check if mod is highlighted/blacklisted in order to determine color
 	{
-		If !InStr(itemchecker_highlight%implicit_check%, "|" string "|") && !InStr(itemchecker_blacklist%implicit_check%, "|" string "|")
+		If (itemchecker_meta_itemclass != "")
+		{
+			If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+				Return 2
+			Else If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+				Return -2
+		}
+		If !InStr(itemchecker_highlight%implicit_check%, "|" string "|") && !InStr(itemchecker_blacklist%implicit_check%, "|" string "|") && !InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|") && !InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 			Return 0
 		Else If InStr(itemchecker_highlight%implicit_check%, "|" string "|")
 			Return 1
 		Else If InStr(itemchecker_blacklist%implicit_check%, "|" string "|")
 			Return -1
 	}
-	If (mode = 1) ;mod was left-clicked: check for current highlight-state
+	If (mode = 1) ;mod was left-clicked
 	{
+		If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+		{
+			LLK_ToolTip("clear class-specific highlighting first", 1.5)
+			Return -1
+		}
 		If !InStr(itemchecker_highlight%implicit_check%, "|" string "|") ;mod is not highlighted: add it to highlighted mods and save
 		{
 			itemchecker_highlight%implicit_check% .= "|" string "|"
-			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "highlighted mods" : "highlighted implicits"
+			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			If InStr(itemchecker_blacklist%implicit_check%, "|" string "|")
 			{
 				itemchecker_blacklist%implicit_check% := StrReplace(itemchecker_blacklist%implicit_check%, "|" string "|")
-				IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "blacklisted mods" : "blacklisted implicits"
+				IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
 			}
 			Return 1
 		}
 		Else ;mod is highlighted: remove it from highlighted mods and save
 		{
 			itemchecker_highlight%implicit_check% := StrReplace(itemchecker_highlight%implicit_check%, "|" string "|")
-			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "highlighted mods" : "highlighted implicits"
+			IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			Return 0
 		}
 	}
-	If (mode = 2) ;mod was right-clicked: check for current blacklist-state
+	Else If (mode = -1) ;mod was long-leftclicked
 	{
+		If !InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|") ;mod is not highlighted: add it to class-specific highlighted mods and save
+		{
+			itemchecker_highlight_%itemchecker_meta_itemclass% .= "|" string "|"
+			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
+			If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+			{
+				itemchecker_blacklist_%itemchecker_meta_itemclass% := StrReplace(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+				IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, blacklist %itemchecker_meta_itemclass%
+			}
+			Return 2
+		}
+		Else ;mod is highlighted: remove it from class-specific highlighted mods and save
+		{
+			itemchecker_highlight_%itemchecker_meta_itemclass% := StrReplace(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+			IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
+			Return 0
+		}
+	}
+	If (mode = 2) ;mod was right-clicked
+	{
+		If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+		{
+			LLK_ToolTip("clear class-specific highlight first")
+			Return -1
+		}
 		If !InStr(itemchecker_blacklist%implicit_check%, "|" string "|") ;mod is not blacklisted: add it to blacklisted mods and save
 		{
 			itemchecker_blacklist%implicit_check% .= "|" string "|"
-			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "blacklisted mods" : "blacklisted implicits"
+			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
 			If InStr(itemchecker_highlight%implicit_check%, "|" string "|")
 			{
 				itemchecker_highlight%implicit_check% := StrReplace(itemchecker_highlight%implicit_check%, "|" string "|")
-				IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "highlighted mods" : "highlighted implicits"
+				IniWrite, % itemchecker_highlight%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "highlight" : "highlight implicits"
 			}
 			Return 1
 		}
 		Else ;mod is blacklisted: remove it from blacklisted mods and save
 		{
 			itemchecker_blacklist%implicit_check% := StrReplace(itemchecker_blacklist%implicit_check%, "|" string "|")
-			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, settings, % !implicit ? "blacklisted mods" : "blacklisted implicits"
+			IniWrite, % itemchecker_blacklist%implicit_check%, ini\item-checker.ini, highlighting %itemchecker_profile%, % !implicit ? "blacklist" : "blacklist implicits"
+			Return 0
+		}
+	}
+	Else If (mode = -2)
+	{
+		If !InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+		{
+			itemchecker_blacklist_%itemchecker_meta_itemclass% .= "|" string "|"
+			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, blacklist %itemchecker_meta_itemclass%
+			If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+			{
+				itemchecker_highlight_%itemchecker_meta_itemclass% := StrReplace(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+				IniWrite, % itemchecker_highlight_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, highlight %itemchecker_meta_itemclass%
+			}
+			Return 2
+		}
+		Else
+		{
+			itemchecker_blacklist_%itemchecker_meta_itemclass% := StrReplace(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%*, blacklist %itemchecker_meta_itemclass%
 			Return 0
 		}
 	}
 }
 
-LLK_ItemCheckStrReplace(string, order := 0) ;was experimenting with a 'compact' mode ;on hold until tooltip is more or less finalized
+LLK_ItemCheckStrReplace(string, reverse := 0) ;was experimenting with a 'compact' mode ;on hold until tooltip is more or less finalized
 {
-	replace := ["of physical attack damage leeched as life", "life-leech (attacks)", "of physical attack damage leeched as mana", "mana-leech (attacks)", "of damage taken recouped as life", "life-recoup", "with one handed weapons", "(1-hand weapon)"
+	replace := ["of physical attack damage leeched as life", "life-leech (phys attacks)", "of physical attack damage leeched as mana", "mana-leech (phys attacks)", "of damage taken recouped as life", "life-recoup", "with one handed weapons", "(1-hand weapon)"
 	, "with one handed melee weapons", "(1-hand melee weapon)", "with wand attacks", "(wand attacks)", "for 4 seconds", "(4 sec)", "movement speed", "move-speed", "if you've killed recently", "(killed recently)", "stun and block", "stun && block"
 	, "projectiles", "proj", "projectile", "proj", "regeneration rate", "regen rate", "critical strike", "crit", "resistances", "res", "damage over time", "dot"
-	, "multiplier", "multi", "maximum", "max", "suppress spell damage", "suppress", "damage", "dmg", "increased", "inc", "accuracy rating", "accuracy", "with", "w/"
+	, "multiplier", "multi", "maximum", "max", "suppress spell damage", "suppress", "damage", "dmg", "increased", "inc", "accuracy rating", "accuracy"
 	, "resistance", "res", "physical", "phys", "regenerate", "regen", " per second", "/sec", "intelligence", "int", "strength", "str", "dexterity", "dex", "elemental", "ele", "energy shield", "es", "evasion rating", "evasion", "while holding a shield", "(shield)"
 	, "while dual wielding", "(dual wield)", "with lightning skills", "(lightning skills)", "rarity of items found", "rarity", "quantity of items found", "quant"]
 	
 	Loop, % replace.Length()
 	{
-		If (order = 0) && (Mod(A_Index, 2) = 0)
+		If (reverse = 0) && (Mod(A_Index, 2) = 0)
 			continue
-		Else If (order = 1) && (Mod(A_Index, 2) != 0)
+		Else If (reverse = 1) && (Mod(A_Index, 2) != 0)
 			continue
-		string := (order = 0) ? StrReplace(string, replace[A_Index], replace[A_Index + 1]) : StrReplace(string, replace[A_Index], replace[A_Index - 1])
+		string := (reverse = 0) ? StrReplace(string, replace[A_Index], replace[A_Index + 1]) : StrReplace(string, replace[A_Index], replace[A_Index - 1])
 	}
 	Return string
 }
 
-LLK_ItemCheckStats(string)
+LLK_ItemCheckStats(string, item_type := "")
 {
 	resists := "fire,lightning,cold,chaos"
 	stats := "strength,dexterity,intelligence"
-	Loop, Parse, % resists "," stats, `,
+	Loop, Parse, string, `n
 	{
-		If InStr(string, A_LoopField) && !InStr(string, " and ") && ((InStr(resists, A_LoopField) && InStr(string, "resistance") && !InStr(string, " enem") && !InStr(string, "minion")) || InStr(stats, A_LoopField))
-			Return A_LoopField
-		Else If InStr(string, A_LoopField) && InStr(stats, A_LoopField) && InStr(string, " and ")
+		If (A_LoopField = "")
+			continue
+		
+		If (item_type = "attack")
+		{
+			Loop, Parse, resists, `,
+			{
+				If InStr(string, "adds ") && InStr(string, A_LoopField) && InStr(string, "damage") && !InStr(string, "spells")
+					Return A_LoopField "_attack"
+			}
+			If (InStr(string, "adds ") && InStr(string, "physical") && InStr(string, "damage") && !InStr(string, "spells")) || InStr(string, "increased physical damage")
+				Return "phys"
+		}
+		
+		If InStr(string, "minion")
+			Return "minion"
+		Else If InStr(string, "totem")
+			Return "totems"
+		Else If InStr(string, "increased") && InStr(string, "damage")
+		{
+			Loop, Parse, resists, `,
+			{
+				If InStr(string, A_LoopField)
+					Return A_LoopField "_damage"
+			}
+			If InStr(string, "spell")
+				Return "spell_damage"
+			If InStr(string, "global physical")
+				Return "phys"
+		}
+		Else If InStr(string, "adds") && InStr(string, "damage") && InStr(string, "to spells")
+		{
+			Loop, Parse, resists, `,
+			{
+				If InStr(string, A_LoopField)
+					Return A_LoopField "_spell"
+			}
+			If InStr(string, "physical")
+				Return "phys_spell"
+		}
+		Else If InStr(string, "adds") && InStr(string, "damage to attacks")
+		{
+			Loop, Parse, resists, `,
+			{
+				If InStr(string, A_LoopField)
+					Return A_LoopField "_attack"
+			}
+			If InStr(string, "physical")
+				Return "phys"
+		}
+		Else If InStr(string, "critical strike")
+			Return "crit"
+		Else If InStr(string, "attack speed")
+			Return "speed"
+		Else If InStr(string, "all elemental resistances") && !InStr(string, "penetrate")
+			Return "allres"
+		Else If InStr(string, "all attributes") || InStr(string, "increased attributes")
 			Return "allstats"
+		Else if InStr(string, "to maximum life") || InStr(string, "increased maximum life")
+			Return "life"
+		
+		Loop, Parse, % resists "," stats, `,
+		{
+			If InStr(string, A_LoopField) && !InStr(string, " and ") && ((InStr(resists, A_LoopField) && InStr(string, "resistance") && !InStr(string, " enem") && !InStr(string, "penetrate")) || InStr(stats, A_LoopField))
+				Return A_LoopField
+			Else If InStr(string, A_LoopField) && InStr(stats, A_LoopField) && InStr(string, " and ")
+				Return "allstats"
+		}
+		
+		If InStr(string, "armour and evasion")
+			Return "armor_evasion"
+		If InStr(string, "armour and energy")
+			Return "armor_energy"
+		If InStr(string, "evasion and energy")
+			Return "evasion_energy"
+		
+		If InStr(string, "+") && InStr(string, "to armour") && InStr(string, "to evasion rating")
+			Return "armor_evasion"
+		If InStr(string, "+") && InStr(string, "to armour") && InStr(string, "to maximum energy shield")
+			Return "armor_energy"
+		If InStr(string, "+") && InStr(string, "to evasion rating") && InStr(string, "to maximum energy shield")
+			Return "evasion_energy"
+		
+		If (InStr(string, "increased ") && (InStr(string, "armour"))) || (InStr(string, "+") && InStr(string, " to ") && (InStr(string, "armour")))
+			Return "armor"
+		If (InStr(string, "increased ") && InStr(string, "evasion")) || (InStr(string, "+") && InStr(string, " to ") && InStr(string, "evasion"))
+			Return "evasion"
+		If InStr(string, "+") && InStr(string, "to maximum energy shield") || (InStr(string, "increased energy shield") && !InStr(string, "recharge")) || InStr(string, "increased maximum energy shield")
+			Return "energy"
+		If InStr(string, "+") && InStr(string, "to ward") || (InStr(string, "increased ward"))
+			Return "ward"
 	}
-	If InStr(string, "minion")
-		Return "minion"
-	Else If InStr(string, "critical strike")
-		Return "crit"
-	Else If InStr(string, "all elemental resistances")
-		Return "allres"
-	Else If InStr(string, "all attributes") || InStr(string, "increased attributes")
-		Return "allstats"
-	Else if InStr(string, "to maximum life") || InStr(string, "increased maximum life") || InStr(string, "(llktag_life)")
-		Return "life"
-	Else if InStr(string, "to maximum energy shield") || (InStr(string, "increased energy shield") && !InStr(string, "recharge")) || InStr(string, "increased maximum energy shield") || InStr(string, "(llktag_energy)")
-		Return "energy"
-	
-	If (InStr(string, "increased ") && (InStr(string, "armour") || InStr(string, "evasion"))) || (InStr(string, "+") && InStr(string, " to ") && (InStr(string, "armour") || InStr(string, "evasion")))
-		Return "armor_evasion"
 	Return 0
 }
 
@@ -2016,7 +2326,7 @@ LLK_ItemCheckAffixes(string, mode := 0)
 	{
 		Loop, % %A_LoopField%.Length()
 		{
-			If InStr(string, %A_LoopField%[A_Index])
+			If InStr(string, %A_LoopField%[A_Index]) && !InStr(string, "flame shaper's")
 				Return A_LoopField
 		}
 	}
@@ -2171,7 +2481,6 @@ LLK_ItemCheckGear(slot)
 	loop := 0 ;count affixes
 	unique := InStr(Clipboard, "rarity: unique") ? 1 : 0 ;is item unique?
 	;jewel := InStr(Clipboard, "viridian jewel") || InStr(Clipboard, "crimson jewel") || InStr(Clipboard, "cobalt jewel") ? 1 : 0 ;is item a jewel?
-	affixes := [] ;array to store affix information
 	
 	If InStr(itemchecker_metadata, "crimson jewel") || InStr(itemchecker_metadata, "viridian jewel") || InStr(itemchecker_metadata, "cobalt jewel")
 	{
@@ -2237,34 +2546,27 @@ LLK_ItemCheckGear(slot)
 	equipped_%slot% := (item_type = "attack") ? "dps="tdps "`npdps="pdps "`nedps="edps0 "`ncdps="cdps "`nspeed=" speed "`n" LLK_ItemCheckRemoveRolls(implicits "`n" itemcheck_clip, item_type) : defenses LLK_ItemCheckRemoveRolls(implicits "`n" itemcheck_clip, item_type)
 	If WinExist("ahk_id " hwnd_itemchecker)
 		LLK_ItemCheck(1)
-	/*
-	snip := StrReplace(snip, " (implicit)")
-	snip := StrReplace(snip, " (crafted)")
-	snip := StrReplace(snip, " (fractured)")
-	parse := StrReplace(parse, "allocates ")
-	If InStr(parse, " is in your presence,") && InStr(parse, "while a ")
-		parse := InStr(parse, "pinnacle") ? SubStr(parse, InStr(parse, ",") + 1) " (pinnacle)" : SubStr(parse, InStr(parse, ",") + 1) " (unique)"
-	
-	If InStr(parse, ", with ") && InStr(parse, "% increased effect")
-		parse := SubStr(parse, 1, InStr(parse, ", with ") - 1)
-	
-	Loop, Parse, snip, `n
+}
+
+LLK_ItemCheckRemoveRollsText(string, ByRef removed_text := "")
+{
+	removed_text := ""
+	Loop, % LLK_InStrCount(string, "(")
 	{
-		If InStr(A_LoopField, "item level: ") || InStr(A_LoopField, "----") || InStr(A_LoopField, "Item`r", 1) ||  || (item_type = "attack" && InStr(A_LoopField, "adds ") && InStr(A_LoopField, " damage") && !InStr(A_LoopField, "spell")) 
-			continue
-		parse := StrReplace(A_LoopField, "allocates ")
-		If InStr(parse, " is in your presence,") && InStr(parse, "while a ")
-			parse := InStr(parse, "pinnacle") ? SubStr(parse, InStr(parse, ",") + 1) " (pinnacle)" : SubStr(parse, InStr(parse, ",") + 1) " (unique)"
-		
-		If InStr(parse, ", with ") && InStr(parse, "% increased effect")
-			parse := SubStr(parse, 1, InStr(parse, ", with ") - 1)
-		
-		While (SubStr(parse, 1, 1) = " ")
-			parse := SubStr(parse, 2)
-		test_box .= StrReplace(parse, "`r") "`n"
+		parse_remove%A_Index% := SubStr(string, InStr(string, "(",,, A_Index), InStr(string, ")",,, A_Index) - InStr(string, "(",,, A_Index) + 1)
+		removed_text .= parse_remove%A_Index% ","
 	}
-	;MsgBox, % test_box
-	*/
+	loop := 1
+	parse := string
+	string_copy := string
+	While InStr(parse, parse_remove%loop%) && (parse_remove%loop% != "")
+	{
+		If (A_Index > LLK_InStrCount(string_copy, "("))
+			break
+		parse := InStr(parse, " " parse_remove%loop%) ? StrReplace(parse, " " parse_remove%loop%) : StrReplace(parse, parse_remove%loop%)
+		loop += 1
+	}
+	Return parse
 }
 
 LLK_ItemCheckRemoveRolls(string, item_type := "")

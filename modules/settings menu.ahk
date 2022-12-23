@@ -640,7 +640,7 @@ If (A_GuiControl = "pixelcheck_help")
 text =
 (
 explanation
-click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value.
+click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
 
 ui textures in PoE sometimes get updated in patches, which leads to screen-checks failing. this is where you recalibrate the checks in order to continue using the script.
 
@@ -771,7 +771,7 @@ If (A_GuiControl = "imagecheck_help_sanctum")
 text =
 (
 instructions
-to recalibrate, open the sanctum map and screen-cap the area displayed above.
+to recalibrate, open your inventory and the sanctum map, then screen-cap the area displayed above.
 
 explanation
 this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to trigger its cheat-sheet.
@@ -836,6 +836,16 @@ hold shift BEFORE right-clicking wisdom-scrolls for the first time.
 while holding shift, left-click items to identify and trigger the item-info tooltip.
 	
 while holding shift, right-click items to place a red marker.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "itemchecker_profiles_help")
+{
+text =
+(
+the lists of (un)desired mods are stored in individual profiles that can be switched between.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -954,6 +964,13 @@ settings_menu_section := "itemchecker"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"fSize0*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
 
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "selected profile: "
+Loop 5
+{
+	color_profile := InStr(itemchecker_profile, A_Index) ? "Fuchsia" : "White"
+	Gui, settings_menu: Add, Text, % "ys Center Border gItemchecker c"color_profile " vitemchecker_profile"A_Index " BackgroundTrans x+2", % " "A_Index " "
+}
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vitemchecker_profiles_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
 Gui, settings_menu: Font, norm
