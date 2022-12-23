@@ -502,7 +502,7 @@ LLK_Omnikey_ToolTip(text:=0)
 	}
 	If (text = "")
 	{
-		SoundBeep
+		LLK_ToolTip("no maps with " A_ThisHotkey)
 		Return
 	}
 	Gui, omnikey_tooltip: New, -DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd_omnikey_tooltip,

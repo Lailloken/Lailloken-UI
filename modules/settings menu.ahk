@@ -640,7 +640,7 @@ If (A_GuiControl = "pixelcheck_help")
 text =
 (
 explanation
-click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value.
+click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
 
 ui textures in PoE sometimes get updated in patches, which leads to screen-checks failing. this is where you recalibrate the checks in order to continue using the script.
 
@@ -771,7 +771,7 @@ If (A_GuiControl = "imagecheck_help_sanctum")
 text =
 (
 instructions
-to recalibrate, open the sanctum map and screen-cap the area displayed above.
+to recalibrate, open your inventory and the sanctum map, then screen-cap the area displayed above.
 
 explanation
 this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to trigger its cheat-sheet.
