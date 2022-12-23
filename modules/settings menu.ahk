@@ -841,6 +841,16 @@ while holding shift, right-click items to place a red marker.
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "itemchecker_profiles_help")
+{
+text =
+(
+the lists of (un)desired mods are stored in individual profiles that can be switched between.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "itemchecker_bases_help")
 {
 text =
@@ -960,6 +970,7 @@ Loop 5
 	color_profile := InStr(itemchecker_profile, A_Index) ? "Fuchsia" : "White"
 	Gui, settings_menu: Add, Text, % "ys Center Border gItemchecker c"color_profile " vitemchecker_profile"A_Index " BackgroundTrans x+2", % " "A_Index " "
 }
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vitemchecker_profiles_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
 Gui, settings_menu: Font, norm

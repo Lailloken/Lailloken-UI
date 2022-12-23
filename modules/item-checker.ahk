@@ -295,6 +295,8 @@ If InStr(A_GuiControl, "itemchecker_profile")
 	{
 		Loop, Parse, itemchecker_highlighting, `n ;clear current lists before switching profiles
 		{
+			If (A_LoopField = "")
+				continue
 			parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse := StrReplace(parse, " ", "_")
 			itemchecker_%parse% := ""
 		}
