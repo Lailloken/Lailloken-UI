@@ -2178,7 +2178,7 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 		Else
 		{
 			itemchecker_blacklist_%itemchecker_meta_itemclass% := StrReplace(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
-			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%*, blacklist %itemchecker_meta_itemclass%
+			IniWrite, % itemchecker_blacklist_%itemchecker_meta_itemclass%, ini\item-checker.ini, highlighting %itemchecker_profile%, blacklist %itemchecker_meta_itemclass%
 			Return 0
 		}
 	}
