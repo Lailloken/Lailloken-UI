@@ -962,7 +962,12 @@ If (ini_version < 12905)
 	GoSub, Init_itemchecker
 }
 
-IniWrite, 12905, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+If (ini_version < 12905.1)
+{
+	Loop 5
+		IniDelete, ini\item-checker.ini, highlighting %A_Index%*
+}
+IniWrite, 12905.1, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
