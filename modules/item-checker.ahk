@@ -213,72 +213,71 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 		Else color := (highlight_check = 2) ? itemchecker_t7_color : (highlight_check = 1) ? itemchecker_t1_color : (highlight_check = -2) ? itemchecker_ilvl8_color : itemchecker_t6_color
 		GuiControl, itemchecker: +c%color%, itemchecker_panel%A_Index%_button
 	}
-	If enable_itemchecker_override || (itemchecker_item_class = "base jewel")
+	
+	Loop, % affix_groups.Count()
 	{
-		Loop, % affix_groups.Count()
+		check_tier_highlight := 0
+		color := itemchecker_affixgroup%A_Index%_color
+		color1 := itemchecker_affixgroup%A_Index%_color2
+		Loop, Parse, % affix_groups[A_Index], `n
 		{
-			check_tier_highlight := 0
+			If (SubStr(A_LoopField, 1, 1) = "{")
+				continue
+			highlight_check := LLK_ItemCheckHighlight(A_LoopField)
+			check_tier_highlight += (highlight_check > 0) ? 1 : (highlight_check = 0) ? 0 : -1
+		}
+		GuiControl, itemchecker: -Hidden, itemchecker_affixgroup%A_Index%_icon
+		If (itemchecker_item_class = "base jewel") && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
+			color := itemchecker_t1_color
+		/*
+		Else If enable_itemchecker_override && (check_tier_highlight = - LLK_InStrCount(affix_groups[A_Index], "`n")*2)
+		{
+			color := itemchecker_ilvl8_color
+			color1 := itemchecker_ilvl8_color
+		}
+		*/
+		Else If (affix_tiers[A_Index] = 1) && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
+		{
+			color := "ffffff"
+			color1 := itemchecker_affixgroup%A_Index%_color2
+		}
+		Else If enable_itemchecker_override && (check_tier_highlight <= - LLK_InStrCount(affix_groups[A_Index], "`n")) && !InStr(affix_groups_original[A_Index], "(fractured)")
+		{
+			color := itemchecker_t6_color
+			color1 := itemchecker_t6_color
+			GuiControl, itemchecker: +Hidden, itemchecker_affixgroup%A_Index%_icon
+		}
+		/*
+		Else
+		{
 			color := itemchecker_affixgroup%A_Index%_color
 			color1 := itemchecker_affixgroup%A_Index%_color2
-			Loop, Parse, % affix_groups[A_Index], `n
-			{
-				If (SubStr(A_LoopField, 1, 1) = "{")
-					continue
-				highlight_check := LLK_ItemCheckHighlight(A_LoopField)
-				check_tier_highlight += (highlight_check > 0) ? 1 : (highlight_check = 0) ? 0 : -1
-			}
-			GuiControl, itemchecker: -Hidden, itemchecker_affixgroup%A_Index%_icon
-			If (itemchecker_item_class = "base jewel") && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
-				color := itemchecker_t1_color
-			/*
-			Else If enable_itemchecker_override && (check_tier_highlight = - LLK_InStrCount(affix_groups[A_Index], "`n")*2)
-			{
-				color := itemchecker_ilvl8_color
-				color1 := itemchecker_ilvl8_color
-			}
-			*/
-			Else If (affix_tiers[A_Index] = 1) && (check_tier_highlight >= LLK_InStrCount(affix_groups[A_Index], "`n"))
-			{
-				color := "ffffff"
-				color1 := itemchecker_affixgroup%A_Index%_color2
-			}
-			Else If enable_itemchecker_override && (check_tier_highlight <= - LLK_InStrCount(affix_groups[A_Index], "`n")) && !InStr(affix_groups_original[A_Index], "(fractured)")
-			{
-				color := itemchecker_t6_color
-				color1 := itemchecker_t6_color
-				GuiControl, itemchecker: +Hidden, itemchecker_affixgroup%A_Index%_icon
-			}
-			/*
-			Else
-			{
-				color := itemchecker_affixgroup%A_Index%_color
-				color1 := itemchecker_affixgroup%A_Index%_color2
-			}
-			*/
-			/*
-			If LLK_ItemCheckAffixes(affix_names[A_Index]) || InStr(affix_groups_original[A_Index], "(crafted)")
-			{
-				color := itemchecker_t0_color
-				color1 := itemchecker_t0_color
-			}
-			*/
-			If InStr(affix_groups_original[A_Index], "(fractured)")
-			{
-				color := itemchecker_t7_color
-				color1 := itemchecker_t7_color
-			}
-			
-			GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier
-			GuiControl, % (color = "ffffff") ? "itemchecker: +cRed" : "itemchecker: +cBlack", itemchecker_affixgroup%A_Index%_tier_text
-			If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
-			{
-				GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2
-				color1 := (color1 = "ffffff") ? "Red" : "Black"
-				GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2_text
-			}
-			Else GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier2
 		}
+		*/
+		/*
+		If LLK_ItemCheckAffixes(affix_names[A_Index]) || InStr(affix_groups_original[A_Index], "(crafted)")
+		{
+			color := itemchecker_t0_color
+			color1 := itemchecker_t0_color
+		}
+		*/
+		If InStr(affix_groups_original[A_Index], "(fractured)")
+		{
+			color := itemchecker_t7_color
+			color1 := itemchecker_t7_color
+		}
+		
+		GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier
+		GuiControl, % (color = "ffffff") ? "itemchecker: +cRed" : "itemchecker: +cBlack", itemchecker_affixgroup%A_Index%_tier_text
+		If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
+		{
+			GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2
+			color1 := (color1 = "ffffff") ? "Red" : "Black"
+			GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2_text
+		}
+		Else GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier2
 	}
+	
 	
 	WinSet, Redraw,, ahk_id %hwnd_itemchecker%
 	;WinActivate, ahk_group poe_window
@@ -1817,7 +1816,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			{
 				Case 0:
 				highlight_check := LLK_ItemCheckHighlight(SubStr(affix_copy, InStr(affix_copy, "`n") + 1))
-				If (highlight_check < 0)
+				If enable_itemchecker_override && (highlight_check < 0)
 				{
 					color := itemchecker_t6_color
 					itemchecker_override := 1
@@ -1832,7 +1831,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				mod_check1 := SubStr(affix_copy, InStr(affix_copy, "`n",,, 2) + 1)
 				highlight_check := LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)"))
 				highlight_check1 := LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)"))
-				If (highlight_check < 0) && (highlight_check1 < 0)
+				If enable_itemchecker_override && (highlight_check < 0) && (highlight_check1 < 0)
 				{
 					color := itemchecker_t6_color
 					itemchecker_override := 1
@@ -1849,7 +1848,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				highlight_check := LLK_ItemCheckHighlight(StrReplace(mod_check, " (fractured)"))
 				highlight_check1 := LLK_ItemCheckHighlight(StrReplace(mod_check1, " (fractured)"))
 				highlight_check2 := LLK_ItemCheckHighlight(StrReplace(mod_check2, " (fractured)"))
-				If (highlight_check < 0) && (highlight_check1 < 0) && (highlight_check2 < 0)
+				If enable_itemchecker_override && (highlight_check < 0) && (highlight_check1 < 0) && (highlight_check2 < 0)
 				{
 					color := itemchecker_t6_color
 					itemchecker_override := 1

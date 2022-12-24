@@ -903,8 +903,6 @@ if enabled, undesired mods will always have their tier && ilvl highlighted in th
 hybrid mods will only be overridden if every aspect of the mod is undesired, and fractured mods will never be overridden.
 
 note: when enabled, marking as undesired should be used carefully and only for mods that are inherently bad. you may otherwise dismiss an item as bad solely based on your own preferences.
-
-overrides will be applied/reset the next time the tooltip is refreshed, not immediately after right-clicking.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -971,6 +969,12 @@ Loop 5
 	Gui, settings_menu: Add, Text, % "ys Center Border gItemchecker c"color_profile " vitemchecker_profile"A_Index " BackgroundTrans x+2", % " "A_Index " "
 }
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vitemchecker_profiles_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset all: desired "
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_highlight_bar cRed",
+Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset all: undesired "
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
+
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
 Gui, settings_menu: Font, norm
@@ -1037,12 +1041,6 @@ If enable_itemchecker_ilvl
 
 Gui, settings_menu: Add, Checkbox, % "xs Section hp BackgroundTrans gItemchecker venable_itemchecker_override Checked"enable_itemchecker_override, % "blacklisting overrides tier && ilvl color"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_override_help hp w-1", img\GUI\help.png
-
-Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset all: desired "
-Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_highlight_bar cRed",
-Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset all: undesired "
-Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
-
 
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "global rules/overrides:"
