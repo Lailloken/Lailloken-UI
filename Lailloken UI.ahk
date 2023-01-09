@@ -1036,10 +1036,10 @@ gamescreen := 0
 inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
-stash_search_usecases := "gwennen,stash,vendor"
+stash_search_usecases := "bestiarydex,gwennen,stash,vendor"
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
-imagechecks_list := "betrayal,bestiary,gwennen,sanctum,stash,vendor"
+imagechecks_list := "betrayal,bestiary,bestiarydex,gwennen,sanctum,stash,vendor"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
 guilist .= "betrayal_search|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 buggy_resolutions := "768,1024,1050"
