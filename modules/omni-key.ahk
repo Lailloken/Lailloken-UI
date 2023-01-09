@@ -195,6 +195,11 @@ If (clipboard = "") && (gamescreen = 0)
 	LLK_ImageSearch()
 	If (disable_imagecheck_bestiary = 0) && (bestiary = 1)
 		GoSub, Bestiary_search
+	If (disable_imagecheck_bestiarydex = 0) && (bestiarydex = 1)
+	{
+		stash_search_type := "bestiarydex"
+		GoSub, Stash_search
+	}
 	If (disable_imagecheck_gwennen = 0) && (gwennen = 1)
 	{
 		stash_search_type := "gwennen"
