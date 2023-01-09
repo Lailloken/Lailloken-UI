@@ -1342,7 +1342,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				{
 					For key, value in losses_%loop%
 					{
-						If (value = "" || value >= 0) || (item_type = "attack" && key = "increased_attack_speed") || (LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 0) != 1 && LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 1) != 1)
+						If (value = "" || value >= 0) || (item_type = "attack" && key = "increased_attack_speed") || (LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 0) < 1 && LLK_ItemCheckHighlight(StrReplace(key, "_", " "), 0, 1) < 1)
 							continue
 						Gui, itemchecker: Add, Progress, % "xs Section Disabled Border BackgroundBlack w"itemchecker_width*itemchecker_width_segments " h"itemchecker_height, 0
 						parse := StrReplace(key, "adds_to_")
@@ -1443,13 +1443,14 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Else color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
 			
 			removed_text := ""
-			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*(itemchecker_width_segments - 1.25) " HWNDmain_text", % LLK_ItemCheckRemoveRollsText(parse, removed_text) ;add hidden text label as dummy to get the correct dimensions
+			parse_suffix := InStr(parse, " (pinnacle)") ? " (pinnacle)" : InStr(parse, " (unique)") ? " (unique)" : ""
+			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*(itemchecker_width_segments - 1.25) " HWNDmain_text", % LLK_ItemCheckRemoveRollsText(parse, removed_text) parse_suffix ;add hidden text label as dummy to get the correct dimensions
 			
 			GuiControlGet, check_, Pos, %main_text%
 			height_text := (check_h <= itemchecker_height) ? itemchecker_height : check_h
 			Gui, itemchecker: Add, Progress, % "xp yp Border Disabled Section h"height_text " wp BackgroundBlack c"color " HWNDhwnd_itemchecker_implicit"loop_implicits "_button1 vitemchecker_implicit"loop_implicits "_button1", 100
 			color1 := (color = "Black") ? "White" : "Black"
-			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % LLK_ItemCheckRemoveRollsText(parse)
+			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % LLK_ItemCheckRemoveRollsText(parse) parse_suffix
 			
 			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"itemchecker_width/4 " HWNDhwnd_itemchecker_implicit"loop_implicits "_button vitemchecker_implicit"loop_implicits "_button BackgroundBlack c"color, 100
 			Gui, itemchecker: Add, Text, % "xp yp Border 0x200 Center BackgroundTrans hp wp gItemchecker vitemchecker_implicit"loop_implicits " HWNDhwnd_itemchecker_implicit"loop_implicits " cBlack", % " "
@@ -1570,23 +1571,36 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				If (itemchecker_item_class = "base jewel") ;check if the data for the given affix-name has a special tag (some jewel affixes share their name with some non-jewel ones, so I had to tag them in order to get the correct weights)
 				{
 					tag_check := 0
+					target_loop0 := ""
 					Loop, % itemchecker_mod_data[affix_name].Count()
 					{
+						If itemchecker_mod_data[affix_name][A_Index].HasKey("LLK_tag")
+							target_loop0 .= A_Index ","
+						/*
 						tag_check += itemchecker_mod_data[affix_name][A_Index].HasKey("LLK_tag")
 						If (tag_check = 1)
 						{
 							target_loop := A_Index ;the correct information is stored in the n-th entry
 							Break
 						}
+						*/
 					}
 				}
 				
-				If ((itemchecker_item_class = "base jewel") && (tag_check = 1)) ;item is jewel and there is a tagged weight-entry
+				If ((itemchecker_item_class = "base jewel") && (target_loop0 != "")) ;item is jewel and there is a tagged weight-entry
 				{
-					Loop, % itemchecker_mod_data[affix_name][target_loop]["strings"].Count()
+					Loop, Parse, target_loop0, `,
 					{
-						parse := StrReplace(itemchecker_mod_data[affix_name][target_loop]["strings"][A_Index], "1 Added Passive Skill is ")
-						mod_check += InStr(mod, parse) ? 1 : 0 ;confirm whether affix-name and mod-text correlate
+						If (A_LoopField = "")
+							continue
+						target_loop0 := A_LoopField
+						Loop, % itemchecker_mod_data[affix_name][target_loop0]["strings"].Count()
+						{
+							parse := StrReplace(itemchecker_mod_data[affix_name][target_loop0]["strings"][A_Index], "1 Added Passive Skill is ")
+							If InStr(mod, parse)
+								target_loop := target_loop0
+							mod_check += InStr(mod, parse) ? 1 : 0 ;confirm whether affix-name and mod-text correlate
+						}
 					}
 				}
 				Else
@@ -1650,7 +1664,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			
 			roll := "" ;variable in which to store the numerical values of the affix
 			offset := 0
-			While (IsNumber(SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1)) || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = "."))
+			While (IsNumber(SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1)) || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = ".") || (SubStr(mod1, InStr(mod1, "(") - 1 - offset, 1) = "-"))
 				offset += 1
 			starting_point := InStr(mod1, "(") - offset
 			Loop, Parse, % InStr(mod1, "(") ? SubStr(mod1, starting_point, InStr(mod1, ")",,, LLK_InStrCount(mod1, ")")) - starting_point + 1) : mod1 ;parse mod-text character by character
@@ -1674,7 +1688,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					{
 						If (A_Index = 1)
 						{
-							roll%roll_count% := InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--")) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
+							roll%roll_count% := (InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--"))) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
 							roll%roll_count%_1 := "" ;lower bound of the affix roll
 							roll%roll_count%_2 := "" ;upper bound of the affix roll
 						}
@@ -1694,29 +1708,23 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						}
 					}
 				}
-				;create a string with the range of the roll and current value: either "x_lower,x,x_upper" or "x_lower+y_lower,x+y,x_upper+y_upper"
 				roll_min := (roll_count = 1) ? Min(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2)
 				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
 				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-				If (roll1_1 > roll1_2) && !InStr(mod, "--") && !InStr(mod, "(-") && !InStr(mod, "attribute requirement") && !InStr(mod, "on you")
-					roll_qual := - roll1_1 "," - roll1 "," - roll1_2
-				Else roll_qual := (roll_count = 1) ? Min(roll1_1, roll1_2) "," roll1 "," Max(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2) "," roll1 + roll2 "," Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
+				If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "reduced elemental resistances")
+				{
+					roll_min_copy := roll_min
+					roll_min := roll_max * -1
+					roll_present *= -1
+					roll_max := roll_min_copy * -1
+				}
 			}
 			Else
 			{
 				roll_min := 0
 				roll_present := 100
 				roll_max := 100
-				roll_qual := 0 "," 100 "," 100 ;if numerical value doesn't scale, create a string "0,100,100" where 0 serves as x_lower and 100 as x and x_upper
 			}
-			/*
-			If (affix_divider = 2)
-			{
-				affixes.Push("divider")
-				affix_tiers.Push("divider")
-				affix_divider += 1
-			}
-			*/
 			affixes.Push(mod) ;push mod-text, tier, and roll-values into array
 			mod := StrReplace(mod, " (crafted)")
 			mod := StrReplace(mod, " (fractured)")
@@ -1998,6 +2006,7 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	global
 	
 	itemchecker_highlight_parse := "+-.()%"
+	itemchecker_rule_applies := ""
 	;string := LLK_ItemCheckStrReplace(string)
 	string := StrReplace(string, " (unique)")
 	string := StrReplace(string, " (pinnacle)")
@@ -2222,6 +2231,24 @@ LLK_ItemCheckStats(string, item_type := "")
 			If (InStr(string, "adds ") && InStr(string, "physical") && InStr(string, "damage") && !InStr(string, "spells")) || InStr(string, "increased physical damage")
 				Return "phys"
 		}
+		
+		If InStr(string, " block") && !InStr(string, "block recovery")
+			Return "block"
+		
+		If InStr(string, "to maximum mana") || InStr(string, "increased maximum mana")
+			Return "mana"
+		
+		If InStr(string, "regenerate") && InStr(string, "mana per second") || InStr(string, "increased mana regeneration rate")
+			Return "mana_regen"
+		
+		If InStr(string, "flask")
+			Return "flasks"
+		
+		If InStr(string, "regenerate") && InStr(string, "life per second") || InStr(string, "increased life regeneration rate")
+			Return "life_regen"
+		
+		If InStr(string, "to level of ") && InStr(string, " gem")
+			Return "gem_level"
 		
 		If InStr(string, "minion")
 			Return "minion"

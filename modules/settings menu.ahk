@@ -728,9 +728,24 @@ instructions
 to recalibrate, open the beastcrafting window and screen-cap the plate displayed above.
 
 explanation
-this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to trigger open the beastcrafting context-menu.
+this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to trigger the beastcrafting context-menu.
 )
 	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\bestiary.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "imagecheck_help_bestiarydex")
+{
+text =
+(
+instructions
+to recalibrate, open the challenge-menu (default-hotkey: h), and click the 'bestiary' tab. open the 'captured beasts' menu at the bottom, then screen-cap the area in the red box displayed above.
+
+explanation
+this check helps the script identify whether the bestiary index is open or not, which enables the omni-key to trigger the search-strings feature.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\bestiary-dex.jpg
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
@@ -1315,7 +1330,9 @@ Loop, Parse, imagechecks_list, `,, `,
 	If (screenchecks_%A_Loopfield%_valid = 0)
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
-	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gSettings_menu_help vimagecheck_help_"A_LoopField, % A_Loopfield
+	parse_imagechecks := StrReplace(A_LoopField, "dash", "-")
+	parse_imagechecks := StrReplace(parse_imagechecks, "_", " ")
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gSettings_menu_help vimagecheck_help_"A_LoopField, % parse_imagechecks
 	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
