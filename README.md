@@ -16,7 +16,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 # Legacy Features:
 
 | [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
-|-------------|----------|
+|---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
 <br>
 
@@ -30,7 +30,17 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
-![image](https://user-images.githubusercontent.com/61888437/205450947-632d6950-1af0-4918-ba2c-3a331e36c5dc.png)  
+| base tooltip: rare weapon | base tooltip: unique weapon |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/212065660-95c57e4f-18dc-4d51-81cd-5fccd7659da4.png) | ![image](https://user-images.githubusercontent.com/61888437/212066319-972be992-160c-4c4f-921f-fbf09c6b80cf.png) |
+
+| optional: base-stat info | optional: base-stat info |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/212067763-6e5f95eb-b040-4aaf-b752-6e3392df146f.png) | ![image](https://user-images.githubusercontent.com/61888437/212068319-470361a9-0cf5-4033-b024-3aa75f8d86de.png) |
+
+| optional: item comparison | optional: item comparison |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/212068981-b757797d-e53a-4731-9329-ff37018f967c.png) | ![image](https://user-images.githubusercontent.com/61888437/212069204-a3cf06d1-bdeb-4b6a-a5de-6bd236d2d731.png) |
 <br>
 
 ## [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator): in-client calculator for recombinators  
