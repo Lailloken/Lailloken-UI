@@ -38,7 +38,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/212067763-6e5f95eb-b040-4aaf-b752-6e3392df146f.png) | ![image](https://user-images.githubusercontent.com/61888437/212068319-470361a9-0cf5-4033-b024-3aa75f8d86de.png) |
 
-| optional: item comparison | optional: item comparison |
+| optional: comparison with current gear | optional: comparison with current gear |
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/212068981-b757797d-e53a-4731-9329-ff37018f967c.png) | ![image](https://user-images.githubusercontent.com/61888437/212069204-a3cf06d1-bdeb-4b6a-a5de-6bd236d2d731.png) |
 <br>
@@ -83,8 +83,8 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 
 ## [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
 | dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | (leveling) gear tracker with notifications |
-|----------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| ![image](https://user-images.githubusercontent.com/61888437/184829974-6c10b92e-0c8e-4069-98ed-8db6d38feac1.png) | ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png) |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/212078216-5fa5d986-853c-4813-b098-4fabb9a08ce1.png) | ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png) |
 <br>
 
 ## [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
