@@ -210,9 +210,9 @@ If (clipboard = "") && (gamescreen = 0)
 				GoSub, Stash_search
 				KeyWait, % ThisHotkey_copy
 				stash_search_trigger := 0
+				Return
 			}
 		}
-		Return
 	}
 	LLK_ImageSearch()
 	If (disable_imagecheck_bestiary = 0) && (bestiary = 1)
