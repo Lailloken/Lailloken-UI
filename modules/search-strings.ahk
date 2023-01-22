@@ -1,7 +1,7 @@
 ﻿Stash_search:
-If (A_Gui != "") || (stash_search_trigger = 1)
+If (A_Gui != "") || (stash_search_trigger > 0)
 {
-	If (stash_search_trigger != 1)
+	If (stash_search_trigger = 0)
 	{
 		string_number := (click = 2) ? 2 : 1
 		IniRead, stash_search_string, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number%
@@ -15,6 +15,13 @@ If (A_Gui != "") || (stash_search_trigger = 1)
 	{
 		IniRead, stash_search_string, ini\stash search.ini, % Loopfield_copy, string 1
 		IniRead, stash_search_scroll, ini\stash search.ini, % Loopfield_copy, string 1 enable scrolling, 0
+		If (stash_search_trigger = 2)
+		{
+			If (A_Gui = "")
+				stash_search_string := stash_search_string_leveling
+			Else stash_search_string := InStr(A_GuiControl, "gem") ? stash_search_string_leveling_gems : stash_search_string_leveling_items
+			stash_search_scroll := InStr(stash_search_string, ";") ? 1 : 0
+		}
 	}
 	
 	Loop
@@ -23,6 +30,9 @@ If (A_Gui != "") || (stash_search_trigger = 1)
 			scrollboard%A_Index% := ""
 		Else break
 	}
+	
+	scrollboards := ""
+	scrollboard_active := ""
 	
 	If InStr(stash_search_string, ";")
 	{
@@ -39,7 +49,11 @@ If (A_Gui != "") || (stash_search_trigger = 1)
 	
 	clipboard := (scrollboard1 = "") ? stash_search_string : scrollboard1
 	ClipWait, 0.05
-	SendInput, ^{f}^{v}
+	SendInput, ^{f}
+	Sleep, 100
+	SendInput, ^{v}
+	Sleep, 100
+	SendInput, {Enter}
 	If (stash_search_scroll = 1)
 	{
 		SetTimer, Stash_search_scroll, 100
@@ -245,14 +259,17 @@ Gui, stash_search_preview_list: Destroy
 Return
 
 Stash_search_scroll:
-ToolTip, % "              scrolling...`n              ESC to exit",,, 11
-KeyWait, ESC, D T0.05
-If !ErrorLevel
+If (scrollboard%scrollboard_active% !="") && InStr(stash_search_string_leveling, scrollboard%scrollboard_active%)
 {
-	SetTimer, stash_search_scroll, delete
-	ToolTip,,,, 11
-	stash_search_scroll_mode := 0
+	If InStr(stash_search_string_leveling_gems, scrollboard%scrollboard_active%)
+		scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards " (gems)`n              ESC to exit"
+	Else If InStr(stash_search_string_leveling_items, scrollboard%scrollboard_active%)
+		scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards " (items)`n              ESC to exit"
 }
+Else If (scrollboards != "") && (scrollboard_active != "")
+	scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards "`n              ESC to exit"
+Else scrollboard_text := "              scrolling...`n              ESC to exit"
+ToolTip, % scrollboard_text,,, 11
 Return
 
 Stash_search_save:

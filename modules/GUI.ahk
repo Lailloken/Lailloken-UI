@@ -211,6 +211,7 @@ Loop, Parse, clone_frames_enabled, `,, `,
 	If (A_Loopfield = "")
 		Break
 	Gui, clone_frames_%A_Loopfield%: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_%A_Loopfield%
+	Gui, clone_frames_%A_Loopfield%: Color, Red
 	guilist := InStr(guilist, A_Loopfield) ? guilist : guilist "clone_frames_" A_Loopfield "|"
 }
 Return

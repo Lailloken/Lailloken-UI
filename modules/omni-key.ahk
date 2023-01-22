@@ -187,11 +187,33 @@ If WinExist("ahk_id " hwnd_delve_grid)
 Clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
 If (clipboard = "") && (gamescreen = 0)
 {
+	If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
+	{
+		If (stash_search_scroll_mode = 1)
+		{
+			SetTimer, stash_search_scroll, delete
+			ToolTip,,,, 11
+			stash_search_scroll_mode := 0
+		}
+		start := A_TickCount
+		While GetKeyState(ThisHotkey_copy, "P")
+		{
+			If (A_TickCount >= start + 500)
+			{
+				stash_search_trigger := 2
+				GoSub, Stash_search
+				KeyWait, % ThisHotkey_copy
+				stash_search_trigger := 0
+			}
+		}
+		Return
+	}
 	LLK_ImageSearch()
 	If (disable_imagecheck_bestiary = 0) && (bestiary = 1)
 		GoSub, Bestiary_search
@@ -470,7 +492,7 @@ Loop, Parse, clipboard, `n, `n
 		wiki_term := StrReplace(A_LoopField, "Item Class: ")
 		wiki_term := (InStr(wiki_term, "Body")) ? "Body armour" : wiki_term
 		wiki_term := StrReplace(wiki_term, A_Space, "_")
-		wiki_term := StrReplace(wiki_term, "'", "%27")
+		;wiki_term := StrReplace(wiki_term, "'", "%27")
 		wiki_term := InStr(wiki_term, "abyss_jewel") ? "abyss_jewel" : wiki_term
 		break
 	}
