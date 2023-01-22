@@ -23,6 +23,8 @@ If (A_Gui = "leveling_guide_panel") && (click = 1) ;left-clicking the button
 		;LLK_Overlay("leveling_guide1", "hide")
 		LLK_Overlay("leveling_guide2", "hide")
 		LLK_Overlay("leveling_guide3", "hide")
+		text2_backup := text2
+		text2 := ""
 		WinActivate, ahk_group poe_window
 		Return
 	}
@@ -33,6 +35,7 @@ If (A_Gui = "leveling_guide_panel") && (click = 1) ;left-clicking the button
 		Else
 		{
 			;LLK_Overlay("leveling_guide1", "show")
+			text2 := text2_backup
 			LLK_Overlay("leveling_guide2", "show")
 			LLK_Overlay("leveling_guide3", "show")
 		}
@@ -90,6 +93,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	build_gems_supp_dex := ""
 	build_gems_skill_int := ""
 	build_gems_supp_int := ""
+	build_gems_none := ""
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
@@ -181,6 +185,10 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= value
 							Case "ascend":
 								step_text .= "enter and complete the " version " lab"
+							Case "vendor_reward":
+								step_text .= "buy item: " step.parts[A_Index].item
+							Case "quest_reward":
+								step_text .= "take reward: " step.parts[A_Index].item
 						}
 					}
 				}
@@ -189,7 +197,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 			{
 				rewardType := step.rewardType
 				gemID := step.requiredGem.id
-				step_text .= (rewardType = "vendor") ? "buy " : "take reward: "
+				step_text .= (rewardType = "vendor") ? "buy gem: " : "take reward: "
 				step_text .= gems[gemID].name
 				If (step.requiredGem.note != "")
 					gem_notes .= gems[gemID].name "=" step.requiredGem.note "`n"
@@ -210,6 +218,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 							build_gems_skill_int .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 						If InStr(gems[gemID].name, "support") || InStr(gems[gemID].name, "arcanist brand")
 							build_gems_supp_int .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
+					Default:
+						build_gems_none .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 				}
 			}
 			guide_text .= StrReplace(step_text, ",,", ",") "`n"
@@ -220,8 +230,12 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		gem_notes := SubStr(gem_notes, 1, -1)
 	IniDelete, ini\leveling tracker.ini, Gem notes
 	If (gem_notes != "")
+	{
+		StringLower, gem_notes, gem_notes
+		gem_notes := StrReplace(gem_notes, "&", "&&")
 		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes
-	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int ;create single gem-string for gear tracker feature
+	}
+	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 	
 	IniDelete, ini\leveling tracker.ini, Gems
 	IniDelete, ini\stash search.ini, tracker_gems
@@ -237,13 +251,14 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 		Sort, build_gems_supp_dex, D`, P2 N
 		Sort, build_gems_skill_int, D`, P2 N
 		Sort, build_gems_supp_int, D`, P2 N
+		Sort, build_gems_none, D`, P2 N
 		
 		build_gems_all := StrReplace(build_gems_all, ")", ") ")	
 		build_gems_all := StrReplace(build_gems_all, " support", "")	
 		IniWrite, % SubStr(StrReplace(build_gems_all, ",", "`n"), 1, -1), ini\leveling tracker.ini, Gems ;save gems for gear tracker feature
 	}
 	
-	parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int"
+	parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int,none"
 	
 	search_string_skill_str := ""
 	search_string_supp_str := ""
@@ -251,10 +266,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	search_string_supp_dex := ""
 	search_string_skill_int := ""
 	search_string_supp_int := ""
+	search_string_none := ""
 	search_string_all := ""
-	
-	If (all_gems = "")
-		FileRead, all_gems, data\leveling tracker\gems.txt
 	
 	Loop, Parse, parse, `,, `, ;create advanced search-string
 	{
@@ -267,28 +280,20 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 			If (A_Loopfield = "")
 				break
 			parse_gem := SubStr(A_Loopfield, 5)
-			Loop, Parse, parse_gem
-			{
-				If (parse_gem = "arc") && (A_Index = 1)
-				{
-					parse_gem := "arc$"
-					break
-				}
-				If (A_Index = 1)
-					parse_gem := ""
-				parse_gem .= A_Loopfield
-				If (LLK_SubStrCount(all_gems, parse_gem, "`n", 1) = 1) && (StrLen(parse_gem) >= 3)
-					break
-			}
-			If (StrLen(parse_string parse_gem) <= 47)
-				parse_string .= parse_gem "|"
+			IniRead, gem_regex, data\leveling tracker\gems.ini, % parse_gem, regex, % A_Space
+			If (gem_regex = "")
+				continue
+			gem_regex := StrReplace(gem_regex, " ", "\s")
+			
+			If (StrLen(parse_string gem_regex) <= 47)
+				parse_string .= gem_regex "|"
 			Else
 			{
-				search_string_%loop% .= "^(" StrReplace(SubStr(parse_string, 1, -1), " ", ".") ");"
-				parse_string := parse_gem "|"
+				search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ");"
+				parse_string := gem_regex "|"
 			}
 		}
-		search_string_%loop% .= "^(" StrReplace(SubStr(parse_string, 1, -1), " ", ".") ")"
+		search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ")"
 	}
 	
 	Loop, Parse, parse, `,, `,
@@ -485,7 +490,11 @@ If InStr(A_GuiControl, "select character") ;clicking the 'select character' labe
 		KeyWait, LButton
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
-		SendInput, ^{f}^{v}
+		SendInput, ^{f}
+		Sleep, 100
+		SendInput, ^{v}
+		Sleep, 100
+		SendInput, {Enter}
 	}
 	Return
 }
@@ -498,7 +507,11 @@ If (A_Gui = "gear_tracker") && (A_GuiControl != "gear_tracker_char") && (A_GuiCo
 		KeyWait, LButton
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
-		SendInput, ^{f}^{v}
+		SendInput, ^{f}
+		Sleep, 100
+		SendInput, ^{v}
+		Sleep, 100
+		SendInput, {Enter}
 		Return
 	}
 	Else
@@ -591,6 +604,7 @@ If (areas = "")
 {
 	FileRead, json_areas, data\leveling tracker\areas.json
 	areas := Json.Load(json_areas)
+	json_areas := ""
 }
 If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiControl = "leveling_guide_reset") || InStr(A_GuiControl, "jump")
 {
@@ -700,57 +714,123 @@ If InStr(text1, "areaID")
 text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text
 If InStr(text2, "areaID")
 	text2 := LLK_ReplaceAreaID(text2)
+stash_search_string_leveling := ""
+stash_search_string_leveling_gems := ""
+stash_search_string_leveling_items := ""
 
-If LLK_SubStrCount(text2, "buy", "`n") ;check if there are steps for buying gems
+str_skills := "", str_supports := "", dex_skills := "", dex_supports := "", int_skills := "", int_supports := "", none_skills := "", none_supports := ""
+
+If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then group them together
 {
-	search2 := ""
-	If (all_gems = "")
-		FileRead, all_gems, data\leveling tracker\gems.txt
-	loop := 0
-	required_gems := LLK_SubStrCount(guide_panel2_text, "buy ", "`n")
-	Loop, Parse, guide_panel2_text, `n, `n ;check how many gems fit into the search-string
+	stash_search_string_leveling_gems := "^("
+	Loop, Parse, guide_panel2_text, `n, `n ;parse panel-text line by line
 	{
-		If InStr(A_Loopfield, "buy")
+		If InStr(A_Loopfield, "buy gem: ") ;if line is a gem-step, read the appropriate regex string for that gem
 		{
-			loop += 1
-			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
-			parsed_gem := ""
-			Loop, Parse, parse
+			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy gem: ") + 9)
+			IniRead, parse, data\leveling tracker\gems.ini, % parse, regex, % A_Space
+			If (parse = "")
+				parse := StrReplace(SubStr(A_Loopfield, InStr(A_Loopfield, "buy gem: ") + 9), " support")
+			parse := StrReplace(parse, " ", "\s")
+			If !InStr(guide_panel2_text, "a fixture of fate") ;buying gems from normal vendors does not require sorting
 			{
-				If (parse = "arc")
+				If (StrLen(SubStr(stash_search_string_leveling_gems, InStr(stash_search_string_leveling_gems, ";",,, LLK_InStrCount(stash_search_string_leveling_gems, ";")) + 1) parse) <= 49)
+					stash_search_string_leveling_gems .= parse "|"
+				Else stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1) ");^(" parse "|"
+			}
+			Else ;buying gems from Siosa requires the gems to be sorted (for the specific tabs)
+			{
+				IniRead, primary_attribute, data\leveling tracker\gems.ini, % SubStr(A_Loopfield, InStr(A_Loopfield, "buy gem: ") + 9), attribute, none ;read a gem's primary attribute
+				If InStr(A_LoopField, " support") || InStr(A_LoopField, "arcanist brand")
 				{
-					parse := "arc$"
-					break
+					If (%primary_attribute%_supports = "")
+						%primary_attribute%_supports := "^("
+					If (StrLen(SubStr(%primary_attribute%_supports, InStr(%primary_attribute%_supports, ";",,, LLK_InStrCount(%primary_attribute%_supports, ";")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_supports parse) <= 49)
+						%primary_attribute%_supports .= parse "|"
+					Else %primary_attribute%_supports := SubStr(%primary_attribute%_supports, 1, -1) ");^(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
 				}
-				parsed_gem .= A_Loopfield
-				If (LLK_SubStrCount(all_gems, parsed_gem, "`n", 1) = 1) && (StrLen(parsed_gem) > 2)
+				Else
 				{
-					parse := parsed_gem
-					break
+					If (%primary_attribute%_skills = "")
+						%primary_attribute%_skills := "^("
+					If (StrLen(SubStr(%primary_attribute%_skills, InStr(%primary_attribute%_skills, ";",,, LLK_InStrCount(%primary_attribute%_skills, ";")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_skills parse) <= 49)
+						%primary_attribute%_skills .= parse "|"
+					Else %primary_attribute%_skills := SubStr(%primary_attribute%_supports, 1, -1) ");^(" parse "|"
 				}
 			}
-			If (StrLen(search2 parse) >= 47)
-				break
-			search2 .= parse "|"
 		}
 	}
-	parsed_gems := LLK_InStrCount(search2, "|")
-	skipped_gems := 0
-	Loop, Parse, text2, `n, `n ;merge gem-buy bullet-points into a collective one
+	
+	If InStr(guide_panel2_text, "a fixture of fate") ;combine the tab-specific strings into a single one
+	{
+		Loop, Parse, % "str,dex,int,none", `,, `,
+		{
+			If (SubStr(%A_LoopField%_skills, 0) = "|")
+				%A_LoopField%_skills := SubStr(%A_LoopField%_skills, 1, -1) ");"
+			If (SubStr(%A_LoopField%_supports, 0) = "|")
+				%A_LoopField%_supports := SubStr(%A_LoopField%_supports, 1, -1) ");"
+		}
+		
+		stash_search_string_leveling_gems := str_skills str_supports dex_skills dex_supports int_skills int_supports none_skills none_supports
+		If (SubStr(stash_search_string_leveling_gems, 0) = ";")
+			stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1)
+	}
+	
+	str_skills := "", str_supports := "", dex_skills := "", dex_supports := "", int_skills := "", int_supports := "", none_skills := "", none_supports := ""
+	
+	If (SubStr(stash_search_string_leveling_gems, 0) = "|")
+		stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1) ")"
+	
+	Loop, Parse, text2, `n, `n ;merge gem-buy steps into a collective one
 	{
 		If (A_Index = 1)
 			text2 := ""
-		If InStr(A_Loopfield, "buy")
+		If InStr(A_Loopfield, "buy gem: ")
 		{
 			If !InStr(text2, "buy gems")
-				text2 .= (text2 = "") ? "- buy gems (highlight: ctrl-f-v)" : "`n- buy gems (highlight: ctrl-f-v)"
-			skipped_gems += 1
-			If (skipped_gems <= parsed_gems) ;only merge gems that fit into search-string
-				continue
+				text2 .= (text2 = "") ? "- buy gems (highlight: hold omni-key)" : "`n- buy gems (highlight: hold omni-key)"
+			continue
 		}
 		text2 .= (text2 = "") ? A_Loopfield : "`n" A_Loopfield
 	}
+	stash_search_string_leveling := stash_search_string_leveling_gems
 }
+
+If InStr(text2, "buy item: ") ;check if there are steps for buying items, then group them together
+{
+	stash_search_string_leveling_items := "("
+	Loop, Parse, guide_panel2_text, `n, `n ;parse panel-text line by line
+	{
+		If InStr(A_Loopfield, "buy item: ") ;if line is an item-step, create a search-string
+		{
+			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy item: ") + 10)
+			parse := StrReplace(parse, " ", ".")
+			If (StrLen(SubStr(stash_search_string_leveling_items, InStr(stash_search_string_leveling_items, ";",,, LLK_InStrCount(stash_search_string_leveling_items, ";")) + 1) parse) <= 49) ;(StrLen(stash_search_string_leveling_items parse) <= 49)
+				stash_search_string_leveling_items .= parse "|"
+			Else stash_search_string_leveling_items := SubStr(stash_search_string_leveling_items, 1, -1) ");(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
+		}
+	}
+	If (SubStr(stash_search_string_leveling_items, 0) = "|")
+		stash_search_string_leveling_items := SubStr(stash_search_string_leveling_items, 1, -1) ")"
+	
+	Loop, Parse, text2, `n, `n ;merge item-buy steps into a collective one
+	{
+		If (A_Index = 1)
+			text2 := ""
+		If InStr(A_Loopfield, "buy item: ")
+		{
+			If !InStr(text2, "buy items")
+				text2 .= (text2 = "") ? "- buy items (highlight: hold omni-key)" : "`n- buy items (highlight: hold omni-key)"
+			continue
+		}
+		text2 .= (text2 = "") ? A_Loopfield : "`n" A_Loopfield
+	}
+	
+	stash_search_string_leveling := stash_search_string_leveling_items ";" stash_search_string_leveling
+}
+
+If (SubStr(stash_search_string_leveling, 0) = ";")
+	stash_search_string_leveling := SubStr(stash_search_string_leveling, 1, -1)
 
 If (InStr(text2, "kill doedre") && InStr(text2, "kill maligaro") && InStr(text2, "kill shavronne")) ;merge multi-boss kills into a single line
 {

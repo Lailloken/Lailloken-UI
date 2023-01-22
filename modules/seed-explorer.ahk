@@ -246,7 +246,9 @@ If (A_Gui = "legion_treemap") && (legion_socket != "") ;auto-highlight notables 
 					WinActivate, ahk_group poe_window
 					WinWaitActive, ahk_group poe_window
 					sleep, 50
-					SendInput, ^{f}{ESC}
+					SendInput, ^{f}
+					Sleep, 100
+					SendInput, {ESC}
 					Return
 				}
 			}
@@ -263,7 +265,11 @@ If (A_Gui = "legion_treemap") && (legion_socket != "") ;auto-highlight notables 
 		sleep, 50
 		clipboard := legion_highlight
 		ClipWait, 0.05
-		SendInput, ^{f}^{v}{Enter}
+		SendInput, ^{f}
+		Sleep, 100
+		SendInput, ^{v}
+		Sleep, 100
+		SendInput, {Enter}
 	}
 }
 
@@ -525,7 +531,11 @@ If (InStr(A_GuiControl, "legion_modtext") || LLK_ArrayHasVal(legion_notables_soc
 		sleep, 50
 		clipboard := legion_highlight
 		ClipWait, 0.05
-		SendInput, ^{f}^{v}{Enter}
+		SendInput, ^{f}
+		Sleep, 100
+		SendInput, ^{v}
+		Sleep, 100
+		SendInput, {Enter}
 	}
 }
 If InStr(modtext, "+5 devotion")
@@ -687,7 +697,9 @@ If (A_GuiControl = previous_socket)
 	previous_socket := ""
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
-	SendInput, ^{f}{ESC}
+	SendInput, ^{f}
+	Sleep, 100
+	SendInput, {ESC}
 	GoSub, Legion_seeds
 	Return
 }

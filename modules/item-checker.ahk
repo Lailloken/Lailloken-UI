@@ -592,6 +592,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	itemchecker_width_segments := 10
 	
+	Clipboard := StrReplace(Clipboard, "for`neach warcry", "for each warcry")
+	
 	If config ;apply changes made in the settings menu
 	{
 		WinGetPos, xPos_itemchecker, yPos_itemchecker,,, ahk_id %hwnd_itemchecker%
@@ -650,6 +652,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		item_type := "defense"
 	Else If InStr(Clipboard, "item class: rings") || InStr(Clipboard, "item class: amulets") || InStr(Clipboard, "item class: belts") || (InStr(SubStr(Clipboard, InStr(Clipboard, "item class: "), 40), "item class: ") && InStr(SubStr(Clipboard, InStr(Clipboard, "item class: "), 40), "Jewels", 1))
 		item_type := "jewelry"
+	Else item_type := ""
 	
 	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || (InStr(Clipboard, "`nRarity: Normal", 1) && !InStr(Clipboard, "cluster jewel")) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") || InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") ;certain exclusion criteria
 	{
@@ -972,7 +975,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		parse := StrReplace(parse, "`n ", "`n")
 		parse := StrReplace(parse, "allocates ")
 		If InStr(parse, " is in your presence,") && InStr(parse, "while a ")
-			parse := InStr(parse, "pinnacle") ? SubStr(parse, InStr(parse, ",") + 1) " (pinnacle)" : SubStr(parse, InStr(parse, ",") + 1) " (unique)"
+			parse := InStr(parse, "pinnacle") ? "pinnacle: " SubStr(parse, InStr(parse, ",") + 2) : "unique: " SubStr(parse, InStr(parse, ",") + 2)
 		
 		If InStr(parse, ", with ") && InStr(parse, "% increased effect")
 			parse := SubStr(parse, 1, InStr(parse, ", with ") - 1)
@@ -1396,7 +1399,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			implicits := StrReplace(implicits, SubStr(implicits, InStr(implicits, "(Inherent effects from having Rage are:"), 155))
 		If InStr(implicits, ", no more than once every ")
 		{
-			Loop, parse, % SubStr(implicits, InStr(implicits, "no more than once every"))
+			Loop, parse, % SubStr(implicits, InStr(implicits, "no more than once every"), 30)
 				parse_rage .= IsNumber(A_LoopField) || (A_LoopField = ".") ? A_LoopField : ""
 			implicits := StrReplace(implicits, ", no more than once every " parse_rage " seconds", " (" parse_rage " sec)")
 		}
@@ -1432,7 +1435,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			parse := StrReplace(parse, "`n ", "`n")
 			parse := StrReplace(parse, "allocates ")
 			If InStr(parse, " is in your presence,") && InStr(parse, "while a ")
-				parse := InStr(parse, "pinnacle") ? SubStr(parse, InStr(parse, ",") + 1) " (pinnacle)" : SubStr(parse, InStr(parse, ",") + 1) " (unique)"
+				parse := InStr(parse, "pinnacle") ? "pinnacle: " SubStr(parse, InStr(parse, ",") + 2) : "unique: " SubStr(parse, InStr(parse, ",") + 2)
 			
 			If InStr(parse, ", with ") && InStr(parse, "% increased effect")
 				parse := SubStr(parse, 1, InStr(parse, ", with ") - 1)
@@ -1443,14 +1446,14 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			Else color := (highlight_check = 1) ? itemchecker_t1_color : itemchecker_t6_color ;determine which is the case
 			
 			removed_text := ""
-			parse_suffix := InStr(parse, " (pinnacle)") ? " (pinnacle)" : InStr(parse, " (unique)") ? " (unique)" : ""
-			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*(itemchecker_width_segments - 1.25) " HWNDmain_text", % LLK_ItemCheckRemoveRollsText(parse, removed_text) parse_suffix ;add hidden text label as dummy to get the correct dimensions
+			parse_prefix := InStr(parse, " (pinnacle)") ? "pinnacle: " : InStr(parse, " (unique)") ? "unique: " : ""
+			Gui, itemchecker: Add, Text, % "xs Hidden Center Border w"itemchecker_width*(itemchecker_width_segments - 1.25) " HWNDmain_text", % parse_prefix LLK_ItemCheckRemoveRollsText(parse, removed_text) ;add hidden text label as dummy to get the correct dimensions
 			
 			GuiControlGet, check_, Pos, %main_text%
 			height_text := (check_h <= itemchecker_height) ? itemchecker_height : check_h
 			Gui, itemchecker: Add, Progress, % "xp yp Border Disabled Section h"height_text " wp BackgroundBlack c"color " HWNDhwnd_itemchecker_implicit"loop_implicits "_button1 vitemchecker_implicit"loop_implicits "_button1", 100
 			color1 := (color = "Black") ? "White" : "Black"
-			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % LLK_ItemCheckRemoveRollsText(parse) parse_suffix
+			Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp HWNDhwnd_itemchecker_implicit"loop_implicits "_text vitemchecker_implicit"loop_implicits "_text c"color1, % parse_prefix LLK_ItemCheckRemoveRollsText(parse)
 			
 			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"itemchecker_width/4 " HWNDhwnd_itemchecker_implicit"loop_implicits "_button vitemchecker_implicit"loop_implicits "_button BackgroundBlack c"color, 100
 			Gui, itemchecker: Add, Text, % "xp yp Border 0x200 Center BackgroundTrans hp wp gItemchecker vitemchecker_implicit"loop_implicits " HWNDhwnd_itemchecker_implicit"loop_implicits " cBlack", % " "
@@ -1535,6 +1538,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// explicit area
+	
+	affix_groups_count := ""
 	
 	Loop, Parse, itemcheck_clip, | ;parse the item-info affix by affix
 	{
@@ -1648,6 +1653,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				Continue
 			}
 			
+			If unique && !InStr(A_LoopField, "(")
+				continue
+			
 			affix_lines += 1
 			affix_divider += (affix_divider = "" && affix_type = "prefix") || (affix_divider = 1 && affix_type = "suffix") ? 1 : 0
 			If (affix_divider = 2)
@@ -1711,7 +1719,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				roll_min := (roll_count = 1) ? Min(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2)
 				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
 				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-				If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "reduced elemental resistances")
+				If InStr(mod, "(-") && InStr(mod, "damage taken") ;certain criteria to determine if bar has to be inverted
+				|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
+				|| (!InStr(mod, "--") && InStr(mod, "skill effect duration")) || InStr(mod, "cast speed") || InStr(mod, "maximum mana") || InStr(mod, "throwing speed") || InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence"))
 				{
 					roll_min_copy := roll_min
 					roll_min := roll_max * -1
@@ -1737,6 +1747,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			color := unique ? "994C00" : "505050"
 			Gui, itemchecker: Add, Progress, % "xp yp h"height_text " wp Border Disabled BackgroundBlack range"roll_min*100 "-" roll_max*100 " c"color, % roll_present*100
 			clipped_text := ""
+			If InStr(Clipboard, "forbidden shako") && (LLK_InStrCount(mod, "(") > 1)
+				mod := SubStr(mod, 1, InStr(mod, "(",,, LLK_InStrCount(mod, "(")) - 1)
 			Gui, itemchecker: Add, Text, % "xp yp wp hp Border Center BackgroundTrans HWNDmain_text", % unique ? mod : LLK_ItemCheckRemoveRollsText(mod) ;LLK_ItemCheckRemoveRollsText(mod, clipped_text)
 			GuiControlGet, main_text_, Pos, %main_text%
 			height += main_text_h
@@ -1949,7 +1961,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		}
 	}
 	
-	If (affix_groups_count = 0) && (cluster_type = "") && (item_type != "defense") && (item_type != "attack")
+	If (affix_groups_count = "") && (cluster_type = "") && (item_type != "defense") && (item_type != "attack")
 	{
 		LLK_ToolTip("item is not scalable")
 		Gui, itemchecker: Destroy
@@ -2008,8 +2020,9 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	itemchecker_highlight_parse := "+-.()%"
 	itemchecker_rule_applies := ""
 	;string := LLK_ItemCheckStrReplace(string)
-	string := StrReplace(string, " (unique)")
-	string := StrReplace(string, " (pinnacle)")
+	string := StrReplace(string, "unique: ")
+	string := StrReplace(string, "pinnacle: ")
+	string := StrReplace(string, " sec)")
 	string := StrReplace(string, "`n", ";")
 	
 	Loop, Parse, string ;parse string handed to function character by character
@@ -2046,7 +2059,7 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	{
 		If enable_itemchecker_rule_lifemana_gain && (InStr(string, "life per enemy") || InStr(string, "mana per enemy"))
 			itemchecker_rule_applies := -1
-		If enable_itemchecker_rule_spells && (InStr(string, " to spell") || (InStr(string, "spell damage") && !InStr(string, "suppress") && !InStr(string, "block")) || InStr(string, " for spell") || InStr(string, "spell skill") || InStr(string, "added spell") || InStr(string, "with spell"))
+		If enable_itemchecker_rule_spells && (InStr(string, " to spell") || (InStr(string, "spell damage") && !InStr(string, "suppress") && !InStr(string, "block")) || InStr(string, " for spell") || InStr(string, "spell skill") || InStr(string, "added spell") || (InStr(string, "with spell") && !InStr(string, "gain ")))
 			itemchecker_rule_applies := -1
 		If enable_itemchecker_rule_attacks && (InStr(string, "increased physical damage") || (InStr(string, "adds") && InStr(string, " damage") && !InStr(string, "to spell") && (item_type = "attack")) || ((InStr(string, "increased") || InStr(string, "added") || InStr(string, "adds")) && (InStr(string, "with") && !InStr(string, "speed") || InStr(string, "to")) && InStr(string, " attack")) || InStr(string, "attack damage"))
 			itemchecker_rule_applies := -1
@@ -2086,14 +2099,16 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	implicit_check := !implicit ? "" : "_implicits"
 	If (mode = 0) ;check if mod is highlighted/blacklisted in order to determine color
 	{
-		If (itemchecker_meta_itemclass != "")
+		If !implicit && (itemchecker_meta_itemclass != "")
 		{
 			If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
 				Return 2
 			Else If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 				Return -2
 		}
-		If !InStr(itemchecker_highlight%implicit_check%, "|" string "|") && !InStr(itemchecker_blacklist%implicit_check%, "|" string "|") && !InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|") && !InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+		If implicit && !InStr(itemchecker_highlight_implicits, "|" string "|") && !InStr(itemchecker_blacklist_implicits, "|" string "|")
+			Return 0
+		If !implicit && !InStr(itemchecker_highlight%implicit_check%, "|" string "|") && !InStr(itemchecker_blacklist%implicit_check%, "|" string "|") && !InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|") && !InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 			Return 0
 		Else If InStr(itemchecker_highlight%implicit_check%, "|" string "|")
 			Return 1
@@ -2102,7 +2117,7 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	}
 	If (mode = 1) ;mod was left-clicked
 	{
-		If InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
+		If !implicit && InStr(itemchecker_highlight_%itemchecker_meta_itemclass%, "|" string "|")
 		{
 			LLK_ToolTip("clear class-specific highlighting first", 1.5)
 			Return -1
@@ -2147,7 +2162,7 @@ LLK_ItemCheckHighlight(string, mode := 0, implicit := 0) ;check if mod is highli
 	}
 	If (mode = 2) ;mod was right-clicked
 	{
-		If InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
+		If !implicit && InStr(itemchecker_blacklist_%itemchecker_meta_itemclass%, "|" string "|")
 		{
 			LLK_ToolTip("clear class-specific highlight first")
 			Return -1
@@ -2232,24 +2247,6 @@ LLK_ItemCheckStats(string, item_type := "")
 				Return "phys"
 		}
 		
-		If InStr(string, " block") && !InStr(string, "block recovery")
-			Return "block"
-		
-		If InStr(string, "to maximum mana") || InStr(string, "increased maximum mana")
-			Return "mana"
-		
-		If InStr(string, "regenerate") && InStr(string, "mana per second") || InStr(string, "increased mana regeneration rate")
-			Return "mana_regen"
-		
-		If InStr(string, "flask")
-			Return "flasks"
-		
-		If InStr(string, "regenerate") && InStr(string, "life per second") || InStr(string, "increased life regeneration rate")
-			Return "life_regen"
-		
-		If InStr(string, "to level of ") && InStr(string, " gem")
-			Return "gem_level"
-		
 		If InStr(string, "minion")
 			Return "minion"
 		Else If InStr(string, "totem")
@@ -2327,6 +2324,24 @@ LLK_ItemCheckStats(string, item_type := "")
 			Return "energy"
 		If InStr(string, "+") && InStr(string, "to ward") || (InStr(string, "increased ward"))
 			Return "ward"
+		
+		If InStr(string, " block") && !InStr(string, "block recovery")
+			Return "block"
+		
+		If InStr(string, "to maximum mana") || InStr(string, "increased maximum mana")
+			Return "mana"
+		
+		If InStr(string, "regenerate") && InStr(string, "mana per second") || InStr(string, "increased mana regeneration rate")
+			Return "mana_regen"
+		
+		If InStr(string, "flask")
+			Return "flasks"
+		
+		If InStr(string, "regenerate") && InStr(string, "life per second") || InStr(string, "increased life regeneration rate")
+			Return "life_regen"
+		
+		If InStr(string, "to level of ") && InStr(string, " gem")
+			Return "gem_level"
 	}
 	Return 0
 }
@@ -2587,6 +2602,11 @@ LLK_ItemCheckRemoveRollsText(string, ByRef removed_text := "")
 	string_copy := string
 	While InStr(parse, parse_remove%loop%) && (parse_remove%loop% != "")
 	{
+		If InStr(parse_remove%loop%, "sec)")
+		{
+			loop += 1
+			continue
+		}
 		If (A_Index > LLK_InStrCount(string_copy, "("))
 			break
 		parse := InStr(parse, " " parse_remove%loop%) ? StrReplace(parse, " " parse_remove%loop%) : StrReplace(parse, parse_remove%loop%)

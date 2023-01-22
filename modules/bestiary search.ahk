@@ -31,6 +31,10 @@ Else If (A_GuiControl = "poison")
 Else clipboard := ""
 WinActivate, ahk_group poe_window
 WinWaitActive, ahk_group poe_window
-SendInput, ^{f}^{v}
+SendInput, ^{f}
+Sleep, 100
+SendInput, ^{v}
+Sleep, 100
+SendInput, {Enter}
 Gui, bestiary_menu: Destroy
 Return
