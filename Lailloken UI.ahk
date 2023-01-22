@@ -68,6 +68,8 @@ If FileExist("modules\overlayke.ahk")
 	FileDelete, modules\overlayke.ahk
 If FileExist("modules\gwennen regex.ahk")
 	FileDelete, modules\gwennen regex.ahk
+If FileExist("data\leveling tracker\gems.txt")
+	FileDelete, data\leveling tracker\gems.txt
 
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -284,12 +286,6 @@ If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
-#If WinActive("ahk_group poe_window") && InStr(text2, "ctrl-f-v") && WinExist("ahk_id " hwnd_leveling_guide2)
-	
-~^f::
-Clipboard := search
-Return
-
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (shift_down = "wisdom")
 
 +RButton::LLK_ItemCheckVendor()
@@ -362,6 +358,8 @@ Return
 #If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
 	
 WheelUp::
+If (scrollboards != "") && (scrollboard_active = 1)
+	Return
 scroll_in_progress := 1
 parsed_number := ""
 If (scrollboard1 = "")
@@ -382,11 +380,15 @@ Else
 SendInput, ^{f}
 sleep, 25
 SendInput, ^{v}
+sleep, 25
+SendInput, {Enter}
 sleep, 200
 scroll_in_progress := 0
 Return
 
 WheelDown::
+If (scrollboards != "") && (scrollboard_active = scrollboards)
+	Return
 scroll_in_progress := 1
 parsed_number := ""
 If (scrollboard1 = "")
@@ -405,8 +407,10 @@ Else
 	ClipWait, 0.05
 }
 SendInput, ^{f}
-sleep, 25
+sleep, 100
 SendInput, ^{v}
+sleep, 100
+SendInput, {Enter}
 sleep, 200
 scroll_in_progress := 0
 Return
@@ -484,18 +488,24 @@ SendInput, {Tab}
 Return
 
 ESC::
-If (stash_search_scroll_mode = 1)
-	Return
-If (update_available = 1)
-{
-	ToolTip
-	update_available := 0
-	Return
-}
 If WinExist("ahk_id " hwnd_gem_notes)
 {
 	Gui, gem_notes: Destroy
 	hwnd_gem_notes := ""
+	Return
+}
+If (stash_search_scroll_mode = 1)
+{
+	KeyWait, ESC
+	SetTimer, stash_search_scroll, delete
+	ToolTip,,,, 11
+	stash_search_scroll_mode := 0
+	Return
+}
+If (update_available = 1)
+{
+	ToolTip
+	update_available := 0
 	Return
 }
 If WinExist("ahk_id " hwnd_itemchecker)
@@ -1037,6 +1047,8 @@ inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
 stash_search_usecases := "bestiarydex,gwennen,stash,vendor"
+stash_search_trigger := 0
+scrollboards := 0
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
 imagechecks_list := "betrayal,bestiary,bestiarydex,gwennen,sanctum,stash,vendor"
@@ -1282,34 +1294,6 @@ If WinExist("ahk_id " hwnd_leveling_guide2)
 	}
 }
 
-If InStr(text2, "ctrl-f-v") && WinExist("ahk_id " hwnd_leveling_guide2)
-{
-	search := ""
-	If (all_gems = "")
-		FileRead, all_gems, data\leveling tracker\gems.txt
-	Loop, Parse, guide_panel2_text, `n, `n
-	{
-		If InStr(A_Loopfield, "buy")
-		{
-			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy") + 4)
-			parsed_gem := ""
-			Loop, Parse, parse
-			{
-				parsed_gem .= A_Loopfield
-				If (LLK_SubStrCount(all_gems, parsed_gem, "`n", 1) = 1) && (StrLen(parsed_gem) > 2)
-				{
-					parse := parsed_gem
-					break
-				}
-			}
-			If (StrLen(search parse) >= 47)
-				break
-			search .= parse "|"
-		}
-	}
-	search := "^(" SubStr(StrReplace(search, " ", "."), 1, -1) ")"
-}
-
 If (enable_delvelog = 1)
 {
 	If (current_location = "delve_main" && !WinExist("ahk_id " hwnd_delve_panel))
@@ -1527,7 +1511,7 @@ If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
 			h%A_LoopField%_dest := clone_frame_%A_LoopField%_height * clone_frame_%A_LoopField%_scale_y//100
 			hbm%A_LoopField% := CreateDIBSection(w%A_LoopField%_dest, h%A_LoopField%_dest)
 			hdc%A_LoopField% := CreateCompatibleDC()
-			omb%A_LoopField% := SelectObject(hdc%A_LoopField%, hbm%A_LoopField%)
+			obm%A_LoopField% := SelectObject(hdc%A_LoopField%, hbm%A_LoopField%)
 			g%A_LoopField% := Gdip_GraphicsFromHDC(hdc%A_LoopField%)
 			Gdip_SetInterpolationMode(g%A_LoopField%, 0)
 			Gdip_DrawImage(g%A_LoopField%, p%A_LoopField%, 0, 0, w%A_LoopField%_dest, h%A_LoopField%_dest, 0, 0, w%A_LoopField%, h%A_LoopField%, 0.2 + 0.16 * clone_frame_%A_LoopField%_opacity)
