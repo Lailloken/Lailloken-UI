@@ -9709,6 +9709,15 @@
         "quest": {
           "Metadata/Items/QuestItems/Act8/Book-a8q4": {
             "classes": []
+          },
+          "Metadata/Items/Jewels/JewelInt": {
+            "classes": []
+          },
+          "Metadata/Items/Jewels/JewelStr": {
+            "classes": []
+          },
+          "Metadata/Items/Jewels/JewelDex": {
+            "classes": []
           }
         },
         "vendor": {}
