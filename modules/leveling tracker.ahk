@@ -97,7 +97,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
-	json_import := (SubStr(clipboard, 1, 2) = "[[") ? clipboard : ""
+	json_import := (SubStr(clipboard, 1, 2) = "[{") ? clipboard : ""
 	If (json_import = "")
 	{
 		LLK_ToolTip("invalid import data")
@@ -117,9 +117,9 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	Loop, % parsed.Length() ;parse all acts
 	{
 		loop := A_Index
-		Loop, % parsed[loop].Length() ;parse steps in individual acts
+		Loop, % parsed[loop].steps.Length() ;parse steps in individual acts
 		{
-			step := parsed[loop][A_Index]
+			step := parsed[loop].steps[A_Index]
 			step_text := ""
 			If (step.type = "fragment_step")
 			{
@@ -161,10 +161,12 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= quests[questID].name
 							Case "quest_text":
 								step_text .= !InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
-							Case "get_waypoint":
-								step_text .= "waypoint"
 							Case "waypoint":
-								step_text .= (areaID != "") ? "waypoint-travel to areaID" areaID : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+								step_text .= InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+							Case "waypoint_use":
+								step_text .= "waypoint-travel to areaID" areaID
+							Case "waypoint_get":
+								step_text .= "waypoint"
 							Case "logout":
 								step_text .= "relog, enter areaID" areaID
 							Case "portal":
@@ -185,9 +187,9 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= value
 							Case "ascend":
 								step_text .= "enter and complete the " version " lab"
-							Case "vendor_reward":
+							Case "reward_vendor":
 								step_text .= "buy item: " step.parts[A_Index].item
-							Case "quest_reward":
+							Case "reward_quest":
 								step_text .= "take reward: " step.parts[A_Index].item
 						}
 					}
