@@ -193,7 +193,7 @@ If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 
 If (clipboard = "") && (gamescreen = 0)
 {
-	If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
+	If InStr(current_location, "_town") && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
 	{
 		If (stash_search_scroll_mode = 1)
 		{

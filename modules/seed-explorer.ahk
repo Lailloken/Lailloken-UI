@@ -41,8 +41,8 @@ If !WinExist("ahk_id " hwnd_legion_window) ;create GUI with blank text labels
 	GuiControl, legion_window: +cFuchsia, % "legion_profile" StrReplace(legion_profile, "_")
 	
 	Gui, legion_window: Add, Text, xs Section BackgroundTrans Center, % "ui size:"
-	Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_minus gLegion_seeds_apply, % " - "
-	Gui, legion_window: Add, Text, ys Border wp BackgroundTrans Center vlegion_zero gLegion_seeds_apply, % "0"
+	Gui, legion_window: Add, Text, ys Border BackgroundTrans Center vlegion_minus gLegion_seeds_apply, % " – "
+	Gui, legion_window: Add, Text, ys Border wp BackgroundTrans Center vlegion_zero gLegion_seeds_apply, % "r"
 	Gui, legion_window: Add, Text, ys Border wp BackgroundTrans Center vlegion_plus gLegion_seeds_apply, % "+"
 	Gui, legion_window: Add, Text, xs Section Border BackgroundTrans Center vlegion_paste gLegion_seeds_parse, % " import jewel "
 	Gui, legion_window: Add, Text, % "ys Border BackgroundTrans Center vlegion_trade gLegion_seeds_parse", % " trade-check "

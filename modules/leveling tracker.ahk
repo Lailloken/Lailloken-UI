@@ -97,7 +97,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
-	json_import := (SubStr(clipboard, 1, 2) = "[[") ? clipboard : ""
+	json_import := (SubStr(clipboard, 1, 2) = "[{") ? clipboard : ""
 	If (json_import = "")
 	{
 		LLK_ToolTip("invalid import data")
@@ -117,9 +117,9 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	Loop, % parsed.Length() ;parse all acts
 	{
 		loop := A_Index
-		Loop, % parsed[loop].Length() ;parse steps in individual acts
+		Loop, % parsed[loop].steps.Length() ;parse steps in nth act
 		{
-			step := parsed[loop][A_Index]
+			step := parsed[loop].steps[A_Index]
 			step_text := ""
 			If (step.type = "fragment_step")
 			{
@@ -130,7 +130,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 					{
 						If (SubStr(parts[A_Index], -3) = "get ")
 							text := StrReplace(parts[A_Index], "get ", "activate the ")
-						Else If (InStr(parts[A_Index], "take") && InStr(step_text, "kill")) ;omit quest-items related to killing bosses
+						Else If InStr(parts[A_Index], "take") && InStr(step_text, "kill") ;omit quest-items related to killing bosses
 							text := ""
 						Else text := InStr(parts[A_Index], " ➞ ") ? StrReplace(parts[A_Index], " ➞", ", enter") : StrReplace(parts[A_Index], "➞", "enter")
 						step_text .= text
@@ -140,7 +140,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						type := parts[A_Index].type
 						value := parts[A_Index].value
 						areaID := parts[A_Index].areaId
-						target_areaID := parts[A_Index].targetAreaId
+						target_areaID := parts[A_Index].dstAreaId
 						questID := parts[A_Index].questId
 						version := parts[A_Index].version
 						direction := StrReplace(parts[A_Index].dirIndex, 0, "north,")
@@ -151,7 +151,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						direction := StrReplace(direction, 5, "south-west,")
 						direction := !InStr(step_text, "follow") && !InStr(step_text, "search") ? StrReplace(direction, 6, "west,") : StrReplace(direction, 6, "west")
 						direction := StrReplace(direction, 7, "north-west,")
-						Switch type  ;thing I never knew existed but really wanted
+						Switch type ;thing I never knew existed but really wanted
 						{
 							Case "enter":
 								step_text .= "areaID" areaID
@@ -160,11 +160,14 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 							Case "quest":
 								step_text .= quests[questID].name
 							Case "quest_text":
+								value := StrReplace(value, "platinum bust", " platinum bust"), value := StrReplace(value, "golden page", " golden page"), value := StrReplace(value, "kitava's torment", " kitava's torment"), value := StrReplace(value, "firefly", " firefly")
 								step_text .= !InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
-							Case "get_waypoint":
+							Case "waypoint_get":
 								step_text .= "waypoint"
+							Case "waypoint_use":
+								step_text .= "waypoint-travel to areaID" target_areaID
 							Case "waypoint":
-								step_text .= (areaID != "") ? "waypoint-travel to areaID" areaID : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+								step_text .= InStr(step_text, "broken ") ? "waypoint" : "the waypoint"
 							Case "logout":
 								step_text .= "relog, enter areaID" areaID
 							Case "portal":
@@ -185,10 +188,13 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= value
 							Case "ascend":
 								step_text .= "enter and complete the " version " lab"
-							Case "vendor_reward":
+							Case "reward_vendor":
 								step_text .= "buy item: " step.parts[A_Index].item
-							Case "quest_reward":
+							Case "reward_quest":
 								step_text .= "take reward: " step.parts[A_Index].item
+							Default:
+								If enable_startup_beep ;startup-beep = pseudo dev-mode
+									MsgBox, unknown type: "%type%"
 						}
 					}
 				}
@@ -222,6 +228,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						build_gems_none .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 				}
 			}
+			If (SubStr(step_text, 0) = ",")
+				step_text := SubStr(step_text, 1, -1)
 			guide_text .= StrReplace(step_text, ",,", ",") "`n"
 		}
 	}
@@ -1049,7 +1057,7 @@ LLK_GearTrackerGUI(mode:=0)
 LLK_ReplaceAreaID(string)
 {
 	global areas
-	Loop, Parse, string, % A_Space, % A_Space
+	Loop, Parse, string, % A_Space, `,
 	{
 		If !InStr(A_Loopfield, "areaid")
 			continue

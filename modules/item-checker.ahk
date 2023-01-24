@@ -1696,7 +1696,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					{
 						If (A_Index = 1)
 						{
-							roll%roll_count% := (InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--"))) ? "-" : "" ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
+							roll%roll_count% := "" ;(InStr(mod, "reduced") && (InStr(mod, "(-") || InStr(mod, "--"))) ? "-" : ;'reduced' in mod-text signals negative value without minus-sign, so it needs to be added manually | also check if range even includes negative values, or if it's a negative value due to kalandra
 							roll%roll_count%_1 := "" ;lower bound of the affix roll
 							roll%roll_count%_2 := "" ;upper bound of the affix roll
 						}
@@ -1719,8 +1719,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				roll_min := (roll_count = 1) ? Min(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2)
 				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
 				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-				If InStr(mod, "(-") && InStr(mod, "damage taken") ;certain criteria to determine if bar has to be inverted
-				|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
+				If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "lose") && !InStr(mod, "enem") ;certain criteria to determine if bar has to be inverted
+				|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || InStr(mod, "quantity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
 				|| (!InStr(mod, "--") && InStr(mod, "skill effect duration")) || InStr(mod, "cast speed") || InStr(mod, "maximum mana") || InStr(mod, "throwing speed") || InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence"))
 				{
 					roll_min_copy := roll_min
