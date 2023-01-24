@@ -140,7 +140,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						type := parts[A_Index].type
 						value := parts[A_Index].value
 						areaID := parts[A_Index].areaId
-						target_areaID := parts[A_Index].targetAreaId
+						dstAreaID := parts[A_Index].dstAreaId
 						questID := parts[A_Index].questId
 						version := parts[A_Index].version
 						direction := StrReplace(parts[A_Index].dirIndex, 0, "north,")
@@ -164,15 +164,15 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 							Case "waypoint":
 								step_text .= InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
 							Case "waypoint_use":
-								step_text .= "waypoint-travel to areaID" areaID
+								step_text .= "waypoint-travel to areaID" dstAreaID
 							Case "waypoint_get":
 								step_text .= "waypoint"
 							Case "logout":
 								step_text .= "relog, enter areaID" areaID
 							Case "portal":
-								If (target_areaID = "")
+								If (dstAreaID = "")
 									step_text .= "portal"
-								Else step_text .= "portal to areaID" target_areaID
+								Else step_text .= "portal to areaID" dstAreaID
 							Case "trial":
 								step_text .= "the lab-trial"
 							Case "arena":
