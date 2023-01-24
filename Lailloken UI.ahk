@@ -296,7 +296,7 @@ Return
 Clipboard := ""
 SendInput, ^{c}
 ClipWait, 0.05
-If InStr(Clipboard, "scroll of wisdom")
+If InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee")
 	shift_down := "wisdom"
 KeyWait, Shift
 shift_down := ""
