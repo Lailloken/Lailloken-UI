@@ -97,7 +97,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
-	json_import := (SubStr(clipboard, 1, 2) = "[[") ? clipboard : ""
+	json_import := (SubStr(clipboard, 1, 2) = "[{") ? clipboard : ""
 	If (json_import = "")
 	{
 		LLK_ToolTip("invalid import data")
@@ -117,9 +117,9 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	Loop, % parsed.Length() ;parse all acts
 	{
 		loop := A_Index
-		Loop, % parsed[loop].Length() ;parse steps in individual acts
+		Loop, % parsed[loop].steps.Length() ;parse steps in nth act
 		{
-			step := parsed[loop][A_Index]
+			step := parsed[loop].steps[A_Index]
 			step_text := ""
 			If (step.type = "fragment_step")
 			{
@@ -130,7 +130,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 					{
 						If (SubStr(parts[A_Index], -3) = "get ")
 							text := StrReplace(parts[A_Index], "get ", "activate the ")
-						Else If (InStr(parts[A_Index], "take") && InStr(step_text, "kill")) ;omit quest-items related to killing bosses
+						Else If InStr(parts[A_Index], "take") && InStr(step_text, "kill") ;omit quest-items related to killing bosses
 							text := ""
 						Else text := InStr(parts[A_Index], " ➞ ") ? StrReplace(parts[A_Index], " ➞", ", enter") : StrReplace(parts[A_Index], "➞", "enter")
 						step_text .= text
@@ -140,7 +140,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						type := parts[A_Index].type
 						value := parts[A_Index].value
 						areaID := parts[A_Index].areaId
-						target_areaID := parts[A_Index].targetAreaId
+						target_areaID := parts[A_Index].dstAreaId
 						questID := parts[A_Index].questId
 						version := parts[A_Index].version
 						direction := StrReplace(parts[A_Index].dirIndex, 0, "north,")
@@ -151,7 +151,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						direction := StrReplace(direction, 5, "south-west,")
 						direction := !InStr(step_text, "follow") && !InStr(step_text, "search") ? StrReplace(direction, 6, "west,") : StrReplace(direction, 6, "west")
 						direction := StrReplace(direction, 7, "north-west,")
-						Switch type  ;thing I never knew existed but really wanted
+						Switch type ;thing I never knew existed but really wanted
 						{
 							Case "enter":
 								step_text .= "areaID" areaID
@@ -160,11 +160,14 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 							Case "quest":
 								step_text .= quests[questID].name
 							Case "quest_text":
+								value := StrReplace(value, "glyph", " glyph"), value := StrReplace(value, "platinum bust", " platinum bust"), value := StrReplace(value, "golden page", " golden page"), value := StrReplace(value, "kitava's torment", " kitava's torment"), value := StrReplace(value, "firefly", " firefly")
 								step_text .= !InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
-							Case "get_waypoint":
+							Case "waypoint_get":
 								step_text .= "waypoint"
+							Case "waypoint_use":
+								step_text .= "waypoint-travel to areaID" target_areaID
 							Case "waypoint":
-								step_text .= (areaID != "") ? "waypoint-travel to areaID" areaID : InStr(step_text, "for the broken") ? "waypoint" : "the waypoint"
+								step_text .= InStr(step_text, "broken ") ? "waypoint" : "the waypoint"
 							Case "logout":
 								step_text .= "relog, enter areaID" areaID
 							Case "portal":
@@ -185,10 +188,21 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= value
 							Case "ascend":
 								step_text .= "enter and complete the " version " lab"
-							Case "vendor_reward":
+							Case "reward_vendor":
 								step_text .= "buy item: " step.parts[A_Index].item
-							Case "quest_reward":
+							Case "reward_quest":
 								step_text .= "take reward: " step.parts[A_Index].item
+							Default:
+								If enable_startup_beep ;startup-beep = pseudo dev-mode
+									MsgBox, unknown type: "%type%"
+								Else
+								{
+									LLK_ToolTip("incompatible guide-data,`nupdate required")
+									json_areas := ""
+									json_gems := ""
+									json_quests := ""
+									Return
+								}
 						}
 					}
 				}
@@ -222,6 +236,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 						build_gems_none .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 				}
 			}
+			If (SubStr(step_text, 0) = ",")
+				step_text := SubStr(step_text, 1, -1)
 			guide_text .= StrReplace(step_text, ",,", ",") "`n"
 		}
 	}
@@ -619,7 +635,7 @@ If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiContro
 		Else
 		{
 			guide_text := guide_text_original
-			guide_progress := StrReplace(guide_progress, "`n" guide_panel1_text)
+			guide_progress := SubStr(guide_progress, 1, - 1 - StrLen(guide_panel1_text)) ;StrReplace(guide_progress, "`n" guide_panel1_text)
 		}
 	}
 	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
@@ -656,7 +672,8 @@ Loop, Parse, guide_progress, `n, `n
 {
 	If (A_LoopField = "")
 		break
-	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to"))
+	&& !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
 	{
 		parsed_step1 .= (parsed_step1 = "") ? A_Loopfield : "`n" A_Loopfield
 		guide_section1 := 1
@@ -680,7 +697,8 @@ Loop, Parse, guide_text, `n, `n ;check progression and create texts for panels
 {
 	If (A_Loopfield = "") 
 		break
-	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to")) && !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
+	If (InStr(A_Loopfield, "enter") || InStr(A_Loopfield, "waypoint-travel") || (InStr(A_Loopfield, "sail to ") && !InStr(A_Loopfield, "wraeclast")) || InStr(A_Loopfield, "portal to"))
+	&& !InStr(A_Loopfield, "the warden's chambers") && !InStr(A_Loopfield, "sewer outlet") && !InStr(A_Loopfield, "resurrection site") && !InStr(A_Loopfield, "the black core") && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "kill")) && !(InStr(A_Loopfield, "enter") < InStr(A_Loopfield, "activate")) && !InStr(A_Loopfield, "enter and complete the")
 	{
 		parsed_step .= (parsed_step = "") ? A_Loopfield : "`n" A_Loopfield
 		guide_section := 1
@@ -711,7 +729,7 @@ If InStr(text1, "areaID")
 ;text2 := StrReplace(guide_panel2_text, ", kill", "`nkill")
 ;text2 := ((InStr(text2, ",") > 20) && (StrLen(text2) > 30)) ? StrReplace(text2, ", ", "`n",, 1) : text2
 ;text2 := "- " StrReplace(text2, "`n", "`n- ")
-text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text
+text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text ;text2 = variable used to display the guide-text in the panel (can be altered without messing up saved progress)
 If InStr(text2, "areaID")
 	text2 := LLK_ReplaceAreaID(text2)
 stash_search_string_leveling := ""
@@ -856,16 +874,13 @@ If (InStr(text2, "kill doedre") && InStr(text2, "kill maligaro") && InStr(text2,
 
 text2 := StrReplace(text2, "shavronne the returned && reassembled brutus", "shavronne && brutus")
 
-/*
-Loop, Parse, text2, `n, `n
+;moved img-tagging here (rather than during importing) in order to avoid conflicts with progress saving/loading
+Loop, Parse, leveling_guide_landmarks, `,, % A_Space
 {
-	If (A_Index = 1)
-		text2 := ""
-	If ((InStr(A_Loopfield, ",") > 20) && (StrLen(A_Loopfield) > 30))
-		text2 := (text2 = "") ? StrReplace(A_Loopfield, ", ", ",`n",, 1) : text2 "`n" StrReplace(A_Loopfield, ", ", ",`n",, 1)
-	Else text2 := (text2 = "") ? A_Loopfield : text2 "`n" A_Loopfield
+	If !InStr(text2, A_LoopField)
+		continue
+	Else text2 := StrReplace(text2, A_LoopField, A_LoopField " [img]")
 }
-*/
 
 If (hwnd_leveling_guide2 = "")
 {
@@ -906,8 +921,8 @@ Gui, leveling_guide3: Margin, 0, 0
 Gui, leveling_guide3: Color, Black
 WinSet, Transparent, %leveling_guide_trans%
 Gui, leveling_guide3: Font, % "c" leveling_guide_fontcolor " s"fSize_leveling_guide*(2/3), Fontin SmallCaps
-Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2, % " < "
-Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2, % " > "
+Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section Border vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2, % "<<"
+Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys Border vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2, % ">>"
 Gui, leveling_guide3: Show, NA x10000 y10000
 WinGetPos,,, width3, height3, ahk_id %hwnd_leveling_guide3%
 
@@ -1049,7 +1064,7 @@ LLK_GearTrackerGUI(mode:=0)
 LLK_ReplaceAreaID(string)
 {
 	global areas
-	Loop, Parse, string, % A_Space, % A_Space
+	Loop, Parse, string, % A_Space, `,
 	{
 		If !InStr(A_Loopfield, "areaid")
 			continue
@@ -1087,4 +1102,28 @@ LLK_LevelGuideGemNote()
 		Gui, gem_notes: Show, % "NA x"mouseXpos_gem - gem_width*1.1 " y"mouseYpos_gem - gem_height*1.1
 	}
 	Return 1
+}
+
+LLK_LevelGuideImage()
+{
+	global text2, poe_height
+	Loop, Parse, leveling_guide_landmarks, `,, % A_Space
+	{
+		If !InStr(text2, A_LoopField)
+			continue
+		Else
+		{
+			image := StrReplace(A_LoopField, " ", "_")
+			break
+		}
+	}
+	Gui, leveling_guide_img: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+	Gui, leveling_guide_img: Margin, 0, 0
+	Gui, leveling_guide_img: Color, Black
+	WinSet, Transparent, 255
+	If FileExist("img\GUI\leveling tracker\" image ".jpg")
+	{
+		Gui, leveling_guide_img: Add, Picture, % "h"poe_height//2 " w-1", img\GUI\leveling tracker\%image%.jpg
+		Gui, leveling_guide_img: Show, NA AutoSize
+	}
 }

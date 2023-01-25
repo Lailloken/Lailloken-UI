@@ -251,9 +251,9 @@ If (enable_alarm = 1)
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gAlarm Border x+"fSize0//4, % " lime "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gAlarm Border x+"fSize0//4, % " purple "
 	
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_minus gAlarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gAlarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gAlarm Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_plus gAlarm Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
@@ -262,7 +262,7 @@ If (enable_alarm = 1)
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_minus gAlarm Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gAlarm Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gAlarm Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_plus gAlarm Border x+2 wp", % "+"
 }
 Return
@@ -281,9 +281,9 @@ Gui, settings_menu: Font, % "s"fSize0 - 4
 Gui, settings_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r2 vbetrayal_info_table_pos gBetrayal_apply Choose"choice " w"width/2, left||right
 Gui, settings_menu: Font, % "s"fSize0
 
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "0"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "r"
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_plus gBetrayal_apply Border x+2 wp", % "+"
 
 Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
@@ -349,7 +349,7 @@ If (enable_delve = 1)
 	Gui, settings_menu: Add, Checkbox, % "xs Center gDelve vdelve_enable_recognition BackgroundTrans Checked"delve_enable_recognition, use image recognition`n(requires additional setup)
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, grid size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_minus gDelve Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_reset gDelve Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_reset gDelve Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_plus gDelve Border x+2 wp", % "+"
 	
 	If (poe_log_file != 0)
@@ -360,7 +360,7 @@ If (enable_delve = 1)
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", button size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_minus gDelve Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_reset gDelve Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_reset gDelve Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_delve_plus gDelve Border x+2 wp", % "+"
 }
 Return
@@ -429,7 +429,7 @@ Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans HWNDmain_text Checked" 
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "interface size:"
 Gui, settings_menu: Add, Text, ys x+6 BackgroundTrans gApply_settings_general vinterface_size_minus Border Center, % " – "
-Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "0"
+Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_reset Border Center, % "r"
 Gui, settings_menu: Add, Text, wp x+2 ys BackgroundTrans gApply_settings_general vinterface_size_plus Border Center, % "+"
 Gui, settings_menu: Add, Checkbox, % "ys x+"font_width*1.5 " BackgroundTrans Checked" hide_panel " vhide_panel gApply_settings_general", % "hide llk-ui panel"
 
@@ -846,9 +846,11 @@ If (A_GuiControl = "itemchecker_ID_help")
 {
 text =
 (
-hold shift BEFORE right-clicking wisdom-scrolls for the first time.
+if enabled, the tooltip will be triggered whenever currency-items are applied via shift-clicking.
 
-while holding shift, left-click items to identify and trigger the item-info tooltip.
+hold shift -before- right-clicking currency-items for the first time.
+
+while holding shift, left-click items to apply currency and trigger the item-info tooltip.
 	
 while holding shift, right-click items to place a red marker.
 )
@@ -876,7 +878,7 @@ this information comes in form of percentages and represents how close a given i
 
 these stats are visualized by a bar in the background that turns green if a given item is the best-in-class item of that stat.
 
-the ilvl maxes out dynamically depending on the item-base and is highlighted green if that value is reached.
+the ilvl maxes out dynamically depending on the item-class and is highlighted green if that value is reached.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -899,9 +901,9 @@ text =
 "tier x" = fractured mods
 "tier —" = un-tiered mods (veiled, delve, incursion, etc.)
 
-tier 1 is also the color that marks desired mods, tier 6 that marks undesired ones.
+tier 1 is also the color that marks desired mods, tier 6 the one that marks undesired ones.
 
-tier x always overrides ilvl colors, tier — whenever ilvl is not a differentiating factor.
+'tier x' always overrides ilvl colors, 'tier —' whenever ilvl is not a differentiating factor.
 
 click a field to apply an rgb hex-code from the clipboard, right-click a field to reset it to the default color.
 )
@@ -985,9 +987,9 @@ Loop 5
 }
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vitemchecker_profiles_help hp w-1", img\GUI\help.png
 
-Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset all: desired "
+Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset desired mods "
 Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_highlight_bar cRed",
-Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset all: undesired "
+Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset undesired mods "
 Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
 
 Gui, settings_menu: Font, bold underline
@@ -995,18 +997,17 @@ Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_heig
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", tooltip size:
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_minus gItemchecker Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_reset gItemchecker Border x+2 wp", % "0"
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_plus gItemchecker Border x+2 wp", % "+"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center wp vfSize_itemchecker_reset gItemchecker Border x+2", % "r"
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center wp vfSize_itemchecker_plus gItemchecker Border x+2", % "+"
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift + wisdom-scroll triggers item-info"
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift-clicking triggers item-info"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_gear Checked"enable_itemchecker_gear, % "enable league-start mode"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_gear_help hp w-1", img\GUI\help.png
 If enable_itemchecker_gear
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gItemchecker vitemchecker_reset_gear", % " reset inventory "
-	;Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border gItemchecker vitemchecker_reset_arealvl", % " reset area-lvl "
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gItemchecker vitemchecker_reset_gear", % " reset inventory boxes "
 	Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_gear_bar cRed",
 }
 
@@ -1118,9 +1119,9 @@ If (enable_leveling_guide = 1)
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gLeveling_guide Border x+"fSize0//4, % " lime "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gLeveling_guide Border x+"fSize0//4, % " purple "
 	
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size offset:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_minus gLeveling_guide Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_reset gLeveling_guide Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_reset gLeveling_guide Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_plus gLeveling_guide Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
@@ -1135,7 +1136,7 @@ If (enable_leveling_guide = 1)
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", button size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_minus gLeveling_guide Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_reset gLeveling_guide Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_reset gLeveling_guide Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_leveling_guide_plus gLeveling_guide Border x+2 wp", % "+"
 }
 Return
@@ -1152,10 +1153,10 @@ If enable_map_info
 		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
 		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
 	}
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
 		
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info_settings_apply Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info_settings_apply Border x+2 wp", % "+"
 
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
@@ -1181,14 +1182,14 @@ Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap
 
 If (enable_map_tracker = 1)
 {
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size offset:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_minus gMap_tracker Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_reset gMap_tracker Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_reset gMap_tracker Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_plus gMap_tracker Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", button size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_minus gMap_tracker Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_reset gMap_tracker Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_reset gMap_tracker Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_map_tracker_plus gMap_tracker Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans HWNDmain_text", panel offset (x/y):
@@ -1227,9 +1228,9 @@ If (enable_notepad = 1)
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gNotepad Border x+"fSize0//4, % " lime "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gNotepad Border x+"fSize0//4, % " purple "
 	
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size offset:
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_minus gNotepad Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_reset gNotepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_reset gNotepad Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_notepad_plus gNotepad Border x+2 wp", % "+"
 	
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
@@ -1238,7 +1239,7 @@ If (enable_notepad = 1)
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_minus gNotepad Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_reset gNotepad Border x+2 wp", % "0"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_reset gNotepad Border x+2 wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbutton_notepad_plus gNotepad Border x+2 wp", % "+"
 }
 Return

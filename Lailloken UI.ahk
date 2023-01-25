@@ -296,7 +296,7 @@ Return
 Clipboard := ""
 SendInput, ^{c}
 ClipWait, 0.05
-If InStr(Clipboard, "scroll of wisdom")
+If InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee")
 	shift_down := "wisdom"
 KeyWait, Shift
 shift_down := ""
@@ -474,6 +474,20 @@ If (lab_mode = 1)
 		{
 			GoSub, Lab_info
 			KeyWait, Tab
+			Return
+		}
+	}
+}
+If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "[img]")
+{
+	start := A_TickCount
+	While GetKeyState("Tab", "P")
+	{
+		If (A_TickCount >= start + 200)
+		{
+			LLK_LevelGuideImage()
+			KeyWait, Tab
+			Gui, leveling_guide_img: Destroy
 			Return
 		}
 	}
@@ -1086,6 +1100,8 @@ hwnd_itemchecker_cluster_button1 := ""
 
 gear_mouse_over := 0
 gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
+
+global leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
 
 Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
 Gui, font_size: Margin, 0, 0
