@@ -23,7 +23,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 
 ## Main Features: 
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
-![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
+| ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
 
 ### [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
@@ -40,12 +40,15 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 | ![image](https://user-images.githubusercontent.com/61888437/212068981-b757797d-e53a-4731-9329-ff37018f967c.png) | ![image](https://user-images.githubusercontent.com/61888437/212069204-a3cf06d1-bdeb-4b6a-a5de-6bd236d2d731.png) |
 <br>
 
-### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items) for items: hotkeyless access to features and popular 3rd-party websites  
-![image](https://user-images.githubusercontent.com/61888437/214881560-e5223138-dd6a-4633-b1df-c8f0e0f70f78.png) ![image](https://user-images.githubusercontent.com/61888437/214881694-18eeb79d-077e-4bc3-ab59-8e8b536399e6.png) ![image](https://user-images.githubusercontent.com/61888437/214882549-73da0e2c-d06e-4f6e-a5f6-c18a754a809f.png)  
+### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items) for items: single-hotkey access to features and popular 3rd-party websites  
+| ![image](https://user-images.githubusercontent.com/61888437/214881560-e5223138-dd6a-4633-b1df-c8f0e0f70f78.png) | ![image](https://user-images.githubusercontent.com/61888437/214881694-18eeb79d-077e-4bc3-ab59-8e8b536399e6.png) | ![image](https://user-images.githubusercontent.com/61888437/214882549-73da0e2c-d06e-4f6e-a5f6-c18a754a809f.png) |
+|---|---|---|
 <br>
 
-### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): context-sensitive quick-access menu for various in-game searches  
-![image](https://user-images.githubusercontent.com/61888437/174295941-6ef1eb44-756e-4e4a-83be-3eeedf62298b.png)  
+### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): single-hotkey, customizable context-menu for various in-game searches  
+| regular stash | vendor | Gwennen | bestiary index |
+|---|---|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/214894515-609be1ef-1b7a-40d2-afe4-8fa6374d5442.png) | ![image](https://user-images.githubusercontent.com/61888437/214895726-1a1c93d9-7183-40ca-bd6d-2da446169286.png) | ![image](https://user-images.githubusercontent.com/61888437/214895979-0df171e8-b7f3-4f8a-873b-14ade78306b3.png) | ![image](https://user-images.githubusercontent.com/61888437/214896731-4c73e6fc-166f-4d33-9faf-4498c505e48d.png) |
 <br>
 
 ### [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
