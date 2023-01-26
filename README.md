@@ -15,7 +15,6 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## Legacy Features:
-
 | [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
 |---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
@@ -94,7 +93,11 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 <br>
 
-## Experimental / Proof-of-Concept Features
+## Experimental / Proof-of-Concept Features:
+### Sanctum-room Info-tooltips based on image recognition  
+| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/214906896-03c57cb7-8b77-4745-83a2-01eb9afc612e.png) |
+|---|---|
+<br>
 
 ### [Delve-helper](https://github.com/Lailloken/Lailloken-UI/wiki/Delve-helper): in-client UI to help find hidden delve passages (with optional image recognition)  
 ![image](https://user-images.githubusercontent.com/61888437/182579413-50e1994a-768c-4e03-ab7f-46c32ec04829.png)  
