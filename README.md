@@ -94,7 +94,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## Experimental / Proof-of-Concept Features:
-### Sanctum-room Info-tooltips based on image recognition  
+### Sanctum-room [Info-tooltips](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) based on image recognition  
 | ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/214906896-03c57cb7-8b77-4745-83a2-01eb9afc612e.png) |
 |---|---|
 <br>
