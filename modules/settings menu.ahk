@@ -511,7 +511,7 @@ if enabled, pressing the middle mouse-button in pob will initiate screen-capping
 	
 after screen-capping an area, a setup-window with a preview will open. if desired, a caption can be added to the image. this caption will be displayed in the skilltree-overlay in game.
 
-press enter to save the screen-cap, or click/tab back into pob to abort the process.
+press enter to save the screen-cap, or esc to abort.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
