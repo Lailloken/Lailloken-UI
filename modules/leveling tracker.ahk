@@ -1192,7 +1192,7 @@ LLK_ScreencapPoB()
 		
 		WinWaitNotActive, ahk_id %hwnd_screencap_setup%
 		If (leveling_guide_screencap_caption != "")
-			Gdip_SaveBitmapToFile(pScreencap, "img\GUI\skill-tree\" leveling_guide_screencap_caption ".jpg", 90)
+			Gdip_SaveBitmapToFile(pScreencap, "img\GUI\skill-tree\" leveling_guide_screencap_caption ".jpg", 100)
 		Else LLK_ToolTip("screen-cap aborted", 2)
 	}
 	Else MsgBox, The screen-cap is too large (the resulting overlay wouldn't fit on screen).
