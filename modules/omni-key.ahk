@@ -247,7 +247,7 @@ If (gamescreen = 0)
 		stash_search_type := "stash"
 		GoSub, Stash_search
 	}
-	If (disable_imagecheck_skilltree = 0) && (skilltree = 1)
+	If (enable_leveling_guide = 1) && (disable_imagecheck_skilltree = 0) && (skilltree = 1)
 	{
 		LLK_LevelGuideSkillTree(1)
 		If (leveling_guide_valid_skilltree_files = 0)
