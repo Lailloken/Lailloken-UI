@@ -293,43 +293,6 @@ Gui, screencap_setup: Destroy
 hwnd_screencap_setup := ""
 Return
 
-Enter::
-Gui, screencap_setup: Submit, NoHide
-screencap_failed := 0
-While InStr(leveling_guide_screencap_caption, "  ")
-	leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "  ", " ")
-While (SubStr(leveling_guide_screencap_caption, 0) = " ")
-	leveling_guide_screencap_caption := SubStr(leveling_guide_screencap_caption, 1, -1)
-If (leveling_guide_screencap_caption = "")
-	screencap_failed := 1
-
-Loop 9
-{
-	If (InStr(leveling_guide_screencap_caption, "act" A_Index) || InStr(leveling_guide_screencap_caption, "act " A_Index)) && !InStr(leveling_guide_screencap_caption, "act 10") && !InStr(leveling_guide_screencap_caption, "act10") 
-		leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "act" A_Index, "act0"A_Index), leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "act " A_Index, "act 0"A_Index)
-}
-
-Loop, Parse, leveling_guide_screencap_caption
-{
-	If InStr("\/:*?""<>|", A_Loopfield)
-	{
-		screencap_failed := 2
-		break
-	}
-}
-If (screencap_failed != 0)
-{
-	WinGetPos, x_screencap, y_screencap,, h_screencap, ahk_id %hwnd_screencap_caption%
-	LLK_ToolTip((screencap_failed = 2) ? "caption cannot contain \/:*?""<>|" : "caption cannot be blank", 2, x_screencap, y_screencap - h_screencap)
-	leveling_guide_screencap_caption := ""
-	Return
-}
-
-Gui, screencap_setup: Destroy
-hwnd_screencap_setup := ""
-WinActivate, ahk_exe Path of Building.exe
-Return
-
 #If (enable_omnikey_pob = 1) && (enable_leveling_guide = 1) && WinActive("ahk_exe Path of Building.exe")
 
 MButton::
