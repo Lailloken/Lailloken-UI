@@ -286,6 +286,48 @@ If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
+#If (enable_omnikey_pob = 1) && (enable_leveling_guide = 1) && WinActive("ahk_exe Path of Building.exe")
+
+MButton::
+GoSub, Omnikey
+Return
+
+#If (leveling_guide_skilltree_open = 1)
+
+RButton::
+start := A_TickCount
+While GetKeyState("RButton", "P")
+{
+	If (A_TickCount >= start + 300)
+	{
+		leveling_guide_skilltree_active += (leveling_guide_skilltree_active > 1) ? -1 : 0
+		LLK_LevelGuideSkillTree()
+		KeyWait, RButton
+		Return
+	}
+}
+;MsgBox, % leveling_guide_skilltree_active ", " leveling_guide_valid_skilltree_files
+leveling_guide_skilltree_active += (leveling_guide_skilltree_active < leveling_guide_valid_skilltree_files) ? 1 : 0
+LLK_LevelGuideSkillTree()
+Return
+
+1::
+2::
+3::
+4::
+5::
+6::
+7::
+8::
+9::
+0::
+If (0 < A_ThisHotkey) && (A_ThisHotkey <= leveling_guide_valid_skilltree_files) || (A_ThisHotkey = 0) && (leveling_guide_valid_skilltree_files >= 10)
+{
+	leveling_guide_skilltree_active := (A_ThisHotkey = 0) ? 10 : A_ThisHotkey
+	LLK_LevelGuideSkillTree()
+}
+Return
+
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (shift_down = "wisdom")
 
 +RButton::LLK_ItemCheckVendor()
@@ -833,6 +875,10 @@ If (timeout != 1)
 		IniDelete, ini\leveling guide.ini, Progress
 		IniWrite, % guide_progress, ini\leveling guide.ini, Progress
 	}
+	
+	IniRead, leveling_guide_skilltree_last_ini, ini\leveling tracker.ini, Settings, last skilltree-image, % A_Space
+	If (leveling_guide_skilltree_last != "") && (leveling_guide_skilltree_last != leveling_guide_skilltree_last_ini) && (leveling_guide_skilltree_last_ini != "")
+		IniWrite, "%leveling_guide_skilltree_last%", ini\leveling tracker.ini, Settings, last skilltree-image
 }
 ExitApp
 Return
@@ -1065,9 +1111,12 @@ stash_search_trigger := 0
 scrollboards := 0
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
-imagechecks_list := "betrayal,bestiary,bestiarydex,gwennen,sanctum,stash,vendor"
-guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|settings_menu|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|"
-guilist .= "betrayal_search|betrayal_info_members|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
+imagechecks_list := "bestiary,bestiarydex,gwennen,skilltree,stash,vendor,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
+imagechecks_list_copy := imagechecks_list ;will be sorted alphabetically for screen-checks section in the menu
+Sort, imagechecks_list_copy, D`,
+guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|betrayal_search|betrayal_info_members|"
+guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
+guilist .= "settings_menu|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
@@ -1101,7 +1150,8 @@ hwnd_itemchecker_cluster_button1 := ""
 gear_mouse_over := 0
 gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
 
-global leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
+leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
+leveling_guide_skilltree_active := 1, leveling_guide_valid_skilltree_files := 0, enable_omnikey_pob := 0, leveling_guide_screencap_caption := "", leveling_guide_valid_images := ""
 
 Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
 Gui, font_size: Margin, 0, 0
@@ -1802,6 +1852,13 @@ LLK_InStrCount(string, character, delimiter := "")
 LLK_IsAlpha(string)
 {
 	If string is alpha
+		Return 1
+	Else Return 0
+}
+
+LLK_IsAlnum(string)
+{
+	If string is alnum
 		Return 1
 	Else Return 0
 }
