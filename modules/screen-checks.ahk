@@ -143,7 +143,6 @@ Sort, pixelchecks_list, D`,
 Loop, Parse, pixelchecks_list, `,, `,
 	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 
-Sort, imagechecks_list, D`,
 Loop, Parse, imagechecks_list, `,, `,
 {
 	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0

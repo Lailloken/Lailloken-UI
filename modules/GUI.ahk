@@ -202,6 +202,7 @@ Loop, Parse, betrayal_divisions, `,, `,
 	If (betrayal_info_prio_%A_Loopfield% = "0,0") || !IsNumber(x_coord) || !IsNumber(y_coord)
 		Gui, Show, % "NA x"xScreenOffSet + A_Index * poe_width/5 " y" yScreenOffSet + poe_height/4
 	Else Gui, Show, % "NA x"xScreenOffSet + x_coord " y" yScreenOffset + y_coord
+	LLK_Overlay("betrayal_prioview_" A_LoopField, "show")
 }
 Return
 
