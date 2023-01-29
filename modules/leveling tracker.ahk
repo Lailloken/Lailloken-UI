@@ -1,4 +1,48 @@
 ﻿Leveling_guide:
+If (A_GuiControl = "enable_omnikey_pob")
+{
+	Gui, settings_menu: Submit, NoHide
+	IniWrite, % enable_omnikey_pob, ini\leveling tracker.ini, Settings, enable pob-screencap
+	Return
+}
+If (A_GuiControl = "leveling_guide_screencap_ok")
+{
+	Gui, screencap_setup: Submit, NoHide
+	screencap_failed := 0
+	While InStr(leveling_guide_screencap_caption, "  ")
+		leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "  ", " ")
+	While (SubStr(leveling_guide_screencap_caption, 0) = " ")
+		leveling_guide_screencap_caption := SubStr(leveling_guide_screencap_caption, 1, -1)
+	If (leveling_guide_screencap_caption = "")
+		screencap_failed := 1
+
+	Loop 9
+	{
+		If (InStr(leveling_guide_screencap_caption, "act" A_Index) || InStr(leveling_guide_screencap_caption, "act " A_Index)) && !InStr(leveling_guide_screencap_caption, "act 10") && !InStr(leveling_guide_screencap_caption, "act10") 
+			leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "act" A_Index, "act0"A_Index), leveling_guide_screencap_caption := StrReplace(leveling_guide_screencap_caption, "act " A_Index, "act 0"A_Index)
+	}
+
+	Loop, Parse, leveling_guide_screencap_caption
+	{
+		If InStr("\/:*?""<>|", A_Loopfield)
+		{
+			screencap_failed := 2
+			break
+		}
+	}
+	If (screencap_failed != 0)
+	{
+		WinGetPos, x_screencap, y_screencap,, h_screencap, ahk_id %hwnd_screencap_caption%
+		LLK_ToolTip((screencap_failed = 2) ? "caption cannot contain \/:*?""<>|" : "caption cannot be blank", 2, x_screencap, y_screencap - h_screencap)
+		leveling_guide_screencap_caption := ""
+		Return
+	}
+	
+	Gui, screencap_setup: Destroy
+	hwnd_screencap_setup := ""
+	hwnd_screencap_caption := ""
+	Return
+}
 start := A_TickCount
 While GetKeyState("LButton", "P") && (A_Gui = "leveling_guide_panel") ;dragging the button
 {
@@ -47,6 +91,13 @@ If (A_Gui = "leveling_guide_panel") && (click = 1) ;left-clicking the button
 If (A_Gui = "leveling_guide_panel") && (click = 2) ;right-clicking the button
 {
 	GoSub, Leveling_guide_gear
+	Return
+}
+
+If (A_GuiControl = "leveling_guide_skilltree_folder")
+{
+	KeyWait, LButton
+	Run, explore img\GUI\skill-tree\
 	Return
 }
 
@@ -946,6 +997,12 @@ Init_leveling_guide:
 IniRead, enable_leveling_guide, ini\config.ini, Features, enable leveling guide, 0
 IniRead, fSize_offset_leveling_guide, ini\leveling tracker.ini, Settings, font-offset, 0
 IniRead, gem_notes, ini\leveling tracker.ini, Gem notes,, %A_Space%
+IniRead, enable_omnikey_pob, ini\leveling tracker.ini, Settings, enable pob-screencap, 0
+IniRead, leveling_guide_skilltree_last, ini\leveling tracker.ini, Settings, last skilltree-image, % A_Space
+If (leveling_guide_skilltree_last != "") && !FileExist(leveling_guide_skilltree_last)
+	leveling_guide_skilltree_last := ""
+If (leveling_guide_skilltree_last != "")
+	LLK_LevelGuideSkillTree(2)
 fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
 IniRead, leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color, White
 IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency, 250
@@ -1106,7 +1163,7 @@ LLK_LevelGuideGemNote()
 
 LLK_LevelGuideImage()
 {
-	global text2, poe_height
+	global text2, poe_height, leveling_guide_landmarks
 	Loop, Parse, leveling_guide_landmarks, `,, % A_Space
 	{
 		If !InStr(text2, A_LoopField)
@@ -1125,5 +1182,113 @@ LLK_LevelGuideImage()
 	{
 		Gui, leveling_guide_img: Add, Picture, % "h"poe_height//2 " w-1", img\GUI\leveling tracker\%image%.jpg
 		Gui, leveling_guide_img: Show, NA AutoSize
+	}
+}
+
+LLK_ScreencapPoB()
+{
+	global leveling_guide_valid_skilltree_files, leveling_guide_screencap_caption := "", leveling_guide_screencap_caption, leveling_guide_screencap_ok, xScreenOffSet, height_native, hwnd_screencap_setup, hwnd_screencap_caption
+	Clipboard := ""
+	SendInput, +#{s}
+	WinWaitNotActive, ahk_exe Path of Building.exe,, 2
+	Sleep, 1000
+	WinWaitActive, ahk_exe Path of Building.exe
+	pScreencap := Gdip_CreateBitmapFromClipboard()
+	If (pScreencap < 0)
+	{
+		LLK_ToolTip("screen-cap failed")
+		Return
+	}
+	Else
+	{
+		Gdip_GetImageDimensions(pScreencap, wScreencap, hScreencap)
+		hbmScreencap := CreateDIBSection(wScreencap, hScreencap)
+		hdcScreencap := CreateCompatibleDC()
+		obmScreencap := SelectObject(hdcScreencap, hbmScreencap)
+		gScreencap := Gdip_GraphicsFromHDC(hdcScreencap)
+		Gdip_SetInterpolationMode(gScreencap, 0)
+		Gdip_DrawImage(gScreencap, pScreencap, 0, 0, wScreencap, hScreencap, 0, 0, wScreencap, hScreencap, 1)
+	}
+	
+	If (hScreencap <= height_native*0.95)
+	{
+		LLK_LevelGuideSkillTree(1)
+		Gui, screencap_setup: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_screencap_setup
+		Gui, screencap_setup: Margin, 0, 0
+		Gui, screencap_setup: Color, Black
+		WinSet, Transparent, 255
+		Gui, screencap_setup: Font, % "s"fSize0 " cWhite", Fontin SmallCaps
+		Gui, screencap_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmScreencap%
+		caption := (leveling_guide_valid_skilltree_files < 9) ? 0 leveling_guide_valid_skilltree_files + 1 : leveling_guide_valid_skilltree_files + 1
+		Gui, screencap_setup: Add, Edit, xs wp BackgroundTrans cBlack vleveling_guide_screencap_caption HWNDhwnd_screencap_caption, % caption
+		Gui, screencap_setup: Add, Button, xs Hidden Default vleveling_guide_screencap_ok gLeveling_guide, OK
+		Gui, screencap_setup: Show, x%xScreenOffSet% AutoSize
+		Sleep, 1000
+		
+		While WinExist("ahk_id " hwnd_screencap_setup)
+			Sleep, 100
+		
+		WinWaitNotActive, ahk_id %hwnd_screencap_setup%
+		If (leveling_guide_screencap_caption != "")
+			Gdip_SaveBitmapToFile(pScreencap, "img\GUI\skill-tree\" leveling_guide_screencap_caption ".jpg", 100)
+		Else LLK_ToolTip("screen-cap aborted", 2)
+	}
+	Else MsgBox, The screen-cap is too large (the resulting overlay wouldn't fit on screen).
+	SelectObject(hdcScreencap, obmScreencap)
+	DeleteObject(hbmScreencap)
+	DeleteDC(hdcScreencap)
+	Gdip_DeleteGraphics(gScreencap)
+	Gdip_DisposeImage(pScreencap)
+	DllCall("DeleteObject", "ptr", hbmScreencap)
+	hbmScreencap := ""
+	Gui, screencap_setup: Destroy
+	hwnd_screencap_setup := ""
+	hwnd_screencap_caption := ""
+	Return
+}
+
+LLK_LevelGuideSkillTree(mode := 0)
+{
+	global leveling_guide_skilltree_active, leveling_guide_valid_skilltree_files, fSize0, skill_tree_prev, skill_tree_next, leveling_guide_skilltree_last, font_height, xScreenOffSet
+	If mode
+		leveling_guide_valid_skilltree_files := 0
+	Else count := 0
+	
+	If (leveling_guide_skilltree_last != "") && !FileExist(leveling_guide_skilltree_last)
+		leveling_guide_skilltree_active := 1
+	
+	Loop, Files, img\GUI\skill-tree\*
+	{
+		If !InStr("jpg,bmp,png", A_LoopFileExt) || (A_LoopFileExt = "")
+			continue
+		If mode
+			leveling_guide_valid_skilltree_files += 1
+		Else count += 1
+		
+		If (mode = 2) && (A_LoopFilePath = leveling_guide_skilltree_last)
+			leveling_guide_skilltree_active := leveling_guide_valid_skilltree_files
+		
+		If !mode && (count = leveling_guide_skilltree_active)
+		{
+			img := A_LoopFilePath
+			leveling_guide_skilltree_last := A_LoopFilePath
+			img_name := StrReplace(A_LoopFileName, "." A_LoopFileExt)
+			break
+		}
+	}
+	If mode
+		Return
+	If (leveling_guide_valid_skilltree_files != 0)
+	{
+		Gui, leveling_guide_skilltree: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+		Gui, leveling_guide_skilltree: Margin, 0, 0
+		Gui, leveling_guide_skilltree: Color, Black
+		WinSet, Transparent, 255
+		Gui, leveling_guide_skilltree: Font, s%fSize0% cWhite, Fontin SmallCaps
+		Gui, leveling_guide_skilltree: Add, Picture, Section, % img
+		Gui, leveling_guide_skilltree: Add, Text, xs Hidden Border BackgroundTrans Center wp, % img_name
+		Gui, leveling_guide_skilltree: Add, Progress, xp yp wp hp Section Disabled Border BackgroundBlack c404040 Center range0-%leveling_guide_valid_skilltree_files%, % leveling_guide_skilltree_active ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
+		Gui, leveling_guide_skilltree: Add, Text, xp yp Border BackgroundTrans Center wp, % img_name ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
+		Gui, leveling_guide_skilltree: Show, NA x%xScreenOffSet% AutoSize
 	}
 }

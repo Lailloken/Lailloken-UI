@@ -2,6 +2,11 @@
 clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+If WinActive("ahk_exe Path of Building.exe")
+{
+	GoSub, Omnikey2
+	Return
+}
 If (alt_modifier != "")
 	SendInput {%alt_modifier% down}^{c}{%alt_modifier% up}
 Else SendInput !^{c}
@@ -184,14 +189,20 @@ If WinExist("ahk_id " hwnd_delve_grid)
 		GoSub, Delve_scan
 	Return
 }
-Clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+
+If WinActive("ahk_exe Path of Building.exe")
+{
+	KeyWait, % ThisHotkey_copy
+	LLK_ScreencapPoB()
+	Return
+}
 
 If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 	LLK_PixelSearch("gamescreen")
 
-If (clipboard = "") && (gamescreen = 0)
+If (gamescreen = 0)
 {
 	If (InStr(current_location, "_town") || InStr(current_location, "1_3_17_1")) && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
 	{
@@ -236,6 +247,24 @@ If (clipboard = "") && (gamescreen = 0)
 		stash_search_type := "stash"
 		GoSub, Stash_search
 	}
+	If (enable_leveling_guide = 1) && (disable_imagecheck_skilltree = 0) && (skilltree = 1)
+	{
+		LLK_LevelGuideSkillTree(1)
+		If (leveling_guide_valid_skilltree_files = 0)
+		{
+			LLK_ToolTip("couldn't find compatible image-files", 2)
+			leveling_guide_skilltree_active := 1
+		}
+		Else
+		{
+			leveling_guide_skilltree_active := (leveling_guide_skilltree_active > leveling_guide_valid_skilltree_files) ? 1 : leveling_guide_skilltree_active
+			leveling_guide_skilltree_open := 1
+			LLK_LevelGuideSkillTree()
+		}
+		KeyWait, % ThisHotkey_copy
+		leveling_guide_skilltree_open := 0
+		Gui, leveling_guide_skilltree: Destroy
+	}
 	If (disable_imagecheck_vendor = 0) && (vendor = 1)
 	{
 		stash_search_type := "vendor"
@@ -271,8 +300,8 @@ Else If InStr(clipboard, "cluster jewel")
 		cluster_type := "Small"
 	Else cluster_type := InStr(clipboard, "medium cluster") ? "Medium" : "Large"
 	StringLower, cluster_type1, cluster_type
-	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: all
-	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, crafting table: %cluster_type1%
+	Gui, context_menu: Add, Text, vcrafting_table_all_cluster gOmnikey_menu_selection BackgroundTrans Center, poe.db: all cluster
+	Gui, context_menu: Add, Text, vcrafting_table_%cluster_type%_cluster gOmnikey_menu_selection BackgroundTrans Center, poe.db: %cluster_type1% cluster
 	Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
@@ -280,7 +309,7 @@ Else
 {
 	If !LLK_itemInfoCheck()
 		Return
-	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, crafting table
+	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, poe.db: modifiers
 	If !InStr(Clipboard, "`nUnidentified", 1)
 		Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
@@ -297,6 +326,7 @@ If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(c
 	Gui, context_menu: Add, Text, vchrome_calc gOmnikey_menu_selection BackgroundTrans Center, chromatics
 
 Loop, Parse, allowed_recomb_classes, `,, `,
+{
 	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified")
 	{
 		If !LLK_itemInfoCheck()
@@ -304,6 +334,7 @@ Loop, Parse, allowed_recomb_classes, `,, `,
 		Gui, context_menu: Add, Text, gRecombinators_add BackgroundTrans Center, recombinator
 		break
 	}
+}
 MouseGetPos, mouseX, mouseY
 Gui, context_menu: Show, % "Hide x"mouseX " y"mouseY
 WinGetPos, x_context,, w_context

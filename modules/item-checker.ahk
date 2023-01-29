@@ -444,7 +444,7 @@ If (A_GuiControl = "enable_itemchecker_ilvl")
 	IniWrite, % enable_itemchecker_ilvl, ini\item-checker.ini, Settings, enable item-levels
 	If WinExist("ahk_id " hwnd_itemchecker)
 		LLK_ItemCheck(1)
-	Gosub, settings_menu
+	Gosub, Settings_menu
 	Return
 }
 

@@ -270,8 +270,10 @@ Return
 Settings_menu_betrayal:
 settings_menu_section := "betrayal"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans y+"fSize0*1.2 " Checked"betrayal_enable_recognition, use image recognition`n(requires additional setup)
-Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_perma_table BackgroundTrans Checked"betrayal_perma_table, enable table in recognition-mode
+Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans y+"fSize0*1.2 " Checked"betrayal_enable_recognition, % "use image recognition"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vbetrayal_recognition_help hp w-1", img\GUI\help.png
+If betrayal_enable_recognition
+	Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_perma_table BackgroundTrans Checked"betrayal_perma_table, enable table in recognition-mode
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gBetrayal_apply vImage_folder HWNDmain_text", % " open img folder "
 
 choice := (betrayal_info_table_pos = "left") ? 1 : 2
@@ -312,13 +314,14 @@ Sort, clone_frames_list, D`n
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
 If (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR") && (enable_pixelchecks = 1)
 {
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " y+"fSize0*1.2, toggle overlay automatically
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_pixelcheck_enable Checked" clone_frames_pixelcheck_enable " y+"fSize0*1.2, automatically hide clone-frames
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vpixelcheck_auto_trigger hp w-1", img\GUI\help.png
 }
 If (poe_log_file != 0)
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_hideout_enable Checked"clone_frames_hideout_enable, hide clone-frames in hideouts/towns
 
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of clone-frames currently set up:
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of clone-frames currently set up: "
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vclone_frames_list_help hp w-1", img\GUI\help.png
 Loop, Parse, clone_frames_list, `n, `n
 {
 	If (A_LoopField = "Settings")
@@ -346,7 +349,8 @@ If (enable_delve = 1)
 {
 	GoSub, Delve
 	GoSub, GUI
-	Gui, settings_menu: Add, Checkbox, % "xs Center gDelve vdelve_enable_recognition BackgroundTrans Checked"delve_enable_recognition, use image recognition`n(requires additional setup)
+	Gui, settings_menu: Add, Checkbox, % "xs Section Center gDelve vdelve_enable_recognition BackgroundTrans Checked"delve_enable_recognition, use image recognition
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vdelve_recognition_help hp w-1", img\GUI\help.png
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, grid size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_minus gDelve Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vdelvegrid_reset gDelve Border x+2 wp", % "r"
@@ -447,6 +451,72 @@ Gui, settings_menu_help: Color, Black
 Gui, settings_menu_help: Margin, 12, 4
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
 
+;//////////////////////////////////////////////////////////////////////////////
+;//////////////// Betrayal
+
+If (A_GuiControl = "betrayal_recognition_help")
+{
+text =
+(
+if enabled, the script will read the screen underneath the mouse-cursor to check for syndicate-member cards, then display the appropriate cheat-sheet.
+
+this requires correctly setting up the 'betrayal' image-check in the settings menu, and the following:
+- each member's card has to be screen-capped once (refer to wiki for instructions)
+- each of the four divisions has to be screen-capped once (optional)
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+;//////////////////////////////////////////////////////////////////////////////
+;//////////////// Delve
+
+If (A_GuiControl = "delve_recognition_help")
+{
+text =
+(
+if enabled, the script will read the screen underneath the grid-map overlay and copy the delve-passages displayed on the in-game delve-map.
+	
+this requires calibrating the scanner by screen-capping parts of the delve-map (refer to wiki for instructions)
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+;//////////////////////////////////////////////////////////////////////////////
+;//////////////// Leveling tracker
+
+If (A_GuiControl = "leveling_guide_skilltree_help")
+{
+text =
+(
+opens the folder where skilltree-screenshots are stored.
+
+these screenshots can be overlaid by holding the omni-key while viewing the in-game skilltree:
+- right-clicks will switch to the next screenshot
+- long right-clicks will switch to the previous screenshot
+- using number-keys 1 to 0 will jump to image 1 to 10
+
+they are accessed in alphabetical order, so make sure to name them accordingly.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "leveling_guide_pob_help")
+{
+text =
+(
+if enabled, pressing the middle mouse-button in pob will initiate screen-capping via the windows snipping tool.
+	
+after screen-capping an area, a setup-window with a preview will open. if desired, a caption can be added to the image. this caption will be displayed in the skilltree-overlay in game.
+
+press enter to save the screen-cap, or esc to abort.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "gear_tracker_help")
 {
 text =
@@ -468,6 +538,18 @@ If (A_GuiControl = "map_tracker_help")
 text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to track and log your map runs.
+)
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "clone_frames_list_help")
+{
+text =
+(
+long-click the underlined names to see a preview of the clone-frame
+
+right-click the underlined names to open a context-menu with additional options
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -627,9 +709,9 @@ If (A_GuiControl = "pixelcheck_auto_trigger")
 {
 text =
 (
-allows the script to automatically hide/show its overlays by adapting to what's happening on screen.
+by adapting to what's happening on screen, the script automatically hides/shows clone-frames to avoid blocking in-game interfaces.
 
-requires 'gamescreen' pixel-check to be set up correctly and playing with the mini-map in the center of the screen.
+requires the 'gamescreen' pixel-check to be set up correctly, as well as playing with the mini-map in the center of the screen.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -642,12 +724,14 @@ text =
 explanation
 click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
 
-ui textures in PoE sometimes get updated in patches, which leads to screen-checks failing. this is where you recalibrate the checks in order to continue using the script.
+game-patches sometimes include ui or texture updates, which leads to screen-checks failing. this is where you recalibrate the checks to ensure they function properly.
 
 disclaimer
-these screen-checks merely trigger actions within the script itself and will -NEVER- result in any interaction with the client.
+these screen-checks merely trigger actions within the script itself and will -never- result in any interaction with the client.
 
-they are used to let the script toggle its ui elements in order to adapt to what's happening on screen, emulating the use of an addon-api.
+they are used to let the script adapt to what's happening on screen, emulating the use of an addon-api:
+- automatically hide overlays to avoid blocking in-game interfaces
+- make context-sensitive hotkeys possible
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -714,7 +798,7 @@ click 'test' to verify if the image-check is working, click 'calibrate' to scree
 
 same concept as pixel-checks (see top of this section) but with images instead of pixels. image-checks are used when pixel-checks are unreliable due to movement on screen.
 
-individual checks can be disabled if you know you won't be using the connected feature, and want to hide the red highlighting.
+individual checks can be disabled if you know you won't be using the connected feature and want to hide the red highlighting.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
@@ -750,13 +834,27 @@ this check helps the script identify whether the bestiary index is open or not, 
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "imagecheck_help_skilltree")
+{
+text =
+(
+instructions
+to recalibrate, open the skill-tree and screen-cap the area in the red box displayed above.
+
+explanation
+this check helps the script identify whether the skill-tree is open or not, which enables the omni-key to overlay skill-tree screenshots.
+)
+	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\skill-tree.jpg
+	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
+	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
 If (A_GuiControl = "imagecheck_help_betrayal")
 {
 text =
 (
 instructions
 to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the area displayed above.
-(UltraWide-users: that area will not be right above the health globe but more towards the center).
 
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the betrayal-info feature.
@@ -1088,6 +1186,14 @@ Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help 
 If (enable_leveling_guide = 1)
 {
 	Gui, settings_menu: Font, underline bold
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "feature settings: "
+	Gui, settings_menu: Font, norm
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide venable_omnikey_pob Checked"enable_omnikey_pob, % "pob: middle mouse-button initiates screen-capping"
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_pob_help hp w-1", img\GUI\help.png
+	Gui, settings_menu: Add, Text, % "xs Section gLeveling_guide vleveling_guide_skilltree_folder Border BackgroundTrans", % " open skilltree-folder "
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_skilltree_help hp w-1", img\GUI\help.png
+	
+	Gui, settings_menu: Font, underline bold
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings: "
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help2 hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, norm
@@ -1321,7 +1427,7 @@ If (poe_height_initial / poe_width_initial < (5/12))
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of integrated image-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
-Loop, Parse, imagechecks_list, `,, `,
+Loop, Parse, imagechecks_list_copy, `,, `,
 {
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_image_test y+"fSize0*0.6, % " test "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_image_calibrate", % " calibrate "

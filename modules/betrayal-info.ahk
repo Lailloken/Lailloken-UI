@@ -24,7 +24,7 @@ If (A_GuiControl = "betrayal_info_prio_apply")
 }
 If (A_GuiControl = "betrayal_info_prio_dimensions")
 {
-	%A_GuiControl% := (%A_GuiControl% < 100) ? 100 : %A_GuiControl%
+	%A_GuiControl% := (%A_GuiControl% < 50) ? 50 : %A_GuiControl%
 	GoSub, GUI_betrayal_prioview
 	Return
 }
@@ -75,6 +75,7 @@ If (A_GuiControl = "betrayal_enable_recognition")
 		hwnd_betrayal_info_members := ""
 	}
 	GoSub, Betrayal_info
+	GoSub, Settings_menu
 	Return
 }
 If (A_GuiControl = "betrayal_ddl")

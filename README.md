@@ -1,5 +1,5 @@
 ## About:
-A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, and seamless integration into the game-client. This project is **not** affiliated with or endorsed by Grinding Gear Games (GGG) in any way.  
+A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. This project is **not** affiliated with or endorsed by Grinding Gear Games (GGG) in any way.  
 <br>
 
 ## Download & Setup
@@ -10,7 +10,13 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ## Ideas & Feedback
-I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).  
+I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).
+<br>
+
+## Philosophy, Motivation, Contributions
+This project is not meant to be seen as a product (hence the bland, unimaginative name), it is merely my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer (without prior experience), and this is simply a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I (or other players) come across while playing PoE.
+
+I will not be taking direct code input or optimizations from people because learning-by-doing and problem-solving is what makes this project fun for me. I appreciate the fact that my project motivates people to work on it as well, but having to go through, double-check, and test other people's code sounds like a chore to me.
 <br>
 <br>
 
@@ -22,7 +28,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 
 ## Main Features: 
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
-| ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
+![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
 
 ### [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
@@ -51,9 +57,13 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ### [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
-| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | (leveling) gear tracker with notifications |
+| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | gear tracker with notifications (twink-leveling) |
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/212078216-5fa5d986-853c-4813-b098-4fabb9a08ce1.png) | ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png) |
+
+| single-hotkey skilltree overlays | search-strings to bulk-buy all gems in a build |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/215314956-c3ffabd6-da4e-4475-929f-35a8d37aa40a.png) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
 <br>
 
 ### [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
@@ -116,8 +126,3 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 - seed-explorer uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
 - recombinator calculator is based on [The Complete Guide to Recombinators](https://www.reddit.com/r/pathofexile/comments/v0nm0c/the_complete_guide_to_recombinators/) and this [Recombinator Calculator GoogleDoc](https://docs.google.com/spreadsheets/d/1-LO-sgiyMGLE_E7AdaeG7OB-bOoJV6c4XO0kAX8OTG0/edit?usp=sharing)
 <br>
-
-## Philosophy & Motivation
-This script is my personal collection of UI and QoL features to improve the PoE gameplay experience while staying as close to a natural in-game interface as possible. It emphasizes easy and straight-forward setup, visual clarity, customizability, enabling/disabling individual features to prevent feature-bloat, and minimal hotkey requirements.
-
-That being said, I am a self-taught tinkerer (with no prior experience), and this is a merely a fun project and learning experience for me that I decided to share. This means I will not be taking code input or optimizations from people (unless critical bugs need to be fixed or I am hard-stuck) because learning-by-doing and problem-solving is what makes this project fun for me.
