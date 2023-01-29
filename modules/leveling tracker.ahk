@@ -1249,7 +1249,7 @@ LLK_ScreencapPoB()
 
 LLK_LevelGuideSkillTree(mode := 0)
 {
-	global leveling_guide_skilltree_active, leveling_guide_valid_skilltree_files, fSize0, skill_tree_prev, skill_tree_next, leveling_guide_skilltree_last
+	global leveling_guide_skilltree_active, leveling_guide_valid_skilltree_files, fSize0, skill_tree_prev, skill_tree_next, leveling_guide_skilltree_last, font_height, xScreenOffSet
 	If mode
 		leveling_guide_valid_skilltree_files := 0
 	Else count := 0
@@ -1285,8 +1285,10 @@ LLK_LevelGuideSkillTree(mode := 0)
 		Gui, leveling_guide_skilltree: Color, Black
 		WinSet, Transparent, 255
 		Gui, leveling_guide_skilltree: Font, s%fSize0% cWhite, Fontin SmallCaps
-		Gui, leveling_guide_skilltree: Add, Picture,, % img
-		Gui, leveling_guide_skilltree: Add, Text, Section Border BackgroundTrans Center wp, % img_name ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
-		Gui, leveling_guide_skilltree: Show, NA AutoSize
+		Gui, leveling_guide_skilltree: Add, Picture, Section, % img
+		Gui, leveling_guide_skilltree: Add, Text, xs Hidden Border BackgroundTrans Center wp, % img_name
+		Gui, leveling_guide_skilltree: Add, Progress, xp yp wp hp Section Disabled Border BackgroundBlack c404040 Center range0-%leveling_guide_valid_skilltree_files%, % leveling_guide_skilltree_active ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
+		Gui, leveling_guide_skilltree: Add, Text, xp yp Border BackgroundTrans Center wp, % img_name ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
+		Gui, leveling_guide_skilltree: Show, NA x%xScreenOffSet% AutoSize
 	}
 }
