@@ -14,7 +14,7 @@ I am very open to suggestions and ideas from other players. So if you have ideas
 <br>
 
 ## Philosophy, Motivation, Contributions
-This project is not meant to be seen as a product (hence the bland, unimaginative name), it is merely my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer (without prior experience), and this is merely a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I (or other players) come across while playing PoE.
+This project is not meant to be seen as a product (hence the bland, unimaginative name), it is merely my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer (without prior experience), and this is simply a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I (or other players) come across while playing PoE.
 
 I will not be taking direct code input or optimizations from people because learning-by-doing and problem-solving is what makes this project fun for me. I appreciate the fact that my project motivates people to work on it as well, but having to go through, double-check, and test other people's code sounds like a chore to me.
 <br>
@@ -57,9 +57,13 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
-| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | (leveling) gear tracker with notifications |
+| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | gear tracker with notifications (twink-leveling) |
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/212078216-5fa5d986-853c-4813-b098-4fabb9a08ce1.png) | ![image](https://user-images.githubusercontent.com/61888437/184830821-1695f43d-324f-45f5-9112-f1e2f7faaaca.png) ![image](https://user-images.githubusercontent.com/61888437/184830904-bf395bbe-917b-44a5-bea9-6cd0fa0c7477.png) |
+
+| single-hotkey skilltree overlays | search-strings to bulk-buy all gems in a build |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/215314956-c3ffabd6-da4e-4475-929f-35a8d37aa40a.png) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
 <br>
 
 ### [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
