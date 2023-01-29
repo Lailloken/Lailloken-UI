@@ -307,15 +307,20 @@ While GetKeyState("RButton", "P")
 {
 	If (A_TickCount >= start + 300)
 	{
-		leveling_guide_skilltree_active += (leveling_guide_skilltree_active > 1) ? -1 : 0
-		LLK_LevelGuideSkillTree()
+		If (leveling_guide_skilltree_active > 1)
+		{
+			leveling_guide_skilltree_active -= 1
+			LLK_LevelGuideSkillTree()
+		}
 		KeyWait, RButton
 		Return
 	}
 }
-;MsgBox, % leveling_guide_skilltree_active ", " leveling_guide_valid_skilltree_files
-leveling_guide_skilltree_active += (leveling_guide_skilltree_active < leveling_guide_valid_skilltree_files) ? 1 : 0
-LLK_LevelGuideSkillTree()
+If (leveling_guide_skilltree_active < leveling_guide_valid_skilltree_files)
+{
+	leveling_guide_skilltree_active += 1
+	LLK_LevelGuideSkillTree()
+}
 Return
 
 1::
@@ -328,7 +333,7 @@ Return
 8::
 9::
 0::
-If (0 < A_ThisHotkey) && (A_ThisHotkey <= leveling_guide_valid_skilltree_files) || (A_ThisHotkey = 0) && (leveling_guide_valid_skilltree_files >= 10)
+If (A_ThisHotkey != leveling_guide_skilltree_active) && ((0 < A_ThisHotkey) && (A_ThisHotkey <= leveling_guide_valid_skilltree_files) || (A_ThisHotkey = 0) && (leveling_guide_valid_skilltree_files >= 10))
 {
 	leveling_guide_skilltree_active := (A_ThisHotkey = 0) ? 10 : A_ThisHotkey
 	LLK_LevelGuideSkillTree()
