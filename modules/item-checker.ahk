@@ -566,6 +566,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	global itemchecker_affixgroup1_tier_text, itemchecker_affixgroup2_tier_text, itemchecker_affixgroup3_tier_text, itemchecker_affixgroup4_tier_text, itemchecker_affixgroup5_tier_text, itemchecker_affixgroup6_tier_text
 	global itemchecker_affixgroup1_tier2, itemchecker_affixgroup2_tier2, itemchecker_affixgroup3_tier2, itemchecker_affixgroup4_tier2, itemchecker_affixgroup5_tier2, itemchecker_affixgroup6_tier2
 	global itemchecker_affixgroup1_tier2_text, itemchecker_affixgroup2_tier2_text, itemchecker_affixgroup3_tier2_text, itemchecker_affixgroup4_tier2_text, itemchecker_affixgroup5_tier2_text, itemchecker_affixgroup6_tier2_text
+	oil_tiers := ["golden", "silver", "opalescent", "black", "crimson", "violet"]
 	
 	If (itemchecker_width = 0)
 	{
@@ -600,7 +601,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		Clipboard := itemchecker_clipboard
 	}
 	Else itemchecker_clipboard := Clipboard
-	itemchecker_metadata := SubStr(Clipboard, 1, InStr(Clipboard, "---") - 3)
+	itemchecker_metadata := SubStr(Clipboard, 1, InStr(Clipboard, "---") - 2)
 	
 	Loop, Parse, Clipboard, `n, `r
 	{
@@ -672,7 +673,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	item_stats_array := []
 	For key, val in itemchecker_base_item_data
 	{
-		If InStr(itemchecker_metadata, key) && (InStr(itemchecker_metadata, " " key) || InStr(itemchecker_metadata, key " ") || InStr(itemchecker_metadata, "`n" key) || InStr(itemchecker_metadata, key "`n"))
+		If InStr(itemchecker_metadata, "`n" key "`r") ; && (InStr(itemchecker_metadata, " " key) || InStr(itemchecker_metadata, key " ") || InStr(itemchecker_metadata, "`n" key) || InStr(itemchecker_metadata, key "`n"))
 		{
 			If (item_type = "defense")
 			{
@@ -685,8 +686,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					}
 					item_stats .= (item_stats = "") ? defense_stat : "_" defense_stat
 					item_stats_array.Push(defense_stat)
-					base_best_%defense_stat% := defense_value
-					base_best_combined += defense_value
+					base_min_%defense_stat% := SubStr(defense_value, 1, InStr(defense_value, "-") - 1)
+					base_best_%defense_stat% := SubStr(defense_value, InStr(defense_value, "-") + 1)
+					base_best_combined += SubStr(defense_value, InStr(defense_value, "-") + 1)
 					class_best_%defense_stat% := val.properties_best[defense_stat]
 					class_best_combined := val.properties_best["combined"]
 				}
@@ -751,7 +753,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				defense_increased += item_quality
 			Loop, Parse, Clipboard, `n, `r
 			{
-				If InStr(A_LoopField, "increased ") && (InStr(A_LoopField, natural_defense_stat) || InStr(A_LoopField, StrReplace(natural_defense_stat, " rating"))) && !InStr(A_LoopField, " per ") && !InStr(A_LoopField, " when ") && !InStr(A_LoopField, " while ") && !InStr(A_LoopField, " during ") && !InStr(A_LoopField, " by ") && !InStr(A_LoopField, " if ") && !InStr(A_LoopField, " recovery ") && !InStr(A_LoopField, " maximum ")
+				If InStr(A_LoopField, "increased ") && (InStr(A_LoopField, natural_defense_stat) || InStr(A_LoopField, StrReplace(natural_defense_stat, " rating"))) && !InStr(A_LoopField, " per ") && !InStr(A_LoopField, " when ") && !InStr(A_LoopField, " while ") && !InStr(A_LoopField, " during ") && !InStr(A_LoopField, " by ") && !InStr(A_LoopField, " if ") && !InStr(A_LoopField, " recovery ") && !InStr(A_LoopField, " maximum ") && !InStr(A_LoopField, "from equipped")
 					defense_increased += SubStr(A_LoopField, 1, InStr(A_LoopField, "(") - 1)
 				If InStr(A_LoopField, " to " defense_stat_prefix natural_defense_stat) && InStr(A_LoopField, "+") && !InStr(A_LoopField, " per ") && !InStr(A_LoopField, " when ") && !InStr(A_LoopField, " while ") && !InStr(A_LoopField, " during ") && !InStr(A_LoopField, " by ") && !InStr(A_LoopField, " if ") && !InStr(A_LoopField, " recovery ")
 					defense_flat += SubStr(A_LoopField, 2, InStr(A_LoopField, "(") - 1)
@@ -759,6 +761,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			defense_increased := Format("{:0.2f}", 1 + defense_increased/100)
 			stat_value := Format("{:0.0f}", stat_value / defense_increased)
 			stat_value -= defense_flat
+			;MsgBox, % defense_increased ", " stat_value ", " defense_flat
 		}
 		natural_defense_stat := StrReplace(natural_defense_stat, " rating")
 		natural_defense_stat := StrReplace(natural_defense_stat, " ", "_")
@@ -777,7 +780,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				item_combined_rel := Format("{:0.0f}", item_combined/class_best_combined*100)
 			}
 		}
-		defense_roll := Format("{:0.0f}", stat_value/base_best_%natural_defense_stat%*100)
+		defense_roll := Format("{:0.0f}", (stat_value - base_min_%natural_defense_stat%)/(base_best_%natural_defense_stat% - base_min_%natural_defense_stat%)*100)
+		;MsgBox, % defense_roll
 	}
 	
 	divider_height := itemchecker_height//9
@@ -932,7 +936,14 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			}
 		}
 		If (InStr(A_LoopField, "allocates ") && InStr(A_LoopField, "(enchant)"))
+		{
 			implicits .= StrReplace(A_LoopField, " (enchant)") "`n|`n"
+			If !enable_itemchecker_gear
+			{
+				anoint := StrReplace(A_LoopField, " (enchant)"), anoint := StrReplace(anoint, "allocates ")
+				IniRead, anoint_recipe, data\item info\amulets.ini, anoints, % anoint, % A_Space
+			}
+		}
 		If InStr(A_LoopField, "corruption implicit") || InStr(A_LoopField, "eater of worlds implicit") || InStr(A_LoopField, "searing exarch implicit") || (InStr(itemchecker_metadata, "synthesised ") && InStr(A_LoopField, "implicit modifier") && !enable_itemchecker_gear)
 			implicits .= StrReplace(A_LoopField, " (implicit)") "`n|`n"
 		If InStr(A_LoopField, "{ implicit modifier ") && enable_itemchecker_gear
@@ -1102,7 +1113,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			label := (cdps = A_LoopField) ? "chaos" : (edps0 = A_LoopField) ? "allres" : "phys"
 			If !filler
 			{
-				Gui, itemchecker: Add, Text, % style " Right Border w"filler_width*itemchecker_width " h"itemchecker_height, % "dps: "
+				Gui, itemchecker: Add, Text, % style " Right Border w"filler_width*itemchecker_width " h"itemchecker_height, % "dps "
 				style := "ys"
 				filler := 1
 			}
@@ -1119,7 +1130,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// base-info / stat-comparison area
 	
-	If (enable_itemchecker_bases && (!unique || (item_type = "defense" && defense_roll != 0))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
+	If (enable_itemchecker_bases && ((!unique || anoint_recipe != "") || (item_type = "defense" && defense_roll != ""))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
 	{
 		If !enable_itemchecker_gear
 		{
@@ -1147,10 +1158,13 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						;If InStr(stats_present, ",",,, 3) && !InStr(stats_present, "combined") && !InStr(stats_present, "block")
 						;	Break
 					}
+					stats_present .= defense ","
 				Default:
 					stats_present := ""
+					If (anoint_recipe != "")
+						stats_present := anoint_recipe ","
 			}
-			If unique
+			If unique && (anoint_recipe = "")
 				stats_present := ""
 		}
 		
@@ -1270,6 +1284,11 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					width := (item_type = "attack") ? itemchecker_width : itemchecker_width*0.5
 					filler_width := (item_type = "attack") ? (itemchecker_width_segments - loop_count*1.5) * itemchecker_width : (itemchecker_width_segments - loop_count - life_width) * itemchecker_width
 				}
+				Else If (anoint_recipe != "")
+				{
+					width := itemchecker_width
+					filler_width := !unique ? (itemchecker_width_segments - loop_count*2.5 + 1) * itemchecker_width : (itemchecker_width_segments - loop_count*2.5 + 2.5) * itemchecker_width
+				}
 				Else
 				{
 					width := itemchecker_width
@@ -1277,7 +1296,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				}
 				
 				filler := ""
-				Loop, Parse, stats_present, `,
+				Loop, Parse, stats_present, `,, %A_Space%
 				{
 					If (A_LoopField = "")
 						continue
@@ -1289,18 +1308,26 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 						If enable_itemchecker_gear
 						{
 							If InStr(item_slot, ",")
-								parse := (loop = 1) ? StrReplace(SubStr(item_slot, 1, InStr(item_slot, ",") - 1), "ring1", "l-ring") ": " : StrReplace(SubStr(item_slot, InStr(item_slot, ",") + 1), "ring2", "r-ring") ": "
-							Else parse := item_slot ": "
+								parse := (loop = 1) ? StrReplace(SubStr(item_slot, 1, InStr(item_slot, ",") - 1), "ring1", "l-ring") " " : StrReplace(SubStr(item_slot, InStr(item_slot, ",") + 1), "ring2", "r-ring") " "
+							Else parse := item_slot " "
 						}
-						Else parse := "base: "
+						Else parse := "base "
 						Gui, itemchecker: Add, Text, % style " Border Right BackgroundTrans w"filler_width " h"itemchecker_height, % parse
 						filler := 1
 						continue
 					}
-					width_override := (A_LoopField = "life") ? width + itemchecker_width*life_width : width
+					If (anoint_recipe != "")
+						width_override := width*2.5
+					Else width_override := (A_LoopField = "life") ? width + itemchecker_width*life_width : width
 					style := (filler = 1) ? "ys h"itemchecker_height " w"width_override : "xs Section h"itemchecker_height " w"width_override
 					filler := 1
-					color := (base_best_%A_LoopField% = class_best_%A_LoopField%) ? itemchecker_t1_color : "505050"
+					If (anoint_recipe != "")
+					{
+						parse := LLK_ArrayHasVal(oil_tiers, A_LoopField)
+						%A_LoopField%_text := A_LoopField
+						color := (parse = 0) ? itemchecker_t6_color : itemchecker_t%parse%_color
+					}
+					Else color := (base_best_%A_LoopField% = class_best_%A_LoopField%) ? itemchecker_t1_color : "505050"
 					If (%A_LoopField%_difference != "")
 					{
 						If (%A_LoopField%_difference >= 1)
@@ -1316,11 +1343,14 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					}
 					;If enable_itemchecker_gear
 					;	color := InStr(%A_LoopField%_text, "-") ? itemchecker_t6_color : InStr(%A_LoopField%_text, "+0") ? "Black" : itemchecker_t1_color
-					Gui, itemchecker: Add, Progress, % style " Border range0-100 BackgroundBlack c"color, % !enable_itemchecker_gear ? item_%A_LoopField%_rel : 100 ;place progress bar on top of dummy label and inherit dimensions
+					Gui, itemchecker: Add, Progress, % style " Border range0-100 BackgroundBlack c"color, % !enable_itemchecker_gear && (anoint_recipe = "") ? item_%A_LoopField%_rel : 100 ;place progress bar on top of dummy label and inherit dimensions
 					color1 := (color != "505050") ? (color = "Black") ? "White" : "Black" : "White"
 					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1, % %A_LoopField%_text ;add actual text label
-					Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
-					Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
+					If (anoint_recipe = "")
+					{
+						Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
+						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
+					}
 					If enable_itemchecker_gear
 					{
 						If (item_type = "attack")
@@ -1361,18 +1391,18 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				}
 				Else
 				{
-					If unique
+					If (item_type = "defense")
 					{
 						;Gui, itemchecker: Add, Text, % "ys Hidden Border wp h"itemchecker_height, ;add hidden text label as dummy to get the correct dimensions
 						color := (defense_roll >= 99) ? itemchecker_t1_color : "505050" ;highlight ilvl bar green if ilvl >= 86
-						Gui, itemchecker: Add, Progress, ys Border hp w%itemchecker_width% range75-100 BackgroundBlack c%color%, % defense_roll ;place progress bar on top of dummy label and inherit dimensions
+						Gui, itemchecker: Add, Progress, ys Border h%itemchecker_height% w%itemchecker_width% range0-100 BackgroundBlack c%color%, % defense_roll ;place progress bar on top of dummy label and inherit dimensions
 						color1 := (color != "505050") ? "Black" : "White"
 						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1, % defense_roll "%" ;add actual text label
 						Gui, itemchecker: Add, Progress, % "ys Border BackgroundBlack w"itemchecker_width*0.5 " hp c"color, 100 ;place progress bar on top of dummy label and inherit dimensions
 						Gui, itemchecker: Add, Text, % "xp yp Border Center BackgroundTrans wp hp c"color1,
 						Gui, itemchecker: Add, Picture, % "xp+1 yp+1 Center BackgroundTrans h"itemchecker_height-2 " w-1", img\GUI\item info\defense.png
 					}
-					Else
+					If !unique
 					{
 						;Gui, itemchecker: Add, Text, % "ys Hidden Border wp h"itemchecker_height, ;add hidden text label as dummy to get the correct dimensions
 						color := (item_lvl >= item_lvl_max) ? itemchecker_t1_color : "505050" ;highlight ilvl bar green if ilvl >= 86
@@ -1720,6 +1750,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
 				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
 				If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "lose") && !InStr(mod, "enem") ;certain criteria to determine if bar has to be inverted
+				|| (InStr(mod, "+") || InStr(mod, "increased")) && (InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence") || InStr(mod, "attribute")) && InStr(mod, "requirement")
 				|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || InStr(mod, "quantity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
 				|| (!InStr(mod, "--") && InStr(mod, "skill effect duration")) || InStr(mod, "cast speed") || InStr(mod, "maximum mana") || InStr(mod, "throwing speed") || InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence"))
 				{

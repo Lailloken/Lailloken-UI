@@ -138,7 +138,7 @@ If (clipboard != "")
 			}
 		}
 	}
-	If InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Fragment")
+	If enable_map_info && InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -319,7 +319,8 @@ If InStr(clipboard, "limited to: 1 historic")
 {
 	If !LLK_itemInfoCheck()
 		Return
-	Gui, context_menu: Add, Text, vlegion_seed_explore gOmnikey_menu_selection BackgroundTrans Center, explore seed
+	Gui, context_menu: Add, Text, vlegion_seed_explore gOmnikey_menu_selection BackgroundTrans Center, seed-explorer
+	Gui, context_menu: Add, Text, vlegion_seed_vilsol gOmnikey_menu_selection BackgroundTrans, vilsol's calculator
 }
 
 If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(clipboard, "Class: Amulet") && !InStr(clipboard, "Class: Belt")
@@ -506,6 +507,8 @@ Else If InStr(A_GuiControl, "wiki")
 Else If InStr(A_GuiControl, "layout")
 	GoSub, Lab_info
 Else If (A_GuiControl = "legion_seed_explore")
+	GoSub, Legion_seeds_parse
+Else If (A_GuiControl = "legion_seed_vilsol")
 	GoSub, Legion_seeds_parse
 KeyWait, LButton
 Gui, context_menu: destroy

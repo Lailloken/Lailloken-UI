@@ -399,7 +399,7 @@ If (Clipboard != "")
 }
 Return
 
-#If WinActive("ahk_group poe_window") && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused
+#If enable_map_tracker && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused && WinActive("ahk_group poe_window") 
 
 ^+LButton::
 ^LButton::
@@ -1470,7 +1470,7 @@ If !WinActive("ahk_group poe_ahk_window")
 }
 If WinActive("ahk_id " hwnd_itemchecker)
 	WinActivate, ahk_group poe_window
-If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1)
+If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1) && !WinActive("ahk_id " hwnd_screencap_setup)
 {
 	mouse_hover += 1
 	If (mouse_hover >= 5) && (mousemove != 1)
