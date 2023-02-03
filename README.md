@@ -39,6 +39,7 @@ I will not be taking direct code input or optimizations from people because lear
 | optional: base-stat info | optional: base-stat info |
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/212067763-6e5f95eb-b040-4aaf-b752-6e3392df146f.png) | ![image](https://user-images.githubusercontent.com/61888437/212068319-470361a9-0cf5-4033-b024-3aa75f8d86de.png) |
+| ![image](https://user-images.githubusercontent.com/61888437/216636639-8fa4c7a7-eb44-44cc-8f4a-16f480b0862b.png) | ![image](https://user-images.githubusercontent.com/61888437/216636610-9eeccc7e-5911-4171-b911-9ac8f4a08d97.png) |
 
 | optional: comparison with current gear | optional: comparison with current gear |
 |---|---|
