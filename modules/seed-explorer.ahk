@@ -630,7 +630,7 @@ Loop, Parse, legion_leaders_ini, `n, `n
 
 If (parse_mode = 0) ;parsing the clipboard data when retrieved via context-menu
 {
-	Loop, Parse, clipboard, `n, `r`n
+	Loop, Parse, clipboard, `n, `r
 	{
 		If (A_Index = 3)
 			legion_type_parse := A_Loopfield
@@ -645,7 +645,7 @@ If (parse_mode = 0) ;parsing the clipboard data when retrieved via context-menu
 }
 Else ;parsing the clipboard data when retrieved via ctrl-c or from the trade site
 {
-	Loop, Parse, clipboard, `n, `r`n
+	Loop, Parse, clipboard, `n, `r
 	{
 		If (A_Index = 3)
 			legion_type_parse := A_Loopfield
@@ -676,6 +676,14 @@ Loop, Parse, legion_leaders, `,, `, ;parse name from clipboard data
 		legion_name_parse := A_Loopfield
 		break
 	}
+}
+
+If (A_GuiControl = "legion_seed_vilsol")
+{
+	vilsol_type := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"]
+	StringUpper, vilsol_name, legion_name_parse, T
+	Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel=" LLK_ArrayHasVal(vilsol_type, legion_type_parse) "&conqueror=" vilsol_name "&seed=" legion_seed_parse "&mode=seed"
+	Return
 }
 
 GoSub, Legion_seeds
