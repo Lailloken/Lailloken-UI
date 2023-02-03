@@ -938,8 +938,11 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		If (InStr(A_LoopField, "allocates ") && InStr(A_LoopField, "(enchant)"))
 		{
 			implicits .= StrReplace(A_LoopField, " (enchant)") "`n|`n"
-			anoint := StrReplace(A_LoopField, " (enchant)"), anoint := StrReplace(anoint, "allocates ")
-			IniRead, anoint_recipe, data\item info\amulets.ini, anoints, % anoint, % A_Space
+			If !enable_itemchecker_gear
+			{
+				anoint := StrReplace(A_LoopField, " (enchant)"), anoint := StrReplace(anoint, "allocates ")
+				IniRead, anoint_recipe, data\item info\amulets.ini, anoints, % anoint, % A_Space
+			}
 		}
 		If InStr(A_LoopField, "corruption implicit") || InStr(A_LoopField, "eater of worlds implicit") || InStr(A_LoopField, "searing exarch implicit") || (InStr(itemchecker_metadata, "synthesised ") && InStr(A_LoopField, "implicit modifier") && !enable_itemchecker_gear)
 			implicits .= StrReplace(A_LoopField, " (implicit)") "`n|`n"
@@ -1127,7 +1130,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// base-info / stat-comparison area
 	
-	If (enable_itemchecker_bases && ((anoint_recipe != "") || (item_type = "defense" && defense_roll != ""))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
+	If (enable_itemchecker_bases && ((!unique || anoint_recipe != "") || (item_type = "defense" && defense_roll != ""))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
 	{
 		If !enable_itemchecker_gear
 		{
@@ -1281,7 +1284,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					width := (item_type = "attack") ? itemchecker_width : itemchecker_width*0.5
 					filler_width := (item_type = "attack") ? (itemchecker_width_segments - loop_count*1.5) * itemchecker_width : (itemchecker_width_segments - loop_count - life_width) * itemchecker_width
 				}
-				If (anoint_recipe != "")
+				Else If (anoint_recipe != "")
 				{
 					width := itemchecker_width
 					filler_width := !unique ? (itemchecker_width_segments - loop_count*2.5 + 1) * itemchecker_width : (itemchecker_width_segments - loop_count*2.5 + 2.5) * itemchecker_width
