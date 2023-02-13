@@ -118,7 +118,7 @@ If (clipboard != "")
 		GoSub, Recombinators_add
 		Return
 	}
-	If !InStr(clipboard, "Rarity: Currency") && !InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
+	If !InStr(clipboard, "Rarity: Currency") && (!InStr(clipboard, "Item Class: Map") && !InStr(Clipboard, "`maven's invitation: ")) && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
 		Return
@@ -138,7 +138,7 @@ If (clipboard != "")
 			}
 		}
 	}
-	If enable_map_info && InStr(clipboard, "Item Class: Map") && !InStr(clipboard, "Fragment")
+	If enable_map_info && (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -160,11 +160,6 @@ If (clipboard != "")
 				LLK_Omnikey_ToolTip()
 				Return
 			}
-		}
-		If InStr(clipboard, "Unidentified") || InStr(clipboard, "Rarity: Normal") || InStr(clipboard, "Rarity: Unique")
-		{
-			LLK_ToolTip("not supported:`nnormal, unique, un-ID")
-			Return
 		}
 		If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 		{
@@ -250,7 +245,7 @@ If (gamescreen = 0)
 	If (enable_leveling_guide = 1) && (disable_imagecheck_skilltree = 0) && (skilltree = 1)
 	{
 		LLK_LevelGuideSkillTree(1)
-		If (leveling_guide_valid_skilltree_files = 0)
+		If (leveling_guide_valid_skilltree_files = 0) && (leveling_guide_lab_files = "")
 		{
 			LLK_ToolTip("couldn't find compatible image-files", 2)
 			leveling_guide_skilltree_active := 1
@@ -261,9 +256,61 @@ If (gamescreen = 0)
 			leveling_guide_skilltree_open := 1
 			LLK_LevelGuideSkillTree()
 		}
-		KeyWait, % ThisHotkey_copy
+		While GetKeyState(ThisHotkey_copy, "P")
+		{
+			MouseGetPos, xHover, yHover, skilltree_hover_win, skilltree_hover_control, 2
+			If (skilltree_hover_win = hwnd_leveling_guide_labs)
+			{
+				GuiControlGet, lab_hover,, %skilltree_hover_control%, text
+				lab_hover := SubStr(lab_hover, InStr(lab_hover, "lab"), 4)
+				If (lab_hover != lab_hover_last)
+				{
+					/*
+					Gui, leveling_guide_skilltree_hover: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide_skilltree_hover
+					Gui, leveling_guide_skilltree_hover: Margin, 0, 0
+					Gui, leveling_guide_skilltree_hover: Color, Black
+					WinSet, Transparent, 255
+					Gui, leveling_guide_skilltree_hover: Add, Picture, BackgroundTrans w%leveling_guide_skilltree_width% h-1 HWNDhwnd_leveling_guide_skilltree_hover_img, img\GUI\skill-tree\[%lab_hover%].jpg
+					WinGetPos,,, wHover, hHover, ahk_id %hwnd_leveling_guide_skilltree_hover_img%
+					Gui, leveling_guide_skilltree_hover: Show, % "NA x"xScreenOffSet
+					*/
+					;If WinExist("ahk_id " hwnd_leveling_guide_skilltree)
+					;	Gui, leveling_guide_skilltree: Hide
+					If !WinExist("ahk_id " hwnd_leveling_guide_skilltree_hover)
+					{
+						Gui, leveling_guide_skilltree_hover: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide_skilltree_hover
+						Gui, leveling_guide_skilltree_hover: Margin, 0, 0
+						Gui, leveling_guide_skilltree_hover: Color, Black
+						WinSet, Transparent, 255
+						Gui, leveling_guide_skilltree_hover: Add, Picture, BackgroundTrans HWNDhwnd_leveling_guide_skilltree_hover_img, img\GUI\skill-tree\[%lab_hover%].jpg
+						Gui, leveling_guide_skilltree_hover: Show, NA x10000 y10000
+						WinGetPos,,, hover_width, hover_height, ahk_id %hwnd_leveling_guide_skilltree_hover%
+						Gui, leveling_guide_skilltree_hover: Show, % "NA x"xScreenOffSet + poe_width//2 - hover_width//2 " y"yScreenOffSet + poe_height - hover_height - poe_height*0.0215 - poe_height//25*1.05
+					}
+					Else
+					{
+						GuiControl, leveling_guide_skilltree_hover:, %hwnd_leveling_guide_skilltree_hover_img%, *w%leveling_guide_skilltree_width% *h-1 img\GUI\skill-tree\[%lab_hover%].jpg
+						WinSet, Redraw,, ahk_id %hwnd_leveling_guide_skilltree_hover%
+						Gui, leveling_guide_skilltree_hover: Show, NA x10000 y10000 AutoSize
+						WinGetPos,,, hover_width, hover_height, ahk_id %hwnd_leveling_guide_skilltree_hover%
+						Gui, leveling_guide_skilltree_hover: Show, % "NA x"xScreenOffSet + poe_width//2 - hover_width//2 " y"yScreenOffSet + poe_height - hover_height - poe_height*0.0215 - poe_height//25*1.05
+					}
+				}
+				lab_hover_last := lab_hover
+			}
+			If (skilltree_hover_win != hwnd_leveling_guide_labs) && WinExist("ahk_id " hwnd_leveling_guide_skilltree_hover)
+			{
+				Gui, leveling_guide_skilltree: Show, NA
+				Gui, leveling_guide_skilltree_hover: Destroy
+				lab_hover_last := ""
+			}
+			sleep, 100
+		}
+		lab_hover_last := ""
 		leveling_guide_skilltree_open := 0
 		Gui, leveling_guide_skilltree: Destroy
+		Gui, leveling_guide_labs: Destroy
+		Gui, leveling_guide_skilltree_hover: Destroy
 	}
 	If (disable_imagecheck_vendor = 0) && (vendor = 1)
 	{
@@ -280,7 +327,7 @@ Gui, context_menu: Color, Black
 WinSet, Transparent, %trans%
 Gui, context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
 
-If InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card")
+If !InStr(clipboard, "unidentified") && (InStr(clipboard, "Rarity: Unique") || InStr(clipboard, "Rarity: Gem") || InStr(clipboard, "Class: Quest") || InStr(clipboard, "Rarity: Divination Card") || InStr(Clipboard, "`nmaven's invitation: "))
 	Gui, context_menu: Add, Text, vwiki_exact gOmnikey_menu_selection BackgroundTrans Center, wiki (exact item)
 Else If InStr(clipboard, "to the goddess")
 {
@@ -309,7 +356,8 @@ Else
 {
 	If !LLK_itemInfoCheck()
 		Return
-	Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, poe.db: modifiers
+	If !InStr(Clipboard, "unidentified") && !InStr(Clipboard, "rarity: unique")
+		Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, poe.db: modifiers
 	If !InStr(Clipboard, "`nUnidentified", 1)
 		Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
@@ -328,7 +376,7 @@ If InStr(clipboard, "Sockets: ") && !InStr(clipboard, "Class: Ring") && !InStr(c
 
 Loop, Parse, allowed_recomb_classes, `,, `,
 {
-	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified")
+	If InStr(item_class, A_Loopfield) && !InStr(clipboard, "rarity: unique") && !InStr(clipboard, "unidentified") && !InStr(clipboard, "rarity: normal")
 	{
 		If !LLK_itemInfoCheck()
 			Return
@@ -531,6 +579,8 @@ Loop, Parse, clipboard, `n, `n
 		break
 	}
 }
+If InStr(Clipboard, "`nmaven's invitation: ")
+	wiki_term := "Maven's_Invitation"
 If InStr(clipboard, "Cluster Jewel")
 	wiki_term := "Cluster_Jewel"
 If (InStr(clipboard, "runic") && InStr(clipboard, "ward:"))

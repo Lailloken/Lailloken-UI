@@ -268,7 +268,7 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 		}
 		
 		GuiControl, itemchecker: +c%color%, itemchecker_affixgroup%A_Index%_tier
-		GuiControl, % (color = "ffffff") ? "itemchecker: +cRed" : "itemchecker: +cBlack", itemchecker_affixgroup%A_Index%_tier_text
+		GuiControl, % (color = "ffffff") ? "itemchecker: +cRed" : (color = "Black") ? "itemchecker: +cWhite" : "itemchecker: +cBlack", itemchecker_affixgroup%A_Index%_tier_text
 		If enable_itemchecker_ilvl && (itemchecker_item_class != "base jewel")
 		{
 			GuiControl, itemchecker: +c%color1%, itemchecker_affixgroup%A_Index%_tier2
@@ -655,25 +655,25 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		item_type := "jewelry"
 	Else item_type := ""
 	
-	If InStr(Clipboard, "`nUnidentified", 1) || InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || (InStr(Clipboard, "`nRarity: Normal", 1) && !InStr(Clipboard, "cluster jewel")) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") || InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") ;certain exclusion criteria
+	If InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") || InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") || InStr(Clipboard, "item class: misc map items") ;certain exclusion criteria
 	{
 		LLK_ToolTip("item-info: item not supported")
 		Return
 	}
-	
+	/*
 	If (!InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier")) && !(InStr(Clipboard, "`nRarity: Normal", 1) && InStr(Clipboard, "cluster jewel")) ;could not copy advanced item-info
 	{
 		LLK_ToolTip("item-info: omni-key setup required (?)", 2)
-		Return
+		;Return
 	}
-	
+	*/
 	LLK_ItemCheckClose()
 	
 	item_lvl_max := 86
 	item_stats_array := []
 	For key, val in itemchecker_base_item_data
 	{
-		If InStr(itemchecker_metadata, "`n" key "`r") ; && (InStr(itemchecker_metadata, " " key) || InStr(itemchecker_metadata, key " ") || InStr(itemchecker_metadata, "`n" key) || InStr(itemchecker_metadata, key "`n"))
+		If InStr(itemchecker_metadata, "`n" key "`r") || InStr(itemchecker_metadata, "`nsuperior " key "`r") || InStr(itemchecker_metadata, "`nsynthesised " key "`r")
 		{
 			If (item_type = "defense")
 			{
@@ -935,13 +935,22 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				cluster_enchant := StrReplace(cluster_enchant, " (enchant)")
 			}
 		}
-		If (InStr(A_LoopField, "allocates ") && InStr(A_LoopField, "(enchant)"))
+		If InStr(A_LoopField, "allocates ") && InStr(A_LoopField, "(enchant)")
 		{
 			implicits .= StrReplace(A_LoopField, " (enchant)") "`n|`n"
 			If !enable_itemchecker_gear
 			{
 				anoint := StrReplace(A_LoopField, " (enchant)"), anoint := StrReplace(anoint, "allocates ")
 				IniRead, anoint_recipe, data\item info\amulets.ini, anoints, % anoint, % A_Space
+			}
+		}
+		If (InStr(A_LoopField, " towers") || InStr(A_LoopField, "freezebolt tower") || InStr(A_LoopField, "glacial cage take")) && InStr(A_LoopField, "(enchant)") && !InStr(implicits, " towers") && !InStr(implicits, "freezebolt tower") && !InStr(implicits, "glacial cage take")
+		{
+			implicits .= StrReplace(A_LoopField, " (enchant)") "`n|`n"
+			If !enable_itemchecker_gear && (anoint_recipe = "")
+			{
+				anoint := StrReplace(A_LoopField, " (enchant)")
+				IniRead, anoint_recipe, data\item info\rings.ini, anoints, % anoint, % A_Space
 			}
 		}
 		If InStr(A_LoopField, "corruption implicit") || InStr(A_LoopField, "eater of worlds implicit") || InStr(A_LoopField, "searing exarch implicit") || (InStr(itemchecker_metadata, "synthesised ") && InStr(A_LoopField, "implicit modifier") && !enable_itemchecker_gear)
@@ -1130,7 +1139,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// base-info / stat-comparison area
 	
-	If (enable_itemchecker_bases && ((!unique || anoint_recipe != "") || (item_type = "defense" && defense_roll != ""))) || enable_itemchecker_gear ;if item is not unique, determine base-stat strength and add bars to visualize it and the ilvl
+	If (enable_itemchecker_bases && ((!unique || anoint_recipe != "") || (item_type = "defense" && defense_roll != ""))) || enable_itemchecker_gear
 	{
 		If !enable_itemchecker_gear
 		{
@@ -1198,7 +1207,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 								Case "pdps":
 									label := "phys"
 								Case "edps":
-									label := "allres"
+									label := "allres" ;[sic!]
 								Case "speed":
 									label := "speed"
 								Case "dps":
@@ -1518,7 +1527,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			If !InStr(A_LoopField, "searing exarch") && !InStr(A_LoopField, "eater of worlds")
 				type := InStr(A_LoopField, "corruption implicit") ? "vaal" : InStr(Clipboard, "synthesised") ? "synthesis" : ""
 			Else type := InStr(A_LoopField, "searing exarch") ? "exarch" : "eater"
-			type := InStr(A_LoopField, "item sells for much more to vendors") ? "delve" : InStr(A_LoopField, "allocates ") ? "blight" : type
+			type := InStr(A_LoopField, "item sells for much more to vendors") ? "delve" : InStr(A_LoopField, "allocates ") || (InStr(A_LoopField, " towers") || InStr(A_LoopField, "freezebolt tower") || InStr(A_LoopField, "glacial cage take")) ? "blight" : type
 			
 			width := (type = "") ? itemchecker_width : itemchecker_width/2
 			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"width " BackgroundBlack c"color, 100
@@ -1578,6 +1587,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		affix_groups_count := A_Index
 		If (itemchecker_item_class != "base jewel")
 			tier := unique ? "u" : InStr(A_LoopField, "tier:") ? SubStr(A_LoopField, InStr(A_LoopField, "tier: ") + 6, InStr(A_LoopField, ")") - InStr(A_LoopField, "tier: ") - 6) : InStr(A_LoopField, "crafted") ? "c" : "—" ;determine affix tier
+		Else tier := "?"
 		affix_name := unique ? "" : SubStr(A_LoopField, InStr(A_LoopField, """",,, 1) + 1, InStr(A_LoopField, """",,, 2) - InStr(A_LoopField, """",,, 1) - 1)
 		mod := A_LoopField
 		affix_original := A_LoopField
@@ -1749,10 +1759,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				roll_min := (roll_count = 1) ? Min(roll1_1, roll1_2) : Min(roll1_1, roll1_2) + Min(roll2_1, roll2_2)
 				roll_present := (roll_count = 1) ? roll1 : roll1 + roll2
 				roll_max := (roll_count = 1) ? Max(roll1_1, roll1_2) : Max(roll1_1, roll1_2) + Max(roll2_1, roll2_2)
-				If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "lose") && !InStr(mod, "enem") ;certain criteria to determine if bar has to be inverted
-				|| (InStr(mod, "+") || InStr(mod, "increased")) && (InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence") || InStr(mod, "attribute")) && InStr(mod, "requirement")
-				|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || InStr(mod, "quantity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
-				|| (!InStr(mod, "--") && InStr(mod, "skill effect duration")) || InStr(mod, "cast speed") || InStr(mod, "maximum mana") || InStr(mod, "throwing speed") || InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence"))
+				If LLK_ItemCheckInvert(mod)
 				{
 					roll_min_copy := roll_min
 					roll_min := roll_max * -1
@@ -1849,7 +1856,9 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 					color := "1e88e5"
 				Else If (tier = 500)
 					color := "1565c0"
-				tier /= 10
+				Else color := "Black"
+				If IsNumber(tier)
+					tier /= 10
 			}
 			
 			If LLK_ItemCheckAffixes(affix_name)
@@ -1862,7 +1871,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			itemchecker_affixgroup%affix_groups_count%_color := InStr(affix_original, "(fractured)") ? itemchecker_t7_color : color
 			
 			itemchecker_override := 0
-			color1 := "Black"
+			color1 := (color = "Black") ? "White" : "Black"
 			Switch hybrid
 			{
 				Case 0:
@@ -1991,17 +2000,24 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			}
 		}
 	}
-	
+	/*
 	If (affix_groups_count = "") && (cluster_type = "") && (item_type != "defense") && (item_type != "attack")
 	{
 		LLK_ToolTip("item is not scalable")
+		;Gui, itemchecker: Destroy
+		;hwnd_itemchecker := ""
+		;Return
+	}
+	*/
+	Gui, itemchecker: Show, NA x10000 y10000 ;show GUI outside of monitor
+	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI dimensions
+	If (width < 100)
+	{
+		LLK_ToolTip("item-info: nothing to display", 1)
 		Gui, itemchecker: Destroy
 		hwnd_itemchecker := ""
 		Return
 	}
-	
-	Gui, itemchecker: Show, NA x10000 y10000 ;show GUI outside of monitor
-	WinGetPos,,, width, height, ahk_id %hwnd_itemchecker% ;get GUI dimensions
 	MouseGetPos, mouseXpos, mouseYpos
 	mouseXpos := (config != 0) ? xPos_itemchecker + width + poe_height*0.047*0.25 : mouseXpos ;override cursor-position if feature is being configured in settings menu
 	mouseYpos := (config != 0) ? yPos_itemchecker + height + poe_height*0.047*0.25 : mouseYpos
@@ -2618,6 +2634,16 @@ LLK_ItemCheckGear(slot)
 	equipped_%slot% := (item_type = "attack") ? "dps="tdps "`npdps="pdps "`nedps="edps0 "`ncdps="cdps "`nspeed=" speed "`n" LLK_ItemCheckRemoveRolls(implicits "`n" itemcheck_clip, item_type) : defenses LLK_ItemCheckRemoveRolls(implicits "`n" itemcheck_clip, item_type)
 	If WinExist("ahk_id " hwnd_itemchecker)
 		LLK_ItemCheck(1)
+}
+
+LLK_ItemCheckInvert(mod)
+{
+	If InStr(mod, "(-") && InStr(mod, "damage taken") || InStr(mod, "lose") && !InStr(mod, "enem")
+	|| (InStr(mod, "+") || InStr(mod, "increased")) && ((InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence") || InStr(mod, "attribute")) && InStr(mod, "requirement") || InStr(mod, "damage taken") || InStr(mod, "charges per use"))
+	|| (InStr(mod, "reduced") || InStr(mod, "less")) && (InStr(mod, "elemental resistances") || InStr(mod, "life") || (!InStr(mod, "take") && InStr(mod, "damage")) || InStr(mod, "rarity") || InStr(mod, "quantity") || (!InStr(mod, "enem") && InStr(mod, "stun and block"))
+	|| (!InStr(mod, "--") && InStr(mod, "skill effect duration")) || InStr(mod, "cast speed") || InStr(mod, "maximum mana") || InStr(mod, "throwing speed") || InStr(mod, "strength") || InStr(mod, "dexterity") || InStr(mod, "intelligence") || InStr(mod, "amount recovered"))
+	Return 1
+	Else Return 0
 }
 
 LLK_ItemCheckRemoveRollsText(string, ByRef removed_text := "")
