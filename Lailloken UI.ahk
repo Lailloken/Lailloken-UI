@@ -364,7 +364,7 @@ SendInput, ^{c}
 ClipWait, 0.05
 If enable_itemchecker_ID && (InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee"))
 	shift_down := "wisdom"
-If enable_map_info_shiftclick && (InStr(Clipboard, "orb of alchemy") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, "orb of binding"))
+If enable_map_info_shiftclick && (InStr(Clipboard, "orb of alchemy") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, "orb of binding") || InStr(Clipboard, "scroll of wisdom"))
 	shift_down := "wisdom"
 KeyWait, Shift
 shift_down := ""
@@ -372,7 +372,7 @@ If WinExist("ahk_id " hwnd_itemchecker)
 	LLK_ItemCheckClose()
 Return
 
-#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0) && (shift_down = "wisdom") && (hwnd_win_hover != hwnd_itemchecker)
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1 || enable_map_info_shiftclick) && (gamescreen = 0) && (shift_down = "wisdom") && (hwnd_win_hover != hwnd_itemchecker)
 
 ~+LButton::
 Clipboard := ""
