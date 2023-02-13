@@ -14,6 +14,12 @@ If (A_GuiControl = "enable_map_info")
 	Return
 }
 
+If InStr(Clipboard, "item class: maps") && (InStr(clipboard, "Unidentified") || InStr(clipboard, "Rarity: Normal") || InStr(clipboard, "Rarity: Unique"))
+{
+	LLK_ToolTip("not supported:`nnormal, unique, un-ID")
+	Return
+}
+
 If (A_Gui = "")
 {
 	map_mods_clipped := Clipboard
@@ -213,7 +219,7 @@ Loop 2
 	}
 	If (A_Index = 1)
 	{
-		Gui, map_mods_window: Show, NA
+		Gui, map_mods_window: Show, NA x10000 y10000
 		WinGetPos,,, width,, ahk_id %hwnd_map_mods_window%
 	}
 	Else
@@ -223,9 +229,9 @@ Loop 2
 		Gui, map_mods_toggle: Color, Black
 		WinSet, Transparent, %map_info_trans%
 		Gui, map_mods_toggle: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
-		Gui, map_mods_toggle: Add, Text, BackgroundTrans %style_map_mods% Center gMap_mods_toggle, % map_mods_mod_count " + " Format("{:0.2f}", map_info_difficulty/map_info_mod_count)
-		Gui, map_mods_toggle: Show, NA
-		WinGetPos,,, width, height, ahk_id %hwnd_map_mods_toggle%
+		Gui, map_mods_toggle: Add, Text, BackgroundTrans %style_map_mods% Center gMap_mods_toggle, % map_mods_mod_count " @ " Format("{:0.1f}", map_info_difficulty/map_info_mod_count)
+		Gui, map_mods_toggle: Show, NA x10000 y10000
+		WinGetPos,,, width, height ;, ahk_id %hwnd_map_mods_toggle%
 		map_info_xPos_target := (map_info_xPos > poe_width) ? poe_width : map_info_xPos
 		map_info_xPos_target := (map_info_xPos_target >= poe_width/2) ? map_info_xPos_target - width : map_info_xPos_target
 		map_info_yPos_target := (map_info_yPos + height > poe_height) ? poe_height - height : map_info_yPos
@@ -358,6 +364,11 @@ Return
 
 Map_info_settings_apply:
 Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "enable_map_info_shiftclick")
+{
+	IniWrite, % enable_map_info_shiftclick, ini\map info.ini, Settings, enable shift-clicking
+	Return
+}
 If (A_GuiControl = "map_info_short")
 {
 	IniWrite, % map_info_short, ini\map info.ini, Settings, short descriptions
@@ -483,6 +494,7 @@ Init_maps:
 Loop 16
 {
 	IniRead, maps_tier%A_Index%, data\Atlas.ini, Maps, tier%A_Index%
+	StringLower, maps_tier%A_Index%, maps_tier%A_Index%
 	maps_list := (maps_list = "") ? StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),") : maps_list StrReplace(maps_tier%A_Index%, ",", " (" A_Index "),")
 	Sort, maps_tier%A_Index%, D`,
 	maps_tier%A_Index% := SubStr(maps_tier%A_Index%, 1, -1)
@@ -498,6 +510,7 @@ Loop, Parse, maps_list, `,, `,
 }
 
 IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
+IniRead, enable_map_info_shiftclick, ini\map info.ini, Settings, enable shift-clicking, 0
 If (map_info_pixelcheck_enable = 1)
 	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
 IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
