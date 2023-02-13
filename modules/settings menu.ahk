@@ -568,7 +568,7 @@ if enabled, the map-info panel will be triggered whenever currency-items are app
 
 hold shift -before- right-clicking currency-items for the first time.
 
-while holding shift, left-click items to apply currency and trigger the map-info panel.
+while holding shift, left-click maps to apply currency and trigger the map-info panel.
 )
 	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
 	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"

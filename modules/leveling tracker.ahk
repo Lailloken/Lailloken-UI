@@ -1461,16 +1461,17 @@ LLK_LevelGuideSkillTree(mode := 0)
 			While (SubStr(img_name, 1, 1) = " ")
 				img_name := SubStr(img_name, 2)
 			Gui, leveling_guide_skilltree: Add, Text, xp yp Border BackgroundTrans Center wp, % img_name ;"img " leveling_guide_skilltree_active "/" leveling_guide_valid_skilltree_files ": " img_name
+			Gui, leveling_guide_skilltree: Show, NA x10000 y10000
+			WinGetPos,,,, height, ahk_id %hwnd_leveling_guide_skilltree%
+			Gui, leveling_guide_skilltree: Show, % "NA x"xScreenOffSet " y"yScreenOffSet + poe_height//2 - height//2 " AutoSize"
 		}
+		/*
 		Else
 		{
 			Gui, leveling_guide_skilltree: Add, Text, % "Section Center 0x200 h"poe_height//3 " w"poe_height//3, no regular skilltree images found
 			;leveling_guide_skilltree_width := poe_height//3, height := poe_height//3
 		}
-		Gui, leveling_guide_skilltree: Show, NA x10000 y10000
-		WinGetPos,,,, height, ahk_id %hwnd_leveling_guide_skilltree%
-		Gui, leveling_guide_skilltree: Show, % "NA x"xScreenOffSet " y"yScreenOffSet + poe_height//2 - height//2 " AutoSize"
-		
+		*/
 		Gui, leveling_guide_labs: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_leveling_guide_labs
 		Gui, leveling_guide_labs: Margin, 0, 0
 		Gui, leveling_guide_labs: Color, Black

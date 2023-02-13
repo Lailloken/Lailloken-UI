@@ -1527,7 +1527,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			If !InStr(A_LoopField, "searing exarch") && !InStr(A_LoopField, "eater of worlds")
 				type := InStr(A_LoopField, "corruption implicit") ? "vaal" : InStr(Clipboard, "synthesised") ? "synthesis" : ""
 			Else type := InStr(A_LoopField, "searing exarch") ? "exarch" : "eater"
-			type := InStr(A_LoopField, "item sells for much more to vendors") ? "delve" : InStr(A_LoopField, "allocates ") || InStr(A_LoopField, " towers") ? "blight" : type
+			type := InStr(A_LoopField, "item sells for much more to vendors") ? "delve" : InStr(A_LoopField, "allocates ") || (InStr(A_LoopField, " towers") || InStr(A_LoopField, "freezebolt tower") || InStr(A_LoopField, "glacial cage take")) ? "blight" : type
 			
 			width := (type = "") ? itemchecker_width : itemchecker_width/2
 			Gui, itemchecker: Add, Progress, % "ys Border Disabled hp w"width " BackgroundBlack c"color, 100
