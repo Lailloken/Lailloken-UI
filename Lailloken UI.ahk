@@ -286,9 +286,21 @@ If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
+#If WinExist("ahk_id " hwnd_pob_crop1)
+
+ESC::
+pob_crop_x1 := "", pob_crop_y1 := "", pob_crop_x2 := "", pob_crop_y2 := "", hwnd_pob_crop1 := ""
+Loop 4
+{
+	Gui, pob_crop%A_Index%: Destroy
+	hwnd_pob_crop%A_Index% := ""
+}
+Return
+
 #If WinExist("ahk_id " hwnd_screencap_setup)
 	
 ESC::
+leveling_guide_screencap_caption := ""
 Gui, screencap_setup: Destroy
 hwnd_screencap_setup := ""
 Return
@@ -344,13 +356,15 @@ Return
 
 +RButton::LLK_ItemCheckVendor()
 
-#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (gamescreen = 0) && (hwnd_win_hover != hwnd_itemchecker)
+#If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1 || enable_map_info_shiftclick) && (gamescreen = 0) && (hwnd_win_hover != hwnd_itemchecker)
 	
 ~+RButton::
 Clipboard := ""
 SendInput, ^{c}
 ClipWait, 0.05
-If InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee")
+If enable_itemchecker_ID && (InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee"))
+	shift_down := "wisdom"
+If enable_map_info_shiftclick && (InStr(Clipboard, "orb of alchemy") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, "orb of binding"))
 	shift_down := "wisdom"
 KeyWait, Shift
 shift_down := ""
@@ -366,7 +380,9 @@ KeyWait, LButton
 Sleep, 150
 SendInput, ^!{c}
 ClipWait, 0.05
-LLK_ItemCheck()
+If enable_map_info && (InStr(Clipboard, "item class: maps") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(Clipboard, "fragment")
+	GoSub, Map_info
+Else LLK_ItemCheck()
 Return
 
 #If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0) && (hwnd_win_hover != hwnd_itemchecker)
@@ -556,6 +572,20 @@ SendInput, {Tab}
 Return
 
 ESC::
+/*
+If WinExist("ahk_id " hwnd_screencap)
+{
+	Gui, screencap: Destroy
+	hwnd_screencap := ""
+	Loop 4
+	{
+		Gui, screencap_frame%A_Index%: Destroy
+		hwnd_screencap_frame%A_Index% := ""
+	}
+	screencap_x1 := "", screencap_x2 := "", screencap_y1 := "", screencap_y2 := ""
+	Return
+}
+*/
 If WinExist("ahk_id " hwnd_gem_notes)
 {
 	Gui, gem_notes: Destroy
@@ -1158,7 +1188,7 @@ hwnd_itemchecker_cluster := ""
 hwnd_itemchecker_cluster_text := ""
 hwnd_itemchecker_cluster_button := ""
 hwnd_itemchecker_cluster_button1 := ""
-
+hwnd_pob_crop1 := ""
 gear_mouse_over := 0
 gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
 
@@ -1453,6 +1483,7 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 Return
 
 MainLoop:
+ToolTip, % hwnd_pob_crop, 0, 0, 1
 If !WinActive("ahk_group poe_ahk_window")
 {
 	inactive_counter += 1
@@ -1877,7 +1908,7 @@ LLK_IsAlnum(string)
 
 LLK_ItemInfoCheck()
 {
-	If !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") && !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "`nRarity: Normal", 1)
+	If !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") && !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "`nRarity: Normal", 1) && !InStr(Clipboard, "unidentified")
 	{
 		LLK_ToolTip("failed to copy advanced item-info.`nconfigure the omni-key in the settings menu.", 3)
 		Return 0
@@ -1887,17 +1918,16 @@ LLK_ItemInfoCheck()
 
 LLK_MouseMove()
 {
-	global 
+	global
 	If (A_TickCount < last_hover + 25) && (last_hover != "") ;only execute function in intervals (script is running full-speed due to batchlines -1)
 		Return
 	mousemove := 1
 	last_hover := A_TickCount
-	MouseGetPos,,, hwnd_win_hover, hwnd_control_hover, 2
+	MouseGetPos, xHover, yHover, hwnd_win_hover, hwnd_control_hover, 2
 	hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
 	hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
 	If (hwnd_win_hover = hwnd_legion_help)
 		Gui, legion_help: Destroy
-	
 	If (hwnd_win_hover = hwnd_legion_treemap2) && !WinExist("ahk_id " hwnd_legion_treemap) ;magnify passive tree on hover
 	{
 		LLK_Overlay("legion_treemap", "show")
@@ -1999,6 +2029,51 @@ LLK_Rightclick()
 	KeyWait, RButton
 	click := 1
 }
+
+/* ; alternative to Windows clipping tool - scrapped for now (freeze-frame required for some screen-caps)
+LLK_ScreenCap()
+{
+	global width_native, height_native, click, hwnd_screencap, hwnd_screencap_frame, screencap_x1, screencap_y1, screencap_x2, screencap_y2
+	valid_screencap := 0
+	If (A_Gui = "")
+	{
+		Gui, screencap: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_screencap
+		Gui, screencap: Margin, 0, 0
+		Gui, screencap: Color, White
+		WinSet, Trans, 75
+		Gui, screencap: Font, % "cWhite s"fSize0 + fSize_offset_itemchecker, Fontin SmallCaps
+		Gui, screencap: Add, Picture, % "BackgroundTrans gLLK_ScreenCap w"width_native " h"height_native, img\GUI\square_blank.png
+		Gui, screencap: Show, Maximize
+	}
+	Else
+	{
+		If (click = 1)
+			MouseGetPos, screencap_x1, screencap_y1
+		Else MouseGetPos, screencap_x2, screencap_y2
+		
+		If (screencap_x1 < screencap_x2) && (screencap_y1 < screencap_y2)
+		{
+			Loop 4
+			{
+				loop := A_Index - 1
+				screencap_x1_copy := screencap_x1 - loop, screencap_y1_copy := screencap_y1 - loop, screencap_x2_copy := screencap_x2 + loop, screencap_y2_copy := screencap_y2 + loop
+				Gui, screencap_frame%A_Index%: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_screencap_frame
+				Gui, screencap_frame%A_Index%: Margin, 0, 0
+				Gui, screencap_frame%A_Index%: Color, Black
+				WinSet, Transparent, 255
+				WinSet, TransColor, Black
+				Gui, screencap_frame%A_Index%: Show, % "NA x"screencap_x1_copy " y"screencap_y1_copy " w"screencap_x2_copy - screencap_x1_copy " h"screencap_y2_copy - screencap_y1_copy
+			}
+		}
+		Else
+		{
+			Gui, screencap_frame: Destroy
+			hwnd_screencap_frame := ""
+			Return
+		}
+	}
+}
+*/
 
 LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
 {
