@@ -1483,7 +1483,6 @@ If (enable_alarm != 0) && (alarm_timestamp != "")
 Return
 
 MainLoop:
-ToolTip, % hwnd_pob_crop, 0, 0, 1
 If !WinActive("ahk_group poe_ahk_window")
 {
 	inactive_counter += 1
