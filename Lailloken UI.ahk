@@ -515,8 +515,8 @@ Reload
 ExitApp
 Return
 
-:?:.llk::
-LLK_HotstringClip(A_ThisHotkey, 1)
+::.llk::
+GoSub, Settings_menu ;LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
 :?:.wiki::
@@ -1911,6 +1911,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 		GoSub, Bestiary_search
 	If (hotstring = "synd")
 		GoSub, Betrayal_search
+	/*
 	If (hotstring = "llk")
 	{
 		If (hotstringboard = "r")
@@ -1920,6 +1921,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 		}
 		GoSub, Settings_menu
 	}
+	*/
 	If (hotstring = "lab")
 		GoSub, Lab_info
 	If (hotstring = "wiki")
