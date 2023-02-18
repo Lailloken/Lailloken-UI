@@ -81,8 +81,8 @@ I will not be taking direct code input or optimizations from people because lear
 | ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png) | ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png) ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png) |
 <br>
 
-### [Lab-layout overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Layout-Overlay)
-![image](https://user-images.githubusercontent.com/61888437/169351630-d4cbb24f-e377-45c7-8a81-a9e0615a3fa0.png)  
+### [Lab-tracker Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Tracker-Overlay): quick-access overlay and tracker for casual lab-runs
+![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png)  
 <br>
 
 ### [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator): in-client calculator for recombinators  

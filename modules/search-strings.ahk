@@ -252,8 +252,8 @@ use_case := (SubStr(use_case, 0) = ",") ? SubStr(use_case, 1, -1) : use_case
 IniRead, primary_string, ini\stash search.ini, % GuiControl_copy, string 1, % A_Space
 IniRead, secondary_string, ini\stash search.ini, % GuiControl_copy, string 2, % A_Space
 secondary_string := (secondary_string = "") ? "" : "`nstring 2: " secondary_string
-Gui, stash_search_preview_list: Add, Text, Section BackgroundTrans, % "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
-Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos%
+Gui, stash_search_preview_list: Add, Text, % "Section BackgroundTrans w"font_width*35, % "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
+Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos% AutoSize
 KeyWait, LButton
 Gui, stash_search_preview_list: Destroy
 Return

@@ -1,62 +1,150 @@
 ﻿Lab_info:
-If (A_Gui = "context_menu") || InStr(A_ThisHotkey, ":")
+If (A_Gui = "context_menu") || (A_GuiControl = "lab_button")
 {
-	lab_mode := 1
+	lab_mode := 0
+	lab_mismatch := 1 ;workaround to fix bugs introduced by refreshing lab-progress while import is running
+	If (A_GuiControl = "lab_button")
+	{
+		MouseGetPos, lab_mouseX, lab_mouseY
+		ToolTip, release TAB, % lab_mouseX * 1.025, % lab_mouseY, 2
+		KeyWait, TAB
+		LLK_Overlay("lab_layout", "hide")
+		ToolTip,,,, 2
+	}
 	Run, https://www.poelab.com
-	Return
-}
-If (A_GuiControl = "Lab_marker")
-{
-	Gui, lab_marker: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lab_marker
-	Gui, lab_marker: Color, White
-	WinSet, Transparent, 100
-	MouseGetPos, mouseXpos, mouseYpos
-	Gui, lab_marker: Show, % "NA w"poe_width * 3/160 * 212/235 " h"poe_width * 3/160 * 212/235 " x"mouseXpos - (poe_width * 3/160 * 212/235)/2 " y"mouseYpos - (poe_width * 3/160 * 212/235)/2
-	LLK_Overlay("lab_marker", "show")
-	WinActivate, ahk_group poe_window
-	Return
-}
-If (A_ThisHotkey = "Tab")
-{
-	If (hwnd_lab_layout = "")
+	WinWaitNotActive, ahk_group poe_window
+	Clipboard := ""
+	pLab := ""
+	While !WinActive("ahk_group poe_window")
 	{
-		pLab := Gdip_CreateBitmapFromClipboard()
-		If (pLab < 0)
+		sleep, 250
+		If !lab_mode && (!pLab || pLab < 0)
+			pLab := Gdip_CreateBitmapFromClipboard()
+		If !lab_mode && (pLab > 0)
 		{
-			LLK_ToolTip("no image-data in clipboard", 1.5, xScreenOffSet + poe_width/2, yScreenOffSet + poe_height/2)
-			KeyWait, Tab
-			Return
+			LLK_ToolTip("img-import successful", 1.5)
+			Clipboard := ""
+			FileDelete, img\lab compass.json
+			lab_mode := 1
 		}
-		pLab_source := Gdip_CloneBitmapArea(pLab, 257, 42, 1175, 521)
-		wLab_source := 1175
-		hLab_source := 521
-		hbmLab_source := CreateDIBSection(wLab_source, hLab_source)
-		hdcLab_source := CreateCompatibleDC()
-		obmLab_source := SelectObject(hdcLab_source, hbmLab_source)
-		gLab_source := Gdip_GraphicsFromHDC(hdcLab_source)
-		Gdip_SetInterpolationMode(gLab_source, 0)
-		Gdip_DrawImage(gLab_source, pLab_source, 0, 0, wLab_source, hLab_source, 0, 0, wLab_source, hLab_source, 1)
-		Gui, lab_layout: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lab_layout, Lailloken UI: lab-info
-		Gui, lab_layout: Color, Black
-		Gui, lab_layout: Margin, 0, 0
-		Gui, lab_layout: Font, s%fSize0% cWhite, Fontin SmallCaps
-		Gui, lab_layout: Add, Picture, % "BackgroundTrans vLab_marker gLab_info w" poe_width * 53/128 " h-1", HBitmap:*%hbmLab_source%
-		Gui, lab_layout: Show, Hide
-		WinGetPos,,,, hWin
-		Gui, lab_layout: Show, % "NA x"xScreenOffSet + poe_width * 75/256 " y"yScreenOffSet + poe_height - hWin
-		LLK_Overlay("lab_layout", "show")
-		SelectObject(hdcLab_source, obmLab_source)
-		DeleteObject(hbmLab_source)
-		DeleteDC(hdcLab_source)
-		Gdip_DeleteGraphics(gLab_source)
-		Gdip_DisposeImage(pLab_source)
-		Gdip_DisposeImage(pLab)
+		If (lab_mode = 1) && InStr(Clipboard, "www.poelab.com") && InStr(Clipboard, ".json")
+		{
+			lab_mode := 2
+			lab_json_raw := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+			lab_json_raw.Open("GET", Clipboard, true)
+			lab_json_raw.Send()
+			lab_json_raw.WaitForResponse()
+			FileAppend, % lab_json_raw.ResponseText, img\lab compass.json
+			lab_json_raw := ""
+		}
+		If (lab_mode = 2)
+		{
+			LLK_ToolTip("compass-import successful", 1.5)
+			Clipboard := ""
+			Break
+		}
 	}
-	Else
+	WinWaitActive, ahk_group poe_window
+	If !lab_mode
 	{
-		LLK_Overlay("lab_layout", "toggle")
-		LLK_Overlay("lab_marker", "toggle")
+		LLK_ToolTip("lab-import aborted", 2)
+		Gdip_DisposeImage(pLab)
+		lab_mismatch := 0
+		Return
 	}
-	KeyWait, Tab
+	pLab_source := Gdip_CloneBitmapArea(pLab, 257, 42, 1175, 556)
+	Gdip_DisposeImage(pLab)
+	pLab := Gdip_ResizeBitmap(pLab_source, poe_width * 53/128, poe_width, 1)
+	Gdip_SaveBitmapToFile(pLab, "img\lab.jpg", 100)
+	Gdip_DisposeImage(pLab_source)
+	Gdip_DisposeImage(pLab)
 }
+
+If (A_ThisHotkey = "Tab") && (A_GuiControl != "lab_button")
+{
+	lab_mismatch := 0
+	If (lab_mode = 2) && IsObject(lab_json) && InStr(current_location, "labyrinth_") && !InStr(current_location, "airlock")
+	{
+		Switch lab_json.difficulty
+		{
+			Case "uber":
+				If (current_area_level < 75)
+					lab_mismatch := 1
+			Case "merciless":
+				If (current_area_level != 68)
+					lab_mismatch := 1
+			Case "cruel":
+				If (current_area_level != 55)
+					lab_mismatch := 1
+			Case "normal":
+				If (current_area_level != 33)
+					lab_mismatch := 1
+		}
+	}
+	If lab_mismatch ;clear squares and text-labels BEFORE displaying overlay in order to prevent flashing
+	{
+		Loop, % lab_json.rooms.Count()
+		{
+			GuiControl, lab_layout:, lab_room%A_Index%, img\GUI\square_blank.png
+			GuiControl, lab_layout: text, lab_text%A_Index%,
+		}
+	}
+	LLK_Overlay("lab_layout", "show") ;show overlay BEFORE displaying tooltip
+	If lab_mismatch
+		ToolTip, layout doesn't match the lab you're currently in!, % xScreenOffSet + poe_width * 75/256, % yScreenOffSet + poe_height - hLab + 46*lab_scaling, 2 ;show tooltip AFTER overlay
+	KeyWait, Tab
+	LLK_Overlay("lab_layout", "hide")
+	ToolTip,,,, 2
+	Return
+}
+
+lab_scaling := (poe_width * 53/128) / 1175
+lab_xOffset := 37*lab_scaling, lab_yOffset := 73*lab_scaling
+Gui, lab_layout: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_lab_layout
+Gui, lab_layout: Color, Black
+Gui, lab_layout: Margin, 0, 0
+Gui, lab_layout: Font, s%fSize0% cWhite, Fontin SmallCaps
+
+If FileExist("img\lab.jpg")
+{
+	Gui, lab_layout: Add, Picture, % "BackgroundTrans", img\lab.jpg
+	lab_mode := 1
+}
+Else
+{
+	Gui, lab_layout: Add, Text, % "BackgroundTrans Center 0x200 w"poe_width * 53/128 " h"556*lab_scaling, couldn't find lab-layout image
+	FileDelete, img\lab compass.json
+}
+
+If FileExist("img\lab compass.json")
+{
+	FileRead, lab_json, img\lab compass.json
+	lab_json := Json.Load(lab_json)
+	Loop, % lab_json.rooms.Count()
+	{
+		Gui, lab_layout: Add, Picture, % "BackgroundTrans vlab_room"A_Index " w"poe_width * 3/160 * 212/235 " h"poe_width * 3/160 * 212/235 " x"lab_xOffset + lab_json.rooms[A_Index].x * lab_scaling - (poe_width * 3/160 * 212/235)/2 " y"lab_yOffset + lab_json.rooms[A_Index].y * lab_scaling - (poe_width * 3/160 * 212/235)/2, img\GUI\square_blank.png
+		Gui, lab_layout: Add, Text, % "BackgroundTrans Center vlab_text"A_Index " xp-"(poe_width * 3/160 * 212/235)/2 " yp-"font_height*0.85 " w"(poe_width * 3/160 * 212/235)*2,
+	}
+	lab_mode := 2
+}
+Else lab_json := ""
+	
+Gui, lab_layout: Add, Picture, % "x-1 y-1 BackgroundTrans Border vlab_button gLab_info h"46*lab_scaling " w-1", % !lab_mode ? "img\GUI\lab3.png" : (lab_mode = 1) ? "img\GUI\lab2.png" : "img\GUI\lab1.png"
+Gui, lab_layout: Show, x10000 y10000
+WinGetPos,,,, hLab
+Gui, lab_layout: Show, % "Hide x"xScreenOffSet + poe_width * 75/256 " y"yScreenOffSet + poe_height - hLab
+;LLK_Overlay("lab_layout", "hide")
+SelectObject(hdcLab_source, obmLab_source)
+DeleteObject(hbmLab_source)
+DllCall("DeleteObject", "ptr", hbmLab_source)
+DeleteDC(hdcLab_source)
+Gdip_DeleteGraphics(gLab_source)
+Gdip_DisposeImage(pLab_source)
+Gdip_DisposeImage(pLab)
+lab_checkpoint := 0
+lab_mismatch := 0
+lab_current_id := ""
+lab_previous_verbose := ""
+lab_previous := ""
+pLab := ""
 Return
