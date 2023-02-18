@@ -169,6 +169,25 @@ If FileExist(poe_log_file)
 {
 	poe_log := FileOpen(poe_log_file, "r")
 	poe_log_content := poe_log.Read()
+	Loop, Parse, poe_log_content, `n, `r
+	{
+		If InStr(A_Loopfield, "generating level")
+		{
+			current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
+			current_location := SubStr(current_location, 1, InStr(current_location, """") -1) ;save PoE-internal location name in var
+			in_lab := InStr(current_location, "labyrinth_") ? 1 : 0
+			
+			current_area_tier := SubStr(A_LoopField, InStr(A_LoopField, "level ") + 6, InStr(A_LoopField, " area """) - InStr(A_LoopField, "level ") - 6) - 67
+			current_area_level := current_area_tier + 67
+			If (current_area_tier > 0)
+				current_area_tier := (current_area_tier < 10) ? 0 current_area_tier : current_area_tier ;save map-tier in var
+		}
+		If in_lab && InStr(A_LoopField, ": you have entered ")
+		{
+			lab_location_verbose := SubStr(A_LoopField, InStr(A_LoopField, "you have entered") + 17, -1)
+			lab_location := current_location
+		}
+	}
 }
 Else poe_log_file := 0
 
@@ -277,6 +296,7 @@ GoSub, Resolution_check
 
 GoSub, GUI
 GoSub, Recombinators
+GoSub, Lab_info
 
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
@@ -489,10 +509,6 @@ Return
 
 #Include *i modules\hotkeys.ahk
 
-::.lab::
-LLK_HotstringClip(A_ThisHotkey, 1)
-Return
-
 ::r.llk::
 SendInput, {ESC}
 Reload
@@ -535,7 +551,7 @@ If WinExist("ahk_id " hwnd_delve_grid)
 	}
 	Return
 }
-If (lab_mode = 1)
+If in_lab
 {
 	start := A_TickCount
 	While GetKeyState("Tab", "P")
@@ -543,7 +559,6 @@ If (lab_mode = 1)
 		If (A_TickCount >= start + 200)
 		{
 			GoSub, Lab_info
-			KeyWait, Tab
 			Return
 		}
 	}
@@ -1151,12 +1166,13 @@ pixelsearch_variation := 0
 stash_search_usecases := "bestiarydex,gwennen,stash,vendor"
 stash_search_trigger := 0
 scrollboards := 0
+lab_mode := 0, lab_checkpoint := 0
 Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
 imagechecks_list := "bestiary,bestiarydex,gwennen,skilltree,stash,vendor,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
 imagechecks_list_copy := imagechecks_list ;will be sorted alphabetically for screen-checks section in the menu
 Sort, imagechecks_list_copy, D`,
-guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|lab_layout|lab_marker|betrayal_search|betrayal_info_members|"
+guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 guilist .= "settings_menu|"
 buggy_resolutions := "768,1024,1050"
@@ -1271,9 +1287,12 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		
 		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
 		current_location := SubStr(current_location, 1, InStr(current_location, """") -1) ;save PoE-internal location name in var
+		in_lab := InStr(current_location, "labyrinth_") ? 1 : 0
 		
 		current_area_tier := SubStr(A_LoopField, InStr(A_LoopField, "level ") + 6, InStr(A_LoopField, " area """) - InStr(A_LoopField, "level ") - 6) - 67
-		current_area_tier := (current_area_tier < 10) ? 0 current_area_tier : current_area_tier ;save map-tier in var
+		current_area_level := current_area_tier + 67
+		If (current_area_tier > 0)
+			current_area_tier := (current_area_tier < 10) ? 0 current_area_tier : current_area_tier ;save map-tier in var
 		
 		current_seed := SubStr(A_LoopField, InStr(A_LoopField, "seed ") + 5)
 		current_seed := StrReplace(current_seed, "`n") ;save map seed in var
@@ -1318,6 +1337,25 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			}
 		}
 	}
+	
+	If !in_lab && (lab_location_verbose != "")
+	{
+		lab_location_verbose := ""
+		lab_location := ""
+		lab_current_ID := ""
+		lab_checkpoint := 0
+		Loop, % lab_json.rooms.Count()
+		{
+			GuiControl, lab_layout:, lab_room%A_Index%, img\GUI\square_blank.png
+			GuiControl, lab_layout: text, lab_text%A_Index%,
+		}
+	}
+	If in_lab && InStr(A_LoopField, ": you have entered ")
+	{
+		lab_location_verbose := SubStr(A_LoopField, InStr(A_LoopField, "you have entered") + 17, -1)
+		lab_location := current_location
+	}
+	
 	If !map_tracker_paused && enable_map_tracker
 	{
 		If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start = 0)
@@ -1374,6 +1412,43 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 	{
 		If InStr(A_Loopfield, "is now level") && InStr(A_LoopField, "/") && InStr(A_Loopfield, gear_tracker_char)
 			gear_tracker_characters[gear_tracker_char] := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ") + 13)
+	}
+}
+
+If !lab_mismatch && in_lab && lab_location_verbose && IsObject(lab_json) && (lab_location != lab_previous)
+{
+	Loop, % lab_json.rooms.Count()
+		GuiControl, lab_layout: text, lab_text%A_Index%,
+	
+	Loop, % lab_json.rooms.Count()
+	{
+		If (A_Index <= lab_checkpoint)
+			continue
+		lab_loop := A_Index
+		If (lab_json.rooms[A_Index].name = lab_location_verbose) && (SubStr(current_location, StrLen(current_location) - StrLen(lab_json.rooms[A_Index].areacode) + 1) = lab_json.rooms[A_Index].areacode || lab_json.rooms[A_Index].areacode = "")
+		{
+			If lab_current_ID
+				GuiControl, lab_layout:, lab_room%lab_current_ID%, img\GUI\square_green_trans.png
+			lab_previous_verbose := lab_location_verbose
+			lab_previous := lab_location
+			lab_current_ID := A_Index
+			GuiControl, lab_layout:, lab_room%A_Index%, img\GUI\square_fuchsia_trans.png
+			If (lab_location_verbose = "aspirant's trial")
+			{
+				lab_checkpoint := A_Index
+				Break
+			}
+			For dir, id in lab_json.rooms[lab_loop].exits
+			{
+				If (lab_json.rooms[lab_loop].exits.Count() < 2)
+					Break
+				If (dir = "C")
+					continue
+				lab_parse := SubStr(lab_json.rooms[id].name, 1, 2) " " SubStr(lab_json.rooms[id].name, InStr(lab_json.rooms[id].name, " ") + 1, 2) ""
+				GuiControl, lab_layout: text, lab_text%id%, % lab_parse
+			}
+			Break
+		}
 	}
 }
 
@@ -1826,7 +1901,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 	SendInput, ^{a}
 	sleep, 100
 	SendInput, ^{c}
-	ClipWait, 1
+	ClipWait, 0.05
 
 	If (mode = 1)
 		SendInput, {ESC}
@@ -1846,19 +1921,7 @@ LLK_HotstringClip(hotstring, mode := 0)
 		GoSub, Settings_menu
 	}
 	If (hotstring = "lab")
-	{
-		If (lab_mode != 1)
-			GoSub, Lab_info
-		Else
-		{
-			lab_mode := 0
-			Gui, lab_layout: Destroy
-			Gui, lab_marker: Destroy
-			DllCall("DeleteObject", "ptr", hbmLab_source)
-			hwnd_lab_layout := ""
-			hwnd_lab_marker := ""
-		}
-	}
+		GoSub, Lab_info
 	If (hotstring = "wiki")
 	{
 		hotstringboard := StrReplace(hotstringboard, A_Space, "+")
