@@ -9,13 +9,6 @@ mod_pool_count[5] := 0 "," 0.5 "," 0.5
 mod_pool_count[6] := 0 "," 0.3 "," 0.7
 Return
 
-Recombinator_windowGuiClose:
-recomb_item1 := ""
-Gui, recombinator_window: Destroy
-hwnd_recombinator_window := ""
-WinActivate, ahk_group poe_window
-Return
-
 Recombinators_add:
 recomb_regular := 1
 item_name := ""
@@ -293,7 +286,7 @@ Loop 3
 {
 	If InStr(recomb_item1_prefix%A_Index%, ",") || InStr(recomb_item2_prefix%A_Index%, ",") || InStr(recomb_item1_suffix%A_Index%, ",") || InStr(recomb_item2_suffix%A_Index%, ",")
 	{
-		LLK_ToolTip("don't use commas in text fields!")
+		LLK_ToolTip("don't use commas in text fields")
 		recomb_apply := 0
 		Return
 	}
@@ -322,7 +315,7 @@ Return
 Recombinators_calc:
 If (refresh_needed = 1)
 {
-	LLK_ToolTip("refresh the window first!")
+	LLK_ToolTip("refresh the window first")
 	GuiControl, , %A_GuiControl%, 0
 	Return
 }
@@ -416,3 +409,12 @@ Recombinators_input:
 refresh_needed := 1
 GuiControl, Text, recomb_success, refresh
 Return
+
+recombinator_windowGuiClose()
+{
+	global
+	recomb_item1 := ""
+	Gui, recombinator_window: Destroy
+	hwnd_recombinator_window := ""
+	WinActivate, ahk_group poe_window
+}

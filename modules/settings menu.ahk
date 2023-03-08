@@ -17,6 +17,11 @@ While GetKeyState("LButton", "P") && (A_Gui = "LLK_panel")
 		Return
 	}
 }
+If WinExist("ahk_id " hwnd_cheatsheets_menu) && (A_Gui = "LLK_panel" || InStr(A_ThisHotkey, ".llk"))
+{
+	LLK_ToolTip("close cheat-sheet configuration first", 2)
+	Return
+}
 If (A_GuiControl = "LLK_panel") && (click = 2)
 {
 	KeyWait, RButton
@@ -27,7 +32,7 @@ If WinExist("ahk_id " hwnd_settings_menu)
 	WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
 If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 {
-	GoSub, Settings_menuGuiClose
+	settings_menuGuiClose()
 	WinActivate, ahk_group poe_window
 	Return
 }
@@ -35,7 +40,8 @@ settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_
 If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 	settings_style := "cWhite"
 alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : "cWhite"
-betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image")) ? "cAqua" : "cWhite"
+betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image") && !InStr(A_GuiControl, "cheatsheets")) ? "cAqua" : "cWhite"
+cheatsheets_style := InStr(A_GuiControl, "cheatsheets") ? "cAqua" : "cWhite"
 clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
 delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
 flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
@@ -45,7 +51,7 @@ map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker"
 map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_info") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
-pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) ? "cAqua" : "cWhite"
+pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) && !InStr(A_GuiControl, "cheat") ? "cAqua" : "cWhite"
 stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") ||(new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
@@ -91,6 +97,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_betrayal%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %cheatsheets_style% gSettings_menu vsettings_section_cheatsheets HWNDhwnd_settings_cheatsheets, % "cheat-sheets"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_cheatsheets%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %clone_frames_style% gSettings_menu HWNDhwnd_settings_clone_frames, % "clone-frames"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_clone_frames%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
@@ -181,8 +191,10 @@ If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")) 
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm")
 	GoSub, Settings_menu_alarm
-Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image")
+Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image") && !InStr(GuiControl_copy, "cheatsheets")
 	GoSub, Settings_menu_betrayal
+Else If InStr(GuiControl_copy, "cheatsheets")
+	GoSub, Settings_menu_cheatsheets
 Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
 	GoSub, Settings_menu_clone_frames
 Else If InStr(GuiControl_copy, "delve")
@@ -228,8 +240,8 @@ If !InStr(GuiControl_copy, "betrayal")
 Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
 
 If ((xsettings_menu != "") && (ysettings_menu != ""))
-	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu%
-Else Gui, settings_menu: Show, Hide
+	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu% AutoSize
+Else Gui, settings_menu: Show, Hide AutoSize
 
 LLK_Overlay("settings_menu", "show", 1)
 If pending_ultrawide
@@ -305,11 +317,80 @@ GoSub, Betrayal_search
 GoSub, GUI_betrayal_prioview
 Return
 
+Settings_menu_cheatsheets:
+settings_menu_section := "cheat sheets"
+GoSub, Init_cheatsheets
+Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp x+"font_width*4, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans vfeatures_enable_cheatsheets gcheatsheets checked"features_enable_cheatsheets " y+"font_height, enable cheat-sheet toolkit
+If !features_enable_cheatsheets
+	Return
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "omni-key modifier: "
+Gui, settings_menu: Add, Radio, % "ys x+0 hp vcheatsheets_omnikey_alt gCheatsheets checked"cheatsheets_omnikey_alt, alt
+Gui, settings_menu: Add, Radio, % "ys x+0 hp vcheatsheets_omnikey_ctrl gCheatsheets checked"cheatsheets_omnikey_ctrl, ctrl
+Gui, settings_menu: Add, Radio, % "ys x+0 hp vcheatsheets_omnikey_shift gCheatsheets checked"cheatsheets_omnikey_shift, % "shift"
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vcheatsheets_modifier_help hp w-1", img\GUI\help.png
+
+If cheatsheets_advanced_count
+{
+	Gui, settings_menu: Font, bold underline
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, % "customization: advanced sheets"
+	Gui, settings_menu: Add, Picture, % "ys x+"font_width//2 " BackgroundTrans gSettings_menu_help vcheatsheets_colors_help hp w-1", img\GUI\help.png
+	Gui, settings_menu: Font, norm
+
+	Loop 4
+	{
+		style := (A_Index = 1) ? "xs Section" : "ys x+"font_width//2
+		Gui, settings_menu: Add, Text, % style " Center Border BackgroundBlack vcheatsheets_color_picker"A_Index " gCheatsheets c"cheatsheets_panel_colors[A_Index], % " "A_Index ": sample "
+	}
+
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "font size: "
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans Center Border gCheatsheets vcheatsheets_fontsize_minus", % " – "
+	Gui, settings_menu: Add, Text, % "ys x+"font_width//4 " wp BackgroundTrans Center Border gCheatsheets vcheatsheets_fontsize_reset", % "r"
+	Gui, settings_menu: Add, Text, % "ys x+"font_width//4 " wp BackgroundTrans Center Border gCheatsheets vcheatsheets_fontsize_plus", % "+"
+}
+
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, % "create new sheet:"
+Gui, settings_menu: Add, Picture, % "ys x+"font_width//2 " hp w-1 BackgroundTrans gSettings_menu_help vCheatsheets_type_help", img\GUI\help.png
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "name: "
+Gui, settings_menu: Font, % "s"fsize0 - 4
+Gui, settings_menu: Add, Edit, % "ys x+0 w"font_width*10 " cBlack vCheatsheets_new_name gCheatsheets HWNDhwnd_cheatsheets_new_name BackgroundTrans",
+Gui, settings_menu: Font, % "s"fsize0
+Gui, settings_menu: Add, Text, % "ys x+"font_width " BackgroundTrans", % "type: "
+Gui, settings_menu: Font, % "s"fsize0 - 4
+Gui, settings_menu: Add, DDL, % "ys hp x+0 w"font_width*8 " r10 cBlack BackgroundTrans vcheatsheets_type", % "images||app|advanced|"
+Gui, settings_menu: Font, % "s"fsize0
+Gui, settings_menu: Add, Text, % "ys hp Border 0x200 gCheatsheets vcheatsheets_new_save BackgroundTrans", % " add "
+
+Loop, % cheatsheets_list.Length()
+{
+	If (A_Index = 1)
+	{
+		Gui, settings_menu: Font, bold underline
+		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, % "list of available cheat-sheets:"
+		Gui, settings_menu: Font, norm
+		Gui, settings_menu: Add, Picture, % "ys x+"font_width//2 " BackgroundTrans gSettings_menu_help vcheatsheets_list_help hp w-1", img\GUI\help.png
+	}
+	cheatsheets_parse := StrReplace(cheatsheets_list[A_Index], " ", "_")
+	If cheatsheets_enable_%cheatsheets_parse% is not number
+		IniRead, cheatsheets_enable_%cheatsheets_parse%, % "cheat-sheets\"cheatsheets_list[A_Index] "\info.ini", general, enable, 1
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gCheatsheets vcheatsheets_" cheatsheets_parse "_image_test y+"fSize0*0.4, % " test "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gCheatsheets vcheatsheets_" cheatsheets_parse "_image_calibrate", % " calibrate "
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans gCheatsheets Checked" cheatsheets_enable_%cheatsheets_parse% " vcheatsheets_enable_" cheatsheets_parse, % "enable: "
+	Gui, settings_menu: Font, underline
+	cheatsheet_color := (!FileExist("cheat-sheets\"cheatsheets_list[A_Index] "\[check].*") || !cheatsheets_searchcoords_%cheatsheets_parse%) && (cheatsheets_enable_%cheatsheets_parse% = 1) ? "Red" : "White"
+	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans c"cheatsheet_color " gCheatsheets vcheatsheets_entry_"cheatsheets_parse, % cheatsheets_list[A_Index]
+	Gui, settings_menu: Font, norm
+}
+Return
+
 Settings_menu_clone_frames:
 settings_menu_section := "clone frames"
 new_clone_menu_closed := 0
 clone_frames_enabled := ""
-IniRead, clone_frames_list, ini\clone frames.ini
+IniRead, clone_frames_list, ini\clone frames.ini,,, % A_Space
 Sort, clone_frames_list, D`n
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
 If (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR") && (enable_pixelchecks = 1)
@@ -442,15 +523,23 @@ Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help 
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans vEnable_caps_toggling gApply_settings_general Checked"enable_caps_toggling, % "enable capslock-toggling"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vCaps_toggling_help hp w-1", img\GUI\help.png
+
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "script write-permissions test:"
+Gui, settings_menu: Add, Picture, % "ys x+"font_width//2 " BackgroundTrans gSettings_menu_help vwrite_test_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gLLK_WriteTest", % " start test "
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vAdminStart gLLK_WriteTest", % " restart script as admin "
+
 Return
 
 Settings_menu_help:
 MouseGetPos, mouseXpos, mouseYpos
 Gui, settings_menu_help: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_settings_menu_help
 Gui, settings_menu_help: Color, Black
-Gui, settings_menu_help: Margin, 12, 4
+Gui, settings_menu_help: Margin, % font_height//2, % font_width//2
 Gui, settings_menu_help: Font, s%fSize1% cWhite, Fontin SmallCaps
-
+help_image := ""
 ;//////////////////////////////////////////////////////////////////////////////
 ;//////////////// Betrayal
 
@@ -460,12 +549,10 @@ text =
 (
 if enabled, the script will read the screen underneath the mouse-cursor to check for syndicate-member cards, then display the appropriate cheat-sheet.
 
-this requires correctly setting up the 'betrayal' image-check in the settings menu, and the following:
+this requires correctly setting up the <betrayal> image-check in the settings menu, and the following:
 - each member's card has to be screen-capped once (refer to wiki for instructions)
 - each of the four divisions has to be screen-capped once (optional)
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 ;//////////////////////////////////////////////////////////////////////////////
@@ -479,8 +566,6 @@ if enabled, the script will read the screen underneath the grid-map overlay and 
 	
 this requires calibrating the scanner by screen-capping parts of the delve-map (refer to wiki for instructions)
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 ;//////////////////////////////////////////////////////////////////////////////
@@ -499,25 +584,21 @@ these screenshots can be overlaid by holding the omni-key while viewing the in-g
 
 they are accessed in alphabetical order, so make sure to name them accordingly.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "leveling_guide_skilltree_cap_help")
 {
 text =
 (
-cropping:
+cropping
 –> left-click the preview image to set the top-left corner of the cropped area
 –> right-click the preview image to set the bottom-right corner of the cropped area
 
-captions:
+captions
 –> enter a caption or choose an entry from the drop-down list to replace an existing screenshot (right-click an entry to delete it)
-–> the [XX]-tag at the beginning is merely for sorting and will not be displayed in the actual caption of the overlay
+–> the xx-tag at the beginning is merely for sorting and will not be displayed in the actual caption of the overlay
 –> if you don't want to add a caption, just leave the sample text as it is and press enter
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "leveling_guide_pob_help")
@@ -530,8 +611,6 @@ after screen-capping an area, a setup-window with a preview will open. if desire
 
 press enter to save the screen-cap, or esc to abort.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "gear_tracker_help")
@@ -544,11 +623,272 @@ items that are ready to be equipped are highlighted green. by default, the list 
 
 clicking an item on the list will highlight it in game (stash and vendors). right-clicking will remove it from the list.
 
-you can click the 'select character' label to highlight all green items at once.
+you can click the <select character> label to highlight all green items at once.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
+
+;//////////////////////////////////////////////////////////////////////////////
+;//////////////// cheat-sheets
+
+If (A_GuiControl = "cheatsheets_list_help")
+{
+text =
+(
+test && calibrate
+–> each sheet has a "condition," i.e. a certain ui-element has to be on screen
+–> if that condition is fulfilled while pressing the key-combination, a specific sheet will be activated
+–> click <calibrate> to specify that condition by screen-capping it
+–> click <test> to see if the screen-capped image works correctly
+
+listed entries
+–> cheat-sheets can be individually disabled
+–> long-click the underlined names to display information about a sheet.
+–> right-click the underlined names to open a context-menu with additional options.
+–> entries are highlighted red as long as they have not returned a positive test yet
+)
+}
+
+If (A_GuiControl = "cheatsheets_colors_help")
+{
+text =
+(
+explanation
+–> "advanced" cheat-sheets use text-panels that can be individually colored for highlighting/ranking purposes
+
+customization
+–> copy a hex rgb-code to clipboard and click a button below to apply that color
+–> right-click a button below to reset its color to default
+
+applying colors to text-panels
+–> while hovering over a text-panel, press the corresponding number-key to apply a given font-color
+–> pressing space while hovering over a panel will reset the font-color to white
+)
+}
+
+If (A_GuiControl = "cheatsheets_type_help")
+{
+text =
+(
+instructions
+–> to set up a new sheet: enter a name, choose a type, then click <add>
+
+type: images
+–> cheat-sheet with one or more images
+–> images can be segmented, or switched between
+
+type: app
+–> uses a specific app-window as a cheat-sheet
+
+type: advanced
+–> text-panels for individual objects that will be detected on-screen
+–> closer to an in-game tooltip rather than traditional cheat-sheet
+)
+}
+
+If (A_GuiControl = "cheatsheets_snip_help")
+{
+text =
+(
+instructions
+–> move and resize this widget so the colored area covers the screen-area you want to capture, then click <snip> again
+–> use the arrow keys to move the widget by one pixel
+–> use alt + arrow keys to resize the widget by one pixel
+–> hold ctrl to use 10-pixel-steps instead
+
+other overlays won't block the snip
+–> other llk ui-elements will be hidden the moment you click <snip>
+)
+}
+
+If (A_GuiControl = "cheatsheets_modifier_help")
+{
+text =
+(
+determines which key needs to be held down in order to trigger cheat-sheets via the omni-key
+–> the modifier is not part of the "hold" behavior if a sheet is set up that way
+–> so it can be released once the cheat-sheet was activated
+–> choose a modifier that you never (or very rarely) press in combination with the omni-key during regular play
+)
+}
+
+If (A_GuiControl = "cheatsheets_apptitle_help")
+{
+text =
+(
+window title
+–> (parts of) the text that is displayed when hovering over a window's taskbar icon
+–> the title is case-sensitive, so make sure to copy it 1:1
+–> pob-example: &Path of &Building
+–> websites are only detectable if they are in the active tab in a browser-window
+
+test button
+–> long-clicking the button will switch to the window with the specified title
+–> use this to check if the title is correct
+)
+}
+
+If (A_GuiControl = "cheatsheets_applaunch_help")
+{
+text =
+(
+this is entirely optional
+–> if the specified window doesn't exist when the sheet is activated, the script will launch the app instead
+–> click <pick .exe/shortcut> to choose which file to launch
+–> right-click the button to remove the file
+–> click <test> to check if it launches correctly
+
+launching websites
+–> it's recommended to save a website as a "browser app" and pick its shortcut
+–> the shortcut can be deleted after importing because the script will make a copy and save it internally
+)
+}
+
+If (A_GuiControl = "cheatsheets_screencheck_help")
+{
+text =
+(
+explanation
+–> determines how the screen will be checked to find the specific ui-element.
+
+static (default)
+–> only the screen-area that previously returned a positive test will be checked
+
+dynamic
+–> a larger area around a previously-positive screen-area will be checked
+–> a bit slower, so only use it if necessary (e.g. if a ui can be mouse-dragged)
+)
+}
+
+If (A_GuiControl = "cheatsheets_activation_help")
+{
+text =
+(
+explanation
+–> determines how the overlay and omni-key behave
+
+toggle
+–> overlay: stays on screen until esc is pressed
+–> window: stays in the foreground
+
+hold (default)
+–> overlay/window will be displayed as long as the omni-key is held down
+–> activating a sheet by holding two modifier-keys instead of one will use the toggle behavior (see above) for that specific activation
+)
+}
+
+If (A_GuiControl = "cheatsheets_import_help")
+{
+text =
+(
+00 index
+–> this is reserved for headers of a table or other type of illustration.
+–> only load an image into this index if you want a segmented cheat-sheet
+–> the 00 image will always be displayed in the overlay
+–> it can either be displayed on the left or top of the overlay, depending on the layout of the sheet
+
+other indexes
+–> pressing the corresponding number-keys will add that index's image to the overlay
+–> pressing space will reset the overlay so it only displays the 00 image
+–> indexes be long-clicked to see a preview of the image-file
+)
+	help_image = img\GUI\cheat-sheet header.jpg
+}
+
+If (A_GuiControl = "cheatsheets_import_help2")
+{
+text =
+(
+<paste>
+–> loads an image from clipboard and saves it as the chosen number-index
+
+<snip>: for any index above 00, as long as 00 itself is blank
+–> triggers the windows snipping tool with which screen-caps can be taken
+
+<snip>: for 00, and if 00 is not blank
+–> when first clicked, opens a snipping widget with further instructions
+
+<del>
+–> click and hold for 0.5s to delete an indexed image
+
+white edit-field (optional)
+–> enter a letter to tag an image, so it can additionally be accessed via that letter-key
+)
+}
+
+If (A_GuiControl = "Cheatsheets_preview_help")
+{
+text =
+(
+<preview>
+–> long-click to activate the sheet and access it without a positive screen-check
+
+hotkeys (type: images)
+–> number-keys: select/add image from that number-index
+–> space: reset segmented sheet to only show 00
+–> tab: display all segments until tab is released
+–> right-click: switch to next image, or previous (hold)
+–> f1 && f2: change overlay-size
+–> f3: reset overlay-size
+)
+}
+
+If (A_GuiControl = "cheatsheets_preview_help2")
+{
+text =
+(
+<preview>
+–> long-click to activate the sheet and access it without a positive screen-check
+
+hotkeys (type: advanced)
+–> number-keys: applies a highlight color to the text-panel underneath the cursor
+–> space: remove the highlight color from the text-panel underneath the cursor
+)
+}
+
+If (A_GuiControl = "cheatsheets_objectadd_help")
+{
+text =
+(
+explanation
+–> you have to create a list with names of "objects" that can appear on screen
+–> these names don't have to match in-game names/text 1:1, so abbreviations may be used
+
+examples
+–> sanctum: (templar) annals, (holy) trials, (decrepit) cellar, etc.
+
+conditions && calibration
+–> these objects are the condition that activate the individual text-panels / tooltips
+–> they behave the same as the sheet's own condition and thus need to be calibrated as well
+–> to calibrate the screen-check of an object, open the in-game ui where they appear, hover over them, hold right-click and activate the cheat-sheet (modifier + omni-key)
+)
+}
+
+If (A_GuiControl = "cheatsheets_objects_help")
+{
+text =
+(
+explanation
+–> if a number is green, it means this object's screen-check has been calibrated
+–> numbers can be long-clicked to display a preview of the screen-check image
+–> long-click <del> to remove an object from the list
+–> click an underlined name to edit the overlay of that object
+)
+}
+
+If (A_GuiControl = "cheatsheets_textpanels_help")
+{
+text =
+(
+explanation
+–> up to 4 text-panels may be displayed at once per object
+–> text-panels will be overlaid above the cursor
+–> texts are not limited to the height/width of the boxes below
+–> use line-breaks to prevent text-panel overlays from becoming too wide
+)
+}
+
+
+
 
 If (A_GuiControl = "map_tracker_help")
 {
@@ -556,8 +896,6 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to track and log your map runs.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "map_info_shiftclick_help")
@@ -570,8 +908,16 @@ hold shift -before- right-clicking currency-items for the first time.
 
 while holding shift, left-click maps to apply currency and trigger the map-info panel.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+}
+
+If (A_GuiControl = "stashsearch_help")
+{
+text =
+(
+long-click the underlined names to display information about the strings
+
+right-click the underlined names to open a context-menu with additional options
+)
 }
 
 If (A_GuiControl = "clone_frames_list_help")
@@ -582,8 +928,6 @@ long-click the underlined names to see a preview of the clone-frame
 
 right-click the underlined names to open a context-menu with additional options
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "map_tracker_side_area_help")
@@ -592,8 +936,6 @@ text =
 (
 checking this option will also include side-areas (lab trials, vaal areas, abyss, etc.) in the map time and logs.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "map_tracker_loot_help")
@@ -602,10 +944,8 @@ text =
 (
 checking this option will also log items that are being ctrl-clicked from the inventory into the stash.
 
-note: 'stash' image-check has to be set up in the screen-checks settings
+note: <stash> image-check has to be set up in the screen-checks settings
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "map_tracker_kill_help")
@@ -618,8 +958,6 @@ note: the map-tracker panel will start flashing at the start of a map, and you h
 
 whenever you leave the map device, the panel will turn green, indicating the kill-count has to be updated by clicking the timer again. this only needs to be done if the map is completed and you want to open a new one.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "leveling_guide_help")
@@ -628,8 +966,6 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to track your character's current location and level.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "leveling_guide_help2")
@@ -644,8 +980,6 @@ delete guide: deletes the imported guide and removes included gems from gear tra
 
 reset progress: resets the campaign progress and starts over.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "delve_help")
@@ -654,8 +988,6 @@ text =
 (
 checking this option will enable scanning the client-log generated by the game-client in order to check whether your character is in the azurite mine.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "map_info")
@@ -666,8 +998,6 @@ text =
 
 it's up to you how to tier the mods and whether to use all tiers.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "browser_features_help")
@@ -681,8 +1011,6 @@ examples
 - chromatics calculator: auto-input of required stats
 - cluster jewel crafting: F3 quick-search
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "caps_toggling_help")
@@ -697,8 +1025,6 @@ the system will handle this toggling as a capslock key-press, so anything bound 
 
 uncheck this option if you have something bound to capslock (e.g. push-to-talk), but keep in mind unwanted case-inversion may occur as a consequence.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "stash_search_new_help")
@@ -715,8 +1041,6 @@ scrolling: if enabled, scrolling will adjust a number within the string, or swit
 
 string 2: an optional secondary string. this will be used when right-clicking the shortcut.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "geforce_now_help")
@@ -726,14 +1050,12 @@ text =
 explanation
 since geforce now is a streaming-based client, its image quality can fluctuate significantly.
 this results in screen-checks being inconsistent and the script behaving abnormally.
-to counteract this, screen-checks can be 'loosened' in order to be less strict and adapt to changing image-quality.
+to counteract this, screen-checks can be "loosened" in order to be less strict and adapt to changing image-quality.
 
 instructions
 if you have problems with screen-checks, increase variation by 15 and see if that fixes it.
 repeat until the script's behavior becomes stable.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "pixelcheck_auto_trigger")
@@ -742,10 +1064,8 @@ text =
 (
 by adapting to what's happening on screen, the script automatically hides/shows clone-frames to avoid blocking in-game interfaces.
 
-requires the 'gamescreen' pixel-check to be set up correctly, as well as playing with the mini-map in the center of the screen.
+requires the <gamescreen> pixel-check to be set up correctly, as well as playing with the mini-map in the center of the screen.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "pixelcheck_help")
@@ -753,7 +1073,7 @@ If (A_GuiControl = "pixelcheck_help")
 text =
 (
 explanation
-click 'test' to verify if the pixel-check is working, click 'calibrate' to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
+click <test> to verify if the pixel-check is working, click <calibrate> to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
 
 game-patches sometimes include ui or texture updates, which leads to screen-checks failing. this is where you recalibrate the checks to ensure they function properly.
 
@@ -764,8 +1084,6 @@ they are used to let the script adapt to what's happening on screen, emulating t
 - automatically hide overlays to avoid blocking in-game interfaces
 - make context-sensitive hotkeys possible
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "Pixelcheck_blackbars_help")
@@ -776,8 +1094,6 @@ if the game-client has black bars on each side, pixel-checks will constantly fai
 
 this option will fix that by compensating for black bars. toggling this checkbox will restart the script.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "gamescreen_help")
@@ -785,27 +1101,23 @@ If (A_GuiControl = "gamescreen_help")
 text =
 (
 instructions
-close the inventory and every menu until you're on the main screen (where you control your character). then, set the mini-map to overlay-mode on the center of the screen, and click 'calibrate'.
+close the inventory and every menu until you're on the main screen (where you control your character). then set the mini-map to overlay-mode on the center of the screen and click <calibrate>.
 
 explanation
-this check helps the script identify whether the user is in a menu or on the regular 'gamescreen', which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+this check helps the script identify whether the user is in a menu or on the regular "gamescreen," which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\game_screen.jpg
-	Gui, settings_menu_help: Add, Text, BackgroundTrans wp, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\game_screen.jpg
 }
 
 If (A_GuiControl = "inventory_help")
 {
 text =
 (
-open the inventory, then click 'calibrate'.
+open the inventory, then click <calibrate>.
 
 explanation
 this check helps the script identify whether the inventory is open, which enables the item-info gear-tracker to function correctly.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "pixelcheck_enable_help")
@@ -816,8 +1128,6 @@ this should only be disabled when experiencing severe performance drops while ru
 
 when disabled, overlays will not show/hide automatically (if the user navigates through in-game menus) and they have to be toggled manually.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 
@@ -825,14 +1135,12 @@ If (A_GuiControl = "imagecheck_help")
 {
 text =
 (
-click 'test' to verify if the image-check is working, click 'calibrate' to screen-cap the required image.
+click <test> to verify if the image-check is working, click <calibrate> to screen-cap the required image.
 
 same concept as pixel-checks (see top of this section) but with images instead of pixels. image-checks are used when pixel-checks are unreliable due to movement on screen.
 
 individual checks can be disabled if you know you won't be using the connected feature and want to hide the red highlighting.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "imagecheck_help_bestiary")
@@ -840,14 +1148,12 @@ If (A_GuiControl = "imagecheck_help_bestiary")
 text =
 (
 instructions
-to recalibrate, open the beastcrafting window and screen-cap the plate displayed above.
+to recalibrate, open the beastcrafting window and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to trigger the beastcrafting context-menu.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\bestiary.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\bestiary.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_bestiarydex")
@@ -855,14 +1161,12 @@ If (A_GuiControl = "imagecheck_help_bestiarydex")
 text =
 (
 instructions
-to recalibrate, open the challenge-menu (default-hotkey: h), and click the 'bestiary' tab. open the 'captured beasts' menu at the bottom, then screen-cap the area in the red box displayed above.
+to recalibrate, open the challenge-menu (default-hotkey: h), and click the <bestiary> tab. open the <captured beasts> menu at the bottom, then screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether the bestiary index is open or not, which enables the omni-key to trigger the search-strings feature.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\bestiary-dex.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\bestiary-dex.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_skilltree")
@@ -870,14 +1174,12 @@ If (A_GuiControl = "imagecheck_help_skilltree")
 text =
 (
 instructions
-to recalibrate, open the skill-tree and screen-cap the area in the red box displayed above.
+to recalibrate, open the skill-tree and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether the skill-tree is open or not, which enables the omni-key to overlay skill-tree screenshots.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\skill-tree.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\skill-tree.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_betrayal")
@@ -885,14 +1187,12 @@ If (A_GuiControl = "imagecheck_help_betrayal")
 text =
 (
 instructions
-to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the area displayed above.
+to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the betrayal-info feature.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\betrayal.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\betrayal.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_gwennen")
@@ -900,14 +1200,12 @@ If (A_GuiControl = "imagecheck_help_gwennen")
 text =
 (
 instructions
-to recalibrate, open Gwennen's gamble window and screen-cap the plate displayed above.
+to recalibrate, open Gwennen's gamble window and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\gwennen.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\gwennen.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_sanctum")
@@ -915,14 +1213,12 @@ If (A_GuiControl = "imagecheck_help_sanctum")
 text =
 (
 instructions
-to recalibrate, open your inventory and the sanctum map, then screen-cap the area displayed above.
+to recalibrate, open your inventory and the sanctum map, then screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to trigger its cheat-sheet.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\sanctum.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\sanctum.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_stash")
@@ -930,14 +1226,12 @@ If (A_GuiControl = "imagecheck_help_stash")
 text =
 (
 instructions
-to recalibrate, open your stash and screen-cap the plate displayed above.
+to recalibrate, open your stash and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether your stash is open or not, which enables the omni-key to trigger the search-string features.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\stash.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\stash.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_vendor")
@@ -945,7 +1239,7 @@ If (A_GuiControl = "imagecheck_help_vendor")
 text =
 (
 instructions
-to recalibrate, open the purchase-window of a vendor and screen-cap the plate displayed above.
+to recalibrate, open the purchase-window of a vendor and screen-cap the highlighted area displayed above.
 
 explanation
 this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to trigger the search-string features.
@@ -953,9 +1247,7 @@ this check helps the script identify whether you are interacting with a vendor-n
 limitation (leveling tracker)
 campaign-lilly and hideout-lilly use different vendor windows. if you don't use search-strings with general vendors, you can calibrate this image-check with hideout-lilly's window. otherwise, you'll have to buy gems from lilly in Act 10 when using the tracker-gems string.
 )
-	Gui, settings_menu_help: Add, Picture, % "BackgroundTrans w"font_width*35 " h-1", img\GUI\vendor.jpg
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans wp", % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
+	help_image = img\GUI\vendor.jpg
 }
 
 
@@ -967,8 +1259,6 @@ this hotkey is context-sensitive and used to access the majority of this script'
 
 this feature does not block the key-press from being sent to the client, so you can still use skills bound to the middle mouse-button. if you still want/need to rebind it, bind it to a key that's not used for chatting.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_ID_help")
@@ -983,8 +1273,6 @@ while holding shift, left-click items to apply currency and trigger the item-inf
 	
 while holding shift, right-click items to place a red marker.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_profiles_help")
@@ -993,8 +1281,6 @@ text =
 (
 the lists of (un)desired mods are stored in individual profiles that can be switched between.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_bases_help")
@@ -1009,8 +1295,6 @@ these stats are visualized by a bar in the background that turns green if a give
 
 the ilvl maxes out dynamically depending on the item-class and is highlighted green if that value is reached.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_ilvl_help")
@@ -1019,8 +1303,6 @@ text =
 (
 this option caters to advanced users because it adds an additional column with a mod's ilvl-requirements, which may be overwhelming or confusing.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_colors_help")
@@ -1032,12 +1314,10 @@ text =
 
 tier 1 is also the color that marks desired mods, tier 6 the one that marks undesired ones.
 
-'tier x' always overrides ilvl colors, 'tier —' whenever ilvl is not a differentiating factor.
+"tier x" always overrides ilvl colors, "tier —" whenever ilvl is not a differentiating factor.
 
 click a field to apply an rgb hex-code from the clipboard, right-click a field to reset it to the default color.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_override_help")
@@ -1050,8 +1330,6 @@ hybrid mods will only be overridden if every aspect of the mod is undesired, and
 
 note: when enabled, marking as undesired should be used carefully and only for mods that are inherently bad. you may otherwise dismiss an item as bad solely based on your own preferences.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_rules_help")
@@ -1065,8 +1343,6 @@ the name indicates which stat(s) the rule affects, the color indicates what happ
 green: stat will be marked as desired
 red: stat will be marked as undesired
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_dps_help")
@@ -1079,8 +1355,6 @@ unchecked: dps will always be shown for weapons (league-start or leveling)
 
 checked: dps will be shown on every unique weapon, and rare weapons with at least 3 damage mods (work in progress, will refine it at a later date)
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
 If (A_GuiControl = "itemchecker_gear_help")
@@ -1091,15 +1365,59 @@ when enabled, equipped items are tracked and serve as a point of comparison for 
 
 additionally, some minor features are disabled while this mode is active in order to not bloat the tooltip too much.
 )
-	Gui, settings_menu_help: Add, Text, % "BackgroundTrans w"font_width*35, % text
-	Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 }
 
+If (A_GuiControl = "write_test_help")
+{
+text =
+(
+this runs a series of tests in order to determine if the script has sufficient file/folder write-permissions.
+
+use this if certain features don't function or save their settings correctly.
+
+optionally, you can restart the script with admin-rights and re-run the test to see if that fixes issues.
+)
+}
+
+If help_image
+{
+	pHelp := Gdip_LoadImageFromFile(help_image)
+	If (pHelp <= 0)
+		Gui, settings_menu_help: Add, Text, % "Section BackgroundTrans w"font_width*35 " h"font_height*16, couldn't load image
+	Else
+	{
+		Gdip_GetImageDimensions(pHelp, wHelp, hHelp)
+		If (wHelp > font_width*35)
+		{
+			pHelp_copy := pHelp
+			pHelp := Gdip_ResizeBitmap(pHelp_copy, font_width*35, 10000, 1, 7)
+			Gdip_DisposeImage(pHelp_copy)
+			Gdip_GetImageDimensions(pHelp, wHelp, hHelp)
+		}
+		hbmHelp := CreateDIBSection(wHelp, hHelp)
+		hdcHelp := CreateCompatibleDC()
+		obmHelp := SelectObject(hdcHelp, hbmHelp)
+		gHelp := Gdip_GraphicsFromHDC(hdcHelp)
+		Gdip_SetInterpolationMode(gHelp, 0)
+		Gdip_DrawImage(gHelp, pHelp, 0, 0, wHelp, hHelp, 0, 0, wHelp, hHelp, 1)
+		Gui, settings_menu_help: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmHelp%
+		Gui, settings_menu_help: Add, Text, % "xs BackgroundTrans w"font_width*35, % text
+		SelectObject(hdcHelp, obmHelp)
+		DeleteObject(hbmHelp)
+		DeleteDC(hdcHelp)
+		Gdip_DeleteGraphics(gHelp)
+		Gdip_DisposeImage(pHelp)
+	}
+}
+Else Gui, settings_menu_help: Add, Text, % "Section BackgroundTrans w"font_width*35, % text
+
+Gui, settings_menu_help: Show, % "NA x"mouseXpos " y"mouseYpos " AutoSize"
 WinGetPos, winx, winy, width, height, ahk_id %hwnd_settings_menu_help%
 newxpos := (winx + width > xScreenOffSet + poe_width) ? xScreenOffSet + poe_width - width : winx
 newypos := (winy + height > yScreenOffSet + poe_height) ? yScreenOffSet + poe_height - height : winy
 Gui, Settings_menu_help: Show, NA x%newxpos% y%newypos%
 KeyWait, LButton
+text := ""
 Gui, settings_menu_help: Destroy
 Return
 
@@ -1117,9 +1435,9 @@ Loop 5
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vitemchecker_profiles_help hp w-1", img\GUI\help.png
 
 Gui, settings_menu: Add, Text, % "xs Section Center Border BackgroundTrans vitemchecker_reset_highlight gItemchecker", % " reset desired mods "
-Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_highlight_bar cRed",
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-400 vertical Disabled vitemchecker_reset_highlight_bar cRed",
 Gui, settings_menu: Add, Text, % "ys x+0 Center Border BackgroundTrans vitemchecker_reset_blacklist gItemchecker", % " reset undesired mods "
-Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
+Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-400 vertical Disabled vitemchecker_reset_blacklist_bar cRed",
 
 Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height*0.75, % "general options:"
@@ -1137,7 +1455,7 @@ Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help 
 If enable_itemchecker_gear
 {
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gItemchecker vitemchecker_reset_gear", % " reset inventory boxes "
-	Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-700 vertical Disabled vitemchecker_reset_gear_bar cRed",
+	Gui, settings_menu: Add, Progress, % "ys x+0 hp w"font_width " BackgroundBlack range0-400 vertical Disabled vitemchecker_reset_gear_bar cRed",
 }
 
 If !enable_itemchecker_gear
@@ -1463,7 +1781,7 @@ Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "l
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
 Loop, Parse, imagechecks_list_copy, `,, `,
 {
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_image_test y+"fSize0*0.6, % " test "
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_image_test y+"fSize0*0.4, % " test "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_image_calibrate", % " calibrate "
 	loopfield_copy := StrReplace(A_Loopfield, "-", "_")
 	loopfield_copy := StrReplace(loopfield_copy, " ", "_")
@@ -1485,7 +1803,8 @@ settings_menu_section := "stash search"
 new_stash_search_menu_closed := 0
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"font_width*3, <a href="https://poe.re/">poe regex</a>
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, list of searches currently set up:
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of searches currently set up: "
+Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vstashsearch_help hp w-1", img\GUI\help.png
 IniRead, stash_search_list, ini\stash search.ini
 Sort, stash_search_list, D`n
 Loop, Parse, stash_search_list, `n, `n
@@ -1504,39 +1823,39 @@ Loop, Parse, stash_search_list, `n, `n
 Gui, settings_menu: Add, Text, % "xs Section Border gStash_search_new vStash_add BackgroundTrans y+"fSize0*1.2, % " add string "
 Return
 
-Settings_menuGuiClose:
-WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
-Gui, settings_menu: Submit
-kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
-Gui, settings_menu: Destroy
-hwnd_settings_menu := ""
-settings_menu_section := ""
-
-LLK_Overlay("betrayal_info", "hide")
-LLK_Overlay("betrayal_info_overview", "hide")
-LLK_Overlay("betrayal_info_members", "hide")
-Loop, Parse, betrayal_divisions, `,, `,
-	LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
-
-
-
-Gui, delve_grid: Destroy
-hwnd_delve_grid := ""
-Gui, delve_grid2: Destroy
-hwnd_delve_grid2 := ""
-Gui, loottracker: Destroy
-hwnd_loottracker := ""
-
-If WinExist("ahk_id " hwnd_notepad_sample)
+settings_menuGuiClose()
 {
-	Gui, notepad_sample: Destroy
-	hwnd_notepad_sample := ""
-}
+	global
+	WinGetPos, xsettings_menu, ysettings_menu,,, ahk_id %hwnd_settings_menu%
+	Gui, settings_menu: Submit
+	kill_timeout := (kill_timeout = "") ? 0 : kill_timeout
+	Gui, settings_menu: Destroy
+	hwnd_settings_menu := ""
+	settings_menu_section := ""
 
-If WinExist("ahk_id " hwnd_alarm_sample)
-{
-	Gui, alarm_sample: Destroy
-	hwnd_alarm_sample := ""
+	LLK_Overlay("betrayal_info", "hide")
+	LLK_Overlay("betrayal_info_overview", "hide")
+	LLK_Overlay("betrayal_info_members", "hide")
+	Loop, Parse, betrayal_divisions, `,, `,
+		LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
+
+	Gui, delve_grid: Destroy
+	hwnd_delve_grid := ""
+	Gui, delve_grid2: Destroy
+	hwnd_delve_grid2 := ""
+	Gui, loottracker: Destroy
+	hwnd_loottracker := ""
+
+	If WinExist("ahk_id " hwnd_notepad_sample)
+	{
+		Gui, notepad_sample: Destroy
+		hwnd_notepad_sample := ""
+	}
+
+	If WinExist("ahk_id " hwnd_alarm_sample)
+	{
+		Gui, alarm_sample: Destroy
+		hwnd_alarm_sample := ""
+	}
+	WinActivate, ahk_group poe_window
 }
-WinActivate, ahk_group poe_window
-Return

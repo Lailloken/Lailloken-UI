@@ -1362,13 +1362,13 @@ LLK_ScreencapPoB()
 			wScreencap := Gdip_GetImageWidth(pScreencap)
 			If InStr(leveling_guide_screencap_caption, "[lab")
 			{
-				pScreencap_copy := Gdip_ResizeBitmap(pScreencap, Floor(poe_height*0.3), height_native, 1)
+				pScreencap_copy := Gdip_ResizeBitmap(pScreencap, Floor(poe_height/3), 10000, 1, 7)
 				Gdip_DisposeImage(pScreencap)
 				pScreencap := pScreencap_copy
 			}
 			Else If (wScreencap > poe_width*0.3)
 			{
-				pScreencap_copy := Gdip_ResizeBitmap(pScreencap, Floor(poe_width*0.3), height_native, 1)
+				pScreencap_copy := Gdip_ResizeBitmap(pScreencap, Floor(poe_width/3), 10000, 1, 7)
 				Gdip_DisposeImage(pScreencap)
 				pScreencap := pScreencap_copy
 			}

@@ -54,7 +54,7 @@ If (A_Gui = "context_menu") || (A_GuiControl = "lab_button")
 	}
 	pLab_source := Gdip_CloneBitmapArea(pLab, 257, 42, 1175, 556)
 	Gdip_DisposeImage(pLab)
-	pLab := Gdip_ResizeBitmap(pLab_source, poe_width * 53/128, poe_width, 1)
+	pLab := Gdip_ResizeBitmap(pLab_source, poe_width * 53/128, 10000, 1, 7)
 	Gdip_SaveBitmapToFile(pLab, "img\lab.jpg", 100)
 	Gdip_DisposeImage(pLab_source)
 	Gdip_DisposeImage(pLab)

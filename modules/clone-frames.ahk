@@ -148,15 +148,6 @@ LLK_Overlay("clone_frames_menu", "show", 0)
 Gui, clone_frames_menu: Submit, NoHide
 Return
 
-Clone_frames_menuGuiClose:
-SetTimer, Clone_frames_preview, Delete
-new_clone_menu_closed := 1
-GoSub, Settings_menu
-Gui, clone_frame_preview: Destroy
-Gui, clone_frame_preview_frame: Destroy
-Gui, clone_frames_menu: Destroy
-Return
-
 Clone_frames_preview:
 pPreview := Gdip_BitmapFromScreen(xScreenOffset + clone_frame_new_topleft_x "|" yScreenOffset + clone_frame_new_topleft_y "|" clone_frame_new_width "|" clone_frame_new_height)
 wPreview := clone_frame_new_width
@@ -182,7 +173,7 @@ MouseGetPos, mouseXpos, mouseYpos
 If (click = 2)
 {
 	Gui, clone_frame_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_context_menu
-	Gui, clone_frame_context_menu: Margin, % fSize0//2, fSize0//2
+	Gui, clone_frame_context_menu: Margin, % fSize0//2, 0
 	Gui, clone_frame_context_menu: Color, Black
 	WinSet, Transparent, %trans%
 	Gui, clone_frame_context_menu: Font, cWhite s%fSize0%, Fontin SmallCaps
@@ -274,13 +265,13 @@ clone_frame_%clone_frame_new_name_save%_scale_x := clone_frame_new_scale_x
 clone_frame_%clone_frame_new_name_save%_scale_y := clone_frame_new_scale_y
 clone_frame_%clone_frame_new_name_save%_opacity := clone_frame_new_opacity
 guilist := InStr(guilist, clone_frame_new_name_save) ? guilist : guilist "clone_frames_" clone_frame_new_name_save "|"
-GoSub, Clone_frames_menuGuiClose
+clone_frames_menuGuiClose()
 Return
 
 Init_cloneframes:
 If !FileExist("ini\clone frames.ini")
 	IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-IniRead, clone_frames_list, ini\clone frames.ini
+IniRead, clone_frames_list, ini\clone frames.ini,,, % A_Space
 IniRead, clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check, 1
 IniRead, clone_frames_hideout_enable, ini\clone frames.ini, Settings, hide in hideout, 0
 Loop, Parse, clone_frames_list, `n, `n
@@ -301,3 +292,14 @@ Loop, Parse, clone_frames_list, `n, `n
 	IniRead, clone_frame_%A_LoopField%_opacity, ini\clone frames.ini, %A_LoopField%, opacity, 5
 }
 Return
+
+clone_frames_menuGuiClose()
+{
+	global
+	SetTimer, Clone_frames_preview, Delete
+	new_clone_menu_closed := 1
+	GoSub, Settings_menu
+	Gui, clone_frame_preview: Destroy
+	Gui, clone_frame_preview_frame: Destroy
+	Gui, clone_frames_menu: Destroy
+}

@@ -217,15 +217,6 @@ Else
 }
 Return
 
-AlarmGuiClose:
-If !WinExist("ahk_group poe_window") || (alarm_timestamp < A_Now)
-{
-	alarm_timestamp := ""
-	hwnd_alarm := ""
-}
-LLK_Overlay("alarm", "hide")
-Return
-
 Init_alarm:
 IniRead, alarm_xpos, ini\alarm.ini, UI, xcoord, % poe_width/2
 IniRead, alarm_ypos, ini\alarm.ini, UI, ycoord, % poe_height/2
@@ -246,3 +237,14 @@ alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
 IniRead, alarm_panel_xpos, ini\alarm.ini, UI, button xcoord, % poe_width/2 - (alarm_panel_dimensions + 2)/2
 IniRead, alarm_panel_ypos, ini\alarm.ini, UI, button ycoord, % poe_height - (alarm_panel_dimensions + 2)
 Return
+
+alarmGuiClose()
+{
+	global
+	If !WinExist("ahk_group poe_window") || (alarm_timestamp < A_Now)
+	{
+		alarm_timestamp := ""
+		hwnd_alarm := ""
+	}
+	LLK_Overlay("alarm", "hide")
+}
