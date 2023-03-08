@@ -9,12 +9,13 @@
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "LLK_Rightclick")
 OnMessage(0x0200, "LLK_MouseMove")
-SetKeyDelay, 100
+SetKeyDelay, 20
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
 CoordMode, ToolTip, Screen
 SendMode, Input
 SetWorkingDir %A_ScriptDir%
+SetTitleMatchMode, 2
 SetBatchLines, -1
 OnExit, Exit
 Menu, Tray, Tip, Lailloken UI
@@ -70,6 +71,10 @@ If FileExist("modules\gwennen regex.ahk")
 	FileDelete, modules\gwennen regex.ahk
 If FileExist("data\leveling tracker\gems.txt")
 	FileDelete, data\leveling tracker\gems.txt
+If FileExist("_ini\")
+	FileRemoveDir, _ini\, 1
+If FileExist("img\_Fallback\")
+	FileRemoveDir, img\_Fallback\, 1
 
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -259,13 +264,14 @@ If !FileExist("img\Recognition (" poe_height "p)\Sanctum\")
 Sleep, 250
 
 If !FileExist("img\Recognition (" poe_height "p)\")
-	LLK_Error("The script could not create some required folders.`nThere seem to be write-permission issues in the current folder location.`nTry moving the script to another location or running it as administrator.`n`nThe script will now close.`n`n(Hold shift while clicking OK if you want to open the wiki-article with troubleshooting-steps.)")
+	LLK_FilePermissionError("create")
 
 GoSub, Init_variables
 GoSub, Init_screenchecks
 GoSub, Init_general
 GoSub, Init_alarm
 GoSub, Init_betrayal
+GoSub, Init_cheatsheets
 GoSub, Init_cloneframes
 GoSub, Init_delve
 If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
@@ -287,7 +293,9 @@ SetTimer, Log_loop, 1000
 timeout := 0
 If (custom_resolution_setting = 1)
 	WinActivate, ahk_group poe_window
-WinWaitActive, ahk_group poe_window
+If !enable_startup_beep
+	WinWaitActive, ahk_group poe_window
+Else WinWaitActive, ahk_group poe_ahk_window
 
 If enable_startup_beep
 	SoundBeep, 100
@@ -306,6 +314,45 @@ If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
+#If WinActive("ahk_exe Path of Building.exe")
+
+MButton::LLK_ScreencapPoB()
+
+#If WinActive("ahk_id " hwnd_cheatsheets_menu)
+
+ESC::cheatsheets_menuGuiClose()
+
+#If WinActive("ahk_id " hwnd_snip)
+	
+ESC::snipGuiClose()
+
+*Up::
+*Down::
+*Left::
+*Right::
+WinGetPos, xSnip, ySnip, wSnip, hSnip, ahk_id %hwnd_snip%
+Switch A_ThisHotkey
+{
+	Case "*up":
+		If GetKeyState("Alt", "P")
+			hSnip -= GetKeyState("Ctrl", "P") ? 10 : 1
+		Else ySnip -= GetKeyState("Ctrl", "P") ? 10 : 1
+	Case "*down":
+		If GetKeyState("Alt", "P")
+			hSnip += GetKeyState("Ctrl", "P") ? 10 : 1
+		Else ySnip += GetKeyState("Ctrl", "P") ? 10 : 1
+	Case "*left":
+		If GetKeyState("Alt", "P")
+			wSnip -= GetKeyState("Ctrl", "P") ? 10 : 1
+		Else xSnip -= GetKeyState("Ctrl", "P") ? 10 : 1
+	Case "*right":
+		If GetKeyState("Alt", "P")
+			wSnip += GetKeyState("Ctrl", "P") ? 10 : 1
+		Else xSnip += GetKeyState("Ctrl", "P") ? 10 : 1
+}
+WinMove, ahk_id %hwnd_snip%,, %xSnip%, %ySnip%, %wSnip%, %hSnip%
+Return
+
 #If WinExist("ahk_id " hwnd_pob_crop1)
 
 ESC::
@@ -318,7 +365,7 @@ Loop 4
 Return
 
 #If WinExist("ahk_id " hwnd_screencap_setup)
-	
+
 ESC::
 leveling_guide_screencap_caption := ""
 Gui, screencap_setup: Destroy
@@ -329,6 +376,120 @@ Return
 
 MButton::
 GoSub, Omnikey
+Return
+
+#If WinExist("ahk_id " hwnd_cheatsheet)
+
+ESC::LLK_CheatSheetsClose()
+
+#If cheatsheet_overlay_tab
+	
+Space::
+cheatsheet_overlay_tab := 0
+Gui, cheatsheet: Destroy
+hwnd_cheatsheet := ""
+cheatsheet_overlay_type := ""
+KeyWait, Space
+Return
+
+#If cheatsheet_overlay_advanced && WinExist("ahk_id " hwnd_cheatsheet)
+
+*1::
+*2::
+*3::
+*4::
+*Space::
+hotkey_copy := InStr(A_ThisHotkey, "Space") ? 0 : StrReplace(A_ThisHotkey, "*")
+MouseGetPos,,,, cheatsheets_control_hover, 2
+cheatsheet_panel_selected := ""
+If (cheatsheets_control_hover = hwnd_cheatsheets_overlay_panel1)
+	cheatsheet_panel_selected := 1
+If (cheatsheets_control_hover = hwnd_cheatsheets_overlay_panel2)
+	cheatsheet_panel_selected := 2
+If (cheatsheets_control_hover = hwnd_cheatsheets_overlay_panel3)
+	cheatsheet_panel_selected := 3
+If (cheatsheets_control_hover = hwnd_cheatsheets_overlay_panel4)
+	cheatsheet_panel_selected := 4
+
+If !cheatsheet_panel_selected || (cheatsheets_rank_%cheatsheet_object_triggered1%_panel%cheatsheet_panel_selected% = hotkey_copy)
+	Return
+
+cheatsheets_rank_%cheatsheet_object_triggered1%_panel%cheatsheet_panel_selected% := hotkey_copy
+IniWrite, % hotkey_copy, % "cheat-sheets\" cheatsheet_triggered "\info.ini", % cheatsheet_object_triggered, % "panel " cheatsheet_panel_selected " rank"
+GuiControl, % "cheatsheet: +c"cheatsheets_panel_colors[hotkey_copy], %cheatsheets_control_hover%
+WinSet, Redraw,, ahk_id %hwnd_cheatsheet%
+KeyWait, % StrReplace(A_ThisHotkey, "*")
+Return
+
+#If cheatsheet_overlay_image && WinExist("ahk_id " hwnd_cheatsheet)
+
+Up::
+Down::
+Left::
+Right::
+F1::
+F2::
+F3::LLK_CheatSheetsMove()
+
+TAB::
+cheatsheet_tab_parse := StrReplace(cheatsheet_overlay_active, " ", "_")
+cheatsheets_include_%cheatsheet_tab_parse%_copy := cheatsheets_include_%cheatsheet_tab_parse%
+cheatsheets_include_%cheatsheet_tab_parse% := ""
+If !FileExist("cheat-sheets\"cheatsheet_overlay_active "\[00]*")
+	Return
+Loop, Files, % "cheat-sheets\"cheatsheet_overlay_active "\[*]*"
+{
+	If InStr(A_LoopFileName, "check") || InStr(A_LoopFileName, "sample")
+		continue
+	cheatsheets_include_%cheatsheet_tab_parse% .= SubStr(A_LoopFileName, 2, 2) ","
+}
+LLK_CheatSheetsImages(cheatsheet_overlay_active)
+KeyWait, TAB
+cheatsheets_loaded_images := ""
+cheatsheets_include_%cheatsheet_tab_parse% := cheatsheets_include_%cheatsheet_tab_parse%_copy
+LLK_CheatSheetsImages(cheatsheet_overlay_active)
+Return
+
+RButton::
+Space::
+1::
+2::
+3::
+4::
+5::
+6::
+7::
+8::
+9::
+0::
+a::
+b::
+c::
+d::
+e::
+f::
+g::
+h::
+i::
+j::
+k::
+l::
+m::
+n::
+o::
+p::
+q::
+r::
+s::
+t::
+u::
+v::
+w::
+x::
+y::
+z::
+LLK_CheatSheetsImages(cheatsheet_overlay_active)
+KeyWait, % A_ThisHotkey
 Return
 
 #If (leveling_guide_skilltree_open = 1)
@@ -374,11 +535,11 @@ Return
 
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1) && (shift_down = "wisdom")
 
-+RButton::LLK_ItemCheckVendor()
++RButton::LLK_ItemCheckVendor() ;shift-right-clicking an item to place a red marker
 
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1 || enable_map_info_shiftclick) && (gamescreen = 0) && (hwnd_win_hover != hwnd_itemchecker)
 	
-~+RButton::
+~+RButton:: ;shift-right-clicking a currency item to start shift-trigger for item-info tooltips
 Clipboard := ""
 SendInput, ^{c}
 ClipWait, 0.05
@@ -394,7 +555,7 @@ Return
 
 #If WinActive("ahk_group poe_window") && (enable_itemchecker_ID = 1 || enable_map_info_shiftclick) && (gamescreen = 0) && (shift_down = "wisdom") && (hwnd_win_hover != hwnd_itemchecker)
 
-~+LButton::
+~+LButton:: ;shift-trigger for item-info tooltip
 Clipboard := ""
 KeyWait, LButton
 Sleep, 150
@@ -407,7 +568,7 @@ Return
 
 #If WinActive("ahk_group poe_window") && enable_itemchecker_gear && inventory && !gamescreen && (gear_mouse_over != 0) && (hwnd_win_hover != hwnd_itemchecker)
 
-~RButton::
+~RButton:: ;clear gear-slot ('league-start' mode)
 start_rbutton := A_TickCount
 While GetKeyState("RButton", "P")
 {
@@ -423,7 +584,7 @@ While GetKeyState("RButton", "P")
 }
 Return
 
-~LButton UP::
+~LButton UP:: ;check which item was equipped
 Clipboard := ""
 Sleep, 100
 SendInput, !^{c}
@@ -437,7 +598,7 @@ Return
 
 #If enable_map_tracker && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused && WinActive("ahk_group poe_window") 
 
-^+LButton::
+^+LButton:: ;check which item was ctrl-clicked into the stash
 ^LButton::
 MouseGetPos, mouseX
 If (map_tracker_map != "") && (mouseX > poe_width//2) && LLK_ImageSearch("stash")
@@ -577,6 +738,22 @@ If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "[img]")
 		}
 	}
 }
+If hwnd_cheatsheet
+{
+	start := A_TickCount
+	While GetKeyState("Tab", "P")
+	{
+		If (A_TickCount >= start + 200)
+		{
+			Gui, cheatsheet: Show, % (cheatsheet_overlay_type = "advanced") ? "NA xCenter y"yScreenOffSet : "NA"
+			cheatsheet_overlay_tab := 1
+			KeyWait, Tab
+			cheatsheet_overlay_tab := 0
+			Gui, cheatsheet: Hide
+			Return
+		}
+	}
+}
 If (update_available = 1)
 {
 	Run, https://github.com/Lailloken/Lailloken-UI/releases
@@ -584,6 +761,7 @@ If (update_available = 1)
 	Return
 }
 SendInput, {Tab}
+KeyWait, Tab
 Return
 
 ESC::
@@ -601,6 +779,12 @@ If WinExist("ahk_id " hwnd_screencap)
 	Return
 }
 */
+If WinExist("ahk_id " hwnd_cheatsheets_calibration)
+{
+	Gui, cheatsheets_calibration: Destroy
+	hwnd_cheatsheets_calibration := ""
+	Return
+}
 If WinExist("ahk_id " hwnd_gem_notes)
 {
 	Gui, gem_notes: Destroy
@@ -694,7 +878,7 @@ If WinActive("ahk_id " hwnd_notepad_edit)
 }
 If WinActive("ahk_id " hwnd_recombinator_window)
 {
-	Gosub, Recombinator_windowGuiClose
+	recombinator_windowGuiClose()
 	Return
 }
 If WinExist("ahk_id " hwnd_legion_treemap) || WinExist("ahk_id " hwnd_legion_window)
@@ -731,6 +915,7 @@ Else If WinExist("ahk_id " hwnd_map_info_menu)
 	Return
 }
 Else SendInput, {ESC}
+KeyWait, ESC
 Return
 
 #If WinExist("ahk_id " hwnd_clone_frames_menu)
@@ -859,7 +1044,7 @@ GuiControlGet, font_check_, Pos, % main_text
 font_height := font_check_h
 font_width := font_check_w
 Gui, font_size: Destroy
-font_size := ""
+hwnd_font_size := ""
 
 If (A_GuiControl = "kill_script")
 	IniWrite, %kill_script%, ini\config.ini, Settings, kill script
@@ -890,6 +1075,8 @@ Return
 #Include modules\bestiary search.ahk
 
 #Include modules\betrayal-info.ahk
+
+#Include modules\cheat sheets.ahk
 
 #Include modules\clone-frames.ahk
 
@@ -1153,6 +1340,7 @@ Return
 Init_variables:
 click := 1
 trans := 220
+write_test_running := 0
 hwnd_win_hover := 0
 hwnd_control_hover := 0
 blocked_hotkeys := "!,^,+"
@@ -1174,7 +1362,7 @@ imagechecks_list_copy := imagechecks_list ;will be sorted alphabetically for scr
 Sort, imagechecks_list_copy, D`,
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
-guilist .= "settings_menu|"
+guilist .= "cheatsheet|settings_menu|"
 buggy_resolutions := "768,1024,1050"
 allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,helmet,glove,boot,belt,wand,staves,axe,sceptre,body,sentinel"
 delve_directions := "u,d,l,r,"
@@ -1207,7 +1395,7 @@ hwnd_itemchecker_cluster_button1 := ""
 hwnd_pob_crop1 := ""
 gear_mouse_over := 0
 gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
-
+cheatsheet_overlay_threads := 0
 leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
 leveling_guide_skilltree_active := 1, leveling_guide_valid_skilltree_files := 0, enable_omnikey_pob := 0, leveling_guide_screencap_caption := "", leveling_guide_valid_images := ""
 
@@ -1575,7 +1763,7 @@ If !WinActive("ahk_group poe_ahk_window")
 }
 If WinActive("ahk_id " hwnd_itemchecker)
 	WinActivate, ahk_group poe_window
-If WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1) && !WinActive("ahk_id " hwnd_screencap_setup)
+If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1) && !WinActive("ahk_id " hwnd_screencap_setup) && !WinActive("ahk_id " hwnd_snip) && !WinActive("ahk_id " hwnd_cheatsheets_menu)
 {
 	mouse_hover += 1
 	If (mouse_hover >= 5) && (mousemove != 1)
@@ -1870,13 +2058,40 @@ LLK_ArrayHasVal(array, value, allresults := 0)
 
 LLK_Error(ErrorMessage, restart := 0)
 {
-	global
 	MsgBox, % ErrorMessage
-	If InStr(ErrorMessage, "write-permission") && GetKeyState("Shift", "P")
-		Run, https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#error-message-couldnt-create-some-required-folders
 	If restart
 		Reload
 	ExitApp
+}
+
+LLK_FilePermissionError(issue)
+{
+	Gui, cheatsheets_context_menu: Destroy
+	global hwnd_cheatsheets_context_menu := ""
+	Switch issue
+	{
+		Case "delete":
+			text := "The script couldn't delete a file/folder."
+		Case "create":
+			text := "The script couldn't create a file/folder."
+	}
+	text .= "`nThere seem to be write-permission issues in the current folder location."
+	text .= "`nTry moving the script to another location or running it as administrator."
+	text .= "`n`nThere is a write-permissions test in the settings menu that you can use to trouble-shoot this issue."
+	MsgBox, % text
+}
+
+LLK_FontSize(size, ByRef font_height_x, ByRef font_width_x)
+{
+	Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
+	Gui, font_size: Margin, 0, 0
+	Gui, font_size: Color, Black
+	Gui, font_size: Font, % "cWhite s"size, Fontin SmallCaps
+	Gui, font_size: Add, Text, % "Border HWNDmain_text", % "7"
+	GuiControlGet, font_check_, Pos, % main_text
+	font_height_x := font_check_h
+	font_width_x := font_check_w
+	Gui, font_size: Destroy
 }
 
 LLK_GameScreenCheck()
@@ -1958,6 +2173,8 @@ LLK_InStrCount(string, character, delimiter := "")
 
 LLK_IsAlpha(string)
 {
+	If (string = "")
+		Return 0
 	If string is alpha
 		Return 1
 	Else Return 0
@@ -2068,7 +2285,7 @@ LLK_ProgressBar(gui, control_id)
 	start := A_TickCount
 	While GetKeyState("LButton", "P") || GetKeyState("RButton", "P")
 	{
-		If (progress >= 700)
+		If (progress >= 400)
 		{
 			GuiControl, %gui%:, %control_id%, 0
 			Return 1
@@ -2139,6 +2356,67 @@ LLK_ScreenCap()
 }
 */
 
+LLK_Snip(mode)
+{
+	global
+	If (mode = 1) && !WinExist("ahk_id " hwnd_snip)
+	{
+		Gui, snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd_snip, Lailloken UI: snipping widget
+		Gui, snip: Color, Aqua
+		WinSet, trans, 100
+		Gui, snip: Add, Picture, % "x"font_width*5 " y"font_height*2 " h"font_height " w-1 BackgroundTrans gSettings_menu_help vCheatsheets_snip_help", img\GUI\help.png
+		If wSnip_widget
+			Gui, snip: Show, % "w"wSnip_widget " h"hSnip_widget
+		Else Gui, snip: Show, % "w"font_width*31 " h"font_height*11
+		Return -1
+	}
+	If (mode = 2) && WinExist("ahk_id " hwnd_snip)
+		snipGuiClose()
+	
+	gui_force_hide := 1
+	LLK_Overlay("hide")
+	If (mode = 1)
+	{
+		Local xSnip, ySnip, wSnip, hSnip
+		WinGetPos, xSnip, ySnip, wSnip, hSnip, ahk_id %hwnd_snip%
+		Gui, snip: Hide
+		sleep 100
+		local pSnip := Gdip_BitmapFromScreen(xSnip + xborder "|" ySnip + yborder + caption "|" wSnip - xborder*2 "|" hSnip - yborder*2 - caption)
+	}
+	Else If (mode = 2)
+	{
+		Clipboard := ""
+		SendInput, #+{s}
+		WinWaitActive, Screen Snipping
+		WinWaitNotActive, Screen Snipping
+		local pSnip := Gdip_CreateBitmapFromClipboard()
+	}
+	gui_force_hide := 0
+	If (mode = 1)
+		Gui, snip: Show
+	If (pSnip <= 0)
+		Return 0
+	Return pSnip
+}
+
+LLK_SortArray(array, options := "")
+{
+	options := options ? " " options : options
+	Loop, % array.Length()
+	{
+		If (array[A_Index] = "")
+			continue
+		list .= array[A_Index] "`n"
+	}
+	If (SubStr(list, 0) = "`n")
+		list := SubStr(list, 1, -1)
+	Sort, list, % options
+	array := []
+	Loop, Parse, list, `n
+		array.Push(A_LoopField)
+	Return array
+}
+
 LLK_SubStrCount(string, substring, delimiter := "", strict := 0)
 {
 	count := 0
@@ -2178,6 +2456,105 @@ LLK_WinExist(hwnd)
 	Return 0
 }
 
+LLK_WriteTest()
+{
+	If (A_GuiControl = "AdminStart")
+	{
+		Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
+		ExitApp
+	}
+	global write_test_running
+	If write_test_running
+		Return
+	write_test_running := 1
+	
+	If FileExist("data\write-test\")
+	{
+		write_test_running := 0
+		MsgBox,, Write-permissions test, There are some leftover files from a previous test. Please delete the 'write-test' folder in %A_WorkingDir%\data\
+		Run, explore %A_WorkingDir%\data\
+		Return
+	}
+	If A_IsAdmin
+		status .= "script launched with admin rights: yes`n`n"
+	Else status .= "script launched with admin rights: no`n`n"
+	FileCreateDir, data\write-test\
+	LLK_ToolTip("test 1/7")
+	sleep, 250
+	If FileExist("data\write-test\")
+	{
+		status .= "can create folders: yes`n`n"
+		folder_creation := 1
+	}
+	Else status .= "can create folders: no`n`n"
+	
+	FileAppend,, data\write-test.ini
+	LLK_ToolTip("test 2/7")
+	sleep, 250
+	If FileExist("data\write-test.ini")
+	{
+		status .= "can create ini-files: yes`n`n"
+		ini_creation := 1
+	}
+	Else status .= "can create ini-files: no`n`n"
+	
+	IniWrite, 1, data\write-test.ini, write-test, test
+	LLK_ToolTip("test 3/7")
+	sleep, 250
+	IniRead, ini_test, data\write-test.ini, write-test, test, 0
+	If ini_test
+		status .= "can write to ini-files: yes`n`n"
+	Else status .= "can write to ini-files: no`n`n"
+	
+	pWriteTest := Gdip_BitmapFromScreen("0|0|100|100")
+	Gdip_SaveBitmapToFile(pWriteTest, "data\write-test.bmp", 100)
+	Gdip_DisposeImage(pWriteTest)
+	LLK_ToolTip("test 4/7")
+	sleep, 250
+	If FileExist("data\write-test.bmp")
+	{
+		status .= "can create image-files: yes`n`n"
+		img_creation := 1
+	}
+	Else status .= "can create image-files: no`n`n"
+	
+	If folder_creation
+	{
+		FileRemoveDir, data\write-test\
+		sleep, 250
+		If !FileExist("data\write-test\")
+			status .= "can delete folders: yes`n`n"
+		Else status .= "can delete folders: no`n`n"
+	}
+	Else status .= "can delete folders: unknown`n`n"
+	LLK_ToolTip("test 5/7")
+	
+	If ini_creation
+	{
+		FileDelete, data\write-test.ini
+		sleep, 250
+		If !FileExist("data\write-test.ini")
+			status .= "can delete ini-files: yes`n`n"
+		Else status .= "can delete ini-files: no`n`n"
+	}
+	Else status .= "can delete ini-files: unknown`n`n"
+	LLK_ToolTip("test 6/7")
+	
+	If img_creation
+	{
+		FileDelete, data\write-test.bmp
+		sleep, 250
+		If !FileExist("data\write-test.bmp")
+			status .= "can delete image-files: yes`n`n"
+		Else status .= "can delete image-files: no`n`n"
+	}
+	Else status .= "can delete image-files: unknown`n`n"
+	LLK_ToolTip("test 7/7")
+	
+	MsgBox,, Test results, % status
+	write_test_running := 0
+}
+
 SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
 {
 	Gui 9: New, -DPIscale
@@ -2187,6 +2564,14 @@ SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
 	Gui 9: Destroy
 	GuiControl,, %controlHwnd%, %newText%
 	GuiControl, Move, %controlHwnd%, % "h" TH " w" TW
+}
+
+snipGuiClose()
+{
+	global
+	WinGetPos,,, wSnip_widget, hSnip_widget, ahk_id %hwnd_snip%
+	Gui, snip: Destroy
+	hwnd_snip := ""
 }
 
 #include data\External Functions.ahk
