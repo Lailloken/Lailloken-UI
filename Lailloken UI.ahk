@@ -433,10 +433,10 @@ F3::LLK_CheatSheetsMove()
 
 TAB::
 cheatsheet_tab_parse := StrReplace(cheatsheet_overlay_active, " ", "_")
-cheatsheets_include_%cheatsheet_tab_parse%_copy := cheatsheets_include_%cheatsheet_tab_parse%
-cheatsheets_include_%cheatsheet_tab_parse% := ""
 If !FileExist("cheat-sheets\"cheatsheet_overlay_active "\[00]*")
 	Return
+cheatsheets_include_%cheatsheet_tab_parse%_copy := cheatsheets_include_%cheatsheet_tab_parse%
+cheatsheets_include_%cheatsheet_tab_parse% := ""
 Loop, Files, % "cheat-sheets\"cheatsheet_overlay_active "\[*]*"
 {
 	If InStr(A_LoopFileName, "check") || InStr(A_LoopFileName, "sample")
