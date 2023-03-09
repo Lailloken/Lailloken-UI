@@ -680,8 +680,8 @@ type: app
 –> uses a specific app-window as a cheat-sheet
 
 type: advanced
-–> text-panels for individual objects that will be detected on-screen
-–> closer to an in-game tooltip rather than traditional cheat-sheet
+–> overlays for individual objects that will be detected on screen
+–> closer to an in-game tooltip than traditional cheat-sheet
 )
 }
 
@@ -704,7 +704,7 @@ If (A_GuiControl = "cheatsheets_modifier_help")
 {
 text =
 (
-determines which key needs to be held down in order to trigger cheat-sheets via the omni-key
+determines which key needs to be held down in order to activate cheat-sheets via the omni-key
 –> the modifier is not part of the "hold" behavior if a sheet is set up that way
 –> so it can be released once the cheat-sheet was activated
 –> choose a modifier that you never (or very rarely) press in combination with the omni-key during regular play
@@ -801,7 +801,7 @@ text =
 –> loads an image from clipboard and saves it as the chosen number-index
 
 <snip>: for any index above 00, as long as 00 itself is blank
-–> triggers the windows snipping tool with which screen-caps can be taken
+–> activates the windows snipping tool with which screen-caps can be taken
 
 <snip>: for 00, and if 00 is not blank
 –> when first clicked, opens a snipping widget with further instructions
@@ -901,11 +901,11 @@ If (A_GuiControl = "map_info_shiftclick_help")
 {
 text =
 (
-if enabled, the map-info panel will be triggered whenever currency-items are applied via shift-clicking.
+if enabled, the map-info panel will be activated whenever currency-items are applied via shift-clicking.
 
 hold shift -before- right-clicking currency-items for the first time.
 
-while holding shift, left-click maps to apply currency and trigger the map-info panel.
+while holding shift, left-click maps to apply currency and activate the map-info panel.
 )
 }
 
@@ -1150,7 +1150,7 @@ instructions
 to recalibrate, open the beastcrafting window and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to trigger the beastcrafting context-menu.
+this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to activate the beastcrafting context-menu.
 )
 	help_image = img\GUI\bestiary.jpg
 }
@@ -1163,7 +1163,7 @@ instructions
 to recalibrate, open the challenge-menu (default-hotkey: h), and click the <bestiary> tab. open the <captured beasts> menu at the bottom, then screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether the bestiary index is open or not, which enables the omni-key to trigger the search-strings feature.
+this check helps the script identify whether the bestiary index is open or not, which enables the omni-key to activate the search-strings feature.
 )
 	help_image = img\GUI\bestiary-dex.jpg
 }
@@ -1189,7 +1189,7 @@ instructions
 to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to trigger the betrayal-info feature.
+this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to activate the betrayal-info feature.
 )
 	help_image = img\GUI\betrayal.jpg
 }
@@ -1202,7 +1202,7 @@ instructions
 to recalibrate, open Gwennen's gamble window and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to trigger the regex-string features.
+this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to activate the regex-string features.
 )
 	help_image = img\GUI\gwennen.jpg
 }
@@ -1215,7 +1215,7 @@ instructions
 to recalibrate, open your inventory and the sanctum map, then screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to trigger its cheat-sheet.
+this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to activate its cheat-sheet.
 )
 	help_image = img\GUI\sanctum.jpg
 }
@@ -1228,7 +1228,7 @@ instructions
 to recalibrate, open your stash and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether your stash is open or not, which enables the omni-key to trigger the search-string features.
+this check helps the script identify whether your stash is open or not, which enables the omni-key to activate the search-string features.
 )
 	help_image = img\GUI\stash.jpg
 }
@@ -1241,7 +1241,7 @@ instructions
 to recalibrate, open the purchase-window of a vendor and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to trigger the search-string features.
+this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to activate the search-string features.
 
 limitation (leveling tracker)
 campaign-lilly and hideout-lilly use different vendor windows. if you don't use search-strings with general vendors, you can calibrate this image-check with hideout-lilly's window. otherwise, you'll have to buy gems from lilly in Act 10 when using the tracker-gems string.
@@ -1264,11 +1264,11 @@ If (A_GuiControl = "itemchecker_ID_help")
 {
 text =
 (
-if enabled, the tooltip will be triggered whenever currency-items are applied via shift-clicking.
+if enabled, the tooltip will be activated whenever currency-items are applied via shift-clicking.
 
 hold shift -before- right-clicking currency-items for the first time.
 
-while holding shift, left-click items to apply currency and trigger the item-info tooltip.
+while holding shift, left-click items to apply currency and activate the item-info tooltip.
 	
 while holding shift, right-click items to place a red marker.
 )
@@ -1446,7 +1446,7 @@ Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_itemchecker_m
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center wp vfSize_itemchecker_reset gItemchecker Border x+2", % "r"
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center wp vfSize_itemchecker_plus gItemchecker Border x+2", % "+"
 
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift-clicking triggers item-info"
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_ID Checked"enable_itemchecker_ID, % "shift-clicking activates item-info"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vitemchecker_ID_help hp w-1", img\GUI\help.png
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gItemchecker venable_itemchecker_gear Checked"enable_itemchecker_gear, % "enable league-start mode"
@@ -1607,7 +1607,7 @@ If enable_map_info
 		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
 		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
 	}
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " venable_map_info_shiftclick Checked"enable_map_info_shiftclick, shift-clicking triggers map-info
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " venable_map_info_shiftclick Checked"enable_map_info_shiftclick, shift-clicking activates map-info
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vmap_info_shiftclick_help hp w-1", img\GUI\help.png
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
