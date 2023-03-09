@@ -320,7 +320,7 @@ Return
 Settings_menu_cheatsheets:
 settings_menu_section := "cheat sheets"
 GoSub, Init_cheatsheets
-Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"font_width*4, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans vfeatures_enable_cheatsheets gcheatsheets checked"features_enable_cheatsheets " y+"font_height, enable cheat-sheet toolkit
 If !features_enable_cheatsheets
