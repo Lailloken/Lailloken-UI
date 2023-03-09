@@ -1395,7 +1395,6 @@ hwnd_itemchecker_cluster_button1 := ""
 hwnd_pob_crop1 := ""
 gear_mouse_over := 0
 gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots"
-cheatsheet_overlay_threads := 0
 leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
 leveling_guide_skilltree_active := 1, leveling_guide_valid_skilltree_files := 0, enable_omnikey_pob := 0, leveling_guide_screencap_caption := "", leveling_guide_valid_images := ""
 
