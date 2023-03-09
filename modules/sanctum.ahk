@@ -131,7 +131,6 @@ While GetKeyState(sanctum_hotkey, "P")
 		sanctum_search_y2 := sanctum_mouseY
 		pSearch_sanctum := Gdip_ImageSearch(pHaystack_sanctum, pNeedle_sanctum, sanctum_matches, sanctum_search_x1, sanctum_search_y1, sanctum_search_x2, sanctum_search_y2, imagesearch_variation + 20,, 1, 1)
 		Gdip_DisposeImage(pNeedle_sanctum)
-		Gdip_DisposeImage(pSearch_sanctum)
 		If (pSearch_sanctum > 0)
 		{
 			sanctum_room := StrReplace(A_LoopFileName, ".bmp")

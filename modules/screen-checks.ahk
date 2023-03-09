@@ -92,17 +92,17 @@ If InStr(A_GuiControl, "_calibrate")
 	{
 		Clipboard := ""
 		KeyWait, LButton
-		WinActivate, ahk_group poe_window
-		WinWaitActive, ahk_group poe_window,, 2
+		gui_force_hide := 1
 		SendInput, #+{s}
-		WinWaitNotActive, ahk_group poe_window,, 2
+		WinWaitNotActive, ahk_group poe_window
 		Sleep, 1000
-		If WinExist("ahk_id " hwnd_settings_menu)
-			WinWaitActive, ahk_id %hwnd_settings_menu%
-		Else WinWaitActive, ahk_group poe_window
+		WinWaitActive, ahk_group poe_ahk_window
 		pClipboard := Gdip_CreateBitmapFromClipboard()
 		If (pClipboard < 0)
 		{
+			gui_force_hide := 0
+			While !WinExist("ahk_id " hwnd_settings_menu)
+				sleep, 10
 			LLK_ToolTip("screen-cap failed")
 			Return
 		}
@@ -113,6 +113,7 @@ If InStr(A_GuiControl, "_calibrate")
 			imagecheck_%imagecheck_parse%_missing := 0
 			Gdip_DisposeImage(pClipboard)
 		}
+		gui_force_hide := 0
 		GoSub, Settings_menu
 	}
 	Return
@@ -180,7 +181,6 @@ Return
 LLK_ImageSearch(name := "")
 {
 	global
-	start := A_TickCount
 	Loop, Parse, imagechecks_list, `,, `,
 		%A_Loopfield% := 0
 	pHaystack_ImageSearch := Gdip_BitmapFromHWND(hwnd_poe_client, 1)

@@ -309,7 +309,7 @@ LLK_MapTrack(mode := "")
 	Gui, map_tracker: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
 	
 	Gui, map_tracker: Add, Text, % "xs Section BackgroundTrans vmap_tracker_button_complete gMap_tracker", % (current_location_verbose = "") ? "not tracking" : current_location_verbose " (" current_map_tier ")"
-	Gui, map_tracker: Add, Progress, % "xs Disabled BackgroundTrans cGreen wp range0-700 vmap_tracker_button_complete_bar h"fSize0//2, 0
+	Gui, map_tracker: Add, Progress, % "xs Disabled BackgroundTrans cGreen wp range0-400 vmap_tracker_button_complete_bar h"fSize0//2, 0
 	If !enable_killtracker
 		Gui, map_tracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
 	Else Gui, map_tracker: Add, Text, % "ys BackgroundTrans gMap_tracker vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
@@ -399,7 +399,7 @@ LLK_MapTrackGUI(mode := "")
 	Gui, map_tracker_log: Font, % "s"fSize0 + fSize_offset_map_tracker - 2
 	Gui, map_tracker_log: Add, DDL, % "ys BackgroundTrans hp cBlack vmap_tracker_log_ddl gMap_tracker r"LLK_InStrCount(map_tracker_dates, "|") + 1 " w"width*2, % map_tracker_dates
 	Gui, map_tracker_log: Font, % "s"fSize0 + fSize_offset_map_tracker + 2
-	Gui, map_tracker_log: Add, Progress, % "ys x+0 hp Disabled BackgroundTrans cRed vmap_tracker_log_delete_bar range0-700 Vertical w"fSize0, 0
+	Gui, map_tracker_log: Add, Progress, % "ys x+0 hp Disabled BackgroundTrans cRed vmap_tracker_log_delete_bar range0-400 Vertical w"fSize0, 0
 	Gui, map_tracker_log: Add, Text, % "ys x+0 Border BackgroundTrans vmap_tracker_log_delete_day gMap_tracker", % " del "
 	If (StrLen(map_tracker_dates) >= 10)
 	{
@@ -449,7 +449,7 @@ LLK_MapTrackGUI(mode := "")
 			If (map_tracker_log_entries = 1)
 				Gui, map_tracker_log: Add, Text, % "xs hp Section BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width, % map_tracker_log_text
 			Else Gui, map_tracker_log: Add, Text, % (map_tracker_log_section = 1) || (!Mod(map_tracker_log_entries, map_tracker_log_section_count) && (map_tracker_log_section_count != 0)) ? "ys hp Section BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text x"map_tracker_log_x_offset + fSize0 " vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width " h"map_tracker_log_height0 : "xs hp y+0 BackgroundTrans Border c"color " gMap_tracker -wrap HWNDmain_text vmap_tracker_log_entry"map_tracker_log_entries " w"map_tracker_entry_width " h"map_tracker_log_height0, % map_tracker_log_text
-			Gui, map_tracker_log: Add, Progress, % "xs y+0 wp BackgroundTrans cRed range0-700 vmap_tracker_log_delete_entry"map_tracker_log_entries " h"fSize0//2, 0
+			Gui, map_tracker_log: Add, Progress, % "xs y+0 wp BackgroundTrans cRed range0-400 vmap_tracker_log_delete_entry"map_tracker_log_entries " h"fSize0//2, 0
 			ControlGetPos, map_tracker_log_x,, map_tracker_log_width, map_tracker_log_height0,, ahk_id %main_text%
 			map_tracker_log_x_offset := (map_tracker_log_x + map_tracker_log_width > map_tracker_log_x_offset) ? map_tracker_log_x + map_tracker_log_width : map_tracker_log_x_offset
 			Gui, map_tracker_log: Show, NA AutoSize

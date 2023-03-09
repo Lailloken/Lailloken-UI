@@ -1,12 +1,12 @@
 ﻿Omnikey:
-clipboard := ""
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
-If WinActive("ahk_exe Path of Building.exe")
+If WinActive("ahk_exe Path of Building.exe") || features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
 {
 	GoSub, Omnikey2
 	Return
 }
+clipboard := ""
 If (alt_modifier != "")
 	SendInput {%alt_modifier% down}^{c}{%alt_modifier% up}
 Else SendInput !^{c}
@@ -14,6 +14,9 @@ ClipWait, 0.05
 If (clipboard != "")
 {
 	start := A_TickCount
+	itemchecker_metadata := SubStr(Clipboard, InStr(Clipboard, "`n",,, 2) + 1), itemchecker_metadata := SubStr(itemchecker_metadata, 1, InStr(itemchecker_metadata, "---") - 3)
+	If InStr(itemchecker_metadata, "`n")
+		itemchecker_metadata := SubStr(itemchecker_metadata, InStr(itemchecker_metadata, "`n") + 1)
 	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem")
 	{
 		LLK_ItemCheck()
@@ -118,7 +121,7 @@ If (clipboard != "")
 		GoSub, Recombinators_add
 		Return
 	}
-	If !InStr(clipboard, "Rarity: Currency") && (!InStr(clipboard, "Item Class: Map") && !InStr(Clipboard, "`maven's invitation: ")) && !InStr(clipboard, "Heist") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
+	If !InStr(clipboard, "Rarity: Currency") && (!InStr(clipboard, "Item Class: Map") && !InStr(Clipboard, "`maven's invitation: ")) && !InStr(Clipboard, "item class: heist target") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
 		Return
@@ -138,7 +141,7 @@ If (clipboard != "")
 			}
 		}
 	}
-	If enable_map_info && (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
+	If (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -161,17 +164,20 @@ If (clipboard != "")
 				Return
 			}
 		}
-		If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+		If enable_map_info
 		{
-			LLK_ToolTip("pixel-check setup required")
+			If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+			{
+				LLK_ToolTip("pixel-check setup required")
+				Return
+			}
+			If !LLK_itemInfoCheck()
+				Return
+			Gui, map_info_menu: Destroy
+			hwnd_map_info_menu := ""
+			GoSub, Map_info
 			Return
 		}
-		If !LLK_itemInfoCheck()
-			Return
-		Gui, map_info_menu: Destroy
-		hwnd_map_info_menu := ""
-		GoSub, Map_info
-		Return
 	}
 }
 Else GoSub, Omnikey2
@@ -191,6 +197,15 @@ If WinActive("ahk_exe Path of Building.exe")
 {
 	KeyWait, % ThisHotkey_copy
 	LLK_ScreencapPoB()
+	Return
+}
+
+If features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
+{
+	global cheatsheets_hotkey := ThisHotkey_copy
+	cheatsheets_omni_trigger := 1
+	cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "!"), cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "+"), cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "^")
+	GoSub, Cheatsheets
 	Return
 }
 
@@ -358,7 +373,7 @@ Else
 		Return
 	If !InStr(Clipboard, "unidentified") && !InStr(Clipboard, "rarity: unique")
 		Gui, context_menu: Add, Text, vcrafting_table gOmnikey_menu_selection BackgroundTrans Center, poe.db: modifiers
-	If !InStr(Clipboard, "`nUnidentified", 1)
+	If !InStr(Clipboard, "`nUnidentified", 1) && !InStr(Clipboard, "item class: heist")
 		Gui, context_menu: Add, Text, vcraft_of_exile gOmnikey_menu_selection BackgroundTrans Center, craft of exile
 	Gui, context_menu: Add, Text, vwiki_class gOmnikey_menu_selection BackgroundTrans Center, wiki (item class)
 }
@@ -498,6 +513,17 @@ If InStr(A_GuiControl, "crafting_table")
 		wiki_term := "Viridian_Jewel"
 	If InStr(clipboard, "cobalt jewel")
 		wiki_term := "Cobalt_Jewel"
+	If InStr(clipboard, "item class: heist") && !InStr(clipboard, "item class: heist target")
+	{
+		For key in itemchecker_base_item_data
+		{
+			If (key = itemchecker_metadata) || InStr(itemchecker_metadata, " " key) || InStr(itemchecker_metadata, key " ")
+			{
+				wiki_term := StrReplace(key, " ", "_")
+				Break
+			}
+		}
+	}
 	If InStr(wiki_term, "abyss_jewel")
 	{
 		wiki_index := InStr(clipboard, "rarity: normal") ? 3 : 4
@@ -583,6 +609,8 @@ If InStr(Clipboard, "`nmaven's invitation: ")
 	wiki_term := "Maven's_Invitation"
 If InStr(clipboard, "Cluster Jewel")
 	wiki_term := "Cluster_Jewel"
+If InStr(clipboard, "item class: heist")
+	wiki_term := "Rogue's_equipment"
 If (InStr(clipboard, "runic") && InStr(clipboard, "ward:"))
 	Run, https://www.poewiki.net/wiki/Runic_base_type#%wiki_term%
 Else Run, https://poewiki.net/wiki/%wiki_term%

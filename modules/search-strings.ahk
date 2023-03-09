@@ -210,12 +210,6 @@ Gui, stash_search_menu: Show, % "Hide Center"
 LLK_Overlay("stash_search_menu", "show", 0)
 Return
 
-Stash_search_menuGuiClose:
-new_stash_search_menu_closed := 1
-GoSub, Settings_menu
-Gui, stash_search_menu: Destroy
-Return
-
 Stash_search_preview_list:
 MouseGetPos, mouseXpos, mouseYpos
 GuiControl_copy := StrReplace(A_GuiControl, " ", "_")
@@ -248,11 +242,12 @@ Loop, Parse, stash_search_usecases, `,, `,
 	IniRead, stash_search_%A_Loopfield%_parse, ini\stash search.ini, Settings, % A_Loopfield
 	use_case := InStr(stash_search_%A_Loopfield%_parse, GuiControl_copy) ? use_case A_Loopfield "," : use_case
 }
+
 use_case := (SubStr(use_case, 0) = ",") ? SubStr(use_case, 1, -1) : use_case
 IniRead, primary_string, ini\stash search.ini, % GuiControl_copy, string 1, % A_Space
 IniRead, secondary_string, ini\stash search.ini, % GuiControl_copy, string 2, % A_Space
 secondary_string := (secondary_string = "") ? "" : "`nstring 2: " secondary_string
-Gui, stash_search_preview_list: Add, Text, % "Section BackgroundTrans w"font_width*35, % "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
+Gui, stash_search_preview_list: Add, Text, % "Section BackgroundTrans", % (GuiControl_copy = "tracker_gems") ? "use-cases: " StrReplace(use_case, ",", ", ") : "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
 Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos% AutoSize
 KeyWait, LButton
 Gui, stash_search_preview_list: Destroy
@@ -392,3 +387,11 @@ Loop, Parse, stash_search_usecases, `,, `,
 		IniWrite, % A_Space, ini\stash search.ini, Settings, % A_Loopfield
 }
 Return
+
+stash_search_menuGuiClose()
+{
+	global
+	new_stash_search_menu_closed := 1
+	GoSub, Settings_menu
+	Gui, stash_search_menu: Destroy
+}

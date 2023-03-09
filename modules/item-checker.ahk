@@ -543,7 +543,7 @@ Return
 LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 {
 	global affixes := [], affix_tiers := [], affix_levels := [], affix_groups := [], affix_groups_original := [], affix_names := [], gear_slots, itemchecker_item_class := "", itemchecker_meta_itemclass := ""
-	global itemchecker_mod_data, itemchecker_base_item_data, itemchecker_width, itemchecker_height, enable_itemchecker_ilvl, enable_itemchecker_override, enable_itemchecker_bases, enable_itemchecker_dps, enable_itemchecker_gear
+	global itemchecker_mod_data, itemchecker_base_item_data, itemchecker_width, itemchecker_height, enable_itemchecker_ilvl, enable_itemchecker_override, enable_itemchecker_bases, enable_itemchecker_dps, enable_itemchecker_gear, itemchecker_metadata
 	global itemchecker_t0_color, itemchecker_t1_color, itemchecker_t2_color, itemchecker_t3_color, itemchecker_t4_color, itemchecker_t5_color, itemchecker_t6_color, itemchecker_t7_color
 	global itemchecker_ilvl0_color, itemchecker_ilvl1_color, itemchecker_ilvl2_color, itemchecker_ilvl3_color, itemchecker_ilvl4_color, itemchecker_ilvl5_color, itemchecker_ilvl6_color, itemchecker_ilvl7_color, itemchecker_ilvl8_color
 	global itemchecker_cluster, itemchecker_cluster_text, itemchecker_cluster_button, itemchecker_cluster_button1
@@ -601,7 +601,6 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		Clipboard := itemchecker_clipboard
 	}
 	Else itemchecker_clipboard := Clipboard
-	itemchecker_metadata := SubStr(Clipboard, 1, InStr(Clipboard, "---") - 2)
 	
 	Loop, Parse, Clipboard, `n, `r
 	{
@@ -673,7 +672,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	item_stats_array := []
 	For key, val in itemchecker_base_item_data
 	{
-		If InStr(itemchecker_metadata, "`n" key "`r") || InStr(itemchecker_metadata, "`nsuperior " key "`r") || InStr(itemchecker_metadata, "`nsynthesised " key "`r")
+		If (key = itemchecker_metadata) || InStr(itemchecker_metadata, " " key) || InStr(itemchecker_metadata, key " ")
 		{
 			If (item_type = "defense")
 			{
@@ -2423,7 +2422,7 @@ LLK_ItemCheckAffixes(string, mode := 0)
 
 LLK_ItemCheckGear(slot)
 {
-	global equipped_mainhand, equipped_offhand, equipped_helmet, equipped_body, equipped_amulet, equipped_ring1, equipped_ring2, equipped_gloves, equipped_boots, equipped_belt
+	global equipped_mainhand, equipped_offhand, equipped_helmet, equipped_body, equipped_amulet, equipped_ring1, equipped_ring2, equipped_gloves, equipped_boots, equipped_belt, itemchecker_metadata
 	global hwnd_itemchecker
 	
 	snip := SubStr(Clipboard, InStr(Clipboard, "item level: "))
@@ -2855,7 +2854,7 @@ LLK_ItemCheckVendor()
 		}
 	}
 	
-	If !itemchecker_highlightable
+	If !itemchecker_highlightable && (itemchecker_win_hover = hwnd_itemchecker)
 	{
 		WinActivate, ahk_group poe_window
 		Return

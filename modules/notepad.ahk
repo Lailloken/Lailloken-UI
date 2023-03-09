@@ -420,23 +420,6 @@ Else
 WinActivate, ahk_group poe_window
 Return
 
-Notepad_editGuiClose:
-If WinExist("ahk_id " hwnd_notepad_edit)
-{
-	If (notepad_edit != 0)
-	{
-		WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
-		notepad_width -= xborder*2
-		notepad_height -= caption + yborder*2
-	}
-	Gui, notepad_edit: Submit, NoHide
-	notepad_text := StrReplace(notepad_text, "[", "(")
-	notepad_text := StrReplace(notepad_text, "]", ")")
-	Gui, notepad_edit: Destroy
-	hwnd_notepad_edit := ""
-}
-Return
-
 Init_notepad:
 IniRead, notepad_width, ini\notepad.ini, UI, width, 400
 IniRead, notepad_height, ini\notepad.ini, UI, height, 400
@@ -451,3 +434,22 @@ notepad_panel_dimensions := poe_width*0.03*notepad_panel_offset
 IniRead, notepad_panel_xpos, ini\notepad.ini, UI, button xcoord, % poe_width/2 - (notepad_panel_dimensions + 2)/2
 IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % poe_height - (notepad_panel_dimensions + 2)
 Return
+
+notepad_editGuiClose()
+{
+	global
+	If WinExist("ahk_id " hwnd_notepad_edit)
+	{
+		If (notepad_edit != 0)
+		{
+			WinGetPos,,, notepad_width, notepad_height, ahk_id %hwnd_notepad_edit%
+			notepad_width -= xborder*2
+			notepad_height -= caption + yborder*2
+		}
+		Gui, notepad_edit: Submit, NoHide
+		notepad_text := StrReplace(notepad_text, "[", "(")
+		notepad_text := StrReplace(notepad_text, "]", ")")
+		Gui, notepad_edit: Destroy
+		hwnd_notepad_edit := ""
+	}
+}

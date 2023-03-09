@@ -756,19 +756,17 @@ If (A_GuiControl = "delve_delete")
 If (A_GuiControl = "delve_calibration")
 {
 	clipboard := ""
-	SetTimer, MainLoop, Off
-	LLK_Overlay("hide")
-	sleep, 500
 	KeyWait, LButton
-	WinWaitNotActive, ahk_group poe_window,, 2
+	gui_force_hide := 1
+	LLK_Overlay("hide")
 	SendInput, #+{s}
-	Sleep, 2000
-	WinWaitActive, ahk_group poe_window
-	SetTimer, MainLoop, On
-	LLK_Overlay("show")
+	WinWaitNotActive, ahk_group poe_ahk_window
+	Sleep, 1000
+	WinWaitActive, ahk_group poe_ahk_window
 	pDelve_section := Gdip_CreateBitmapFromClipboard()
 	If (pDelve_section < 0)
 	{
+		gui_force_hide := 0
 		LLK_ToolTip("screen-cap failed")
 		Return
 	}
@@ -799,6 +797,7 @@ If (A_GuiControl = "delve_calibration")
 		hwnd_delve_grid2 := ""
 		GoSub, Delve
 	}
+	gui_force_hide := 0
 	Return
 }
 Else
