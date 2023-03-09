@@ -141,7 +141,7 @@ If (clipboard != "")
 			}
 		}
 	}
-	If enable_map_info && (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
+	If (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -164,17 +164,20 @@ If (clipboard != "")
 				Return
 			}
 		}
-		If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+		If enable_map_info
 		{
-			LLK_ToolTip("pixel-check setup required")
+			If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
+			{
+				LLK_ToolTip("pixel-check setup required")
+				Return
+			}
+			If !LLK_itemInfoCheck()
+				Return
+			Gui, map_info_menu: Destroy
+			hwnd_map_info_menu := ""
+			GoSub, Map_info
 			Return
 		}
-		If !LLK_itemInfoCheck()
-			Return
-		Gui, map_info_menu: Destroy
-		hwnd_map_info_menu := ""
-		GoSub, Map_info
-		Return
 	}
 }
 Else GoSub, Omnikey2

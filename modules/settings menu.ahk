@@ -596,7 +596,7 @@ cropping
 
 captions
 –> enter a caption or choose an entry from the drop-down list to replace an existing screenshot (right-click an entry to delete it)
-–> the xx-tag at the beginning is merely for sorting and will not be displayed in the actual caption of the overlay
+–> the [xx]-tag at the beginning is merely for sorting and will not be displayed in the actual caption of the overlay
 –> if you don't want to add a caption, just leave the sample text as it is and press enter
 )
 }
@@ -748,7 +748,8 @@ If (A_GuiControl = "cheatsheets_screencheck_help")
 text =
 (
 explanation
-–> determines how the screen will be checked to find the specific ui-element.
+–> determines how the screen will be checked to find the specific ui-element
+–> this only refers to the screen-check that was calibrated in the settings menu to activate this sheet, not any others that will be set up in the future
 
 static (default)
 –> only the screen-area that previously returned a positive test will be checked
@@ -787,9 +788,7 @@ text =
 –> it can either be displayed on the left or top of the overlay, depending on the layout of the sheet
 
 other indexes
-–> pressing the corresponding number-keys will add that index's image to the overlay
-–> pressing space will reset the overlay so it only displays the 00 image
-–> indexes be long-clicked to see a preview of the image-file
+–> index-numbers can be long-clicked to see a preview of the image-file
 )
 	help_image = img\GUI\cheat-sheet header.jpg
 }

@@ -151,7 +151,7 @@ If (A_GuiControl = "cheatsheets_edit_panelpreview")
 	Return
 }
 ;################################################################## screen-check calibration (advanced): picking an entry in the ddl
-If (A_GuiControl = "cheatsheets_calibration_save")
+If InStr(A_GuiControl, "cheatsheets_calibration_save")
 {
 	Gui, cheatsheets_calibration: Submit, NoHide
 	While (SubStr(cheatsheets_calibration_choice, 1, 1) = " ")
@@ -866,9 +866,12 @@ If InStr(A_GuiControl, "cheatsheets_edit") || (rAdvanced = -1)
 		Gui, cheatsheets_menu: Add, Text, % "ys Border BackgroundTrans cLime gCheatsheets vcheatsheets_edit_snip_"cheatsheets_files2, % " snip "
 		Gui, cheatsheets_menu: Add, Picture, % "ys hp w-1 x+"font_width//2 " BackgroundTrans gSettings_menu_help vCheatsheets_import_help2", img\GUI\help.png
 		
-		Gui, cheatsheets_menu: Add, Text, % "Section xs Hidden BackgroundTrans", % cheatsheets_files2
-		Gui, cheatsheets_menu: Add, Text, % "ys Border BackgroundTrans gCheatsheets vcheatsheets_menu_preview", % " preview "
-		Gui, cheatsheets_menu: Add, Picture, % "ys hp w-1 x+"font_width//2 " BackgroundTrans gSettings_menu_help vCheatsheets_preview_help", img\GUI\help.png
+		If (cheatsheets_files > 0)
+		{
+			Gui, cheatsheets_menu: Add, Text, % "Section xs Hidden BackgroundTrans", % cheatsheets_files2
+			Gui, cheatsheets_menu: Add, Text, % "ys Border BackgroundTrans gCheatsheets vcheatsheets_menu_preview", % " preview "
+			Gui, cheatsheets_menu: Add, Picture, % "ys hp w-1 x+"font_width//2 " BackgroundTrans gSettings_menu_help vCheatsheets_preview_help", img\GUI\help.png
+		}
 		GuiControl, Focus, % "cheatsheets_edit_snip_"cheatsheets_files2
 	}
 	
@@ -959,7 +962,7 @@ LLK_CheatSheetsApp(name)
 	local parse := StrReplace(name, " ", "_")
 	If (cheatsheets_apptitle_%parse% = "")
 	{
-		LLK_ToolTip("cheat-sheet was triggered but`nhas no window title", 2)
+		LLK_ToolTip("cheat-sheet was activated but`nhas no window title", 2)
 		Return
 	}
 	
@@ -1127,7 +1130,9 @@ LLK_CheatSheetsImages(name)
 	}
 	If !cheatsheets_valid_files
 	{
-		LLK_ToolTip("sheet was triggered but`ncontains no files", 2)
+		If (A_Gui = "cheatsheets_menu")
+			LLK_ToolTip("sheet contains no files", 2)
+		Else LLK_ToolTip("sheet was activated but`ncontains no files", 2)
 		cheatsheets_include_%parse% := ""
 		cheatsheets_loaded_images := ""
 		Return
@@ -1391,10 +1396,11 @@ LLK_CheatSheetsAdvanced(name, object := "")
 		Loop, % cheatsheets_objects_%parse%.Length()
 			snip_ddl .= cheatsheets_objects_%parse%[A_Index] "|"
 		cheatsheets_calibration_choice := ""
-		Gui, cheatsheets_calibration: Add, Text, % "Section BackgroundTrans", % "link screen-check to object:"
+		Gui, cheatsheets_calibration: Add, Text, % "Section BackgroundTrans", % "specify which object is linked to this screen-check"
 		Gui, cheatsheets_calibration: Font, cWhite s%fSize0% norm
 		Gui, cheatsheets_calibration: Add, ComboBox, % "Section xs BackgroundTrans wp-"font_width*5.5 " cBlack r"cheatsheets_objects_%parse%.Length() " vCheatsheets_calibration_choice", % snip_ddl
-		Gui, cheatsheets_calibration: Add, Text, % "ys hp 0x200 BackgroundTrans Border Center w"font_width*5 " gCheatsheets vCheatsheets_calibration_save", % "save"
+		Gui, cheatsheets_calibration: Add, Text, % "ys hp 0x200 BackgroundTrans Border Center w"font_width*5 " gCheatsheets vCheatsheets_calibration_save", % " save "
+		Gui, cheatsheets_calibration: Add, Button, % "x0 y0 BackgroundTrans Hidden Default gCheatsheets vCheatsheets_calibration_save2", % "save"
 		
 		Gui, cheatsheets_calibration: Show
 		While !cheatsheets_calibration_choice && !WinActive("ahk_id " hwnd_poe_client)
