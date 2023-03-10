@@ -32,18 +32,14 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### [Item-info](https://github.com/Lailloken/Lailloken-UI/wiki/Item-info): compact & customizable tooltip to determine loot quality at a glance
-| base tooltip: rare weapon | base tooltip: unique weapon |
+| segments ||
 |---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/212065660-95c57e4f-18dc-4d51-81cd-5fccd7659da4.png) | ![image](https://user-images.githubusercontent.com/61888437/212066319-972be992-160c-4c4f-921f-fbf09c6b80cf.png) |
-
-| optional: base-stat info | optional: base-stat info |
-|---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/212067763-6e5f95eb-b040-4aaf-b752-6e3392df146f.png) | ![image](https://user-images.githubusercontent.com/61888437/212068319-470361a9-0cf5-4033-b024-3aa75f8d86de.png) |
-| ![image](https://user-images.githubusercontent.com/61888437/216636639-8fa4c7a7-eb44-44cc-8f4a-16f480b0862b.png) | ![image](https://user-images.githubusercontent.com/61888437/216636610-9eeccc7e-5911-4171-b911-9ac8f4a08d97.png) |
-
-| optional: comparison with current gear | optional: comparison with current gear |
-|---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/212068981-b757797d-e53a-4731-9329-ff37018f967c.png) | ![image](https://user-images.githubusercontent.com/61888437/212069204-a3cf06d1-bdeb-4b6a-a5de-6bd236d2d731.png) |
+| DPS info | ![image](https://user-images.githubusercontent.com/61888437/224268948-232a599c-36b2-41b6-bed6-b4a60d57404f.png) |
+| item-base info (optional) | ![image](https://user-images.githubusercontent.com/61888437/224269149-018f5c0a-fe0f-4a8b-8ce1-884a00887cc5.png) |
+|   | ![image](https://user-images.githubusercontent.com/61888437/224270639-f8c33341-5d4f-4d85-81f0-f0e6459da495.png) |
+| comparison with current gear (optional) | ![image](https://user-images.githubusercontent.com/61888437/224273331-235abe9b-e89b-4d2b-a544-d1c728c7a012.png) |
+| eldritch implicits, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276010-99ce801f-e2d8-4c99-af37-026a1847abe2.png) |
+| explicits, rolls, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276650-b78ea0e8-00f9-443f-81c5-b27bd3d867a8.png) |
 <br>
 
 ### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items) for items: single-hotkey access to features and popular 3rd-party websites  
@@ -65,6 +61,14 @@ I will not be taking direct code input or optimizations from people because lear
 | single-hotkey skilltree overlays | search-strings to bulk-buy all gems in a build |
 |---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/215314956-c3ffabd6-da4e-4475-929f-35a8d37aa40a.png) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
+<br>
+
+### [Cheat-sheet Overlay Toolkit](https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit): create customizable, context-sensitive overlays
+| types | example 1 | example 2 |
+|---|---|---|
+| image-based overlay | ![image](https://user-images.githubusercontent.com/61888437/223756256-1e5577a6-2690-41bc-8de9-2ac8bf66816b.png) | ![image](https://user-images.githubusercontent.com/61888437/224283025-0f17b626-0973-4d44-b80b-796613156eec.png) |
+| app-based "overlay" | ![image](https://user-images.githubusercontent.com/61888437/223783668-56eb423f-2ce9-46fd-9cc3-155efc2166e2.png) | ![image](https://user-images.githubusercontent.com/61888437/224286060-20fb2b9e-9345-4c60-86ff-33a6139dcc0b.png) |
+| advanced overlays | ![image](https://user-images.githubusercontent.com/61888437/223794023-1999677d-495a-4bb7-ac76-3888a0009762.png) | ![image](https://user-images.githubusercontent.com/61888437/224286754-6e4c8fb5-aa1a-4e08-99ac-60802b10e447.png) |
 <br>
 
 ### [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
