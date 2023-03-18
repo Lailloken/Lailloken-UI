@@ -322,7 +322,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 								step_text .= "waypoint"
 							Case "waypoint_use":
 								step_text .= "waypoint-travel to areaID" target_areaID
-							Case "waypoint_tag":
+							Case "waypoint":
 								step_text .= InStr(step_text, "broken ") ? "waypoint" : "the waypoint"
 							Case "logout":
 								step_text .= "relog, enter areaID" areaID
