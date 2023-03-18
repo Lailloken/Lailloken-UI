@@ -986,7 +986,7 @@ LLK_CheatSheetsApp(name)
 		{
 			KeyWait, % cheatsheets_hotkey
 			WinActivate, ahk_group poe_window
-			WinSet, Bottom,, % cheatsheets_apptitle_%parse%
+			;WinSet, Bottom,, % cheatsheets_apptitle_%parse%
 			WinMinimize, % cheatsheets_apptitle_%parse%
 		}
 		Else WinWaitActive, ahk_group poe_window
@@ -1002,6 +1002,7 @@ LLK_CheatSheetsClose()
 	{
 		cheatsheets_resized := 0
 		IniWrite, % cheatsheets_scale_%cheatsheet_triggered1%, % "cheat-sheets\" cheatsheet_triggered "\info.ini", UI, scale
+		IniWrite, % cheatsheets_pos_%cheatsheet_triggered1%, % "cheat-sheets\" cheatsheet_triggered "\info.ini", UI, position
 	}
 	cheatsheets_loaded_images := ""
 	cheatsheet_overlay_image := 0
@@ -1299,7 +1300,7 @@ LLK_CheatSheetsMove()
 				cheatsheets_pos_%parse% := SubStr(cheatsheets_pos_%parse%, 1, 1) + 1 "," SubStr(cheatsheets_pos_%parse%, 3)
 		}
 		cheatsheets_resized := 1
-		;IniWrite, % cheatsheets_pos_%parse%, % "cheat-sheets\" cheatsheet_overlay_active "\info.ini", UI, position	
+		;IniWrite, % cheatsheets_pos_%parse%, % "cheat-sheets\" cheatsheet_overlay_active "\info.ini", UI, position
 	}
 	LLK_CheatSheetsImages(cheatsheet_overlay_active)
 }
@@ -1308,7 +1309,10 @@ LLK_SheetSearch(name) ;checks the screen for sheet-related UI elements
 {
 	global
 	If !FileExist("cheat-sheets\"name "\[check].bmp") ;return 0 if reference img-file is missing
+	{
+		LLK_ToolTip("check hasn't been calibrated yet", 1.5)
 		Return 0
+	}
 	
 	local parse := StrReplace(name, " ", "_"), width, height
 	If !cheatsheets_searchcoords_%parse% && (A_Gui != "settings_menu")
