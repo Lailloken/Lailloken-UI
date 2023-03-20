@@ -216,47 +216,26 @@ If (gamescreen = 0)
 {
 	If (InStr(current_location, "_town") || InStr(current_location, "1_3_17_1")) && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
 	{
-		If (stash_search_scroll_mode = 1)
-		{
-			SetTimer, stash_search_scroll, delete
-			ToolTip,,,, 11
-			stash_search_scroll_mode := 0
-		}
+		If searchstrings_scroll_contents
+			searchstrings_scroll_contents := ""
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
 		{
-			If (A_TickCount >= start + 500)
+			If (A_TickCount >= start + 250)
 			{
-				stash_search_trigger := 2
-				GoSub, Stash_search
-				KeyWait, % ThisHotkey_copy
-				stash_search_trigger := 0
+				LLK_StringPick("exile leveling")
 				Return
 			}
 		}
 	}
+	
 	LLK_ImageSearch()
-	If (disable_imagecheck_bestiary = 0) && (bestiary = 1)
-		GoSub, Bestiary_search
-	If (disable_imagecheck_bestiarydex = 0) && (bestiarydex = 1)
-	{
-		stash_search_type := "bestiarydex"
-		GoSub, Stash_search
-	}
-	If (disable_imagecheck_gwennen = 0) && (gwennen = 1)
-	{
-		stash_search_type := "gwennen"
-		GoSub, Stash_search
-	}
+	
 	If (disable_imagecheck_betrayal = 0) && (betrayal = 1)
 		GoSub, Betrayal_search
 	If (disable_imagecheck_sanctum = 0) && (sanctum = 1)
 		GoSub, Sanctum
-	If (disable_imagecheck_stash = 0) && (stash = 1)
-	{
-		stash_search_type := "stash"
-		GoSub, Stash_search
-	}
+	
 	If (enable_leveling_guide = 1) && (disable_imagecheck_skilltree = 0) && (skilltree = 1)
 	{
 		LLK_LevelGuideSkillTree(1)
@@ -327,11 +306,24 @@ If (gamescreen = 0)
 		Gui, leveling_guide_labs: Destroy
 		Gui, leveling_guide_skilltree_hover: Destroy
 	}
-	If (disable_imagecheck_vendor = 0) && (vendor = 1)
+	
+	pHaystack_searchstrings := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
+	For key, value in searchstrings_enabled
 	{
-		stash_search_type := "vendor"
-		GoSub, Stash_search
+		If LLK_StringSearch(value)
+		{
+			parse := StrReplace(value, " ", "_")
+			If !searchstrings_%parse%_contents.Count()
+			{
+				LLK_ToolTip("no strings set up for:`n" value, 1.5)
+				Return
+			}
+			searchstring_activated := value, searchstring_activated1 := StrReplace(searchstring_activated, " ", "_")
+			LLK_StringActivate(value)
+			Break
+		}
 	}
+	Gdip_DisposeImage(pHaystack_searchstrings)
 }
 Return
 

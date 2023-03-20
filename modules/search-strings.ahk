@@ -1,392 +1,685 @@
-﻿Stash_search:
-If (A_Gui != "") || (stash_search_trigger > 0)
+﻿Init_searchstrings:
+If !FileExist("ini\search-strings.ini")
 {
-	If (stash_search_trigger = 0)
+	IniWrite, 1, ini\search-strings.ini, searches, beast crafting
+	IniWrite, % "", ini\search-strings.ini, beast crafting, last coordinates
+	IniWrite, "warding", ini\search-strings.ini, beast crafting, 00-flasks: curse
+	IniWrite, "sealing|lizard", ini\search-strings.ini, beast crafting, 00-flasks: bleed
+	IniWrite, "earthing|conger", ini\search-strings.ini, beast crafting, 00-flasks: shock
+	IniWrite, "convection|deer", ini\search-strings.ini, beast crafting, 00-flasks: freeze
+	IniWrite, "damping|urchin", ini\search-strings.ini, beast crafting, 00-flasks: ignite
+	IniWrite, "antitoxin|skunk", ini\search-strings.ini, beast crafting, 00-flasks: poison
+}
+
+IniRead, stash_search_list, ini\search-strings.ini, searches,, % A_Space
+Sort, stash_search_list, D`n
+
+searchstrings_enabled := []
+Loop, Parse, stash_search_list, `n
+{
+	If (A_Index = 1)
+		stash_search_list := []
+	If (A_LoopField = "")
+		continue
+	parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), parse1 := StrReplace(parse, " ", "_")
+	stash_search_list.Push(parse)
+	searchstrings_enable_%parse1% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+	If searchstrings_enable_%parse1%
+		searchstrings_enabled.Push(parse)
+}
+LLK_SortArray(stash_search_list)
+
+Loop, % stash_search_list.Length()
+{
+	parse := StrReplace(stash_search_list[A_Index], " ", "_")
+	IniRead, searchstrings_searchcoords_%parse%, ini\search-strings.ini, % stash_search_list[A_Index], last coordinates, % A_Space
+	
+	IniRead, parse_ini, ini\search-strings.ini, % stash_search_list[A_Index],, % A_Space
+	searchstrings_%parse%_contents := {}
+	Loop, Parse, parse_ini, `n
 	{
-		string_number := (click = 2) ? 2 : 1
-		IniRead, stash_search_string, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number%
-		IniRead, stash_search_scroll, ini\stash search.ini, % StrReplace(A_GuiControl, " ", "_"), string %string_number% enable scrolling, 0
-		KeyWait, LButton
-		Gui, stash_search_context_menu: Destroy
+		If (A_LoopField = "") || InStr(A_LoopField, "last coordinates")
+			continue
+		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
+		value := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		value := (SubStr(value, 1, 1) = """") ? SubStr(value, 2, -1) : value ;check for redundant quote-marks due to improper key-reading
+		searchstrings_%parse%_contents[key] := StrReplace(value, " " ";;;" " ", "`n")
+	}
+}
+Return
+
+Stash_search:
+If WinExist("ahk_id " hwnd_settings_menu)
+	Gui, settings_menu: Submit, NoHide
+
+If InStr(A_GuiControl, "searchstrings_enable_") ;toggling the checkbox
+{
+	parse := StrReplace(StrReplace(A_GuiControl, "searchstrings_enable_"), "_", " "), parse1 := StrReplace(A_GuiControl, "searchstrings_enable_")
+	IniWrite, % %A_GuiControl%, ini\search-strings.ini, searches, % parse
+	If (%A_GuiControl% = 0)
+		GuiControl, settings_menu: +cWhite, % "settings_menu_searchstrings_entry_"parse1
+	Else
+	{
+		If !searchstrings_searchcoords_%parse1%
+			GuiControl, settings_menu: +cRed, % "settings_menu_searchstrings_entry_"parse1
+	}
+	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GoSub, Init_searchstrings
+	Return
+}
+If (A_GuiControl = "settings_menu_searchstrings_add") ;hitting enter to add a new search
+{
+	WinGetPos, xPos_settings_menu_searchstrings_edit, yPos_settings_menu_searchstrings_edit,, height_settings_menu_searchstrings_edit, ahk_id %hwnd_settings_menu_searchstrings_edit%
+	newname_check := LLK_AddEntry(settings_menu_searchstrings_newname)
+	If IsNumber(newname_check)
+		Return
+	IniWrite, 1, ini\search-strings.ini, searches, % newname_check
+	GoSub, Settings_menu
+	Return
+}
+If InStr(A_GuiControl, "settings_menu_searchstrings_test_") ;clicking <test>
+{
+	pHaystack_searchstrings := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
+	rSearchstrings := LLK_StringSearch(StrReplace(A_GuiControl, "settings_menu_searchstrings_test_"))
+	If rSearchstrings
+	{
+		LLK_ToolTip("test positive")
+		GuiControl, settings_menu: +cWhite, % "settings_menu_searchstrings_entry_"StrReplace(A_GuiControl, "settings_menu_searchstrings_test_")
+		WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	}
+	Gdip_DisposeImage(pHaystack_searchstrings)
+	Return
+}
+If InStr(A_GuiControl, "settings_menu_searchstrings_calibrate_") ;clicking <calibrate>
+{
+	LLK_StringSnip(StrReplace(A_GuiControl, "settings_menu_searchstrings_calibrate_"))
+	Return
+}
+If InStr(A_GuiControl, "settings_menu_searchstrings_entry_") ;clicking an entry
+{
+	pEntry := StrReplace(A_GuiControl, "settings_menu_searchstrings_entry_")
+	If (click = 1)
+		LLK_StringMenu(pEntry)
+	Else
+	{
+		If (SubStr(A_GuiControl, -13) = "beast_crafting")
+		{
+			LLK_ToolTip("default searches cannot be removed", 1.5)
+			Return
+		}
+		If LLK_ProgressBar("settings_menu", "settings_menu_searchstrings_delprogress_"pEntry)
+		{
+			FileDelete, % "img\Recognition ("poe_height "p)\GUI\[search-strings] "StrReplace(pEntry, "_", " ") ".bmp"
+			IniDelete, ini\search-strings.ini, searches, % StrReplace(pEntry, "_", " ")
+			IniDelete, ini\search-strings.ini, % StrReplace(pEntry, "_", " ")
+			GoSub, Settings_menu
+		}
+		KeyWait, RButton
+	}
+	Return
+}
+Return
+
+LLK_StringActivate(name)
+{
+	global
+	local parse := StrReplace(name, " ", "_"), text, xMouse, yMouse, xWin, yWin, width, height, key, value
+	
+	If (searchstrings_%searchstring_activated1%_contents.Count() = 1)
+	{
+		For key, value in searchstrings_%searchstring_activated1%_contents
+			LLK_StringPick(key)
+		Return
+	}
+	
+	MouseGetPos, xMouse, yMouse
+	Gui, searchstrings_contextmenu: New, -DPIScale -caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_searchstrings_contextmenu
+	Gui, searchstrings_contextmenu: Color, Black
+	Gui, searchstrings_contextmenu: Margin, % font_width//2, % font_height/8
+	;WinSet, Transparent, %trans%
+	Gui, searchstrings_contextmenu: Font, s%fSize0% cWhite, Fontin SmallCaps
+	
+	For key, value in searchstrings_%parse%_contents
+	{
+		style := (A_Index = 1) ? "Section" : "xs"
+		Gui, searchstrings_contextmenu: Add, Text, % style " BackgroundTrans gLLK_StringPick", % (SubStr(key, 1, 3) = "00-") ? SubStr(key, 4) : key
+	}
+	
+	Gui, searchstrings_contextmenu: Show, NA x10000 y10000
+	WinGetPos, xWin, yWin, width, height, ahk_id %hwnd_searchstrings_contextmenu%
+	
+	xMouse := (xMouse - xScreenOffset + width > poe_width) ? xScreenOffset + poe_width - width : xMouse
+	yMouse := (yMouse - yScreenOffset + height > poe_height) ? yScreenOffset + poe_height - height : yMouse
+	
+	Gui, searchstrings_contextmenu: Show, x%xMouse% y%yMouse%
+	WinWaitNotActive, ahk_id %hwnd_searchstrings_contextmenu%
+	Gui, searchstrings_contextmenu: Destroy
+	hwnd_searchstrings_contextmenu := ""
+}
+
+LLK_StringPick(name := "")
+{
+	global
+	local parse := searchstring_activated, parse1 := StrReplace(searchstring_activated, " ", "_"), check0 := A_GuiControl ? A_GuiControl : name, check := searchstrings_%parse1%_contents.HasKey("00-" check0) ? "00-" : "", string := searchstrings_%parse1%_contents[check check0]
+	
+	If (name = "exile leveling")
+		string := stash_search_string_leveling
+	
+	Gui, searchstrings_contextmenu: Destroy
+	hwnd_searchstrings_contextmenu := ""
+	KeyWait, LButton
+	If !InStr(string, "`n") && !InStr(string, ";")
+	{
 		WinActivate, ahk_group poe_window
 		WinWaitActive, ahk_group poe_window
+		Clipboard := string
+		SendInput, ^{f}
+		sleep 100
+		SendInput, ^{v}{Enter}
+		Return
+	}
+	Else If InStr(string, "`n")
+	{
+		searchstrings_scroll_contents := []
+		searchstrings_scroll_index := 1
+		Loop, Parse, string, `n
+			searchstrings_scroll_contents.Push(A_LoopField)
+		Clipboard := searchstrings_scroll_contents[1]
 	}
 	Else
 	{
-		IniRead, stash_search_string, ini\stash search.ini, % Loopfield_copy, string 1
-		IniRead, stash_search_scroll, ini\stash search.ini, % Loopfield_copy, string 1 enable scrolling, 0
-		If (stash_search_trigger = 2)
-		{
-			If (A_Gui = "")
-				stash_search_string := stash_search_string_leveling
-			Else stash_search_string := InStr(A_GuiControl, "gem") ? stash_search_string_leveling_gems : stash_search_string_leveling_items
-			stash_search_scroll := InStr(stash_search_string, ";") ? 1 : 0
-		}
+		searchstrings_scroll_contents := string
+		searchstrings_scroll_number := SubStr(string, InStr(string, ";") + 1), searchstrings_scroll_number := SubStr(searchstrings_scroll_number, 1, InStr(searchstrings_scroll_number, ";") - 1)
+		searchstrings_scroll_index := 0
+		Clipboard := StrReplace(searchstrings_scroll_contents, ";")
 	}
-	
-	Loop
-	{
-		If (scrollboard%A_Index% != "")
-			scrollboard%A_Index% := ""
-		Else break
-	}
-	
-	scrollboards := ""
-	scrollboard_active := ""
-	
-	If InStr(stash_search_string, ";")
-	{
-		scrollboards := 0
-		Loop, Parse, stash_search_string, `;, `;
-		{
-			If (A_Loopfield = "")
-				continue
-			scrollboard%A_Index% := A_Loopfield
-			scrollboards += 1
-		}
-		scrollboard_active := 1
-	}
-	
-	clipboard := (scrollboard1 = "") ? stash_search_string : scrollboard1
-	ClipWait, 0.05
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
 	SendInput, ^{f}
-	Sleep, 100
-	SendInput, ^{v}
-	Sleep, 100
-	SendInput, {Enter}
-	If (stash_search_scroll = 1)
+	sleep 100
+	SendInput, ^{v}{Enter}
+	LLK_StringScroll()
+}
+
+LLK_StringScroll()
+{
+	global
+	local text := IsObject(searchstrings_scroll_contents) ? " " searchstrings_scroll_index "/" searchstrings_scroll_contents.Count() : ""
+	If InStr(stash_search_string_leveling_gems, searchstrings_scroll_contents[searchstrings_scroll_index])
+		text .= " (gems)"
+	Else If InStr(stash_search_string_leveling_items, searchstrings_scroll_contents[searchstrings_scroll_index])
+		text .= " (items)"
+	
+	ToolTip, % "          scrolling..." text "`n          (ESC to exit)",,, 11
+	
+	If !searchstrings_scroll_contents || !WinActive("ahk_group poe_window")
 	{
-		SetTimer, Stash_search_scroll, 100
-		stash_search_scroll_mode := 1
-	}
-	Return
-}
-MouseGetPos, mouseXpos, mouseYpos
-Gui, stash_search_context_menu: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_stash_search_context_menu
-Gui, stash_search_context_menu: Margin, 4, 2
-Gui, stash_search_context_menu: Color, Black
-WinSet, Transparent, %trans%
-Gui, stash_search_context_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
-
-IniRead, stash_search_shortcuts, ini\stash search.ini, Settings, % stash_search_type, % A_Space
-stash_search_shortcuts_enabled := 0
-enabled_shortcuts := ""
-
-Loop, Parse, stash_search_shortcuts, `,,`,
-{
-	If (A_Loopfield = "")
-		continue
-	Loopfield_copy := StrReplace(SubStr(A_Loopfield, 2, -1), "|", "vertbar")
-	IniRead, stash_search_%Loopfield_copy%_enabled, ini\stash search.ini, % StrReplace(Loopfield_copy, "vertbar", "|"), enable, 0
-	stash_search_shortcuts_enabled += stash_search_%Loopfield_copy%_enabled
-	enabled_shortcuts .= (stash_search_%Loopfield_copy%_enabled = 1) ? Loopfield_copy "," : ""
-}
-If (stash_search_shortcuts = "" || stash_search_shortcuts_enabled < 1)
-{
-	LLK_ToolTip("no strings for this search")
-	Return
-}
-
-If (stash_search_shortcuts_enabled = 1) ;if only one search-string is enabled, check whether it has two strings
-{
-	Loopfield_copy := StrReplace(SubStr(enabled_shortcuts, 1, -1), "vertbar", "|")
-	IniRead, parse_secondary_click, ini\stash search.ini, % Loopfield_copy, string 2
-	If (parse_secondary_click = "")
-	{
-		Gui, stash_search_context_menu: Destroy
-		hwnd_stash_search_context_menu := ""
-		stash_search_trigger := 1
-		GoSub, Stash_search
-		stash_search_trigger := 0
+		searchstrings_scroll_contents := ""
+		ToolTip,,,, 11
 		Return
 	}
+	sleep 100
+	LLK_StringScroll()
 }
 
-Loop, Parse, stash_search_shortcuts, `,, `,
+LLK_StringMenu(name)
 {
-	If (A_LoopField = "")
-		continue
-	Loopfield_copy := StrReplace(SubStr(A_Loopfield, 2, -1), "|", "vertbar")
-	If (stash_search_%Loopfield_copy%_enabled = 1)
-		Gui, stash_search_context_menu: Add, Text, gStash_search BackgroundTrans Center, % StrReplace(SubStr(A_LoopField, 2, -1), "_", " ")
-}
-
-Gui, Show, x%mouseXpos% y%mouseYpos%
-WinWaitActive, ahk_group poe_window
-If WinExist("ahk_id " hwnd_stash_search_context_menu)
-	Gui, stash_search_context_menu: destroy
-Return
-
-Stash_search_apply:
-Gui, settings_menu: Submit, NoHide
-GuiControl_copy := StrReplace(A_GuiControl, "stash_search_")
-GuiControl_copy := StrReplace(GuiControl_copy, "_enable")
-GuiControl_copy := StrReplace(GuiControl_copy, "vertbar", "|")
-IniWrite, % %A_GuiControl%, ini\stash search.ini, % GuiControl_copy, enable
-Return
-
-Stash_search_delete:
-delete_string := StrReplace(A_GuiControl, "delete_", "")
-delete_string := StrReplace(delete_string, " ", "_")
-delete_string := StrReplace(delete_string, "vertbar", "|")
-Loop, Parse, stash_search_usecases, `,, `,
-{
-	IniRead, stash_search_%A_Loopfield%_parse, ini\stash search.ini, Settings, % A_Loopfield
-	If InStr(stash_search_%A_Loopfield%_parse, "(" delete_string "),")
-		IniWrite, % StrReplace(stash_search_%A_Loopfield%_parse, "(" delete_string "),"), ini\stash search.ini, Settings, % A_Loopfield
-}
-IniDelete, ini\stash search.ini, %delete_string%
-new_stash_search_menu_closed := 1
-GoSub, Settings_menu
-Return
-
-Stash_search_new:
-Gui, settings_menu: Submit
-LLK_Overlay("settings_menu", "hide")
-
-If (stash_search_edit_mode = 1)
-{
-	edit_name := StrReplace(A_GuiControl, "edit_", "")
-	edit_name := StrReplace(edit_name, "vertbar", "|")
-	Loop, Parse, stash_search_usecases, `,, `,
+	global
+	local name1 := name, key, value, main_text, style, cEntry, xPos, yPos, width, height, xPos_max := 0, parse
+	searchstring_selected1 := name
+	name := StrReplace(name, "_", " ")
+	searchstring_selected := name
+	LLK_Overlay("settings_menu", "hide")
+	
+	xsearchstrings_menu := ""
+	
+	If WinExist("ahk_id " hwnd_searchstrings_menu)
 	{
-		IniRead, stash_search_%A_LoopField%_parse, ini\stash search.ini, Settings, % A_LoopField
-		stash_search_edit_use_%A_Loopfield% := InStr(stash_search_%A_LoopField%_parse, edit_name) ? 1 : 0
+		WinGetPos, xsearchstrings_menu, ysearchstrings_menu,,, ahk_id %hwnd_searchstrings_menu%
+		;searchstrings_menuGuiClose()
 	}
-	IniRead, stash_search_edit_scroll1, ini\stash search.ini, % edit_name, string 1 enable scrolling, 0
-	IniRead, stash_search_edit_string1, ini\stash search.ini, % edit_name, string 1, % A_Space
-	IniRead, stash_search_edit_scroll2, ini\stash search.ini, % edit_name, string 2 enable scrolling, 0
-	IniRead, stash_search_edit_string2, ini\stash search.ini, % edit_name, string 2, % A_Space
-	stash_search_edit_mode := 0
-}
-Else
-{
-	edit_name := ""
-	Loop, Parse, stash_search_usecases, `,, `,
-		stash_search_edit_use_%A_Loopfield% := 0
-	stash_search_edit_scroll1 := 0
-	stash_search_edit_scroll2 := 0
-	stash_search_edit_string1 := ""
-	stash_search_edit_string2 := ""
-}
-
-
-Gui, stash_search_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_stash_search_menu, Lailloken UI: search-strings configuration
-Gui, stash_search_menu: Color, Black
-Gui, stash_search_menu: Margin, 12, 4
-WinSet, Transparent, %trans%
-Gui, stash_search_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
-
-Gui, stash_search_menu: Add, Text, Section BackgroundTrans HWNDmain_text, % "unique search name: "
-ControlGetPos,,, width,,, ahk_id %main_text%
-
-Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "ys x+0 hp BackgroundTrans cBlack lowercase vStash_search_new_name wp", % StrReplace(edit_name, "_", " ")
-
-Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "use-cases: "
-Loop, Parse, stash_search_usecases, `,, `,
-{
-	If (A_Index = 1 || A_Index = 5)
-		Gui, stash_search_menu: Add, Checkbox, % "xs Section BackgroundTrans vStash_search_use_" A_Loopfield " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
-	Else Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_use_" A_Loopfield " Checked"stash_search_edit_use_%A_Loopfield%, % A_Loopfield
-}
-
-Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0, % "search string 1:"
-Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll Checked"stash_search_edit_scroll1, enable scrolling
-Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string w"width*2, % stash_search_edit_string1
-Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0, % "search string 2:"
-Gui, stash_search_menu: Add, Checkbox, % "ys BackgroundTrans vStash_search_new_scroll1 Checked"stash_search_edit_scroll2, enable scrolling
-Gui, stash_search_menu: Font, % "s"fSize0-4 "norm"
-Gui, stash_search_menu: Add, Edit, % "xs Section hp BackgroundTrans lowercase cBlack vStash_search_new_string1 w"width*2, % stash_search_edit_string2
-Gui, stash_search_menu: Font, % "s"fSize0
-Gui, stash_search_menu: Add, Text, xs Section Border BackgroundTrans vStash_search_save gStash_search_save y+%fSize0%, % " save && close "
-Gui, stash_search_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vStash_search_new_help hp w-1", img\GUI\help.png
-
-Gui, stash_search_menu: Show, % "Hide Center"
-LLK_Overlay("stash_search_menu", "show", 0)
-Return
-
-Stash_search_preview_list:
-MouseGetPos, mouseXpos, mouseYpos
-GuiControl_copy := StrReplace(A_GuiControl, " ", "_")
-If (click = 2)
-{
-	GuiControl_copy := StrReplace(GuiControl_copy, "|", "vertbar")
-	Gui, stash_search_context_menu: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_stash_search_context_menu
-	Gui, stash_search_context_menu: Margin, % fSize0//2, fSize0//2
-	Gui, stash_search_context_menu: Color, Black
-	WinSet, Transparent, %trans%
-	Gui, stash_search_context_menu: Font, cWhite s%fSize0%, Fontin SmallCaps
-	stash_search_edit_mode := 1
-	Gui, stash_search_context_menu: Add, Text, Section BackgroundTrans vEdit_%GuiControl_copy% gStash_search_new, edit
-	Gui, stash_search_context_menu: Add, Text, % "xs BackgroundTrans vDelete_" GuiControl_copy " gStash_search_delete y+"fSize0//2, delete
-	Gui, stash_search_context_menu: Show, % "AutoSize x"mouseXpos + fSize0 " y"mouseYpos + fSize0
-	WinWaitNotActive, ahk_id %hwnd_stash_search_context_menu%
-	stash_search_edit_mode := 0
-	Gui, stash_search_context_menu: Destroy
-	Return
-}
-Gui, stash_search_preview_list: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs +Border HWNDhwnd_stash_search_preview_list
-Gui, stash_search_preview_list: Margin, % 12, 4
-Gui, stash_search_preview_list: Color, Black
-WinSet, Transparent, %trans%
-Gui, stash_search_preview_list: Font, cWhite s%fSize0%, Fontin SmallCaps
-
-use_case := ""
-Loop, Parse, stash_search_usecases, `,, `,
-{
-	IniRead, stash_search_%A_Loopfield%_parse, ini\stash search.ini, Settings, % A_Loopfield
-	use_case := InStr(stash_search_%A_Loopfield%_parse, GuiControl_copy) ? use_case A_Loopfield "," : use_case
-}
-
-use_case := (SubStr(use_case, 0) = ",") ? SubStr(use_case, 1, -1) : use_case
-IniRead, primary_string, ini\stash search.ini, % GuiControl_copy, string 1, % A_Space
-IniRead, secondary_string, ini\stash search.ini, % GuiControl_copy, string 2, % A_Space
-secondary_string := (secondary_string = "") ? "" : "`nstring 2: " secondary_string
-Gui, stash_search_preview_list: Add, Text, % "Section BackgroundTrans", % (GuiControl_copy = "tracker_gems") ? "use-cases: " StrReplace(use_case, ",", ", ") : "use-cases: " StrReplace(use_case, ",", ", ") "`nstring 1: " primary_string secondary_string
-Gui, stash_search_preview_list: Show, NA x%mouseXpos% y%mouseYpos% AutoSize
-KeyWait, LButton
-Gui, stash_search_preview_list: Destroy
-Return
-
-Stash_search_scroll:
-If (scrollboard%scrollboard_active% !="") && InStr(stash_search_string_leveling, scrollboard%scrollboard_active%)
-{
-	If InStr(stash_search_string_leveling_gems, scrollboard%scrollboard_active%)
-		scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards " (gems)`n              ESC to exit"
-	Else If InStr(stash_search_string_leveling_items, scrollboard%scrollboard_active%)
-		scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards " (items)`n              ESC to exit"
-}
-Else If (scrollboards != "") && (scrollboard_active != "")
-	scrollboard_text := "              scrolling: " scrollboard_active "/" scrollboards "`n              ESC to exit"
-Else scrollboard_text := "              scrolling...`n              ESC to exit"
-ToolTip, % scrollboard_text,,, 11
-Return
-
-Stash_search_save:
-Gui, stash_search_menu: Submit, NoHide
-stash_search_new_name_first_letter := SubStr(stash_search_new_name, 1, 1)
-checkbox_sum := 0
-If (stash_search_new_name = "")
-{
-	LLK_ToolTip("enter a name")
-	Return
-}
-Loop, Parse, stash_search_usecases, `,, `,
-	checkbox_sum += stash_search_use_%A_Loopfield%
-If (checkbox_sum = 0)
-{
-	LLK_ToolTip("set at least one use-case")
-	Return
-}
-If (stash_search_new_string = "") && (stash_search_new_string1 = "")
-{
-	LLK_ToolTip("enter a string")
-	Return
-}
-If (stash_search_new_string = "") && (stash_search_new_string1 != "")
-{
-	LLK_ToolTip("first string is empty, but second is not")
-	Return
-}
-If (stash_search_new_name = "settings")
-{
-	LLK_ToolTip("The selected name is not allowed.`nPlease choose a different name.", 3)
-	GuiControl, stash_search_menu: Text, stash_search_new_name,
-	Return
-}
-If stash_search_new_name_first_letter is not alnum
-{
-	LLK_ToolTip("Unsupported first character in frame-name detected.`nPlease choose a different name.", 3)
-	GuiControl, stash_search_menu: Text, stash_search_new_name,
-	Return
-}
-
-Loop 2
-{
-	loop := A_Index
-	string_mod := (A_Index = 1) ? "" : 1
-	If (stash_search_new_scroll%string_mod% = 1)
+	Gui, searchstrings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_searchstrings_menu, Lailloken UI: search-string configuration
+	Gui, searchstrings_menu: Color, Black
+	Gui, searchstrings_menu: Margin, % font_width//2, % font_height//4
+	;WinSet, Transparent, %trans%
+	Gui, searchstrings_menu: Font, s%fSize0% cWhite, Fontin SmallCaps
+	;Gui, cheatsheets_menu: Add, Text, % "Section Center BackgroundTrans w"font_width*50,
+	Gui, searchstrings_menu: Add, Text, % "Section cSilver Center BackgroundTrans", % "name:"
+	Gui, searchstrings_menu: Add, Text, % "ys Center BackgroundTrans HWNDmain_text", % name
+	WinGetPos, xPos, yPos, width, height, ahk_id %main_text%
+	xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
+	
+	IniRead, parse, ini\search-strings.ini, % name,, % A_Space
+	searchstrings_%name1%_contents := {}
+	Loop, Parse, parse, `n
 	{
-		parse_string := ""
-		numbers := 0
-		Loop, Parse, stash_search_new_string%string_mod%
+		If (A_LoopField = "") || InStr(A_LoopField, "last coordinates")
+			continue
+		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
+		value := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		value := (SubStr(value, 1, 1) = """") ? SubStr(value, 2, -1) : value ;check for redundant quote-marks due to improper key-reading
+		searchstrings_%name1%_contents[key] := StrReplace(value, " " ";;;" " ", "`n")
+	}
+	
+	searchstrings_entries := []
+	For key, value in searchstrings_%name1%_contents
+	{
+		If (A_Index = 1)
 		{
-			If A_Loopfield is number
-				parse_string := (parse_string = "") ? A_Loopfield : parse_string A_Loopfield
-			Else parse_string := (parse_string = "") ? "," : parse_string ","
+			Gui, searchstrings_menu: Add, Text, % "Section xs cSilver Center BackgroundTrans", % "list of entries: "
+			Gui, searchstrings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vsearchstrings_entrylist_help hp w-1", img\GUI\help.png
 		}
-		If !InStr(stash_search_new_string%string_mod%, ";")
+		searchstrings_entries.Push(key)
+		style := (A_Index = 1) ? "y+0" : "y+"font_height/6
+		;cEntry := (SubStr(key, 1, 3) != "00-") ? "cWhite gLLK_StringMenuPaste" : "cRed"
+		;Gui, searchstrings_menu: Add, Text, % "Section xs "style " Border Center "cEntry " vsearchstrings_paste"A_Index " BackgroundTrans", % " paste "
+		cEntry := (SubStr(key, 1, 3) != "00-") ? "cWhite gLLK_StringMenuDelete" : "cRed"
+		Gui, searchstrings_menu: Add, Text, % "Section xs Border "style " Center "cEntry " vsearchstrings_delete"A_Index " BackgroundTrans", % " del "
+		Gui, searchstrings_menu: Add, Progress, % "ys x+0 hp range0-400 vertical w"font_width/2 " BackgroundBlack cRed vsearchstrings_deletebar"A_Index,
+		Gui, searchstrings_menu: Font, underline
+		cEntry := (value = "") ? "cRed" : "cWhite", cEntry := (key = searchstring_entry_selected) ? "cFuchsia" : cEntry
+		Gui, searchstrings_menu: Add, Text, % "ys x+0 Center "cEntry " BackgroundTrans HWNDmain_text gLLK_StringMenuSelect vsearchstrings_entry"A_Index, % (SubStr(key, 1, 3) = "00-") ? SubStr(key, 4) : key
+		WinGetPos, xPos,, width,, ahk_id %main_text%
+		xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
+		Gui, searchstrings_menu: Font, norm
+	}
+	Gui, searchstrings_menu: Add, Text, % "Section xs cSilver y+"font_height*0.8 " BackgroundTrans", % "add new entry: "
+	Gui, searchstrings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vsearchstrings_entryadd_help hp w-1", img\GUI\help.png
+	Gui, searchstrings_menu: Font, % "s"fSize0 - 4
+	Gui, searchstrings_menu: Add, Edit, % "xs hp y+0 w"font_width*20 " hp cBlack vsearchstrings_newentry HWNDhwnd_searchstrings_menu_edit BackgroundTrans",
+	WinGetPos, xPos,, width,, ahk_id %hwnd_searchstrings_menu_edit%
+	xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
+	Gui, searchstrings_menu: Font, % "s"fSize0
+	Gui, searchstrings_menu: Add, Button, hidden x0 y0 default gLLK_StringMenuAdd, ok
+	style := (searchstring_entry_selected = "") || (SubStr(searchstring_entry_selected, 1, 3) = "00-") ? "ReadOnly cRed" : "cBlack"
+	Gui, searchstrings_menu: Add, Edit, % "x"xPos_max + font_width/2 " y"yPos - height " Border "style " BackgroundTrans vsearchstrings_string_edit w"font_width*55 " h"font_height*12, % searchstring_entry_selected ? searchstrings_%searchstring_selected1%_contents[searchstring_entry_selected] : ""
+	;Gui, searchstrings_menu: Add, Text, % "Section ys hp x+"font_width/4 " Border Center gLLK_StringMenuAdd BackgroundTrans", % " add "
+	style := (xsearchstrings_menu = "") ? "xCenter yCenter" : "x"xsearchstrings_menu " y"ysearchstrings_menu
+	Gui, searchstrings_menu: Show, NA %style%
+}
+
+LLK_StringMenuAdd()
+{
+	global
+	local xPos, yPos, height
+	
+	Gui, searchstrings_menu: Submit, NoHide
+	Gui, searchstrings_rename: Submit, NoHide
+	
+	If (A_Gui = "searchstrings_rename")
+	{
+		searchstrings_newentry := searchstrings_renameentry
+		WinGetPos, xPos, yPos,, height, ahk_id %hwnd_searchstrings_rename_edit%
+	}
+	Else WinGetPos, xPos, yPos,, height, ahk_id %hwnd_searchstrings_menu_edit%
+		
+	searchstrings_newentry := StrReplace(searchstrings_newentry, "&", "&&")
+	
+	While (SubStr(searchstrings_newentry, 1, 1) = " ")
+		searchstrings_newentry := SubStr(searchstrings_newentry, 2)
+	While (SubStr(searchstrings_newentry, 0) = " ")
+		searchstrings_newentry := SubStr(searchstrings_newentry, 1, -1)
+	Loop, Parse, searchstrings_newentry
+	{
+		If !LLK_IsAlnum(A_LoopField) && !InStr(" :()/&%$?'#<>@+-*", A_LoopField)
 		{
-			Loop, Parse, parse_string, `,, `,
-			{
-				If A_Loopfield is number
-					numbers += 1
-				If (numbers > 1)
-				{
-					LLK_ToolTip("cannot scroll:`nstring " loop " has more than`none number", 2)
-					Return
-				}
-			}
-		}
-		If (numbers = 0) && !InStr(stash_search_new_string%string_mod%, ";")
-		{
-			LLK_ToolTip("cannot scroll string " loop ":`nno number or semi-colon")
+			LLK_ToolTip("cannot contain special characters", 1.5, xPos, yPos+ height)
 			Return
 		}
 	}
+	If (searchstrings_newentry = "")
+	{
+		LLK_ToolTip("name cannot be blank",, xPos, yPos+ height)
+		Return
+	}
+	If (searchstrings_newentry = "last coordinates")
+	{
+		LLK_ToolTip("name is prohibited",, xPos, yPos+ height)
+		Return
+	}
+	If searchstrings_%searchstring_selected1%_contents.HasKey(searchstrings_newentry) || searchstrings_%searchstring_selected1%_contents.HasKey("00-" searchstrings_newentry)
+	{
+		LLK_ToolTip("entry already exists",, xPos, yPos+ height)
+		Return
+	}
+	
+	LLK_StringMenuSave()
+	
+	If (A_Gui = "searchstrings_rename") ;if an entry-rename was initiated
+	{
+		local parse := searchstrings_%searchstring_selected1%_contents[searchstring_entryrename_selected] ;load the saved string for that entry
+		searchstrings_renameentry := StrReplace(searchstrings_renameentry, "&", "&&")
+		If (searchstring_entryrename_selected = searchstring_entry_selected) ;if the entry to be renamed is also the currently selected one, read the current state of the edit-field (so unsaved changes are not lost)
+		{
+			parse := searchstrings_string_edit
+			searchstring_entry_selected := searchstrings_renameentry
+		}
+		While parse && InStr(" `n", SubStr(parse, 1, 1)) ;remove whitespace
+			parse := SubStr(parse, 2)
+		While parse && InStr(" `n", SubStr(parse, 0)) ;remove whitespace
+			parse := SubStr(parse, 1, -1)
+		Loop, Parse, parse, `n ;clean up empty lines in between
+		{
+			If (A_Index = 1)
+				parse := ""
+			If (A_LoopField = "")
+				continue
+			parse .= (parse = "") ? A_LoopField : "`n" A_LoopField
+		}
+		searchstrings_%searchstring_selected1%_contents[searchstrings_renameentry] := parse
+		parse := StrReplace(parse, "`n", " " ";;;" " ")
+		IniWrite, "%parse%", ini\search-strings.ini, % searchstring_selected, % searchstrings_renameentry
+		IniDelete, ini\search-strings.ini, % searchstring_selected, % searchstring_entryrename_selected
+		searchstrings_%searchstring_selected1%_contents.Delete(searchstring_entryrename_selected)
+		Gui, searchstrings_rename: Destroy
+		hwnd_searchstrings_rename := ""
+	}
+	Else IniWrite, % "", ini\search-strings.ini, % searchstring_selected, % searchstrings_newentry
+	LLK_StringMenu(searchstring_selected1)
 }
 
-stash_search_new_name_save := ""
-Loop, Parse, stash_search_new_name
+LLK_StringMenuDelete()
 {
-	If (A_LoopField = A_Space)
-		add_character := "_"
-	Else If (A_Loopfield = "|")
-		add_character := "|"
-	Else If A_LoopField is not alnum
-		add_character := "_"
-	Else add_character := A_LoopField
-	stash_search_new_name_save := (stash_search_new_name_save = "") ? add_character : stash_search_new_name_save add_character
+	global
+	local parse := StrReplace(A_GuiControl, "searchstrings_delete")
+	If LLK_ProgressBar("searchstrings_menu", "searchstrings_deletebar"parse )
+	{
+		LLK_StringMenuSave()
+		IniDelete, ini\search-strings.ini, % searchstring_selected, % searchstrings_entries[parse]
+		If (searchstring_entry_selected = searchstrings_entries[parse])
+			searchstring_entry_selected := ""
+		LLK_StringMenu(searchstring_selected1)
+		KeyWait, LButton
+	}
 }
 
-usecases := ""
-Loop, Parse, stash_search_usecases, `,, `,
+LLK_StringMenuPaste() ;there used to be a <paste> button
 {
-	IniRead, ThisUsecase, ini\stash search.ini, Settings, % A_Loopfield
-	If (stash_search_use_%A_Loopfield% = 1) && !InStr(ThisUsecase, "(" stash_search_new_name_save "),")
-		IniWrite, % ThisUsecase "(" stash_search_new_name_save "),", ini\stash search.ini, Settings, % A_Loopfield
-	Else If (stash_search_use_%A_Loopfield% = 0) && InStr(ThisUsecase, "(" stash_search_new_name_save "),")
-		IniWrite, % StrReplace(ThisUsecase, "(" stash_search_new_name_save "),"), ini\stash search.ini, Settings, % A_Loopfield
+	global
+	local parse := StrReplace(A_GuiControl, "searchstrings_paste"), parse1
+	If (Clipboard = "")
+	{
+		LLK_ToolTip("clipboard is blank")
+		Return
+	}
+	If InStr(Clipboard, "`n")
+	{
+		LLK_ToolTip("clipboard contains line-breaks")
+		Return
+	}
+	If (SubStr(Clipboard, 1, 1) = ";")
+	{
+		LLK_ToolTip("incorrect use of semi-colons")
+		Return
+	}
+	If (click = 1) || (searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]] = "")
+	{
+		IniWrite, "%Clipboard%", ini\search-strings.ini, % searchstring_selected, % searchstrings_entries[parse]
+		searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]] := Clipboard
+		LLK_ToolTip("pasted: " Clipboard, 2)
+	}
+	Else
+	{
+		If InStr(searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]], Clipboard)
+		{
+			LLK_ToolTip("sub-string already added")
+			Return
+		}
+		If IsNumber(Clipboard)
+		{
+			LLK_ToolTip("cannot add numbers as sub-strings", 1.5)
+			Return
+		}
+		parse1 := searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]] ";" Clipboard
+		IniWrite, "%parse1%", ini\search-strings.ini, % searchstring_selected, % searchstrings_entries[parse]
+		searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]] := parse1
+		LLK_ToolTip("added: " Clipboard, 2)
+	}
+	GuiControl, searchstrings_menu: +cWhite, searchstrings_entry%parse%
+	Winset, Redraw,, ahk_id %hwnd_searchstrings_menu%
 }
 
-stash_search_new_string := (SubStr(stash_search_new_string, 0) = ";") ? SubStr(stash_search_new_string, 1, -1) : stash_search_new_string
-stash_search_new_string := StrReplace(stash_search_new_string, ";;", ";")
-stash_search_new_string1 := (SubStr(stash_search_new_string1, 0) = ";") ? SubStr(stash_search_new_string1, 1, -1) : stash_search_new_string1
-stash_search_new_string1 := StrReplace(stash_search_new_string1, ";;", ";")
-IniWrite, 1, ini\stash search.ini, % stash_search_new_name_save, enable
-IniWrite, "%stash_search_new_string%", ini\stash search.ini, % stash_search_new_name_save, string 1
-IniWrite, % stash_search_new_scroll, ini\stash search.ini, % stash_search_new_name_save, string 1 enable scrolling
-IniWrite, "%stash_search_new_string1%", ini\stash search.ini, % stash_search_new_name_save, string 2
-IniWrite, % stash_search_new_scroll1, ini\stash search.ini, % stash_search_new_name_save, string 2 enable scrolling
-GoSub, settings_menu
-Gui, stash_search_menu: Destroy
-Return
-
-Init_searchstrings:
-If !FileExist("ini\stash search.ini")
-	IniWrite, stash=`nvendor=`ngwennen=, ini\stash search.ini, Settings
-IniRead, stash_search_check, ini\stash search.ini, Settings
-Loop, Parse, stash_search_usecases, `,, `,
+LLK_StringMenuRename()
 {
-	If !InStr(stash_search_check, A_Loopfield "=")
-		IniWrite, % A_Space, ini\stash search.ini, Settings, % A_Loopfield
+	global
+	local xMouse, yMouse
+	local parse := StrReplace(A_GuiControl, "searchstrings_entry")
+	searchstring_entryrename_selected := searchstrings_entries[parse]
+	If (SubStr(searchstring_entryrename_selected, 1, 3) = "00-") || (searchstring_entryrename_selected = "exile leveling gems")
+		Return
+	MouseGetPos, xMouse, yMouse
+	Gui, searchstrings_rename: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_searchstrings_rename, Rename entry
+	Gui, searchstrings_rename: Color, Black
+	Gui, searchstrings_rename: Margin, % font_width//2, % font_height//4
+	;WinSet, Transparent, %trans%
+	Gui, searchstrings_rename: Font, % "s"fSize0 - 4 " cWhite", Fontin SmallCaps
+	Gui, searchstrings_rename: Add, Edit, % "Section w"font_width*20 " cBlack vsearchstrings_renameentry HWNDhwnd_searchstrings_rename_edit BackgroundTrans",
+	Gui, searchstrings_rename: Font, % "s"fSize0
+	Gui, searchstrings_rename: Add, Button, wp hp hidden x0 y0 default gLLK_StringMenuAdd, ok
+	Gui, searchstrings_rename: Show, x%xMouse% y%yMouse%
 }
-Return
+
+LLK_StringMenuSave()
+{
+	global
+	local key, value
+	Gui, searchstrings_menu: Submit, NoHide
+	searchstrings_newentry := StrReplace(searchstrings_newentry, "&", "&&")
+	While searchstrings_string_edit && InStr(" `n", SubStr(searchstrings_string_edit, 1, 1))
+		searchstrings_string_edit := SubStr(searchstrings_string_edit, 2)
+	While searchstrings_string_edit && InStr(" `n", SubStr(searchstrings_string_edit, 0))
+		searchstrings_string_edit := SubStr(searchstrings_string_edit, 1, -1)
+	Loop, Parse, searchstrings_string_edit, `n
+	{
+		If (A_Index = 1)
+			searchstrings_string_edit := ""
+		If (A_LoopField = "")
+			continue
+		searchstrings_string_edit .= (searchstrings_string_edit = "") ? A_LoopField : "`n" A_LoopField
+	}
+	
+	If (searchstring_entry_selected != "")
+		searchstrings_%searchstring_selected1%_contents[searchstring_entry_selected] := searchstrings_string_edit
+	For key, value in searchstrings_%searchstring_selected1%_contents
+	{
+		If (SubStr(key, 1, 3) = "00-")
+			continue
+		IniRead, parse, ini\search-strings.ini, % searchstring_selected, % key, % A_Space
+		While value && InStr(" `n", SubStr(value, 1, 1))
+			value := SubStr(value, 2)
+		While value && InStr(" `n", SubStr(value, 0))
+			value := SubStr(value, 1, -1)
+		;If InStr(value, ";") && InStr(value, "`n")
+		;	value := SubStr(value, 1, InStr(value, "`n") - 1)
+		value := StrReplace(value, "`n", " " ";;;" " ")
+		If (parse != value)
+			IniWrite, "%value%", ini\search-strings.ini, % searchstring_selected, % key
+	}
+}
+
+LLK_StringMenuSelect()
+{
+	global
+	
+	If (click = 2)
+	{
+		LLK_StringMenuRename()
+		Return
+	}
+	local parse := StrReplace(A_GuiControl, "searchstrings_entry"), color
+	
+	LLK_StringMenuSave()
+	
+	searchstring_entry_selected := searchstrings_entries[parse]
+	Loop, % searchstrings_entries.Length()
+	{
+		color := (searchstrings_%searchstring_selected1%_contents[searchstrings_entries[A_Index]] = "") ? "Red" : "White"
+		GuiControl, searchstrings_menu: +c%color%, searchstrings_entry%A_Index%
+	}
+	GuiControl, searchstrings_menu: +cFuchsia, % "searchstrings_entry"parse
+	If (SubStr(searchstring_entry_selected, 1, 3) = "00-")
+	{
+		GuiControl, searchstrings_menu: +ReadOnly +cRed, searchstrings_string_edit
+	}
+	Else GuiControl, searchstrings_menu: -ReadOnly +cBlack, searchstrings_string_edit
+	GuiControl, searchstrings_menu: text, searchstrings_string_edit, % searchstrings_%searchstring_selected1%_contents[searchstring_entry_selected]
+	WinSet, Redraw,, ahk_id %hwnd_searchstrings_menu%
+}
+
+LLK_StringMenuTooltip() ;there used to be a tooltip when long-clicking an entry
+{
+	global
+	If (click = 2)
+	{
+		LLK_StringMenuRename()
+		Return
+	}
+	local xMouse, yMouse, width, height, number_scroll := 0
+	local parse := StrReplace(A_GuiControl, "searchstrings_entry")
+	If (searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]] = "")
+		Return
+	MouseGetPos, xMouse, yMouse
+	Gui, searchstrings_tooltip: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
+	Gui, searchstrings_tooltip: Color, Black
+	Gui, searchstrings_tooltip: Margin, % font_width//2, % font_height//4
+	;WinSet, Transparent, %trans%
+	Gui, searchstrings_tooltip: Font, s%fSize0% cWhite underline, Fontin SmallCaps
+	Gui, searchstrings_tooltip: Add, Text, % "Section BackgroundTrans Center", % InStr(searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]], ";") ? "advanced search:" : "regular search:"
+	Gui, searchstrings_tooltip: Font, norm
+	Loop, Parse, % searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]], `; ;check if search contains scrollable number
+	{
+		If (A_LoopField = "")
+			continue
+		If IsNumber(A_LoopField)
+		{
+			number_scroll := 1
+			break
+		}
+	}
+	If !number_scroll
+	{
+		Loop, Parse, % searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]], `;
+		{
+			If (A_LoopField = "")
+				continue
+			Gui, searchstrings_tooltip: Add, Text, % "Section xs BackgroundTrans Center", % A_LoopField
+		}
+	}
+	Else Gui, searchstrings_tooltip: Add, Text, % "Section xs BackgroundTrans Center", % StrReplace(searchstrings_%searchstring_selected1%_contents[searchstrings_entries[parse]], ";")
+	Gui, searchstrings_tooltip: Show, NA x10000 y10000
+	WinGetPos,,, width, height
+	Gui, searchstrings_tooltip: Show, % "NA x"xMouse " y"yMouse - height
+	KeyWait, LButton
+	Gui, searchstrings_tooltip: Destroy
+}
+
+LLK_StringSearch(name) ;checks the screen for string-related UI elements
+{
+	global
+	local parse := StrReplace(name, " ", "_"), width, height
+	name := StrReplace(name, "_", " ")
+	searchstring_activated := ""
+	If !FileExist("img\Recognition ("poe_height "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing
+	{
+		If (A_Gui = "settings_menu")
+			LLK_ToolTip("check hasn't been calibrated yet", 1.5)
+		Return 0
+	}
+	
+	If (!searchstrings_searchcoords_%parse% || !searchstrings_%parse%_contents.Count()) && (A_Gui != "settings_menu") ;return 0 if search doesn't have coordinates or strings
+		Return 0
+	
+	If (A_Gui = "settings_menu") ;search whole client-area if search was initiated from settings menu, or if this specific search doesn't have last-known coordinates
+		local search_x1 := 0, search_y1 := 0, search_x2 := 0, search_y2 := 0
+	Else ;otherwise, load last-known coordinates
+	{
+		Loop, Parse, searchstrings_searchcoords_%parse%, `, ;last-known coordinates are stored in a string as "x1,y1,reference-img width,reference-img height"
+		{
+			Switch A_Index
+			{
+				Case 1:
+					local search_x1 := A_LoopField
+				Case 2:
+					local search_y1 := A_LoopField
+				Case 3:
+					local search_x2 := A_LoopField + search_x1
+				Case 4:
+					local search_y2 := A_LoopField + search_y1
+			}
+		}
+	}
+	
+	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("poe_height "p)\GUI\[search-strings] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
+	If (A_Gui = "settings_menu") && (pNeedle_searchstrings <= 0)
+	{
+		MsgBox,% "The reference bmp-file could not be loaded correctly.`n`nYou should recalibrate this search: " name
+		Return 0
+	}
+	
+	If (Gdip_ImageSearch(pHaystack_searchstrings, pNeedle_searchstrings, LIST, search_x1, search_y1, search_x2, search_y2, imagesearch_variation,, 1, 1) > 0) ;reference img-file was found in the screenshot
+	{
+		If (A_Gui = "settings_menu") ;if search was initiated from settings menu, save positive coordinates
+		{
+			Gdip_GetImageDimension(pNeedle_searchstrings, width, height) ;get dimensions of the reference img-file
+			searchstrings_searchcoords_%parse% := LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height) ;save string with last-known coordinates
+			IniWrite, % searchstrings_searchcoords_%parse%, % "ini\search-strings.ini", % name, last coordinates ;write string to ini-file
+		}
+		Gdip_DisposeImage(pNeedle_searchstrings) ;clear reference-img file from memory
+		Return 1
+	}
+	Else Gdip_DisposeImage(pNeedle_searchstrings)
+	If (A_Gui = "settings_menu")
+		LLK_ToolTip("test negative")
+	Return 0
+}
+
+LLK_StringSnip(name)
+{
+	global
+	local name1 := StrReplace(name, " ", "_")
+	name := StrReplace(name, "_", " ")
+	Clipboard := ""
+	KeyWait, LButton
+	gui_force_hide := 1
+	LLK_Overlay("hide")
+	SendInput, #+{s}
+	WinWaitActive, Screen Snipping,, 2
+	WinWaitNotActive, Screen Snipping
+	pClipboard := Gdip_CreateBitmapFromClipboard()
+	If (pClipboard <= 0)
+	{
+		gui_force_hide := 0
+		LLK_Overlay("settings_menu", "show", 0)
+		WinWait, ahk_id %hwnd_settings_menu%
+		LLK_ToolTip("screen-cap failed")
+		Return
+	}
+	Else
+	{
+		FileDelete, % "img\Recognition ("poe_height "p)\GUI\[search-strings]"name ".bmp"
+		Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("poe_height "p)\GUI\[search-strings] "name ".bmp", 100)
+		Gdip_DisposeImage(pClipboard)
+		IniWrite, % "", % "ini\search-strings.ini", % name, last coordinates
+		searchstrings_searchcoords_%name1% := ""
+		GuiControl, settings_menu: +cRed, % "settings_menu_searchstrings_entry_"name1
+	}
+	gui_force_hide := 0
+}
+
+searchstrings_menuGuiClose()
+{
+	global
+	local key, value, parse
+	
+	LLK_StringMenuSave()	
+	searchstring_entry_selected := ""
+	Gui, searchstrings_menu: Destroy
+	hwnd_searchstrings_menu := ""
+	Gui, searchstrings_rename: Destroy
+	hwnd_searchstrings_rename := ""
+	WinWaitActive, ahk_group poe_window
+	LLK_Overlay("settings_menu", "show")
+}
 
 stash_search_menuGuiClose()
 {

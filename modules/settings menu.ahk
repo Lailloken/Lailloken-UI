@@ -17,9 +17,9 @@ While GetKeyState("LButton", "P") && (A_Gui = "LLK_panel")
 		Return
 	}
 }
-If WinExist("ahk_id " hwnd_cheatsheets_menu) && (A_Gui = "LLK_panel" || InStr(A_ThisHotkey, ".llk"))
+If (WinExist("ahk_id " hwnd_cheatsheets_menu) || WinExist("ahk_id " hwnd_searchstrings_menu)) && (A_Gui = "LLK_panel" || InStr(A_ThisHotkey, ".llk"))
 {
-	LLK_ToolTip("close cheat-sheet configuration first", 2)
+	LLK_ToolTip("close the configuration first", 2)
 	Return
 }
 If (A_GuiControl = "LLK_panel") && (click = 2)
@@ -52,7 +52,7 @@ map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_in
 notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
 omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
 pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) && !InStr(A_GuiControl, "cheat") ? "cAqua" : "cWhite"
-stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") ||(new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
+stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") || InStr(A_GuiControl, "searchstrings") || (new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
 If (A_Gui = "settings_menu")
@@ -74,7 +74,7 @@ If (pixel_gamescreen_color1 = "ERROR" || pixel_gamescreen_color1 = "")
 	screenchecks_gamescreen_valid := 0
 Else screenchecks_gamescreen_valid := 1
 
-Loop, Parse, imagechecks_list, `,, `,
+Loop, Parse, imagechecks_list, `,, %A_Space%
 {
 	screenchecks_%A_Loopfield%_valid := 1
 	If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp") && (disable_imagecheck_%A_Loopfield% = 0)
@@ -223,7 +223,7 @@ Else If InStr(GuiControl_copy, "omni")
 	GoSub, Settings_menu_omnikey
 Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen")
 	GoSub, Settings_menu_screenchecks
-Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || (new_stash_search_menu_closed = 1)
+Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || InStr(GuiControl_copy, "searchstrings") || (new_stash_search_menu_closed = 1)
 	GoSub, Settings_menu_stash_search
 Else If InStr(GuiControl_copy, "geforce")
 	GoSub, Settings_menu_geforce_now
@@ -637,7 +637,7 @@ text =
 test && calibrate
 –> each sheet has a "condition," i.e. a certain ui-element has to be on screen
 –> if that condition is fulfilled while pressing the key-combination, a specific sheet will be activated
-–> click <calibrate> to specify that condition by screen-capping it
+–> click <calibrate> to specify that condition by screen-capping a unique part of the in-game ui
 –> click <test> to see if the screen-capped image works correctly
 
 listed entries
@@ -646,6 +646,7 @@ listed entries
 –> right-click the underlined names to open a context-menu with additional options.
 –> entries are highlighted red as long as they have not returned a positive test yet
 )
+	help_image = img\GUI\skilltree.jpg
 }
 
 If (A_GuiControl = "cheatsheets_colors_help")
@@ -909,13 +910,62 @@ while holding shift, left-click maps to apply currency and activate the map-info
 )
 }
 
-If (A_GuiControl = "stashsearch_help")
+If (A_GuiControl = "searchstrings_list_help")
 {
 text =
 (
-long-click the underlined names to display information about the strings
+test && calibrate
+–> each search has a "condition," i.e. a certain ui-element has to be on screen
+–> if that condition is fulfilled while pressing the omni-key, the search-strings feature will be activated
+–> click <calibrate> to specify that condition by screen-capping a unique part of the in-game ui
+–> click <test> to see if the screen-capped image works correctly
 
-right-click the underlined names to open a context-menu with additional options
+listed entries
+–> searches can be individually disabled
+–> click an underlined entry to edit it
+–> long right-click an underlined entry to remove it
+–> entries are highlighted red as long as they have not returned a positive test yet
+)
+
+	help_image = img\GUI\stash.jpg
+}
+
+If (A_GuiControl = "searchstrings_entrylist_help")
+{
+text =
+(
+instructions
+–> long-click <del> to delete an entry
+–> click an underlined entry to access the edit-field on the right
+
+edit-field
+–> this is where to paste the strings for in-game searches
+–> if multiple lines are used, the entry becomes a scrollable search
+–> each individual line is a sub-string
+–> to create a scrollable search involving numbers, enclose -one- number in semi-colons, e.g. "item level: ;69;"
+)
+}
+
+If (A_GuiControl = "searchstrings_entryadd_help")
+{
+text =
+(
+explanation
+–> these are the entries as they will be displayed in the pop-up menu
+–> these are merely names, not the actual strings
+
+instructions
+–> to add a new entry, enter a name into the edit-field and press enter
+)
+}
+
+If (A_GuiControl = "searchstrings_add_help")
+{
+text =
+(
+instructions
+–> enter the name of an in-game ui with a search, then press enter
+–> only latin letters and spaces are allowed
 )
 }
 
@@ -1142,32 +1192,6 @@ individual checks can be disabled if you know you won't be using the connected f
 )
 }
 
-If (A_GuiControl = "imagecheck_help_bestiary")
-{
-text =
-(
-instructions
-to recalibrate, open the beastcrafting window and screen-cap the highlighted area displayed above.
-
-explanation
-this check helps the script identify whether the beastcrafting window is open or not, which enables the omni-key to activate the beastcrafting context-menu.
-)
-	help_image = img\GUI\bestiary.jpg
-}
-
-If (A_GuiControl = "imagecheck_help_bestiarydex")
-{
-text =
-(
-instructions
-to recalibrate, open the challenge-menu (default-hotkey: h), and click the <bestiary> tab. open the <captured beasts> menu at the bottom, then screen-cap the highlighted area displayed above.
-
-explanation
-this check helps the script identify whether the bestiary index is open or not, which enables the omni-key to activate the search-strings feature.
-)
-	help_image = img\GUI\bestiary-dex.jpg
-}
-
 If (A_GuiControl = "imagecheck_help_skilltree")
 {
 text =
@@ -1177,6 +1201,9 @@ to recalibrate, open the skill-tree and screen-cap the highlighted area displaye
 
 explanation
 this check helps the script identify whether the skill-tree is open or not, which enables the omni-key to overlay skill-tree screenshots.
+
+required for
+–> leveling tracker: skill-tree overlays
 )
 	help_image = img\GUI\skill-tree.jpg
 }
@@ -1190,21 +1217,11 @@ to recalibrate, open the syndicate board, do not zoom into or move it, and scree
 
 explanation
 this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to activate the betrayal-info feature.
+
+required for
+–> betrayal-info overlay
 )
 	help_image = img\GUI\betrayal.jpg
-}
-
-If (A_GuiControl = "imagecheck_help_gwennen")
-{
-text =
-(
-instructions
-to recalibrate, open Gwennen's gamble window and screen-cap the highlighted area displayed above.
-
-explanation
-this check helps the script identify whether Gwennen's gamble window is open or not, which enables the omni-key to activate the regex-string features.
-)
-	help_image = img\GUI\gwennen.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_sanctum")
@@ -1215,7 +1232,10 @@ instructions
 to recalibrate, open your inventory and the sanctum map, then screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to activate its cheat-sheet.
+this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to activate its tooltip overlays.
+
+required for
+–> sanctum-room tooltip overlays
 )
 	help_image = img\GUI\sanctum.jpg
 }
@@ -1228,27 +1248,13 @@ instructions
 to recalibrate, open your stash and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether your stash is open or not, which enables the omni-key to activate the search-string features.
+this check helps the script identify whether your stash is open or not, which enables loot-tracking for items being ctrl-clicked into the stash
+
+required for
+–> mapping tracker: loot tracking
 )
 	help_image = img\GUI\stash.jpg
 }
-
-If (A_GuiControl = "imagecheck_help_vendor")
-{
-text =
-(
-instructions
-to recalibrate, open the purchase-window of a vendor and screen-cap the highlighted area displayed above.
-
-explanation
-this check helps the script identify whether you are interacting with a vendor-npc, which enables the omni-key to activate the search-string features.
-
-limitation (leveling tracker)
-campaign-lilly and hideout-lilly use different vendor windows. if you don't use search-strings with general vendors, you can calibrate this image-check with hideout-lilly's window. otherwise, you'll have to buy gems from lilly in Act 10 when using the tracker-gems string.
-)
-	help_image = img\GUI\vendor.jpg
-}
-
 
 If InStr(A_GuiControl, "omnikey")
 {
@@ -1799,11 +1805,12 @@ Return
 
 Settings_menu_stash_search:
 settings_menu_section := "stash search"
+GoSub, Init_searchstrings
 new_stash_search_menu_closed := 0
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings">wiki page</a>
 Gui, settings_menu: Add, Link, % "ys hp x+"font_width*3, <a href="https://poe.re/">poe regex</a>
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of searches currently set up: "
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vstashsearch_help hp w-1", img\GUI\help.png
+
+/*
 IniRead, stash_search_list, ini\stash search.ini
 Sort, stash_search_list, D`n
 Loop, Parse, stash_search_list, `n, `n
@@ -1819,7 +1826,32 @@ Loop, Parse, stash_search_list, `n, `n
 	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gStash_search_preview_list", % text
 	Gui, settings_menu: Font, norm
 }
-Gui, settings_menu: Add, Text, % "xs Section Border gStash_search_new vStash_add BackgroundTrans y+"fSize0*1.2, % " add string "
+*/
+
+Loop, % stash_search_list.Length()
+{
+	If (A_Index = 1)
+	{
+		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of searches currently set up: "
+		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vsearchstrings_list_help hp w-1", img\GUI\help.png
+	}
+	pEntry := StrReplace(stash_search_list[A_Index], " ", "_")
+	Gui, settings_menu: Add, Text, % "Section xs BackgroundTrans Border gStash_search vsettings_menu_searchstrings_test_"pEntry, % " test "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border x+"font_width/2 " gStash_search vsettings_menu_searchstrings_calibrate_"pEntry, % " calibrate "
+	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans x+"font_width " gStash_search vsearchstrings_enable_"pEntry " Checked"searchstrings_enable_%pEntry%, % "enable:"
+	Gui, settings_menu: Add, Progress, % "ys hp BackgroundBlack x+"font_width/8 " w"font_width/2 " range0-400 cRed vertical vsettings_menu_searchstrings_delprogress_"pEntry
+	Gui, settings_menu: Font, underline
+	cEntry := searchstrings_enable_%pEntry% && !searchstrings_searchcoords_%pEntry% ? "Red" : "White"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+0 c"cEntry " gStash_search vsettings_menu_searchstrings_entry_"pEntry, % stash_search_list[A_Index]
+	Gui, settings_menu: Font, % "norm"
+}
+
+Gui, settings_menu: Add, Text, % "Section xs BackgroundTrans y+"font_height*0.8, % "add search: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Edit, % "ys cBlack x+0 hp w"font_width*15 " HWNDhwnd_settings_menu_searchstrings_edit vsettings_menu_searchstrings_newname"
+Gui, settings_menu: Font, % "s"fSize0
+Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vsearchstrings_add_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Add, Button, % "x0 y0 Hidden default gStash_search vsettings_menu_searchstrings_add BackgroundTrans", ok
 Return
 
 settings_menuGuiClose()
