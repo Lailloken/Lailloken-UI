@@ -74,7 +74,7 @@ If (pixel_gamescreen_color1 = "ERROR" || pixel_gamescreen_color1 = "")
 	screenchecks_gamescreen_valid := 0
 Else screenchecks_gamescreen_valid := 1
 
-Loop, Parse, imagechecks_list, `,, %A_Space%
+Loop, Parse, imagechecks_list_copy, `,, %A_Space%
 {
 	screenchecks_%A_Loopfield%_valid := 1
 	If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp") && (disable_imagecheck_%A_Loopfield% = 0)
@@ -84,7 +84,7 @@ Loop, Parse, imagechecks_list, `,, %A_Space%
 screenchecks_all_valid := 1
 screenchecks_all_valid *= screenchecks_gamescreen_valid
 
-Loop, Parse, imagechecks_list, `,, `,
+Loop, Parse, imagechecks_list_copy, `,, `,
 	screenchecks_all_valid *= screenchecks_%A_Loopfield%_valid
 
 If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
@@ -646,7 +646,7 @@ listed entries
 –> right-click the underlined names to open a context-menu with additional options.
 –> entries are highlighted red as long as they have not returned a positive test yet
 )
-	help_image = img\GUI\skilltree.jpg
+	help_image = img\GUI\skill-tree.jpg
 }
 
 If (A_GuiControl = "cheatsheets_colors_help")
