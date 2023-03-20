@@ -1348,13 +1348,14 @@ If (ini_version < 13001)
 		If conversion_strings
 		{
 			IniWrite, 1, ini\search-strings.ini, searches, % conversion_search
-			If FileExist("img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp")
+			IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, % A_LoopField, last coordinates, % A_Space
+			IniWrite, % conversion_coordinates, ini\search-strings.ini, % conversion_search, last coordinates
+			If (A_LoopField = "stash")
+				FileCopy, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " A_LoopField ".bmp", 1
+			Else
 			{
-				IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, % A_LoopField, last coordinates, % A_Space
-				IniWrite, % conversion_coordinates, ini\search-strings.ini, % conversion_search, last coordinates
-				If (A_LoopField = "stash")
-					FileCopy, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " A_LoopField ".bmp", 1
-				Else FileMove, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " conversion_search ".bmp", 1
+				FileMove, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " conversion_search ".bmp", 1
+				IniDelete, ini\screen checks (%poe_height%p).ini, % A_LoopField
 			}
 		}
 		Else continue
@@ -1391,12 +1392,11 @@ If (ini_version < 13001)
 		}
 	}
 	
-	If FileExist("img\Recognition ("poe_height "p)\GUI\bestiary.bmp")
-	{
-		IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, bestiary, last coordinates, % A_Space
-		IniWrite, % conversion_coordinates, ini\search-strings.ini, beast crafting, last coordinates
-		FileMove, % "img\Recognition ("poe_height "p)\GUI\bestiary.bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] beast crafting.bmp", 1
-	}
+	IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, bestiary, last coordinates, % A_Space
+	IniWrite, % conversion_coordinates, ini\search-strings.ini, beast crafting, last coordinates
+	IniDelete, ini\screen checks (%poe_height%p).ini, bestiary
+	FileMove, % "img\Recognition ("poe_height "p)\GUI\bestiary.bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] beast crafting.bmp", 1
+	
 	GoSub, Init_searchstrings
 	
 	FileDelete, img\GUI\gwennen.jpg
