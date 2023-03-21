@@ -312,6 +312,11 @@ If (gamescreen = 0)
 	{
 		If LLK_StringSearch(value)
 		{
+			If WinExist("ahk_id " hwnd_searchstrings_menu)
+			{
+				Gui, searchstrings_menu: Submit, NoHide
+				LLK_StringMenuSave()
+			}
 			parse := StrReplace(value, " ", "_")
 			If !searchstrings_%parse%_contents.Count()
 			{

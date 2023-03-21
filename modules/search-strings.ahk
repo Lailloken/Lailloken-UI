@@ -205,10 +205,13 @@ LLK_StringScroll()
 {
 	global
 	local text := IsObject(searchstrings_scroll_contents) ? " " searchstrings_scroll_index "/" searchstrings_scroll_contents.Count() : ""
-	If InStr(stash_search_string_leveling_gems, searchstrings_scroll_contents[searchstrings_scroll_index])
-		text .= " (gems)"
-	Else If InStr(stash_search_string_leveling_items, searchstrings_scroll_contents[searchstrings_scroll_index])
-		text .= " (items)"
+	If WinExist("ahk_id " hwnd_leveling_guide2)
+	{
+		If InStr(stash_search_string_leveling_gems, searchstrings_scroll_contents[searchstrings_scroll_index])
+			text .= " (gems)"
+		Else If InStr(stash_search_string_leveling_items, searchstrings_scroll_contents[searchstrings_scroll_index])
+			text .= " (items)"
+	}
 	
 	ToolTip, % "          scrolling..." text "`n          (ESC to exit)",,, 11
 	
@@ -295,7 +298,7 @@ LLK_StringMenu(name)
 	Gui, searchstrings_menu: Add, Edit, % "x"xPos_max + font_width/2 " y"yPos - height " Border "style " BackgroundTrans vsearchstrings_string_edit w"font_width*55 " h"font_height*12, % searchstring_entry_selected ? searchstrings_%searchstring_selected1%_contents[searchstring_entry_selected] : ""
 	;Gui, searchstrings_menu: Add, Text, % "Section ys hp x+"font_width/4 " Border Center gLLK_StringMenuAdd BackgroundTrans", % " add "
 	style := (xsearchstrings_menu = "") ? "xCenter yCenter" : "x"xsearchstrings_menu " y"ysearchstrings_menu
-	Gui, searchstrings_menu: Show, NA %style%
+	Gui, searchstrings_menu: Show, %style%
 }
 
 LLK_StringMenuAdd()
@@ -386,7 +389,7 @@ LLK_StringMenuDelete()
 	{
 		LLK_StringMenuSave()
 		IniDelete, ini\search-strings.ini, % searchstring_selected, % searchstrings_entries[parse]
-		If (searchstring_entry_selected = searchstrings_entries[parse])
+		If (searchstring_entry_selected = searchstrings_entries[parse]) ;if the string to be deleted is also the currently-selected one, clear selected string
 			searchstring_entry_selected := ""
 		LLK_StringMenu(searchstring_selected1)
 		KeyWait, LButton
@@ -446,7 +449,10 @@ LLK_StringMenuRename()
 	local parse := StrReplace(A_GuiControl, "searchstrings_entry")
 	searchstring_entryrename_selected := searchstrings_entries[parse]
 	If (SubStr(searchstring_entryrename_selected, 1, 3) = "00-") || (searchstring_entryrename_selected = "exile leveling gems")
+	{
+		LLK_ToolTip("default entries cannot be renamed", 1.5)
 		Return
+	}
 	MouseGetPos, xMouse, yMouse
 	Gui, searchstrings_rename: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_searchstrings_rename, Rename entry
 	Gui, searchstrings_rename: Color, Black
@@ -463,6 +469,7 @@ LLK_StringMenuSave()
 {
 	global
 	local key, value
+	
 	Gui, searchstrings_menu: Submit, NoHide
 	searchstrings_newentry := StrReplace(searchstrings_newentry, "&", "&&")
 	While searchstrings_string_edit && InStr(" `n", SubStr(searchstrings_string_edit, 1, 1))
@@ -489,8 +496,7 @@ LLK_StringMenuSave()
 			value := SubStr(value, 2)
 		While value && InStr(" `n", SubStr(value, 0))
 			value := SubStr(value, 1, -1)
-		;If InStr(value, ";") && InStr(value, "`n")
-		;	value := SubStr(value, 1, InStr(value, "`n") - 1)
+		
 		value := StrReplace(value, "`n", " " ";;;" " ")
 		If (parse != value)
 			IniWrite, "%value%", ini\search-strings.ini, % searchstring_selected, % key
@@ -586,7 +592,7 @@ LLK_StringSearch(name) ;checks the screen for string-related UI elements
 		Return 0
 	}
 	
-	If (!searchstrings_searchcoords_%parse% || !searchstrings_%parse%_contents.Count()) && (A_Gui != "settings_menu") ;return 0 if search doesn't have coordinates or strings
+	If !searchstrings_searchcoords_%parse% && (A_Gui != "settings_menu") ;return 0 if search doesn't have coordinates or strings
 		Return 0
 	
 	If (A_Gui = "settings_menu") ;search whole client-area if search was initiated from settings menu, or if this specific search doesn't have last-known coordinates
@@ -648,11 +654,9 @@ LLK_StringSnip(name)
 	pClipboard := Gdip_CreateBitmapFromClipboard()
 	If (pClipboard <= 0)
 	{
-		gui_force_hide := 0
 		LLK_Overlay("settings_menu", "show", 0)
 		WinWait, ahk_id %hwnd_settings_menu%
 		LLK_ToolTip("screen-cap failed")
-		Return
 	}
 	Else
 	{

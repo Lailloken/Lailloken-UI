@@ -930,6 +930,16 @@ listed entries
 	help_image = img\GUI\stash.jpg
 }
 
+If (A_GuiControl = "searchstrings_lilly_help")
+{
+text =
+(
+explanation
+–> this search is specifically for gem-strings created when importing an exile leveling guide
+–> lilly in your hideout has a different window compared to other vendors
+)
+}
+
 If (A_GuiControl = "searchstrings_entrylist_help")
 {
 text =
@@ -937,11 +947,11 @@ text =
 instructions
 –> long-click <del> to delete an entry
 –> click an underlined entry to access the edit-field on the right
+–> right-click an entry to rename it
 
 edit-field
 –> this is where to paste the strings for in-game searches
-–> if multiple lines are used, the entry becomes a scrollable search
-–> each individual line is a sub-string
+–> if multiple lines are used, the entry becomes a scrollable search where each individual line is a sub-string
 –> to create a scrollable search involving numbers, enclose -one- number in semi-colons, e.g. "item level: ;69;"
 )
 }
@@ -966,6 +976,7 @@ text =
 instructions
 –> enter the name of an in-game ui with a search, then press enter
 –> only latin letters and spaces are allowed
+–> examples: vendor, gwennen, harvest, stash
 )
 }
 
@@ -1843,6 +1854,8 @@ Loop, % stash_search_list.Length()
 	Gui, settings_menu: Font, underline
 	cEntry := searchstrings_enable_%pEntry% && !searchstrings_searchcoords_%pEntry% ? "Red" : "White"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+0 c"cEntry " gStash_search vsettings_menu_searchstrings_entry_"pEntry, % stash_search_list[A_Index]
+	If (stash_search_list[A_Index] = "hideout lilly")
+		Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vsearchstrings_lilly_help hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, % "norm"
 }
 

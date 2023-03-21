@@ -410,7 +410,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 	
 	IniDelete, ini\leveling tracker.ini, Gems
-	IniDelete, ini\search-strings.ini, exile leveling gems
+	IniDelete, ini\search-strings.ini, 00-exile leveling gems
 	IniDelete, ini\search-strings.ini, searches, hideout lilly
 	searchstrings_enable_hideout_lilly := 0
 	
@@ -478,7 +478,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	{
 		search_string_all := SubStr(search_string_all, 1, -1)
 		IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
-		IniWrite, % """" StrReplace(search_string_all, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, exile leveling gems
+		IniWrite, % """" StrReplace(search_string_all, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems
 	}
 	GoSub, Init_searchstrings
 	
