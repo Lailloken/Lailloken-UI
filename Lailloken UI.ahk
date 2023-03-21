@@ -51,6 +51,7 @@ Loop, Parse, clone_frames_failcheck, `n, `n
 	If InStr(A_LoopField, " ")
 		IniDelete, ini\clone frames.ini, %A_LoopField%
 }
+;############################################################ delete old files from previous versions, or files that have been moved elsewhere
 If FileExist("Resolutions.ini")
 	FileDelete, Resolutions.ini
 If FileExist("Class_CustomFont.ahk")
@@ -59,10 +60,6 @@ If FileExist("External Functions.ahk")
 	FileDelete, External Functions.ahk
 If FileExist("Fontin-SmallCaps.ttf")
 	FileDelete, Fontin-SmallCaps.ttf
-If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
-	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
-If !FileExist("ini\")
-	FileCreateDir, ini\
 If FileExist("ini\lake helper.ini")
 	FileDelete, ini\lake helper.ini
 If FileExist("modules\overlayke.ahk")
@@ -75,6 +72,17 @@ If FileExist("_ini\")
 	FileRemoveDir, _ini\, 1
 If FileExist("img\_Fallback\")
 	FileRemoveDir, img\_Fallback\, 1
+;############################################################
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
+	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
+
+If !FileExist("ini\")
+{
+	FileCreateDir, ini\
+	Sleep 250
+}
+If !FileExist("ini\")
+	LLK_FilePermissionError("create")
 
 IniRead, kill_timeout, ini\config.ini, Settings, kill-timeout, 1
 IniRead, kill_script, ini\config.ini, Settings, kill script, 1
@@ -314,6 +322,62 @@ If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
 Return
 
+#If searchstrings_scroll_contents && WinActive("ahk_group poe_window")
+
+ESC::searchstrings_scroll_contents := ""
+
+WheelDown::
+If searchstrings_scroll_progress
+	Return
+If IsObject(searchstrings_scroll_contents) && (searchstrings_scroll_index = searchstrings_scroll_contents.Count())
+	Return
+
+searchstrings_scroll_progress := 1
+
+If IsObject(searchstrings_scroll_contents)
+{
+	searchstrings_scroll_index += 1
+	Clipboard := StrReplace(searchstrings_scroll_contents[searchstrings_scroll_index], ";")
+}
+Else
+{
+	searchstrings_scroll_index -= 1
+	Clipboard := StrReplace(searchstrings_scroll_contents, ";" searchstrings_scroll_number ";", searchstrings_scroll_number + searchstrings_scroll_index)
+	Clipboard := StrReplace(Clipboard, ";")
+}
+SendInput, ^{f}
+sleep 100
+SendInput, ^{v}{Enter}
+sleep 150
+searchstrings_scroll_progress := 0
+Return
+
+WheelUp::
+If searchstrings_scroll_progress
+	Return
+If IsObject(searchstrings_scroll_contents) && (searchstrings_scroll_index = 1)
+	Return
+
+searchstrings_scroll_progress := 1
+
+If IsObject(searchstrings_scroll_contents)
+{
+	searchstrings_scroll_index -= 1
+	Clipboard := StrReplace(searchstrings_scroll_contents[searchstrings_scroll_index], ";")
+}
+Else
+{
+	searchstrings_scroll_index += 1
+	Clipboard := StrReplace(searchstrings_scroll_contents, ";" searchstrings_scroll_number ";", searchstrings_scroll_number + searchstrings_scroll_index)
+	Clipboard := StrReplace(Clipboard, ";")
+}
+SendInput, ^{f}
+sleep 100
+SendInput, ^{v}{Enter}
+sleep 150
+searchstrings_scroll_progress := 0
+Return
+
 #If WinActive("ahk_exe Path of Building.exe")
 
 MButton::LLK_ScreencapPoB()
@@ -543,7 +607,7 @@ Return
 Clipboard := ""
 SendInput, ^{c}
 ClipWait, 0.05
-If enable_itemchecker_ID && (InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee"))
+If enable_itemchecker_ID && (InStr(Clipboard, "scroll of wisdom") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, " guarantee") || InStr(Clipboard, "eldritch ichor`r") || InStr(Clipboard, "eldritch ember`r"))
 	shift_down := "wisdom"
 If enable_map_info_shiftclick && (InStr(Clipboard, "orb of alchemy") || InStr(Clipboard, "chaos orb") || InStr(Clipboard, "orb of binding") || InStr(Clipboard, "scroll of wisdom"))
 	shift_down := "wisdom"
@@ -603,67 +667,7 @@ Return
 MouseGetPos, mouseX
 If (map_tracker_map != "") && (mouseX > poe_width//2) && LLK_ImageSearch("stash")
 	LLK_MapTrack("add")
-Else	SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{LButton}{LControl Up}"
-Return
-
-#If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
-	
-WheelUp::
-If (scrollboards != "") && (scrollboard_active = 1)
-	Return
-scroll_in_progress := 1
-parsed_number := ""
-If (scrollboard1 = "")
-{
-	Loop, Parse, clipboard
-	{
-		If IsNumber(A_Loopfield)
-			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
-	}
-	clipboard := StrReplace(clipboard, parsed_number, parsed_number + 1)
-}
-Else
-{
-	scrollboard_active -= (scrollboard_active > 1) ? 1 : 0
-	clipboard := scrollboard%scrollboard_active%
-	ClipWait, 0.05
-}
-SendInput, ^{f}
-sleep, 25
-SendInput, ^{v}
-sleep, 25
-SendInput, {Enter}
-sleep, 200
-scroll_in_progress := 0
-Return
-
-WheelDown::
-If (scrollboards != "") && (scrollboard_active = scrollboards)
-	Return
-scroll_in_progress := 1
-parsed_number := ""
-If (scrollboard1 = "")
-{
-	Loop, Parse, clipboard
-	{
-		If IsNumber(A_Loopfield)
-			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
-	}
-	clipboard := StrReplace(clipboard, parsed_number, parsed_number - 1)
-}
-Else
-{
-	scrollboard_active += (scrollboard_active < scrollboards) ? 1 : 0
-	clipboard := scrollboard%scrollboard_active%
-	ClipWait, 0.05
-}
-SendInput, ^{f}
-sleep, 100
-SendInput, ^{v}
-sleep, 100
-SendInput, {Enter}
-sleep, 200
-scroll_in_progress := 0
+;Else SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{LButton}{LControl Up}"
 Return
 
 #IfWinActive ahk_group poe_ahk_window
@@ -791,14 +795,6 @@ If WinExist("ahk_id " hwnd_gem_notes)
 	hwnd_gem_notes := ""
 	Return
 }
-If (stash_search_scroll_mode = 1)
-{
-	KeyWait, ESC
-	SetTimer, stash_search_scroll, delete
-	ToolTip,,,, 11
-	stash_search_scroll_mode := 0
-	Return
-}
 If (update_available = 1)
 {
 	ToolTip
@@ -808,12 +804,6 @@ If (update_available = 1)
 If WinExist("ahk_id " hwnd_itemchecker)
 {
 	LLK_ItemCheckClose()
-	Return
-}
-If WinExist("ahk_id " hwnd_stash_search_context_menu)
-{
-	Gui, stash_search_context_menu: Destroy
-	hwnd_stash_search_context_menu := ""
 	Return
 }
 If WinExist("ahk_id " hwnd_itemchecker_vendor1)
@@ -1281,7 +1271,77 @@ If (ini_version < 12905.1)
 	Loop 5
 		IniDelete, ini\item-checker.ini, highlighting %A_Index%*
 }
-IniWrite, 12905.2, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+
+If (ini_version < 13001)
+{
+	If InStr(buggy_resolutions, poe_height)
+		LLK_Error("The script needs to convert some settings for an updated feature, but it couldn't correctly read your client-resolution.`nIt will now restart.", 1)
+	conversion_searchstrings := "stash,gwennen,vendor,bestiarydex"
+	Loop, Parse, conversion_searchstrings, `,
+	{
+		conversion_search := (A_LoopField = "bestiarydex") ? "beast index" : A_LoopField
+		IniRead, conversion_strings, ini\stash search.ini, Settings, % A_LoopField, % A_Space
+		If conversion_strings
+		{
+			IniWrite, 1, ini\search-strings.ini, searches, % conversion_search
+			IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, % A_LoopField, last coordinates, % A_Space
+			IniWrite, % conversion_coordinates, ini\search-strings.ini, % conversion_search, last coordinates
+			If (A_LoopField = "stash")
+				FileCopy, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " A_LoopField ".bmp", 1
+			Else
+			{
+				FileMove, % "img\Recognition ("poe_height "p)\GUI\" A_LoopField ".bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] " conversion_search ".bmp", 1
+				IniDelete, ini\screen checks (%poe_height%p).ini, % A_LoopField
+			}
+		}
+		Else continue
+		
+		Loop, Parse, conversion_strings, `,, ()
+		{
+			If (A_LoopField = "")
+				continue
+			conversion_string := A_LoopField
+			IniRead, conversion_string1, ini\stash search.ini, % conversion_string, string 1, % A_Space
+			IniRead, conversion_string2, ini\stash search.ini, % conversion_string, string 2, % A_Space
+			
+			If (conversion_string = "tracker_gems")
+			{
+				IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
+				IniWrite, % "", ini\search-strings.ini, hideout lilly, last coordinates
+				IniWrite, % """" StrReplace(conversion_string1, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems
+				continue
+			}
+			
+			If conversion_string1 && !conversion_string2
+				IniWrite, % """" StrReplace(conversion_string1, ";", " " ";;;" " ") """", ini\search-strings.ini, % conversion_search, % StrReplace(conversion_string, "_", " ")
+			Else If conversion_string1 && conversion_string2
+			{
+				IniWrite, % """" StrReplace(conversion_string1, ";", " " ";;;" " ") """", ini\search-strings.ini, % conversion_search, % StrReplace(conversion_string, "_", " ") " 1"
+				IniWrite, % """" StrReplace(conversion_string2, ";", " " ";;;" " ") """", ini\search-strings.ini, % conversion_search, % StrReplace(conversion_string, "_", " ") " 2"
+			}
+		}
+		IniRead, conversion_check, ini\search-strings.ini, vendor,, % A_Space ;double-check the vendor searches after conversion in order to see if it's blank now because the gem-string was the only one to be converted
+		If !InStr(conversion_check, "`n")
+		{
+			IniDelete, ini\search-strings.ini, vendor
+			IniDelete, ini\search-strings.ini, searches, vendor
+		}
+	}
+	
+	IniRead, conversion_coordinates, ini\screen checks (%poe_height%p).ini, bestiary, last coordinates, % A_Space
+	IniWrite, % conversion_coordinates, ini\search-strings.ini, beast crafting, last coordinates
+	IniDelete, ini\screen checks (%poe_height%p).ini, bestiary
+	FileMove, % "img\Recognition ("poe_height "p)\GUI\bestiary.bmp", % "img\Recognition ("poe_height "p)\GUI\[search-strings] beast crafting.bmp", 1
+	
+	GoSub, Init_searchstrings
+	
+	FileDelete, img\GUI\gwennen.jpg
+	FileDelete, img\GUI\bestiary.jpg
+	FileDelete, img\GUI\vendor.jpg
+	FileDelete, img\GUI\bestiary-dex.jpg
+}
+
+IniWrite, 13001, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -1351,15 +1411,12 @@ gamescreen := 0
 inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
-stash_search_usecases := "bestiarydex,gwennen,stash,vendor"
-stash_search_trigger := 0
+imagechecks_list := "skilltree,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
+imagechecks_list_copy := imagechecks_list ",stash" ;will be sorted alphabetically for screen-checks section in the menu
+Sort, imagechecks_list_copy, D`,
 scrollboards := 0
 lab_mode := 0, lab_checkpoint := 0
-Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
-imagechecks_list := "bestiary,bestiarydex,gwennen,skilltree,stash,vendor,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
-imagechecks_list_copy := imagechecks_list ;will be sorted alphabetically for screen-checks section in the menu
-Sort, imagechecks_list_copy, D`,
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 guilist .= "cheatsheet|settings_menu|"
@@ -1752,7 +1809,6 @@ If !WinActive("ahk_group poe_ahk_window")
 	{
 		;Gui, notepad_contextmenu: Destroy
 		Gui, context_menu: Destroy
-		Gui, stash_search_context_menu: Destroy
 		Gui, bestiary_menu: Destroy
 		Gui, map_info_menu: Destroy
 		hwnd_map_info_menu := ""
@@ -1762,7 +1818,7 @@ If !WinActive("ahk_group poe_ahk_window")
 }
 If WinActive("ahk_id " hwnd_itemchecker)
 	WinActivate, ahk_group poe_window
-If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1) && !WinActive("ahk_id " hwnd_screencap_setup) && !WinActive("ahk_id " hwnd_snip) && !WinActive("ahk_id " hwnd_cheatsheets_menu)
+If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_closed != 1) && !WinActive("ahk_id " hwnd_screencap_setup) && !WinActive("ahk_id " hwnd_snip) && !WinActive("ahk_id " hwnd_cheatsheets_menu) && !WinActive("ahk_id " hwnd_searchstrings_menu)
 {
 	mouse_hover += 1
 	If (mouse_hover >= 5) && (mousemove != 1)
@@ -2036,6 +2092,36 @@ SetTimer, ToolTip_clear, delete
 ToolTip,,,, 17
 Return
 
+LLK_AddEntry(name)
+{
+	global
+	While (SubStr(name, 1, 1) = " ")
+		name := SubStr(name, 2)
+	While (SubStr(name, 0) = " ")
+		name := SubStr(name, 1, -1)
+	If (name = "")
+	{
+		LLK_ToolTip("name cannot be blank",, xPos_settings_menu_searchstrings_edit, yPos_settings_menu_searchstrings_edit + height_settings_menu_searchstrings_edit)
+		Return 0
+	}
+	Loop, Parse, name
+	{
+		If !LLK_IsAlpha(A_LoopField) && (A_LoopField != " ")
+		{
+			LLK_ToolTip("name cannot contain numbers",, xPos_settings_menu_searchstrings_edit, yPos_settings_menu_searchstrings_edit + height_settings_menu_searchstrings_edit)
+			Return 0
+		}
+	}
+	local newname_check
+	IniRead, newname_check, ini\search-strings.ini, searches, % name, % A_Space
+	If newname_check
+	{
+		LLK_ToolTip("a search with the same`nname already exists", 2, xPos_settings_menu_searchstrings_edit, yPos_settings_menu_searchstrings_edit + height_settings_menu_searchstrings_edit)
+		Return 0
+	}
+	Return name
+}
+
 LLK_ArrayHasVal(array, value, allresults := 0)
 {
 	hits := ""
@@ -2067,13 +2153,8 @@ LLK_FilePermissionError(issue)
 {
 	Gui, cheatsheets_context_menu: Destroy
 	global hwnd_cheatsheets_context_menu := ""
-	Switch issue
-	{
-		Case "delete":
-			text := "The script couldn't delete a file/folder."
-		Case "create":
-			text := "The script couldn't create a file/folder."
-	}
+	
+	text := "The script couldn't "issue " a file/folder."
 	text .= "`nThere seem to be write-permission issues in the current folder location."
 	text .= "`nTry moving the script to another location or running it as administrator."
 	text .= "`n`nThere is a write-permissions test in the settings menu that you can use to trouble-shoot this issue."

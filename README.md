@@ -47,7 +47,7 @@ I will not be taking direct code input or optimizations from people because lear
 |---|---|---|
 <br>
 
-### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): single-hotkey, customizable context-menu for various in-game searches  
+### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): customizable, single-hotkey menu for every individual in-game search  
 | regular stash | vendor | Gwennen | bestiary index |
 |---|---|---|---|
 | ![image](https://user-images.githubusercontent.com/61888437/214894515-609be1ef-1b7a-40d2-afe4-8fa6374d5442.png) | ![image](https://user-images.githubusercontent.com/61888437/214895726-1a1c93d9-7183-40ca-bd6d-2da446169286.png) | ![image](https://user-images.githubusercontent.com/61888437/214895979-0df171e8-b7f3-4f8a-873b-14ade78306b3.png) | ![image](https://user-images.githubusercontent.com/61888437/214896731-4c73e6fc-166f-4d33-9faf-4498c505e48d.png) |

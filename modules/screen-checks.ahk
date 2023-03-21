@@ -144,7 +144,7 @@ Sort, pixelchecks_list, D`,
 Loop, Parse, pixelchecks_list, `,, `,
 	IniRead, disable_pixelcheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 
-Loop, Parse, imagechecks_list, `,, `,
+Loop, Parse, imagechecks_list_copy, `,, `,
 {
 	IniRead, disable_imagecheck_%A_Loopfield%, ini\screen checks (%poe_height%p).ini, %A_Loopfield%, disable, 0
 	IniRead, imagechecks_coords_%A_LoopField%, ini\screen checks (%poe_height%p).ini, %A_LoopField%, last coordinates, % imagechecks_coords_%A_LoopField%
@@ -181,10 +181,10 @@ Return
 LLK_ImageSearch(name := "")
 {
 	global
-	Loop, Parse, imagechecks_list, `,, `,
+	Loop, Parse, imagechecks_list, `,, %A_Space%
 		%A_Loopfield% := 0
 	pHaystack_ImageSearch := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
-	Loop, Parse, % (name = "") ? imagechecks_list : name, `,
+	Loop, Parse, % (name = "") ? imagechecks_list : name, `,, %A_Space%
 	{
 		If (A_Gui = "settings_menu") || (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0

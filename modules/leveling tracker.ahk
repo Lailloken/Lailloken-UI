@@ -410,10 +410,10 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 	
 	IniDelete, ini\leveling tracker.ini, Gems
-	IniDelete, ini\stash search.ini, tracker_gems
-	IniRead, placeholder, ini\stash search.ini, Settings, vendor, % A_Space
-	If InStr(placeholder, "(tracker_gems)")
-		IniWrite, % StrReplace(placeholder, "(tracker_gems),"), ini\stash search.ini, Settings, vendor
+	IniDelete, ini\search-strings.ini, 00-exile leveling gems
+	IniDelete, ini\search-strings.ini, searches, hideout lilly
+	searchstrings_enable_hideout_lilly := 0
+	
 	If (build_gems_all != "")
 	{
 		Sort, build_gems_all, D`, P2 N
@@ -477,15 +477,10 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	If (search_string_all != "")
 	{
 		search_string_all := SubStr(search_string_all, 1, -1)
-		IniRead, placeholder, ini\stash search.ini, Settings, vendor, % A_Space
-		If !InStr(placeholder, "(tracker_gems)")
-			IniWrite, % placeholder "(tracker_gems),", ini\stash search.ini, Settings, vendor
-		IniWrite, 1, ini\stash search.ini, tracker_gems, enable
-		IniWrite, "%search_string_all%", ini\stash search.ini, tracker_gems, string 1
-		IniWrite, 1, ini\stash search.ini, tracker_gems, string 1 enable scrolling
-		IniWrite, "", ini\stash search.ini, tracker_gems, string 2
-		IniWrite, 0, ini\stash search.ini, tracker_gems, string 2 enable scrolling
+		IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
+		IniWrite, % """" StrReplace(search_string_all, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems
 	}
+	GoSub, Init_searchstrings
 	
 	guide_text := StrReplace(guide_text, "&", "&&")
 	StringLower, guide_text, guide_text
@@ -908,9 +903,9 @@ If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then gro
 			parse := StrReplace(parse, " ", "\s")
 			If !InStr(guide_panel2_text, "a fixture of fate") ;buying gems from normal vendors does not require sorting
 			{
-				If (StrLen(SubStr(stash_search_string_leveling_gems, InStr(stash_search_string_leveling_gems, ";",,, LLK_InStrCount(stash_search_string_leveling_gems, ";")) + 1) parse) <= 49)
+				If (StrLen(SubStr(stash_search_string_leveling_gems, InStr(stash_search_string_leveling_gems, "`n",,, LLK_InStrCount(stash_search_string_leveling_gems, "`n")) + 1) parse) <= 49)
 					stash_search_string_leveling_gems .= parse "|"
-				Else stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1) ");^(" parse "|"
+				Else stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1) ")`n^(" parse "|"
 			}
 			Else ;buying gems from Siosa requires the gems to be sorted (for the specific tabs)
 			{
@@ -919,17 +914,17 @@ If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then gro
 				{
 					If (%primary_attribute%_supports = "")
 						%primary_attribute%_supports := "^("
-					If (StrLen(SubStr(%primary_attribute%_supports, InStr(%primary_attribute%_supports, ";",,, LLK_InStrCount(%primary_attribute%_supports, ";")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_supports parse) <= 49)
+					If (StrLen(SubStr(%primary_attribute%_supports, InStr(%primary_attribute%_supports, "`n",,, LLK_InStrCount(%primary_attribute%_supports, "`n")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_supports parse) <= 49)
 						%primary_attribute%_supports .= parse "|"
-					Else %primary_attribute%_supports := SubStr(%primary_attribute%_supports, 1, -1) ");^(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
+					Else %primary_attribute%_supports := SubStr(%primary_attribute%_supports, 1, -1) ")`n^(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
 				}
 				Else
 				{
 					If (%primary_attribute%_skills = "")
 						%primary_attribute%_skills := "^("
-					If (StrLen(SubStr(%primary_attribute%_skills, InStr(%primary_attribute%_skills, ";",,, LLK_InStrCount(%primary_attribute%_skills, ";")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_skills parse) <= 49)
+					If (StrLen(SubStr(%primary_attribute%_skills, InStr(%primary_attribute%_skills, "`n",,, LLK_InStrCount(%primary_attribute%_skills, "`n")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_skills parse) <= 49)
 						%primary_attribute%_skills .= parse "|"
-					Else %primary_attribute%_skills := SubStr(%primary_attribute%_supports, 1, -1) ");^(" parse "|"
+					Else %primary_attribute%_skills := SubStr(%primary_attribute%_supports, 1, -1) ")`n^(" parse "|"
 				}
 			}
 		}
@@ -940,13 +935,13 @@ If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then gro
 		Loop, Parse, % "str,dex,int,none", `,, `,
 		{
 			If (SubStr(%A_LoopField%_skills, 0) = "|")
-				%A_LoopField%_skills := SubStr(%A_LoopField%_skills, 1, -1) ");"
+				%A_LoopField%_skills := SubStr(%A_LoopField%_skills, 1, -1) ")`n"
 			If (SubStr(%A_LoopField%_supports, 0) = "|")
-				%A_LoopField%_supports := SubStr(%A_LoopField%_supports, 1, -1) ");"
+				%A_LoopField%_supports := SubStr(%A_LoopField%_supports, 1, -1) ")`n"
 		}
 		
 		stash_search_string_leveling_gems := str_skills str_supports dex_skills dex_supports int_skills int_supports none_skills none_supports
-		If (SubStr(stash_search_string_leveling_gems, 0) = ";")
+		If (SubStr(stash_search_string_leveling_gems, 0) = "`n")
 			stash_search_string_leveling_gems := SubStr(stash_search_string_leveling_gems, 1, -1)
 	}
 	
@@ -979,9 +974,9 @@ If InStr(text2, "buy item: ") ;check if there are steps for buying items, then g
 		{
 			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "buy item: ") + 10)
 			parse := StrReplace(parse, " ", ".")
-			If (StrLen(SubStr(stash_search_string_leveling_items, InStr(stash_search_string_leveling_items, ";",,, LLK_InStrCount(stash_search_string_leveling_items, ";")) + 1) parse) <= 49) ;(StrLen(stash_search_string_leveling_items parse) <= 49)
+			If (StrLen(SubStr(stash_search_string_leveling_items, InStr(stash_search_string_leveling_items, "`n",,, LLK_InStrCount(stash_search_string_leveling_items, "`n")) + 1) parse) <= 49) ;(StrLen(stash_search_string_leveling_items parse) <= 49)
 				stash_search_string_leveling_items .= parse "|"
-			Else stash_search_string_leveling_items := SubStr(stash_search_string_leveling_items, 1, -1) ");(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
+			Else stash_search_string_leveling_items := SubStr(stash_search_string_leveling_items, 1, -1) ")`n(" parse "|" ;if the string gets too long, close the current one and start a new one (scrolling string-search)
 		}
 	}
 	If (SubStr(stash_search_string_leveling_items, 0) = "|")
@@ -1000,10 +995,10 @@ If InStr(text2, "buy item: ") ;check if there are steps for buying items, then g
 		text2 .= (text2 = "") ? A_Loopfield : "`n" A_Loopfield
 	}
 	
-	stash_search_string_leveling := stash_search_string_leveling_items ";" stash_search_string_leveling
+	stash_search_string_leveling := stash_search_string_leveling_items "`n" stash_search_string_leveling
 }
 
-If (SubStr(stash_search_string_leveling, 0) = ";")
+If (SubStr(stash_search_string_leveling, 0) = "`n")
 	stash_search_string_leveling := SubStr(stash_search_string_leveling, 1, -1)
 
 If (InStr(text2, "kill doedre") && InStr(text2, "kill maligaro") && InStr(text2, "kill shavronne")) ;merge multi-boss kills into a single line
