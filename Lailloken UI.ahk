@@ -337,12 +337,13 @@ searchstrings_scroll_progress := 1
 If IsObject(searchstrings_scroll_contents)
 {
 	searchstrings_scroll_index += 1
-	Clipboard := searchstrings_scroll_contents[searchstrings_scroll_index]
+	Clipboard := StrReplace(searchstrings_scroll_contents[searchstrings_scroll_index], ";")
 }
 Else
 {
 	searchstrings_scroll_index -= 1
 	Clipboard := StrReplace(searchstrings_scroll_contents, ";" searchstrings_scroll_number ";", searchstrings_scroll_number + searchstrings_scroll_index)
+	Clipboard := StrReplace(Clipboard, ";")
 }
 SendInput, ^{f}
 sleep 100
@@ -362,12 +363,13 @@ searchstrings_scroll_progress := 1
 If IsObject(searchstrings_scroll_contents)
 {
 	searchstrings_scroll_index -= 1
-	Clipboard := searchstrings_scroll_contents[searchstrings_scroll_index]
+	Clipboard := StrReplace(searchstrings_scroll_contents[searchstrings_scroll_index], ";")
 }
 Else
 {
 	searchstrings_scroll_index += 1
 	Clipboard := StrReplace(searchstrings_scroll_contents, ";" searchstrings_scroll_number ";", searchstrings_scroll_number + searchstrings_scroll_index)
+	Clipboard := StrReplace(Clipboard, ";")
 }
 SendInput, ^{f}
 sleep 100
@@ -668,66 +670,6 @@ If (map_tracker_map != "") && (mouseX > poe_width//2) && LLK_ImageSearch("stash"
 ;Else SendInput, % GetKeyState("LShift", "P") ? "{LControl Down}{LShift Down}{LButton}{LControl Up}{LShift Up}" : "{LControl Down}{LButton}{LControl Up}"
 Return
 
-#If (stash_search_scroll_mode = 1) && (scroll_in_progress != 1)
-	
-WheelUp::
-If (scrollboards != "") && (scrollboard_active = 1)
-	Return
-scroll_in_progress := 1
-parsed_number := ""
-If (scrollboard1 = "")
-{
-	Loop, Parse, clipboard
-	{
-		If IsNumber(A_Loopfield)
-			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
-	}
-	clipboard := StrReplace(clipboard, parsed_number, parsed_number + 1)
-}
-Else
-{
-	scrollboard_active -= (scrollboard_active > 1) ? 1 : 0
-	clipboard := scrollboard%scrollboard_active%
-	ClipWait, 0.05
-}
-SendInput, ^{f}
-sleep, 25
-SendInput, ^{v}
-sleep, 25
-SendInput, {Enter}
-sleep, 200
-scroll_in_progress := 0
-Return
-
-WheelDown::
-If (scrollboards != "") && (scrollboard_active = scrollboards)
-	Return
-scroll_in_progress := 1
-parsed_number := ""
-If (scrollboard1 = "")
-{
-	Loop, Parse, clipboard
-	{
-		If IsNumber(A_Loopfield)
-			parsed_number := (parsed_number = "") ? A_Loopfield : parsed_number A_Loopfield
-	}
-	clipboard := StrReplace(clipboard, parsed_number, parsed_number - 1)
-}
-Else
-{
-	scrollboard_active += (scrollboard_active < scrollboards) ? 1 : 0
-	clipboard := scrollboard%scrollboard_active%
-	ClipWait, 0.05
-}
-SendInput, ^{f}
-sleep, 100
-SendInput, ^{v}
-sleep, 100
-SendInput, {Enter}
-sleep, 200
-scroll_in_progress := 0
-Return
-
 #IfWinActive ahk_group poe_ahk_window
 
 #Include *i modules\hotkeys.ahk
@@ -862,12 +804,6 @@ If (update_available = 1)
 If WinExist("ahk_id " hwnd_itemchecker)
 {
 	LLK_ItemCheckClose()
-	Return
-}
-If WinExist("ahk_id " hwnd_stash_search_context_menu)
-{
-	Gui, stash_search_context_menu: Destroy
-	hwnd_stash_search_context_menu := ""
 	Return
 }
 If WinExist("ahk_id " hwnd_itemchecker_vendor1)
@@ -1372,7 +1308,7 @@ If (ini_version < 13001)
 			{
 				IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
 				IniWrite, % "", ini\search-strings.ini, hideout lilly, last coordinates
-				IniWrite, % """" StrReplace(conversion_string1, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, exile leveling gems
+				IniWrite, % """" StrReplace(conversion_string1, ";", " " ";;;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems
 				continue
 			}
 			
@@ -1475,14 +1411,11 @@ gamescreen := 0
 inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
-stash_search_usecases := "bestiarydex,gwennen,stash,vendor"
 imagechecks_list := "skilltree,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
 imagechecks_list_copy := imagechecks_list ",stash" ;will be sorted alphabetically for screen-checks section in the menu
 Sort, imagechecks_list_copy, D`,
-stash_search_trigger := 0
 scrollboards := 0
 lab_mode := 0, lab_checkpoint := 0
-Sort, stash_search_usecases, D`,
 pixelchecks_list := "gamescreen,inventory"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
@@ -1876,7 +1809,6 @@ If !WinActive("ahk_group poe_ahk_window")
 	{
 		;Gui, notepad_contextmenu: Destroy
 		Gui, context_menu: Destroy
-		Gui, stash_search_context_menu: Destroy
 		Gui, bestiary_menu: Destroy
 		Gui, map_info_menu: Destroy
 		hwnd_map_info_menu := ""
