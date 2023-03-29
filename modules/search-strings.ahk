@@ -649,8 +649,8 @@ LLK_StringSnip(name)
 	gui_force_hide := 1
 	LLK_Overlay("hide")
 	SendInput, #+{s}
-	WinWaitActive, Screen Snipping,, 2
-	WinWaitNotActive, Screen Snipping
+	WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+	WinWaitNotActive, ahk_exe ScreenClippingHost.exe
 	pClipboard := Gdip_CreateBitmapFromClipboard()
 	If (pClipboard <= 0)
 	{

@@ -558,8 +558,8 @@ If InStr(A_GuiControl, "image_calibrate")
 	gui_force_hide := 1
 	LLK_Overlay("hide")
 	SendInput, #+{s}
-	WinWaitActive, Screen Snipping,, 2
-	WinWaitNotActive, Screen Snipping
+	WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+	WinWaitNotActive, ahk_exe ScreenClippingHost.exe
 	pClipboard := Gdip_CreateBitmapFromClipboard()
 	If (pClipboard <= 0)
 	{
@@ -1370,8 +1370,8 @@ LLK_CheatSheetsAdvanced(name, object := "")
 	{
 		Clipboard := ""
 		SendInput, #+{s}
-		WinWaitActive, Screen Snipping,, 2
-		WinWaitNotActive, Screen Snipping
+		WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+		WinWaitNotActive, ahk_exe ScreenClippingHost.exe
 		local pSnip := Gdip_CreateBitmapFromClipboard()
 		
 		If (pSnip <= 0)
