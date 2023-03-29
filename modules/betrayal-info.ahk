@@ -360,8 +360,8 @@ If GetKeyState("RButton", "P") && (betrayal_enable_recognition = 1)
 {
 	Clipboard := ""
 	SendInput, +#{s}
-	WinWaitActive, Screen Snipping,, 2
-	WinWaitNotActive, Screen Snipping
+	WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+	WinWaitNotActive, ahk_exe ScreenClippingHost.exe
 	pBetrayal_screencap := Gdip_CreateBitmapFromClipboard()
 	If (pBetrayal_screencap < 0)
 	{

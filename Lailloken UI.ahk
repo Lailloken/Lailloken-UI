@@ -2467,8 +2467,8 @@ LLK_Snip(mode)
 	{
 		Clipboard := ""
 		SendInput, #+{s}
-		WinWaitActive, Screen Snipping
-		WinWaitNotActive, Screen Snipping
+		WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+		WinWaitNotActive, ahk_exe ScreenClippingHost.exe
 		local pSnip := Gdip_CreateBitmapFromClipboard()
 	}
 	gui_force_hide := 0
