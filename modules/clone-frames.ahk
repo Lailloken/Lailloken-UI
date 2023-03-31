@@ -35,10 +35,14 @@ GuiControl, clone_frames_menu: Text, clone_frame_new_dimensions, % clone_frame_n
 Gui, clone_frame_preview: New, -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd_clone_frame_preview
 Gui, clone_frame_preview: Show, NA
 Gui, clone_frame_preview_frame: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border +OwnDialogs HWNDhwnd_clone_frame_preview_frame
+Gui, clone_frame_preview_frame: Margin, 0, 0
 Gui, clone_frame_preview_frame: Color, Black
 WinSet, TransColor, Black
 If ((clone_frame_new_width > 1) && (clone_frame_new_height > 1))
-	Gui, clone_frame_preview_frame: Show, % "NA x"xScreenOffset + clone_frame_new_topleft_x - 1 " y"yScreenOffset + clone_frame_new_topleft_y - 1 " w"clone_frame_new_width " h"clone_frame_new_height
+{
+	Gui, clone_frame_preview_frame: Add, Text, % "x0 y0 BackgroundTrans Border w"clone_frame_new_width + 2 " h"clone_frame_new_height + 2
+	Gui, clone_frame_preview_frame: Show, % "NA AutoSize x"xScreenOffset + clone_frame_new_topleft_x - 2 " y"yScreenOffset + clone_frame_new_topleft_y - 2
+}
 Else Gui, clone_frame_preview_frame: Hide
 SetTimer, Clone_frames_preview, 100
 Return

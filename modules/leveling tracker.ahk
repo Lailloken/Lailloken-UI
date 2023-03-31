@@ -314,7 +314,18 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 							Case "kill":
 								step_text .= InStr(value, ",") ? SubStr(parts[A_Index].value, 1, InStr(parts[A_Index].value, ",") - 1) : StrReplace(value, "alira darktongue", "alira") ;shorten boss names
 							Case "quest":
-								step_text .= quests[questID].name
+								npc := quests[questID]["reward_offers"][questID]["quest_npc"]
+								Switch npc
+								{
+									Case "lady dialla":
+										npc := "dialla"
+									Case "captain fairgraves":
+										npc := "fairgraves"
+									Case "commander kirac":
+										npc := "kirac"
+								}
+								npc := InStr(npc, " ") ? SubStr(npc, 1, InStr(npc, " ") - 1) : npc
+								step_text := npc ? StrReplace(step_text, "hand in ", npc ": ") "<" quests[questID].name ">" : step_text "<" quests[questID].name ">"
 							Case "quest_text":
 								value := StrReplace(value, "glyph", " glyph"), value := StrReplace(value, "platinum bust", " platinum bust"), value := StrReplace(value, "golden page", " golden page"), value := StrReplace(value, "kitava's torment", " kitava's torment"), value := StrReplace(value, "firefly", " firefly")
 								step_text .= !InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
