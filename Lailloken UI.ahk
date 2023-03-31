@@ -68,12 +68,17 @@ If FileExist("modules\gwennen regex.ahk")
 	FileDelete, modules\gwennen regex.ahk
 If FileExist("data\leveling tracker\gems.txt")
 	FileDelete, data\leveling tracker\gems.txt
+If FileExist("modules\bestiary search.ahk")
+	FileDelete, modules\bestiary search.ahk
+If FileExist("data\map search.ini")
+	FileDelete, data\map search.ini
 If FileExist("_ini\")
 	FileRemoveDir, _ini\, 1
 If FileExist("img\_Fallback\")
 	FileRemoveDir, img\_Fallback\, 1
 ;############################################################
-If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Map search.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
+If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini")
+|| !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
 	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 
 If !FileExist("ini\")
@@ -320,6 +325,33 @@ LLK_GameScreenCheck()
 SetTimer, MainLoop, 100
 If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
+Return
+
+#If mapinfo_switched
+$~alt::
+{
+	If (A_TickCount < alt_press + 500)
+	{
+		LLK_Overlay("mapinfo_panel", "show")
+		KeyWait, alt
+		LLK_Overlay("mapinfo_panel", "hide")
+		Return
+	}
+	alt_press := A_TickCount
+	KeyWait, alt
+}
+Return
+
+#If mapinfo_control_selected
+	
+1::
+2::
+3::
+4::
+mapinfo_control_selected_rank := A_ThisHotkey
+cMod := mapinfo_colors[A_ThisHotkey]
+GuiControl, mapinfo_panel: +c%cMod%, mapinfo_panelentry%mapinfo_control_selected%
+WinSet, Redraw,, ahk_id %hwnd_mapinfo_panel%
 Return
 
 #If searchstrings_scroll_contents && WinActive("ahk_group poe_window")
@@ -625,8 +657,8 @@ KeyWait, LButton
 Sleep, 150
 SendInput, ^!{c}
 ClipWait, 0.05
-If enable_map_info && (InStr(Clipboard, "item class: maps") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(Clipboard, "fragment")
-	GoSub, Map_info
+If enable_map_info && enable_map_info_shiftclick && (InStr(Clipboard, "item class: maps") || InStr(Clipboard, "`nmaven's invitation: ") || InStr(Clipboard, "item class: blueprints") || InStr(Clipboard, "item class: contracts")) && !InStr(Clipboard, "fragment")
+	LLK_MapInfo()
 Else LLK_ItemCheck()
 Return
 
@@ -783,6 +815,11 @@ If WinExist("ahk_id " hwnd_screencap)
 	Return
 }
 */
+If WinExist("ahk_id " hwnd_mapinfo_panel) && !mapinfo_switched
+{
+	LLK_MapInfoClose()
+	Return
+}
 If WinExist("ahk_id " hwnd_cheatsheets_calibration)
 {
 	Gui, cheatsheets_calibration: Destroy
@@ -1062,8 +1099,6 @@ GoSub, GUI
 WinActivate, ahk_group poe_window
 Return
 
-#Include modules\bestiary search.ahk
-
 #Include modules\betrayal-info.ahk
 
 #Include modules\cheat sheets.ahk
@@ -1341,7 +1376,23 @@ If (ini_version < 13001)
 	FileDelete, img\GUI\bestiary-dex.jpg
 }
 
-IniWrite, 13001, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+If (ini_version < 13002)
+{
+	IniDelete, ini\map info.ini, Version
+	IniDelete, ini\map info.ini, Settings, enable pixel-check
+	IniDelete, ini\map info.ini, Settings, transparency
+	IniDelete, ini\map info.ini, Settings, side
+	IniDelete, ini\map info.ini, Settings, short descriptions
+	IniDelete, ini\map info.ini, Settings, x-coordinate
+	IniDelete, ini\map info.ini, Settings, y-coordinate
+	
+	Loop 99
+		IniDelete, ini\map info.ini, % (A_Index < 10) ? "00" A_Index : "0" A_Index
+	
+	IniWrite, % "", ini\map info.ini, UI
+}
+
+IniWrite, 13002, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -1417,7 +1468,7 @@ Sort, imagechecks_list_copy, D`,
 scrollboards := 0
 lab_mode := 0, lab_checkpoint := 0
 pixelchecks_list := "gamescreen,inventory"
-guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|map_mods_window|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
+guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|mapinfo_panel|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 guilist .= "cheatsheet|settings_menu|"
 buggy_resolutions := "768,1024,1050"
@@ -1829,8 +1880,6 @@ If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_close
 		;hwnd_win_hover := (hwnd_win_hover = "") ? 0 : hwnd_win_hover
 		;hwnd_control_hover := (hwnd_control_hover = "") ? 0 : hwnd_control_hover
 	}
-	If !WinActive("ahk_class AutoHotkeyGUI") && WinExist("ahk_id " hwnd_bestiary_menu)
-		Gui, bestiary_menu: Destroy
 	If (inactive_counter != 0)
 	{
 		inactive_counter := 0
@@ -1844,6 +1893,7 @@ If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_close
 				break
 			LLK_PixelSearch(A_LoopField)
 		}
+		/*
 		If (map_info_pixelcheck_enable = 1)
 		{
 			If (gamescreen = 1)
@@ -1867,6 +1917,7 @@ If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_close
 					LLK_Overlay("map_mods_toggle", "hide")
 			}
 		}
+		*/
 	}
 	/*
 	If clone_frames_hideout_enable && (clone_frames_enabled != "")
@@ -2059,38 +2110,35 @@ Return
 
 #Include modules\search-strings.ahk
 
-Timeout_chromatics:
-KeyWait, v, D T0.5
-If !ErrorLevel
+Timeout_chromatics()
 {
-	KeyWait, v
-	SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
+	KeyWait, v, D T0.5
+	If !ErrorLevel
+	{
+		KeyWait, v
+		SendInput, %strength%{tab}%dexterity%{tab}%intelligence%
+	}
+	If WinActive("ahk_group poe_window") || !ErrorLevel
+	{
+		SetTimer, Timeout_chromatics, delete
+		ToolTip,,,, 15
+	}
 }
-If WinActive("ahk_group poe_window") || !ErrorLevel
-{
-	SetTimer, Timeout_chromatics, delete
-	ToolTip,,,, 15
-}
-Return
 
-Timeout_cluster_jewels:
-KeyWait, F3, D T0.5
-If !ErrorLevel
+Timeout_cluster_jewels()
 {
-	KeyWait, F3
-	SendInput, %wiki_cluster%
+	KeyWait, F3, D T0.5
+	If !ErrorLevel
+	{
+		KeyWait, F3
+		SendInput, %wiki_cluster%
+	}
+	If WinActive("ahk_group poe_window") || !ErrorLevel
+	{
+		SetTimer, Timeout_cluster_jewels, delete
+		ToolTip,,,, 15
+	}
 }
-If WinActive("ahk_group poe_window") || !ErrorLevel
-{
-	SetTimer, Timeout_cluster_jewels, delete
-	ToolTip,,,, 15
-}
-Return
-
-ToolTip_clear:
-SetTimer, ToolTip_clear, delete
-ToolTip,,,, 17
-Return
 
 LLK_AddEntry(name)
 {
@@ -2202,8 +2250,6 @@ LLK_HotstringClip(hotstring, mode := 0)
 		SendInput, {ESC}
 	hotstringboard := InStr(clipboard, "@") ? SubStr(clipboard, InStr(clipboard, " ") + 1) : clipboard
 	hotstringboard := (SubStr(hotstringboard, 0) = " ") ? SubStr(hotstringboard, 1, -1) : hotstringboard
-	If (hotstring = "best")
-		GoSub, Bestiary_search
 	If (hotstring = "synd")
 		GoSub, Betrayal_search
 	/*
@@ -2521,7 +2567,12 @@ LLK_ToolTip(message, duration := 1, x := "", y := "")
 	If (y = "")
 		ToolTip, % message, %x%, %mouseYpos%, 17
 	Else ToolTip, % message, %x%, %y%, 17
-	SetTimer, ToolTip_clear, % 1000 * duration
+	SetTimer, ToolTipClear, % -1000 * duration
+}
+
+ToolTipClear()
+{
+	ToolTip,,,, 17
 }
 
 LLK_WinExist(hwnd)
