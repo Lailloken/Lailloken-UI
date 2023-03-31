@@ -1378,6 +1378,9 @@ If (ini_version < 13001)
 
 If (ini_version < 13002)
 {
+	If FileExist("ini\map info.ini")
+		FileCopy, ini\map info.ini, ini\map info pre-1.30.2.ini, 1
+	
 	IniDelete, ini\map info.ini, Version
 	IniDelete, ini\map info.ini, Settings, enable pixel-check
 	IniDelete, ini\map info.ini, Settings, transparency
