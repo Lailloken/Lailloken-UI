@@ -62,7 +62,7 @@ If (A_Gui = "settings_menu")
 }
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu, Lailloken UI: settings
 Gui, settings_menu: Color, Black
-Gui, settings_menu: Margin, % font_width/2, % font_height/4
+Gui, settings_menu: Margin, % font_width*0.75, % font_height/4
 WinSet, Transparent, % InStr(GuiControl_copy, "itemchecker") || InStr(GuiControl_copy, "item-info") ? 255 : trans
 Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 
