@@ -62,7 +62,7 @@ If (A_Gui = "settings_menu")
 }
 Gui, settings_menu: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_settings_menu, Lailloken UI: settings
 Gui, settings_menu: Color, Black
-Gui, settings_menu: Margin, 12, 4
+Gui, settings_menu: Margin, % font_width*0.75, % font_height/4
 WinSet, Transparent, % InStr(GuiControl_copy, "itemchecker") || InStr(GuiControl_copy, "item-info") ? 255 : trans
 Gui, settings_menu: Font, s%fSize0% cWhite underline, Fontin SmallCaps
 
@@ -910,6 +910,21 @@ while holding shift, left-click maps to apply currency and activate the map-info
 )
 }
 
+If (A_GuiControl = "mapinfo_colors_help")
+{
+text =
+(
+explanation
+–> individual map-mods can be highlighted with different colors to indicate their difficulty
+–> omni-click a map, long-click a mod in the panel, then press keys 1-4 to apply the corresponding colors shown below
+
+instructions
+–> copy an rgb hex-code into the clipboard and click a button below to apply that color
+–> right-click a button below to reset that color to default
+–> <headers> refers to the color of headers (player, monsters, bosses, etc.)
+)
+}
+
 If (A_GuiControl = "searchstrings_list_help")
 {
 text =
@@ -1615,36 +1630,29 @@ Return
 Settings_menu_map_info:
 settings_menu_section := "map info"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel">wiki page</a>
+Gui, settings_menu: Add, Link, % "ys hp x+"font_width*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info y+"font_height " venable_map_info Checked"enable_map_info, enable the map-info panel
 
 If enable_map_info
 {
-	If (enable_pixelchecks = 1) && (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR")
-	{
-		Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " vMap_info_pixelcheck_enable Checked"Map_info_pixelcheck_enable, toggle overlay automatically
-		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_auto_trigger hp w-1", img\GUI\help.png
-	}
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info_settings_apply y+"fSize0*1.2 " venable_map_info_shiftclick Checked"enable_map_info_shiftclick, shift-clicking activates map-info
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_info venable_map_info_shiftclick Checked"enable_map_info_shiftclick, shift-clicking activates map-info
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vmap_info_shiftclick_help hp w-1", img\GUI\help.png
 	
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
-		
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info_settings_apply Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info_settings_apply Border x+2 wp", % "r"
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info_settings_apply Border x+2 wp", % "+"
-
-	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_minus gMap_info_settings_apply Border", % " – "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vmap_info_opac_plus gMap_info_settings_apply Border x+2 wp", % "+"
-
-	Gui, settings_menu: Add, Checkbox, % "xs Section Center gMap_info_settings_apply vMap_info_short BackgroundTrans Checked"map_info_short " y+"fSize0*1.2, % "short mod descriptions"
-
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "search for mods: "
-	Gui, settings_menu: Font, % "s"fSize0 - 4
-	Gui, settings_menu: Add, Edit, % "ys x+0 cBlack BackgroundTrans Limit gMap_info_customization vMap_info_search wp"
-	Gui, settings_menu: Font, % "s"fSize0
-
-	;GoSub, Map_info
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"font_height/2, text-size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_minus gMap_info Border x+"font_width/2, % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info Border x+"font_width/4 " wp", % "r"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info Border x+"font_width/4 " wp", % "+"
+	
+	Gui, settings_menu: Font, bold underline
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", highlight colors:
+	Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmapinfo_colors_help hp w-1", img\GUI\help.png
+	Gui, settings_menu: Font, norm
+	Loop 5
+	{
+		loop := A_Index - 1, text := (A_Index = 1) ? " headers " : " diff " loop " "
+		style := (A_Index = 1) ? "Section xs y+1 c"mapinfo_colors[loop] : "ys x+"font_width/4 " c"mapinfo_colors[loop]
+		Gui, settings_menu: Add, Text, % style " Border Center BackgroundTrans gMap_info vmapinfo_settings_color"loop, % text
+	}
 }
 Return
 

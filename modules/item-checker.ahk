@@ -654,7 +654,8 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 		item_type := "jewelry"
 	Else item_type := ""
 	
-	If InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps") || InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") || InStr(Clipboard, "item class: misc map items") ;certain exclusion criteria
+	If InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps")
+	|| InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") || InStr(Clipboard, "item class: misc map items") || InStr(Clipboard, "rarity: quest") ;certain exclusion criteria
 	{
 		LLK_ToolTip("item-info: item not supported")
 		Return

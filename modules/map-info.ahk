@@ -1,496 +1,9 @@
-﻿Map_info:
-If (A_GuiControl = "enable_map_info")
+﻿Init_maps:
+If !FileExist("ini\map info.ini")
 {
-	Gui, settings_menu: Submit, NoHide
-	If (enable_map_info = 0)
-	{
-		Gui, map_mods_window: Destroy
-		hwnd_map_mods_window := ""
-		Gui, map_mods_toggle: Destroy
-		hwnd_map_mods_toggle := ""
-	}
-	IniWrite, % enable_map_info, ini\config.ini, Features, enable map-info panel
-	GoSub, Settings_menu
-	Return
+	IniWrite, % "", ini\map info.ini, Settings
+	IniWrite, % "", ini\map info.ini, UI
 }
-
-If InStr(Clipboard, "item class: maps") && (InStr(clipboard, "Unidentified") || InStr(clipboard, "Rarity: Normal") || InStr(clipboard, "Rarity: Unique"))
-{
-	LLK_ToolTip("not supported:`nnormal, unique, un-ID")
-	Return
-}
-
-If (A_Gui = "")
-{
-	map_mods_clipped := Clipboard
-	map_mods_sample := 0
-}
-monsters := ""
-player := ""
-bosses := ""
-area := ""
-map_mods_panel_player := ""
-map_mods_panel_monsters := ""
-map_mods_panel_bosses := ""
-map_mods_panel_area := ""
-map_mods_mod_count := 0
-If (map_mods_clipped = "")
-{
-	IniRead, parseboard, data\Map mods.ini, sample map
-	parseboard := SubStr(parseboard, InStr(parseboard, "Item Level:"))
-	map_mods_sample := 1
-}
-Else parseboard := SubStr(map_mods_clipped, InStr(map_mods_clipped, "Item Level:"))
-IniRead, map_mods_list, data\Map mods.ini
-
-Loop, Parse, parseboard, `n, `n
-{
-	If InStr(A_Loopfield, "{")
-	{
-		If InStr(A_Loopfield, "prefix" || "suffix")
-			map_mods_mod_count += 1
-		continue
-	}
-	If (A_LoopField = "") || (SubStr(A_Loopfield, 1, 1) = "(") || InStr(A_Loopfield, "delirium reward type")
-		continue
-	check := InStr(A_Loopfield, "(") ? SubStr(A_LoopField, 1, InStr(A_Loopfield, "(",,, 1) - 1) SubStr(A_Loopfield, InStr(A_Loopfield, ")") + 1) : A_Loopfield
-	check_characters := "-0123456789%"
-	map_mod_pretext := ""
-	Loop, Parse, check
-	{
-		If InStr(check_characters, A_LoopField)
-			map_mod_pretext := (map_mod_pretext = "") ? A_LoopField : map_mod_pretext A_LoopField
-	}
-	While (SubStr(map_mod_pretext, 0) = "-")
-		map_mod_pretext := SubStr(map_mod_pretext, 1, -1)
-	Loop, Parse, map_mods_list, `n, `r`n
-	{
-		If (A_LoopField = "sample map") || (A_LoopField = "version")
-			continue
-		If InStr(check, A_LoopField)
-		{
-			loopfield_copy := A_LoopField
-			IniRead, map_mod_type, data\Map mods.ini, %A_LoopField%, type
-			IniRead, map_mod_modifier, data\Map mods.ini, %A_LoopField%, mod
-			If (A_LoopField = "increased area") && InStr(check, "monster")
-				map_mod_type := "monsters"
-			Else If (A_LoopField = "increased area") && InStr(check, "boss")
-			{
-				map_mod_type := "bosses"
-				loopfield_copy := "increased area of"
-			}
-			IniRead, map_mod_ID, data\Map mods.ini, %loopfield_copy%, ID
-			If (map_info_short = 1)
-				IniRead, map_mod_text, data\Map mods.ini, %loopfield_copy%, text
-			Else IniRead, map_mod_text, data\Map mods.ini, %loopfield_copy%, text1
-			IniRead, map_mod_mod, data\Map mods.ini, %loopfield_copy%, mod
-			If (map_mod_type = "player")
-				map_mods_panel_player := (map_mods_panel_player = "") ? map_mod_text : map_mods_panel_player "`n" map_mod_text
-			Else If (map_mod_type = "monsters")
-			{
-				If (map_mod_text = "more life") && InStr(map_mods_panel_monsters, map_mod_text)
-				{
-					map_mod_pretext := SubStr(map_mod_pretext, 1, 2)
-					more_life := SubStr(monsters, InStr(monsters, "," map_mod_ID) - 3, 2)
-					monsters := StrReplace(monsters, more_life "%," map_mod_ID map_mod_text, map_mod_pretext + more_life "%," map_mod_ID map_mod_text)
-					break
-				}
-				map_mods_panel_monsters := (map_mods_panel_monsters = "") ? map_mod_text : map_mods_panel_monsters "`n" map_mod_text
-			}
-			Else If (map_mod_type = "bosses")
-				map_mods_panel_bosses := (map_mods_panel_bosses = "") ? map_mod_text : map_mods_panel_bosses "`n" map_mod_text
-			Else If (map_mod_type = "area")
-				map_mods_panel_area := (map_mods_panel_area = "") ? map_mod_text : map_mods_panel_area "`n" map_mod_text
-			
-			map_mod_pretext := (map_mod_mod = "?") ? "" : map_mod_pretext
-			map_mod_text := (map_mod_pretext != "") ? map_mod_pretext "," map_mod_ID map_mod_text : "," map_mod_ID map_mod_text
-			If (map_mod_modifier = "+")
-				map_mod_text := "+" map_mod_text
-			If (map_mod_modifier = "-")
-				map_mod_text := "-" map_mod_text
-			IniRead, map_mod_rank, ini\map info.ini, %map_mod_ID%, rank
-			If (map_mod_type = "player") && (map_mod_rank > 0)
-				player := (player = "") ? map_mod_text : player "`n" map_mod_text
-			Else If (map_mod_type = "monsters") && (map_mod_rank > 0)
-				monsters := (monsters = "") ? map_mod_text : monsters "`n" map_mod_text
-			Else If (map_mod_type = "bosses") && (map_mod_rank > 0)
-				bosses := (bosses = "") ? map_mod_text : bosses "`n" map_mod_text
-			Else If (map_mod_type = "area") && (map_mod_rank > 0)
-				area := (area = "") ? map_mod_text : area "`n" map_mod_text
-			break
-		}
-	}
-}
-map_mods_panel_text := map_mods_panel_player "`n" map_mods_panel_monsters "`n" map_mods_panel_bosses "`n" map_mods_panel_area
-width := ""
-Loop 2
-{
-	map_info_difficulty := 0
-	map_info_mod_count := 0
-	Gui, map_mods_window: New, -DPIScale -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_window
-	If (A_Index = 1)
-		Gui, map_mods_window: Margin, 0, 0
-	Else Gui, map_mods_window: Margin, 8, 2
-	Gui, map_mods_window: Color, Black
-	WinSet, Transparent, %map_info_trans%
-	style_map_mods := (width = "") ? "" : " w"width
-	Gui, map_mods_window: Font, % "s"fSize0 + fSize_offset_map_info " cAqua underline", Fontin SmallCaps
-	If (player != "")
-	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans %map_info_side% %style_map_mods%, player:
-		Gui, map_mods_window: Font, norm
-		Loop, Parse, player, `n, `n
-		{
-			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
-			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
-			map_info_difficulty += window_rank
-			map_info_mod_count += (window_rank != 0) ? 1 : 0
-			window_color := "white"
-			window_color := (window_rank > 1) ? "yellow" : window_color
-			window_color := (window_rank > 2) ? "red" : window_color
-			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
-			window_text := StrReplace(window_text, "?", "`n")
-			window_text := StrReplace(window_text, "$")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
-		}
-		Gui, map_mods_window: Font, underline
-	}
-	If (monsters != "")
-	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans y+0 %map_info_side% %style_map_mods%, monsters:
-		Gui, map_mods_window: Font, norm
-		Loop, Parse, monsters, `n, `n
-		{
-			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
-			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
-			map_info_difficulty += window_rank
-			map_info_mod_count += (window_rank != 0) ? 1 : 0
-			window_color := "white"
-			window_color := (window_rank > 1) ? "yellow" : window_color
-			window_color := (window_rank > 2) ? "red" : window_color
-			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
-			window_text := StrReplace(window_text, "?", "`n")
-			window_text := StrReplace(window_text, "$")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
-		}
-		Gui, map_mods_window: Font, underline
-	}
-	If (bosses != "")
-	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans y+0 %map_info_side% %style_map_mods%, boss:
-		Gui, map_mods_window: Font, norm
-		Loop, Parse, bosses, `n, `n
-		{
-			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
-			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
-			map_info_difficulty += window_rank
-			map_info_mod_count += (window_rank != 0) ? 1 : 0
-			window_color := "white"
-			window_color := (window_rank > 1) ? "yellow" : window_color
-			window_color := (window_rank > 2) ? "red" : window_color
-			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
-			window_text := StrReplace(window_text, "0f", "of")
-			window_text := StrReplace(window_text, "a0e", "aoe")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
-		}
-		Gui, map_mods_window: Font, underline
-	}
-	If (area != "")
-	{
-		Gui, map_mods_window: Add, Text, BackgroundTrans y+0 %map_info_side% %style_map_mods%, area:
-		Gui, map_mods_window: Font, norm
-		Loop, Parse, area, `n, `n
-		{
-			window_ID := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1, 3)
-			IniRead, window_rank, ini\map info.ini, %window_ID%, rank, 1
-			map_info_difficulty += window_rank
-			map_info_mod_count += (window_rank != 0) ? 1 : 0
-			window_color := "white"
-			window_color := (window_rank > 1) ? "yellow" : window_color
-			window_color := (window_rank > 2) ? "red" : window_color
-			window_color := (window_rank > 3) ? "fuchsia" : window_color
-			window_text := (SubStr(A_Loopfield, 1, 1) = ",") ? StrReplace(A_LoopField, "," window_ID) : StrReplace(A_LoopField, "," window_ID, " ")
-			Gui, map_mods_window: Add, Text, BackgroundTrans c%window_color% %map_info_side% %style_map_mods% y+0, %window_text%
-		}
-		Gui, map_mods_window: Font, underline
-	}
-	If (A_Index = 1)
-	{
-		Gui, map_mods_window: Show, NA x10000 y10000
-		WinGetPos,,, width,, ahk_id %hwnd_map_mods_window%
-	}
-	Else
-	{
-		Gui, map_mods_toggle: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_mods_toggle
-		Gui, map_mods_toggle: Margin, 8, 0
-		Gui, map_mods_toggle: Color, Black
-		WinSet, Transparent, %map_info_trans%
-		Gui, map_mods_toggle: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
-		Gui, map_mods_toggle: Add, Text, BackgroundTrans %style_map_mods% Center gMap_mods_toggle, % map_mods_mod_count " @ " Format("{:0.1f}", map_info_difficulty/map_info_mod_count)
-		Gui, map_mods_toggle: Show, NA x10000 y10000
-		WinGetPos,,, width, height ;, ahk_id %hwnd_map_mods_toggle%
-		map_info_xPos_target := (map_info_xPos > poe_width) ? poe_width : map_info_xPos
-		map_info_xPos_target := (map_info_xPos_target >= poe_width/2) ? map_info_xPos_target - width : map_info_xPos_target
-		map_info_yPos_target := (map_info_yPos + height > poe_height) ? poe_height - height : map_info_yPos
-		If (map_info_xPos >= poe_width - pixel_gamescreen_x1 - 1) && (map_info_yPos_target <= pixel_gamescreen_y1 + 1)
-			map_info_yPos_target := pixel_gamescreen_y1 + 1
-		Gui, map_mods_window: Show, NA
-		WinGetPos,,, width_window, height_window, ahk_id %hwnd_map_mods_window%
-		map_info_yPos_target1 := (map_info_yPos > poe_height/2) ? map_info_yPos_target - height_window + 1 : map_info_yPos_target + height - 1
-		Gui, map_mods_window: Show, % "NA x"xScreenOffset + map_info_xPos_target " y"yScreenOffset + map_info_yPos_target1
-		Gui, map_mods_toggle: Show, % "Hide x"xScreenOffset + map_info_xPos_target " y"yScreenOffset + map_info_yPos_target
-		LLK_Overlay("map_mods_toggle", "show")		
-		LLK_Overlay("map_mods_window", "show")
-		If WinExist("ahk_id " hwnd_map_info_menu) && !WinExist("ahk_id " hwnd_settings_menu)
-		{
-			WinGetPos,,, edit_width, edit_height, ahk_id %hwnd_map_info_menu%
-			edit_xPos := (map_info_xPos_target >= poe_width/2) ? map_info_xPos_target - edit_width + 1 : map_info_xPos_target + width_window - 1
-			edit_yPos := (map_info_yPos_target1 + edit_height >= poe_height) ? poe_height - edit_height : map_info_yPos_target1
-			WinMove, ahk_id %hwnd_map_info_menu%,, % xScreenOffset + edit_xPos, % yScreenoffset +  edit_yPos
-		}
-		toggle_map_mods_panel := 1
-		map_mods_panel_fresh := 1
-	}
-	If ((player != "") || (monsters != "") || (bosses != "") || (area != "")) && (A_Gui = "")
-		LLK_ToolTip("success", 0.5)
-	Else If (player = "") && (monsters = "") && (bosses = "") && (area = "") && (map_info_search = "")
-	{
-		LLK_ToolTip("no mods", 0.5)
-		Gui, map_mods_window: Destroy
-		Gui, map_mods_toggle: Destroy
-		hwnd_map_mods_toggle := ""
-		hwnd_map_mods_window := ""
-		map_mods_panel_fresh := 0
-		break
-	}
-}
-Return
-
-Map_info_customization:
-GuiControl_copy := A_GuiControl
-Gui, map_info_menu: destroy
-Gui, map_info_menu: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_info_menu, Lailloken UI: map mod customization
-Gui, map_info_menu: Color, Black
-Gui, map_info_menu: Margin, 12, 4
-WinSet, Transparent, %trans%
-Gui, map_info_menu: Font, % "cWhite s"fSize0, Fontin SmallCaps
-
-If (GuiControl_copy = "Map_info_search")
-{
-	map_info_hits := ""
-	section := 0
-	Gui, settings_menu: Submit, NoHide
-	If (StrLen(map_info_search) < 3)
-		Return
-	IniRead, map_mods_search_db, data\Map search.ini
-	Loop, Parse, map_mods_search_db, `n, `n
-	{
-		If InStr(A_LoopField, map_info_search)
-		{
-			IniRead, map_info_ID, data\Map search.ini, %A_LoopField%, ID
-			IniRead, map_mod_%map_info_ID%_rank, ini\map info.ini, %map_info_ID%, rank, 1
-			IniRead, map_mod_%map_info_ID%_type, ini\map info.ini, %map_info_ID%, type
-			map_mod_text := A_Loopfield
-			If (section = 0)
-			{
-				Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
-				Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
-				section := 1
-			}
-			Gui, map_info_menu: Font, % "s"fSize0 - 4
-			Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%map_info_ID% gMap_mods_save number limit1 cBlack, % map_mod_%map_info_ID%_rank
-			Gui, map_info_menu: Font, % "s"fSize0
-			Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_mod_text
-		}
-	}
-	If (section != 0)
-	{
-		WinGetPos, winXpos, winYpos, winwidth, winheight, ahk_id %hwnd_settings_menu%
-		Gui, map_info_menu: Show, % "NA x"winXpos " y"winYpos + winheight
-	}
-	Return
-}
-
-IniRead, map_info_parse, data\Map mods.ini
-map_info_parse := StrReplace(map_info_parse, "-")
-loop := ""
-IDs_hit := ""
-Loop, Parse, map_mods_panel_text, `n, `n
-{
-	If (A_LoopField = "")
-		continue
-	loop += 1
-	check := A_LoopField
-	Loop, Parse, map_info_parse, `n, `n
-	{
-		If (map_info_short = 1)
-			IniRead, map_info_text, data\Map mods.ini, %A_LoopField%, text
-		Else IniRead, map_info_text, data\Map mods.ini, %A_LoopField%, text1
-		If (map_info_text = check)
-		{
-			IniRead, map_info_ID, data\Map mods.ini, %A_LoopField%, ID
-			break
-		}
-	}
-	IniRead, map_mod_%map_info_ID%_rank, ini\map info.ini, %map_info_ID%, rank, 1
-	IniRead, map_mod_%map_info_ID%_type, ini\map info.ini, %map_info_ID%, type
-	If (loop = 1)
-	{
-		Gui, map_info_menu: Add, Text, Section BackgroundTrans, set mod difficulty (0-4):
-		Gui, map_info_menu: Add, Picture, ys BackgroundTrans vMap_info gSettings_menu_help hp w-1, img\GUI\help.png
-	}
-	Gui, map_info_menu: Font, % "s"fSize0 - 4
-	Gui, map_info_menu: Add, Edit, xs hp Section BackgroundTrans center vMap_mod_edit_%map_info_ID% gMap_mods_save number limit1 cBlack, % map_mod_%map_info_ID%_rank
-	Gui, map_info_menu: Font, % "s"fSize0
-	map_info_cfg_text := StrReplace(A_LoopField, "-?")
-	map_info_cfg_text := StrReplace(map_info_cfg_text, "?", " ")
-	map_info_cfg_text := StrReplace(map_info_cfg_text, "0f", "of")
-	map_info_cfg_text := StrReplace(map_info_cfg_text, "a0e", "aoe")
-	map_info_cfg_text := StrReplace(map_info_cfg_text, "$")
-	Gui, map_info_menu: Add, Text, ys BackgroundTrans, % map_info_cfg_text " (" map_mod_%map_info_ID%_type ")"
-}
-Gui, map_info_menu: Show, Hide
-WinGetPos, winx, winy, winw,, ahk_id %hwnd_map_mods_window%
-WinGetPos,,, widthedit, height,
-If (map_info_side = "right")
-	Gui, map_info_menu: Show, % "x"winx - widthedit + 1 " y"winy
-Else Gui, map_info_menu: Show, % "x"winx + winw - 1 " y"winy
-If (winy + height > yScreenOffSet + poe_height)
-	WinMove, ahk_id %hwnd_map_info_menu%,,, % yScreenOffSet + poe_height - height
-Return
-
-Map_info_settings_apply:
-Gui, settings_menu: Submit, NoHide
-If (A_GuiControl = "enable_map_info_shiftclick")
-{
-	IniWrite, % enable_map_info_shiftclick, ini\map info.ini, Settings, enable shift-clicking
-	Return
-}
-If (A_GuiControl = "map_info_short")
-{
-	IniWrite, % map_info_short, ini\map info.ini, Settings, short descriptions
-	IniRead, map_info_parse, data\Map mods.ini
-	Loop, Parse, map_info_parse, `n, `n
-	{
-		If (A_LoopField = "sample map") || (A_LoopField = "version")
-			continue
-		IniRead, parse_ID, data\Map mods.ini, %A_LoopField%, ID
-		If (map_info_short = 1)
-			IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text
-		Else IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text1
-		IniWrite, %parse_text%, ini\map info.ini, %parse_ID%, text
-	}
-	GoSub, Map_info
-	Return
-}
-If (A_GuiControl = "Map_info_pixelcheck_enable")
-{
-	If (pixel_gamescreen_color1 = "") || (pixel_gamescreen_color1 = "ERROR")
-	{
-		LLK_ToolTip("pixel-check setup required")
-		map_info_pixelcheck_enable := 0
-		GuiControl, settings_menu: , Map_info_pixelcheck_enable, 0
-		Return
-	}
-	IniWrite, %map_info_pixelcheck_enable%, ini\map info.ini, Settings, enable pixel-check
-	LLK_GameScreenCheck()
-	Return
-}
-If (A_GuiControl = "fSize_map_info_minus")
-{
-	fSize_offset_map_info -= 1
-	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
-}
-If (A_GuiControl = "fSize_map_info_plus")
-{
-	fSize_offset_map_info += 1
-	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
-}
-If (A_GuiControl = "fSize_map_info_reset")
-{
-	fSize_offset_map_info := 0
-	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
-}
-If (A_GuiControl = "map_info_opac_minus")
-{
-	map_info_trans -= (map_info_trans > 100) ? 30 : 0
-	IniWrite, %map_info_trans%, ini\map info.ini, Settings, transparency
-}
-If (A_GuiControl = "map_info_opac_plus")
-{
-	map_info_trans += (map_info_trans < 250) ? 30 : 0
-	IniWrite, %map_info_trans%, ini\map info.ini, Settings, transparency
-}
-GoSub, Map_info
-Return
-
-Map_mods_save:
-Gui, map_info_menu: Submit, NoHide
-SendInput, ^{a}
-map_mod_ID := StrReplace(A_GuiControl, "map_mod_edit_")
-map_mod_difficulty := %A_GuiControl%
-map_mod_difficulty := (map_mod_difficulty = "") ? 0 : map_mod_difficulty
-map_mod_difficulty := (map_mod_difficulty > 4) ? 4 : map_mod_difficulty
-IniWrite, %map_mod_difficulty%, ini\map info.ini, %map_mod_ID%, rank
-GoSub, Map_info
-Return
-
-Map_mods_toggle:
-start := A_TickCount
-While GetKeyState("LButton", "P")
-{
-	If (A_TickCount >= start + 300)
-	{
-		If WinExist("ahk_id " hwnd_map_info_menu)
-		{
-			Gui, map_info_menu: Destroy
-			hwnd_map_info_menu := ""
-		}
-		If !WinExist("ahk_id " hwnd_map_mods_window)
-			LLK_Overlay("map_mods_window", "show")
-		WinGetPos,,, wGui, hGui, ahk_id %hwnd_map_mods_toggle%
-		WinGetPos,,,, hGui2, ahk_id %hwnd_map_mods_window%
-		While GetKeyState("LButton", "P")
-			GoSub, Panel_drag
-		KeyWait, LButton
-		map_info_xPos := (panelXpos >= poe_width/2) ? panelXpos + wGui : panelXpos
-		map_info_yPos := panelYpos
-		map_info_side := (map_info_xPos > poe_width//2) ? "right" : "left"
-		IniWrite, % map_info_xPos, ini\map info.ini, Settings, x-coordinate
-		IniWrite, % map_info_yPos, ini\map info.ini, Settings, y-coordinate
-		GoSub, map_info
-		WinActivate, ahk_group poe_window
-		Return
-	}
-}
-If (click = 2)
-{
-	LLK_Overlay("map_mods_window", "show")
-	GoSub, Map_info_customization
-	Return
-}
-If WinExist("ahk_id " hwnd_map_info_menu)
-{
-	Gui, map_info_menu: Destroy
-	hwnd_map_info_menu := ""
-}
-If WinExist("ahk_id " hwnd_map_mods_window)
-{
-	LLK_Overlay("map_mods_window", "hide")
-	toggle_map_mods_panel := 0
-}
-Else
-{
-	LLK_Overlay("map_mods_window", "Show")
-	toggle_map_mods_panel := 1
-}
-WinActivate, ahk_group poe_window
-Return
-
-Init_maps:
 Loop 16
 {
 	IniRead, maps_tier%A_Index%, data\Atlas.ini, Maps, tier%A_Index%
@@ -509,45 +22,400 @@ Loop, Parse, maps_list, `,, `,
 	maps_%letter% := (maps_%letter% = "") ? A_Loopfield : maps_%letter% "`n" A_Loopfield
 }
 
-IniRead, map_info_pixelcheck_enable, ini\map info.ini, Settings, enable pixel-check, 1
+mapinfo_colors_default := ["White", "f77e05", "Red", "Fuchsia"]
+mapinfo_colors_default[0] := "909090"
+mapinfo_colors := []
+Loop 5
+{
+	loop := A_Index - 1
+	If (A_Index = 1)
+		IniRead, cID, ini\map info.ini, UI, header color, % A_Space
+	Else IniRead, cID, ini\map info.ini, UI, difficulty %loop% color, % A_Space
+	If !cID
+		mapinfo_colors[loop] := mapinfo_colors_default[loop]
+	Else mapinfo_colors[loop] := cID
+}
+
 IniRead, enable_map_info_shiftclick, ini\map info.ini, Settings, enable shift-clicking, 0
-If (map_info_pixelcheck_enable = 1)
-	pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
 IniRead, fSize_offset_map_info, ini\map info.ini, Settings, font-offset, 0
-IniRead, map_info_trans, ini\map info.ini, Settings, transparency, 220
 If fSize_offset_map_info is not number
 	fSize_offset_map_info := 0
-IniRead, map_info_short, ini\map info.ini, Settings, short descriptions, 1
-IniRead, map_info_xPos, ini\map info.ini, Settings, x-coordinate, 0
-map_info_side := (map_info_xPos >= poe_width//2) ? "right" : "left"
-IniRead, map_info_yPos, ini\map info.ini, Settings, y-coordinate, 0
-IniRead, map_mod_ini_version_data, data\Map mods.ini, Version, version, 1
-IniRead, map_mod_ini_version_user, ini\map info.ini, Version, version, 0
-If !FileExist("ini\map info.ini") || (map_mod_ini_version_data > map_mod_ini_version_user)
+LLK_FontSize(fSize0 + fSize_offset_map_info, font_height_mapinfo, font_width_mapinfo)
+IniRead, mapinfo_mods_database, data\Map mods.ini,,, % A_Space
+Return
+
+Map_info:
+Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "enable_map_info")
 {
-	map_info_exists := FileExist("ini\map info.ini") ? 1 : 0
-	IniWrite, %map_mod_ini_version_data%, ini\map info.ini, Version, version
-	If (map_info_exists = 0)
+	If (enable_map_info = 0)
 	{
-		IniWrite, 0, ini\map info.ini, Settings, enable pixel-check
-		IniWrite, 0, ini\map info.ini, Settings, font-offset
-		IniWrite, 220, ini\map info.ini, Settings, transparency
+		Gui, mapinfo_panel: Destroy
+		hwnd_mapinfo_panel := ""
+		mapinfo_switched := 0
 	}
-	IniRead, map_info_parse, data\Map mods.ini
-	Loop, Parse, map_info_parse, `n, `n
+	IniWrite, % enable_map_info, ini\config.ini, Features, enable map-info panel
+	GoSub, Settings_menu
+	Return
+}
+
+If InStr(A_GuiControl, "mapinfo_settings_color")
+{
+	cID := StrReplace(A_GuiControl, "mapinfo_settings_color")
+	If (click = 1)
 	{
-		If (A_LoopField = "sample map") || (A_LoopField = "version")
+		If (StrLen(Clipboard) = 6) || (SubStr(Clipboard, 1, 1) = "#" && StrLen(Clipboard) = 7)
+		{
+			hex := StrReplace(Clipboard, "#")
+			GuiControl, settings_menu: +c%hex%, % A_GuiControl
+			IniWrite, % hex, ini\map info.ini, UI, % !cID ? "header color" : "difficulty "cID " color"
+			mapinfo_colors[cID] := hex
+		}
+		Else
+		{
+			LLK_ToolTip("invalid RGB-code in clipboard", 1.5)
+			Return
+		}
+	}
+	Else
+	{
+		If (mapinfo_colors[cID] = mapinfo_colors_default[cID])
+			Return
+		GuiControl, % "settings_menu: +c"mapinfo_colors_default[cID], % A_GuiControl
+		IniWrite, % "", ini\map info.ini, UI, % !cID ? "header color" : "difficulty "cID " color"
+		mapinfo_colors[cID] := mapinfo_colors_default[cID]
+	}
+	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	If WinExist("ahk_id " hwnd_mapinfo_panel)
+		LLK_MapInfo("refresh")
+	Else
+	{
+		LLK_MapInfo("switch")
+		mapinfo_switched := 1
+	}
+	Return
+}
+
+If (A_GuiControl = "enable_map_info_shiftclick")
+{
+	IniWrite, % enable_map_info_shiftclick, ini\map info.ini, Settings, enable shift-clicking
+	Return
+}
+
+If (A_GuiControl = "fSize_map_info_minus")
+{
+	fSize_offset_map_info -= (fSize0 + fSize_offset_map_info > 8) ? 1 : 0
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_map_info_plus")
+{
+	fSize_offset_map_info += 1
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "fSize_map_info_reset")
+{
+	fSize_offset_map_info := 0
+	IniWrite, %fSize_offset_map_info%, ini\map info.ini, Settings, font-offset
+}
+If (A_GuiControl = "map_info_opac_minus")
+{
+	mapinfo_trans -= (mapinfo_trans > 100) ? 30 : 0
+	IniWrite, %mapinfo_trans%, ini\map info.ini, Settings, transparency
+}
+If (A_GuiControl = "map_info_opac_plus")
+{
+	mapinfo_trans += (mapinfo_trans < 250) ? 30 : 0
+	IniWrite, %mapinfo_trans%, ini\map info.ini, Settings, transparency
+}
+LLK_FontSize(fSize0 + fSize_offset_map_info, font_height_mapinfo, font_width_mapinfo)
+LLK_MapInfo("refresh")
+Return
+
+
+LLK_MapInfo(mode := "")
+{
+	global
+	local map_mods := [], map_mods_parsed := {}, speed, multiplier := 1, quantity := 0, rarity := 0, size := 0, map_mods_count := 0, outer, sample
+	
+	If InStr(clipboard, "`nUnidentified") || InStr(clipboard, "Rarity: Normal") || InStr(clipboard, "Rarity: Unique")
+	{
+		LLK_ToolTip("not supported:`nnormal, unique, un-ID")
+		Return
+	}
+	
+	If !InStr("refresh,switch", mode) || !mode
+		mapinfo_metadata := SubStr(Clipboard, 1, InStr(Clipboard, "--------",,, 2) - 3), mapinfo_mods := SubStr(Clipboard, InStr(Clipboard, "--------",,, 3) + 10)
+	
+	If !mapinfo_metadata
+	{
+		IniRead, sample, data\map mods.ini, sample map,, % A_Space
+		sample := StrReplace(sample, "(r)", "`r")
+		If !sample
+		{
+			LLK_ToolTip("couldn't load sample map", 2)
+			Return
+		}
+		mapinfo_metadata := SubStr(sample, 1, InStr(sample, "--------",,, 2) - 3), mapinfo_mods := SubStr(sample, InStr(sample, "--------",,, 3) + 10)
+	}
+	
+	Loop, Parse, mapinfo_metadata, `n, `r
+	{
+		If InStr(A_LoopField, "rarity: ")
+			rarity := SubStr(A_LoopField, InStr(A_LoopField, "+") + 1), rarity := SubStr(rarity, 1, InStr(rarity, "%") - 1)
+		If InStr(A_LoopField, "quantity: ")
+			quantity := SubStr(A_LoopField, InStr(A_LoopField, "+") + 1), quantity := SubStr(quantity, 1, InStr(quantity, "%") - 1)
+		If InStr(A_LoopField, "pack size: ") || InStr(A_LoopField, "maximum alive reinforcements: ")
+			size := SubStr(A_LoopField, InStr(A_LoopField, "+") + 1), size := SubStr(size, 1, InStr(size, "%") - 1)
+	}
+	
+	StringLower, mapinfo_mods, mapinfo_mods
+	mapinfo_switched := 0
+	local missing_mods := ""
+	Loop, Parse, mapinfo_mods, `r, `n ;parse map-mods affix by affix
+	{
+		If InStr(A_LoopField, "----") || !InStr(A_LoopField, "(enchant)") && !InStr(A_LoopField, "(implicit)") && !InStr(A_LoopField, "{")
 			continue
-		IniRead, parse_ID, data\Map mods.ini, %A_LoopField%, ID
-		If (map_info_short = 1)
-			IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text
-		Else IniRead, parse_text, data\Map mods.ini, %A_LoopField%, text1
-		IniRead, parse_type, data\Map mods.ini, %A_LoopField%, type
-		IniRead, parse_rank, ini\map info.ini, %parse_ID%, rank
-		IniWrite, %parse_text%, ini\map info.ini, %parse_ID%, text
-		IniWrite, %parse_type%, ini\map info.ini, %parse_ID%, type
-		If (map_info_exists = 0) || (parse_rank = "") || (parse_rank = "ERROR")
-			IniWrite, 1, ini\map info.ini, %parse_ID%, rank
+		
+		local affix0 := A_LoopField, modgroup_text := ""
+		If InStr(A_LoopField, "{ prefix modifier ") || InStr(A_LoopField, "{ suffix modifier ")
+			map_mods_count += 1
+		
+		Loop, Parse, A_LoopField, `n ;parse affixes line by line
+		{
+			If InStr("({", SubStr(A_LoopField, 1, 1)) ;|| InStr(A_LoopField, "(implicit)") || InStr(A_LoopField, "(enchant)")
+				continue
+			
+			local affix_line := StrReplace(A_LoopField, " (implicit)"), affix_line := StrReplace(A_LoopField, " (enchant)")
+			While InStr(affix_line, "(")
+			{
+				local affix_replace := SubStr(affix_line, InStr(affix_line, "(")), affix_replace := SubStr(affix_replace, 1, InStr(affix_replace, ")"))
+				affix_line := StrReplace(affix_line, affix_replace)
+			}
+			affix_line := StrReplace(affix_line, " — unscalable value"), affix_line := InStr(affix_line, "per 25% alert level") ? StrReplace(affix_line, "per 25% alert level", "per alert level") : affix_line
+			
+			Loop, Parse, affix_line
+			{
+				If (A_Index = 1)
+					local affix_line_text := "", affix_line_value := ""
+				If LLK_IsAlpha(A_LoopField) || InStr(" ',", A_LoopField)
+					affix_line_text .= A_LoopField
+				If IsNumber(A_LoopField) || InStr(".", A_LoopField)
+					affix_line_value .= A_LoopField
+			}
+			While (SubStr(affix_line_text, 1, 1) = " ")
+				affix_line_text := SubStr(affix_line_text, 2)
+			While (SubStr(affix_line_text, 0) = " ")
+				affix_line_text := SubStr(affix_line_text, 1, -1)
+			affix_line_text := StrReplace(affix_line_text, "  ", " ")
+			
+			If (affix_line_text = "increased explicit modifier magnitudes") ;implicit on atlas memories
+			{
+				multiplier += affix_line_value/100
+				multiplier := Format("{:0.2f}", multiplier)
+			}
+			
+			If !InStr(mapinfo_mods_database, "`n"affix_line_text) && !InStr(mapinfo_mods_database, affix_line_text "`n") && !InStr(mapinfo_mods_database, "|"affix_line_text) ;if mod is not a regular map-modifier (i.e. enchant or implicit exclusive to special map-types)
+			{
+				If enable_startup_beep
+					missing_mods .= affix_line_text "`n"
+				continue
+			}
+			
+			If InStr(mapinfo_mods_database, affix_line_text "|") || InStr(mapinfo_mods_database, "|" affix_line_text)
+				modgroup_text .= affix_line_text "|"
+			Else map_mods.Push(affix_line_text)
+			
+			If map_mods_parsed.HasKey(affix_line_text)
+				map_mods_parsed[affix_line_text] += InStr(affix0, "prefix") || InStr(affix0, "suffix") ? Floor(affix_line_value * multiplier) : affix_line_value
+			Else map_mods_parsed[affix_line_text] := InStr(affix0, "prefix") || InStr(affix0, "suffix") ? (affix_line_value > 1) ? Floor(affix_line_value * multiplier) : Format("{:0.1f}", affix_line_value * multiplier) : affix_line_value
+				
+			If (map_mods_parsed[affix_line_text] = 0)
+				map_mods_parsed[affix_line_text] := ""
+		}
+		modgroup_text := SubStr(modgroup_text, 1, -1)
+		
+		If modgroup_text
+			map_mods.Push(modgroup_text)
+	}
+	If missing_mods && enable_startup_beep && (mode != "switch")
+		LLK_ToolTip(missing_mods, 5)
+	
+	local text, ini_text, mod_value, key, value, ID, type, map_mods_difficulties := [], map_mods_player := {}, map_mods_bosses := {}, map_mods_monsters := {}, map_mods_area := {}, map_mods_heist := {}, mod, show, rank, ranks := ["d", "c", "b", "a"]
+	For key, value in map_mods
+	{
+		IniRead, ini_text, data\map mods.ini, % value, text, % A_Space
+		text := "", mod_value := ""
+		/*
+		Loop, Parse, value, |
+		{
+			If InStr(value, "|")
+				text .= (A_Index = 1) ? mod map_mods_parsed[A_LoopField] SubStr(ini_text, 1, InStr(ini_text, "|") - 1) : ", " mod map_mods_parsed[A_LoopField] SubStr(ini_text, InStr(ini_text, "|") + 1)
+			Else text := mod map_mods_parsed[A_LoopField] ini_text
+		}
+		*/
+		
+		If InStr(value, "|")
+		{
+			Loop, Parse, value, |
+				mod_value .= map_mods_parsed[A_LoopField] "/"
+			mod_value := SubStr(mod_value, 1, -1)
+			text := StrReplace(ini_text, "%", mod_value "%")
+			;text := StrReplace(ini_text, "%", map_mods_parsed[SubStr(value, 1, InStr(value, "|") - 1)] "/" map_mods_parsed[SubStr(value, InStr(value, "|") + 1)] "%")
+		}
+		Else text := InStr(ini_text, "%") ? StrReplace(ini_text, "%", map_mods_parsed[value] "%") : StrReplace(ini_text, "+", "+" map_mods_parsed[value])
+		IniRead, ID, data\map mods.ini, % value, ID, % A_Space
+		IniRead, type, data\map mods.ini, % value, type, % A_Space
+		IniRead, show, ini\map info.ini, % ID, show, 1
+		IniRead, rank, ini\map info.ini, % ID, rank, 1
+		rank := ranks[rank]
+		show := !show ? "z" rank " " : rank " "
+		map_mods_%type%[show text] := ID
+	}
+	
+	local style, style0, style_diff, hwnd, width, width1, wTarget := 0, outer, player, monsters, bosses, area, heist, cMod, gLabel := (mode = "switch") ? "" : " gLLK_MapInfoModRank", option := (mode = "switch") ? "+E0x20" : ""
+	Loop 2
+	{
+		style := "Section xs y+0", style .= (mode = "switch") ? " right" : " center", outer := A_Index
+		Gui, mapinfo_panel: New, -DPIScale %option% -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_mapinfo_panel
+		Gui, mapinfo_panel: Margin, % font_width_mapinfo/2, 0
+		Gui, mapinfo_panel: Color, Black
+		If (mode = "switch")
+			WinSet, Transparent, 255
+		Gui, mapinfo_panel: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
+		
+		;Gui, mapinfo_panel: Margin, % font_width_mapinfo/2, 0
+		If (A_Index = 2)
+			style .= " w"wTarget
+		
+		Loop, Parse, % "player,monsters,bosses,area,heist", `,
+		{
+			For key, value in map_mods_%A_LoopField%
+			{
+				If (outer = 1 && A_Index = 1)
+					%A_LoopField% := 0
+				If (mode != "switch" && A_Index = 1) || (mode = "switch" && outer = 2 && %A_LoopField% > 0 && A_Index = 1)
+				{
+					Gui, mapinfo_panel: Font, underline
+					Gui, mapinfo_panel: Add, Text, % style " BackgroundTrans c"mapinfo_colors[0] " HWNDhwnd", % A_LoopField ":"
+					WinGetPos,,, width,, ahk_id %hwnd%
+					wTarget := (width > wTarget) ? width : wTarget
+					Gui, mapinfo_panel: Font, norm
+					;style .= " xs"
+				}
+				IniRead, show, ini\map info.ini, % value, show, 1
+				IniRead, rank, ini\map info.ini, % value, rank, 1
+				If (outer = 1) && (show || rank > 2 && mode != "switch")
+					map_mods_difficulties.Push((rank > 2 && !show) ? rank 0 : rank)
+				%A_LoopField% += show
+				cMod := mapinfo_colors[rank]
+				;cMod := show ? cMod : "Gray"
+				If (mode != "switch") || (mode = "switch" && show)
+				{
+					If !show
+						Gui, mapinfo_panel: Font, strike
+					Gui, mapinfo_panel: Add, Text, % style " BackgroundTrans c"cMod gLabel " vmapinfo_panelentry"value " HWNDhwnd", % SubStr(key, InStr(key, " ") + 1)
+					Gui, mapinfo_panel: Font, norm
+					WinGetPos,,, width,, ahk_id %hwnd%
+					wTarget := (width > wTarget) ? width : wTarget
+				}
+			}
+		}
+		If (A_Index = 2)
+			style0 := (mode = "switch") ? "right" : "center", style0 .= " w"wTarget
+		Gui, mapinfo_panel: Add, Text, % style0 " Section BackgroundTrans HWNDhwnd", % map_mods_count "m | " quantity "q | " rarity "r | " size "p"
+		WinGetPos,,, width,, ahk_id %hwnd%
+		wTarget := (width > wTarget) ? width : wTarget
+		If (A_Index = 1)
+			width1 := width ;get the width of the text-box
+		
+		If map_mods_difficulties.Count()
+		{
+			map_mods_difficulties := LLK_SortArray(map_mods_difficulties, "R")
+			While Mod(width1, map_mods_difficulties.Count())
+				width1 += 1
+		}
+		
+		Loop, % map_mods_difficulties.Count()
+		{
+			local background := InStr(map_mods_difficulties[A_Index], "0") ? "White" : "Black"
+			If (mode != "switch")
+				style_diff := (A_Index = 1) ? "y+0 xp+"font_width_mapinfo/4 + (wTarget - width1)/2 - 2 : "yp x+0"
+			Else style_diff := (A_Index = 1) ? "y+0 x+-"(width1 // map_mods_difficulties.Count()) * map_mods_difficulties.Count() - 1 : "yp x+0"
+			Gui, mapinfo_panel: Add, Progress, % style_diff " Background"background " Disabled c"mapinfo_colors[StrReplace(map_mods_difficulties[A_Index], "0")] " h"font_height_mapinfo/3 " w"width1 // map_mods_difficulties.Count(), 100
+		}
+	}
+	
+	Gui, mapinfo_panel: Margin, % font_width_mapinfo/2, % font_height_mapinfo/4
+	
+	
+	local xPos, yPos, height, xPosTarget, yPosTarget
+	Gui, mapinfo_panel: Show, NA x10000 y10000
+	WinGetPos,,, mapinfo_width, height, ahk_id %hwnd_mapinfo_panel%
+	MouseGetPos, xPos, yPos
+	
+	xPosTarget := (xPos - mapinfo_width/2 < xScreenOffset) ? xScreenOffset : xPos - mapinfo_width/2
+	yPosTarget := (yPos - height < yScreenOffSet) ? yScreenOffSet : yPos - height - poe_height*(5/240)
+	
+	If (mode != "switch")
+	{
+		Gui, mapinfo_panel: Show, NA x%xPosTarget% y%yPosTarget%
+		LLK_Overlay("mapinfo_panel", "show")
+	}
+	Else
+	{
+		Gui, mapinfo_panel: Show, % "Hide x"xScreenOffset + poe_width - mapinfo_width " yCenter"
+		LLK_Overlay("mapinfo_panel", "hide")
 	}
 }
-Return
+
+LLK_MapInfoClose()
+{
+	global
+	Gui, mapinfo_panel: Destroy
+	hwnd_mapinfo_panel := ""
+	LLK_MapInfo("switch")
+	mapinfo_switched := 1
+}
+
+LLK_MapInfoModRank()
+{
+	global
+	local hwnd, ID := StrReplace(A_GuiControl, "mapinfo_panelentry"), show, cMod, rank
+	IniRead, show, ini\map info.ini, % ID, show, 1
+	IniRead, rank, ini\map info.ini, % ID, rank, 1
+	
+	If (click = 1)
+	{
+		/*
+		If !show
+		{
+			LLK_ToolTip("unhide mod first")
+			Return
+		}
+		*/
+		mapinfo_control_selected := ID
+		KeyWait, LButton
+		mapinfo_control_selected := ""
+		If mapinfo_control_selected_rank
+			IniWrite, % mapinfo_control_selected_rank, ini\map info.ini, % ID, rank
+		mapinfo_control_selected_rank := ""
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	Else If (click = 2)
+	{
+		show := !show
+		IniWrite, % show, ini\map info.ini, % ID, show
+		cMod := mapinfo_colors[rank] ;,cMod := show ? cMod : "Gray"
+		;GuiControl, mapinfo_panel: +c%cMod%, % A_GuiControl
+		If !show
+			Gui, mapinfo_panel: Font, strike
+		Else Gui, mapinfo_panel: Font, norm
+		GuiControl, mapinfo_panel: font, % A_GuiControl
+		GuiControl, mapinfo_panel: +c%cMod%, % A_GuiControl
+		Gui, mapinfo_panel: Font, norm
+		WinSet, Redraw,, ahk_id %hwnd_mapinfo_panel%
+		WinActivate, ahk_group poe_window
+		Return
+	}
+}

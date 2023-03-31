@@ -1,4 +1,6 @@
 ﻿Omnikey:
+If WinExist("ahk_id " hwnd_mapinfo_panel)
+	LLK_MapInfoClose()
 ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
 ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
 If WinActive("ahk_exe Path of Building.exe") || features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
@@ -17,12 +19,12 @@ If (clipboard != "")
 	itemchecker_metadata := SubStr(Clipboard, InStr(Clipboard, "`n",,, 2) + 1), itemchecker_metadata := SubStr(itemchecker_metadata, 1, InStr(itemchecker_metadata, "---") - 3)
 	If InStr(itemchecker_metadata, "`n")
 		itemchecker_metadata := SubStr(itemchecker_metadata, InStr(itemchecker_metadata, "`n") + 1)
-	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem")
+	If WinExist("ahk_id " hwnd_itemchecker) && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem") && !InStr(Clipboard, "item class: blueprints") && !InStr(Clipboard, "item class: contracts")
 	{
 		LLK_ItemCheck()
 		Return
 	}
-	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem")
+	While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: maps") && !InStr(Clipboard, "orb of horizon") && !InStr(Clipboard, "rarity: gem") && !InStr(Clipboard, "item class: blueprints") && !InStr(Clipboard, "item class: contracts")
 	{
 		If (A_TickCount >= start + 200)
 		{
@@ -121,7 +123,8 @@ If (clipboard != "")
 		GoSub, Recombinators_add
 		Return
 	}
-	If !InStr(clipboard, "Rarity: Currency") && (!InStr(clipboard, "Item Class: Map") && !InStr(Clipboard, "`maven's invitation: ")) && !InStr(Clipboard, "item class: heist target") && !InStr(clipboard, "Item Class: Expedition") && !InStr(clipboard, "Item Class: Stackable Currency") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
+	If !InStr(clipboard, "Rarity: Currency") && (!InStr(clipboard, "Item Class: Map") && !InStr(Clipboard, "`maven's invitation: ")) && !InStr(Clipboard, "item class: heist target") && !InStr(clipboard, "Item Class: Expedition")
+	&& !InStr(clipboard, "Item Class: Stackable Currency") && !InStr(Clipboard, "item class: blueprints") && !InStr(Clipboard, "item class: contracts") || InStr(clipboard, "to the goddess") || InStr(clipboard, "other oils")
 	{
 		GoSub, Omnikey_context_menu
 		Return
@@ -141,7 +144,7 @@ If (clipboard != "")
 			}
 		}
 	}
-	If (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ")) && !InStr(clipboard, "Fragment")
+	If (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ") || InStr(Clipboard, "item class: blueprints") || InStr(Clipboard, "item class: contracts")) && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
 		While GetKeyState(ThisHotkey_copy, "P")
@@ -166,16 +169,9 @@ If (clipboard != "")
 		}
 		If enable_map_info
 		{
-			If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
-			{
-				LLK_ToolTip("pixel-check setup required")
-				Return
-			}
 			If !LLK_itemInfoCheck()
 				Return
-			Gui, map_info_menu: Destroy
-			hwnd_map_info_menu := ""
-			GoSub, Map_info
+			LLK_MapInfo()
 			Return
 		}
 	}
