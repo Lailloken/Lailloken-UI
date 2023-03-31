@@ -1390,6 +1390,7 @@ If (ini_version < 13002)
 		IniDelete, ini\map info.ini, % (A_Index < 10) ? "00" A_Index : "0" A_Index
 	
 	IniWrite, % "", ini\map info.ini, UI
+	IniWrite, % "", ini\map info.ini, last map ;create a section for a potential reload feature in case of hard crashes
 }
 
 IniWrite, 13002, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
