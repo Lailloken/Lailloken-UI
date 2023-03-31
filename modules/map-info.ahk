@@ -304,7 +304,7 @@ LLK_MapInfo(mode := "")
 				}
 				IniRead, show, ini\map info.ini, % value, show, 1
 				IniRead, rank, ini\map info.ini, % value, rank, 1
-				If (outer = 1) && (show || rank > 2)
+				If (outer = 1) && (show || rank > 2 && mode != "switch")
 					map_mods_difficulties.Push((rank > 2 && !show) ? rank 0 : rank)
 				%A_LoopField% += show
 				cMod := mapinfo_colors[rank]
@@ -418,35 +418,4 @@ LLK_MapInfoModRank()
 		WinActivate, ahk_group poe_window
 		Return
 	}
-}
-
-LLK_MapInfoPreview()
-{
-	global
-	local ini, xPos, yPos, style, count := 0
-	MouseGetPos, xPos, yPos
-	IniRead, ini, data\map mods.ini, sample map
-	Gui, mapinfo_preview: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-	Gui, mapinfo_preview: Margin, % font_width_mapinfo/2, 0
-	Gui, mapinfo_preview: Color, Black
-	WinSet, Transparent, %map_info_trans%
-	Gui, mapinfo_preview: Font, % "s"fSize0 + fSize_offset_map_info " cWhite", Fontin SmallCaps
-	
-	Loop, Parse, ini, `n
-	{
-		style := (A_Index = 1) ? "Section" : "Section xs"
-		If InStr(A_LoopField, ":")
-			Gui, mapinfo_preview: Font, underline
-		Else count += (count < 4) ? 1 : 0
-		style .= InStr(A_LoopField, ":") ? " cAqua" : " c"mapinfo_colors[count]
-		Gui, mapinfo_preview: Add, Text, % style " BackgroundTrans", % A_LoopField
-		Gui, mapinfo_preview: Font, norm
-	}
-	Gui, mapinfo_preview: Show, % "NA x"xPos + font_width_mapinfo " y"yPos + font_height_mapinfo/2
-	SetTimer, LLK_MapInfoPreviewClose, -1000
-}
-
-LLK_MapInfoPreviewClose()
-{
-	Gui, mapinfo_preview: Destroy
 }
