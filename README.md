@@ -75,8 +75,10 @@ I will not be taking direct code input or optimizations from people because lear
 ![image](https://user-images.githubusercontent.com/61888437/198815516-31d88bfb-9ff1-4010-b8d7-7c6b7425ffee.png)  
 <br>
 
-### Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined, customizable, and movable UI for map mods  
-![Untitled 1](https://user-images.githubusercontent.com/61888437/171627970-630e6dca-4ed2-487a-827a-6de66dcbcc0b.png)  
+### Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined & customizable map-mod tooltip and panel
+| tooltip for rolling maps | on-demand panel to quickly check mods while mapping |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/229274873-9f827393-4664-4bfb-ba25-9d4e4269c38f.png) | ![image](https://user-images.githubusercontent.com/61888437/229274884-795f9593-08a9-43b5-b171-ee4721e0d589.png) |
 <br>
 
 ### [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
