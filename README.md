@@ -3,10 +3,9 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ## Download & Setup
-- this tool is an AHK script and thus requires AutoHotkey to be installed on your system  
-- [setup and usage guide](https://github.com/Lailloken/Lailloken-UI/wiki) (browse the wiki for in-depth documentation on all features)  
-- [trouble-shooting, known issues & limitations](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations)  
-- [release notes](https://github.com/Lailloken/Lailloken-UI/releases) and [latest version](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)
+- this tool is an AHK script and thus requires AutoHotkey to be installed on your system
+
+<a href="https://github.com/Lailloken/Lailloken-UI/wiki"><img src="https://user-images.githubusercontent.com/61888437/229716565-c7810bb8-e9df-4d81-a6a9-70c21aed6bac.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations"><img src="https://user-images.githubusercontent.com/61888437/229717097-122d9caa-14df-4707-8880-08821bce15c5.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/releases"><img src="https://user-images.githubusercontent.com/61888437/229717862-92c67097-b6ff-4520-8821-1f5d4635665a.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip"><img src="https://user-images.githubusercontent.com/61888437/229718024-6f0ccd4e-9d6a-401e-99e3-6979072e8332.png"></a>
 <br>
 
 ## Ideas & Feedback
