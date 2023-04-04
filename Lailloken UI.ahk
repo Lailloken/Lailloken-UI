@@ -2116,6 +2116,9 @@ Return
 
 Timeout_chromatics()
 {
+	global strength
+	global dexterity
+	global intelligence
 	KeyWait, v, D T0.5
 	If !ErrorLevel
 	{
