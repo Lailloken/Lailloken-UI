@@ -209,8 +209,11 @@ If WinExist("ahk_id " hwnd_delve_grid)
 		GoSub, Delve_scan
 	Return
 }
-ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
-ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+
+ThisHotkey_copy := A_ThisHotkey
+Loop, Parse, % "*~!+#^"
+	ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
+
 
 If WinActive("ahk_exe Path of Building.exe")
 {

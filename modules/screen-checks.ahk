@@ -155,13 +155,6 @@ IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-
 IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1, % A_Space
 IniRead, pixel_gamescreen_color1, ini\screen checks (%poe_height%p).ini, gamescreen, color 1, % A_Space
 
-screenchecks_inventory_valid := 1
-Loop 3
-{
-	IniRead, pixel_inventory_color%A_Index%, ini\screen checks (%poe_height%p).ini, inventory, color %A_Index%, %A_Space%
-	screenchecks_inventory_valid *= pixel_inventory_color%A_Index% ? 1 : 0
-}
-
 IniRead, enable_blackbar_compensation, ini\config.ini, Settings, black-bar compensation, 0
 IniRead, pixel_gamescreen_offset, ini\config.ini, Settings, gamescreen-check offset, 0
 enable_blackbar_compensation := (poe_height_initial / poe_width_initial < (5/12)) ? enable_blackbar_compensation : 0
