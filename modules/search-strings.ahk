@@ -63,7 +63,7 @@ If InStr(A_GuiControl, "searchstrings_enable_") ;toggling the checkbox
 		If !searchstrings_searchcoords_%parse1%
 			GuiControl, settings_menu: +cRed, % "settings_menu_searchstrings_entry_"parse1
 	}
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, % "settings_menu_searchstrings_entry_"parse1
 	GoSub, Init_searchstrings
 	Return
 }
@@ -85,7 +85,7 @@ If InStr(A_GuiControl, "settings_menu_searchstrings_test_") ;clicking <test>
 	{
 		LLK_ToolTip("test positive")
 		GuiControl, settings_menu: +cWhite, % "settings_menu_searchstrings_entry_"StrReplace(A_GuiControl, "settings_menu_searchstrings_test_")
-		WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+		GuiControl, settings_menu: movedraw, % "settings_menu_searchstrings_entry_"StrReplace(A_GuiControl, "settings_menu_searchstrings_test_")
 	}
 	Gdip_DisposeImage(pHaystack_searchstrings)
 	Return
@@ -439,7 +439,7 @@ LLK_StringMenuPaste() ;there used to be a <paste> button
 		LLK_ToolTip("added: " Clipboard, 2)
 	}
 	GuiControl, searchstrings_menu: +cWhite, searchstrings_entry%parse%
-	Winset, Redraw,, ahk_id %hwnd_searchstrings_menu%
+	GuiControl, searchstrings_menu: movedraw, searchstrings_entry%parse%
 }
 
 LLK_StringMenuRename()
@@ -521,15 +521,15 @@ LLK_StringMenuSelect()
 	{
 		color := (searchstrings_%searchstring_selected1%_contents[searchstrings_entries[A_Index]] = "") ? "Red" : "White"
 		GuiControl, searchstrings_menu: +c%color%, searchstrings_entry%A_Index%
+		GuiControl, searchstrings_menu: movedraw, searchstrings_entry%A_Index%
 	}
 	GuiControl, searchstrings_menu: +cFuchsia, % "searchstrings_entry"parse
+	GuiControl, searchstrings_menu: movedraw, % "searchstrings_entry"parse
 	If (SubStr(searchstring_entry_selected, 1, 3) = "00-")
-	{
 		GuiControl, searchstrings_menu: +ReadOnly +cRed, searchstrings_string_edit
-	}
 	Else GuiControl, searchstrings_menu: -ReadOnly +cBlack, searchstrings_string_edit
+	GuiControl, searchstrings_menu: movedraw, searchstrings_string_edit
 	GuiControl, searchstrings_menu: text, searchstrings_string_edit, % searchstrings_%searchstring_selected1%_contents[searchstring_entry_selected]
-	WinSet, Redraw,, ahk_id %hwnd_searchstrings_menu%
 }
 
 LLK_StringMenuTooltip() ;there used to be a tooltip when long-clicking an entry

@@ -1,8 +1,28 @@
 ﻿Omnikey:
+If omnikey_last
+	Return
+
+omnikey_last := A_TickCount
 If WinExist("ahk_id " hwnd_mapinfo_panel)
 	LLK_MapInfoClose()
-ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
-ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+ThisHotkey_copy := A_ThisHotkey
+Loop, Parse, % "*~!+#^"
+	ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
+
+If WinActive("ahk_id " hwnd_settings_menu) && (settings_menu_section = "omnikey")
+{
+	GuiControlGet, settings_menu_focus, settings_menu: focusv
+	If (settings_menu_focus = "omnikey_hotkey")
+	{
+		GuiControl, settings_menu: +cLime, omnikey_apply
+		GuiControl, settings_menu: movedraw, omnikey_apply
+		KeyWait, % ThisHotkey_copy
+		GuiControl, settings_menu: +cWhite, omnikey_apply
+		GuiControl, settings_menu: movedraw, omnikey_apply
+	}
+	Return
+}
+
 If WinActive("ahk_exe Path of Building.exe") || features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
 {
 	GoSub, Omnikey2
@@ -39,7 +59,7 @@ If (clipboard != "")
 			LLK_ToolTip("no notes")
 		Return
 	}
-	While enable_leveling_guide && GetKeyState(ThisHotkey_copy, "P") && InStr(Clipboard, "rarity: gem")
+	While settings_enable_levelingtracker && GetKeyState(ThisHotkey_copy, "P") && InStr(Clipboard, "rarity: gem")
 	{
 		If (A_TickCount >= start + 200)
 		{
@@ -147,7 +167,7 @@ If (clipboard != "")
 	If (InStr(clipboard, "Item Class: Map") || InStr(Clipboard, "`nmaven's invitation: ") || InStr(Clipboard, "item class: blueprints") || InStr(Clipboard, "item class: contracts")) && !InStr(clipboard, "Fragment")
 	{
 		start := A_TickCount
-		While GetKeyState(ThisHotkey_copy, "P")
+		While GetKeyState(ThisHotkey_copy, "P") && !InStr(Clipboard, "item class: blueprints") && !InStr(Clipboard, "item class: contracts")
 		{
 			If (A_TickCount >= start + 200)
 			{
@@ -180,14 +200,20 @@ Else GoSub, Omnikey2
 Return
 
 Omnikey2:
+If omnikey2_last
+	Return
+omnikey2_last := A_TickCount
 If WinExist("ahk_id " hwnd_delve_grid)
 {
 	If (delve_enable_recognition = 1)
 		GoSub, Delve_scan
 	Return
 }
-ThisHotkey_copy := StrReplace(A_ThisHotkey, "~")
-ThisHotkey_copy := StrReplace(ThisHotkey_copy, "*")
+
+ThisHotkey_copy := A_ThisHotkey
+Loop, Parse, % "*~!+#^"
+	ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
+
 
 If WinActive("ahk_exe Path of Building.exe")
 {
@@ -227,12 +253,10 @@ If (gamescreen = 0)
 	
 	LLK_ImageSearch()
 	
-	If (disable_imagecheck_betrayal = 0) && (betrayal = 1)
+	If settings_enable_betrayal && (betrayal = 1)
 		GoSub, Betrayal_search
-	If (disable_imagecheck_sanctum = 0) && (sanctum = 1)
-		GoSub, Sanctum
 	
-	If (enable_leveling_guide = 1) && (disable_imagecheck_skilltree = 0) && (skilltree = 1)
+	If (settings_enable_levelingtracker = 1) && (skilltree = 1)
 	{
 		LLK_LevelGuideSkillTree(1)
 		If (leveling_guide_valid_skilltree_files = 0) && (leveling_guide_lab_files = "")
@@ -616,13 +640,23 @@ IniRead, alt_modifier, ini\config.ini, Settings, highlight-key, % A_Space
 
 Hotkey, IfWinActive, ahk_group poe_ahk_window
 If (omnikey_hotkey2 = "")
+{
 	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey, On
+	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
+}
 Else
 {
-	Hotkey, *~%omnikey_hotkey2%, Omnikey, On
+	Hotkey, % "*~"omnikey_hotkey2, Omnikey, On
+	Hotkey, % "*~"omnikey_hotkey2 " UP", LLK_OmnikeyRelease, On
 	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
+	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
 }
 Return
+
+LLK_OmnikeyRelease()
+{
+	global omnikey_last := "", omnikey2_last := ""
+}
 
 LLK_Omnikey_ToolTip(text:=0)
 {

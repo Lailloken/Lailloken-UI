@@ -85,7 +85,8 @@ If InStr(A_GuiControl, "mapinfo_settings_color")
 		IniWrite, % "", ini\map info.ini, UI, % !cID ? "header color" : "difficulty "cID " color"
 		mapinfo_colors[cID] := mapinfo_colors_default[cID]
 	}
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, % A_GuiControl
+	
 	If WinExist("ahk_id " hwnd_mapinfo_panel)
 		LLK_MapInfo("refresh")
 	Else
@@ -414,7 +415,7 @@ LLK_MapInfoModRank()
 		GuiControl, mapinfo_panel: font, % A_GuiControl
 		GuiControl, mapinfo_panel: +c%cMod%, % A_GuiControl
 		Gui, mapinfo_panel: Font, norm
-		WinSet, Redraw,, ahk_id %hwnd_mapinfo_panel%
+		GuiControl, mapinfo_panel: movedraw, % A_GuiControl
 		WinActivate, ahk_group poe_window
 		Return
 	}

@@ -1,4 +1,127 @@
-﻿Leveling_guide:
+﻿Init_leveling_guide:
+IniRead, settings_enable_levelingtracker, ini\config.ini, Features, enable leveling guide, 0
+IniRead, leveling_guide_enable_timer, ini\leveling tracker.ini, Settings, enable timer, 0
+IniRead, fSize_offset_leveling_guide, ini\leveling tracker.ini, Settings, font-offset, 0
+IniRead, gem_notes, ini\leveling tracker.ini, Gem notes,, %A_Space%
+IniRead, enable_omnikey_pob, ini\leveling tracker.ini, Settings, enable pob-screencap, 0
+
+IniRead, leveling_guide_time, ini\leveling tracker.ini, current run, time, 0
+IniRead, leveling_guide_name, ini\leveling tracker.ini, current run, name, %A_Space%
+leveling_guide_act := 1
+Loop 11
+{
+	If (A_Index = 11)
+	{
+		leveling_guide_act := 11
+		Break
+	}
+	IniRead, pAct, ini\leveling tracker.ini, current run, act %A_Index%, %A_Space%
+	leveling_guide_act := A_Index
+	If !pAct
+		Break
+	leveling_guide_time_total += pAct
+}
+If !IsNumber(leveling_guide_time_total)
+	leveling_guide_time_total := 0
+
+IniRead, leveling_guide_skilltree_last, ini\leveling tracker.ini, Settings, last skilltree-image, % A_Space
+If (leveling_guide_skilltree_last != "") && !FileExist(leveling_guide_skilltree_last)
+	leveling_guide_skilltree_last := ""
+If (leveling_guide_skilltree_last != "")
+	LLK_LevelGuideSkillTree(2)
+fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
+LLK_FontSize(fSize_leveling_guide, font_height_leveling_guide, font_width_leveling_guide)
+IniRead, leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color, White
+IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency, 250
+IniRead, leveling_guide_panel_offset, ini\leveling tracker.ini, Settings, button-offset, 1
+IniRead, leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position, bottom
+leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
+IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
+IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
+IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
+IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
+IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height
+If (poe_log_file != 0)
+{
+	poe_log_content_short := SubStr(poe_log_content, -5000)
+	Loop, Parse, poe_log_content_short, `n, `r
+	{
+		If InStr(A_Loopfield, "generating level")
+		{
+			current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
+			Loop, Parse, current_location
+			{
+				If (A_Index = 1)
+					current_location := ""
+				If (A_Loopfield = """")
+					break
+				current_location .= A_Loopfield
+			}
+		}
+	}
+	If (settings_enable_levelingtracker = 1)
+	{
+		;FileRead, poe_log_content, % poe_log_file
+		gear_tracker_characters := []
+		parsed_characters := ","
+		Loop
+		{
+			poe_log_content_short := SubStr(poe_log_content, -0.05*A_Index*StrLen(poe_log_content)) ;parse only the last 5% of the log-file (extend on every loop if nothing found)
+			
+			If (A_Index = 10) && (gear_tracker_characters.Count() = 0) ;abort if no character found within the second half of the log-file
+			{
+				gear_tracker_characters["lvl 2 required"] := 0
+				break
+			}
+			
+			If !InStr(poe_log_content_short, "is now level ") ;skip current chunk if no character-info is found
+				continue
+			
+			Loop, Parse, poe_log_content_short, `n, `r ;parse current chunk for characters
+			{
+				If (A_LoopField = "")
+					continue
+				If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/") ;line contains character
+				{
+					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+					parsed_level := StrReplace(parsed_level, "is now level ")
+					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+					parsed_characters .= !InStr(parsed_characters, "," parsed_character ",") ? parsed_character "," : "" ;list found characters
+					If (LLK_InStrCount(parsed_characters, ",") > 6) ;only keep the 5 most recent characters in the list
+						parsed_characters := SubStr(parsed_characters, InStr(parsed_characters, ",",,, 2))
+				}
+			}
+			
+			If (LLK_InStrCount(parsed_characters, ",") > 0) ;if list contains at least one character, parse chunk again for char-level
+			{
+				Loop, Parse, poe_log_content_short, `n, `r
+				{
+					If (A_LoopField = "")
+						continue
+					If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/")
+					{
+						parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
+						parsed_level := StrReplace(parsed_level, "is now level ")
+						parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
+						parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
+						If InStr(parsed_characters, "," parsed_character ",")
+							gear_tracker_characters[parsed_character] := parsed_level
+					}
+				}
+			}
+			If (gear_tracker_characters.Count() > 0)
+				break
+		}
+		
+		;poe_log_content := ""
+		poe_log_content_short := ""
+	}
+	GoSub, Log_loop
+}
+Return
+
+Leveling_guide:
 If (A_GuiControl = "pob_screencap")
 {
 	If (click = 1)
@@ -37,6 +160,19 @@ If (A_GuiControl = "pob_screencap")
 			hwnd_pob_crop%A_Index% := ""
 		}
 	}
+	Return
+}
+If (A_GuiControl = "leveling_guide_enable_timer") ;toggling the timer checkbox
+{
+	Gui, settings_menu: Submit, NoHide
+	IniWrite, % %A_GuiControl%, ini\leveling tracker.ini, Settings, enable timer
+	If !%A_GuiControl%
+	{
+		IniWrite, % leveling_guide_time, ini\leveling tracker.ini, current run, time
+		leveling_guide_fresh_login := 1
+	}
+	If hwnd_leveling_guide2
+		GoSub, Leveling_guide_progress
 	Return
 }
 If (A_GuiControl = "leveling_guide_screencap_caption")
@@ -206,12 +342,12 @@ If (A_GuiControl = "leveling_guide_skilltree_folder")
 	Return
 }
 
-If (A_GuiControl = "enable_leveling_guide") ;checking the enable-checkbox in the settings menu
+If (A_GuiControl = "settings_enable_levelingtracker") ;checking the enable-checkbox in the settings menu
 {
 	Gui, settings_menu: Submit, NoHide
 	GoSub, GUI
-	IniWrite, % enable_leveling_guide, ini\config.ini, Features, enable leveling guide
-	If (enable_leveling_guide = 0)
+	IniWrite, % settings_enable_levelingtracker, ini\config.ini, Features, enable leveling guide
+	If !settings_enable_levelingtracker
 	{
 		Gui, leveling_guide2: Destroy
 		Gui, leveling_guide3: Destroy
@@ -253,7 +389,7 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 	FileRead, json_areas, data\leveling tracker\areas.json
 	FileRead, json_gems, data\leveling tracker\gems.json
 	FileRead, json_quests, data\leveling tracker\quests.json
-	json_import := (SubStr(clipboard, 1, 2) = "[{") ? clipboard : ""
+	json_import := (SubStr(clipboard, 1, 2) = "[{") && InStr(clipboard, "enter") ? clipboard : ""
 	If (json_import = "")
 	{
 		LLK_ToolTip("invalid import data")
@@ -581,8 +717,25 @@ If (A_GuiControl = "leveling_guide_opac_plus")
 }
 If InStr(A_GuiControl, "fontcolor_")
 {
-	leveling_guide_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
-	IniWrite, %leveling_guide_fontcolor%, ini\leveling tracker.ini, Settings, font-color
+	If (click = 1)
+	{
+		If (StrLen(StrReplace(Clipboard, "#")) != 6)
+		{
+			LLK_ToolTip("invalid RGB-code in clipboard", 1.5)
+			Return
+		}
+		leveling_guide_fontcolor := StrReplace(Clipboard, "#")
+		GuiControl, settings_menu: +c%leveling_guide_fontcolor%, % A_GuiControl
+	}
+	Else
+	{
+		If (leveling_guide_fontcolor = "White")
+			Return
+		GuiControl, settings_menu: +cWhite, % A_GuiControl
+		leveling_guide_fontcolor := "White"
+	}
+	GuiControl, settings_menu: movedraw, % A_GuiControl
+	IniWrite, % leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color
 }
 If InStr(A_GuiControl, "leveling_guide_position_")
 {
@@ -590,6 +743,7 @@ If InStr(A_GuiControl, "leveling_guide_position_")
 	IniWrite, % leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position
 }
 fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
+LLK_FontSize(fSize_leveling_guide, font_height_leveling_guide, font_width_leveling_guide)
 If (hwnd_leveling_guide2 != "")
 {
 	hwnd_leveling_guide2 := ""
@@ -738,7 +892,7 @@ Else
 	Gui, gear_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_gear_tracker
 	Gui, gear_tracker: Margin, 12, 4
 	Gui, gear_tracker: Color, Black
-	WinSet, Transparent, %leveling_guide_trans%
+	;WinSet, Transparent, %leveling_guide_trans%
 	Gui, gear_tracker: Font, % "cWhite s"fSize_leveling_guide, Fontin SmallCaps
 	gear_tracker_DDL := ""
 	For a, b in gear_tracker_characters
@@ -788,6 +942,29 @@ If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiContro
 {
 	If InStr(A_GuiControl, "jump")
 	{
+		If (click = 2)
+		{
+			If leveling_guide_enable_timer && (current_location = "1_1_1") && !guide_progress
+			{
+				FormatTime, leveling_guide_name, % A_Now, yyyy-MM-dd`, HH:mm
+				IniWrite, 0, ini\leveling tracker.ini, current run, time
+				IniWrite, % leveling_guide_name, ini\leveling tracker.ini, current run, name
+				Loop 10
+					IniWrite, % "", ini\leveling tracker.ini, current run, act %A_Index%
+				leveling_guide_act := 1
+				leveling_guide_time_total := 0
+				leveling_guide_time := 0
+				leveling_guide_fresh_login := 1
+				SetTimer, Log_loop, 1000
+				LLK_LevelGuideTimerPause()
+				LLK_LevelGuideTimer(0, 0)
+			}
+			Else If leveling_guide_enable_timer
+				LLK_LevelGuideTimerPause()
+			WinActivate, ahk_group poe_window
+			Return
+		}
+		
 		If (A_GuiControl = "leveling_guide_jump_forward")
 		{
 			If InStr(guide_panel2_text, "an end to hunger")
@@ -796,13 +973,15 @@ If (A_Gui = "leveling_guide_panel" && hwnd_leveling_guide2 = "") || (A_GuiContro
 		}
 		Else
 		{
+			If (click = 2)
+				Return
 			guide_text := guide_text_original
 			guide_progress := SubStr(guide_progress, 1, - 1 - StrLen(guide_panel1_text)) ;StrReplace(guide_progress, "`n" guide_panel1_text)
 		}
 	}
 	IniRead, guide_text_original, ini\leveling guide.ini, Steps,, % A_Space
 	;IniRead, guide_text, ini\leveling guide.ini, Steps,, % A_Space
-	If (guide_progress = "")
+	If (guide_progress = "") && (A_gui != "leveling_guide3")
 		IniRead, guide_progress, ini\leveling guide.ini, Progress,, % A_Space
 
 	If (guide_text_original = "")
@@ -892,6 +1071,7 @@ If InStr(text1, "areaID")
 ;text2 := ((InStr(text2, ",") > 20) && (StrLen(text2) > 30)) ? StrReplace(text2, ", ", "`n",, 1) : text2
 ;text2 := "- " StrReplace(text2, "`n", "`n- ")
 text2 := InStr(guide_panel2_text, "`n") ? "- " StrReplace(guide_panel2_text, "`n", "`n- ") : guide_panel2_text ;text2 = variable used to display the guide-text in the panel (can be altered without messing up saved progress)
+
 If InStr(text2, "areaID")
 	text2 := LLK_ReplaceAreaID(text2)
 stash_search_string_leveling := ""
@@ -1041,20 +1221,20 @@ Loop, Parse, leveling_guide_landmarks, `,, % A_Space
 {
 	If !InStr(text2, A_LoopField)
 		continue
-	Else text2 := StrReplace(text2, A_LoopField, A_LoopField " [img]")
+	Else text2 := StrReplace(text2, A_LoopField, A_LoopField " (hold tab: img)")
 }
 
 If (hwnd_leveling_guide2 = "")
 {
 	Gui, leveling_guide1: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide1
-	Gui, leveling_guide1: Margin, 12, 0
+	Gui, leveling_guide1: Margin, font_width, 0
 	Gui, leveling_guide1: Color, Black
 	WinSet, Transparent, %leveling_guide_trans%
 	Gui, leveling_guide1: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
 	Gui, leveling_guide1: Add, Text, % "BackgroundTrans HWNDhwnd_levelingguidetext1", % (guide_panel1_text = "") ? "n/a" : text1
 
 	Gui, leveling_guide2: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide2
-	Gui, leveling_guide2: Margin, 12, 0
+	Gui, leveling_guide2: Margin, % font_width_leveling_guide, 0
 	Gui, leveling_guide2: Color, Black
 	WinSet, Transparent, %leveling_guide_trans%
 	Gui, leveling_guide2: Font, c%leveling_guide_fontcolor% s%fSize_leveling_guide%, Fontin SmallCaps
@@ -1066,7 +1246,7 @@ If (hwnd_leveling_guide2 = "")
 }
 Else
 {
-	SetTextAndResize(hwnd_levelingguidetext2, text2, "s" fSize_leveling_guide, "Fontin SmallCaps")
+	SetTextAndResize(hwnd_levelingguidetext2, text2, "s" fSize_leveling_guide, "Fontin SmallCaps", 2)
 	;SetTextAndResize(hwnd_levelingguidetext1, text1, "s" fSize_leveling_guide, "Fontin SmallCaps")
 	;Gui, leveling_guide1: Show, NA x10000 y10000 AutoSize
 	Gui, leveling_guide2: Show, NA x10000 y10000 AutoSize
@@ -1074,17 +1254,37 @@ Else
 
 ;WinGetPos,,, width, height, ahk_id %hwnd_leveling_guide1%
 WinGetPos,,, width2, height, ahk_id %hwnd_leveling_guide2%
+width2 := (width2 < 20 * font_width_leveling_guide) ? 20 * font_width_leveling_guide : width2
+While Mod(width2, 2)
+	width2 += 1
+Gui, leveling_guide2: Show, % "NA x10000 y10000 w"width2-2
 ;width := (width > width2) ? width : width2
 ;height := (height > height2) ? height : height2
-height := height
 
 Gui, leveling_guide3: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_leveling_guide3
 Gui, leveling_guide3: Margin, 0, 0
-Gui, leveling_guide3: Color, Black
+If leveling_guide_enable_timer && leveling_guide_fresh_login
+	Gui, leveling_guide3: Color, Gray
+Else Gui, leveling_guide3: Color, Black
 WinSet, Transparent, %leveling_guide_trans%
-Gui, leveling_guide3: Font, % "c" leveling_guide_fontcolor " s"fSize_leveling_guide*(2/3), Fontin SmallCaps
-Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section Border vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2, % "<<"
-Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys Border vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2, % ">>"
+Gui, leveling_guide3: Font, % "c" leveling_guide_fontcolor " s"fSize_leveling_guide*(2/3) " bold", Fontin SmallCaps
+If !leveling_guide_enable_timer
+{
+	Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section Border vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2 - 1, % "<<"
+	Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys Border vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2 - 1, % ">>"
+}
+Else
+{
+	Gui, leveling_guide3: Add, Text, % "BackgroundTrans Section Border vleveling_guide_jump_back Center gLeveling_guide_progress w"width2/2 - 1, % ""
+	Gui, leveling_guide3: Add, Text, % "BackgroundTrans ys Border vleveling_guide_jump_forward Center gLeveling_guide_progress w"width2/2 - 1, % ""
+	If (leveling_guide_act = 11) ;if campaign is done
+	{
+		LLK_LevelGuideTimer(leveling_guide_time, leveling_guide_time_total)
+		Gui, leveling_guide3: Color, Green
+		WinSet, Redraw,, ahk_id %hwnd_leveling_guide3%
+	}
+	Else LLK_LevelGuideTimer(leveling_guide_time, leveling_guide_time_total + leveling_guide_time)
+}
 Gui, leveling_guide3: Show, NA x10000 y10000
 WinGetPos,,, width3, height3, ahk_id %hwnd_leveling_guide3%
 
@@ -1093,116 +1293,15 @@ Switch leveling_guide_position
 	Case "top":
 		;Gui, leveling_guide1: Show, % "NA x"xScreenOffSet + poe_width/2 - width - width3/2 + 1 " y"yScreenOffSet " h"height
 		Gui, leveling_guide2: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + height3 - 1 " h"height
-		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet " w"width2 - 2
+		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet ;" w"width2 - 2
 	Case "bottom":
 		;Gui, leveling_guide1: Show, % "NA x"xScreenOffSet + poe_width/2 - width - width3/2 + 1 " y"yScreenOffSet + (47/48)*poe_height - height " h"height
 		Gui, leveling_guide2: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + (47/48)*poe_height - height - height3 " h"height
-		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + (47/48)*poe_height - height3 + 1 " w"width2 - 2
+		Gui, leveling_guide3: Show, % "NA x"xScreenOffSet + poe_width/2 - width2/2 " y"yScreenOffSet + (47/48)*poe_height - height3 + 1 ;" w"width2 - 2
 }
 ;LLK_Overlay("leveling_guide1", "show")
 LLK_Overlay("leveling_guide2", "show")
 LLK_Overlay("leveling_guide3", "show")
-Return
-
-Init_leveling_guide:
-IniRead, enable_leveling_guide, ini\config.ini, Features, enable leveling guide, 0
-IniRead, fSize_offset_leveling_guide, ini\leveling tracker.ini, Settings, font-offset, 0
-IniRead, gem_notes, ini\leveling tracker.ini, Gem notes,, %A_Space%
-IniRead, enable_omnikey_pob, ini\leveling tracker.ini, Settings, enable pob-screencap, 0
-IniRead, leveling_guide_skilltree_last, ini\leveling tracker.ini, Settings, last skilltree-image, % A_Space
-If (leveling_guide_skilltree_last != "") && !FileExist(leveling_guide_skilltree_last)
-	leveling_guide_skilltree_last := ""
-If (leveling_guide_skilltree_last != "")
-	LLK_LevelGuideSkillTree(2)
-fSize_leveling_guide := fSize0 + fSize_offset_leveling_guide
-IniRead, leveling_guide_fontcolor, ini\leveling tracker.ini, Settings, font-color, White
-IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency, 250
-IniRead, leveling_guide_panel_offset, ini\leveling tracker.ini, Settings, button-offset, 1
-IniRead, leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position, bottom
-leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
-IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
-IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
-IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
-IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
-IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height
-If (poe_log_file != 0)
-{
-	poe_log_content_short := SubStr(poe_log_content, -5000)
-	Loop, Parse, poe_log_content_short, `n, `r
-	{
-		If InStr(A_Loopfield, "generating level")
-		{
-			current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
-			Loop, Parse, current_location
-			{
-				If (A_Index = 1)
-					current_location := ""
-				If (A_Loopfield = """")
-					break
-				current_location .= A_Loopfield
-			}
-		}
-	}
-	If (enable_leveling_guide = 1)
-	{
-		;FileRead, poe_log_content, % poe_log_file
-		gear_tracker_characters := []
-		parsed_characters := ","
-		Loop
-		{
-			poe_log_content_short := SubStr(poe_log_content, -0.05*A_Index*StrLen(poe_log_content)) ;parse only the last 5% of the log-file (extend on every loop if nothing found)
-			
-			If (A_Index = 10) && (gear_tracker_characters.Count() = 0) ;abort if no character found within the second half of the log-file
-			{
-				gear_tracker_characters["lvl 2 required"] := 0
-				break
-			}
-			
-			If !InStr(poe_log_content_short, "is now level ") ;skip current chunk if no character-info is found
-				continue
-			
-			Loop, Parse, poe_log_content_short, `n, `r ;parse current chunk for characters
-			{
-				If (A_LoopField = "")
-					continue
-				If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/") ;line contains character
-				{
-					parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
-					parsed_level := StrReplace(parsed_level, "is now level ")
-					parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
-					parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
-					parsed_characters .= !InStr(parsed_characters, "," parsed_character ",") ? parsed_character "," : "" ;list found characters
-					If (LLK_InStrCount(parsed_characters, ",") > 6) ;only keep the 5 most recent characters in the list
-						parsed_characters := SubStr(parsed_characters, InStr(parsed_characters, ",",,, 2))
-				}
-			}
-			
-			If (LLK_InStrCount(parsed_characters, ",") > 0) ;if list contains at least one character, parse chunk again for char-level
-			{
-				Loop, Parse, poe_log_content_short, `n, `r
-				{
-					If (A_LoopField = "")
-						continue
-					If InStr(A_Loopfield, "is now level ") && InStr(A_Loopfield, "/")
-					{
-						parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
-						parsed_level := StrReplace(parsed_level, "is now level ")
-						parsed_character := SubStr(A_Loopfield, InStr(A_Loopfield, " : ") + 3, InStr(A_Loopfield, ")"))
-						parsed_character := SubStr(parsed_character, 1, InStr(parsed_character, "(") - 2)
-						If InStr(parsed_characters, "," parsed_character ",")
-							gear_tracker_characters[parsed_character] := parsed_level
-					}
-				}
-			}
-			If (gear_tracker_characters.Count() > 0)
-				break
-		}
-		
-		;poe_log_content := ""
-		poe_log_content_short := ""
-	}
-	GoSub, Log_loop
-}
 Return
 
 LLK_GearTrackerGUI(mode:=0)
@@ -1214,9 +1313,10 @@ LLK_GearTrackerGUI(mode:=0)
 	Else Gui, gear_tracker_indicator: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gear_tracker_indicator
 	Gui, gear_tracker_indicator: Margin, 0, 0
 	Gui, gear_tracker_indicator: Color, Black
-	If (mode = 0)
-		WinSet, Transparent, %leveling_guide_trans%
-	Else WinSet, TransColor, Black
+	;If (mode = 0)
+		;WinSet, Transparent, %leveling_guide_trans%
+	If (mode != 0)
+		WinSet, TransColor, Black
 	Gui, gear_tracker_indicator: Font, % "cLime s"fSize_leveling_guide, Fontin SmallCaps
 	Gui, gear_tracker_indicator: Add, Text, % "BackgroundTrans Center vgear_tracker_upgrades gLeveling_guide_gear", % "    "
 	Gui, gear_tracker_indicator: Show, NA x10000 y10000
@@ -1400,6 +1500,41 @@ LLK_ScreencapPoB()
 		hwnd_pob_crop%A_Index% := ""
 	}
 	hwnd_screencap_caption := ""
+}
+
+LLK_LevelGuideCSV()
+{
+	global
+	local csv, time
+	If !FileExist("campaign runs.csv")
+		FileAppend, % """date, time"", act 1, act 2, act 3, act 4, act 5, act 6, act 7, act 8, act 9, act 10", campaign runs.csv
+	FileRead, csv, campaign runs.csv
+	If !leveling_guide_name
+		FormatTime, leveling_guide_name, % A_Now, yyyy-MM-dd`, HH:mm
+	
+	time := FormatSeconds(leveling_guide_time) ".00"
+	If InStr(csv, leveling_guide_name)
+		FileAppend, % ",""" time """", campaign runs.csv
+	Else FileAppend, % "`n""" leveling_guide_name """,""" time """", campaign runs.csv
+}
+
+LLK_LevelGuideTimer(seconds_act, seconds_run)
+{
+	global
+	GuiControl, leveling_guide3:, leveling_guide_jump_back, % "<<   " FormatSeconds(seconds_act)
+	GuiControl, leveling_guide3:, leveling_guide_jump_forward, % FormatSeconds(seconds_run) "   >>"
+}
+
+LLK_LevelGuideTimerPause()
+{
+	global
+	If (leveling_guide_act = 11)
+		Return
+	leveling_guide_fresh_login := !leveling_guide_fresh_login
+	If leveling_guide_fresh_login
+		Gui, leveling_guide3: Color, Gray
+	Else Gui, leveling_guide3: Color, Black
+	WinSet, Redraw,, ahk_id %hwnd_leveling_guide3%
 }
 
 LLK_LevelGuideSkillTree(mode := 0)

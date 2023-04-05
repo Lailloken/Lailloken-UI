@@ -1,5 +1,19 @@
 ﻿Betrayal_apply:
 Gui, settings_menu: Submit, NoHide
+If (A_GuiControl = "settings_enable_betrayal")
+{
+	If !%A_GuiControl%
+	{
+		LLK_Overlay("betrayal_info", "hide")
+		LLK_Overlay("betrayal_info_overview", "hide")
+		LLK_Overlay("betrayal_info_members", "hide")
+		Loop, Parse, betrayal_divisions, `,, `,
+			LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
+	}
+	IniWrite, % %A_GuiControl%, ini\config.ini, Features, enable betrayal-info
+	GoSub, Settings_menu
+	Return
+}
 If (A_GuiControl = "image_folder")
 {
 	Run, explore img\Recognition (%poe_height%p)\Betrayal\
@@ -572,6 +586,7 @@ If !FileExist("ini\betrayal info.ini") || (betrayal_ini_version_user < betrayal_
 			IniWrite, transportation=1`nfortification=1`nresearch=1`nintervention=1, ini\betrayal info.ini, %check%
 	}
 }
+IniRead, settings_enable_betrayal, ini\config.ini, Features, enable betrayal-info, 0
 IniRead, fSize_offset_betrayal, ini\betrayal info.ini, Settings, font-offset, 0
 IniRead, betrayal_trans, ini\betrayal info.ini, Settings, transparency, 220
 IniRead, betrayal_enable_recognition, ini\betrayal info.ini, Settings, enable image recognition, 0
