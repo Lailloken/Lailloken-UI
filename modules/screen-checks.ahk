@@ -155,6 +155,9 @@ IniRead, pixel_gamescreen_x1, data\Resolutions.ini, %poe_height%p, gamescreen x-
 IniRead, pixel_gamescreen_y1, data\Resolutions.ini, %poe_height%p, gamescreen y-coordinate 1, % A_Space
 IniRead, pixel_gamescreen_color1, ini\screen checks (%poe_height%p).ini, gamescreen, color 1, % A_Space
 
+Loop 3
+	IniRead, pixel_inventory_color%A_Index%, ini\screen checks (%poe_height%p).ini, inventory, color %A_Index%, %A_Space%
+
 IniRead, enable_blackbar_compensation, ini\config.ini, Settings, black-bar compensation, 0
 IniRead, pixel_gamescreen_offset, ini\config.ini, Settings, gamescreen-check offset, 0
 enable_blackbar_compensation := (poe_height_initial / poe_width_initial < (5/12)) ? enable_blackbar_compensation : 0
@@ -182,7 +185,8 @@ LLK_ImageSearch(name := "")
 		If (A_Gui = "settings_menu")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
 		Else If (A_LoopField = "betrayal")
-			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := poe_width*(3/16), imagesearch_y2 := poe_height/8
+			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := poe_width/2, imagesearch_y2 := poe_height/8
+			;imagesearch_x1 := enable_blackbar_compensation ? pixel_gamescreen_offset : 0, imagesearch_y1 := 0, imagesearch_x2 := enable_blackbar_compensation ? poe_width*(3/16) + pixel_gamescreen_offset : poe_width*(3/16), imagesearch_y2 := poe_height/8
 		Else If !imagechecks_coords_%A_LoopField%
 			continue
 		Else
