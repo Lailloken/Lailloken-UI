@@ -1509,6 +1509,8 @@ LLK_LevelGuideCSV()
 	If !FileExist("campaign runs.csv")
 		FileAppend, % """date, time"", act 1, act 2, act 3, act 4, act 5, act 6, act 7, act 8, act 9, act 10", campaign runs.csv
 	FileRead, csv, campaign runs.csv
+	If !leveling_guide_name
+		FormatTime, leveling_guide_name, % A_Now, yyyy-MM-dd`, HH:mm
 	
 	time := FormatSeconds(leveling_guide_time) ".00"
 	If InStr(csv, leveling_guide_name)

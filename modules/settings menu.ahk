@@ -36,7 +36,7 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 	WinActivate, ahk_group poe_window
 	Return
 }
-settings_style := (InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel")) || (restart_section = "general") ? "cAqua" : "cWhite"
+settings_style := (InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel")) || (restart_section = "general") || (A_Gui = "") && !restart_section ? "cAqua" : "cWhite"
 If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 	settings_style := "cWhite"
 alarm_style := InStr(A_GuiControl, "alarm") || (restart_section = "alarm") ? "cAqua" : "cWhite"
@@ -167,10 +167,12 @@ If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 	IniWrite, 1, ini\config.ini, Versions, ultrawide warning
 	ultrawide_warning := 1
 	pending_ultrawide := 1
-	GoSub, Settings_menu_screenchecks
+	restart_section := "screenchecks"
+	IniDelete, ini\config.ini, Versions, reload settings	
+	;GoSub, Settings_menu
 }
 
-If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel")) && !pending_ultrawide || (restart_section = "general")
+If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel")) && !pending_ultrawide || (restart_section = "general") || (A_Gui = "") && !restart_section
 	GoSub, Settings_menu_general
 Else If InStr(GuiControl_copy, "alarm") || (restart_section = "alarm")
 	GoSub, Settings_menu_alarm
@@ -1231,8 +1233,8 @@ instructions
 
 explanation
 –> this check helps the script identify whether the inventory is open
-–> it also enables the item-info gear-comparison feature to function correctly
-–> 
+–> it is required for the item-info gear-comparison feature
+–> calibrating this also automatically hides the item-info tooltip whenever the inventory closes
 )
 }
 
@@ -1906,7 +1908,7 @@ LLK_ScreenChecksValid()
 	}
 	
 	If valid
-		GuiControl, settings_menu: +cWhite, screen-checks
+		GuiControl, settings_menu: +%pixelcheck_style%, screen-checks
 	Else GuiControl, settings_menu: +cRed, screen-checks
 	GuiControl, settings_menu: movedraw, screen-checks
 }
