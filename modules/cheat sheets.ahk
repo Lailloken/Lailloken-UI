@@ -193,7 +193,7 @@ If InStr(A_GuiControl, "cheatsheets_color_picker")
 		IniDelete, ini\cheat-sheets.ini, UI, % "rank " StrReplace(A_GuiControl, "cheatsheets_color_picker") " color"
 		GuiControl, % "settings_menu: +c"cheatsheets_panel_colors[StrReplace(A_GuiControl, "cheatsheets_color_picker")], % A_GuiControl
 	}
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, % A_GuiControl
 	Return
 }
 ;################################################################## settings menu: clicking a resize button
@@ -221,13 +221,15 @@ If InStr(A_GuiControl, "cheatsheets_edit_objectselect_")
 		}
 		cheatsheet_object_check := LLK_ArrayHasVal(cheatsheets_objects_%cheatsheet_selected1%, cheatsheet_object_selected) ;check index-number of previously-clicked clicked object
 		GuiControl, cheatsheets_menu: +cWhite, cheatsheets_edit_objectselect_%cheatsheet_object_check% ;reset previous object's label to white
+		GuiControl, cheatsheets_menu: movedraw, cheatsheets_edit_objectselect_%cheatsheet_object_check% ;reset previous object's label to white
 		GuiControlGet, cheatsheet_object_selected,, % A_GuiControl, text ;get text-label of the clicked object
 		cheatsheet_object_selected1 := StrReplace(cheatsheet_object_selected, " ", "_")
 		cheatsheet_object_check := LLK_ArrayHasVal(cheatsheets_objects_%cheatsheet_selected1%, cheatsheet_object_selected) ;check index-number of clicked object
 		If cheatsheet_object_check
 		{
 			GuiControl, cheatsheets_menu: +cFuchsia, cheatsheets_edit_objectselect_%cheatsheet_object_check% ;set clicked objects label to purple
-			WinSet, Redraw,, ahk_id %hwnd_cheatsheets_menu% ;redraw window to apply color changes
+			GuiControl, cheatsheets_menu: movedraw, cheatsheets_edit_objectselect_%cheatsheet_object_check% ;set clicked objects label to purple
+			
 			Loop 4 ;manually set texts in the edit-fields, rather than re-building the whole window (window would flash)
 			{
 				IniRead, cheatsheets_edit_panel%A_Index%, % "cheat-sheets\" cheatsheet_selected "\info.ini", % cheatsheet_object_selected, panel %A_Index%, % A_Space
@@ -352,7 +354,7 @@ If (A_GuiControl = "cheatsheets_applaunch_pick")
 		If FileExist("cheat-sheets\" cheatsheet_selected "\app.lnk")
 		{
 			GuiControl, cheatsheets_menu: +cLime, cheatsheets_applaunch_pick
-			WinSet, Redraw,, ahk_id %hwnd_cheatsheets_menu%
+			GuiControl, cheatsheets_menu: movedraw, cheatsheets_applaunch_pick
 		}
 	}
 	Else If (click = 2)
@@ -363,7 +365,7 @@ If (A_GuiControl = "cheatsheets_applaunch_pick")
 		Else
 		{
 			GuiControl, cheatsheets_menu: +cWhite, cheatsheets_applaunch_pick
-			WinSet, Redraw,, ahk_id %hwnd_cheatsheets_menu%
+			GuiControl, cheatsheets_menu: movedraw, cheatsheets_applaunch_pick
 		}
 	}
 	cheatsheet_app := ""
@@ -544,7 +546,7 @@ If InStr(A_GuiControl, "image_test")
 	{
 		LLK_ToolTip("test positive")
 		GuiControl, settings_menu: +cWhite, cheatsheets_entry_%cheatsheets_parse1%
-		WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+		GuiControl, settings_menu: movedraw, cheatsheets_entry_%cheatsheets_parse1%
 	}
 	Else LLK_ToolTip("test negative")
 	Gdip_DisposeImage(pHaystack_cheatsheets)
@@ -706,7 +708,7 @@ If InStr(A_GuiControl, "cheatsheets_enable_")
 	If (%A_GuiControl% = 1) && (!FileExist("cheat-sheets\"cheatsheet_selected "\[check].*") || !cheatsheets_searchcoords_%cheatsheet_selected1%)
 		GuiControl, settings_menu: +cRed, cheatsheets_entry_%cheatsheet_selected1%
 	Else GuiControl, settings_menu: +cWhite, cheatsheets_entry_%cheatsheet_selected1%
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, cheatsheets_entry_%cheatsheet_selected1%
 	GoSub, Init_cheatsheets
 	Return
 }

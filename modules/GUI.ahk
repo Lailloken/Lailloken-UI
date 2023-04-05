@@ -88,7 +88,7 @@ Else
 	hwnd_notepad_panel := ""
 }
 
-If (enable_leveling_guide = 1)
+If (settings_enable_levelingtracker = 1)
 {
 	guilist .= InStr(guilist, "leveling_guide_panel|") ? "" : "leveling_guide_panel|"
 	Gui, leveling_guide_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_leveling_guide_panel
@@ -125,7 +125,7 @@ Else
 
 If !map_tracker_paused
 {
-	If (enable_map_tracker = 1)
+	If settings_enable_maptracker
 	{
 		guilist .= InStr(guilist, "map_tracker_panel|") ? "" : "map_tracker_panel|"
 		Gui, map_tracker_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_map_tracker_panel

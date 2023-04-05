@@ -210,7 +210,7 @@ If (legion_socket != "") ;calculate data for top left panel and apply text to la
 	
 	Loop 22
 	{
-		GuiControl, legion_window: , legion_modtext%A_Index%, % modpool_unique_array[A_Index]
+		GuiControl, legion_window:, legion_modtext%A_Index%, % modpool_unique_array[A_Index]
 		If InStr(legion_%legion_type_parse2%_favs, modpool_unique_array2[A_Index]) && (modpool_unique_array2[A_Index] != "")
 			GuiControl, legion_window: +cAqua, legion_modtext%A_Index%
 		Else If !InStr(legion_%legion_type_parse2%_favs, modpool_unique_array2[A_Index]) || (modpool_unique_array2[A_Index] = "")
@@ -331,12 +331,11 @@ If InStr(A_GuiControl, "legion_profile")
 	legion_profile := (StrReplace(A_GuiControl, "legion_profile") = "") ? "" : "_" StrReplace(A_GuiControl, "legion_profile")
 	Loop 5
 	{
-		If (A_Index = 1)
-			GuiControl, legion_window: +cWhite, legion_profile
-		Else GuiControl, legion_window: +cWhite, legion_profile%A_Index%
+		GuiControl, legion_window: +cWhite, % (A_Index = 1) ? "legion_profile" : "legion_profile"A_Index
+		GuiControl, legion_window: movedraw, % (A_Index = 1) ? "legion_profile" : "legion_profile"A_Index
 	}
 	GuiControl, legion_window: +cFuchsia, % "legion_profile" StrReplace(legion_profile, "_")
-	WinSet, Redraw,, ahk_id %hwnd_legion_window%
+	GuiControl, legion_window: movedraw, % "legion_profile" StrReplace(legion_profile, "_")
 	IniWrite, % legion_profile, ini\timeless jewels.ini, Settings, profile
 	GoSub, Legion_seeds
 	Return

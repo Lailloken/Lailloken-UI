@@ -19,7 +19,7 @@ While GetKeyState("LButton", "P") && (A_Gui = "LLK_panel")
 }
 If (WinExist("ahk_id " hwnd_cheatsheets_menu) || WinExist("ahk_id " hwnd_searchstrings_menu)) && (A_Gui = "LLK_panel" || InStr(A_ThisHotkey, ".llk"))
 {
-	LLK_ToolTip("close the configuration first", 2)
+	LLK_ToolTip("close the configuration window first", 2)
 	Return
 }
 If (A_GuiControl = "LLK_panel") && (click = 2)
@@ -36,25 +36,25 @@ If WinExist("ahk_id " hwnd_settings_menu) && (A_Gui = "LLK_panel")
 	WinActivate, ahk_group poe_window
 	Return
 }
-settings_style := InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel") || (A_Gui = "") ? "cAqua" : "cWhite"
+settings_style := (InStr(A_GuiControl, "general") || (A_Gui = "LLK_panel")) || (restart_section = "general") ? "cAqua" : "cWhite"
 If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 	settings_style := "cWhite"
-alarm_style := InStr(A_GuiControl, "alarm") ? "cAqua" : "cWhite"
-betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image") && !InStr(A_GuiControl, "cheatsheets")) ? "cAqua" : "cWhite"
-cheatsheets_style := InStr(A_GuiControl, "cheatsheets") ? "cAqua" : "cWhite"
-clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) ? "cAqua" : "cWhite"
-delve_style := InStr(A_GuiControl, "delve") ? "cAqua" : "cWhite"
-flask_style := InStr(A_GuiControl, "flask") ? "cAqua" : "cWhite"
-itemchecker_style := InStr(A_GuiControl, "item-info") || InStr(A_GuiControl, "itemchecker") ? "cAqua" : "cWhite"
-leveling_style := InStr(A_GuiControl, "leveling") ? "cAqua" : "cWhite"
-map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") ? "cAqua" : "cWhite"
-map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_info") ? "cAqua" : "cWhite"
-notepad_style := InStr(A_GuiControl, "notepad") ? "cAqua" : "cWhite"
-omnikey_style := InStr(A_GuiControl, "omni-key") ? "cAqua" : "cWhite"
-pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) && !InStr(A_GuiControl, "cheat") ? "cAqua" : "cWhite"
-stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") || InStr(A_GuiControl, "searchstrings") || (new_stash_search_menu_closed = 1) ? "cAqua" : "cWhite"
+alarm_style := InStr(A_GuiControl, "alarm") || (restart_section = "alarm") ? "cAqua" : "cWhite"
+betrayal_style := (InStr(A_GuiControl, "betrayal") && !InStr(A_GuiControl, "image") && !InStr(A_GuiControl, "cheatsheets")) || (restart_section = "betrayal") ? "cAqua" : "cWhite"
+cheatsheets_style := InStr(A_GuiControl, "cheatsheets") || (restart_section = "cheat sheets") ? "cAqua" : "cWhite"
+clone_frames_style := InStr(A_GuiControl, "clone") || (new_clone_menu_closed = 1) || (restart_section = "clone frames") ? "cAqua" : "cWhite"
+delve_style := InStr(A_GuiControl, "delve") || (restart_section = "delve") ? "cAqua" : "cWhite"
+itemchecker_style := InStr(A_GuiControl, "item-info") || InStr(A_GuiControl, "itemchecker") || (restart_section = "itemchecker") ? "cAqua" : "cWhite"
+leveling_style := InStr(A_GuiControl, "leveling") || (restart_section = "leveling guide") ? "cAqua" : "cWhite"
+map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") || (restart_section = "map tracker") ? "cAqua" : "cWhite"
+map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_info") || (restart_section = "map info") ? "cAqua" : "cWhite"
+notepad_style := InStr(A_GuiControl, "notepad") || (restart_section = "notepad") ? "cAqua" : "cWhite"
+omnikey_style := InStr(A_GuiControl, "omni-key") || (restart_section = "omnikey") ? "cAqua" : "cWhite"
+pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) && !InStr(A_GuiControl, "cheat") || (restart_section = "screenchecks") ? "cAqua" : "cWhite"
+stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") || InStr(A_GuiControl, "searchstrings") || (new_stash_search_menu_closed = 1) || (restart_section = "stash search") ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
 GuiControl_copy := A_GuiControl
+
 If (A_Gui = "settings_menu")
 {
 	Gui, settings_menu: Submit, NoHide
@@ -70,22 +70,6 @@ Gui, settings_menu: Add, Text, % "Section BackgroundTrans " settings_style " gSe
 ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_general%
 spacing_settings := width_settings
 
-If (pixel_gamescreen_color1 = "ERROR" || pixel_gamescreen_color1 = "")
-	screenchecks_gamescreen_valid := 0
-Else screenchecks_gamescreen_valid := 1
-
-Loop, Parse, imagechecks_list_copy, `,, %A_Space%
-{
-	screenchecks_%A_Loopfield%_valid := 1
-	If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp") && (disable_imagecheck_%A_Loopfield% = 0)
-		screenchecks_%A_Loopfield%_valid := 0
-}
-
-screenchecks_all_valid := 1
-screenchecks_all_valid *= screenchecks_gamescreen_valid
-
-Loop, Parse, imagechecks_list_copy, `,, `,
-	screenchecks_all_valid *= screenchecks_%A_Loopfield%_valid
 
 If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 {
@@ -137,9 +121,8 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 
 	If pixel_gamescreen_x1 is number
 	{
-		If (screenchecks_all_valid = 0)
-			pixelcheck_style := "cRed"
 		Gui, settings_menu: Add, Text, xs BackgroundTrans %pixelcheck_style% gSettings_menu HWNDhwnd_settings_pixelcheck, % "screen-checks"
+		LLK_ScreenChecksValid()
 		ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_pixelcheck%
 		spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	}
@@ -187,17 +170,17 @@ If !ultrawide_warning && (poe_height_initial/poe_width_initial < (5/12))
 	GoSub, Settings_menu_screenchecks
 }
 
-If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel") || (A_Gui = "")) && !pending_ultrawide
+If (InStr(GuiControl_copy, "general") || (A_Gui = "LLK_panel")) && !pending_ultrawide || (restart_section = "general")
 	GoSub, Settings_menu_general
-Else If InStr(GuiControl_copy, "alarm")
+Else If InStr(GuiControl_copy, "alarm") || (restart_section = "alarm")
 	GoSub, Settings_menu_alarm
-Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image") && !InStr(GuiControl_copy, "cheatsheets")
+Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image") && !InStr(GuiControl_copy, "cheatsheets") || (restart_section = "betrayal")
 	GoSub, Settings_menu_betrayal
-Else If InStr(GuiControl_copy, "cheatsheets")
+Else If InStr(GuiControl_copy, "cheatsheets") || (restart_section = "cheat sheets")
 	GoSub, Settings_menu_cheatsheets
-Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1)
+Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1) || (restart_section = "clone frames")
 	GoSub, Settings_menu_clone_frames
-Else If InStr(GuiControl_copy, "delve")
+Else If InStr(GuiControl_copy, "delve") || (restart_section = "delve")
 {
 	If enable_delve
 	{
@@ -206,44 +189,46 @@ Else If InStr(GuiControl_copy, "delve")
 	}
 	GoSub, Settings_menu_delve
 }
-Else If InStr(GuiControl_copy, "item-info") || InStr(GuiControl_copy, "itemchecker")
+Else If InStr(GuiControl_copy, "item-info") || InStr(GuiControl_copy, "itemchecker") || (restart_section = "itemchecker")
 	GoSub, Settings_menu_itemchecker
-Else If InStr(GuiControl_copy, "leveling")
+Else If InStr(GuiControl_copy, "leveling") || (restart_section = "leveling guide")
 	GoSub, Settings_menu_leveling_guide
-Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker"))
+Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker")) || (restart_section = "map tracker")
 {
 	map_tracker_clicked := A_TickCount ;workaround for stupid UpDown behavior that leads to rare error message
 	GoSub, Settings_menu_map_tracker
 }
-Else If InStr(GuiControl_copy, "map-info") || InStr(GuiControl_copy, "map_info")
+Else If InStr(GuiControl_copy, "map-info") || InStr(GuiControl_copy, "map_info") || (restart_section = "map info")
 	GoSub, Settings_menu_map_info
-Else If InStr(GuiControl_copy, "notepad")
+Else If InStr(GuiControl_copy, "notepad") || (restart_section = "notepad")
 	GoSub, Settings_menu_notepad
-Else If InStr(GuiControl_copy, "omni")
+Else If InStr(GuiControl_copy, "omni") || (restart_section = "omnikey")
 	GoSub, Settings_menu_omnikey
-Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen")
+Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen") || (restart_section = "screenchecks")
 	GoSub, Settings_menu_screenchecks
-Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || InStr(GuiControl_copy, "searchstrings") || (new_stash_search_menu_closed = 1)
+Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || InStr(GuiControl_copy, "searchstrings") || (new_stash_search_menu_closed = 1) || (restart_section = "stash search")
 	GoSub, Settings_menu_stash_search
 Else If InStr(GuiControl_copy, "geforce")
 	GoSub, Settings_menu_geforce_now
 
 If !InStr(GuiControl_copy, "betrayal")
 {
-	ControlFocus,, ahk_id %hwnd_settings_general%
 	LLK_Overlay("betrayal_info", "hide")
 	LLK_Overlay("betrayal_info_overview", "hide")
 	LLK_Overlay("betrayal_info_members", "hide")
 	Loop, Parse, betrayal_divisions, `,, `,
 		LLK_Overlay("betrayal_prioview_" A_Loopfield, "hide")
 }
-Else ControlFocus,, ahk_id %hwnd_betrayal_edit%
+ControlFocus,, ahk_id %hwnd_settings_general%
 
+restart_section := ""
 If ((xsettings_menu != "") && (ysettings_menu != ""))
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu% AutoSize
 Else Gui, settings_menu: Show, Hide AutoSize
 
-LLK_Overlay("settings_menu", "show", 1)
+LLK_Overlay("settings_menu", "show", 0)
+;GuiControlGet, test, settings_menu: FocusV
+;LLK_ToolTip(test)
 If pending_ultrawide
 	pending_ultrawide := ""
 Return
@@ -282,39 +267,44 @@ Return
 Settings_menu_betrayal:
 settings_menu_section := "betrayal"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans y+"fSize0*1.2 " Checked"betrayal_enable_recognition, % "use image recognition"
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vbetrayal_recognition_help hp w-1", img\GUI\help.png
-If betrayal_enable_recognition
-	Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_perma_table BackgroundTrans Checked"betrayal_perma_table, enable table in recognition-mode
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gBetrayal_apply vImage_folder HWNDmain_text", % " open img folder "
 
-choice := (betrayal_info_table_pos = "left") ? 1 : 2
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "table position: "
-ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r2 vbetrayal_info_table_pos gBetrayal_apply Choose"choice " w"width/2, left||right
-Gui, settings_menu: Font, % "s"fSize0
+Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vsettings_enable_betrayal BackgroundTrans y+"fSize0*1.2 " Checked"settings_enable_betrayal, % "enable the betrayal-info overlay"
+If settings_enable_betrayal
+{
+	Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_enable_recognition BackgroundTrans Checked"betrayal_enable_recognition, % "use image recognition"
+	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vbetrayal_recognition_help hp w-1", img\GUI\help.png
+	If betrayal_enable_recognition
+		Gui, settings_menu: Add, Checkbox, % "xs Section Center gBetrayal_apply vBetrayal_perma_table BackgroundTrans Checked"betrayal_perma_table, always show table with img-recognition
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans Border gBetrayal_apply vImage_folder HWNDmain_text", % " open img folder "
 
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "r"
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_plus gBetrayal_apply Border x+2 wp", % "+"
+	choice := (betrayal_info_table_pos = "left") ? 1 : 2
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, % "table position: "
+	ControlGetPos,,, width,,, ahk_id %main_text%
+	Gui, settings_menu: Font, % "s"fSize0 - 4
+	Gui, settings_menu: Add, DDL, % "ys x+0 hp BackgroundTrans cBlack r2 vbetrayal_info_table_pos gBetrayal_apply Choose"choice " w"width/2, left||right
+	Gui, settings_menu: Font, % "s"fSize0
 
-Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_minus gBetrayal_apply Border", % " – "
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_plus gBetrayal_apply Border x+2 wp", % "+"
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_minus gBetrayal_apply Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_reset gBetrayal_apply Border x+2 wp", % "r"
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_betrayal_plus gBetrayal_apply Border x+2 wp", % "+"
 
-color := (betrayal_info_prio_dimensions = 0) || (betrayal_info_prio_transportation = "0,0") || (betrayal_info_prio_fortification = "0,0") || (betrayal_info_prio_research = "0,0") || (betrayal_info_prio_intervention = "0,0") ? "Red" : "White"
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2 " c"color, % "prio-view settings"
-Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", % "frame dimensions: "
-Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, Edit, % "ys x+0 Center BackgroundTrans cBlack hp vbetrayal_info_prio_dimensions gBetrayal_apply", % (betrayal_info_prio_dimensions = 0) ? 100 : betrayal_info_prio_dimensions
-Gui, settings_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 range0-1000", % betrayal_info_prio_dimensions
-Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "ys Center Border BackgroundTrans vbetrayal_info_prio_apply gBetrayal_apply", % " save "
+	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_minus gBetrayal_apply Border", % " – "
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_plus gBetrayal_apply Border x+2 wp", % "+"
 
-GoSub, Betrayal_search
-GoSub, GUI_betrayal_prioview
+	color := (betrayal_info_prio_dimensions = 0) || (betrayal_info_prio_transportation = "0,0") || (betrayal_info_prio_fortification = "0,0") || (betrayal_info_prio_research = "0,0") || (betrayal_info_prio_intervention = "0,0") ? "Red" : "White"
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2 " c"color, % "prio-view settings"
+	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", % "frame dimensions: "
+	Gui, settings_menu: Font, % "s"fSize0 - 4
+	Gui, settings_menu: Add, Edit, % "ys x+0 Center BackgroundTrans cBlack hp vbetrayal_info_prio_dimensions gBetrayal_apply", % (betrayal_info_prio_dimensions = 0) ? 100 : betrayal_info_prio_dimensions
+	Gui, settings_menu: Add, UpDown, % "ys BackgroundTrans cBlack 0x80 range0-1000", % betrayal_info_prio_dimensions
+	Gui, settings_menu: Font, % "s"fSize0
+	Gui, settings_menu: Add, Text, % "ys Center Border BackgroundTrans vbetrayal_info_prio_apply gBetrayal_apply", % " save "
+
+	GoSub, Betrayal_search
+	GoSub, GUI_betrayal_prioview	
+}
 Return
 
 Settings_menu_cheatsheets:
@@ -575,14 +565,25 @@ If (A_GuiControl = "leveling_guide_skilltree_help")
 {
 text =
 (
-opens the folder where skilltree-screenshots are stored.
+explanation
+–> opens the folder where skilltree-screenshots are stored
+–> file-name structure: refer to the <skilltree overlay: setup> section of the wiki page 
+)
+}
 
-these screenshots can be overlaid by holding the omni-key while viewing the in-game skilltree:
+If (A_GuiControl = "skilltree_overlay_help")
+{
+text =
+(
+explanation
+–> an optional feature to create overlays with pob screenshots
+–> hold the omni-key while viewing the in-game skilltree to activate the overlays
 –> right-clicks will switch to the next screenshot
-–> long right-clicks will switch to the previous screenshot
-–> using number-keys 1 to 0 will jump to image 1 to 10
+–> long right-click will switch to the previous one
+–> press keys 1-0 to access screenshot 1 to 10
 
-they are accessed in alphabetical order, so make sure to name them accordingly.
+requirement
+–> the <skilltree> image-check has to be calibrated in the <screen-checks> section of the settings menu
 )
 }
 
@@ -854,7 +855,7 @@ explanation
 –> these names don't have to match in-game names/text 1:1, so abbreviations may be used
 
 examples
-–> sanctum: (templar) annals, (holy) trials, (decrepit) cellar, etc.
+–> betrayal: vorici, aisling, leo, (thane) jorgin
 
 conditions && calibration
 –> these objects are the condition that activate the individual text-panels / tooltips
@@ -1043,6 +1044,16 @@ checking this option will enable scanning the client-log generated by the game-c
 )
 }
 
+If (A_GuiControl = "Leveling_guide_color_help")
+{
+text =
+(
+instructions
+–> click the button to apply an rgb hex-code from the clipboard
+–> right-click the button to reset the font-color to white
+)
+}
+
 If (A_GuiControl = "leveling_guide_help2")
 {
 text =
@@ -1051,7 +1062,7 @@ generate guide: opens exile-leveling created by HeartofPhos.
 
 import guide: imports an exile-leveling guide from clipboard.
 
-delete guide: deletes the imported guide and removes included gems from gear tracker.
+delete guide: deletes the imported guide and removes included gems from the gear tracker.
 
 reset progress: resets the campaign progress and starts over.
 )
@@ -1147,17 +1158,41 @@ If (A_GuiControl = "pixelcheck_help")
 {
 text =
 (
-explanation
-click <test> to verify if the pixel-check is working, click <calibrate> to read the required pixel and save the color-value. long-click the underlined names to see specific instructions for that check.
-
-game-patches sometimes include ui or texture updates, which leads to screen-checks failing. this is where you recalibrate the checks to ensure they function properly.
-
 disclaimer
-these screen-checks merely trigger actions within the script itself and will -never- result in any interaction with the client.
+–> these screen-checks merely trigger actions within the script itself and will -never- result in any interaction with the client.
+–> they are used to let the script adapt to what's happening on screen, emulating the use of an addon-api:
+  –> automatically hide overlays to avoid blocking in-game interfaces
+  –> make context-sensitive hotkeys possible
 
-they are used to let the script adapt to what's happening on screen, emulating the use of an addon-api:
-- automatically hide overlays to avoid blocking in-game interfaces
-- make context-sensitive hotkeys possible
+explanation
+–> this is where you (re)calibrate the checks to ensure connected features function properly
+–> game-patches sometimes include ui or texture updates, which leads to screen-checks being outdated
+
+instructions
+–> click <test> to verify if the pixel-check is working
+–> click <calibrate> to read the required pixel and save the color-value
+–> long-click the underlined names to see specific instructions for that check.
+)
+}
+
+If (A_GuiControl = "imagecheck_help")
+{
+text =
+(
+disclaimer
+–> these screen-checks merely trigger actions within the script itself and will -never- result in any interaction with the client.
+–> they are used to let the script adapt to what's happening on screen, emulating the use of an addon-api:
+  –> automatically hide overlays to avoid blocking in-game interfaces
+  –> make context-sensitive hotkeys possible
+
+explanation
+–> this is where you (re)calibrate the checks to ensure connected features function properly
+–> game-patches sometimes include ui or texture updates, which leads to screen-checks being outdated
+
+instructions
+–> click <test> to verify if the image-check is working
+–> click <calibrate> to screen-cap the required image
+–> long-click the underlined names to see specific instructions for that check.
 )
 }
 
@@ -1176,10 +1211,13 @@ If (A_GuiControl = "gamescreen_help")
 text =
 (
 instructions
-close the inventory and every menu until you're on the main screen (where you control your character). then set the mini-map to overlay-mode on the center of the screen and click <calibrate>.
+–> close the inventory and every menu until you're on the main screen (where you control your character)
+–> set the mini-map the center of the screen and click <calibrate>
 
 explanation
-this check helps the script identify whether the user is in a menu or on the regular "gamescreen," which enables it to hide overlays automatically in order to prevent obstructing full-screen menus.
+–> this check helps the script identify whether the user is in a menu or on the regular "gamescreen"
+–> this enables it to hide overlays automatically in order to prevent obstructing full-screen menus
+–> this also helps determining the context of an omni-key press
 )
 	help_image = img\GUI\game_screen.jpg
 }
@@ -1188,10 +1226,13 @@ If (A_GuiControl = "inventory_help")
 {
 text =
 (
-open the inventory, then click <calibrate>.
+instructions
+–> open the inventory, then click <calibrate>.
 
 explanation
-this check helps the script identify whether the inventory is open, which enables the item-info gear-tracker to function correctly.
+–> this check helps the script identify whether the inventory is open
+–> it also enables the item-info gear-comparison feature to function correctly
+–> 
 )
 }
 
@@ -1205,28 +1246,16 @@ when disabled, overlays will not show/hide automatically (if the user navigates 
 )
 }
 
-
-If (A_GuiControl = "imagecheck_help")
-{
-text =
-(
-click <test> to verify if the image-check is working, click <calibrate> to screen-cap the required image.
-
-same concept as pixel-checks (see top of this section) but with images instead of pixels. image-checks are used when pixel-checks are unreliable due to movement on screen.
-
-individual checks can be disabled if you know you won't be using the connected feature and want to hide the red highlighting.
-)
-}
-
 If (A_GuiControl = "imagecheck_help_skilltree")
 {
 text =
 (
 instructions
-to recalibrate, open the skill-tree and screen-cap the highlighted area displayed above.
+–> to recalibrate, open the skill-tree
+–> click <calibrate> and screen-cap the client-area as highlighted above
 
 explanation
-this check helps the script identify whether the skill-tree is open or not, which enables the omni-key to overlay skill-tree screenshots.
+–> this check helps the script identify whether the skill-tree is open or not, which enables the omni-key to overlay skill-tree screenshots.
 
 required for
 –> leveling tracker: skill-tree overlays
@@ -1239,31 +1268,16 @@ If (A_GuiControl = "imagecheck_help_betrayal")
 text =
 (
 instructions
-to recalibrate, open the syndicate board, do not zoom into or move it, and screen-cap the highlighted area displayed above.
+–> to recalibrate, open the syndicate board, do not zoom into or move it
+–> click <calibrate> and screen-cap the client-area as highlighted above
 
 explanation
-this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to activate the betrayal-info feature.
+–> this check helps the script identify whether the syndicate board is up or not, which enables the omni-key to activate the betrayal-info feature.
 
 required for
 –> betrayal-info overlay
 )
 	help_image = img\GUI\betrayal.jpg
-}
-
-If (A_GuiControl = "imagecheck_help_sanctum")
-{
-text =
-(
-instructions
-to recalibrate, open your inventory and the sanctum map, then screen-cap the highlighted area displayed above.
-
-explanation
-this check helps the script identify whether the sanctum map is open or not, which enables the omni-key to activate its tooltip overlays.
-
-required for
-–> sanctum-room tooltip overlays
-)
-	help_image = img\GUI\sanctum.jpg
 }
 
 If (A_GuiControl = "imagecheck_help_stash")
@@ -1286,7 +1300,7 @@ If InStr(A_GuiControl, "omnikey")
 {
 text =
 (
-this hotkey is context-sensitive and used to access the majority of this script's features. it's meant to be the only hotkey you have to use while playing.
+this hotkey is context-sensitive and used to access the majority of this script's features.
 
 this feature does not block the key-press from being sent to the client, so you can still use skills bound to the middle mouse-button. if you still want/need to rebind it, bind it to a key that's not used for chatting.
 )
@@ -1394,7 +1408,7 @@ text =
 (
 when enabled, equipped items are tracked and serve as a point of comparison for the item-info tooltip.
 
-additionally, some minor features are disabled while this mode is active in order to not bloat the tooltip too much.
+however, some minor features are disabled while this mode is active in order to not bloat the tooltip too much.
 )
 }
 
@@ -1561,21 +1575,24 @@ Return
 Settings_menu_leveling_guide:
 settings_menu_section := "leveling guide"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide y+"fSize0*1.2 " venable_leveling_guide Checked"enable_leveling_guide, % "enable leveling tracker"
+Gui, settings_menu: Add, Link, % "ys hp x+"font_width*2, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb tools and tables</a>
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide y+"fSize0*1.2 " vsettings_enable_levelingtracker Checked"settings_enable_levelingtracker, % "enable leveling tracker"
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help hp w-1", img\GUI\help.png
-If (enable_leveling_guide = 1)
+If (settings_enable_levelingtracker = 1)
 {
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide vleveling_guide_enable_timer Checked"leveling_guide_enable_timer, % "enable timer"
 	Gui, settings_menu: Font, underline bold
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "feature settings: "
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "skill-tree overlay settings:"
+	Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vskilltree_overlay_help hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, norm
-	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide venable_omnikey_pob Checked"enable_omnikey_pob, % "pob: middle mouse-button initiates screen-capping"
+	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gLeveling_guide venable_omnikey_pob Checked"enable_omnikey_pob, % "pob: middle-click initiates screen-capping"
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_pob_help hp w-1", img\GUI\help.png
 	Gui, settings_menu: Add, Text, % "xs Section gLeveling_guide vleveling_guide_skilltree_folder Border BackgroundTrans", % " open skilltree-folder "
-	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_skilltree_help hp w-1", img\GUI\help.png
+	Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vLeveling_guide_skilltree_help hp w-1", img\GUI\help.png
 	
 	Gui, settings_menu: Font, underline bold
-	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings: "
-	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vLeveling_guide_help2 hp w-1", img\GUI\help.png
+	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "guide settings:"
+	Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vLeveling_guide_help2 hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, norm
 	Gui, settings_menu: Add, Text, % "xs Section Border Center gLeveling_guide vLeveling_guide_generate BackgroundTrans", % " generate guide "
 	Gui, settings_menu: Add, Text, % "ys Center Border gLeveling_guide vLeveling_guide_import BackgroundTrans", % " import guide "
@@ -1597,13 +1614,6 @@ If (enable_leveling_guide = 1)
 	Gui, settings_menu: Font, underline bold
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "ui settings:"
 	Gui, settings_menu: Font, norm
-	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text color:
-	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vfontcolor_white cWhite gLeveling_guide Border", % " white "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gLeveling_guide Border x+"fSize0//4, % " red "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gLeveling_guide Border x+"fSize0//4, % " cyan "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gLeveling_guide Border x+"fSize0//4, % " yellow "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gLeveling_guide Border x+"fSize0//4, % " lime "
-	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gLeveling_guide Border x+"fSize0//4, % " purple "
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_leveling_guide_minus gLeveling_guide Border", % " – "
@@ -1613,6 +1623,9 @@ If (enable_leveling_guide = 1)
 	Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans", opacity:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_minus gLeveling_guide Border", % " – "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vleveling_guide_opac_plus gLeveling_guide Border x+2 wp", % "+"
+	
+	Gui, settings_menu: Add, Text, % "ys Center c"leveling_guide_fontcolor " BackgroundTrans vleveling_guide_fontcolor_button gLeveling_guide Border", % " color "
+	Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vLeveling_guide_color_help hp w-1", img\GUI\help.png
 	
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", guide position:
 	Gui, settings_menu: Add, Radio, % InStr(leveling_guide_position, "top") ? "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide Checked" : "ys BackgroundTrans vleveling_guide_position_top gLeveling_guide", top
@@ -1659,10 +1672,10 @@ Return
 Settings_menu_map_tracker:
 settings_menu_section := "map tracker"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker">wiki page</a>
-Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker y+"fSize0*1.2 " venable_map_tracker Checked"enable_map_tracker, enable mapping tracker
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gMap_tracker y+"fSize0*1.2 " vsettings_enable_maptracker Checked"settings_enable_maptracker, enable mapping tracker
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmap_tracker_help hp w-1 x+0", img\GUI\help.png
 
-If (enable_map_tracker = 1)
+If settings_enable_maptracker
 {
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", text-size:
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_tracker_minus gMap_tracker Border", % " – "
@@ -1734,6 +1747,7 @@ If (A_GuiControl = "omnikey_apply")
 	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
 		Return
 	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
+	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 	Reload
 	ExitApp
 }
@@ -1744,6 +1758,7 @@ If (A_GuiControl = "omnikey_restart")
 		Return
 	IniWrite, % alt_modifier, ini\config.ini, Settings, highlight-key
 	IniWrite, % omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2
+	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 	Reload
 	ExitApp
 	Return
@@ -1753,14 +1768,14 @@ Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a hre
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, replace middle mouse-button with:
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
 ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s"fSize0-4
-Gui, settings_menu: Add, Hotkey, % "xs Section hp BackgroundTrans vomnikey_hotkey w"width//2, %omnikey_hotkey%
+Gui, settings_menu: Font, % "s0"
+Gui, settings_menu: Add, Hotkey, % "xs Section hp cWhite BackgroundTrans vomnikey_hotkey w"width//2, %omnikey_hotkey%
 Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vomnikey_apply gSettings_menu_omnikey", % " apply && restart "
 
 Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
 Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
-Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % "only for custom alt && c in-game keybinds, read: "
+Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % "only for custom alt && c in-game keybinds: "
 Gui, settings_menu: Add, Link, % "ys x+0 hp", <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#custom-poe-keybinds-alt--c">wiki</a>
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "highlight-key:"
@@ -1785,7 +1800,7 @@ Loop, Parse, pixelchecks_list, `,, `,
 {
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_pixel_test y+"fSize0*0.6, % " test "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_pixel_calibrate", % " calibrate "
-	If (screenchecks_%A_Loopfield%_valid = 0)
+	If !pixel_%A_LoopField%_color1
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help v" A_Loopfield "_help", % A_Loopfield
@@ -1801,21 +1816,22 @@ If (poe_height_initial / poe_width_initial < (5/12))
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_blackbars_help hp w-1", img\GUI\help.png
 }
 
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of integrated image-checks: "
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of active image-checks: "
 Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
 Loop, Parse, imagechecks_list_copy, `,, `,
 {
+	If (settings_enable_%A_LoopField% = 0) || (A_LoopField = "skilltree" && !settings_enable_levelingtracker) || (A_LoopField = "stash" && (!settings_enable_maptracker || !enable_loottracker))
+		continue
+	
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_image_test y+"fSize0*0.4, % " test "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans x+"fSize0//4 " border gScreenchecks v" A_Loopfield "_image_calibrate", % " calibrate "
-	loopfield_copy := StrReplace(A_Loopfield, "-", "_")
-	loopfield_copy := StrReplace(loopfield_copy, " ", "_")
-	Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans gScreenchecks Checked" disable_imagecheck_%loopfield_copy% " vDisable_imagecheck_" loopfield_copy, % "disable: "
-	If (screenchecks_%A_Loopfield%_valid = 0)
+	
+	;Gui, settings_menu: Add, Checkbox, % "ys BackgroundTrans gScreenchecks Checked" disable_imagecheck_%loopfield_copy% " vDisable_imagecheck_" loopfield_copy, % "disable: "
+	If !FileExist("img\Recognition (" poe_height "p)\GUI\" A_LoopField ".bmp") || !imagechecks_coords_%A_LoopField% && (A_LoopField != "betrayal")
 		Gui, settings_menu: Font, cRed underline
 	Else Gui, settings_menu: Font, cWhite underline
-	parse_imagechecks := StrReplace(A_LoopField, "dash", "-")
-	parse_imagechecks := StrReplace(parse_imagechecks, "_", " ")
-	Gui, settings_menu: Add, Text, % "ys x+0 BackgroundTrans gSettings_menu_help vimagecheck_help_"A_LoopField, % parse_imagechecks
+	
+	Gui, settings_menu: Add, Text, % "ys BackgroundTrans gSettings_menu_help vimagecheck_help_"A_LoopField, % A_LoopField
 	Gui, settings_menu: Font, norm cWhite
 }
 Gui, settings_menu: Font, norm
@@ -1874,6 +1890,26 @@ Gui, settings_menu: Font, % "s"fSize0
 Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vsearchstrings_add_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Add, Button, % "x0 y0 Hidden default gStash_search vsettings_menu_searchstrings_add BackgroundTrans", ok
 Return
+
+LLK_ScreenChecksValid()
+{
+	global
+	local valid := 1
+	Loop, Parse, pixelchecks_list, `,
+		valid *= pixel_%A_LoopField%_color1 ? 1 : 0
+
+	Loop, Parse, imagechecks_list_copy, `,
+	{
+		If (settings_enable_%A_LoopField% = 0) || (A_LoopField = "skilltree" && !settings_enable_levelingtracker) || (A_LoopField = "stash" && (!settings_enable_maptracker || !enable_loottracker))
+			continue
+		valid *= FileExist("img\Recognition (" poe_height "p)\GUI\" A_Loopfield ".bmp") && (imagechecks_coords_%A_LoopField% || A_LoopField = "betrayal") ? 1 : 0
+	}
+	
+	If valid
+		GuiControl, settings_menu: +cWhite, screen-checks
+	Else GuiControl, settings_menu: +cRed, screen-checks
+	GuiControl, settings_menu: movedraw, screen-checks
+}
 
 settings_menuGuiClose()
 {

@@ -9,13 +9,12 @@ If InStr(A_GuiControl, "pixel")
 {
 	If (pixel_gamescreen_color1 = "ERROR") || (pixel_gamescreen_color1 = "")
 	{
-		LLK_ToolTip("pixel-check setup required")
+		LLK_ToolTip("pixel-check setup required", 1.5)
 		clone_frames_pixelcheck_enable := 0
-		GuiControl, settings_menu: , clone_frames_pixelcheck_enable, 0
+		GuiControl, settings_menu:, clone_frames_pixelcheck_enable, 0
 		Return
 	}
 	IniWrite, % clone_frames_pixelcheck_enable, ini\clone frames.ini, Settings, enable pixel-check
-	LLK_GameScreenCheck()
 	Return
 }
 clone_frames_enabled := ""

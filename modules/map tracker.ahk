@@ -119,11 +119,11 @@ If InStr(A_GuiControl, "fSize") ;adjusting mapping tracker font-size
 		LLK_MapTrackGUI("refresh")
 }
 
-If (A_GuiControl = "enable_map_tracker") ;toggling mapping tracker feature on/off
+If (A_GuiControl = "settings_enable_maptracker") ;toggling mapping tracker feature on/off
 {
 	Gui, settings_menu: Submit, NoHide
 	
-	If (enable_map_tracker = 0)
+	If !settings_enable_maptracker
 	{
 		Gui, loottracker: Destroy
 		hwnd_loottracker := ""
@@ -135,7 +135,7 @@ If (A_GuiControl = "enable_map_tracker") ;toggling mapping tracker feature on/of
 		map_tracker_log_selected_date := ""
 		;LLK_MapTrackGUI()
 	}
-	IniWrite, %enable_map_tracker%, ini\config.ini, Features, enable map tracker
+	IniWrite, %settings_enable_maptracker%, ini\config.ini, Features, enable map tracker
 	GoSub, GUI
 	GoSub, Settings_menu
 	Return
@@ -145,6 +145,7 @@ If (A_GuiControl = "enable_loottracker") ;toggling loot tracker feature on/off
 {
 	Gui, settings_menu: Submit, NoHide
 	IniWrite, %enable_loottracker%, ini\map tracker.ini, Settings, enable loot tracker
+	LLK_ScreenChecksValid()
 	Return
 }
 

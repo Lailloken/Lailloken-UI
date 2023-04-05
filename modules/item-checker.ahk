@@ -289,6 +289,7 @@ If (A_Gui = "itemchecker") || ((A_Gui = "") && (A_GuiControl = "") && (shift_dow
 If InStr(A_GuiControl, "itemchecker_profile")
 {
 	GuiControl, settings_menu: +cWhite, itemchecker_profile%itemchecker_profile%
+	GuiControl, settings_menu: movedraw, itemchecker_profile%itemchecker_profile%
 	IniRead, itemchecker_highlighting, ini\item-checker.ini, highlighting %itemchecker_profile%,, % A_Space
 	If (itemchecker_highlighting != "")
 	{
@@ -303,7 +304,7 @@ If InStr(A_GuiControl, "itemchecker_profile")
 	itemchecker_profile := StrReplace(A_GuiControl, "itemchecker_profile")
 	IniWrite, % itemchecker_profile, ini\item-checker.ini, settings, current profile
 	GuiControl, settings_menu: +cFuchsia, itemchecker_profile%itemchecker_profile%
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, itemchecker_profile%itemchecker_profile%
 	GoSub, Init_itemchecker
 	If WinExist("ahk_id " hwnd_itemchecker)
 		LLK_ItemCheck(1)
@@ -395,7 +396,7 @@ If InStr(A_GuiControl, "_color") && !InStr(A_GuiControl, "apply") ;a highlight-p
 If (A_GuiControl = "itemchecker_apply_color") ;save-button was clicked
 {
 	GuiControl, settings_menu: +cWhite, itemchecker_apply_color
-	WinSet, Redraw,, ahk_id %hwnd_settings_menu%
+	GuiControl, settings_menu: movedraw, itemchecker_apply_color
 	Loop 8
 	{
 		value := A_Index - 1
@@ -655,7 +656,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	Else item_type := ""
 	
 	If InStr(Clipboard, "`nUnmodifiable", 1) || InStr(Clipboard, "`nRarity: Gem", 1) || InStr(Clipboard, "`nRarity: Currency", 1) || InStr(Clipboard, "`nRarity: Divination Card", 1) || InStr(Clipboard, "item class: pieces") || InStr(Clipboard, "item class: maps")
-	|| InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") || InStr(Clipboard, "item class: misc map items") || InStr(Clipboard, "rarity: quest") ;certain exclusion criteria
+	OR InStr(Clipboard, "item class: contracts") || InStr(Clipboard, "timeless jewel") || InStr(Clipboard, "item class: misc map items") || InStr(Clipboard, "rarity: quest") ;certain exclusion criteria
 	{
 		LLK_ToolTip("item-info: item not supported")
 		Return
@@ -1706,7 +1707,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			modline_copy := StrReplace(A_LoopField, " (fractured)"), modline_copy := StrReplace(modline_copy, " (crafted)")
 			mod := betrayal A_LoopField ;StrReplace(A_LoopField, "[hybrid]") ;store mod-text in variable
 			
-			mod1 := (InStr(mod, "adds") || InStr(mod, "added")) && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
+			mod1 := (InStr(mod, "adds") || InStr(mod, "added") || (InStr(mod, "additional") && InStr(mod, "damage"))) && InStr(mod, "to") ? StrReplace(mod, "to", "|",, 1) : mod ;workaround for flat-dmg affixes where x and/or y in 'adds x to y damage' doesn't scale (unique vaal sword, maybe more)
 			mod1 := StrReplace(mod1, " (fractured)")
 			mods.Push(A_LoopField ";;" tier)
 			
@@ -1720,6 +1721,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 				If IsNumber(A_LoopField) || InStr(itemcheck_parse, A_LoopField) ;number or numerical character
 					roll .= A_LoopField
 			}
+			
 			If InStr(roll, "(") ;numerical value has scaling
 			{
 				Loop, Parse, roll, | ;parse numerical value string value by value (in 'adds x to y damage', x and y are values)
@@ -1749,6 +1751,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 							If (roll_trigger = 2)
 								roll%roll_count%_2 .= A_LoopField
 						}
+						
 						If (A_LoopField = "(") || (A_LoopField = "-" && A_Index != trigger_index + 1) ;'(' and minus-sign increase trigger, but minus-sign only if not preceded by trigger, i.e. if it means 'to' and not 'minus'
 						{
 							roll_trigger += 1
