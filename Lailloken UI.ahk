@@ -51,32 +51,7 @@ Loop, Parse, clone_frames_failcheck, `n, `n
 	If InStr(A_LoopField, " ")
 		IniDelete, ini\clone frames.ini, %A_LoopField%
 }
-;############################################################ delete old files from previous versions, or files that have been moved elsewhere
-If FileExist("Resolutions.ini")
-	FileDelete, Resolutions.ini
-If FileExist("Class_CustomFont.ahk")
-	FileDelete, Class_CustomFont.ahk
-If FileExist("External Functions.ahk")
-	FileDelete, External Functions.ahk
-If FileExist("Fontin-SmallCaps.ttf")
-	FileDelete, Fontin-SmallCaps.ttf
-If FileExist("ini\lake helper.ini")
-	FileDelete, ini\lake helper.ini
-If FileExist("modules\overlayke.ahk")
-	FileDelete, modules\overlayke.ahk
-If FileExist("modules\gwennen regex.ahk")
-	FileDelete, modules\gwennen regex.ahk
-If FileExist("data\leveling tracker\gems.txt")
-	FileDelete, data\leveling tracker\gems.txt
-If FileExist("modules\bestiary search.ahk")
-	FileDelete, modules\bestiary search.ahk
-If FileExist("data\map search.ini")
-	FileDelete, data\map search.ini
-If FileExist("_ini\")
-	FileRemoveDir, _ini\, 1
-If FileExist("img\_Fallback\")
-	FileRemoveDir, img\_Fallback\, 1
-;############################################################
+
 If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini")
 || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
 	LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
@@ -170,6 +145,41 @@ WinGetPos, xScreenOffset_initial, yScreenOffset_initial, poe_width_initial, poe_
 poe_width := poe_width_initial, poe_height := poe_height_initial
 xScreenOffSet := xScreenOffset_initial, yScreenOffSet := yScreenOffset_initial
 
+;############################################################ delete old files from previous versions, or files that have been moved elsewhere
+If FileExist("Resolutions.ini")
+	FileDelete, Resolutions.ini
+If FileExist("Class_CustomFont.ahk")
+	FileDelete, Class_CustomFont.ahk
+If FileExist("External Functions.ahk")
+	FileDelete, External Functions.ahk
+If FileExist("Fontin-SmallCaps.ttf")
+	FileDelete, Fontin-SmallCaps.ttf
+If FileExist("ini\lake helper.ini")
+	FileDelete, ini\lake helper.ini
+If FileExist("modules\overlayke.ahk")
+	FileDelete, modules\overlayke.ahk
+If FileExist("modules\gwennen regex.ahk")
+	FileDelete, modules\gwennen regex.ahk
+If FileExist("data\leveling tracker\gems.txt")
+	FileDelete, data\leveling tracker\gems.txt
+If FileExist("modules\bestiary search.ahk")
+	FileDelete, modules\bestiary search.ahk
+If FileExist("data\map search.ini")
+	FileDelete, data\map search.ini
+If FileExist("_ini\")
+	FileRemoveDir, _ini\, 1
+If FileExist("img\_Fallback\")
+	FileRemoveDir, img\_Fallback\, 1
+If FileExist("img\Recognition (" poe_height "p)\Sanctum\")
+	FileRemoveDir, % "img\Recognition (" poe_height "p)\Sanctum\", 1
+If FileExist("modules\sanctum.ahk")
+	FileDelete, modules\sanctum.ahk
+If FileExist("data\sanctum.ini")
+	FileDelete, data\sanctum.ini
+If FileExist("img\GUI\sanctum.jpg")
+	FileDelete, img\GUI\sanctum.jpg
+;############################################################
+
 ;determine native resolution of the active monitor
 Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 WinSet, Trans, 0
@@ -206,6 +216,7 @@ If FileExist(poe_log_file)
 			lab_location := current_location
 		}
 	}
+	leveling_guide_fresh_login := 1
 }
 Else poe_log_file := 0
 
@@ -271,8 +282,6 @@ If !FileExist("img\Recognition (" poe_height "p)\GUI\")
 	FileCreateDir, img\Recognition (%poe_height%p)\GUI\
 If !FileExist("img\Recognition (" poe_height "p)\Betrayal\")
 	FileCreateDir, img\Recognition (%poe_height%p)\Betrayal\
-If !FileExist("img\Recognition (" poe_height "p)\Sanctum\")
-	FileCreateDir, img\Recognition (%poe_height%p)\Sanctum\
 
 Sleep, 250
 
@@ -297,7 +306,6 @@ GoSub, Init_omnikey
 GoSub, Init_searchstrings
 GoSub, Init_leveling_guide
 GoSub, Init_map_tracker
-GoSub, Init_sanctum
 GoSub, Init_conversions
 
 SetTimer, Loop, 1000
@@ -321,10 +329,15 @@ GoSub, Lab_info
 
 If (clone_frames_enabled != "")
 	GoSub, GUI_clone_frames
-LLK_GameScreenCheck()
+
 SetTimer, MainLoop, 100
 If (update_available = 1)
 	ToolTip, % "New version available: " version_online "`nCurrent version:  " version_installed "`nPress TAB to open the release page.`nPress ESC to dismiss this notification.", % xScreenOffSet + poe_width/2*0.9, % yScreenOffSet
+
+IniRead, restart_section, ini\config.ini, Versions, reload settings, % A_Space
+If restart_section
+	GoSub, Settings_menu
+IniDelete, ini\config.ini, Versions, reload settings
 Return
 
 #If mapinfo_switched
@@ -351,7 +364,8 @@ Return
 mapinfo_control_selected_rank := A_ThisHotkey
 cMod := mapinfo_colors[A_ThisHotkey]
 GuiControl, mapinfo_panel: +c%cMod%, mapinfo_panelentry%mapinfo_control_selected%
-WinSet, Redraw,, ahk_id %hwnd_mapinfo_panel%
+GuiControl, mapinfo_panel: movedraw, mapinfo_panelentry%mapinfo_control_selected%
+;WinSet, Redraw,, ahk_id %hwnd_mapinfo_panel%
 Return
 
 #If searchstrings_scroll_contents && WinActive("ahk_group poe_window")
@@ -468,7 +482,7 @@ Gui, screencap_setup: Destroy
 hwnd_screencap_setup := ""
 Return
 
-#If (enable_omnikey_pob = 1) && (enable_leveling_guide = 1) && WinActive("ahk_exe Path of Building.exe")
+#If (enable_omnikey_pob = 1) && (settings_enable_levelingtracker = 1) && WinActive("ahk_exe Path of Building.exe")
 
 MButton::
 GoSub, Omnikey
@@ -513,7 +527,8 @@ If !cheatsheet_panel_selected || (cheatsheets_rank_%cheatsheet_object_triggered1
 cheatsheets_rank_%cheatsheet_object_triggered1%_panel%cheatsheet_panel_selected% := hotkey_copy
 IniWrite, % hotkey_copy, % "cheat-sheets\" cheatsheet_triggered "\info.ini", % cheatsheet_object_triggered, % "panel " cheatsheet_panel_selected " rank"
 GuiControl, % "cheatsheet: +c"cheatsheets_panel_colors[hotkey_copy], %cheatsheets_control_hover%
-WinSet, Redraw,, ahk_id %hwnd_cheatsheet%
+GuiControl, cheatsheet: movedraw, %cheatsheets_control_hover%
+;WinSet, Redraw,, ahk_id %hwnd_cheatsheet%
 KeyWait, % StrReplace(A_ThisHotkey, "*")
 Return
 
@@ -692,7 +707,7 @@ If (Clipboard != "")
 }
 Return
 
-#If enable_map_tracker && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused && WinActive("ahk_group poe_window") 
+#If settings_enable_maptracker && (enable_loottracker = 1) && (map_tracker_map != "") && !map_tracker_paused && WinActive("ahk_group poe_window") 
 
 ^+LButton:: ;check which item was ctrl-clicked into the stash
 ^LButton::
@@ -713,6 +728,8 @@ ExitApp
 Return
 
 ::.llk::
+SendInput, {ESC}
+restart_section := "general"
 GoSub, Settings_menu ;LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
@@ -760,7 +777,7 @@ If in_lab
 		}
 	}
 }
-If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "[img]")
+If WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "(hold tab: img)")
 {
 	start := A_TickCount
 	While GetKeyState("Tab", "P")
@@ -1029,6 +1046,7 @@ If (A_GuiControl = "custom_resolution_apply")
 	IniWrite, %custom_resolution_setting%, ini\config.ini, Settings, enable custom-resolution
 	IniWrite, % (fullscreen = "false") ? custom_resolution - caption - yborder*2 : custom_resolution, ini\config.ini, Settings, custom-resolution
 	IniWrite, % (fullscreen = "false") ? custom_width : width_native, ini\config.ini, Settings, custom-width
+	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 	Reload
 	ExitApp
 }
@@ -1091,6 +1109,7 @@ If (A_GuiControl = "enable_browser_features")
 If (A_GuiControl = "enable_caps_toggling")
 {
 	IniWrite, %enable_caps_toggling%, ini\config.ini, Settings, enable CapsLock-toggling
+	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 	Reload
 	ExitApp
 }
@@ -1148,6 +1167,10 @@ If (timeout != 1)
 	IniRead, leveling_guide_skilltree_last_ini, ini\leveling tracker.ini, Settings, last skilltree-image, % A_Space
 	If (leveling_guide_skilltree_last != "") && (leveling_guide_skilltree_last != leveling_guide_skilltree_last_ini) && (leveling_guide_skilltree_last_ini != "")
 		IniWrite, "%leveling_guide_skilltree_last%", ini\leveling tracker.ini, Settings, last skilltree-image
+	
+	IniRead, leveling_guide_time_ini, ini\leveling tracker.ini, current run, time, 0
+	If (leveling_guide_time_ini != leveling_guide_time)
+		IniWrite, % leveling_guide_time, ini\leveling tracker.ini, current run, time
 }
 ExitApp
 Return
@@ -1277,12 +1300,6 @@ If (ini_version < 12903) ;move Gwennen regex-string to search-strings config
 	FileDelete, ini\gwennen.ini
 }
 
-If (ini_version < 12904.1)
-{
-	FileDelete, img\Recognition (%poe_height%p)\GUI\sanctum.bmp
-	GoSub, Init_screenchecks
-}
-
 If (ini_version < 12905)
 {
 	FileDelete, img\GUI\item_info_*.png
@@ -1396,7 +1413,24 @@ If (ini_version < 13002)
 	IniWrite, % "", ini\map info.ini, last map ;create a section for a potential reload feature in case of hard crashes
 }
 
-IniWrite, 13002, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+If (ini_version < 13003)
+{
+	IniWrite, % "", ini\leveling tracker.ini, current run, time
+	IniWrite, % "", ini\leveling tracker.ini, current run, name
+	Loop 10
+		IniWrite, % "", ini\leveling tracker.ini, current run, act %A_Index%
+	
+	IniDelete, ini\screen checks (%poe_height%p).ini, sanctum
+	IniRead, conversion, ini\screen checks (%poe_height%p).ini
+	Loop, Parse, conversion, `n
+	{
+		If (A_LoopField = "")
+			continue
+		IniDelete, ini\screen checks (%poe_height%p).ini, % A_LoopField, disable
+	}
+}
+
+IniWrite, 13003, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
@@ -1441,7 +1475,7 @@ IniRead, enable_notepad, ini\config.ini, Features, enable notepad, 0
 IniRead, enable_alarm, ini\config.ini, Features, enable alarm, 0
 IniRead, enable_pixelchecks, ini\config.ini, Settings, background pixel-checks, 1
 IniRead, enable_browser_features, ini\config.ini, Settings, enable browser features, 1
-IniRead, enable_map_tracker, ini\config.ini, Features, enable map tracker, 0
+IniRead, settings_enable_maptracker, ini\config.ini, Features, enable map tracker, 0
 IniRead, enable_map_info, ini\config.ini, Features, enable map-info panel, 0
 
 IniRead, game_version, ini\config.ini, Versions, game-version, 31800 ;3.17.4 = 31704, 3.17.10 = 31710
@@ -1454,24 +1488,21 @@ Return
 
 Init_variables:
 click := 1
-trans := 220
+trans := 230
 write_test_running := 0
 hwnd_win_hover := 0
 hwnd_control_hover := 0
 blocked_hotkeys := "!,^,+"
-pixelchecks_enabled := "gamescreen,"
 pixel_inventory_x1 := 0, pixel_inventory_x2 := 0, pixel_inventory_x3 := 6
 pixel_inventory_y1 := 0, pixel_inventory_y2 := 6, pixel_inventory_y3 := 0
-gamescreen := 0
 inventory := 0
 imagesearch_variation := 15
 pixelsearch_variation := 0
-imagechecks_list := "skilltree,sanctum,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
+imagechecks_list := "skilltree,betrayal" ;sorted for better omni-key performance: image-checks with fixed coordinates are checked first, then dynamic ones
 imagechecks_list_copy := imagechecks_list ",stash" ;will be sorted alphabetically for screen-checks section in the menu
 Sort, imagechecks_list_copy, D`,
 scrollboards := 0
 lab_mode := 0, lab_checkpoint := 0
-pixelchecks_list := "gamescreen,inventory"
 guilist := "LLK_panel|notepad_edit|notepad|notepad_sample|alarm|alarm_sample|mapinfo_panel|map_mods_toggle|betrayal_info|betrayal_info_overview|betrayal_search|betrayal_info_members|"
 guilist .= "betrayal_prioview_transportation|betrayal_prioview_fortification|betrayal_prioview_research|betrayal_prioview_intervention|legion_window|legion_list|legion_treemap|legion_treemap2|notepad_drag|itemchecker|map_tracker|map_tracker_log|"
 guilist .= "cheatsheet|settings_menu|"
@@ -1480,12 +1511,6 @@ allowed_recomb_classes := "shield,sword,quiver,bow,claw,dagger,mace,ring,amulet,
 delve_directions := "u,d,l,r,"
 gear_tracker_limit := 6
 gear_tracker_filter := 1
-imagechecks_coords_bestiary := "0,0," poe_width//2 "," poe_height//2
-imagechecks_coords_betrayal := "0," poe_height//2 "," poe_width//2 ",0"
-imagechecks_coords_gwennen := "0,0," poe_width//2 "," poe_height//2
-imagechecks_coords_sanctum := poe_width/3 "," poe_height*0.5 "," poe_width*(2/3) "," poe_height
-imagechecks_coords_stash := "0,0," poe_width//2 "," poe_height//2
-imagechecks_coords_vendor := "0,0," poe_width//2 "," poe_height//2
 global affixes := [], affix_tiers := [], affix_levels := [], item_type
 Loop 20
 {
@@ -1510,16 +1535,7 @@ gear_slots := "mainhand,offhand,helmet,body,amulet,ring1,ring2,belt,gloves,boots
 leveling_guide_landmarks := "encampment entrance, as the waypoint, by entrances, pillars near the waypoint, touching the road, broken waypoint, petrified soldiers, opposite the waypoint, west wall"
 leveling_guide_skilltree_active := 1, leveling_guide_valid_skilltree_files := 0, enable_omnikey_pob := 0, leveling_guide_screencap_caption := "", leveling_guide_valid_images := ""
 
-Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_font_size
-Gui, font_size: Margin, 0, 0
-Gui, font_size: Color, Black
-Gui, font_size: Font, % "cWhite s"fSize0, Fontin SmallCaps
-Gui, font_size: Add, Text, % "Border HWNDmain_text", % "7"
-GuiControlGet, font_check_, Pos, % main_text
-font_height := font_check_h
-font_width := font_check_w
-Gui, font_size: Destroy
-font_size := ""
+LLK_FontSize(fSize0, font_height, font_width)
 Return
 
 #Include modules\item-checker.ahk
@@ -1537,6 +1553,7 @@ If !WinActive("ahk_group poe_ahk_window") || (poe_log_file = 0)
 	map_entered += 1000
 	Return
 }
+
 If !map_tracker_paused && (map_tracker_map != "")
 {
 	If (map_tracker_refresh_kills = 1)
@@ -1561,7 +1578,7 @@ If !map_tracker_paused && (map_tracker_map != "")
 		If (map_tracker_refresh_kills = 3)
 		{
 			Gui, map_tracker: Color, Black
-			WinSet, Redraw,, ahk_group poe_window
+			WinSet, Redraw,, ahk_id %hwnd_map_tracker%
 			map_tracker_refresh_kills := 0
 		}
 		map_tracker_time := Format("{:0.0f}", map_tracker_ticks//1000)
@@ -1586,6 +1603,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		
 		current_location := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6)
 		current_location := SubStr(current_location, 1, InStr(current_location, """") -1) ;save PoE-internal location name in var
+		
 		in_lab := InStr(current_location, "labyrinth_") ? 1 : 0
 		
 		current_area_tier := SubStr(A_LoopField, InStr(A_LoopField, "level ") + 6, InStr(A_LoopField, " area """) - InStr(A_LoopField, "level ") - 6) - 67
@@ -1596,7 +1614,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		current_seed := SubStr(A_LoopField, InStr(A_LoopField, "seed ") + 5)
 		current_seed := StrReplace(current_seed, "`n") ;save map seed in var
 		
-		If !map_tracker_paused && enable_map_tracker
+		If !map_tracker_paused && settings_enable_maptracker
 		{
 			date_time := SubStr(A_LoopField, 1, InStr(A_LoopField, " ",,, 2) - 1) ;save date & time from client.txt
 			
@@ -1655,7 +1673,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		lab_location := current_location
 	}
 	
-	If !map_tracker_paused && enable_map_tracker
+	If !map_tracker_paused && settings_enable_maptracker
 	{
 		If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start = 0)
 		{
@@ -1697,7 +1715,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		}
 	}
 	
-	If enable_leveling_guide && InStr(A_LoopField, "is now level") && InStr(A_LoopField, "/")
+	If settings_enable_levelingtracker && InStr(A_LoopField, "is now level") && InStr(A_LoopField, "/")
 	{
 		parsed_level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level "))
 		parsed_level := StrReplace(parsed_level, "is now level ")
@@ -1713,7 +1731,6 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			gear_tracker_characters[gear_tracker_char] := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ") + 13)
 	}
 }
-
 If !lab_mismatch && in_lab && lab_location_verbose && IsObject(lab_json) && (lab_location != lab_previous)
 {
 	Loop, % lab_json.rooms.Count()
@@ -1766,6 +1783,13 @@ If (gear_tracker_parse != "`n") && WinExist("ahk_id " hwnd_gear_tracker_indicato
 
 If WinExist("ahk_id " hwnd_leveling_guide2)
 {
+	If (areas = "")
+	{
+		FileRead, json_areas, data\leveling tracker\areas.json
+		areas := Json.Load(json_areas)
+		json_areas := ""
+	}
+	
 	target_location := InStr(guide_panel2_text, "`n") ? SubStr(guide_panel2_text, InStr(guide_panel2_text, "`n",,, LLK_InStrCount(guide_panel2_text, "`n"))) : guide_panel2_text
 	target_location := SubStr(target_location, -1*StrLen(current_location) + 1)
 	If (target_location = current_location)
@@ -1773,6 +1797,29 @@ If WinExist("ahk_id " hwnd_leveling_guide2)
 		guide_progress .= (guide_progress = "") ? guide_panel2_text : "`n" guide_panel2_text
 		guide_text := StrReplace(guide_text, guide_panel2_text "`n",,, 1)
 		GoSub, Leveling_guide_progress
+	}
+	
+	If leveling_guide_enable_timer && !InStr(current_location, "hideout") && (leveling_guide_act < 11) && WinExist("ahk_id " hwnd_leveling_guide2) && WinActive("ahk_group poe_ahk_window") && !leveling_guide_fresh_login
+	{
+		leveling_guide_time += 1
+		LLK_LevelGuideTimer(leveling_guide_time, leveling_guide_time_total + leveling_guide_time)
+	}
+	
+	pAct := areas[current_location]["act"]
+	If leveling_guide_enable_timer && !leveling_guide_fresh_login && IsNumber(pAct) && (pAct = leveling_guide_act + 1) ;entering the next act
+	{
+		IniWrite, % leveling_guide_time, ini\leveling tracker.ini, current run, act %leveling_guide_act% ;save the time of the current act
+		LLK_LevelGuideCSV()
+		leveling_guide_act := pAct
+		leveling_guide_time_total += leveling_guide_time ;add act-time to run-time
+		If (leveling_guide_act = 11) ;if campaign is done
+		{
+			LLK_LevelGuideTimer(leveling_guide_time, leveling_guide_time_total)
+			Gui, leveling_guide3: Color, Green
+			WinSet, Redraw,, ahk_id %hwnd_leveling_guide3%
+		}
+		leveling_guide_time := 0
+		IniWrite, 0, ini\leveling tracker.ini, current run, time
 	}
 }
 
@@ -1897,48 +1944,7 @@ If !gui_force_hide && WinActive("ahk_group poe_ahk_window") && (poe_window_close
 				break
 			LLK_PixelSearch(A_LoopField)
 		}
-		/*
-		If (map_info_pixelcheck_enable = 1)
-		{
-			If (gamescreen = 1)
-			{
-				If !WinExist("ahk_id " hwnd_map_mods_window) && (toggle_map_mods_panel = 1) && (hwnd_map_mods_window != "") || (map_mods_panel_fresh = 1)
-				{
-					LLK_Overlay("map_mods_window", "show")
-					map_mods_panel_fresh := 0
-				}
-				If !WinExist("ahk_id " hwnd_map_mods_toggle) && (hwnd_map_mods_toggle != "") || (map_mods_panel_fresh = 1)
-				{
-					LLK_Overlay("map_mods_toggle", "show")
-					map_mods_panel_fresh := 0
-				}
-			}
-			Else
-			{
-				If WinExist("ahk_id " hwnd_map_mods_window) && (map_mods_panel_fresh != 1) && (hwnd_map_mods_window != "")
-					LLK_Overlay("map_mods_window", "hide")
-				If WinExist("ahk_id " hwnd_map_mods_toggle) && (map_mods_panel_fresh != 1) && (hwnd_map_mods_window != "")
-					LLK_Overlay("map_mods_toggle", "hide")
-			}
-		}
-		*/
 	}
-	/*
-	If clone_frames_hideout_enable && (clone_frames_enabled != "")
-	{
-		clone_frame_parse := SubStr(clone_frames_enabled, 1, InStr(clone_frames_enabled, ",") - 1)
-		If WinExist("ahk_id " hwnd_rage) && (InStr(current_location, "hideout") || InStr(current_location, "_town"))
-			clone_frame_toggle := "hide"
-		Else If !WinExist("ahk_id " hwnd_%clone_frame_parse%) && (!InStr(current_location, "hideout") && !InStr(current_location, "_town"))
-			clone_frame_toggle := "show"
-		Loop, Parse, clone_frames_enabled, `,
-		{
-			If (A_LoopField = "")
-				continue
-			LLK_Overlay("clone_frames_"A_LoopField, clone_frame_toggle)
-		}
-	}
-	*/
 	If (!inventory && pixel_inventory_color1 != "") && WinExist("ahk_id " hwnd_itemchecker)
 	{
 		Gui, itemchecker: Destroy
@@ -2106,8 +2112,6 @@ You also have to enable "confine mouse to window" in the game's UI options.
 }
 Return
 
-#Include modules\sanctum.ahk
-
 #Include modules\screen-checks.ahk
 
 #Include modules\settings menu.ahk
@@ -2116,6 +2120,7 @@ Return
 
 Timeout_chromatics()
 {
+	global
 	KeyWait, v, D T0.5
 	If !ErrorLevel
 	{
@@ -2131,10 +2136,12 @@ Timeout_chromatics()
 
 Timeout_cluster_jewels()
 {
+	global
 	KeyWait, F3, D T0.5
 	If !ErrorLevel
 	{
 		KeyWait, F3
+		sleep, 250
 		SendInput, %wiki_cluster%
 	}
 	If WinActive("ahk_group poe_window") || !ErrorLevel
@@ -2224,17 +2231,6 @@ LLK_FontSize(size, ByRef font_height_x, ByRef font_width_x)
 	font_height_x := font_check_h
 	font_width_x := font_check_w
 	Gui, font_size: Destroy
-}
-
-LLK_GameScreenCheck()
-{
-	global
-	If (clone_frames_pixelcheck_enable + map_info_pixelcheck_enable = 0)
-	{
-		pixelchecks_enabled := StrReplace(pixelchecks_enabled, "gamescreen,")
-		gamescreen := 0
-	}
-	Else pixelchecks_enabled := InStr(pixelchecks_enabled, "gamescreen") ? pixelchecks_enabled : pixelchecks_enabled "gamescreen,"
 }
 
 LLK_HotstringClip(hotstring, mode := 0)
@@ -2593,8 +2589,10 @@ LLK_WinExist(hwnd)
 
 LLK_WriteTest()
 {
+	global settings_menu_section
 	If (A_GuiControl = "AdminStart")
 	{
+		IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 		Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
 		ExitApp
 	}
@@ -2690,7 +2688,7 @@ LLK_WriteTest()
 	write_test_running := 0
 }
 
-SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
+SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "", divisor := 1)
 {
 	Gui 9: New, -DPIscale
 	Gui 9: Font, %fontOptions%, %fontName%
@@ -2698,6 +2696,8 @@ SetTextAndResize(controlHwnd, newText, fontOptions := "", fontName := "")
 	GuiControlGet T, 9: Pos, Static1
 	Gui 9: Destroy
 	GuiControl,, %controlHwnd%, %newText%
+	While Mod(TW, divisor)
+		TW += 1
 	GuiControl, Move, %controlHwnd%, % "h" TH " w" TW
 }
 
@@ -2707,6 +2707,28 @@ snipGuiClose()
 	WinGetPos,,, wSnip_widget, hSnip_widget, ahk_id %hwnd_snip%
 	Gui, snip: Destroy
 	hwnd_snip := ""
+}
+
+LLK_IsNumber(var)
+{
+	If var is number
+		Return number
+	Else Return 0
+}
+
+FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
+{
+	time := 19990101  ; *Midnight* of an arbitrary date.
+	time += seconds, seconds
+	FormatTime, time, %time%, HH:mm:ss
+	While !mode && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
+		time := SubStr(time, 2)
+	return time
+    /*
+    ; Unlike the method used above, this would not support more than 24 hours worth of seconds:
+    FormatTime, hmmss, %time%, h:mm:ss
+    return hmmss
+    */
 }
 
 #include data\External Functions.ahk
