@@ -729,7 +729,6 @@ Return
 
 ::.llk::
 SendInput, {ESC}
-restart_section := "general"
 GoSub, Settings_menu ;LLK_HotstringClip(A_ThisHotkey, 1)
 Return
 
