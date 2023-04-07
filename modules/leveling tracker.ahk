@@ -514,6 +514,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 			{
 				rewardType := step.rewardType
 				gemID := step.requiredGem.id
+				If !gems[gemID].name
+					continue
 				step_text .= (rewardType = "vendor") ? "buy gem: " : "take reward: "
 				step_text .= gems[gemID].name
 				If (step.requiredGem.note != "")
