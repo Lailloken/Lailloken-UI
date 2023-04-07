@@ -306,6 +306,7 @@ GoSub, Init_omnikey
 GoSub, Init_searchstrings
 GoSub, Init_leveling_guide
 GoSub, Init_map_tracker
+GoSub, Resolution_check
 GoSub, Init_conversions
 
 SetTimer, Loop, 1000
@@ -320,8 +321,6 @@ Else WinWaitActive, ahk_group poe_ahk_window
 
 If enable_startup_beep
 	SoundBeep, 100
-
-GoSub, Resolution_check
 
 GoSub, GUI
 GoSub, Recombinators
@@ -2074,9 +2073,9 @@ Unsupported resolution detected!
 The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
 
 I have decided to end support for this resolution.
-You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+You have to run the client with a custom resolution, which you can set up in the following window, to use this script.
 
-You also have to enable "confine mouse to window" in the game's UI options.
+You should also consider enabling "confine mouse to window" in the game's UI options to prevent the mouse from leaving the client area.
 )
 	}
 	Else If !InStr(supported_resolutions, "," poe_height "p")
@@ -2088,9 +2087,9 @@ Unsupported resolution detected!
 
 The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
 
-You have to run the client with a custom resolution, which you can do in the following window, to use this script.
+You have to run the client with a custom resolution, which you can set up in the following window, to use this script.
 
-You also have to enable "confine mouse to window" in the game's UI options.
+You should also consider enabling "confine mouse to window" in the game's UI options to prevent the mouse from leaving the client area.
 )
 	}
 	MsgBox, % text
