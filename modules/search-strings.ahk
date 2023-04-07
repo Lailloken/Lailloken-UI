@@ -165,9 +165,10 @@ LLK_StringPick(name := "")
 	If (name = "exile leveling")
 		string := stash_search_string_leveling
 	
+	KeyWait, LButton
 	Gui, searchstrings_contextmenu: Destroy
 	hwnd_searchstrings_contextmenu := ""
-	KeyWait, LButton
+	
 	If !InStr(string, "`n") && !InStr(string, ";")
 	{
 		WinActivate, ahk_group poe_window
@@ -198,7 +199,7 @@ LLK_StringPick(name := "")
 	SendInput, ^{f}
 	sleep 100
 	SendInput, ^{v}{Enter}
-	LLK_StringScroll()
+	SetTimer, LLK_StringScroll, 100
 }
 
 LLK_StringScroll()
@@ -213,16 +214,14 @@ LLK_StringScroll()
 			text .= " (items)"
 	}
 	
-	ToolTip, % "          scrolling..." text "`n          (ESC to exit)",,, 11
-	
 	If !searchstrings_scroll_contents || !WinActive("ahk_group poe_window")
 	{
 		searchstrings_scroll_contents := ""
 		ToolTip,,,, 11
+		SetTimer, LLK_StringScroll, Delete
 		Return
 	}
-	sleep 100
-	LLK_StringScroll()
+	ToolTip, % "          scrolling..." text "`n          (ESC to exit)",,, 11
 }
 
 LLK_StringMenu(name)

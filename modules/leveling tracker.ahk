@@ -1115,7 +1115,7 @@ If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then gro
 						%primary_attribute%_skills := "^("
 					If (StrLen(SubStr(%primary_attribute%_skills, InStr(%primary_attribute%_skills, "`n",,, LLK_InStrCount(%primary_attribute%_skills, "`n")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_skills parse) <= 49)
 						%primary_attribute%_skills .= parse "|"
-					Else %primary_attribute%_skills := SubStr(%primary_attribute%_supports, 1, -1) ")`n^(" parse "|"
+					Else %primary_attribute%_skills := SubStr(%primary_attribute%_skills, 1, -1) ")`n^(" parse "|"
 				}
 			}
 		}
@@ -1358,6 +1358,7 @@ LLK_LevelGuideGemNote()
 		Return 0
 	Else
 	{
+		local mouseXpos_gem, mouseYpos_gem, gem_width, gem_height
 		MouseGetPos, mouseXpos_gem, mouseYpos_gem
 		Gui, gem_notes: New, -DPIScale +E0x20 -Caption +Border +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gem_notes
 		Gui, gem_notes: Margin, font_width/2, font_height/2
@@ -1365,8 +1366,9 @@ LLK_LevelGuideGemNote()
 		WinSet, Transparent, %trans%
 		Gui, gem_notes: Font, % "cWhite s"fSize0, Fontin SmallCaps
 		Gui, gem_notes: Add, Text, % "xs Section Center BackgroundTrans Border w"font_width*15, % gem_note_text
-		Gui, gem_notes: Show, % "NA x"mouseXpos_gem " y"mouseYpos_gem
+		Gui, gem_notes: Show, % "NA x10000 y10000"
 		WinGetPos,,, gem_width, gem_height, ahk_id %hwnd_gem_notes%
+		mouseXpos_gem := (mouseXpos_gem - gem_width*1.1 < xScreenOffSet) ? xScreenOffSet : mouseXpos_gem
 		Gui, gem_notes: Show, % "NA x"mouseXpos_gem - gem_width*1.1 " y"mouseYpos_gem - gem_height*1.1
 	}
 	Return 1

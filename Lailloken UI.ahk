@@ -340,7 +340,14 @@ If restart_section
 IniDelete, ini\config.ini, Versions, reload settings
 Return
 
+#If enable_omnikey_pob && settings_enable_levelingtracker && WinActive("ahk_exe Path of Building.exe")
+
+MButton::
+LLK_ScreencapPoB()
+Return
+
 #If mapinfo_switched
+
 $~alt::
 {
 	If (A_TickCount < alt_press + 500)
@@ -370,7 +377,9 @@ Return
 
 #If searchstrings_scroll_contents && WinActive("ahk_group poe_window")
 
-ESC::searchstrings_scroll_contents := ""
+ESC::
+searchstrings_scroll_contents := ""
+Return
 
 WheelDown::
 If searchstrings_scroll_progress
@@ -424,10 +433,6 @@ sleep 150
 searchstrings_scroll_progress := 0
 Return
 
-#If WinActive("ahk_exe Path of Building.exe")
-
-MButton::LLK_ScreencapPoB()
-
 #If WinActive("ahk_id " hwnd_cheatsheets_menu)
 
 ESC::cheatsheets_menuGuiClose()
@@ -480,12 +485,6 @@ ESC::
 leveling_guide_screencap_caption := ""
 Gui, screencap_setup: Destroy
 hwnd_screencap_setup := ""
-Return
-
-#If (enable_omnikey_pob = 1) && (settings_enable_levelingtracker = 1) && WinActive("ahk_exe Path of Building.exe")
-
-MButton::
-GoSub, Omnikey
 Return
 
 #If WinExist("ahk_id " hwnd_cheatsheet)

@@ -23,7 +23,7 @@ If WinActive("ahk_id " hwnd_settings_menu) && (settings_menu_section = "omnikey"
 	Return
 }
 
-If WinActive("ahk_exe Path of Building.exe") || features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
+If features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
 {
 	GoSub, Omnikey2
 	Return
@@ -214,20 +214,13 @@ ThisHotkey_copy := A_ThisHotkey
 Loop, Parse, % "*~!+#^"
 	ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
-
-If WinActive("ahk_exe Path of Building.exe")
-{
-	KeyWait, % ThisHotkey_copy
-	LLK_ScreencapPoB()
-	Return
-}
-
 If features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(cheatsheets_omnikey_modifier, "P")
 {
 	global cheatsheets_hotkey := ThisHotkey_copy
 	cheatsheets_omni_trigger := 1
 	cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "!"), cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "+"), cheatsheets_hotkey := StrReplace(cheatsheets_hotkey, "^")
 	GoSub, Cheatsheets
+	LLK_OmnikeyRelease()
 	Return
 }
 
@@ -236,21 +229,6 @@ If (enable_pixelchecks = 0 || pixelchecks_enabled = "")
 
 If (gamescreen = 0)
 {
-	If (InStr(current_location, "_town") || InStr(current_location, "1_3_17_1")) && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
-	{
-		If searchstrings_scroll_contents
-			searchstrings_scroll_contents := ""
-		start := A_TickCount
-		While GetKeyState(ThisHotkey_copy, "P")
-		{
-			If (A_TickCount >= start + 250)
-			{
-				LLK_StringPick("exile leveling")
-				Return
-			}
-		}
-	}
-	
 	LLK_ImageSearch()
 	
 	If settings_enable_betrayal && (betrayal = 1)
@@ -296,14 +274,28 @@ If (gamescreen = 0)
 						Gui, leveling_guide_skilltree_hover: Margin, 0, 0
 						Gui, leveling_guide_skilltree_hover: Color, Black
 						WinSet, Transparent, 255
-						Gui, leveling_guide_skilltree_hover: Add, Picture, BackgroundTrans HWNDhwnd_leveling_guide_skilltree_hover_img, img\GUI\skill-tree\[%lab_hover%].jpg
+						Loop, Parse, % "jpg,png,bmp", `,
+						{
+							If FileExist("img\GUI\skill-tree\[" lab_hover "]." A_LoopField)
+							{
+								Gui, leveling_guide_skilltree_hover: Add, Picture, BackgroundTrans HWNDhwnd_leveling_guide_skilltree_hover_img, img\GUI\skill-tree\[%lab_hover%].%A_LoopField%
+								Break
+							}
+						}
 						Gui, leveling_guide_skilltree_hover: Show, NA x10000 y10000
 						WinGetPos,,, hover_width, hover_height, ahk_id %hwnd_leveling_guide_skilltree_hover%
 						Gui, leveling_guide_skilltree_hover: Show, % "NA x"xScreenOffSet + poe_width//2 - hover_width//2 " y"yScreenOffSet + poe_height - hover_height - poe_height*0.0215 - poe_height//25*1.05
 					}
 					Else
 					{
-						GuiControl, leveling_guide_skilltree_hover:, %hwnd_leveling_guide_skilltree_hover_img%, *w%leveling_guide_skilltree_width% *h-1 img\GUI\skill-tree\[%lab_hover%].jpg
+						Loop, Parse, % "jpg,png,bmp", `,
+						{
+							If FileExist("img\GUI\skill-tree\[" lab_hover "]." A_LoopField)
+							{
+								GuiControl, leveling_guide_skilltree_hover:, %hwnd_leveling_guide_skilltree_hover_img%, *w%leveling_guide_skilltree_width% *h-1 img\GUI\skill-tree\[%lab_hover%].%A_LoopField%
+								Break
+							}
+						}
 						WinSet, Redraw,, ahk_id %hwnd_leveling_guide_skilltree_hover%
 						Gui, leveling_guide_skilltree_hover: Show, NA x10000 y10000 AutoSize
 						WinGetPos,,, hover_width, hover_height, ahk_id %hwnd_leveling_guide_skilltree_hover%
@@ -325,6 +317,22 @@ If (gamescreen = 0)
 		Gui, leveling_guide_skilltree: Destroy
 		Gui, leveling_guide_labs: Destroy
 		Gui, leveling_guide_skilltree_hover: Destroy
+		Return
+	}
+	
+	If (InStr(current_location, "_town") || InStr(current_location, "1_3_17_1")) && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
+	{
+		If searchstrings_scroll_contents
+			searchstrings_scroll_contents := ""
+		start := A_TickCount
+		While GetKeyState(ThisHotkey_copy, "P")
+		{
+			If (A_TickCount >= start + 100)
+			{
+				LLK_StringPick("exile leveling")
+				Return
+			}
+		}
 	}
 	
 	pHaystack_searchstrings := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
