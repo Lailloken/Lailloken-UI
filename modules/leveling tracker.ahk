@@ -1115,7 +1115,7 @@ If InStr(text2, "buy gem: ") ;check if there are steps for buying gems, then gro
 						%primary_attribute%_skills := "^("
 					If (StrLen(SubStr(%primary_attribute%_skills, InStr(%primary_attribute%_skills, "`n",,, LLK_InStrCount(%primary_attribute%_skills, "`n")) + 1) parse) <= 49) ;(StrLen(%primary_attribute%_skills parse) <= 49)
 						%primary_attribute%_skills .= parse "|"
-					Else %primary_attribute%_skills := SubStr(%primary_attribute%_supports, 1, -1) ")`n^(" parse "|"
+					Else %primary_attribute%_skills := SubStr(%primary_attribute%_skills, 1, -1) ")`n^(" parse "|"
 				}
 			}
 		}
