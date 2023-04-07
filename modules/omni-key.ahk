@@ -196,7 +196,8 @@ If (clipboard != "")
 		}
 	}
 }
-Else GoSub, Omnikey2
+Else If (ThisHotkey_copy != omnikey_hotkey2)
+	GoSub, Omnikey2
 Return
 
 Omnikey2:
@@ -330,6 +331,7 @@ If (gamescreen = 0)
 			If (A_TickCount >= start + 100)
 			{
 				LLK_StringPick("exile leveling")
+				;KeyWait, % ThisHotkey_copy
 				Return
 			}
 		}

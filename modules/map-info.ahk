@@ -183,6 +183,13 @@ LLK_MapInfo(mode := "")
 		
 		Loop, Parse, A_LoopField, `n ;parse affixes line by line
 		{
+			If InStr(A_LoopField, "{") && InStr(A_LoopField, "profane")
+			{
+				map_mods.Push("extra chaos")
+				map_mods_parsed["extra chaos"] := ""
+				break
+			}
+			
 			If InStr("({", SubStr(A_LoopField, 1, 1)) ;|| InStr(A_LoopField, "(implicit)") || InStr(A_LoopField, "(enchant)")
 				continue
 			
@@ -355,7 +362,7 @@ LLK_MapInfo(mode := "")
 	MouseGetPos, xPos, yPos
 	
 	xPosTarget := (xPos - mapinfo_width/2 < xScreenOffset) ? xScreenOffset : xPos - mapinfo_width/2
-	yPosTarget := (yPos - height < yScreenOffSet) ? yScreenOffSet : yPos - height - poe_height*(5/240)
+	yPosTarget := (yPos - height - poe_height*(5/240) < yScreenOffSet) ? yScreenOffSet : yPos - height - poe_height*(5/240)
 	
 	If (mode != "switch")
 	{

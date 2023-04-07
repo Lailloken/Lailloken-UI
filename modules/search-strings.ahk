@@ -168,7 +168,6 @@ LLK_StringPick(name := "")
 	KeyWait, LButton
 	Gui, searchstrings_contextmenu: Destroy
 	hwnd_searchstrings_contextmenu := ""
-	
 	If !InStr(string, "`n") && !InStr(string, ";")
 	{
 		WinActivate, ahk_group poe_window

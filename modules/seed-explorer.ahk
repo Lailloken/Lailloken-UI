@@ -466,7 +466,11 @@ Legion_seeds_help:
 Gui, legion_help: Destroy
 GuiControlGet, modtext, %A_Gui%:, % A_GuiControl
 If (modtext = "" || modtext = " ") || InStr(modtext, "+5 devotion")
+{
+	If InStr(modtext, "+5 devotion")
+		LLK_ToolTip("cannot highlight devotion nodes", 2)
 	Return
+}
 If (click = 2) ;right-click notable labels to mark as desired
 {
 	If InStr(A_GuiControl, "keystone")
@@ -537,8 +541,6 @@ If (InStr(A_GuiControl, "legion_modtext") || LLK_ArrayHasVal(legion_notables_soc
 		SendInput, {Enter}
 	}
 }
-If InStr(modtext, "+5 devotion")
-	LLK_ToolTip("cannot highlight devotion nodes", 2)
 Return
 
 Legion_seeds_hover:

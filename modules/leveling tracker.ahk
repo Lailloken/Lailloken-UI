@@ -600,8 +600,8 @@ If (A_GuiControl = "leveling_guide_import") ;import-button in the settings menu
 				break
 			parse_gem := SubStr(A_Loopfield, 5)
 			IniRead, gem_regex, data\leveling tracker\gems.ini, % parse_gem, regex, % A_Space
-			If (gem_regex = "")
-				continue
+			If !gem_regex
+				gem_regex := parse_gem
 			gem_regex := StrReplace(gem_regex, " ", "\s")
 			
 			If (StrLen(parse_string gem_regex) <= 47)
