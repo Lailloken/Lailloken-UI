@@ -331,7 +331,7 @@ If (gamescreen = 0)
 			If (A_TickCount >= start + 100)
 			{
 				LLK_StringPick("exile leveling")
-				;KeyWait, % ThisHotkey_copy
+				KeyWait, % ThisHotkey_copy
 				Return
 			}
 		}
