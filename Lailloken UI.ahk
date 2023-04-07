@@ -1427,7 +1427,14 @@ If (ini_version < 13003)
 	}
 }
 
-IniWrite, 13003, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
+If (ini_version < 13004)
+{
+	IniDelete, ini\timeless jewels.ini, Settings
+	Loop 5
+		IniDelete, ini\timeless jewels.ini, % (A_Index = 1) ? "favorites" : "favorites_" A_Index
+}
+
+IniWrite, 13004, ini\config.ini, Versions, ini-version ;1.24.1 = 12401, 1.24.10 = 12410, 1.24.1-hotfixX = 12401.X
 
 FileReadLine, version_installed, version.txt, 1
 version_installed := StrReplace(version_installed, "`n")
