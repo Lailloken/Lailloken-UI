@@ -183,13 +183,6 @@ LLK_MapInfo(mode := "")
 		
 		Loop, Parse, A_LoopField, `n ;parse affixes line by line
 		{
-			If InStr(A_LoopField, "{") && InStr(A_LoopField, "profane")
-			{
-				map_mods.Push("extra chaos")
-				map_mods_parsed["extra chaos"] := ""
-				break
-			}
-			
 			If InStr("({", SubStr(A_LoopField, 1, 1)) ;|| InStr(A_LoopField, "(implicit)") || InStr(A_LoopField, "(enchant)")
 				continue
 			
@@ -241,12 +234,13 @@ LLK_MapInfo(mode := "")
 				map_mods_parsed[affix_line_text] := ""
 		}
 		modgroup_text := SubStr(modgroup_text, 1, -1)
+		map_mods_parsed["monsters inflict withered for seconds on hit"] := ""
 		
 		If modgroup_text
 			map_mods.Push(modgroup_text)
 	}
 	If missing_mods && enable_startup_beep && (mode != "switch")
-		LLK_ToolTip(missing_mods, 5)
+		LLK_ToolTip(missing_mods, 2.5)
 	
 	local text, ini_text, mod_value, key, value, ID, type, map_mods_difficulties := [], map_mods_player := {}, map_mods_bosses := {}, map_mods_monsters := {}, map_mods_area := {}, map_mods_heist := {}, mod, show, rank, ranks := ["d", "c", "b", "a"]
 	For key, value in map_mods
@@ -265,7 +259,11 @@ LLK_MapInfo(mode := "")
 		If InStr(value, "|")
 		{
 			Loop, Parse, value, |
+			{
 				mod_value .= map_mods_parsed[A_LoopField] "/"
+				If InStr(A_LoopField, "damage as chaos")
+					break
+			}
 			mod_value := SubStr(mod_value, 1, -1)
 			text := StrReplace(ini_text, "%", mod_value "%")
 			;text := StrReplace(ini_text, "%", map_mods_parsed[SubStr(value, 1, InStr(value, "|") - 1)] "/" map_mods_parsed[SubStr(value, InStr(value, "|") + 1)] "%")
