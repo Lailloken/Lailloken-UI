@@ -960,7 +960,7 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 			implicits .= StrReplace(A_LoopField, " (implicit)") "`n|`n"
 		;If InStr(A_LoopField, "crafted")
 		;	crafted_mods .= StrReplace(A_LoopField, " (crafted)") "`n"
-		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") ;|| InStr(A_LoopField, "crafted")
+		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") || InStr(A_LoopField, "{ Allocated Crucible") ;|| InStr(A_LoopField, "crafted")
 			continue
 		/*
 		If InStr(A_LoopField, "`n",,, 2) && (InStr(A_LoopField, "to maximum life") || InStr(A_LoopField, "increased maximum life"))
@@ -2592,7 +2592,8 @@ LLK_ItemCheckGear(slot)
 		}
 		;If InStr(A_LoopField, "crafted")
 		;	crafted_mods .= StrReplace(A_LoopField, " (crafted)") "`n"
-		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") ;|| InStr(A_LoopField, "crafted")
+		
+		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") || InStr(A_LoopField, "{ Allocated Crucible") ;|| InStr(A_LoopField, "crafted")
 			continue
 		itemcheck_clip .= A_LoopField "`n"
 	}
