@@ -3,9 +3,9 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ## Download & Setup
-- this tool requires AutoHotkey **1.1.x** to be installed on your system
-
-<a href="https://github.com/Lailloken/Lailloken-UI/wiki"><img src="https://user-images.githubusercontent.com/61888437/229716565-c7810bb8-e9df-4d81-a6a9-70c21aed6bac.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations"><img src="https://user-images.githubusercontent.com/61888437/229717097-122d9caa-14df-4707-8880-08821bce15c5.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/releases"><img src="https://user-images.githubusercontent.com/61888437/229717862-92c67097-b6ff-4520-8821-1f5d4635665a.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip"><img src="https://user-images.githubusercontent.com/61888437/229718024-6f0ccd4e-9d6a-401e-99e3-6979072e8332.png"></a>
+<a href="https://www.autohotkey.com/download/"><img src="https://user-images.githubusercontent.com/61888437/230709083-7fd1ca67-2598-4228-9a76-536a0b2d5044.png"></a> 
+<a href="https://github.com/Lailloken/Lailloken-UI/wiki"><img src="https://user-images.githubusercontent.com/61888437/229716565-c7810bb8-e9df-4d81-a6a9-70c21aed6bac.png"></a>  
+<a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations"><img src="https://user-images.githubusercontent.com/61888437/229717097-122d9caa-14df-4707-8880-08821bce15c5.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/releases"><img src="https://user-images.githubusercontent.com/61888437/229717862-92c67097-b6ff-4520-8821-1f5d4635665a.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip"><img src="https://user-images.githubusercontent.com/61888437/229718024-6f0ccd4e-9d6a-401e-99e3-6979072e8332.png"></a>
 <br>
 
 ## Ideas & Feedback
@@ -23,6 +23,10 @@ I will not be taking direct code input or optimizations from people because lear
 | [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
 |---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
+
+| [Sanctum-room tooltip overlays](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) ||
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/214906896-03c57cb7-8b77-4745-83a2-01eb9afc612e.png) |
 <br>
 
 ## Main Features: 
@@ -110,11 +114,6 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ## Experimental / Proof-of-Concept Features:
-### Sanctum-room [Info-tooltips](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) based on image recognition  
-| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/214906896-03c57cb7-8b77-4745-83a2-01eb9afc612e.png) |
-|---|---|
-<br>
-
 ### [Delve-helper](https://github.com/Lailloken/Lailloken-UI/wiki/Delve-helper): in-client UI to help find hidden delve passages (with optional image recognition)  
 ![image](https://user-images.githubusercontent.com/61888437/182579413-50e1994a-768c-4e03-ab7f-46c32ec04829.png)  
 <br>
