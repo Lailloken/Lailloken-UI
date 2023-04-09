@@ -6,6 +6,7 @@
 #Hotstring EndChars `n
 #MaxThreads 100
 #MaxMem 1024
+#Include %A_ScriptDir%
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "LLK_Rightclick")
 OnMessage(0x0200, "LLK_MouseMove")
