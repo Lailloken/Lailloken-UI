@@ -179,6 +179,8 @@ If FileExist("data\sanctum.ini")
 	FileDelete, data\sanctum.ini
 If FileExist("img\GUI\sanctum.jpg")
 	FileDelete, img\GUI\sanctum.jpg
+If FileExist("launcher.ahk")
+	FileDelete, launcher.ahk
 ;############################################################
 
 ;determine native resolution of the active monitor
