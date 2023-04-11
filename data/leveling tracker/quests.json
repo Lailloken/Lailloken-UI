@@ -351,7 +351,8 @@
           },
           "Metadata/Items/Gems/SupportGemOnslaught": {
             "classes": [
-              "Scion"
+              "Scion",
+              "Ranger"
             ],
             "npc": "Nessa"
           },
@@ -559,11 +560,12 @@
           },
           "Metadata/Items/Gems/SupportGemOnslaught": {
             "classes": [
-              "Duelist",
+              "Templar",
               "Marauder",
-              "Ranger",
+              "Duelist",
               "Shadow",
-              "Templar"
+              "Scion",
+              "Ranger"
             ],
             "npc": "Nessa"
           },
@@ -683,15 +685,6 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Gems/SupportGemOnslaught": {
-            "classes": [
-              "Templar",
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow"
-            ]
-          },
           "Metadata/Items/Gems/SupportGemSpiritStrike": {
             "classes": [
               "Templar",
@@ -700,9 +693,18 @@
               "Scion"
             ]
           },
+          "Metadata/Items/Gems/SupportGemOnslaught": {
+            "classes": [
+              "Marauder",
+              "Duelist",
+              "Shadow",
+              "Scion"
+            ]
+          },
           "Metadata/Items/Gems/SupportGemPierce": {
             "classes": [
               "Duelist",
+              "Ranger",
               "Shadow",
               "Scion"
             ]
@@ -810,6 +812,12 @@
           "Metadata/Items/Gems/SkillGemMoltenShell": {
             "classes": [
               "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemProjectileWeakness": {
+            "classes": [
+              "Duelist",
+              "Ranger"
             ]
           },
           "Metadata/Items/Gems/SkillGemPuncture": {
@@ -1215,6 +1223,15 @@
               "Scion"
             ]
           },
+          "Metadata/Items/Gems/SupportGemFasterAttack": {
+            "classes": [
+              "Marauder",
+              "Duelist",
+              "Ranger",
+              "Shadow",
+              "Scion"
+            ]
+          },
           "Metadata/Items/Gems/SupportGemLesserMultipleProjectiles": {
             "classes": [
               "Duelist",
@@ -1236,6 +1253,11 @@
             ]
           },
           "Metadata/Items/Gems/SupportGemArrowNova": {
+            "classes": [
+              "Ranger"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemManaforgedArrows": {
             "classes": [
               "Ranger"
             ]
@@ -2613,6 +2635,12 @@
               "Templar"
             ]
           },
+          "Metadata/Items/Gems/SkillGemWarlordsMark": {
+            "classes": [
+              "Marauder",
+              "Duelist"
+            ]
+          },
           "Metadata/Items/Gems/SkillGemAncestralCry": {
             "classes": [
               "Marauder",
@@ -2630,6 +2658,12 @@
               "Marauder",
               "Duelist",
               "Scion"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemPoachersMark": {
+            "classes": [
+              "Duelist",
+              "Ranger"
             ]
           },
           "Metadata/Items/Gems/SkillGemFrenzy": {
@@ -2665,6 +2699,11 @@
           "Metadata/Items/Gems/SkillGemEnsnaringArrow": {
             "classes": [
               "Ranger"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemCriticalWeakness": {
+            "classes": [
+              "Shadow"
             ]
           },
           "Metadata/Items/Gems/SkillGemBladeBlast": {
@@ -3028,15 +3067,6 @@
               "Marauder"
             ]
           },
-          "Metadata/Items/Gems/SupportGemFasterAttack": {
-            "classes": [
-              "Marauder",
-              "Duelist",
-              "Ranger",
-              "Shadow",
-              "Scion"
-            ]
-          },
           "Metadata/Items/Gems/SupportGemCloseCombat": {
             "classes": [
               "Marauder",
@@ -3393,12 +3423,60 @@
           },
           "Metadata/Items/Gems/SupportGemArcaneSurge": {
             "classes": [
-              "Templar"
+              "Templar",
+              "Witch"
             ]
           },
           "Metadata/Items/Gems/SupportGemMinionDamage": {
             "classes": [
               "Templar"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemStaticStrike": {
+            "classes": [
+              "Templar"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemWeaponElementalDamage": {
+            "classes": [
+              "Templar",
+              "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemMeleePhysicalDamage": {
+            "classes": [
+              "Templar"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemLifetap": {
+            "classes": [
+              "Templar",
+              "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemVolcanicFissure": {
+            "classes": [
+              "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemPhysicalProjectileAttackDamage": {
+            "classes": [
+              "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemWintertideBrand": {
+            "classes": [
+              "Witch"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemControlledDestruction": {
+            "classes": [
+              "Witch"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemEfficacy": {
+            "classes": [
+              "Witch"
             ]
           }
         },
@@ -3579,12 +3657,6 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Gems/SkillGemWarlordsMark": {
-            "classes": [
-              "Marauder",
-              "Duelist"
-            ]
-          },
           "Metadata/Items/Gems/SkillGemDetermination": {
             "classes": [
               "Marauder"
@@ -3618,18 +3690,6 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Gems/SkillGemPoachersMark": {
-            "classes": [
-              "Duelist",
-              "Ranger"
-            ]
-          },
-          "Metadata/Items/Gems/SkillGemProjectileWeakness": {
-            "classes": [
-              "Duelist",
-              "Ranger"
-            ]
-          },
           "Metadata/Items/Gems/SkillGemHatred": {
             "classes": [
               "Duelist",
@@ -3652,12 +3712,6 @@
           "Metadata/Items/Gems/SkillGemRallyingCry": {
             "classes": [
               "Duelist"
-            ]
-          },
-          "Metadata/Items/Gems/SkillGemCriticalWeakness": {
-            "classes": [
-              "Ranger",
-              "Shadow"
             ]
           },
           "Metadata/Items/Gems/SkillGemAlchemistsMark": {
@@ -7083,6 +7137,11 @@
               "Shadow"
             ]
           },
+          "Metadata/Items/Gems/SkillGemChannelledSnipe": {
+            "classes": [
+              "Ranger"
+            ]
+          },
           "Metadata/Items/Gems/SkillGemTemporalRift": {
             "classes": [
               "Shadow"
@@ -10161,13 +10220,7 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Jewels/JewelStr": {
-            "classes": []
-          },
-          "Metadata/Items/Jewels/JewelDex": {
-            "classes": []
-          },
-          "Metadata/Items/Jewels/JewelInt": {
+          "Metadata/Items/Currency/CurrencySkillGemToken": {
             "classes": []
           }
         },
@@ -10438,16 +10491,16 @@
       "atlas": {
         "quest_npc": "Commander Kirac",
         "quest": {
-          "Metadata/Items/Maps/MapWorldsMausoleum": {
+          "Metadata/Items/Maps/MapWorldsColonnade": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsTerrace": {
+          "Metadata/Items/Maps/MapWorldsAlleyways": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsStrand": {
+          "Metadata/Items/Maps/MapWorldsBoneCrypt": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsLavaLake": {
+          "Metadata/Items/Maps/MapWorldsScriptorium": {
             "classes": []
           }
         },
