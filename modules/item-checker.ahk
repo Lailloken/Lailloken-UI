@@ -596,6 +596,10 @@ LLK_ItemCheck(config := 0) ;parse item-info and create tooltip GUI
 	
 	Clipboard := StrReplace(Clipboard, "for`neach warcry", "for each warcry")
 	
+	itemchecker_metadata := SubStr(Clipboard, InStr(Clipboard, "`n",,, 2) + 1), itemchecker_metadata := SubStr(itemchecker_metadata, 1, InStr(itemchecker_metadata, "---") - 3)
+	If InStr(itemchecker_metadata, "`n")
+		itemchecker_metadata := SubStr(itemchecker_metadata, InStr(itemchecker_metadata, "`n") + 1)
+	
 	If config ;apply changes made in the settings menu
 	{
 		WinGetPos, xPos_itemchecker, yPos_itemchecker,,, ahk_id %hwnd_itemchecker%
