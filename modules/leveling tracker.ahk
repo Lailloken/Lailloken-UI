@@ -36,8 +36,12 @@ IniRead, leveling_guide_trans, ini\leveling tracker.ini, Settings, transparency,
 IniRead, leveling_guide_panel_offset, ini\leveling tracker.ini, Settings, button-offset, 1
 IniRead, leveling_guide_position, ini\leveling tracker.ini, Settings, overlay-position, bottom
 leveling_guide_panel_dimensions := poe_width*0.03*leveling_guide_panel_offset
-IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
-IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % poe_height - (leveling_guide_panel_dimensions + 2)
+IniRead, leveling_guide_panel_xpos, ini\leveling tracker.ini, UI, button xcoord, % A_Space
+If !leveling_guide_panel_xpos
+	leveling_guide_panel_xpos := poe_width/2 - (leveling_guide_panel_dimensions + 2)/2
+IniRead, leveling_guide_panel_ypos, ini\leveling tracker.ini, UI, button ycoord, % A_Space
+If !leveling_guide_panel_ypos
+	leveling_guide_panel_ypos := poe_height - (leveling_guide_panel_dimensions + 2)
 IniRead, gear_tracker_char, ini\leveling tracker.ini, Settings, character, % A_Space
 IniRead, gear_tracker_indicator_xpos, ini\leveling tracker.ini, UI, indicator xcoord, % 0.3*poe_width
 IniRead, gear_tracker_indicator_ypos, ini\leveling tracker.ini, UI, indicator ycoord, % 0.91*poe_height

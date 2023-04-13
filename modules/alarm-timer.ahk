@@ -234,8 +234,12 @@ If (alarm_timestamp != "")
 	continue_alarm := 1
 IniRead, alarm_panel_offset, ini\alarm.ini, Settings, button-offset, 1
 alarm_panel_dimensions := poe_width*0.03*alarm_panel_offset
-IniRead, alarm_panel_xpos, ini\alarm.ini, UI, button xcoord, % poe_width/2 - (alarm_panel_dimensions + 2)/2
-IniRead, alarm_panel_ypos, ini\alarm.ini, UI, button ycoord, % poe_height - (alarm_panel_dimensions + 2)
+IniRead, alarm_panel_xpos, ini\alarm.ini, UI, button xcoord, % A_Space
+If !alarm_panel_xpos
+	alarm_panel_xpos := poe_width/2 - (alarm_panel_dimensions + 2)/2
+IniRead, alarm_panel_ypos, ini\alarm.ini, UI, button ycoord, % A_Space
+If !alarm_panel_ypos
+	alarm_panel_ypos := poe_height - (alarm_panel_dimensions + 2)
 Return
 
 alarmGuiClose()

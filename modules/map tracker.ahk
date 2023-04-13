@@ -6,8 +6,12 @@ IniRead, ypos_offset_map_tracker, ini\map tracker.ini, UI, map tracker y-offset,
 IniRead, fSize_offset_map_tracker, ini\map tracker.ini, Settings, font-offset, 0
 IniRead, map_tracker_panel_offset, ini\map tracker.ini, Settings, button-offset, 1
 map_tracker_panel_dimensions := poe_width*0.03*map_tracker_panel_offset
-IniRead, map_tracker_panel_xpos, ini\map tracker.ini, UI, button xcoord, % poe_width/2 - (map_tracker_panel_dimensions + 2)/2
-IniRead, map_tracker_panel_ypos, ini\map tracker.ini, UI, button ycoord, % poe_height - (map_tracker_panel_dimensions + 2)
+IniRead, map_tracker_panel_xpos, ini\map tracker.ini, UI, button xcoord, % A_Space
+If !map_tracker_panel_xpos
+	map_tracker_panel_xpos := poe_width/2 - (map_tracker_panel_dimensions + 2)/2
+IniRead, map_tracker_panel_ypos, ini\map tracker.ini, UI, button ycoord, % A_Space
+If !map_tracker_panel_ypos
+	map_tracker_panel_ypos := poe_height - (map_tracker_panel_dimensions + 2)
 IniRead, map_tracker_enable_side_areas, ini\map tracker.ini, Settings, track side-areas, 0
 Return
 
@@ -283,7 +287,7 @@ LLK_MapTrack(mode := "")
 				If (A_Index = 3)
 					loottracker_item_name := StrReplace(A_LoopField, "superior ")
 				If InStr(A_LoopField, "stack size:")
-					loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13)
+					loottracker_stack_size := SubStr(A_LoopField, InStr(A_LoopField, "stack size: ") + 12, InStr(A_LoopField, "/") - 13), loottracker_stack_size := StrReplace(loottracker_stack_size, "."), loottracker_stack_size := StrReplace(loottracker_stack_size, ",")
 			}
 		}
 		Else If InStr(Clipboard, "Contract: ", 1) || InStr(Clipboard, "Blueprint: ", 1)
