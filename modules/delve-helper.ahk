@@ -913,8 +913,12 @@ Init_delve:
 IniRead, enable_delve, ini\config.ini, Features, enable delve, 0
 IniRead, delve_panel_offset, ini\delve.ini, Settings, button-offset, 1
 delve_panel_dimensions := poe_width*0.03*delve_panel_offset
-IniRead, delve_panel_xpos, ini\delve.ini, UI, button xcoord, % poe_width/2 - (delve_panel_dimensions + 2)/2
-IniRead, delve_panel_ypos, ini\delve.ini, UI, button ycoord, % poe_height - (delve_panel_dimensions + 2)
+IniRead, delve_panel_xpos, ini\delve.ini, UI, button xcoord, % A_Space
+If !delve_panel_xpos
+	delve_panel_xpos := poe_width/2 - (delve_panel_dimensions + 2)/2
+IniRead, delve_panel_ypos, ini\delve.ini, UI, button ycoord, % A_Space
+If !delve_panel_ypos
+	delve_panel_ypos := poe_height - (delve_panel_dimensions + 2)
 IniRead, delve_gridwidth, ini\delve.ini, UI, grid dimensions, % Floor(poe_height*0.73/8)
 IniRead, enable_delvelog, ini\delve.ini, Settings, enable log-scanning, 0
 enable_delvelog := (poe_log_file = 0) ? 0 : enable_delvelog

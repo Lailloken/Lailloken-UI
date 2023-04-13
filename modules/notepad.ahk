@@ -431,8 +431,12 @@ IniRead, notepad_fontcolor, ini\notepad.ini, Settings, font-color, White
 IniRead, notepad_trans, ini\notepad.ini, Settings, transparency, 250
 IniRead, notepad_panel_offset, ini\notepad.ini, Settings, button-offset, 1
 notepad_panel_dimensions := poe_width*0.03*notepad_panel_offset
-IniRead, notepad_panel_xpos, ini\notepad.ini, UI, button xcoord, % poe_width/2 - (notepad_panel_dimensions + 2)/2
-IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % poe_height - (notepad_panel_dimensions + 2)
+IniRead, notepad_panel_xpos, ini\notepad.ini, UI, button xcoord, % A_Space
+If !notepad_panel_xpos
+	notepad_panel_xpos := poe_width/2 - (notepad_panel_dimensions + 2)/2
+IniRead, notepad_panel_ypos, ini\notepad.ini, UI, button ycoord, % A_Space
+If !notepad_panel_ypos
+	notepad_panel_ypos := poe_height - (notepad_panel_dimensions + 2)
 Return
 
 notepad_editGuiClose()

@@ -7,7 +7,7 @@ If (A_Gui = "context_menu") || (A_GuiControl = "lab_button")
 	{
 		MouseGetPos, lab_mouseX, lab_mouseY
 		ToolTip, release TAB, % lab_mouseX * 1.025, % lab_mouseY, 2
-		KeyWait, TAB
+		KeyWait, % tab_hotkey
 		LLK_Overlay("lab_layout", "hide")
 		ToolTip,,,, 2
 	}
@@ -60,7 +60,7 @@ If (A_Gui = "context_menu") || (A_GuiControl = "lab_button")
 	Gdip_DisposeImage(pLab)
 }
 
-If (A_ThisHotkey = "Tab") && (A_GuiControl != "lab_button")
+If (A_ThisHotkey = tab_hotkey) && (A_GuiControl != "lab_button")
 {
 	lab_mismatch := 0
 	If (lab_mode = 2) && IsObject(lab_json) && InStr(current_location, "labyrinth_") && !InStr(current_location, "airlock")
@@ -92,7 +92,7 @@ If (A_ThisHotkey = "Tab") && (A_GuiControl != "lab_button")
 	LLK_Overlay("lab_layout", "show") ;show overlay BEFORE displaying tooltip
 	If lab_mismatch
 		ToolTip, layout doesn't match the lab you're currently in!, % xScreenOffSet + poe_width * 75/256, % yScreenOffSet + poe_height - hLab + 46*lab_scaling, 2 ;show tooltip AFTER overlay
-	KeyWait, Tab
+	KeyWait, % tab_hotkey
 	LLK_Overlay("lab_layout", "hide")
 	ToolTip,,,, 2
 	Return

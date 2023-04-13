@@ -1020,7 +1020,7 @@ LLK_CheatSheetsImages(name)
 {
 	global
 	cheatsheet_overlay_active := name, cheatsheet_overlay_active1 := StrReplace(name, " ", "_")
-	local parse := StrReplace(name, " ", "_"), cheatsheet_type, pCheatsheet, pCheatsheet_copy, wCheatsheet, hCheatsheet, hotkey_copy, ignore_hotkeys := ["TAB", "F1", "F2", "F3", "Up", "Down", "Left", "Right", "RButton"]
+	local parse := StrReplace(name, " ", "_"), cheatsheet_type, pCheatsheet, pCheatsheet_copy, wCheatsheet, hCheatsheet, hotkey_copy, ignore_hotkeys := [tab_hotkey, "F1", "F2", "F3", "Up", "Down", "Left", "Right", "RButton"]
 	, xCheatsheet, yCheatsheet, wCheatsheet, hCheatsheet, exist_00 := FileExist("cheat-sheets\"name "\[00]*")
 	
 	If (A_Gui != "cheatsheets_menu") && (A_ThisHotkey = "RButton") && (exist_00 || !IsNumber(SubStr(cheatsheets_include_%parse%, 1, 2)))

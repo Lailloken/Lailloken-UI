@@ -9,16 +9,16 @@ ThisHotkey_copy := A_ThisHotkey
 Loop, Parse, % "*~!+#^"
 	ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
-If WinActive("ahk_id " hwnd_settings_menu) && (settings_menu_section = "omnikey")
+If WinActive("ahk_id " hwnd_settings_menu) && (settings_menu_section = "hotkeys")
 {
 	GuiControlGet, settings_menu_focus, settings_menu: focusv
 	If (settings_menu_focus = "omnikey_hotkey")
 	{
-		GuiControl, settings_menu: +cLime, omnikey_apply
-		GuiControl, settings_menu: movedraw, omnikey_apply
+		GuiControl, settings_menu: +cLime, hotkeys_restart
+		GuiControl, settings_menu: movedraw, hotkeys_restart
 		KeyWait, % ThisHotkey_copy
-		GuiControl, settings_menu: +cWhite, omnikey_apply
-		GuiControl, settings_menu: movedraw, omnikey_apply
+		GuiControl, settings_menu: +cWhite, hotkeys_restart
+		GuiControl, settings_menu: movedraw, hotkeys_restart
 	}
 	Return
 }
@@ -29,7 +29,7 @@ If features_enable_cheatsheets && cheatsheets_enabled.Length() && GetKeyState(ch
 	Return
 }
 clipboard := ""
-If (alt_modifier != "")
+If (alt_modifier != "") && advanced_items_rebound
 	SendInput {%alt_modifier% down}^{c}{%alt_modifier% up}
 Else SendInput !^{c}
 ClipWait, 0.05
@@ -641,26 +641,6 @@ If InStr(clipboard, "item class: heist")
 If (InStr(clipboard, "runic") && InStr(clipboard, "ward:"))
 	Run, https://www.poewiki.net/wiki/Runic_base_type#%wiki_term%
 Else Run, https://poewiki.net/wiki/%wiki_term%
-Return
-
-Init_omnikey:
-IniRead, omnikey_hotkey, ini\config.ini, Settings, omni-hotkey, % A_Space
-IniRead, omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2, % A_Space
-IniRead, alt_modifier, ini\config.ini, Settings, highlight-key, % A_Space
-
-Hotkey, IfWinActive, ahk_group poe_ahk_window
-If (omnikey_hotkey2 = "")
-{
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
-}
-Else
-{
-	Hotkey, % "*~"omnikey_hotkey2, Omnikey, On
-	Hotkey, % "*~"omnikey_hotkey2 " UP", LLK_OmnikeyRelease, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
-}
 Return
 
 LLK_OmnikeyRelease()

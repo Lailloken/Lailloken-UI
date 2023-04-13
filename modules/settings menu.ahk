@@ -49,7 +49,7 @@ leveling_style := InStr(A_GuiControl, "leveling") || (restart_section = "levelin
 map_tracker_style := InStr(A_GuiControl, "map") && InStr(A_GuiControl, "tracker") || (restart_section = "map tracker") ? "cAqua" : "cWhite"
 map_mods_style := InStr(A_GuiControl, "map-info") || InStr(A_GuiControl, "map_info") || (restart_section = "map info") ? "cAqua" : "cWhite"
 notepad_style := InStr(A_GuiControl, "notepad") || (restart_section = "notepad") ? "cAqua" : "cWhite"
-omnikey_style := InStr(A_GuiControl, "omni-key") || (restart_section = "omnikey") ? "cAqua" : "cWhite"
+omnikey_style := InStr(A_GuiControl, "hotkeys") || (restart_section = "hotkeys") ? "cAqua" : "cWhite"
 pixelcheck_style := (InStr(A_GuiControl, "check") && !InStr(A_GuiControl, "checker") || InStr(A_GuiControl, "image") || InStr(A_GuiControl, "pixel")) && !InStr(A_GuiControl, "cheat") || (restart_section = "screenchecks") ? "cAqua" : "cWhite"
 stash_style := InStr(A_GuiControl, "search-strings") || InStr(A_GuiControl, "stash_search") || InStr(A_GuiControl, "searchstrings") || (new_stash_search_menu_closed = 1) || (restart_section = "stash search") ? "cAqua" : "cWhite"
 geforce_style := InStr(A_GuiControl, "geforce") ? "cAqua" : "cLime"
@@ -93,6 +93,10 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_delve%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 	
+	Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "hotkeys"
+	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
+	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
+	
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %itemchecker_style% gSettings_menu HWNDhwnd_settings_itemchecker, % "item-info"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_itemchecker%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
@@ -113,10 +117,6 @@ If !InStr(buggy_resolutions, poe_height) && (safe_mode != 1)
 
 	Gui, settings_menu: Add, Text, xs BackgroundTrans %notepad_style% gSettings_menu HWNDhwnd_settings_notepad, % "notepad"
 	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_notepad%
-	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
-
-	Gui, settings_menu: Add, Text, xs BackgroundTrans %omnikey_style% gSettings_menu HWNDhwnd_settings_omnikey, % "omni-key"
-	ControlGetPos,,, width_settings,,, ahk_id %hwnd_settings_omnikey%
 	spacing_settings := (width_settings > spacing_settings) ? width_settings : spacing_settings
 
 	If pixel_gamescreen_x1 is number
@@ -204,8 +204,8 @@ Else If InStr(GuiControl_copy, "map-info") || InStr(GuiControl_copy, "map_info")
 	GoSub, Settings_menu_map_info
 Else If InStr(GuiControl_copy, "notepad") || (restart_section = "notepad")
 	GoSub, Settings_menu_notepad
-Else If InStr(GuiControl_copy, "omni") || (restart_section = "omnikey")
-	GoSub, Settings_menu_omnikey
+Else If InStr(GuiControl_copy, "hotkeys") || (restart_section = "hotkeys")
+	GoSub, Settings_menu_hotkeys
 Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen") || (restart_section = "screenchecks")
 	GoSub, Settings_menu_screenchecks
 Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || InStr(GuiControl_copy, "searchstrings") || (new_stash_search_menu_closed = 1) || (restart_section = "stash search")
@@ -223,12 +223,16 @@ If !InStr(GuiControl_copy, "betrayal")
 }
 ControlFocus,, ahk_id %hwnd_settings_general%
 
-restart_section := ""
 If ((xsettings_menu != "") && (ysettings_menu != ""))
 	Gui, settings_menu: Show, Hide x%xsettings_menu% y%ysettings_menu% AutoSize
 Else Gui, settings_menu: Show, Hide AutoSize
 
 LLK_Overlay("settings_menu", "show", 0)
+
+If InStr(GuiControl_copy, "hotkeys") || (restart_section = "hotkeys")
+	LLK_SettingsHotkeysRefresh()
+
+restart_section := ""
 ;GuiControlGet, test, settings_menu: FocusV
 ;LLK_ToolTip(test)
 If pending_ultrawide
@@ -1287,10 +1291,10 @@ If (A_GuiControl = "imagecheck_help_stash")
 text =
 (
 instructions
-to recalibrate, open your stash and screen-cap the highlighted area displayed above.
+–> to recalibrate, open your stash and screen-cap the highlighted area displayed above.
 
 explanation
-this check helps the script identify whether your stash is open or not, which enables loot-tracking for items being ctrl-clicked into the stash
+–> this check helps the script identify whether your stash is open or not, which enables loot-tracking for items being ctrl-clicked into the stash
 
 required for
 –> mapping tracker: loot tracking
@@ -1302,9 +1306,37 @@ If InStr(A_GuiControl, "omnikey")
 {
 text =
 (
-this hotkey is context-sensitive and used to access the majority of this script's features.
+explanation
+–> context-sensitive hotkey used to access the majority of this script's features.
+–> the key-press itself will still be sent to the client, so you can still use skills bound to this key
+–> if you still want/need to rebind it, bind it to a key that's not used for chatting.
+)
+}
 
-this feature does not block the key-press from being sent to the client, so you can still use skills bound to the middle mouse-button. if you still want/need to rebind it, bind it to a key that's not used for chatting.
+If (A_GuiControl = "ingame_keys_help")
+{
+text =
+(
+explanation
+–> specific in-game hotkey customizations can cause issues with the omni-key
+–> please tick every option below that applies to your in-game settings
+
+advanced item descriptions
+–> if this is not bound to alt, you have to specify below which key you have rebound it to
+–> click the <format> link to find out how special keys have to be formatted for autohotkey
+
+rebinding the c-key
+–> if the c-key has been rebound in game, the omni-key will not function correctly
+–> a secondary omni-key has to be set up which will then be used to activate item-related features
+)
+}
+
+If (A_GuiControl = "misc_keys_help")
+{
+text =
+(
+–> if you are actively using a hotkey below in game, you can rebind it for better compatibility
+–> help tooltips, prompts, and official documentation (wiki && release notes) will continue to refer to the default hotkey
 )
 }
 
@@ -1741,44 +1773,94 @@ If (enable_notepad = 1)
 }
 Return
 
-Settings_menu_omnikey:
-settings_menu_section := "omnikey"
-If (A_GuiControl = "omnikey_apply")
+Settings_menu_hotkeys:
+settings_menu_section := "hotkeys"
+
+If (A_GuiControl = "settings_advanced_items_rebound") || (A_GuiControl = "settings_ckey_rebound")
 {
-	Gui, settings_menu: Submit, NoHide
-	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
-		Return
-	IniWrite, %omnikey_hotkey%, ini\config.ini, Settings, omni-hotkey
-	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
-	Reload
-	ExitApp
+	LLK_SettingsHotkeysRefresh()
+	Return
 }
-If (A_GuiControl = "omnikey_restart")
+
+If (A_GuiControl = "hotkeys_restart")
 {
 	Gui, settings_menu: Submit, NoHide
 	If GetKeyState("ALT", "P") || GetKeyState("CTRL", "P") || GetKeyState("Shift", "P")
 		Return
-	IniWrite, % alt_modifier, ini\config.ini, Settings, highlight-key
-	IniWrite, % omnikey_hotkey2, ini\config.ini, Settings, omni-hotkey2
+	
+	If settings_advanced_items_rebound && !settings_alt_modifier
+	{
+		LLK_ToolTip("mod-descriptions checkbox is ticked`nbut custom key is not specified", 2.5)
+		Return
+	}
+	
+	If settings_ckey_rebound && !settings_omnikey_hotkey2
+	{
+		LLK_ToolTip("c-key checkbox is ticked but`nomni-key 2 is not specified", 2.5)
+		Return
+	}
+	
+	IniWrite, % settings_advanced_items_rebound, ini\hotkeys.ini, Settings, advanced item-info rebound
+	IniWrite, % settings_ckey_rebound, ini\hotkeys.ini, Settings, c-key rebound
+	IniWrite, % settings_alt_modifier, ini\hotkeys.ini, Hotkeys, item-descriptions key
+	IniWrite, % settings_omnikey_hotkey, ini\hotkeys.ini, Hotkeys, omni-hotkey
+	IniWrite, % settings_omnikey_hotkey2, ini\hotkeys.ini, Hotkeys, omni-hotkey2
+	IniWrite, % settings_tab_hotkey, ini\hotkeys.ini, Hotkeys, tab replacement
 	IniWrite, % settings_menu_section, ini\config.ini, Versions, reload settings
 	Reload
 	ExitApp
 	Return
 }
 
+;some controls are prefixed with "settings_" in order to prevent global vars from being overwritten when GUI is submitted with incomplete/incorrect config
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Omni-key">wiki page</a>
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"fSize0*1.2, replace middle mouse-button with:
-Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
-ControlGetPos,,, width,,, ahk_id %main_text%
-Gui, settings_menu: Font, % "s0"
-Gui, settings_menu: Add, Hotkey, % "xs Section hp cWhite BackgroundTrans vomnikey_hotkey w"width//2, %omnikey_hotkey%
-Gui, settings_menu: Font, % "s"fSize0
-Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vomnikey_apply gSettings_menu_omnikey", % " apply && restart "
+Gui, settings_menu: Font, underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"font_height*0.8, % "in-game keybind settings:"
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vingame_keys_help gSettings_menu_help hp w-1", img\GUI\help.png
+;Gui, settings_menu: Add, Link, % "ys hp", <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#custom-poe-keybinds-alt--c">wiki</a>
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gSettings_menu_hotkeys vSettings_advanced_items_rebound Checked"advanced_items_rebound, <show advanced item descriptions>`nis not bound to the alt-key
 
-Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
-Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % ""
+Gui, settings_menu: Add, Text, % "xs xp+"font_width*2 " BackgroundTrans vsettings_text_altkey", % "–> instead bound to: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Edit, % "x+0 hp vsettings_alt_modifier BackgroundTrans cBlack w"font_width*10, % alt_modifier
+Gui, settings_menu: Font, % "s"fSize0
+Gui, settings_menu: Add, Link, % "x+"font_width*0.75 " hp vsettings_text_altkey_link", <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">format</a>
+
+Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gSettings_menu_hotkeys vSettings_ckey_rebound Checked"ckey_rebound, the c-key is used for something`nother than <character screen>
+
+Gui, settings_menu: Font, underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, omni-key settings:
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "replace m-mouse with: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_omnikey_hotkey w"font_width*10, %omnikey_hotkey%
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans vsettings_text_omni2", % "omni-key 2 (for items): "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_omnikey_hotkey2 w"font_width*10, %omnikey_hotkey2%
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Font, underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, miscellaneous keys:
+Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vmisc_keys_help gSettings_menu_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "replace tab with: "
+Gui, settings_menu: Font, % "s"fSize0 - 4
+Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_tab_hotkey w"font_width*10, % (tab_hotkey = "TAB") ? "" : tab_hotkey
+Gui, settings_menu: Font, % "s"fSize0
+
+Gui, settings_menu: Font, % "s"fSize0 + 4
+Gui, settings_menu: Add, Text, % "xs y+"font_height " Border vhotkeys_restart gSettings_menu_hotkeys Section BackgroundTrans", % " apply && restart "
+Gui, settings_menu: Font, % "s"fSize0
+ControlGetPos,,, width,,, ahk_id %main_text%
+
+/*
+Gui, settings_menu: Add, Text, % "ys BackgroundTrans Border vomnikey_apply gSettings_menu_hotkeys", % " apply && restart "
 Gui, settings_menu: Add, Text, % "xs Section cRed BackgroundTrans", % "only for custom alt && c in-game keybinds: "
-Gui, settings_menu: Add, Link, % "ys x+0 hp", <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations#custom-poe-keybinds-alt--c">wiki</a>
+
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "highlight-key:"
 Gui, settings_menu: Font, % "s"fSize0 - 4
@@ -1789,8 +1871,7 @@ Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "omni-key (item
 Gui, settings_menu: Font, % "s"fSize0 - 4
 Gui, settings_menu: Add, Hotkey, % "ys hp vomnikey_hotkey2 BackgroundTrans w"width//2, % omnikey_hotkey2
 Gui, settings_menu: Font, % "s"fSize0
-
-Gui, settings_menu: Add, Text, % "xs Border vomnikey_restart gSettings_menu_omnikey Section BackgroundTrans", % " apply && restart "
+*/
 Return
 
 Settings_menu_screenchecks:
@@ -1911,6 +1992,29 @@ LLK_ScreenChecksValid()
 		GuiControl, settings_menu: +%pixelcheck_style%, screen-checks
 	Else GuiControl, settings_menu: +cRed, screen-checks
 	GuiControl, settings_menu: movedraw, screen-checks
+}
+
+LLK_SettingsHotkeysRefresh()
+{
+	global
+	Gui, settings_menu: Submit, NoHide
+	If InStr(A_GuiControl, "_rebound")
+		local style := settings_advanced_items_rebound ? "-" : "+"
+	Else local style := advanced_items_rebound ? "-" : "+"
+	GuiControl, settings_menu: %style%hidden, settings_text_altkey
+	GuiControl, settings_menu: movedraw, settings_text_altkey
+	GuiControl, settings_menu: %style%hidden, settings_alt_modifier
+	GuiControl, settings_menu: movedraw, settings_alt_modifier
+	GuiControl, settings_menu: %style%hidden, settings_text_altkey_link
+	GuiControl, settings_menu: movedraw, settings_text_altkey_link
+	
+	If InStr(A_GuiControl, "_rebound")
+		style := settings_ckey_rebound ? "-" : "+"
+	Else style := ckey_rebound ? "-" : "+"
+	GuiControl, settings_menu: %style%hidden, settings_text_omni2
+	GuiControl, settings_menu: movedraw, settings_text_omni2
+	GuiControl, settings_menu: %style%hidden, settings_omnikey_hotkey2
+	GuiControl, settings_menu: movedraw, settings_omnikey_hotkey2
 }
 
 settings_menuGuiClose()
