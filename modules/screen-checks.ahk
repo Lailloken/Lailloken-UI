@@ -182,7 +182,7 @@ LLK_ImageSearch(name := "")
 	{
 		If (settings_enable_%A_LoopField% = 0) || (A_LoopField = "skilltree" && !settings_enable_levelingtracker) || (A_LoopField = "stash" && (!settings_enable_maptracker || !enable_loottracker))
 			continue
-		If (A_Gui = "settings_menu")
+		If (A_Gui = "settings_menu") && (A_LoopField != "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := 0, imagesearch_y2 := 0
 		Else If (A_LoopField = "betrayal")
 			imagesearch_x1 := 0, imagesearch_y1 := 0, imagesearch_x2 := poe_width/2, imagesearch_y2 := poe_height/8

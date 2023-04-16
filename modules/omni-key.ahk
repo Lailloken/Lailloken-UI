@@ -12,7 +12,7 @@ Loop, Parse, % "*~!+#^"
 If WinActive("ahk_id " hwnd_settings_menu) && (settings_menu_section = "hotkeys")
 {
 	GuiControlGet, settings_menu_focus, settings_menu: focusv
-	If (settings_menu_focus = "omnikey_hotkey")
+	If (settings_menu_focus = "settings_omnikey_hotkey")
 	{
 		GuiControl, settings_menu: +cLime, hotkeys_restart
 		GuiControl, settings_menu: movedraw, hotkeys_restart

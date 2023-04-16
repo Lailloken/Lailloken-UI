@@ -5,35 +5,40 @@ IniRead, omnikey_hotkey, ini\hotkeys.ini, Hotkeys, omni-hotkey, % A_Space
 IniRead, omnikey_hotkey2, ini\hotkeys.ini, Hotkeys, omni-hotkey2, % A_Space
 IniRead, alt_modifier, ini\hotkeys.ini, Hotkeys, item-descriptions key, % A_Space
 IniRead, tab_hotkey, ini\hotkeys.ini, Hotkeys, tab replacement, % A_Space
+If !omnikey_hotkey
+	omnikey_hotkey := "MButton"
+
 If !tab_hotkey
 	tab_hotkey := "TAB"
+
+Hotkey, If, enable_killtracker && settings_enable_maptracker && (map_tracker_refresh_kills = 1)
+Hotkey, % omnikey_hotkey, LLK_MapTrackKills, On
 
 Hotkey, IfWinActive, ahk_group poe_ahk_window
 If !ckey_rebound
 {
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
+	Hotkey, % "*~" omnikey_hotkey, Omnikey, On
+	Hotkey, % "*~" omnikey_hotkey " UP", LLK_OmnikeyRelease, On
 }
 Else
 {
-	Hotkey, % "*~"omnikey_hotkey2, Omnikey, On
-	Hotkey, % "*~"omnikey_hotkey2 " UP", LLK_OmnikeyRelease, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey : "*~MButton", Omnikey2, On
-	Hotkey, % (omnikey_hotkey != "") ? "*~" omnikey_hotkey " UP" : "*~MButton UP", LLK_OmnikeyRelease, On
+	Hotkey, % "*~" omnikey_hotkey2, Omnikey, On
+	Hotkey, % "*~" omnikey_hotkey2 " UP", LLK_OmnikeyRelease, On
+	Hotkey, % "*~" omnikey_hotkey, Omnikey2, On
+	Hotkey, % "*~" omnikey_hotkey " UP", LLK_OmnikeyRelease, On
 }
 
-If tab_hotkey
-{
-	Hotkey, If, cheatsheet_overlay_image && WinExist("ahk_id " hwnd_cheatsheet)
-	Hotkey, % tab_hotkey, LLK_TabCheatSheetAll, On
+Hotkey, If, cheatsheet_overlay_image && WinExist("ahk_id " hwnd_cheatsheet)
+Hotkey, % tab_hotkey, LLK_TabCheatSheetAll, On
 	
-	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, % tab_hotkey, LLK_TabKey, On
-}
+Hotkey, IfWinActive, ahk_group poe_ahk_window
+Hotkey, % tab_hotkey, LLK_TabKey, On
 Return
 
 Hotkeys:
 Return
+
+#If enable_killtracker && settings_enable_maptracker && (map_tracker_refresh_kills = 1)
 
 #If enable_omnikey_pob && settings_enable_levelingtracker && WinActive("ahk_exe Path of Building.exe")
 

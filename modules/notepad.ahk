@@ -69,6 +69,15 @@ If InStr(A_GuiControl, "fontcolor_")
 {
 	notepad_fontcolor := StrReplace(A_GuiControl, "fontcolor_", "")
 	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
+	/*
+	If (StrLen(Clipboard) != 6) && (StrLen(Clipboard) != 7 && !InStr(Clipboard, "#"))
+	{
+		LLK_ToolTip("invalid rgb-hexcode`nin clipboard", 2)
+		Return
+	}
+	notepad_fontcolor := StrReplace(Clipboard, "#")
+	IniWrite, %notepad_fontcolor%, ini\notepad.ini, Settings, font-color
+	*/
 }
 
 start := A_TickCount

@@ -300,7 +300,9 @@ If settings_enable_betrayal
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vbetrayal_opac_plus gBetrayal_apply Border x+2 wp", % "+"
 
 	color := (betrayal_info_prio_dimensions = 0) || (betrayal_info_prio_transportation = "0,0") || (betrayal_info_prio_fortification = "0,0") || (betrayal_info_prio_research = "0,0") || (betrayal_info_prio_intervention = "0,0") ? "Red" : "White"
+	Gui, settings_menu: Font, bold underline
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2 " c"color, % "prio-view settings"
+	Gui, settings_menu: Font, norm
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", % "frame dimensions: "
 	Gui, settings_menu: Font, % "s"fSize0 - 4
 	Gui, settings_menu: Add, Edit, % "ys x+0 Center BackgroundTrans cBlack hp vbetrayal_info_prio_dimensions gBetrayal_apply", % (betrayal_info_prio_dimensions = 0) ? 100 : betrayal_info_prio_dimensions
@@ -397,8 +399,10 @@ If (pixel_gamescreen_x1 != "") && (pixel_gamescreen_x1 != "ERROR") && (enable_pi
 If (poe_log_file != 0)
 	Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gClone_frames_apply vClone_frames_hideout_enable Checked"clone_frames_hideout_enable, hide clone-frames in hideouts/towns
 
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of clone-frames currently set up: "
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vclone_frames_list_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of clone-frames currently set up:"
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vclone_frames_list_help hp w-1", img\GUI\help.png
 Loop, Parse, clone_frames_list, `n, `n
 {
 	If (A_LoopField = "Settings")
@@ -1101,7 +1105,7 @@ enables complementary features when accessing 3rd-party websites in your browser
 
 examples
 - chromatics calculator: auto-input of required stats
-- cluster jewel crafting: F3 quick-search
+- poe.db cluster jewels: f3 quick-search
 )
 }
 
@@ -1690,7 +1694,7 @@ If enable_map_info
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_reset gMap_info Border x+"font_width/4 " wp", % "r"
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfSize_map_info_plus gMap_info Border x+"font_width/4 " wp", % "+"
 	
-	Gui, settings_menu: Font, bold underline
+	;Gui, settings_menu: Font, bold underline
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans", highlight colors:
 	Gui, settings_menu: Add, Picture, % "ys BackgroundTrans gSettings_menu_help vmapinfo_colors_help hp w-1", img\GUI\help.png
 	Gui, settings_menu: Font, norm
@@ -1749,7 +1753,10 @@ Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gNotepad y+"fSi
 If (enable_notepad = 1)
 {
 	GoSub, Notepad
+	;Gui, settings_menu: Font, bold underline
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text color (widget):
+	Gui, settings_menu: Font, norm
+	;Gui, settings_menu: Add, Text, % "ys Center BackgroundTrans vfontcolor c"notepad_fontcolor " gNotepad Border", % " apply rgb-hexcode "
 	Gui, settings_menu: Add, Text, % "xs Section Center BackgroundTrans vfontcolor_white cWhite gNotepad Border", % " white "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gNotepad Border x+"fSize0//4, % " red "
 	Gui, settings_menu: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gNotepad Border x+"fSize0//4, % " cyan "
@@ -1814,7 +1821,7 @@ If (A_GuiControl = "hotkeys_restart")
 
 ;some controls are prefixed with "settings_" in order to prevent global vars from being overwritten when GUI is submitted with incomplete/incorrect config
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Omni-key">wiki page</a>
-Gui, settings_menu: Font, underline
+Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans HWNDmain_text y+"font_height*0.8, % "in-game keybind settings:"
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vingame_keys_help gSettings_menu_help hp w-1", img\GUI\help.png
@@ -1829,13 +1836,13 @@ Gui, settings_menu: Add, Link, % "x+"font_width*0.75 " hp vsettings_text_altkey_
 
 Gui, settings_menu: Add, Checkbox, % "xs Section BackgroundTrans gSettings_menu_hotkeys vSettings_ckey_rebound Checked"ckey_rebound, the c-key is used for something`nother than <character screen>
 
-Gui, settings_menu: Font, underline
+Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, omni-key settings:
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vOmnikey_help gSettings_menu_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Font, norm
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans", % "replace m-mouse with: "
 Gui, settings_menu: Font, % "s"fSize0 - 4
-Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_omnikey_hotkey w"font_width*10, %omnikey_hotkey%
+Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_omnikey_hotkey w"font_width*10, % (omnikey_hotkey = "MButton") ? "" : omnikey_hotkey
 Gui, settings_menu: Font, % "s"fSize0
 
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans vsettings_text_omni2", % "omni-key 2 (for items): "
@@ -1843,7 +1850,7 @@ Gui, settings_menu: Font, % "s"fSize0 - 4
 Gui, settings_menu: Add, Hotkey, % "ys x+0 hp cWhite BackgroundTrans vsettings_omnikey_hotkey2 w"font_width*10, %omnikey_hotkey2%
 Gui, settings_menu: Font, % "s"fSize0
 
-Gui, settings_menu: Font, underline
+Gui, settings_menu: Font, bold underline
 Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"font_height*0.8, miscellaneous keys:
 Gui, settings_menu: Add, Picture, % "ys BackgroundTrans vmisc_keys_help gSettings_menu_help hp w-1", img\GUI\help.png
 Gui, settings_menu: Font, norm
@@ -1877,8 +1884,10 @@ Return
 Settings_menu_screenchecks:
 settings_menu_section := "screenchecks"
 Gui, settings_menu: Add, Link, % "ys hp Section xp+"spacing_settings*1.2, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Screen-checks">wiki page</a>
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of integrated pixel-checks: "
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of integrated pixel-checks:"
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vPixelcheck_help hp w-1", img\GUI\help.png
 Loop, Parse, pixelchecks_list, `,, `,
 {
 	Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans border gScreenchecks v" A_Loopfield "_pixel_test y+"fSize0*0.6, % " test "
@@ -1899,8 +1908,10 @@ If (poe_height_initial / poe_width_initial < (5/12))
 	Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vPixelcheck_blackbars_help hp w-1", img\GUI\help.png
 }
 
-Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of active image-checks: "
-Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
+Gui, settings_menu: Font, bold underline
+Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.5, % "list of active image-checks:"
+Gui, settings_menu: Font, norm
+Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vImagecheck_help hp w-1", img\GUI\help.png
 Loop, Parse, imagechecks_list_copy, `,, `,
 {
 	If (settings_enable_%A_LoopField% = 0) || (A_LoopField = "skilltree" && !settings_enable_levelingtracker) || (A_LoopField = "stash" && (!settings_enable_maptracker || !enable_loottracker))
@@ -1950,8 +1961,10 @@ Loop, % stash_search_list.Length()
 {
 	If (A_Index = 1)
 	{
-		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of searches currently set up: "
-		Gui, settings_menu: Add, Picture, % "ys x+0 BackgroundTrans gSettings_menu_help vsearchstrings_list_help hp w-1", img\GUI\help.png
+		Gui, settings_menu: Font, bold underline
+		Gui, settings_menu: Add, Text, % "xs Section BackgroundTrans y+"fSize0*1.2, % "list of searches currently set up:"
+		Gui, settings_menu: Font, norm
+		Gui, settings_menu: Add, Picture, % "ys x+"font_width/2 " BackgroundTrans gSettings_menu_help vsearchstrings_list_help hp w-1", img\GUI\help.png
 	}
 	pEntry := StrReplace(stash_search_list[A_Index], " ", "_")
 	Gui, settings_menu: Add, Text, % "Section xs BackgroundTrans Border gStash_search vsettings_menu_searchstrings_test_"pEntry, % " test "
