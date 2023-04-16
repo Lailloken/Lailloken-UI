@@ -920,14 +920,18 @@ If !map_tracker_paused && (map_tracker_map != "")
 {
 	If (map_tracker_refresh_kills = 1)
 	{
+		SetTimer, LLK_MapTrackKillStart, 10
+		/*
 		map_tracker_panel_color := (map_tracker_panel_color = "green") ? "black" : "green"
 		Gui, map_tracker: Color, % map_tracker_panel_color
 		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+		*/
 	}
 	Else If (map_tracker_refresh_kills = 2)
 	{
 		Gui, map_tracker: Color, Green
 		map_tracker_panel_color := "Green"
+		GuiControl, map_tracker: +BackgroundGreen, map_tracker_button_complete_bar
 		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
 		map_tracker_refresh_kills := 3
 	}
@@ -940,6 +944,7 @@ If !map_tracker_paused && (map_tracker_map != "")
 		If (map_tracker_refresh_kills = 3)
 		{
 			Gui, map_tracker: Color, Black
+			GuiControl, map_tracker: +BackgroundBlack, map_tracker_button_complete_bar
 			WinSet, Redraw,, ahk_id %hwnd_map_tracker%
 			map_tracker_refresh_kills := 0
 		}
