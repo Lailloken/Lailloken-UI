@@ -1048,6 +1048,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			map_tracker_kills_start := StrReplace(map_tracker_kills_start, " monsters.")
 			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ".")
 			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ",")
+			map_tracker_kills_start := StrReplace(map_tracker_kills_start, " ")
 		}
 		Else If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start > 0)
 		{
@@ -1055,6 +1056,7 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 			map_tracker_kills_end := StrReplace(map_tracker_kills_end, " monsters.")
 			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ".")
 			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ",")
+			map_tracker_kills_end := StrReplace(map_tracker_kills_end, " ")
 			map_tracker_kills := map_tracker_kills_end - map_tracker_kills_start
 		}
 		If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused ;count deaths
