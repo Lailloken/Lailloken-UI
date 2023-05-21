@@ -920,14 +920,18 @@ If !map_tracker_paused && (map_tracker_map != "")
 {
 	If (map_tracker_refresh_kills = 1)
 	{
+		SetTimer, LLK_MapTrackKillStart, 10
+		/*
 		map_tracker_panel_color := (map_tracker_panel_color = "green") ? "black" : "green"
 		Gui, map_tracker: Color, % map_tracker_panel_color
 		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+		*/
 	}
 	Else If (map_tracker_refresh_kills = 2)
 	{
 		Gui, map_tracker: Color, Green
 		map_tracker_panel_color := "Green"
+		GuiControl, map_tracker: +BackgroundGreen, map_tracker_button_complete_bar
 		WinSet, Redraw,, ahk_id %hwnd_map_tracker%
 		map_tracker_refresh_kills := 3
 	}
@@ -940,6 +944,7 @@ If !map_tracker_paused && (map_tracker_map != "")
 		If (map_tracker_refresh_kills = 3)
 		{
 			Gui, map_tracker: Color, Black
+			GuiControl, map_tracker: +BackgroundBlack, map_tracker_button_complete_bar
 			WinSet, Redraw,, ahk_id %hwnd_map_tracker%
 			map_tracker_refresh_kills := 0
 		}
@@ -1041,15 +1046,25 @@ Loop, Parse, poe_log_content, `n, `r ;parse client.txt data
 		{
 			map_tracker_kills_start := SubStr(A_LoopField, InStr(A_LoopField, "you have killed ") + 16)
 			map_tracker_kills_start := StrReplace(map_tracker_kills_start, " monsters.")
-			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ".")
-			map_tracker_kills_start := StrReplace(map_tracker_kills_start, ",")
+			Loop, Parse, map_tracker_kills_start
+			{
+				If (A_Index = 1)
+					map_tracker_kills_start := ""
+				If IsNumber(A_LoopField)
+					map_tracker_kills_start .= A_LoopField
+			}
 		}
 		Else If InStr(A_LoopField, "you have killed ") && (map_tracker_kills_start > 0)
 		{
 			map_tracker_kills_end := SubStr(A_LoopField, InStr(A_LoopField, "you have killed ") + 16)
 			map_tracker_kills_end := StrReplace(map_tracker_kills_end, " monsters.")
-			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ".")
-			map_tracker_kills_end := StrReplace(map_tracker_kills_end, ",")
+			Loop, Parse, map_tracker_kills_end
+			{
+				If (A_Index = 1)
+					map_tracker_kills_end := ""
+				If IsNumber(A_LoopField)
+					map_tracker_kills_end .= A_LoopField
+			}
 			map_tracker_kills := map_tracker_kills_end - map_tracker_kills_start
 		}
 		If InStr(A_LoopField, "has been slain") && InStr(map_tracker_map, current_location) && !map_tracker_paused ;count deaths

@@ -186,27 +186,6 @@ If (A_GuiControl = "map_tracker_button_complete") ;manually marking the current 
 	Return
 }
 
-If (A_GuiControl = "map_tracker_label_time") ;clicking the timer to update the kill-count
-{
-	If (map_tracker_map = "")
-	{
-		WinActivate, ahk_group poe_window
-		Return
-	}
-	Clipboard := "/kills"
-	KeyWait, LButton
-	WinActivate, ahk_group poe_window
-	WinWaitActive, ahk_group poe_window
-	SendInput, {Enter}^{a}^{v}{Enter}
-	LLK_ToolTip((map_tracker_refresh_kills = 1) ? "kill-tracker activated" : "kill-count refreshed")
-	map_tracker_refresh_kills := 0
-	map_tracker_panel_color := "Black"
-	Gui, map_tracker: Color, Black
-	WinSet, Redraw,, ahk_id %hwnd_map_tracker%
-	WinActivate, ahk_group poe_window
-	Return
-}
-
 If (A_GuiControl = "map_tracker_log_ddl") ;selecting an entry from the log-viewer's drop-down-list
 {
 	Gui, map_tracker_log: Submit, NoHide
@@ -309,7 +288,7 @@ LLK_MapTrack(mode := "")
 	
 	Gui, map_tracker: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_map_tracker
 	Gui, map_tracker: Margin, % fSize0//2, 0
-	Gui, map_tracker: Color, % (map_tracker_panel_color = "") ? "Black" : map_tracker_panel_color
+	Gui, map_tracker: Color, Black
 	WinSet, Trans, %trans%
 	Gui, map_tracker: Font, % "cWhite s"fSize0 + fSize_offset_map_tracker, Fontin SmallCaps
 	
@@ -317,7 +296,7 @@ LLK_MapTrack(mode := "")
 	Gui, map_tracker: Add, Progress, % "xs Disabled BackgroundTrans cGreen wp range0-400 vmap_tracker_button_complete_bar h"fSize0//2, 0
 	If !enable_killtracker
 		Gui, map_tracker: Add, Text, % "ys BackgroundTrans vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
-	Else Gui, map_tracker: Add, Text, % "ys BackgroundTrans gMap_tracker vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
+	Else Gui, map_tracker: Add, Text, % "ys BackgroundTrans gLLK_MapTrackKills vmap_tracker_label_time", % (map_tracker_time = "") ? "00:00" : map_tracker_time
 	
 	If (mode = "add" || mode = "refresh")
 	{
@@ -361,7 +340,7 @@ LLK_MapTrackExport(date := "")
 		ini_read_content := StrReplace(ini_read_content, ", ", "`n")
 		IniRead, ini_read_kills, ini\map tracker log.ini, % A_LoopField, kills, 0
 		ini_read_kills := (ini_read_kills = "") ? 0 : ini_read_kills
-		FileAppend, % A_LoopField "," ini_read_map "," ini_read_tier "," ini_read_time "," ini_read_portals "," ini_read_deaths ",""" ini_read_loot """,""" ini_read_content """," ini_read_kills "`n", % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
+		FileAppend, % A_LoopField ",""" ini_read_map """," ini_read_tier "," ini_read_time "," ini_read_portals "," ini_read_deaths ",""" ini_read_loot """,""" ini_read_content """," ini_read_kills "`n", % (date = "") ? "Mapping tracker.csv" : "Mapping tracker " StrReplace(date, "/", "-") ".csv"
 	}
 	If (date = "")
 		LLK_ToolTip("all logs exported")
@@ -475,6 +454,41 @@ LLK_MapTrackInstance(log_line)
 	If InStr(log_line, "mapworlds") || InStr(log_line, "Maven") || InStr(log_line, "betrayal") || InStr(log_line, "incursion") || (InStr(log_line, "heist") && !InStr(log_line, "heisthub")) || InStr(log_line, "mapatziri") || InStr(log_line, "legionleague") || InStr(log_line, "expedition") || InStr(log_line, "atlasexilesboss")
 		Return 1
 	Else Return 0
+}
+
+LLK_MapTrackKills()
+{
+	global
+	If (map_tracker_map = "")
+	{
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	Clipboard := "/kills"
+	KeyWait, LButton
+	KeyWait, % omnikey_hotkey
+	WinActivate, ahk_group poe_window
+	WinWaitActive, ahk_group poe_window
+	SendInput, {Enter}^{a}^{v}{Enter}
+	LLK_ToolTip((map_tracker_refresh_kills = 1) ? "kill-tracker activated" : "kill-count refreshed")
+	map_tracker_refresh_kills := 0
+	map_tracker_panel_color := "Black"
+	Gui, map_tracker: Color, Black
+	GuiControl, map_tracker: +BackgroundBlack, map_tracker_button_complete_bar
+	WinSet, Redraw,, ahk_id %hwnd_map_tracker%
+	WinActivate, ahk_group poe_window
+	map_tracker_kills_refreshed := A_TickCount
+}
+
+LLK_MapTrackKillStart()
+{
+	global
+	ToolTip, % "          omni-key: start`n          kill-tracker",,, 11
+	If (map_tracker_refresh_kills = 0)
+	{
+		SetTimer, LLK_MapTrackKillStart, Delete
+		ToolTip,,,, 11
+	}
 }
 
 LLK_MapTrackLoot(entry)
