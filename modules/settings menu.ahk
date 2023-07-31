@@ -826,7 +826,7 @@ Settings_general2(cHWND := "")
 			Init_log()
 			If WinExist("ahk_id "vars.hwnd.geartracker.main)
 				GeartrackerGUI()
-			Else If vars.hwnd.geartracker.main
+			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 			If WinExist("ahk_id "vars.hwnd.leveltracker.main)
 				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience() "%"
@@ -1368,6 +1368,9 @@ Settings_leveltracker()
 		vars.hwnd.settings.fade_hover := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade mouse"] := hwnd
 	}
 
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % "enable gear tracker"
+	vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "skill-tree overlay settings:"
 	Gui, %GUI%: Font, norm
@@ -1491,6 +1494,13 @@ Settings_leveltracker2(cHWND := "")
 	{
 		settings.leveltracker.fade_hover := LLK_ControlGet(cHWND)
 		IniWrite, % settings.leveltracker.fade_hover, ini\leveling tracker.ini, settings, show on hover
+	}
+	Else If (check = "geartracker")
+	{
+		settings.leveltracker.geartracker := LLK_ControlGet(cHWND)
+		IniWrite, % settings.leveltracker.geartracker, ini\leveling tracker.ini, settings, enable geartracker
+		If settings.leveltracker.geartracker
+			GeartrackerGUI("refresh")
 	}
 	Else If (check = "pob")
 	{

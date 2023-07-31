@@ -864,6 +864,7 @@ CheatsheetMenu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' G
 		{
 			IniDelete, % "cheat-sheets\"name "\info.ini", entries, % control
 			IniDelete, % "cheat-sheets\"name "\info.ini", % control
+			FileDelete, % "cheat-sheets\"name "\[check] "control ".*"
 			vars.cheatsheets.list[name].entries.Delete(control)
 			If (control = vars.cheatsheet_menu.entry)
 				CheatsheetMenu(name)
@@ -965,13 +966,13 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " paste "
 		vars.hwnd.help_tooltips["cheatsheets_menu image-files"] := hwnd0, vars.hwnd.help_tooltips["cheatsheets_menu 00"] := hwnd1, vars.hwnd.cheatsheet_menu.paste_00 := vars.hwnd.help_tooltips["cheatsheets_menu paste"] := hwnd
 		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " snip "
-		vars.hwnd.cheatsheet_menu.snip_00 := vars.hwnd.help_tooltips["cheatsheets_menu snip"] := hwnd
+		vars.hwnd.cheatsheet_menu.snip_00 := vars.hwnd.help_tooltips["cheatsheets_menu snip0"] := hwnd
 
 		If FileExist("cheat-sheets\" name "\[00]*")
 		{
 			IniRead, position, % "cheat-sheets\" name "\info.ini", general, 00-position, top
 			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd Center", % " show "
-			vars.hwnd.cheatsheet_menu.preview_00 := vars.hwnd.help_tooltips["cheatsheets_menu show"] := hwnd
+			file_00 := 1, vars.hwnd.cheatsheet_menu.preview_00 := vars.hwnd.help_tooltips["cheatsheets_menu show"] := hwnd
 			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheetMenu2 HWNDhwnd0", % " del "
 			Gui, %cheatsheet_menu%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd",
 			vars.hwnd.cheatsheet_menu.del_00 := hwnd0, vars.hwnd.cheatsheet_menu.delbar_00 := vars.hwnd.help_tooltips["cheatsheets_menu delete"] := hwnd			
@@ -988,7 +989,7 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " paste "
 			vars.hwnd.cheatsheet_menu["paste_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu paste"handle] := hwnd
 			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " snip "
-			vars.hwnd.cheatsheet_menu["snip_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu snip"handle] := hwnd
+			vars.hwnd.cheatsheet_menu["snip_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu snip" (file_00 ? "0" : "") handle] := hwnd
 
 			If FileExist("cheat-sheets\"name "\["loop "]*")
 			{
@@ -1458,11 +1459,11 @@ CheatsheetSearch(name)
 		x1 := 0, y1 := 0, x2 := 0, y2 := 0
 	Else ;otherwise, load last-known coordinates
 	{
-		x1 := (vars.cheatsheets.list[name].type = "static") ? vars.cheatsheets.list[name].x1 : (vars.cheatsheets.list[name].x1 - 100 <= 0) ? 0 : vars.cheatsheets.list[name].x1 - 100
-		y1 := (vars.cheatsheets.list[name].type = "static") ? vars.cheatsheets.list[name].y1 : (vars.cheatsheets.list[name].y1 - 100 <= 0) ? 0 : vars.cheatsheets.list[name].y1 - 100
-		x2 := (vars.cheatsheets.list[name].type = "static") ? vars.cheatsheets.list[name].x1 + vars.cheatsheets.list[name].x2 ;cont
+		x1 := (vars.cheatsheets.list[name].area = "static") ? vars.cheatsheets.list[name].x1 : (vars.cheatsheets.list[name].x1 - 100 <= 0) ? 0 : vars.cheatsheets.list[name].x1 - 100
+		y1 := (vars.cheatsheets.list[name].area = "static") ? vars.cheatsheets.list[name].y1 : (vars.cheatsheets.list[name].y1 - 100 <= 0) ? 0 : vars.cheatsheets.list[name].y1 - 100
+		x2 := (vars.cheatsheets.list[name].area = "static") ? vars.cheatsheets.list[name].x1 + vars.cheatsheets.list[name].x2 ;cont
 		: (vars.cheatsheets.list[name].x1 + vars.cheatsheets.list[name].x2 + 100 >= vars.client.w) ? vars.client.w - 1 : vars.cheatsheets.list[name].x1 + vars.cheatsheets.list[name].x2 + 100
-		y2 := (vars.cheatsheets.list[name].type = "static") ? vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 ;cont
+		y2 := (vars.cheatsheets.list[name].area = "static") ? vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 ;cont
 		: (vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 + 100 >= vars.client.h) ? vars.client.h - 1 : vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 + 100
 	}
 

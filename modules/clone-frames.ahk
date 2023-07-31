@@ -44,8 +44,8 @@
 		If vars.cloneframes.list[A_LoopField].enable
 			vars.cloneframes.enabled += 1
 		
-		vars.cloneframes.list[A_LoopField].xSource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", 4) ;coordinates refer to monitor's coordinates (without offsets)
-		vars.cloneframes.list[A_LoopField].ySource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", 4)
+		vars.cloneframes.list[A_LoopField].xSource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x + 4) ;coordinates refer to monitor's coordinates (without offsets)
+		vars.cloneframes.list[A_LoopField].ySource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y + 4)
 		vars.cloneframes.list[A_LoopField].width := LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200)
 		vars.cloneframes.list[A_LoopField].height := LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200)
 		vars.cloneframes.list[A_LoopField].xTarget := LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.monitor.w/2 - 100)

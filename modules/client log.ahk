@@ -115,12 +115,12 @@ LogLoop(mode := 0)
 	MaptrackerTimer()
 	LeveltrackerTimer()
 
-	If vars.leveltracker.gear_ready && WinExist("ahk_id "vars.hwnd.leveltracker_button.main)
+	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && WinExist("ahk_id "vars.hwnd.leveltracker_button.main)
 	{
 		button_color := (button_color = "Lime") ? "Aqua" : "Lime"
 		Gui, leveltracker_button: Color, % button_color
 	}
-	Else If !vars.leveltracker.gear_ready && (button_color = "Lime")
+	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && (button_color = "Lime")
 	{
 		Gui, leveltracker_button: Color, Aqua
 		button_color := "Aqua"
@@ -154,7 +154,7 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && InStr(A_LoopField, " is now level ")
 		{
 			level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ")), level := StrReplace(level, "is now level ")
-			If vars.hwnd.geartracker.main
+			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 		}
 

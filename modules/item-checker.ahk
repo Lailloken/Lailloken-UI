@@ -272,7 +272,7 @@ Iteminfo2_stats()
 		}
 	}
 	
-	vars.iteminfo.item.defenses := {} ;store item's defensive stats for item-comparison feature (currently, only the presence of a defense is used, not the value itself)
+	item.itembase := StrReplace(item.itembase, "maelström", "maelstrom"), vars.iteminfo.item.defenses := {} ;store item's defensive stats for item-comparison feature (currently, only the presence of a defense is used, not the value itself)
 	defenses := vars.iteminfo.item.defenses ;short-cut variable
 	Loop, Parse, clip, `n, `r ;get the raw values
 	{
@@ -298,7 +298,7 @@ Iteminfo2_stats()
 
 	item.ilvl_max := "86"
 	item.stats := {} ;list of stats that will later be listed in the optional base-info area of the tooltip
-
+	
 	For class, class_val in db.item_bases ;parse through the item-databases to get relevant information
 	{
 		If InStr(item.class, class)
@@ -306,7 +306,7 @@ Iteminfo2_stats()
 			item.ilvl_max := class_val.HasKey("_ilvl_max") ? class_val["_ilvl_max"] : item.ilvl_max ;get class-specific max ilvl, e.g. gloves = 85
 			For subtype, subtype_val in class_val ;parse through the sub-types within the class, e.g. armour/evasion
 			{
-				If subtype_val.HasKey(item.itembase) || InStr(item.class, subtype) && (item.class != "body armours") && (item.class != "jewels") || InStr(clip, "Added Small Passive Skills grant:") && (subtype = "cluster")
+				If subtype_val.HasKey(item.itembase) || InStr(item.class, subtype) && (item.class != "body armours") && (item.class != "jewels") && (item.class != "warstaves") || InStr(clip, "Added Small Passive Skills grant:") && (subtype = "cluster")
 				{
 					item.ilvl_max := subtype_val.HasKey("_ilvl_max") ? subtype_val["_ilvl_max"] : item.ilvl_max ;get sub-type-specific max ilvl, e.g. cluster jewels = 84
 					If (item.type = "defense") ;get defense-stats (min/max values, combined, block)

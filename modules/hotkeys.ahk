@@ -15,8 +15,8 @@ Init_hotkeys()
 	settings.hotkeys.omnikey2 := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
-	settings.hotkeys.tab := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "TAB")
-	settings.hotkeys.tabblock := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block tab-key's native function", 0)
+	settings.hotkeys.tab := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
+	settings.hotkeys.tabblock := (settings.hotkeys.tab = "capslock") ? 1 : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block tab-key's native function", 0)
 	
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
 	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
@@ -29,10 +29,10 @@ Init_hotkeys()
 	}
 	Else
 	{
-		Hotkey, % "*~" settings.hotkeys.omnikey2, Omnikey, On
-		Hotkey, % "*~" settings.hotkeys.omnikey2 " UP", OmniRelease, On
-		Hotkey, % "*~" settings.hotkeys.omnikey, Omnikey2, On
-		Hotkey, % "*~" settings.hotkeys.omnikey " UP", OmniRelease, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2, Omnikey, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2 " UP", OmniRelease, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey2, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab WinExist("ahk_id " vars.hwnd.cheatsheet.main)
