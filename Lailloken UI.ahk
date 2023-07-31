@@ -1024,7 +1024,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 	}
 	If (update.1 < 10) && timer
 	{
-		Init_GUI("LLK_panel") ;update the color of the llk-ui panel
+		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black" ;update the color of the llk-ui panel
 		Return
 	}
 	If (update.1 = 0) || (update.1 < 0) && !timer ;no update, or there was an error while updating on script-start
@@ -1032,13 +1032,14 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 	FileDelete, data\versions.json
 	If FileExist("data\versions.json")
 	{
-		update := [-4, branch], Init_GUI("LLK_panel")
+		update := [-4, branch]
+		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
 		Return
 	}
 	FileAppend, % Json.Dump(versions_live), % "data\versions.json"
 	update := timer ? [1] : [0]
 	If timer
-		Init_GUI("LLK_Panel")
+		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
 }
 
 UpdateDownload(mode := "")
