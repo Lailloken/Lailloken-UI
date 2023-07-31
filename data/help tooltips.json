@@ -155,6 +155,7 @@
     "hotkeys omnikey": [
       "if you want to move the omni-key to a different key, specify it in the edit-field",
       "since the hotkey is used a lot, i highly recommend avoiding key combinations",
+	  "don't bind it to a key used for chatting, as features might randomly activate",
       "for special keys, check the links above to find proper names and formatting"
     ],
     "hotkeys omnikey2": [
@@ -226,7 +227,7 @@
       "automatically pauses the timer in hideouts, and resumes it when you leave"
     ],
     "leveltracker fade-timer": [
-      "overlay becomes almost invisible after a delay",
+      "overlay becomes almost invisible after a delay (except when in towns)",
       "delay: x seconds after switching guide pages",
       "fades back to normal while holding tab"
     ],
@@ -234,6 +235,12 @@
       "overlay fades back in when hovered over",
       "has no effect while the move key is pressed"
     ],
+	"leveltracker geartracker": [
+	  "notifies you when new gear can be equipped (the guide button will flash green)",
+	  "accessed by right-clicking the guide button",
+	  "while the panel is open, omni-click items to add them to the list",
+	  "requires specifying your character name in the <general> settings"
+	],
     "leveltracker skilltree-info": [
       "while the skilltree is on screen, hold the omni-key to show overlays with skilltree images",
       "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
@@ -415,8 +422,11 @@
       "paste image(s) into this slot: supports files and raw data",
       "pasting multiple files at once overwrites x slots, starting with this one"
     ],
-    "menu snip": [
+    "menu snip0": [
       "opens the snipping widget to snip images into slots"
+    ],
+	"menu snip": [
+      "opens the clipping tool to clip images into slots"
     ],
     "menu show": [
       "hold to see a preview of the image"
@@ -459,6 +469,13 @@
     "menu exe-test": [
       "click to check if the app launches correctly"
     ]
+  },
+  "geartracker": {
+	"about": [
+	  "click items on the list to highlight them in in-game searches",
+	  "hold right-click to remove an item from the list",
+	  "hold the <clear> button to remove every highlighted item"
+	]
   },
   "lab": {
 	"button": [
@@ -614,6 +631,8 @@
   "snip": {
 	"about": [
 	  "resize and place this widget over an area you want to screencap",
+	  "use arrow keys to move/resize the widget by 1 pixel",
+	  "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
 	  "click <snip> on a specific slot to save the image into it"
 	]
   },
