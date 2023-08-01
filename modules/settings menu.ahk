@@ -452,9 +452,14 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % "clone-frame editing:"
-	Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
-	vars.hwnd.settings.edit_text := hwnd, vars.hwnd.help_tooltips["settings_cloneframes corners"] := hwnd0
+	colors := ["005AB5", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := hwnd
 	Gui, %GUI%: Font, norm
+	Loop 3
+	{
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/2 " Center BackgroundTrans Border cBlack w"settings.general.fWidth*3, % A_Index
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd c"colors[A_Index], 100
+		vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd, handle .= "|"
+	}
 	Gui, %GUI%: Add, Text, % "xs Section", % "scaling (%): "
 	Gui, %GUI%: Add, Text, % "ys x+0 hp Center Border w"settings.general.fWidth*5
 	Gui, %GUI%: Add, UpDown, % "ys hp range10-300 Disabled gSettings_cloneframes2 HWNDhwnd w"settings.general.fWidth, 100
@@ -474,13 +479,6 @@ Settings_cloneframes()
 	vars.hwnd.settings.save := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " cGray Border HWNDhwnd", % " discard "
 	vars.hwnd.settings.discard := hwnd
-	colors := ["005AB5", "DC3220", "Yellow"], handle := ""
-	Gui, %GUI%: Add, Text, % "ys HWNDhwnd0", % "corners:"
-	Loop 3
-	{
-		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/2 " Center BackgroundTrans Border cBlack w"settings.general.fWidth*3, % A_Index
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd c"colors[A_Index], 100
-	}
 
 	;Gui, %GUI%: Add, UpDown, % "xs Section hp Disabled gSettings_cloneframes2 left horz -16 HWNDhwnd range1-"vars.monitor.w " w"settings.general.fWidth*2, 200
 	;vars.hwnd.settings.width := hwnd
@@ -653,14 +651,14 @@ Settings_general()
 	
 	If vars.log.file_location
 	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c"(vars.log.level ? "Lime" : "Red"), % "active character: "
-		vars.hwnd.settings.character_text := hwnd, vars.hwnd.help_tooltips["settings_active character"] := hwnd
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c"(vars.log.level ? "Lime" : settings.general.character? "Yellow" : "Red"), % "active character: "
+		vars.hwnd.settings.character_text := hwnd, vars.hwnd.help_tooltips["settings_active character status"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack wp r1 hp gSettings_general2 HWNDhwnd", % settings.general.character
 		If vars.log.level
 			Gui, %GUI%: Add, Text, % "ys x+-1 hp 0x200 Center Border", % " lvl " vars.log.level " "
 		Gui, %GUI%: Font, % "s"settings.general.fSize
-		vars.hwnd.settings.character := hwnd, vars.hwnd.help_tooltips["settings_active character|"] := hwnd
+		vars.hwnd.settings.character := hwnd, vars.hwnd.help_tooltips["settings_active character"] := hwnd
 		Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default gSettings_general2 HWNDhwnd", % "save"
 		vars.hwnd.settings.save_character := hwnd
 	}
@@ -685,7 +683,7 @@ Settings_general()
 	Else
 	{
 		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-		Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2, % vars.client.w0 - (!vars.client.borderless ? 2* vars.system.xborder : 0)
+		Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2 " w"settings.general.fWidth*4, % vars.client.w0 - (!vars.client.borderless ? 2* vars.system.xborder : 0)
 		vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution||"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fsize
 	}
@@ -829,7 +827,7 @@ Settings_general2(cHWND := "")
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 			If WinExist("ahk_id "vars.hwnd.leveltracker.main)
-				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience() "%"
+				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience()
 			Settings_menu("general")
 		Case "custom_width":
 			GuiControl, +cRed, % vars.hwnd.settings.apply
@@ -1562,8 +1560,7 @@ Settings_leveltracker2(cHWND := "")
 			settings.leveltracker.trans -= 20
 		Else settings.leveltracker.trans += 20
 		settings.leveltracker.trans := (settings.leveltracker.trans < 140) ? 140 : (settings.leveltracker.trans > 250) ? 250 : settings.leveltracker.trans
-		If WinExist("ahk_id "vars.hwnd.leveltracker.main)
-			WinSet, Trans, % settings.leveltracker.trans, % "ahk_id "vars.hwnd.leveltracker.background ;Leveltracker()
+		Leveltracker(), vars.leveltracker.fade := 0
 		IniWrite, % settings.leveltracker.trans, ini\leveling tracker.ini, settings, transparency
 	}
 	Else If (check = "top" || check = "bottom")
@@ -1866,7 +1863,7 @@ Settings_menu(section, mode := 0) ;mode parameter used when manually calling thi
 	Gui, %settings_menu%: Font, norm
 
 	;if aspect-ratio is wider than officially supported by PoE, show message and force-open the general section
-	If !settings.general.warning_ultrawide && (vars.client.h0/vars.client.w0 < (5/12))
+	If !vars.general.safe_mode && !settings.general.warning_ultrawide && (vars.client.h0/vars.client.w0 < (5/12))
 	{
 		text =
 		(LTrim

@@ -384,7 +384,7 @@ LeveltrackerExperience(arealevel := "")
 	global vars, settings
 	
 	If (vars.log.level = 0)
-		Return "??? "
+		Return ""
 
 	arealevel := !arealevel ? vars.log.arealevel : arealevel, exp_penalty := {95: 1.069518717, 96: 1.129943503, 97: 1.2300123, 98: 1.393728223, 99: 1.666666667}
 	If (vars.log.level > 94)
@@ -398,7 +398,7 @@ LeveltrackerExperience(arealevel := "")
 	effective_difference := Max(Abs(vars.log.level - arealevel) - safezone, 0), effective_difference := effective_difference**2.5
 	exp_multi := (vars.log.level + 5) / (vars.log.level + 5 + effective_difference), exp_multi := exp_multi**1.5
 	exp_multi := Max(exp_multi * exp_penalty, 0.01)
-	Return Format("{:0." . (exp_multi = 1 ? "0" : "1") . "f}", exp_multi*100)
+	Return Format("{:0." . (exp_multi = 1 ? "0" : "1") . "f}", exp_multi*100) "%"
 }
 
 LeveltrackerFade()
@@ -934,7 +934,7 @@ LeveltrackerScreencapMenu()
 	KeyWait, MButton
 }
 
-LeveltrackerProgress(mode := 0)
+LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 {
 	local
 	global vars, settings, db
@@ -1063,9 +1063,12 @@ LeveltrackerProgress(mode := 0)
 	vars.leveltracker.wait := 1 ;this stops the timer-GUI from being created before the main overlay has finished drawing
 	Gui, %leveltracker_main%: Show, NA x10000 y10000
 	WinGetPos, x, y, width, height, % "ahk_id "vars.hwnd.leveltracker.main
-	While Mod(width, 8)
+	While Mod(width, 2)
 		width += 1
-	height1 := vars.leveltracker.h2 := Floor(vars.client.h*0.022), width1 := width/8
+	height1 := vars.leveltracker.h2 := Floor(vars.client.h*0.022), wButtons := settings.leveltracker.fWidth*2
+	While Mod(wButtons, 2)
+		wButtons += 1
+	wPanels := (width - wButtons*2)/2
 	xPos := (vars.client.fullscreen = "true") ? "Center" : vars.client.xc - width/2
 	yPos := vars.client.y + vars.client.h
 	
@@ -1082,13 +1085,13 @@ LeveltrackerProgress(mode := 0)
 	WinSet, Transparent, % mode && vars.leveltracker.fade ? 25 : 140
 	Gui, %leveltracker_controls1%: Font, % "s"settings.leveltracker.fSize " cWhite", Fontin SmallCaps
 	vars.hwnd.leveltracker.controls1 := leveltracker_controls1
-	Gui, %leveltracker_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"width1*3 " h"height1, % ""
+	Gui, %leveltracker_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"wPanels " h"height1, % ""
 	vars.hwnd.leveltracker.dummy1 := hwnd
-	Gui, %leveltracker_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"width1, % ""
+	Gui, %leveltracker_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
 	vars.hwnd.leveltracker["-"] := hwnd
-	Gui, %leveltracker_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"width1, % ""
+	Gui, %leveltracker_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
 	vars.hwnd.leveltracker["+"] := hwnd, check := 0
-	Gui, %leveltracker_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"width1*3, % ""
+	Gui, %leveltracker_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"wPanels, % ""
 	vars.hwnd.leveltracker.dummy2 := hwnd
 
 	Loop, Files, % "img\GUI\leveling tracker\zones\" vars.log.areaID " *"
@@ -1104,11 +1107,11 @@ LeveltrackerProgress(mode := 0)
 	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
 	Gui, %leveltracker_controls2%: Font, % "s"Min(settings.leveltracker.fSize, vars.leveltracker.custom_font) " cWhite", Fontin SmallCaps
 	vars.hwnd.leveltracker.controls2 := leveltracker_controls2
-	Gui, %leveltracker_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"width1*3 " h"height1, % check " zl"
+	Gui, %leveltracker_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " h"height1, % check " zl"
 	vars.hwnd.leveltracker.layouts := hwnd
-	Gui, %leveltracker_controls2%: Add, Text, % "ys wp hp Border 0x200 BackgroundTrans Center w"width1, % "<"
-	Gui, %leveltracker_controls2%: Add, Text, % "ys wp hp Border 0x200 BackgroundTrans Center w"width1, % ">"
-	Gui, %leveltracker_controls2%: Add, Text, % "ys wp hp Border 0x200 BackgroundTrans HWNDhwnd Center w"width1*3, % LeveltrackerExperience() "%"
+	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % "<"
+	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % ">"
+	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % LeveltrackerExperience()
 	vars.hwnd.leveltracker.experience := hwnd
 
 	Gui, %leveltracker_controls2%: Show, % "NA x"xPos " y"yPos - height1
@@ -1528,9 +1531,9 @@ LeveltrackerTimerGUI()
 	vars.hwnd.leveltracker_timer.reset := hwnd
 	Gui, %leveltracker_timer%: Add, Progress, % "xp yp wp hp Border BackgroundBlack cRed HWNDhwnd Disabled range0-500", 0
 	vars.hwnd.leveltracker_timer.resetbar := hwnd
-	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*8 . (timer.pause = -1 ? " cGray" : ""), % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
+	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*8 . (timer.current_act = 11 ? " cLime" : timer.pause = -1 ? " cGray"  : ""), % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
 	vars.hwnd.leveltracker_timer.dummy1 := hwnd
-	Gui, %leveltracker_timer%: Add, Text, % "ys wp hp Border Center 0x200 HWNDhwnd"(Mod(vars.leveltracker.w, 2) ? " x+-1" : "") . (timer.pause = -1 ? " cGray" : "") ;cont
+	Gui, %leveltracker_timer%: Add, Text, % "ys wp hp Border Center 0x200 HWNDhwnd"(Mod(vars.leveltracker.w, 2) ? " x+-1" : "") . (timer.current_act = 11 ? " cLime" : timer.pause = -1 ? " cGray" : "") ;cont
 	, % !timer.current_split ? "0:00" : FormatSeconds(timer.current_split, 0)
 	vars.hwnd.leveltracker_timer.dummy2 := hwnd
 	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*7, % "act "(timer.current_act = 11 ? 10 : timer.current_act)

@@ -82,7 +82,7 @@
 				Gui, tooltiphorizon: Destroy
 				vars.hwnd.Delete("tooltiphorizon")
 			Case "horizons_map":
-				LLK_ToolTip("horizons:`n"db.mapinfo.maps[vars.omnikey.item.tier] (vars.log.level ? "`nexp: " LeveltrackerExperience(67 + vars.omnikey.item.tier) "%" : ""), 0,,, "horizon")
+				LLK_ToolTip("horizons:`n"db.mapinfo.maps[vars.omnikey.item.tier] (vars.log.level ? "`nexp: " LeveltrackerExperience(67 + vars.omnikey.item.tier) : ""), 0,,, "horizon")
 				KeyWait, % ThisHotkey_copy
 				Gui, tooltiphorizon: Destroy
 				vars.hwnd.Delete("tooltiphorizon")
@@ -346,7 +346,7 @@ OmniContext(mode := 0)
 				}
 				If InStr(clip, "maze of the minotaur") || InStr(clip, "forge of the phoenix") || InStr(clip, "lair of the hydra") || InStr(clip, "pit of the chimera")
 				{
-					LLK_ToolTip("horizons:`nmaze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" (vars.log.level ? "`nexp: " LeveltrackerExperience(83) "%" : ""), 0,,, "horizon")
+					LLK_ToolTip("horizons:`nmaze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" (vars.log.level ? "`nexp: " LeveltrackerExperience(83) : ""), 0,,, "horizon")
 					KeyWait, % ThisHotkey_copy
 					Gui, tooltiphorizon: Destroy
 					vars.hwnd.Delete("tooltiphorizon")

@@ -657,7 +657,7 @@ MaptrackerTimer()
 			MaptrackerMapinfo() ;include map-info in logs
 
 		If vars.log.level && !vars.maptracker.map.experience
-			vars.maptracker.map.experience := LeveltrackerExperience()
+			vars.maptracker.map.experience := StrReplace(LeveltrackerExperience(), "%")
 	}
 	If new && settings.maptracker.kills ;if entered map is new and kill-tracker is enabled, create a reminder-tooltip that follows the mouse
 		ToolTip_Mouse("killtracker"), vars.maptracker.refresh_kills := 1 ;three-state flag used to determine which kill-count is parsed from the client-log and how the tracker needs to be colored

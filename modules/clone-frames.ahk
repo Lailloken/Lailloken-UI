@@ -127,7 +127,7 @@ CloneframesSettingsRefresh(name := "")
 	}
 
 	Init_cloneframes()
-	vars.cloneframes.editing := name, vars.cloneframes.active_corner := ""
+	vars.cloneframes.editing := name, vars.cloneframes.active_corner := 1
 	GuiControl, +cLime, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	If (name = "")
