@@ -230,6 +230,8 @@ HelpToolTip(HWND_key)
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
+	If !tooltip_width
+		Return
 	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
 	Gui, %tooltip%: Color, 202020
 	Gui, %tooltip%: Margin, 0, 0
@@ -664,9 +666,7 @@ Resolution_check()
 			The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
 			
 			I have decided to end support for this resolution.
-			You have to run the client with a custom resolution, which you can set up in the following window, to use this script.
-			
-			You should also consider enabling "confine mouse to window" in the game's UI options to prevent the mouse from leaving the client area.
+			You have to run the client with a custom resolution, which you can set up in the following window.
 			)
 		}
 		Else If !vars.general.supported_resolutions.HasKey(vars.client.h)
@@ -677,9 +677,7 @@ Resolution_check()
 			
 			The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
 			
-			You have to run the client with a custom resolution, which you can set up in the following window, to use this script.
-			
-			You should also consider enabling "confine mouse to window" in the game's UI options to prevent the mouse from leaving the client area.
+			You have to run the client with a custom resolution, which you can set up in the following window.
 			)
 		}
 		
