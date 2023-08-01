@@ -28,8 +28,14 @@
     ],
     "active character": [
       "type in your character name and press enter",
+	  
       "specifying it here enables optional features such as level tracking and e-exp calculations"
     ],
+	"active character status": [
+	  "red: no name specified",
+	  "yellow: char not found / waiting for level 2",
+	  "green: char found, tracking active"
+	],
     "force resolution": [
       "you can force the client to run with a custom resolution not available by default",
       "it will be applied on every script start, or when starting the client while the script is running",
@@ -135,9 +141,9 @@
     ],
     "cloneframes corners": [
       "edit-mode adds colored corners to the source and target frame",
-      "arrow keys: move active corner by 1 pixel\nctrl + arrow: move corner by 10 pixels\nnumber keys: activate corner x",
-      "long-press a number key to snap corner x to the cursor's position",
-      "pressing esc exits edit-mode"
+      "number keys: activate corner #\narrow keys: move active corner by 1 pixel\nctrl + arrows: move corner by 10 pixels",
+      "long-press a number key to snap corner # to the cursor's position",
+      "hitting esc or <discard> exits edit-mode"
     ],
     "hotkeys ingame-keybinds": [
       "to avoid conflicts between custom in-game keybinds and the script's hotkeys:\n- tick anything that applies to you\n- provide alternative keys when asked to"
