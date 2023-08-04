@@ -24,9 +24,9 @@ I will not be taking direct code input or optimizations from people because lear
 |---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
 
-| [Sanctum-room tooltip overlays](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) ||
+| [Sanctum-room tooltip overlays](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) | [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator) |
 |---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/214906896-03c57cb7-8b77-4745-83a2-01eb9afc612e.png) |
+| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png) |
 <br>
 
 ## Main Features: 
@@ -80,31 +80,28 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined & customizable map-mod tooltip and panel
-| tooltip for rolling maps | on-demand panel to quickly check mods while mapping |
+| tooltip for rolling maps | on-demand panel to quickly re-check mods while mapping |
 |---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/229274873-9f827393-4664-4bfb-ba25-9d4e4269c38f.png) | ![image](https://user-images.githubusercontent.com/61888437/229274884-795f9593-08a9-43b5-b171-ee4721e0d589.png) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/5d75d806-d21f-4975-bfb3-3f8daae0e143) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/be6e5d21-9e02-4aca-b77e-376faa38f95a) |
 <br>
 
 ### [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
-| simple search + customization | advanced search |
+| simple overlay + customization | on-hover overlay + board tracking |
 |-------------------------------|-----------------|
-| ![panels](https://user-images.githubusercontent.com/61888437/169032463-2d5edc45-a952-4641-88e6-a2fe3ce9876f.png) | ![image](https://user-images.githubusercontent.com/61888437/169034042-59582afb-6c98-43a6-bc83-eed6d18ab6a9.png) ![image](https://user-images.githubusercontent.com/61888437/169033068-12f0686e-0a5e-46d9-89aa-c09f0759b8ec.png) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/c69c0459-cef7-431c-ba8a-2e39961046ec) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/7402bdce-3bdf-4d4b-8455-b523fd14ff4a) |
 <br>
 
 ### [Lab-tracker Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Tracker-Overlay): quick-access overlay and tracker for casual lab-runs
 ![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png)  
 <br>
 
-### [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator): in-client calculator for recombinators  
-![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png)  
-<br>
-
 ### [Seed-explorer](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer): in-client UI to quickly check the effects of a Legion seed across the skill-tree  
-![image](https://user-images.githubusercontent.com/61888437/179220178-b4007adb-aca3-4a55-9e4d-adc0cbfb3fbf.png)  
+![Untitled 17](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d96916c5-37b4-4b2c-9067-2db25a28c2ac)  
 <br>
 
 ### [Notepad & text-widgets](https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets): in-client notepad & free-floating sticky-notes  
-![image](https://user-images.githubusercontent.com/61888437/181029221-6b6a2f27-cb70-4954-a3d0-a3239f87b263.png)  
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/6c6752bf-af50-4f66-96cb-c210902d6df6) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/729ccd86-e053-4c8f-a98f-ff670fd2ebb9) |
+| --- | --- |
 <br>
 
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
