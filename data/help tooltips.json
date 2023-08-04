@@ -28,7 +28,6 @@
     ],
     "active character": [
       "type in your character name and press enter",
-	  
       "specifying it here enables optional features such as level tracking and e-exp calculations"
     ],
 	"active character status": [
@@ -56,7 +55,7 @@
     "write permissions": [
       "troubleshoot write permission issues on your system if the script can't create/edit files",
       "when these issues are detected, an error message will appear and ask you to run this test",
-      "if the test results show errors, restart the script as admin and re-run the test"
+      "if the test results show errors, move the script-folder to a different location or restart the script as admin, then re-run the test"
     ],
     "rgb website": [
       "3rd-party website to generate rgb codes for color customization"
@@ -179,7 +178,8 @@
     ],
     "hotkeys tab": [
       "this hotkey (re)activates certain widgets and non-permanent overlays",
-      "if something is bound to tab in game and requires it to be held down (e.g. skills, movement), you'll have to specify an alternative key in the edit field"
+      "if something is bound to tab in game and requires it to be held down (e.g. skills, movement), you'll have to specify an alternative key in the edit field",
+	  "tooltips will refer to it as tab, even when rebound"
     ],
 	"hotkeys restart": [
 	  "if the script crashes and stops responding, use this combination to restart"
@@ -397,7 +397,28 @@
     ],
     "searchstrings add": [
       "type in a name and press enter"
-    ]
+    ],
+	"update check": [
+	  "checks for updates on script launch and in the background while running",
+	  "if there is an update available, the llk-ui panel will turn green"
+	],
+	"update restart": [
+	  "hold to update and restart",
+	  "active overlays and unsaved data will be lost"
+	],
+	"update manual": [
+	  "downloads a zip-file with the complete release, then opens it and the script-folder",
+	  "the zip contains one folder: do not extract it! open it instead",
+	  "extract what's inside into the script-folder that will open in a separate window"
+	],
+	"update github": [
+	  "opens your browser and downloads the newest version",
+	  "also opens the script folder in a separate window"
+	],
+	"update skip": [
+	  "hold to skip this version and no longer receive notifications",
+	  "notifications will start showing again with the next version"
+	]
   },
   "cheatsheets": {
     "menu screencheck": [
@@ -634,34 +655,20 @@
 	  "adding multiple lines turns the entry into a scrollable search"
 	]
   },
+  "seed-explorer": {
+	"import": [
+	  "imports a jewel from clipboard (e.g. copied from trade)"
+	],
+	"trade": [
+	  "opens the trade-site with a search for this seed"
+	]
+  },
   "snip": {
 	"about": [
 	  "resize and place this widget over an area you want to screencap",
 	  "use arrow keys to move/resize the widget by 1 pixel",
 	  "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
 	  "click <snip> on a specific slot to save the image into it"
-	]
-  },
-  "updater": {
-	"open file": [
-	  "opens the script folder and the downloaded zip-file",
-	  "the zip contains one folder: do not extract it! open it instead",
-	  "extract what's inside into the script folder that will be open in a separate window"
-	],
-	"skip release": [
-	  "hold to skip this release and no longer receive notifications",
-	  "it will notify you again about versions newer than this one"
-	],
-	"retry update": [
-	  "the error might have occurred randomly, and the update might succeed on the next try"
-	],
-	"write permissions": [
-	  "if updates error out consistently, the script might not have sufficient permissions to create/move files",
-	  "this opens the settings menu and runs a permissions test to check that"
-	],
-	"manual update": [
-	  "opens your browser and downloads the newest version",
-	  "also opens the script folder in a separate window"
 	]
   }
 }
