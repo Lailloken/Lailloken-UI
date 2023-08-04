@@ -19,16 +19,6 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 <br>
 
-## Legacy Features:
-| [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
-|---|---|
-| ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
-
-| [Sanctum-room tooltip overlays](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) | [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombinator-calculator) |
-|---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png) |
-<br>
-
 ## Main Features: 
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
@@ -45,15 +35,15 @@ I will not be taking direct code input or optimizations from people because lear
 | explicits, rolls, (un)desired highlighting | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/e449237e-62ef-4abb-951a-f1b1b3b8631d) |
 <br>
 
-### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Context-menu-for-items) for items: single-hotkey access to features and popular 3rd-party websites  
+### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features) for items: single-hotkey access to features and popular 3rd-party websites  
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/c778ea69-346e-47de-8f1b-ce5f69668557) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/8ed592d5-fe0e-4aeb-b511-cee4f610da3d) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/e12e66f6-ffad-4a79-b402-ac1844b5e385) |
 |---|---|---|
 <br>
 
 ### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): customizable, single-hotkey menu for every individual in-game search  
-| regular stash | vendor | Gwennen | bestiary index |
+| regular stash | vendor | Gwennen | beast-crafting |
 |---|---|---|---|
-| ![image](https://user-images.githubusercontent.com/61888437/214894515-609be1ef-1b7a-40d2-afe4-8fa6374d5442.png) | ![image](https://user-images.githubusercontent.com/61888437/214895726-1a1c93d9-7183-40ca-bd6d-2da446169286.png) | ![image](https://user-images.githubusercontent.com/61888437/214895979-0df171e8-b7f3-4f8a-873b-14ade78306b3.png) | ![image](https://user-images.githubusercontent.com/61888437/214896731-4c73e6fc-166f-4d33-9faf-4498c505e48d.png) |
+| ![image](https://user-images.githubusercontent.com/61888437/214894515-609be1ef-1b7a-40d2-afe4-8fa6374d5442.png) | ![image](https://user-images.githubusercontent.com/61888437/214895726-1a1c93d9-7183-40ca-bd6d-2da446169286.png) | ![image](https://user-images.githubusercontent.com/61888437/214895979-0df171e8-b7f3-4f8a-873b-14ade78306b3.png) | ![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png) |
 <br>
 
 ### [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
@@ -91,41 +81,38 @@ I will not be taking direct code input or optimizations from people because lear
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/c69c0459-cef7-431c-ba8a-2e39961046ec) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/7402bdce-3bdf-4d4b-8455-b523fd14ff4a) |
 <br>
 
-### [Lab-tracker Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/Lab-Tracker-Overlay): quick-access overlay and tracker for casual lab-runs
-![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png)  
-<br>
-
 ### [Seed-explorer](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer): in-client UI to quickly check the effects of a Legion seed across the skill-tree  
 ![Untitled 17](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d96916c5-37b4-4b2c-9067-2db25a28c2ac)  
 <br>
 
-### [Notepad & text-widgets](https://github.com/Lailloken/Lailloken-UI/wiki/Notepad-&-Text-widgets): in-client notepad & free-floating sticky-notes  
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/6c6752bf-af50-4f66-96cb-c210902d6df6) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/729ccd86-e053-4c8f-a98f-ff670fd2ebb9) |
-| --- | --- |
-<br>
-
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
-| countdown/alarm-timer | orb of horizons tooltips | improved beastcrafting search |
-|-----------------------|--------------------------|-------------------------------|
-| ![image](https://user-images.githubusercontent.com/61888437/165960269-4a94ffa5-e893-45bd-a5dc-290b1f4f8bf1.png) ![image](https://user-images.githubusercontent.com/61888437/165960365-8b22b50d-2128-49c1-8bc2-20e52e1c8f5a.png) | ![image](https://user-images.githubusercontent.com/61888437/169076345-577d3c82-b05d-426d-acca-11e7f7190867.png) ![image](https://user-images.githubusercontent.com/61888437/169076539-2298db52-434b-4ac8-af21-c4807422cd81.png) | ![image](https://user-images.githubusercontent.com/61888437/170810022-cda485de-8be9-4b78-b98e-b2481a809475.png) |
-<br>
-<br>
+| countdown/alarm-timer & stopwatch | orb of horizons tooltips |
+|-----------------------|--------------------------|
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/48c1e7bf-063b-4dd3-8a3f-102d036b620e) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a0376025-a5b3-496e-9266-be1490dabd12) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/890928af-c44d-4147-83d0-d18bc1388164) |
 
-## Experimental / Proof-of-Concept Features:
-### [Delve-helper](https://github.com/Lailloken/Lailloken-UI/wiki/Delve-helper): in-client UI to help find hidden delve passages (with optional image recognition)  
-![image](https://user-images.githubusercontent.com/61888437/182579413-50e1994a-768c-4e03-ab7f-46c32ec04829.png)  
+| in-client notepad & free-floating sticky-notes | quick-access overlay and tracker for casual lab-runs |
+| --- | --- |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/24ceac77-d36a-4852-b043-78ce95aaadb7) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/729ccd86-e053-4c8f-a98f-ff670fd2ebb9) | ![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png) |
 <br>
-
-## Compatibility
-
-### Full [windowed-mode](https://github.com/Lailloken/Lailloken-UI/wiki/Windowed-mode) support  
-![image](https://user-images.githubusercontent.com/61888437/175769799-cb0f8ef2-1800-44ad-8442-fb28179314bb.png)  
 <br>
 
 ## Acknowledgements
-- item-info uses a custom version of the datamined databases provided via [RePoE](https://github.com/brather1ng/RePoE)
+- item-info uses a custom version of [Path of Building's](https://github.com/PathOfBuildingCommunity/PathOfBuilding) datamined resources
 
 - leveling-tracker uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
 - seed-explorer uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
-- recombinator calculator is based on [The Complete Guide to Recombinators](https://www.reddit.com/r/pathofexile/comments/v0nm0c/the_complete_guide_to_recombinators/) and this [Recombinator Calculator GoogleDoc](https://docs.google.com/spreadsheets/d/1-LO-sgiyMGLE_E7AdaeG7OB-bOoJV6c4XO0kAX8OTG0/edit?usp=sharing)
+<br>
+
+## Legacy Features:
+| [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
+|---|---|
+| ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
+
+| [Sanctum-room tooltip overlays](https://github.com/Lailloken/Lailloken-UI/releases/tag/v1.29.4-hotfix2) | [Recombinator calculator](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Recombinator-calculator) |
+|---|---|
+| ![image](https://user-images.githubusercontent.com/61888437/214906646-3a00a938-c955-48ce-8717-ec9a2d17bf4c.png) | ![image](https://user-images.githubusercontent.com/61888437/172839566-ea8295aa-b252-4889-93db-be5eca284a04.png) |
+
+| [Delve-helper](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Delve-helper): in-game UI to help you find secret passages |
+|---|
+| ![image](https://user-images.githubusercontent.com/61888437/182579413-50e1994a-768c-4e03-ab7f-46c32ec04829.png) |
 <br>
