@@ -27,7 +27,12 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-UpdateCheck()
+vars := {}
+If LLK_IniRead("ini\config.ini", "versions", "apply update", 0)
+	UpdateCheck(2)
+Else If LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)
+	UpdateCheck()
+IniDelete, ini\config.ini, versions, apply update
 Init_vars()
 Startup()
 Init_screenchecks()
@@ -50,9 +55,6 @@ Resolution_check()
 SetTimer, Loop, 1000
 SetTimer, Loop_main, 100
 
-UpdateNotification(update)
-While (update.1 != 0) && (update.1 != "later")
-	Sleep 1
 vars.system.timeout := 0
 If !settings.general.dev
 	WinWaitActive, ahk_group poe_window
@@ -143,7 +145,7 @@ Exit()
 	Gdip_Shutdown(pToken)
 	vars.log.file.Close()
 	
-	If vars.system.timeout ;script exited before completing startup routines: return here to prevent storing corrupt/incomplete data in ini-files
+	If (vars.system.timeout != 0) ;script exited before completing startup routines: return here to prevent storing corrupt/incomplete data in ini-files
 		Return
 	If (Json.Dump(vars.betrayal.board) != "{}")
 	{
@@ -226,10 +228,10 @@ HelpToolTip(HWND_key)
 	WinGetPos,, y,, h, % "ahk_id "vars.hwnd.help_tooltips[HWND_key]
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
-	, "updater": "update_notification", "geartracker": 0}
+	, "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
-	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
+	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
 		Return
 	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
@@ -239,17 +241,36 @@ HelpToolTip(HWND_key)
 	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
 	
 	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
-	For index, text in vars.help[check][control]
-	{
-		font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
-		Gui, %tooltip%: Font, % font
-		Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
-		Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-		Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
-	}
+	If (control = "update changelog")
+		For index0, val in vars.updater.changelog
+		{
+			If (val.1.2 < vars.updater.version.1)
+				Continue
+			For index, text in val
+			{
+				If (A_Index = 1)
+					log := ""
+				log .= (A_Index = 1) ? text.1 ":" : "`n" text
+			}
+			Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % log
+			Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
+			Gui, %tooltip%: Add, Text, % "Center HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % log
+			ControlGetPos,, y0,, h0,, ahk_id %hwnd%
+			If (y0 + h0 >= vars.monitor.h * 0.85)
+				Break
+		}
+	Else
+		For index, text in vars.help[check][control]
+		{
+			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
+			Gui, %tooltip%: Font, % font
+			Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
+			Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
+			Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
+		}
 	Gui, %tooltip%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := (control = "update changelog") && (height > vars.monitor.h - (y + h)) ? "Center" : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
 	Gui, %tooltip%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings", check) ? yWin : yPos)
 	LLK_Overlay(hwnd_old, "destroy")
 }
@@ -449,6 +470,8 @@ Init_general()
 	LLK_FontDimensions(settings.general.fSize, font_height, font_width)
 	settings.general.fHeight := font_height, settings.general.fWidth := font_width
 	settings.features.browser := LLK_IniRead("ini\config.ini", "Settings", "enable browser features", 1)
+
+	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
 }
 
 Init_vars()
@@ -495,7 +518,7 @@ Init_vars()
 	settings := {}
 	settings.features := {}
 	settings.geforce := {}
-	vars := {}
+
 	vars.betrayal := {}
 	vars.button_destroy := {}
 	vars.cheatsheets := {}
@@ -508,7 +531,12 @@ Init_vars()
 	vars.snip := {}
 	vars.system := {"timeout": 1, "font1": New CustomFont("data\Fontin-SmallCaps.ttf"), "click": 1}
 	vars.tooltip := {}
-	vars.general := {"buggy_resolutions": {768: 1, 1024: 1, 1050: 1}, "inactive": 0, "startup": A_TickCount, "updatecheck": 0}
+	vars.general := {"buggy_resolutions": {768: 1, 1024: 1, 1050: 1}, "inactive": 0, "startup": A_TickCount, "updatetick": 0}
+	If !IsObject(vars.updater)
+	{
+		version := Json.Load(LLK_FileRead("data\versions.json")), version := version._release.1
+		vars.updater := {"version": [version]}, vars.updater.version.2 := UpdateParseVersion(version)
+	}
 	
 	vars.recombinators := {"classes": "shield, sword, quiver, bow, claw, dagger, mace, ring, amulet, helmet, glove, boot, belt, wand,staves,axe,sceptre,body,sentinel"}
 }
@@ -516,7 +544,7 @@ Init_vars()
 Loop()
 {
 	local
-	global vars, settings, update
+	global vars, settings
 	
 	If !WinExist("ahk_group poe_window")
 		vars.client.closed := 1, vars.hwnd.poe_client := ""
@@ -541,8 +569,12 @@ Loop()
 		}
 		vars.client.closed := 0
 
-		If (update.1 = 0) && (A_TickCount - vars.general.startup >= vars.general.updatecheck + 1200000)
-			UpdateCheck(1), vars.general.updatecheck := A_TickCount - vars.general.startup
+		If settings.updater.update_check && (vars.update.1 = 0) && (A_TickCount - vars.general.startup >= vars.general.updatetick + 1200000)
+		{
+			UpdateCheck(1), vars.general.updatetick := A_TickCount - vars.general.startup
+			If (vars.update.1 != 0)
+				Gui, LLK_Panel: Color, % (vars.update.1 < 0) ? "Maroon" : "Green"
+		}
 	}
 }
 
@@ -590,7 +622,7 @@ Loop_main()
 	
 	If vars.general.cMouse
 		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|")
-	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && vars.help[check][control].Count() && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (vars.help[check][control].Count() || control = "update changelog") && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 		HelpTooltip(check_help)
 	Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 		LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
@@ -967,9 +999,143 @@ ToolTip_Mouse(mode := "", timeout := 0)
 UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this function was called via the timer or during script-start
 {
 	local
+	global Json, vars
+
+	vars.update := [0], update := vars.update
+	If !FileExist("update\")
+		FileCreateDir, update\
+	update.1 := !FileExist("update\") ? -2 : update.1
+	FileDelete, update\update.* ;delete any leftover files
+	update.1 := FileExist("update\update.*") ? -1 : update.1 ;error code -1 = delete-permission
+	FileAppend, 1, update\update.test
+	update.1 := !FileExist("update\update.test") ? -2 : update.1 ;error code -2 = write-permission
+	FileDelete, update\update.test
+	update.1 := FileExist("update\update.test") ? -1 : !FileExist("data\versions.json") ? -3 : update.1 ;error code -3 = bricked install (version-file not found)
+	If (update.1 < 0)
+	{
+		If InStr("2", timer)
+			IniWrite, updater, ini\config.ini, versions, reload settings
+		Return
+	}
+	versions_local := Json.Load(LLK_FileRead("data\versions.json")) ;load local versions
+	Loop, Files, % "update\update_*.zip"
+	{
+		version := SubStr(A_LoopFileName, InStr(A_LoopFileName, "_") + 1), version := StrReplace(version, ".zip")
+		If Blank(version) || (version <= versions_local["_release"].1)
+			FileDelete, % A_LoopFileName
+	}
+	
+	FileDelete, data\version_check.json
+	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/data/versions.json", data\version_check.json
+	update.1 := ErrorLevel ? -4 : update.1 ;error-code -4 = version-list download failed
+	If (update.1 = -4)
+	{
+		If InStr("2", timer)
+			IniWrite, updater, ini\config.ini, versions, reload settings
+		Return
+	}
+	versions_live := Json.Load(LLK_FileRead("data\version_check.json")) ;load version-list into object
+	FileDelete, data\version_check.json
+	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
+	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
+	If (vars.updater.skip = vars.updater.latest.1)
+		Return
+	If !InStr(LLK_FileRead("data\changelog.json"), vars.updater.latest.1)
+	{
+		FileDelete, data\changelog.json
+		UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/data/changelog.json", data\changelog.json
+	}
+	If FileExist("data\changelog.json")
+		vars.updater.changelog := Json.Load(LLK_FileRead("data\changelog.json"))
+	Else vars.updater.changelog := [[[vars.updater.version.2, vars.updater.version.1], "couldn't load changelog"]]
+	If InStr("01", timer) && (versions_live._release.1 > versions_local._release.1)
+	{
+		vars.update := [1]
+		Return
+	}
+	Else If (timer = 2)
+	{
+		Gui, update_download: New, -Caption -DPIScale +LastFound +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDdownload
+		Gui, update_download: Color, Black
+		Gui, update_download: Add, Progress, range0-10 HWNDhwnd BackgroundBlack cGreen, 0
+		Gui, update_download: Show
+		UpdateDownload(hwnd)
+		For key, val in versions_live
+		{
+			If (key = "_release") || (versions_local[key].1 = val.1)
+				Continue
+			extension := SubStr(key, InStr(key, ".",,, LLK_InStrCount(key, "."))), branch := InStr(val.2, "/main/") ? "main" : "beta"
+			UrlDownloadToFile, % val.2, % "update\update" extension ;download the new file into the root folder first (w/o replacing the target file) in order to check write-permissions first (and to prevent bricking the target)
+			If ErrorLevel
+			{
+				vars.update := [-5, branch] ;error-code -5 = download of an individual file failed 
+				Break
+			}
+			FileMove, % "update\update" extension, % key, 1 ;move downloaded file to target destination
+			If ErrorLevel
+			{
+				vars.update := [-6, branch] ;error-code -6 = file couldn't be moved
+				Break
+			}
+		}
+		vars.update := [-6, branch]
+		If (vars.update.1 >= 0)
+		{
+			FileDelete, data\versions.json
+			FileAppend, % Json.Dump(versions_live), % "data\versions.json"
+			IniDelete, ini\config.ini, versions, apply update
+			Reload
+			ExitApp
+		}
+		If (vars.update.1 < 0)
+		{
+			SetTimer, UpdateDownload, Delete
+			Gui, update_download: Destroy
+			IniWrite, updater, ini\config.ini, versions, reload settings
+			Return
+		}
+	}
+}
+
+UpdateDownload(mode := "")
+{
+	local
+	global vars
+	static dl_bar := 0, HWND_bar
+
+	If (mode = "reset")
+	{
+		dl_bar := 0
+		GuiControl,, % HWND_bar, % dl_bar
+		GuiControl, movedraw, % HWND_bar
+		Return
+	}
+	If (mode)
+	{
+		HWND_bar := mode
+		SetTimer, UpdateDownload, 50
+	}
+
+	dl_bar += (dl_bar = 10) ? -10 : 1
+	GuiControl,, % HWND_bar, % dl_bar
+	;GuiControl, movedraw, % vars.hwnd.update_notification.dl_bar
+}
+
+/*
+UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this function was called via the timer or during script-start
+{
+	local
 	global Json, update := [0]
 
+	If (timer = 1) && !LLK_IniRead("ini\config.ini", "settings", "update auto-check", 1)
+		Return
 	FileDelete, update.* ;delete any leftover files
+	If FileExist("update.*")
+	{
+		If !timer
+			LLK_FilePermissionError("delete")
+		Return
+	}
 	versions_local := Json.Load(LLK_FileRead("data\versions.json")) ;load local versions
 	If !IsObject(versions_local)
 		Return
@@ -985,7 +1151,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 	If !InStr(whr.ResponseText, "{")
 		Return
 	versions_live := Json.Load(whr.ResponseText) ;load version-list into object
-	For key, val in versions_live ;parse online version-list and compare versions between each
+	For key, val in versions_live ;parse online version-list and compare versions between each file
 	{
 		If !versions_local[key].1 || (val.1 > versions_local[key].1) ;newer version is listed online
 		{
@@ -1017,6 +1183,8 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 				update := [-3, branch] ;error code -3: some write error
 				Break
 			}
+			If (key = "lailloken ui.ahk") && !timer
+				restart := 1
 			update.1 += 10
 		}
 	}
@@ -1035,11 +1203,18 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Return
 	}
 	FileAppend, % Json.Dump(versions_live), % "data\versions.json"
+	If restart
+	{
+		Reload
+		ExitApp
+	}
 	update := timer ? [1] : [0]
 	If timer
 		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
 }
+*/
 
+/*
 UpdateDownload(mode := "")
 {
 	local
@@ -1058,7 +1233,9 @@ UpdateDownload(mode := "")
 	GuiControl,, % vars.hwnd.update_notification.dl_bar, % dl_bar
 	GuiControl, movedraw, % vars.hwnd.update_notification.dl_bar
 }
+*/
 
+/*
 UpdateNotification(code)
 {
 	local
@@ -1212,6 +1389,20 @@ UpdateNotification(code)
 		ControlMove,,,, w - settings.general.fWidth*2,, % "ahk_id "vars.hwnd.update_notification[key]
 	}
 	Gui, update_notification: Show, NA Center
+}
+*/
+
+UpdateParseVersion(string)
+{
+	local
+	
+	Loop, Parse, string
+	{
+		If (A_Index = 1)
+			string := ""
+		string .= (A_Index = 1) ? "1." : (A_Index = 3) ? A_LoopField "." : (InStr("47", A_Index) && A_LoopField = "0") ? "" : A_LoopField
+	}
+	Return string
 }
 
 LLK_ArraySort(array)
