@@ -576,18 +576,16 @@ NotepadWidget(tab, mode := 0)
 	Gui, %widget%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %widget%
 	While longpress && (A_Gui = DummyGUI(vars.hwnd.notepad.main) || mode = 1) && GetKeyState("LButton", "P")
-		{
-			MouseGetPos, x, y
-			x -= vars.monitor.x, x := (x < 0) ? 0 : (x > vars.monitor.w/2 - 1) ? x - w + 1 : x
-			y -= vars.monitor.y, y := (y < 0) ? 0 : (y > vars.monitor.h/2 - 1) ? y - h + 1 : y
-			Gui, %widget%: Show, % "NA x"vars.monitor.x + x " y"vars.monitor.y + y
-			Sleep 1
-		}
+	{
+		LLK_Drag(w, h, x, y,, widget)
+		Sleep 1
+	}
 	If !vars.notepad.toggle
 		WinSet, Transparent, % settings.notepad.trans, % "ahk_id "widget
 	If !IsObject(vars.notepad_widgets[tab])
 		vars.notepad_widgets[tab] := {}
-	vars.notepad_widgets[tab].x := !Blank(x) ? x : vars.notepad_widgets[tab].x, vars.notepad_widgets[tab].y := !Blank(y) ? y : vars.notepad_widgets[tab].y
-	Gui, %widget%: Show, % "NA x"vars.monitor.x + vars.notepad_widgets[tab].x " y"vars.monitor.y + vars.notepad_widgets[tab].y
+	vars.notepad_widgets[tab].x := !Blank(x) ? x : vars.notepad_widgets[tab].x, xPos := (vars.notepad_widgets[tab].x > vars.monitor.w / 2 - 1) ? vars.notepad_widgets[tab].x - w + 1 : vars.notepad_widgets[tab].x
+	vars.notepad_widgets[tab].y := !Blank(y) ? y : vars.notepad_widgets[tab].y, yPos := (vars.notepad_widgets[tab].y > vars.monitor.h / 2 - 1) ? vars.notepad_widgets[tab].y - h + 1 : vars.notepad_widgets[tab].y
+	Gui, %widget%: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(widget, "show"), LLK_Overlay(hwnd_old, "destroy")
 }

@@ -132,7 +132,7 @@ HotkeysTab()
 	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.mapinfo.active_map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout"))
 		If (A_TickCount >= start + 200)
 		{
-			active .= " mapinfo", MapinfoGUI(2)
+			active .= " mapinfo", vars.mapinfo.toggle := 1, MapinfoGUI(2)
 			Break
 		}
 
@@ -209,7 +209,7 @@ HotkeysTab()
 			IniWrite, % settings.leveltracker.sLayouts, ini\leveling tracker.ini, Settings, zone-layouts size
 	}
 	If InStr(active, "mapinfo")
-		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
+		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.toggle := 0
 	If InStr(active, "maptracker")
 		vars.maptracker.toggle := 0
 	If InStr(active, " lab") && WinExist("ahk_id "vars.hwnd.lab.main)
@@ -241,7 +241,7 @@ LLK_Hotstring(hotkey)
 
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main)
+#If !vars.mapinfo.toggle && (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main) ;clicking the client to hide the map-info tooltip
 
 LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
