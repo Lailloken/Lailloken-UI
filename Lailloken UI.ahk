@@ -1035,7 +1035,6 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Return
 	}
 	versions_live := Json.Load(LLK_FileRead("data\version_check.json")) ;load version-list into object
-	FileDelete, data\version_check.json
 	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
 	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
 	If (vars.updater.skip = vars.updater.latest.1)
@@ -1078,11 +1077,10 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 				Break
 			}
 		}
-		vars.update := [-6, branch]
 		If (vars.update.1 >= 0)
 		{
 			FileDelete, data\versions.json
-			FileAppend, % Json.Dump(versions_live), % "data\versions.json"
+			FileMove, data\version_check.json, data\versions.json, 1
 			IniDelete, ini\config.ini, versions, apply update
 			Reload
 			ExitApp
