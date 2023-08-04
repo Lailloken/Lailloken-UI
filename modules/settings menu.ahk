@@ -452,13 +452,13 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % "clone-frame editing:"
-	colors := ["005AB5", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := hwnd
+	colors := ["005AB5", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
 	Gui, %GUI%: Font, norm
 	Loop 3
 	{
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/2 " Center BackgroundTrans Border cBlack w"settings.general.fWidth*3, % A_Index
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd c"colors[A_Index], 100
-		vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd, handle .= "|"
+		handle .= "|", vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
 	}
 	Gui, %GUI%: Add, Text, % "xs Section", % "scaling (%): "
 	Gui, %GUI%: Add, Text, % "ys x+0 hp Center Border w"settings.general.fWidth*5
@@ -1655,12 +1655,16 @@ Settings_mapinfo2(cHWND)
 		Default:
 			If InStr(check, "font_")
 			{
-				If (control = "reset")
-					settings.mapinfo.fSize := settings.general.fSize
-				Else settings.mapinfo.fSize += (control = "minus") ? -1 : 1, settings.mapinfo.fSize := (settings.mapinfo.fSize < 6) ? 6 : settings.mapinfo.fSize
+				While GetKeyState("LButton", "P")
+				{
+					If (control = "reset")
+						settings.mapinfo.fSize := settings.general.fSize
+					Else settings.mapinfo.fSize += (control = "minus") ? -1 : 1, settings.mapinfo.fSize := (settings.mapinfo.fSize < 6) ? 6 : settings.mapinfo.fSize
+					GuiControl, text, % vars.hwnd.settings.font_reset, % settings.mapinfo.fSize
+					Sleep 150
+				}
 				IniWrite, % settings.mapinfo.fSize, ini\map info.ini, settings, font-size
 				LLK_FontDimensions(settings.mapinfo.fSize, height, width), settings.mapinfo.fWidth := width, settings.mapinfo.fHeight := height
-				GuiControl, text, % vars.hwnd.settings.font_reset, % settings.mapinfo.fSize
 			}
 			Else If InStr(check, "color_")
 			{
@@ -2353,7 +2357,7 @@ Settings_ScreenChecksValid()
 	valid := 1
 	For key, val in vars.pixelsearch.list
 	{
-		If (key = "inventory" && !(settings.leveltracker.comparison || settings.iteminfo.hide))
+		If (key = "inventory" && !settings.iteminfo.compare)
 			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
 	}

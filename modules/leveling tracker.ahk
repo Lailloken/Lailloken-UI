@@ -1341,7 +1341,7 @@ LeveltrackerSkilltreeLab(file)
 		If (SubStr(A_LoopFileName, 2, 4) = file)
 			image := A_LoopFilePath, caption := SubStr(StrReplace(A_LoopFileName, "."A_LoopFileExt), InStr(A_LoopFileName, "]") + 1), caption := StrReplace(caption, " ",,, 1)
 	Gui, %leveltracker_skilltree_lab%: Add, Picture, % "Section BackgroundTrans Border", % image
-	Gui, %leveltracker_skilltree_lab%: Add, Text, % "xs y+-1 wp Center BackgroundTrans Border", % caption
+	Gui, %leveltracker_skilltree_lab%: Add, Text, % "xs y+-1 wp Center BackgroundTrans Border"(!caption ? " h"settings.general.fHeight/2 : ""), % caption
 	Gui, %leveltracker_skilltree_lab%: Add, Progress, % "xp yp wp hp BackgroundBlack c404040 Border", 0
 	Gui, %leveltracker_skilltree_lab%: Show, % "NA x10000 y10000"
 	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.leveltracker_skilltree.lab

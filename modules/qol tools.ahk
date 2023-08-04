@@ -229,7 +229,6 @@ Lab(mode := "", override := 0)
 	
 	If (mode = "progress") && !started
 	{
-		SoundBeep
 		vars.lab.room := [vars.lab.exits.numbers[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.lab.exits.names[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.log.areaID]
 		vars.lab.rooms[vars.lab.room.1] := {"name": vars.log.areaname, "seed": vars.log.areaseed}
 	}
