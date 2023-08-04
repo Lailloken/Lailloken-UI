@@ -241,44 +241,52 @@ LLK_Hotstring(hotkey)
 
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 
-#If vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) ;hovering the lab-layout button and clicking it
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main)
+
+LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
+
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) ;hovering the lab-layout button and clicking it
 
 *LButton::Lab("link")
 *RButton::Return
 
-#If vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
+#If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
 
 *LButton::LeveltrackerZoneLayouts(0, 1, vars.general.cMouse)
 *RButton::LeveltrackerZoneLayouts(0, 2, vars.general.cMouse)
 
-#If vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse) ;hovering a notepad-widget and dragging or deleting it
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse) ;hovering a notepad-widget and dragging or deleting it
 
 *LButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 1)
 *RButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 2)
 *WheelUp::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 3)
 *WheelDown::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 4)
 
-#If (vars.general.wMouse = vars.hwnd.maptracker.main) && LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse) ;hovering the maptracker-panel and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) && LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse) ;hovering the maptracker-panel and clicking
 
 *LButton::Maptracker(vars.general.cMouse)
 *RButton::Return
 
-#If (vars.general.wMouse = vars.hwnd.leveltracker.controls1) && LLK_HasVal(vars.hwnd.leveltracker, vars.general.cMouse) ;hovering the leveltracker-controls and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main)
+*LButton::
+*RButton::Return
+
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker.controls1) && LLK_HasVal(vars.hwnd.leveltracker, vars.general.cMouse) ;hovering the leveltracker-controls and clicking
 
 *LButton::Leveltracker(vars.general.cMouse)
 *RButton::Return
 
-#If (vars.general.wMouse = vars.hwnd.leveltracker_timer.main) && LLK_HasVal(vars.hwnd.leveltracker_timer, vars.general.cMouse) ;hovering the leveltracker-timer and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker_timer.main) && LLK_HasVal(vars.hwnd.leveltracker_timer, vars.general.cMouse) ;hovering the leveltracker-timer and clicking
 
 *LButton::LeveltrackerTimer(vars.general.cMouse)
 *RButton::Return
 
-#If (vars.general.wMouse = vars.hwnd.alarm.main) && LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse) ;hovering the alarm-timer and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.alarm.main) && LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse) ;hovering the alarm-timer and clicking
 
 *LButton::Alarm(1)
 *RButton::Alarm(2)
 
-#If (vars.general.wMouse = vars.hwnd.mapinfo.main) && LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse) ;ranking map-mods
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.mapinfo.main) && LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse) ;ranking map-mods
 
 *1::
 *2::
@@ -286,7 +294,7 @@ LLK_Hotstring(hotkey)
 *4::
 *Space::MapinfoRank(A_ThisHotkey)
 
-#If settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
+#If (vars.system.timeout = 0) && settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
 
 ~*^LButton::MaptrackerLoot()
 ^RButton::MaptrackerLoot("back")
@@ -307,7 +315,7 @@ ESC::
 WheelUp::
 WheelDown::StringScroll(A_ThisHotkey)
 
-#If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.iteminfo.main) && WinActive("ahk_group poe_ahk_window") ;applying highlighting to item-mods in the item-info tooltip
+#If (vars.system.timeout = 0) && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.iteminfo.main) && WinActive("ahk_group poe_ahk_window") ;applying highlighting to item-mods in the item-info tooltip
 
 *LButton::
 *RButton::
@@ -342,7 +350,7 @@ Return
 ;closing the item-info tooltip and its markers when clicking into the client
 ~LButton::IteminfoClose(1)
 
-#If vars.general.wMouse && LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse) ;long-clicking the gear-update buttons on gear-slots in the inventory to update/remove selected gear
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse) ;long-clicking the gear-update buttons on gear-slots in the inventory to update/remove selected gear
 
 LButton::
 RButton::IteminfoGearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse))

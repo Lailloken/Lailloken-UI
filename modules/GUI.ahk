@@ -1,16 +1,16 @@
 ﻿Init_GUI(name := "")
 {
 	local
-	global vars, settings, update
+	global vars, settings
 	
 	If !IsObject(vars.GUI)
 		vars.GUI := []
-	
+	update := vars.update
 	If !name || (name = "LLK_panel")
 	{
 		Gui, LLK_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, LLK_panel: Margin, % settings.general.fWidth/4, 0
-		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
+		Gui, LLK_panel: Color, % !IsNumber(update.1) || (update.1 = 0) ? "Black" : (update.1 > 0) ? "Green" : "Maroon"
 		Gui, LLK_panel: Font, % "s"settings.general.fSize " cWhite underline", Fontin SmallCaps
 		vars.hwnd.LLK_panel := hwnd
 		

@@ -152,7 +152,7 @@ LegionGUI()
 
 	Gui, %legion%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " import "
 	Gui, %legion%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " trade-check "
-	vars.hwnd.legion.import := hwndimport, vars.hwnd.legion.trade := hwndtrade
+	vars.hwnd.legion.import := vars.hwnd.help_tooltips["seed-explorer_import"] := hwndimport, vars.hwnd.legion.trade := vars.hwnd.help_tooltips["seed-explorer_trade"] := hwndtrade
 
 	Gui, %legion%: Font, % "underline bold"
 	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % "keystones:"
@@ -238,6 +238,7 @@ LegionHover()
 
 	If vars.legion.wait
 		Return
+	ControlGetPos,, y,, h,, % "ahk_id "vars.general.cMouse
 	check := LLK_HasVal(vars.hwnd.legion.tooltips, vars.general.cMouse), check2 := !check ? StrReplace(LLK_HasVal(vars.hwnd.legion.tooltips2, vars.general.cMouse), "_") : "0"
 	If (vars.general.cMouse = vars.hwnd.legion.treemap) && !WinExist("ahk_id "vars.hwnd.legion_tree.main)
 		LegionTree()
@@ -256,7 +257,7 @@ LegionHover()
 		For index, text in parse
 			Gui, legion_tooltip: Add, Text, % (A_Index = 1 ? "" : "xs y+0") " Center Border w"settings.legion.fWidth*29 - 2, % text
 		vars.legion.tooltip := check ? check : check2
-		Gui, legion_tooltip: Show, % "NA x"(vars.general.xMouse - vars.monitor.x < vars.legion.width ? vars.monitor.x : vars.monitor.x + vars.legion.width - 1) " y"vars.general.yMouse + settings.legion.fHeight*0.8
+		Gui, legion_tooltip: Show, % "NA x"(vars.general.xMouse - vars.monitor.x < vars.legion.width ? vars.monitor.x : vars.monitor.x + vars.legion.width - 1) " y"y + h + 1
 	}
 	Else If !check && !check2 && vars.legion.tooltip
 		vars.legion.tooltip := "", LLK_Overlay(tooltip, "destroy")

@@ -733,9 +733,9 @@ Settings_general()
 Settings_general2(cHWND := "")
 {
 	local
-	global vars, settings, update
+	global vars, settings
 
-	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), update := vars.update
 	If !check
 		check := A_GuiControl
 	
@@ -764,8 +764,6 @@ Settings_general2(cHWND := "")
 
 			If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main) || WinExist("ahk_id " vars.hwnd.searchstrings_menu.main) || WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main)
 				LLK_ToolTip("close the configuration`nwindow first", 2,,,, "yellow")
-			Else If (vars.system.click = 2) && (update.1 < 0) && (update.1 != -2)
-				UpdateNotification(update)
 			Else If (vars.system.click = 2)
 			{
 				KeyWait, RButton
@@ -1809,7 +1807,7 @@ Settings_menu(section, mode := 0) ;mode parameter used when manually calling thi
 	
 	If !IsObject(vars.settings)
 		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", ;list of sections in the settings menu
-		, "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients"]}
+		, "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients", "updater"]}
 	
 	If LLK_HasVal(vars.hwnd.settings, section) ;instead of using the first parameter for section/cHWND depending on context, get the section name from the control's text
 		section := LLK_HasVal(vars.hwnd.settings, section) ? LLK_HasVal(vars.hwnd.settings, section) : section
@@ -1854,7 +1852,8 @@ Settings_menu(section, mode := 0) ;mode parameter used when manually calling thi
 			If (val = "general") || (val = "screen-checks") && !IsNumber(vars.pixelsearch.gamescreen.x1) || !vars.log.file_location && (val = "leveling tracker" || val = "mapping tracker") ;cont
 			|| (!WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") && val = "stream-clients")
 				continue
-			Gui, %settings_menu%: Add, Text, % "Section xs y+-1 wp BackgroundTrans Border gSettings_menu HWNDhwnd 0x200 h"settings.general.fHeight*1.5, % " " val " "
+			color := (val = "updater" && IsNumber(vars.update.1) && vars.update.1 < 0) ? " cRed" : (val = "updater" && IsNumber(vars.update.1) && vars.update.1 > 0) ? " cLime" : ""
+			Gui, %settings_menu%: Add, Text, % "Section xs y+-1 wp BackgroundTrans Border gSettings_menu HWNDhwnd 0x200 h"settings.general.fHeight*1.5 color, % " " val " "
 			Gui, %settings_menu%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
 			vars.hwnd.settings[val] := hwnd, vars.hwnd.settings["background_"val] := hwnd1
 		}
@@ -1896,32 +1895,6 @@ Settings_menu(section, mode := 0) ;mode parameter used when manually calling thi
 	
 	vars.settings.active0 := section
 	Settings_ScreenChecksValid() ;check if 'screen-checks' section needs to be highlighted red
-	
-	If (section != "notepad") && WinExist("ahk_id " vars.hwnd.notepad_sample)
-	{
-		Gui, notepad_sample: Destroy
-		vars.hwnd.notepad_sample := ""
-	}
-	
-	If (section != "alarm-timer") && WinExist("ahk_id " vars.hwnd.alarm_sample)
-	{
-		Gui, alarm_sample: Destroy
-		vars.hwnd.alarm_sample := ""
-	}
-
-	If (section != "delve") && WinExist("ahk_id " vars.hwnd.delve_grid)
-	{
-		Gui, delve_grid: Destroy
-		vars.hwnd.delve_grid := ""
-		Gui, delve_grid2: Destroy
-		vars.hwnd.delve_grid2 := ""
-	}
-	
-	If (section = "delve") && settings.features.delve
-		vars.settings.x := vars.client.x, vars.settings.y := vars.client.y + vars.client.h / 3
-	
-	If (section = "map tracker")
-		vars.settings.maptracker_click := A_TickCount ;workaround for stupid UpDown behavior that leads to rare error message
 	
 	Settings_menu2(section, mode)
 	Gui, %settings_menu%: Margin, % vars.settings.xMargin, -1
@@ -1991,6 +1964,8 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 		Case "search-strings":
 			Init_searchstrings()
 			Settings_searchstrings()
+		Case "updater":
+			Settings_updater()
 	}
 	/*
 	Else If InStr(GuiControl_copy, "alarm") || (restart_section = "alarm")
@@ -2110,12 +2085,12 @@ Settings_qol()
 		vars.hwnd.settings.notepadfont_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth " HWNDhwnd Border Center gSettings_qol2 c"settings.notepad.color, % " color "
 		vars.hwnd.settings.color_notepad := vars.hwnd.help_tooltips["settings_generic color|"] := hwnd
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % "opacity: "
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % "widget opacity: "
 		Gui, %GUI%: Add, Text, % "ys x+0 HWNDhwnd Border Center gSettings_qol2 w"settings.general.fWidth*2, % "–"
 		vars.hwnd.settings.notepadopac_minus := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " HWNDhwnd Border Center gSettings_qol2 w"settings.general.fWidth*2, % "+"
 		vars.hwnd.settings.notepadopac_plus := hwnd
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd0", % "button-size: "
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % "button-size: "
 		Gui, %GUI%: Add, Text, % "ys x+0 HWNDhwnd Border Center gSettings_qol2 w"settings.general.fWidth*2, % "–"
 		vars.hwnd.help_tooltips["settings_button-size"] := hwnd0, vars.hwnd.settings.notepadbutton_minus := vars.hwnd.help_tooltips["settings_button-size|"] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " HWNDhwnd Border Center gSettings_qol2 w"settings.general.fWidth*2, % "+"
@@ -2513,6 +2488,155 @@ Settings_searchstrings2(cHWND)
 	Else LLK_ToolTip("no action")
 }
 
+Settings_updater()
+{
+	local
+	global vars, settings
+
+	GUI := vars.hwnd.settings.main
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, general settings:
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Checkbox, % "Section xs HWNDhwnd gSettings_updater2 checked"settings.updater.update_check, automatically check for updates
+	vars.hwnd.settings.update_check := vars.hwnd.help_tooltips["settings_update check"] := hwnd
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "Section xs y+"vars.settings.spacing, version information:
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "ys Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % " refresh "
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border HWNDhwnd0 BackgroundBlack cGreen Range0-10", 0
+	vars.hwnd.settings.update_refresh := hwnd, vars.hwnd.settings.update_refresh_bar := hwnd0
+
+	Gui, %GUI%: Add, Text, % "Section xs", % "current: "vars.updater.version.2
+	color := vars.updater.skip && (vars.updater.latest.1 = vars.updater.skip) ? " cYellow" : (IsNumber(vars.updater.latest.1) && vars.updater.latest.1 > vars.updater.version.1) ? " cLime" : ""
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth*2 color, % "latest: "vars.updater.latest.2
+	If IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
+	{
+		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd", % " restart && install "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
+		ControlGetPos,,, wButton,,, ahk_id %hwnd%
+		If IsObject(vars.updater.changelog)
+		{
+			Gui, %GUI%: Add, Text, % "ys Border Center HWNDchangelog", % " changelog "
+			vars.hwnd.help_tooltips["settings_update changelog"] := changelog
+		}
+		vars.hwnd.settings.restart_install := hwnd, vars.hwnd.settings.restart_bar := vars.hwnd.help_tooltips["settings_update restart"] := hwnd0
+		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd w"wButton, % " skip this version "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
+		vars.hwnd.settings.skip := hwnd, vars.hwnd.settings.skip_bar := vars.hwnd.help_tooltips["settings_update skip"] := hwnd0
+	}
+	If IsNumber(vars.update.1) && (vars.update.1 < 0)
+	{
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "Section xs cRed y+"vars.settings.spacing, update failed:
+		Gui, %GUI%: Font, norm
+	}
+	
+	If IsNumber(vars.update.1) && (vars.update.1 < 0)
+	{
+		If InStr("126", StrReplace(vars.update.1, "-"))
+		{
+			Gui, %GUI%: Add, Text, % "Section xs", the last update attempt failed because`nof write-permission errors. please open`nthe <general> section of the settings`nand run the test at the bottom.`n
+			Gui, %GUI%: Add, Text, % "Section xs y+0", fixing these issues is critical not`njust for the updater but for many`nother features as well.
+		}
+		Else If (vars.update.1 = -4)
+		{
+			Gui, %GUI%: Add, Text, % "Section xs", the last update attempt failed because`nthe script couldn't download the`nlatest version-list. this could be a`nrandom error that will fix itself on`nthe next try.`n
+			Gui, %GUI%: Add, Text, % "Section xs y+0", if it doesn't fix itself, you'll have`nto update manually.
+		}
+		Else If (vars.update.1 = -3)
+		{
+			Gui, %GUI%: Add, Text, % "Section xs", the last update attempt failed because`nthe script couldn't verify the`ncurrent version-list. this indicates a`ndamaged installation and needs to be`nfixed manually as soon as possible.
+		}
+		Else If InStr("5", StrReplace(vars.update.1, "-"))
+		{
+			Gui, %GUI%: Add, Text, % "Section xs", the last update attempt failed because`nsome files couldn't be downloaded.`nthis could be a random error that`nwill fix itself on the next try.`n
+			Gui, %GUI%: Add, Text, % "Section xs y+0", if it doesn't fix itself, you'll have`nto update manually.
+		}
+		If InStr("345", StrReplace(vars.update.1, "-"))
+		{
+			Gui, %GUI%: Add, Text, % "Section xs Center Border BackgroundTrans HWNDmanual gSettings_updater2 y+"vars.settings.spacing, % " update manually "
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp Border HWNDbar range0-10 BackgroundBlack cGreen", 0
+			Gui, %GUI%: Add, Text, % "ys Center Border HWNDgithub gSettings_updater2", % " github download "
+			vars.hwnd.settings.manual := manual, vars.hwnd.settings.manual_bar := vars.hwnd.help_tooltips["settings_update manual"] := bar, vars.hwnd.settings.github := vars.hwnd.help_tooltips["settings_update github"] := github
+		}
+	}
+}
+
+Settings_updater2(cHWND := "")
+{
+	local
+	global vars, settings, Json
+	static in_progress, refresh_tick
+
+	If in_progress
+		Return
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	If (check = "update_check")
+	{
+		settings.updater.update_check := LLK_ControlGet(cHWND)
+		IniWrite, % settings.updater.update_check, ini\config.ini, settings, update auto-check
+	}
+	Else If (check = "update_refresh")
+	{
+		If vars.updater.latest.2 && (A_TickCount < refresh_tick + 10000)
+			Return
+		in_progress := 1, UpdateCheck(1)
+		Loop 10
+		{
+			GuiControl,, % vars.hwnd.settings.update_refresh_bar, % A_Index
+			Sleep 50
+		}
+		in_progress := 0
+		refresh_tick := A_TickCount, Settings_menu("updater")
+	}
+	Else If (check = "restart_install")
+	{
+		If LLK_Progress(vars.hwnd.settings.restart_bar, "LButton")
+		{
+			KeyWait, LButton
+			IniWrite, 1, ini\config.ini, versions, apply update
+			Reload
+			ExitApp
+		}
+	}
+	Else If (check = "manual")
+	{
+		in_progress := 1, UpdateDownload(vars.hwnd.settings.manual_bar)
+		UrlDownloadToFile, % "https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/"vars.update.2 ".zip", % "update\update_"vars.updater.latest.1 ".zip"
+		error := ErrorLevel || !FileExist("update\update_"vars.updater.latest.1 ".zip") ? 1 : 0
+		in_progress := 0
+		SetTimer, UpdateDownload, Delete
+		UpdateDownload("reset")
+		If error
+		{
+			LLK_ToolTip("download failed,`nuse github button", 2,,,, "red")
+			Return
+		}
+		Run, explore %A_ScriptDir%
+		Run, % "update\update_"vars.updater.latest.1 ".zip"
+		ExitApp
+	}
+	Else If (check = "github")
+	{
+		Run, % "https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/"vars.update.2 ".zip"
+		Run, explore %A_ScriptDir%
+		ExitApp
+	}
+	Else If (check = "skip")
+	{
+		If LLK_Progress(vars.hwnd.settings.skip_bar, "LButton")
+		{
+			KeyWait, LButton
+			vars.updater.skip := vars.updater.latest.1, vars.update := [0]
+			IniWrite, % vars.updater.latest.1, ini\config.ini, versions, skip
+			Gui, LLK_panel: Color, Black
+			Settings_menu("updater")
+		}
+	}
+	Else LLK_ToolTip("no action")
+}
+
 Settings_WriteTest()
 {
 	local
@@ -2528,7 +2652,7 @@ Settings_WriteTest()
 	
 	If running
 		Return
-	running := 1, HWND_bar := vars.hwnd.settings.bar_writetest ;WinExist("ahk_id "vars.hwnd.update_notification.main) ? vars.hwnd.update_notification.write_test_bar : vars.hwnd.settings.bar_writetest
+	running := 1, HWND_bar := vars.hwnd.settings.bar_writetest
 	FileRemoveDir, data\write-test\, 1
 	If FileExist("data\write-test\")
 	{
@@ -2536,11 +2660,6 @@ Settings_WriteTest()
 		MsgBox,, Write-permissions test, There are some leftover files from a previous test, and the script cannot delete them.`n`nPlease delete the 'write-test' folder within the folder that will open after closing this message.
 		Run, explore %A_WorkingDir%\data\
 		Return
-	}
-	If WinExist("ahk_id "vars.hwnd.update_notification.main)
-	{
-		GuiControl, +cLime, % vars.hwnd.settings.permissions_test
-		GuiControl, movedraw, % vars.hwnd.settings.permissions_test
 	}
 	If A_IsAdmin
 		status .= "script launched with admin rights: yes`n`n"
@@ -2618,11 +2737,7 @@ Settings_WriteTest()
 	Else status .= "can delete image-files: unknown`n`n"
 	GuiControl,, % HWND_bar, 700
 	
-	If WinExist("ahk_id "vars.hwnd.update_notification.main)
-		Gui, update_notification: Show, NA x10000 y10000
 	MsgBox, 4096, Test results, % status
-	If WinExist("ahk_id "vars.hwnd.update_notification.main)
-		Gui, update_notification: Show, Center
 	GuiControl,, % HWND_bar, 0
 	running := 0
 }

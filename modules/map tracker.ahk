@@ -5,7 +5,7 @@
 	
 	settings.features.maptracker := LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 	
-	settings.maptracker := {"loot": !FileExist("img\Recognition (" vars.client.h "p)\GUI\stash.bmp") || !vars.imagesearch.stash.x1 ? 0 : LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
+	settings.maptracker := {"loot": LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
 	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
 	settings.maptracker.mapinfo := LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
 	settings.maptracker.fSize := LLK_IniRead("ini\map tracker.ini", "Settings", "font-size", settings.general.fSize)
