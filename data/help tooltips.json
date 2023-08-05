@@ -272,6 +272,11 @@
     "leveltracker reset": [
       "hold to reset your progress and start over"
     ],
+	"leveltracker layouts": [
+	  "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
+	  "while active, hold middle-mouse to view an info-panel with explanations",
+	  "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
+	],
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
       "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
