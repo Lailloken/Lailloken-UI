@@ -445,7 +445,7 @@ Init_general()
 	local font_height, font_width
 	
 	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version")
-	If IsNumber(legacy_version) && (legacy_version < 15000)
+	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") || FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
