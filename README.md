@@ -19,6 +19,28 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 <br>
 
+## Transparency Notice / Things you should know
+- I'm in no position to claim whether or not this tool will get you banned, GGG has the final say
+
+- all I can say is that I strictly follow GGG's official third-party policy regarding executable apps: [developer docs](https://www.pathofexile.com/developer/docs/index#policy)
+- creation and publication of apps that violate the guidelines is as punishable as their usage, so it's in my best interest to adhere to them
+- this tool reads the game's client.txt log-file while you're playing to:
+  - track your character's in-game location and level
+ 
+  - track character-deaths and monster-kills (kills are tracked on-demand after prompting the user to activate a macro with the /kills command)
+- it automates the following key-inputs `exclusively after being initiated manually by the user`:
+  - `CTRL + ALT + C` to copy item information from the client
+ 
+  - `CTRL + F`, `CTRL + V`, `Enter` to initiate in-game searches in interfaces that support it
+  - `Enter`, `CTRL + A + V`, `Enter` to paste chat-commands built into the game
+- it reads the screen exclusively for context-assessment
+  - in the background: to check if **`something within the script itself`** needs to be toggled on/off, e.g. hiding an overlay that would otherwise block an in-game interface
+ 
+  - after pressing the `omni-key`: to determine the context of why/when it was pressed, e.g. while interacting with certain NPCs, or looking at / interacting with a specific interface
+  - I want to stress that it merely searches for open interfaces/windows/panels, it **`does not`** read values or bars off the screen
+- however, this context-assessment is not used to cycle between actions that affect or influence the game in any way
+<br>
+
 ## Main Features: 
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
