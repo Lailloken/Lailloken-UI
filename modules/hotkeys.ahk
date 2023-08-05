@@ -40,6 +40,8 @@ Init_hotkeys()
 		
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
+	Loop, Parse, % "*~!+#^"
+		settings.hotkeys.tab := StrReplace(settings.hotkeys.tab, A_LoopField), settings.hotkeys.omnikey := StrReplace(settings.hotkeys.omnikey, A_LoopField), settings.hotkeys.omnikey2 := StrReplace(settings.hotkeys.omnikey2, A_LoopField)
 }
 
 HotkeysESC()

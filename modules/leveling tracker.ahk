@@ -26,6 +26,7 @@
 	settings.leveltracker.fadetime := LLK_IniRead("ini\leveling tracker.ini", "Settings", "fade-time", 5000)
 	settings.leveltracker.fade_hover := LLK_IniRead("ini\leveling tracker.ini", "Settings", "show on hover", 1)
 	settings.leveltracker.geartracker := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable geartracker", 0)
+	settings.leveltracker.layouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable zone-layout overlay", 0)
 	settings.leveltracker.fSize := LLK_IniRead("ini\leveling tracker.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width)
 	settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
@@ -1094,8 +1095,9 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Gui, %leveltracker_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"wPanels, % ""
 	vars.hwnd.leveltracker.dummy2 := hwnd
 
-	Loop, Files, % "img\GUI\leveling tracker\zones\" vars.log.areaID " *"
-		check += 1
+	If settings.leveltracker.layouts
+		Loop, Files, % "img\GUI\leveling tracker\zones\" vars.log.areaID " *"
+			check += 1
 
 	Gui, New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_controls2 +Owner"vars.hwnd.leveltracker.controls1
 	Gui, %leveltracker_controls2%: Color, Black
@@ -1107,7 +1109,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
 	Gui, %leveltracker_controls2%: Font, % "s"Min(settings.leveltracker.fSize, vars.leveltracker.custom_font) " cWhite", Fontin SmallCaps
 	vars.hwnd.leveltracker.controls2 := leveltracker_controls2
-	Gui, %leveltracker_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " h"height1, % check " zl"
+	Gui, %leveltracker_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " h"height1, % settings.leveltracker.layouts ? check " zl" : ""
 	vars.hwnd.leveltracker.layouts := hwnd
 	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % "<"
 	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % ">"
@@ -1549,6 +1551,9 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 	local
 	global vars, settings
 	
+	If !settings.leveltracker.layouts
+		Return
+
 	start := A_TickCount
 	If (drag = 1)
 		WinGetPos,,, width, height, % "ahk_id "vars.hwnd.leveltracker_zones.main

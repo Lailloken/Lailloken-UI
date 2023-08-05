@@ -937,7 +937,7 @@ Settings_hotkeys()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % "replace m-mouse with:"
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.omnikey = "MButton") ? "" : settings.hotkeys.omnikey
+	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.omnikey = "MButton") ? "" : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey")
 	vars.hwnd.help_tooltips["settings_hotkeys omnikey"] := hwnd0, vars.hwnd.settings.omnikey := vars.hwnd.help_tooltips["settings_hotkeys omnikey|"] := hwnd
 	ControlGetPos, x, y,,,, % "ahk_id "hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
@@ -946,7 +946,7 @@ Settings_hotkeys()
 	{
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", omni-key 2 (for items):
 		Gui, %GUI%: font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "yp x"x-1 " hp cBlack HWNDhwnd gSettings_hotkeys2 w"settings.general.fWidth*10, % settings.hotkeys.omnikey2
+		Gui, %GUI%: Add, Edit, % "yp x"x-1 " hp cBlack HWNDhwnd gSettings_hotkeys2 w"settings.general.fWidth*10, % LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
 		vars.hwnd.help_tooltips["settings_hotkeys omnikey2"] := hwnd0, vars.hwnd.settings.omnikey2 := vars.hwnd.help_tooltips["settings_hotkeys omnikey2|"] := hwnd
 		Gui, %GUI%: font, % "s"settings.general.fSize
 	}
@@ -961,7 +961,7 @@ Settings_hotkeys()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % "replace tab-key with:"
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.tab = "TAB") ? "" : settings.hotkeys.tab
+	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.tab = "TAB") ? "" : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
 	vars.hwnd.help_tooltips["settings_hotkeys tab"] := hwnd0, vars.hwnd.settings.tab := hwnd, vars.hwnd.help_tooltips["settings_hotkeys tab|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.tabblock, % "block the key's native function"
@@ -1367,6 +1367,9 @@ Settings_leveltracker()
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % "enable gear tracker"
 	vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
 
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % "enable zone-layout overlay"
+	vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "skill-tree overlay settings:"
 	Gui, %GUI%: Font, norm
@@ -1497,6 +1500,13 @@ Settings_leveltracker2(cHWND := "")
 		IniWrite, % settings.leveltracker.geartracker, ini\leveling tracker.ini, settings, enable geartracker
 		If settings.leveltracker.geartracker
 			GeartrackerGUI("refresh")
+	}
+	Else If (check = "layouts")
+	{
+		settings.leveltracker.layouts := LLK_ControlGet(cHWND)
+		IniWrite, % settings.leveltracker.layouts, ini\leveling tracker.ini, settings, enable zone-layout overlay
+		If WinExist("ahk_id "vars.hwnd.leveltracker.main)
+			LeveltrackerProgress(1)
 	}
 	Else If (check = "pob")
 	{
@@ -2589,7 +2599,7 @@ Settings_updater2(cHWND := "")
 		Loop 10
 		{
 			GuiControl,, % vars.hwnd.settings.update_refresh_bar, % A_Index
-			Sleep 50
+			Sleep 25
 		}
 		in_progress := 0
 		refresh_tick := A_TickCount, Settings_menu("updater")
