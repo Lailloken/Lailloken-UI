@@ -41,7 +41,8 @@ I will not be taking direct code input or optimizations from people because lear
 - however, this context-assessment is not used to cycle between actions that affect or influence the game in any way
 <br>
 
-## Main Features: 
+## Main Features:
+\* = based on a user-request
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
 <br>
@@ -69,7 +70,7 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### [Leveling tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker): leveling-related QoL features
-| dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | gear tracker with notifications (twink-leveling) |
+| \*dynamic/automatic guide overlay based on [exile-leveling](https://heartofphos.github.io/exile-leveling/) | gear tracker with notifications (twink-leveling) |
 |---|---|
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/3ae5c527-fc39-45b7-9171-b7271891a055) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d8732c5f-dcd2-47e6-aef6-55b60afac6e0) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a99acf8a-1768-4487-ab1a-1bb1b7e7322f) |
 
@@ -86,7 +87,7 @@ I will not be taking direct code input or optimizations from people because lear
 | advanced overlays | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/2c01c548-1163-4551-97da-2d5899fdba1a) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d955f65b-b31f-4525-9fbf-9e7a6ab90eb0) |
 <br>
 
-### [Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
+### \*[Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d3a59541-0c13-487e-99da-198a62777c75) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/8cdf2e78-43e1-465d-a61f-c58f263182db) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/209f7650-753f-4997-88a0-7bba23dbc6e7) |
 | --- | --- | --- |
 <br>
@@ -126,7 +127,7 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ## Legacy Features:
-| [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | [Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
+| [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | \*[Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
 |---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
 
