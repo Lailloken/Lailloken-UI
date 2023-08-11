@@ -403,6 +403,15 @@
     "searchstrings add": [
       "type in a name and press enter"
     ],
+	"trade enable": [
+	  "scans the trade window and sums up the currency in it",
+	  "pressing the omni-key while a trade window is up will open a movable grid",
+	  "requires the <trade> image-check to be set up correctly in the <screen-check> section of the menu"
+	],
+	"trade offset": [
+	  "it's possible the grid needs some fine-tuning at some resolutions",
+	  "adjust the offsets until the grid more or less matches the trade window"
+	],
 	"update check": [
 	  "checks for updates on script launch and in the background while running",
 	  "if there is an update available, the llk-ui panel will turn green"
@@ -584,7 +593,10 @@
     "logviewer header content": [
       "side-content you have entered in a map",
       "has to be enabled in the <mapping tracker> section of the menu"
-    ]
+    ],
+	"logviewer header tier": [
+	  "the tier (map) or level (e.g. contract) of the run"
+	]
   },
   "notepad": {
 	"widget": [
