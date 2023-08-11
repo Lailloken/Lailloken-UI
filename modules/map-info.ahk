@@ -146,7 +146,7 @@ MapinfoGUI(mode := 1)
 	}
 	Else w := width
 
-	If InStr(vars.log.areaID, "hideout") && (mode = 2) && !InStr(vars.mapinfo.active_map.name, "logbook")
+	If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (mode = 2) && !InStr(vars.mapinfo.active_map.name, "logbook")
 		Gui, %mapinfo%: Add, Text, % "xs y+0 Center w"w, % LLK_StringCase(StrReplace(StrReplace(vars.mapinfo.active_map.name, "maven's invitation: "), " map"))
 
 	If !mode
@@ -237,7 +237,7 @@ MapinfoParse(mode := 1)
 			{
 				If (A_Index = 1) || (SubStr(A_LoopField, 1, 1) = "(")
 					Continue
-				MapinfoLineparse(IteminfoModRemoveRange(StrReplace(A_LoopField, " per 25% alert level")), text, value)
+				MapinfoLineparse(IteminfoModRemoveRange(StrReplace(A_LoopField, "per 25% alert level", "per alert level")), text, value)
 				texts.Push(text), values.Push(Format("{:0.0f}", Floor(value * mod_multi))), check := "", value := ""
 			}
 			/*

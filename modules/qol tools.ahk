@@ -4,6 +4,7 @@
 	global vars, settings
 
 	settings.qol := {"alarm": LLK_IniRead("ini\qol tools.ini", "features", "alarm", 0), "notepad": LLK_IniRead("ini\qol tools.ini", "features", "notepad", 0), "lab": LLK_IniRead("ini\qol tools.ini", "features", "lab", 0)}
+	;settings.qol.trade := LLK_IniRead("ini\qol tools.ini", "features", "trade", 0)
 
 	settings.alarm := {"fSize": LLK_IniRead("ini\qol tools.ini", "alarm", "font-size", settings.general.fSize)}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
@@ -12,6 +13,9 @@
 	settings.alarm.xPos := LLK_IniRead("ini\qol tools.ini", "alarm", "x-coordinate")
 	settings.alarm.yPos := LLK_IniRead("ini\qol tools.ini", "alarm", "y-coordinate")
 	vars.alarm := {"timestamp": LLK_IniRead("ini\qol tools.ini", "alarm", "timestamp")}, vars.alarm.timestamp := (vars.alarm.timestamp < A_Now) ? "" : vars.alarm.timestamp
+
+	If InStr(vars.log.areaID, "labyrinth_")
+		Lab("init")
 
 	settings.notepad := {"fSize": LLK_IniRead("ini\qol tools.ini", "notepad", "font-size", settings.general.fSize)}
 	LLK_FontDimensions(settings.notepad.fSize, font_height, font_width), settings.notepad.fHeight := font_height, settings.notepad.fWidth := font_width
@@ -23,8 +27,8 @@
 	settings.notepad.sButton := vars.monitor.w * 0.03 * settings.notepad.oButton
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
 
-	If InStr(vars.log.areaID, "labyrinth_")
-		Lab("init")
+	;settings.trade := {"offset": LLK_IniRead("ini\qol tools.ini", "trade-check", "cell-size offset", 0), "spacing": LLK_IniRead("ini\qol tools.ini", "trade-check", "cell-spacing offset", 0)}
+	;coordinates := LLK_IniRead("ini\qol tools.ini", "trade-check", "grid coordinates", "0, 0"), settings.trade.xGrid := SubStr(coordinates, 1, InStr(coordinates, ",") - 1), settings.trade.yGrid := SubStr(coordinates, InStr(coordinates, ",") + 2)
 }
 
 Alarm(click := 0)
@@ -142,6 +146,113 @@ Alarm(click := 0)
 	LLK_Overlay(alarm, "show"), LLK_Overlay(hwnd_old, "destroy"), vars.alarm.drag := 0
 }
 
+EssenceTooltip(cHWND)
+{
+	local
+	global vars, settings, db
+	static control, widths := {}
+
+	check := LLK_HasVal(vars.hwnd.essences, cHWND)
+	If WinExist("ahk_id "vars.hwnd.essences.main) && (control = check)
+		Return
+	control := check
+	
+	name := vars.omnikey.item.name, tier := SubStr(name, 1, InStr(name, " ") - 1), tier := LLK_HasVal(db.essences._tiers, tier), left_column := [], right_column := [], columns := {}
+	For type0 in db.essences
+		If InStr(vars.omnikey.item.name, type0)
+			type := type0
+	If !type
+		Return
+	For index, val in db.essences[type][tier].1
+		left_column.Push(val)
+	For index, val in db.essences[type][tier + 1].1
+		left_column.Push(val)
+	For index, val in db.essences[type][tier].2
+		right_column.Push(val)
+	For index, val in db.essences[type][tier + 1].2
+		right_column.Push(val)
+	If !widths.HasKey(type "_"tier)
+		LLK_PanelDimensions(left_column, settings.general.fSize, wColumn1, height), LLK_PanelDimensions(right_column, settings.general.fSize, wColumn2, height), widths[type "_"tier] := [wColumn1, wColumn2]
+
+	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDessences
+	Gui, %essences%: Color, Black
+	Gui, %essences%: Margin, 0, 0
+	Gui, %essences%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	hwnd_old := vars.hwnd.essences.main, vars.hwnd.essences := {"main": essences}
+
+	For index, val in db.essences[type][tier].1
+	{
+		Gui, %essences%: Add, Text, % "Center Border 0x200 HWNDhwnd w"widths[type "_"tier].1 (A_Index = 1 ? " Section" : " xs Section"), % LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val) ? val "`n" : val
+		columns[val] := 1
+		If LLK_HasVal(db.essences[type][tier + 1].1, val)
+			vars.hwnd.essences[val] := hwnd
+		Gui, %essences%: Add, Text, % "Border BackgroundTrans ys w"widths[type "_"tier].2, % " " db.essences[type][tier].2[index] (LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val) ? "`n " : "")
+		If LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val)
+			Gui, %essences%: Add, Text, % "Border xp wp wp hp cLime", % " `n " db.essences[type][tier + 1].2[LLK_HasVal(db.essences[type][tier + 1].1, val)]
+	}
+	For index, val in db.essences[type][tier + 1].1
+	{
+		If columns[val]
+			Continue
+		Gui, %essences%: Add, Text, % "xs Section Center Border 0x200 cLime w"widths[type "_"tier].1, % val
+		Gui, %essences%: Add, Text, % "Border BackgroundTrans ys cLime w"widths[type "_"tier].2, % " " db.essences[type][tier + 1].2[index]
+	}
+	If WinExist("ahk_id "hwnd_old)
+		WinGetPos, xPos, yPos,,, ahk_id %hwnd_old%
+	Else
+	{
+		Gui, %essences%: Show, NA x10000 y10000
+		WinGetPos,,, w, h, ahk_id %essences%
+		xPos := (vars.general.xMouse + vars.monitor.w/100 + w - 1 > vars.monitor.x + vars.monitor.w - 1) ? vars.monitor.x + vars.monitor.w - w + 1 : vars.general.xMouse + vars.monitor.w/100
+		yPos := (vars.general.yMouse - h/2 > vars.monitor.y + vars.monitor.h - 1) ? vars.monitor.y + vars.monitor.h - h + 1 : vars.general.yMouse - h/2
+	}
+	Gui, %essences%: Show, % "NA x"xPos " y"yPos
+	LLK_Overlay(hwnd_old, "destroy")
+}
+
+HorizonsTooltip(mode := "")
+{
+	local
+	global vars, settings, db
+
+	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDhorizons
+	Gui, %horizons%: Color, Black
+	Gui, %horizons%: Margin, % settings.general.fWidth/2, 0
+	Gui, %horizons%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	hwnd_old := vars.hwnd.horizons.main, vars.hwnd.horizons := {"main": horizons}
+
+	If !mode
+		Loop, Parse, A_ThisHotkey
+			If LLK_IsType(A_LoopField, "alpha")
+				mode .= A_LoopField
+
+	If LLK_IsType(mode, "alpha") && (mode != "shaper")
+		Gui, %horizons%: Add, Text, xs, % db.mapinfo.maps[mode]
+	Else If LLK_IsType(mode, "number") || (mode = "shaper")
+	{
+		Gui, %horizons%: Font, underline bold
+		Gui, %horizons%: Add, Text, xs, horizons:
+		Gui, %horizons%: Font, norm
+		Gui, %horizons%: Add, Text, xs, % (mode = "shaper") ? "maze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" : db.mapinfo.maps[mode]
+		If vars.log.level
+		{
+			Gui, %horizons%: Font, underline bold
+			Gui, %horizons%: Add, Text, Section xs, e-exp:
+			Gui, %horizons%: Font, norm
+			Gui, %horizons%: Add, Text, ys, % LeveltrackerExperience(67 + vars.omnikey.item.tier)
+		}
+	}
+
+	Gui, %horizons%: Show, NA x10000 y10000
+	WinGetPos,,, w, h, ahk_id %horizons%
+	xPos := (vars.general.xMouse + w/2 > vars.monitor.x + vars.monitor.w - 1) ? vars.monitor.x + vars.monitor.w - w + 1 : (vars.general.xMouse - w/2 < vars.monitor.x ) ? vars.monitor.x : vars.general.xMouse - w/2
+	yPos := (vars.general.yMouse - h < vars.monitor.y) ? vars.monitor.y : vars.general.yMouse - h
+	Gui, %horizons%: Show, % "NA x"xPos " y"yPos
+	LLK_Overlay(hwnd_old, "destroy")
+	If (StrLen(mode) = 1) && LLK_IsType(mode, "alpha")
+		KeyWait, % mode
+}
+
 Lab(mode := "", override := 0)
 {
 	local
@@ -208,7 +319,7 @@ Lab(mode := "", override := 0)
 			LLK_ToolTip("lab-import aborted", 1.5, vars.client.xc, vars.client.yc,, "red"), Gdip_DisposeImage(pBitmap)
 			Return
 		}
-		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556), Gdip_DisposeImage(pBitmap)
+		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
 		pBitmap := Gdip_ResizeBitmap(pBitmap_copy, vars.client.w * 53/128, 10000, 1, 7)
 		Gdip_SaveBitmapToFile(pBitmap, "img\lab.jpg", 100), Gdip_DisposeImage(pBitmap_copy), Gdip_DisposeImage(pBitmap)
 		Return

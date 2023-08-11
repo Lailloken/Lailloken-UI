@@ -30,11 +30,11 @@ Maptracker(cHWND := "")
 	check := LLK_HasVal(vars.hwnd.maptracker, cHWND)
 	If check
 	{
-		If InStr(vars.log.areaID, "hideout") && (vars.maptracker.refresh_kills = 2)
+		If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (vars.maptracker.refresh_kills = 2)
 			MaptrackerKills()
-		Else If !InStr(vars.log.areaID, "hideout")
+		Else If !(InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub"))
 			LLK_ToolTip("cannot save in maps", 1.5,,,, "Red")
-		Else If InStr(vars.log.areaID, "hideout") && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
+		Else If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
 		{
 			MaptrackerSave()
 			vars.maptracker.Delete("map")
@@ -139,8 +139,12 @@ MaptrackerGUI(mode := 0)
 {
 	local
 	global vars, settings
+	static wait
 
-	Gui, New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmaptracker" . (vars.maptracker.toggle || vars.maptracker.pause ? " +E0x20" : "")
+	If wait
+		Return
+	wait := 1
+	Gui, New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmaptracker" (vars.maptracker.toggle || vars.maptracker.pause ? " +E0x20" : "")
 	Gui, %maptracker%: Color, Black
 	Gui, %maptracker%: Margin, % settings.maptracker.fWidth/2, % settings.maptracker.fWidth/4
 	Gui, %maptracker%: Font, % "s"settings.maptracker.fSize . (vars.maptracker.pause ? " cGray" : " cWhite"), Fontin SmallCaps
@@ -162,9 +166,9 @@ MaptrackerGUI(mode := 0)
 
 	Gui, %maptracker%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %maptracker%
-	Gui, %maptracker%: Show, % "NA x"vars.client.x + vars.client.w - Floor(vars.client.h*0.6155) - w " y"vars.client.y + vars.client.h - h
-	LLK_Overlay(vars.hwnd.maptracker.main, "show")
-	LLK_Overlay(hwnd_old, "destroy")
+	Gui, %maptracker%: Show, % "NA x"vars.client.x + vars.client.w - Floor(vars.client.h * 0.6155) - w " y"vars.client.y + vars.client.h - h
+	;LLK_Overlay(vars.hwnd.maptracker.main, "show")
+	LLK_Overlay(hwnd_old, "destroy"), wait := 0
 }
 
 MaptrackerKills()
@@ -191,7 +195,7 @@ MaptrackerLogs()
 	local
 	global vars, settings
 
-	entries := {}, max_lines := Floor(vars.monitor.h*0.8 / settings.maptracker.fHeight)
+	entries := {}, max_lines := Floor(vars.monitor.h*0.7 / settings.maptracker.fHeight)
 	
 	FileRead, ini, ini\map tracker log.ini
 	Loop, Parse, ini, `n, `r
@@ -294,7 +298,7 @@ MaptrackerLogs()
 				If (index > max_lines * vars.maptracker.active_page || index < (vars.maptracker.active_page - 1) * max_lines)
 					Continue
 				If !IsObject(columns[header])
-					columns[header] := !icon ? [(header = "tier") ? "t" : (header = "#") ? "." : header] : ["."]
+					columns[header] := !icon ? [(header = "tier") ? "t/l" : (header = "#") ? "." : header] : ["."]
 				If !LLK_HasVal(columns[header], (header = "#") ? index : (header = "time") ? SubStr(content[val.1], 1, 5) : (header = "run") ? FormatSeconds(content[val.1], 0) : content[val.1]) && !InStr(" loot, content, mapinfo,", " "val.1 ",")
 					columns[header].Push((header = "#") ? index : (header = "time") ? SubStr(content[val.1], 1, 5) : (header = "run") ? FormatSeconds(content[val.1], 0) : content[val.1])
 				If content.content
@@ -305,12 +309,12 @@ MaptrackerLogs()
 			
 			Gui, %maptracker_logs%: Font, % "s"settings.maptracker.fSize + 4
 			LLK_FontDimensions(settings.maptracker.fSize + 4, font_height, font_width)
-			width := (width < font_height) ? font_height : width, header_tooltips := ["map", "e-exp", "kills", "loot", "mapinfo", "content"]
+			width := (width < font_height) ? font_height : width, header_tooltips := ["map", "e-exp", "kills", "loot", "mapinfo", "content", "tier"]
 
 			If (header = "content") && (width < content_icons * (settings.maptracker.fHeight + settings.maptracker.fWidth/2))
 				width := content_icons * (settings.maptracker.fHeight + settings.maptracker.fWidth/2)
 
-			Gui, %maptracker_logs%: Add, Text, % (A_Index = 1 ? "xs x-1 y+"settings.maptracker.fHeight/4 : "ys") . " Section BackgroundTrans Border Center HWNDhwnd w"width, % icon ? "" : (header = "tier") ? "t" : (header = "#") ? "" : header
+			Gui, %maptracker_logs%: Add, Text, % (A_Index = 1 ? "xs x-1 y+"settings.maptracker.fHeight/4 : "ys") . " Section BackgroundTrans Border Center HWNDhwnd w"width, % icon ? "" : (header = "tier") ? "t/l" : (header = "#") ? "" : header
 			Gui, %maptracker_logs%: Font, % "s"settings.maptracker.fSize
 			If icon
 				Gui, %maptracker_logs%: Add, Pic, % "xp+"(width - font_height)/2 " yp hp w-1 HWNDhwnd", % "img\GUI\mapping tracker\"header ".png"
@@ -385,7 +389,7 @@ MaptrackerLogs2(cHWND)
 				MaptrackerLogsCSV("all")
 		Case "export_folder":
 			If !FileExist("exports\")
-				LLK_FilePermissionError("create")
+				LLK_FilePermissionError("create", "exports")
 			Else Run, explore exports\
 		Default:
 			If InStr(check, "page_")
@@ -428,7 +432,7 @@ MaptrackerLogsCSV(mode)
 	}
 	
 	file := "map logs" (mode = "day" ? " " StrReplace(vars.maptracker.active_date, "/", "-") : "") ".csv"
-	append := """date,time"",map,tier,run,e-exp,deaths,portals,kills,loot,map info,content"
+	append := """date,time"",map,tier/level,run,e-exp,deaths,portals,kills,loot,map info,content"
 	For date, val in entries
 	{
 		If (mode = "day") && !InStr(date, vars.maptracker.active_date)
@@ -446,7 +450,7 @@ MaptrackerLogsCSV(mode)
 	}
 	If !FileExist("exports\") && folder_missing
 	{
-		LLK_FilePermissionError("create")
+		LLK_FilePermissionError("create", "exports")
 		Return
 	}
 
@@ -611,25 +615,30 @@ MaptrackerTimer()
 {
 	local
 	global vars, settings
+	static inactive
 	
 	If !settings.features.maptracker
 		Return
 
-	If (!MaptrackerCheck(2) || vars.maptracker.pause) && !WinExist("ahk_id "vars.hwnd.maptracker.main) && (WinActive("ahk_group poe_window") || vars.settings.active = "mapping tracker") || vars.maptracker.toggle ;when in hideout or holding down TAB, show tracker GUI
-		MaptrackerGUI()
-	Else If WinExist("ahk_id "vars.hwnd.maptracker.main) && (MaptrackerCheck(2) && !vars.maptracker.toggle && !vars.maptracker.pause || !WinActive("ahk_group poe_window") && vars.settings.active != "mapping tracker") ;else hide it
+	If (!MaptrackerCheck(2) || vars.maptracker.pause) && !WinExist("ahk_id "vars.hwnd.maptracker.main) && (WinActive("ahk_group poe_window") || WinActive("ahk_id "vars.hwnd.maptracker_logs.main) || vars.settings.active = "mapping tracker") || vars.maptracker.toggle ;when in hideout or holding down TAB, show tracker GUI
+		MaptrackerGUI(), inactive := 0
+	Else If WinExist("ahk_id "vars.hwnd.maptracker.main) && (MaptrackerCheck(2) && !vars.maptracker.toggle && !vars.maptracker.pause) ;else hide it
+		inactive += 1
+	Else inactive := 0
+	If WinExist("ahk_id "vars.hwnd.maptracker.main) && (inactive = 2)
 		LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
 
 	If MaptrackerCheck() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
 		vars.maptracker.refresh_kills := 2
 	
-	If InStr(vars.log.areaID, "hideout") && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
+	If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
 	{
 		Gui, % vars.hwnd.maptracker.main ": Color", % (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
+		Gui, % vars.hwnd.maptracker.main ": -E0x20"
 		vars.maptracker.color := (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
 		GuiControl, % "+Background" vars.maptracker.color, % vars.hwnd.maptracker.delbar
 	}
-	Else If (!InStr(vars.log.areaID, "hideout") || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
+	Else If (!(InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
 	{
 		Gui, % vars.hwnd.maptracker.main ": Color", Black
 		vars.maptracker.color := "Black"
@@ -653,7 +662,7 @@ MaptrackerTimer()
 			vars.maptracker.map.content.Push(vars.log.areaname . (InStr(vars.log.areaID, "mapsidearea") ? " (vaal area)" : ""))
 
 		If settings.features.mapinfo && settings.maptracker.mapinfo && !vars.maptracker.map.mapinfo && !vars.mapinfo.active_map.expired && vars.mapinfo.active_map.Name ;cont
-		&& ((vars.mapinfo.active_map.name = vars.maptracker.map.name " map") || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.log.areaname, "maven") && InStr(vars.mapinfo.active_map.name, "maven"))
+		&& ((vars.mapinfo.active_map.name = vars.maptracker.map.name " map" || StrReplace(StrReplace(vars.mapinfo.active_map.name, "blueprint: "), "contract: ") = vars.maptracker.map.name) || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.log.areaname, "maven") && InStr(vars.mapinfo.active_map.name, "maven"))
 			MaptrackerMapinfo() ;include map-info in logs
 
 		If vars.log.level && !vars.maptracker.map.experience

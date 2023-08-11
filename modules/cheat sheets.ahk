@@ -134,10 +134,10 @@ CheatsheetAdd(name, type)
 	}
 	FileRemoveDir, cheat-sheets\%name%, 1
 	If FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("delete")
+		error := 1, LLK_FilePermissionError("delete", "cheat-sheets\"name)
 	FileCreateDir, cheat-sheets\%name%
 	If !error && !FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("create")
+		error := 1, LLK_FilePermissionError("create", "cheat-sheets\"name)
 	If error
 		Return
 	IniWrite, 1, cheat-sheets\%name%\info.ini, general, enable
