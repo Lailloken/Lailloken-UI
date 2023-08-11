@@ -1,5 +1,69 @@
 {
   "_release": [
-    "15000"
+    15000.01
+  ],
+  "data\\help tooltips.json": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/data/help%20tooltips.json"
+  ],
+  "data\\Map mods.ini": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/data/Map%20mods.ini"
+  ],
+  "data\\essences.json": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/data/essences.json"
+  ],
+  "modules\\cheat sheets.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/cheat%20sheets.ahk"
+  ],
+  "modules\\map tracker.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/map%20tracker.ahk"
+  ],
+  "modules\\settings menu.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/settings%20menu.ahk"
+  ],
+  "modules\\hotkeys.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/hotkeys.ahk"
+  ],
+  "modules\\omni-key.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/omni-key.ahk"
+  ],
+  "modules\\qol tools.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/qol%20tools.ahk"
+  ],
+  "modules\\screen-checks.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/screen-checks.ahk"
+  ],
+  "modules\\client log.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/client%20log.ahk"
+  ],
+  "modules\\map-info.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/map-info.ahk"
+  ],
+  "modules\\leveling tracker.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/leveling%20tracker.ahk"
+  ],
+  "modules\\search-strings.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/search-strings.ahk"
+  ],
+  "modules\\seed-explorer.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/modules/seed-explorer.ahk"
+  ],
+  "Lailloken UI.ahk": [
+    1,
+    "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/beta/Lailloken%20UI.ahk"
   ]
 }

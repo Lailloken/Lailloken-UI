@@ -1,5 +1,10 @@
 [
   [
+    ["1.50.0.1", 15000.01],
+	"mapping tracker && map-info: heist bugfixes and tweaks",
+	"added essence tooltip: hold omni-key on essences, hover over gear-types"
+  ],
+  [
     ["1.50.0", 15000],
     "complete project rework with focus on ui and ux"
   ]
