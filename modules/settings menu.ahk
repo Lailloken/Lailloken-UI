@@ -2624,7 +2624,7 @@ Settings_updater2(cHWND := "")
 		UpdateDownload("reset")
 		If error
 		{
-			LLK_ToolTip("download failed,`nuse github button", 2,,,, "red")
+			LLK_ToolTip("download failed,`nuse the github button", 2,,,, "red")
 			Return
 		}
 		Run, explore %A_ScriptDir%
