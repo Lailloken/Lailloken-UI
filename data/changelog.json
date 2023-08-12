@@ -1,6 +1,8 @@
 [
   [
-    ["1.50.0.1", 15000.01],
+    ["1.50.1", 15001],
+	"UPDATER BRICKED: UPDATE MANUALLY",
+	"reworked the updater",
 	"mapping tracker && map-info: heist bugfixes and tweaks",
 	"added essence tooltip: hold omni-key on essences, hover over gear-types"
   ],
