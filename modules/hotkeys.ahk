@@ -1,7 +1,7 @@
 Init_hotkeys()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 	
 	settings.hotkeys := {}
 	settings.hotkeys.rebound_alt := LLK_IniRead("ini\hotkeys.ini", "Settings", "advanced item-info rebound", 0)
@@ -40,6 +40,12 @@ Init_hotkeys()
 		
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
+
+	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
+	For key in db.mapinfo.maps
+		If LLK_IsType(SubStr(key, 1, 1), "alpha")
+			Hotkey, % "*"SubStr(key, 1, 1), HorizonsTooltip, On
+
 	Loop, Parse, % "*~!+#^"
 		settings.hotkeys.tab := StrReplace(settings.hotkeys.tab, A_LoopField), settings.hotkeys.omnikey := StrReplace(settings.hotkeys.omnikey, A_LoopField), settings.hotkeys.omnikey2 := StrReplace(settings.hotkeys.omnikey2, A_LoopField)
 }
@@ -54,6 +60,10 @@ HotkeysESC()
 		Gui, tooltipgem_notes: Destroy
 		vars.hwnd.Delete("tooltipgem_notes")
 	}
+	;Else If WinExist("ahk_id "vars.hwnd.tradecheck_cal.main)
+	;	TradeCalibrate("close")
+	;Else If WinExist("ahk_id "vars.hwnd.tradecheck.main)
+	;	TradeCheck("close")
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
 		LLK_Overlay(vars.hwnd.legion.main, "destroy"), vars.hwnd.legion.main := "", LLK_Overlay(vars.hwnd.legion_tree.main, "destroy"), LLK_Overlay(vars.hwnd.legion.tooltip, "destroy")
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
@@ -131,7 +141,7 @@ HotkeysTab()
 		}
 	
 	While settings.features.mapinfo && settings.mapinfo.tabtoggle && vars.mapinfo.active_map.name && GetKeyState(settings.hotkeys.tab, "P") ;cont
-	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.mapinfo.active_map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout"))
+	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.mapinfo.active_map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub"))
 		If (A_TickCount >= start + 200)
 		{
 			active .= " mapinfo", vars.mapinfo.toggle := 1, MapinfoGUI(2)
@@ -242,6 +252,7 @@ LLK_Hotstring(hotkey)
 }
 
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
+#If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
 
 #If !vars.mapinfo.toggle && (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main) ;clicking the client to hide the map-info tooltip
 

@@ -284,7 +284,7 @@ Settings_cheatsheets2(cHWND)
 		}
 		If !FileExist("cheat-sheets\")
 		{
-			LLK_FilePermissionError("create")
+			LLK_FilePermissionError("create", "cheat-sheets")
 			GuiControl,, % cHWND, 0
 			Return
 		}
@@ -2245,7 +2245,7 @@ Settings_screenchecks()
 	count := 0
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) ;|| (key = "trade" && !settings.qol.trade)
 			continue
 		count += 1
 	}
@@ -2260,7 +2260,7 @@ Settings_screenchecks()
 
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) ;|| (key = "trade" && !settings.qol.trade)
 			continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " info "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
@@ -2374,7 +2374,7 @@ Settings_ScreenChecksValid()
 
 	For key, val in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) ;|| (key = "trade" && !settings.qol.trade)
 			continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && (vars.imagesearch[key].x1) ? 1 : 0
 	}
@@ -2624,7 +2624,7 @@ Settings_updater2(cHWND := "")
 		UpdateDownload("reset")
 		If error
 		{
-			LLK_ToolTip("download failed,`nuse github button", 2,,,, "red")
+			LLK_ToolTip("download failed,`nuse the github button", 2,,,, "red")
 			Return
 		}
 		Run, explore %A_ScriptDir%

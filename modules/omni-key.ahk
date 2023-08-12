@@ -55,6 +55,14 @@
 
 		Switch OmniContext()
 		{
+			Case "essences":
+				While GetKeyState(vars.omnikey.hotkey, "P")
+				{
+					If (A_TickCount >= essence_last + 100)
+						EssenceTooltip(vars.general.cMouse), essence_last := A_TickCount
+					Sleep 1
+				}
+				LLK_Overlay(vars.hwnd.essences.main, "destroy")
 			Case "iteminfo":
 				Iteminfo()
 			Case "gemnotes":
@@ -70,22 +78,28 @@
 				LegionParse(), LegionGUI()
 			Case "context_menu":
 				OmniContextMenu()
-
 			Case "horizons":
-				LLK_ToolTip("horizons:`n"db.mapinfo.maps.a, 0,,, "horizon")
+				HorizonsTooltip("a")
+				/*
 				While GetKeyState(ThisHotkey_copy, "P")
 				{
 					Input, keypress, L1 T0.5
 					If LLK_IsType(keypress, "alpha") && db.mapinfo.maps[keypress]
-						LLK_ToolTip("horizons:`n"db.mapinfo.maps[keypress], 0,,, "horizon")
+						HorizonsTooltip(keypress)
+					If !Blank(keypress)
+						KeyWait, % keypress
 				}
-				Gui, tooltiphorizon: Destroy
-				vars.hwnd.Delete("tooltiphorizon")
-			Case "horizons_map":
-				LLK_ToolTip("horizons:`n"db.mapinfo.maps[vars.omnikey.item.tier] (vars.log.level ? "`nexp: " LeveltrackerExperience(67 + vars.omnikey.item.tier) : ""), 0,,, "horizon")
+				*/
 				KeyWait, % ThisHotkey_copy
-				Gui, tooltiphorizon: Destroy
-				vars.hwnd.Delete("tooltiphorizon")
+				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
+			Case "horizons_map":
+				HorizonsTooltip(vars.omnikey.item.tier)
+				KeyWait, % ThisHotkey_copy
+				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
+			Case "horizons_shaper":
+				HorizonsTooltip("shaper")
+				KeyWait, % ThisHotkey_copy
+				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "mapinfo":
 				If MapinfoParse()
 					MapinfoGUI()
@@ -287,6 +301,10 @@ OmniContext(mode := 0)
 	Loop, Parse, % "*~!+#^"
 		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
+	While GetKeyState(ThisHotkey_copy, "P") && InStr(vars.omnikey.item.name, " essence of ")
+		If (A_TickCount >= vars.omnikey.start + 200)
+			Return "essences"
+
 	If WinExist("ahk_id "vars.hwnd.legion.main) && InStr(clipboard, "passives in radius are conquered by ")
 		Return "legion"
 
@@ -345,13 +363,7 @@ OmniContext(mode := 0)
 					}
 				}
 				If InStr(clip, "maze of the minotaur") || InStr(clip, "forge of the phoenix") || InStr(clip, "lair of the hydra") || InStr(clip, "pit of the chimera")
-				{
-					LLK_ToolTip("horizons:`nmaze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" (vars.log.level ? "`nexp: " LeveltrackerExperience(83) : ""), 0,,, "horizon")
-					KeyWait, % ThisHotkey_copy
-					Gui, tooltiphorizon: Destroy
-					vars.hwnd.Delete("tooltiphorizon")
-					Return
-				}
+					Return "horizons_shaper"
 				Else Return "horizons_map"
 			}
 		}

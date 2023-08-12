@@ -1,5 +1,6 @@
 ﻿#NoEnv
 #SingleInstance, Force
+#Requires AutoHotkey >=1.1.36 <2
 #InstallKeybdHook
 #InstallMouseHook
 #Hotstring NoMouse
@@ -250,11 +251,11 @@ HelpToolTip(HWND_key)
 			{
 				If (A_Index = 1)
 					log := ""
-				log .= (A_Index = 1) ? text.1 ":" : "`n" text
+				log .= (A_Index = 1) ? text.1 ":" : "`n–> " text
 			}
 			Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % log
 			Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %tooltip%: Add, Text, % "Center HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % log
+			Gui, %tooltip%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % log
 			ControlGetPos,, y0,, h0,, ahk_id %hwnd%
 			If (y0 + h0 >= vars.monitor.h * 0.85)
 				Break
@@ -426,8 +427,10 @@ Init_client()
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\GUI\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\Betrayal\")
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Betrayal\"
+		;If !FileExist("img\Recognition (" vars.client.h "p)\Trade-check\")
+		;	FileCreateDir, % "img\Recognition (" vars.client.h "p)\Trade-check\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\")
-			LLK_FilePermissionError("create")
+			LLK_FilePermissionError("create", "img\Recognition ("vars.client.h "p)")
 	}
 }
 
@@ -484,6 +487,7 @@ Init_vars()
 	db.item_mods := Json.Load(LLK_FileRead("data\item info\mods.json"))
 	db.item_bases := Json.Load(LLK_FileRead("data\item info\base items.json"))
 	db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\leveling tracker\areas.json")), "gems": Json.Load(LLK_FileRead("data\leveling tracker\gems.json"))}
+	db.essences := Json.Load(LLK_FileRead("data\essences.json"))
 	db.mapinfo := {}
 
 	db.mapinfo.maps := {}	
@@ -606,14 +610,9 @@ Loop_main()
 		vars.general.inactive += 1
 		If (vars.general.inactive = 3)
 		{
-			;Gui, notepad_contextmenu: Destroy
 			Gui, omni_context: Destroy
 			vars.hwnd.Delete("omni_context")
-			Gui, bestiary_menu: Destroy
-			Gui, map_info_menu: Destroy
-			hwnd_map_info_menu := ""
-			Gui, legion_help: Destroy
-			LLK_Overlay("hide")
+			LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
 			CloneframesHide()
 		}
 	}
@@ -878,7 +877,7 @@ Startup()
 		If !FileExist(A_LoopField "\") ;create folder
 			FileCreateDir, % A_LoopField "\"
 		If !FileExist(A_LoopField "\") && !file_error ;check if the folder was created successfully
-			file_error := 1, LLK_FilePermissionError("create")
+			file_error := 1, LLK_FilePermissionError("create", A_LoopField " folder")
 	}
 	
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
@@ -1000,13 +999,16 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 {
 	local
 	global Json, vars
-
+	
 	vars.update := [0], update := vars.update
 	If !FileExist("update\")
 		FileCreateDir, update\
 	update.1 := !FileExist("update\") ? -2 : update.1
 	FileDelete, update\update.* ;delete any leftover files
 	update.1 := FileExist("update\update.*") ? -1 : update.1 ;error code -1 = delete-permission
+	Loop, Files, update\lailloken-ui-*, D
+		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
+	update.1 := FileExist("update\lailloken-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
 	FileAppend, 1, update\update.test
 	update.1 := !FileExist("update\update.test") ? -2 : update.1 ;error code -2 = write-permission
 	FileDelete, update\update.test
@@ -1027,7 +1029,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 	
 	FileDelete, data\version_check.json
 	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/data/versions.json", data\version_check.json
-	update.1 := ErrorLevel ? -4 : update.1 ;error-code -4 = version-list download failed
+	update.1 := ErrorLevel || !InStr(LLK_FileRead("data\version_check.json"), """_release""") ? -4 : update.1 ;error-code -4 = version-list download failed
 	If (update.1 = -4)
 	{
 		If InStr("2", timer)
@@ -1059,24 +1061,31 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Gui, update_download: Add, Progress, range0-10 HWNDhwnd BackgroundBlack cGreen, 0
 		Gui, update_download: Show
 		UpdateDownload(hwnd)
-		For key, val in versions_live
+		branch := InStr(versions_live._release.2, "/main/") ? "main" : "beta"
+		If !FileExist("update\update_"vars.updater.latest.1 ".zip")
+			UrlDownloadToFile, % versions_live._release.2, % "update\update_"vars.updater.latest.1 ".zip"
+		If ErrorLevel || !FileExist("update\update_"vars.updater.latest.1 ".zip")
+			vars.update := [-5, branch] ;error-code -5 = download of zip-file failed
+		If (vars.update.1 >= 0)
 		{
-			If (key = "_release") || (versions_local[key].1 = val.1)
-				Continue
-			extension := SubStr(key, InStr(key, ".",,, LLK_InStrCount(key, "."))), branch := InStr(val.2, "/main/") ? "main" : "beta"
-			UrlDownloadToFile, % val.2, % "update\update" extension ;download the new file into the root folder first (w/o replacing the target file) in order to check write-permissions first (and to prevent bricking the target)
-			If ErrorLevel
-			{
-				vars.update := [-5, branch] ;error-code -5 = download of an individual file failed 
-				Break
-			}
-			FileMove, % "update\update" extension, % key, 1 ;move downloaded file to target destination
-			If ErrorLevel
-			{
-				vars.update := [-6, branch] ;error-code -6 = file couldn't be moved
-				Break
-			}
+			FileCopyDir, % "update\update_"vars.updater.latest.1 ".zip", update, 1
+			If ErrorLevel || !FileExist("update\lailloken-ui-*")
+				vars.update := [-6, branch] ;error-code -6 = zip-file couldn't be extracted
 		}
+		If (vars.update.1 >= 0)
+		{
+			SplitPath, A_ScriptFullPath,, path
+			Loop, Files, update\Lailloken-ui-*, D
+				Loop, Files, % A_LoopFilePath "\*", FD
+				{
+					If InStr(FileExist(A_LoopFileLongPath), "D")
+						FileMoveDir, % A_LoopFileLongPath, % path "\" A_LoopFileName, 2
+					Else FileMove, % A_LoopFileLongPath, % path "\" A_LoopFileName, 1
+					If ErrorLevel
+						vars.update := [-6, branch]
+				}
+		}
+		
 		If (vars.update.1 >= 0)
 		{
 			FileDelete, data\versions.json
@@ -1537,13 +1546,13 @@ LLK_FileCheck()
 	Else Return 1
 }
 
-LLK_FilePermissionError(issue)
+LLK_FilePermissionError(issue, folder)
 {
 	local
 
 	text = 
 	(LTrim
-	The script couldn't %issue% a file/folder.
+	The script couldn't %issue% a file/folder: %folder%.
 
 	There seem to be write-permission issues in the current folder location.
 	Try moving the script to another location or running it as administrator.

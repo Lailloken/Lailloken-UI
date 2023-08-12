@@ -116,7 +116,7 @@ Geartracker(mode := "")
 			WinWaitActive, ahk_group poe_window
 			SendInput, ^{f}
 			Sleep 100
-			SendInput, ^{a}^{v}{Enter}
+			SendInput, ^{v}{Enter}
 			Return
 		}
 		Else If (vars.system.click = 2) && LLK_Progress(vars.hwnd.geartracker["delbar_"control], "RButton")
