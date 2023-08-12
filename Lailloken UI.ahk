@@ -1,5 +1,6 @@
 ﻿#NoEnv
 #SingleInstance, Force
+#Requires AutoHotkey >=1.1.36 <2
 #InstallKeybdHook
 #InstallMouseHook
 #Hotstring NoMouse
@@ -998,13 +999,16 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 {
 	local
 	global Json, vars
-
+	
 	vars.update := [0], update := vars.update
 	If !FileExist("update\")
 		FileCreateDir, update\
 	update.1 := !FileExist("update\") ? -2 : update.1
 	FileDelete, update\update.* ;delete any leftover files
 	update.1 := FileExist("update\update.*") ? -1 : update.1 ;error code -1 = delete-permission
+	Loop, Files, update\lailloken-ui-*, D
+		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
+	update.1 := FileExist("update\lailloken-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
 	FileAppend, 1, update\update.test
 	update.1 := !FileExist("update\update.test") ? -2 : update.1 ;error code -2 = write-permission
 	FileDelete, update\update.test
@@ -1057,24 +1061,31 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Gui, update_download: Add, Progress, range0-10 HWNDhwnd BackgroundBlack cGreen, 0
 		Gui, update_download: Show
 		UpdateDownload(hwnd)
-		For key, val in versions_live
+		branch := InStr(versions_live._release.2, "/main/") ? "main" : "beta"
+		If !FileExist("update\update_"vars.updater.latest.1 ".zip")
+			UrlDownloadToFile, % versions_live._release.2, % "update\update_"vars.updater.latest.1 ".zip"
+		If ErrorLevel || !FileExist("update\update_"vars.updater.latest.1 ".zip")
+			vars.update := [-5, branch] ;error-code -5 = download of zip-file failed
+		If (vars.update.1 >= 0)
 		{
-			If (key = "_release") || (versions_local[key].1 = val.1)
-				Continue
-			extension := SubStr(key, InStr(key, ".",,, LLK_InStrCount(key, "."))), branch := InStr(val.2, "/main/") ? "main" : "beta"
-			UrlDownloadToFile, % val.2, % "update\update" extension ;download the new file into the root folder first (w/o replacing the target file) in order to check write-permissions first (and to prevent bricking the target)
-			If ErrorLevel
-			{
-				vars.update := [-5, branch] ;error-code -5 = download of an individual file failed 
-				Break
-			}
-			FileMove, % "update\update" extension, % key, 1 ;move downloaded file to target destination
-			If ErrorLevel
-			{
-				vars.update := [-6, branch] ;error-code -6 = file couldn't be moved
-				Break
-			}
+			FileCopyDir, % "update\update_"vars.updater.latest.1 ".zip", update, 1
+			If ErrorLevel || !FileExist("update\lailloken-ui-*")
+				vars.update := [-6, branch] ;error-code -6 = zip-file couldn't be extracted
 		}
+		If (vars.update.1 >= 0)
+		{
+			SplitPath, A_ScriptFullPath,, path
+			Loop, Files, update\Lailloken-ui-*, D
+				Loop, Files, % A_LoopFilePath "\*", FD
+				{
+					If InStr(FileExist(A_LoopFileLongPath), "D")
+						FileMoveDir, % A_LoopFileLongPath, % path "\" A_LoopFileName, 2
+					Else FileMove, % A_LoopFileLongPath, % path "\" A_LoopFileName, 1
+					If ErrorLevel
+						vars.update := [-6, branch]
+				}
+		}
+		
 		If (vars.update.1 >= 0)
 		{
 			FileDelete, data\versions.json
