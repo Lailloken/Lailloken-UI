@@ -98,7 +98,7 @@ I will not be taking direct code input or optimizations from people because lear
 ### Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined & customizable map-mod tooltip and panel
 | tooltip for rolling maps | on-demand panel to quickly re-check mods while mapping |
 |---|---|
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/5d75d806-d21f-4975-bfb3-3f8daae0e143) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/be6e5d21-9e02-4aca-b77e-376faa38f95a) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d59f8c12-45df-4ac7-a1ab-1035020e9f89) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/0205cd5c-6891-4905-ae9b-7acdbf34ace0) |
 <br>
 
 ### [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
