@@ -3,17 +3,18 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ## Download & Setup
-<a href="https://www.autohotkey.com/download/"><img src="https://user-images.githubusercontent.com/61888437/230709083-7fd1ca67-2598-4228-9a76-536a0b2d5044.png"></a> 
-<a href="https://github.com/Lailloken/Lailloken-UI/wiki"><img src="https://user-images.githubusercontent.com/61888437/229716565-c7810bb8-e9df-4d81-a6a9-70c21aed6bac.png"></a>  
-<a href="https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations"><img src="https://user-images.githubusercontent.com/61888437/229717097-122d9caa-14df-4707-8880-08821bce15c5.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/releases"><img src="https://user-images.githubusercontent.com/61888437/229717862-92c67097-b6ff-4520-8821-1f5d4635665a.png"></a> <a href="https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/beta.zip"><img src="https://user-images.githubusercontent.com/61888437/229718024-6f0ccd4e-9d6a-401e-99e3-6979072e8332.png"></a>
+[![img](https://github.com/Lailloken/testing/blob/main/images/autohotkey.png)](https://www.autohotkey.com/download/) [![img](https://github.com/Lailloken/testing/blob/main/images/guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) [![img](https://github.com/Lailloken/testing/blob/main/images/download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/beta.zip)  
+[![img](https://github.com/Lailloken/testing/blob/main/images/help.png)](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) [![img](https://github.com/Lailloken/testing/blob/main/images/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/testing/blob/main/images/changelog.png)](https://github.com/Lailloken/Lailloken-UI/blob/main/data/changelog.json)
+<br>
 <br>
 
 ## Ideas & Feedback
 I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).
 <br>
+<br>
 
 ## Philosophy, Motivation, Contributions
-This project is my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer, and this is simply a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I (or other players) come across while playing PoE.
+This project is my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer, and this is simply a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I or other players come across while playing PoE.
 
 I will not be taking direct code input or optimizations from people because learning-by-doing and problem-solving is what makes this project fun for me. I appreciate the fact that my project motivates people to work on it as well, but having to go through, double-check, and test other people's code sounds like a chore to me.
 <br>
@@ -24,6 +25,8 @@ I will not be taking direct code input or optimizations from people because lear
 
 - all I can say is that I strictly follow GGG's official third-party policy regarding executable apps: [developer docs](https://www.pathofexile.com/developer/docs/index#policy)
 - creation and publication of apps that violate the guidelines is as punishable as their usage, so it's in my best interest to adhere to them
+<br>
+
 - this tool reads the game's client.txt log-file while you're playing to:
   - track your character's in-game location and level
  
@@ -41,7 +44,7 @@ I will not be taking direct code input or optimizations from people because lear
 - however, this context-assessment is not used to cycle between actions that affect or influence the game in any way
 <br>
 
-## Main Features:
+## Main Features
 \* = based on a user-request
 ### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
 ![image](https://user-images.githubusercontent.com/61888437/167854263-ce6c5da5-e5fa-4f4d-9ff9-f544859fa170.png)  
@@ -109,21 +112,25 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
-| countdown/alarm-timer & stopwatch | orb of horizons tooltips |
-|-----------------------|--------------------------|
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/48c1e7bf-063b-4dd3-8a3f-102d036b620e) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a0376025-a5b3-496e-9266-be1490dabd12) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/890928af-c44d-4147-83d0-d18bc1388164) |
-
-| in-client notepad & free-floating sticky-notes | quick-access overlay and tracker for casual lab-runs |
+| essence tooltip to check the next tier's stats | orb of horizons tooltips |
 | --- | --- |
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/24ceac77-d36a-4852-b043-78ce95aaadb7) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/729ccd86-e053-4c8f-a98f-ff670fd2ebb9) | ![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d02e44af-a2e5-47f0-a131-5911eb4e5c17) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/2cab2ac3-fde1-4231-98bd-d530a76d9775) |
+
+| in-client notepad & free-floating sticky-notes | countdown/alarm timer & stopwatch |
+| --- | --- |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/24ceac77-d36a-4852-b043-78ce95aaadb7) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/729ccd86-e053-4c8f-a98f-ff670fd2ebb9) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/48c1e7bf-063b-4dd3-8a3f-102d036b620e) ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a0376025-a5b3-496e-9266-be1490dabd12) |
+
+| quick-access overlay and tracker for casual lab-runs |
+| --- |
+| ![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png) |
 <br>
 <br>
 
 ## Acknowledgements
-- item-info uses a custom version of [Path of Building's](https://github.com/PathOfBuildingCommunity/PathOfBuilding) datamined resources
+- `item-info` uses a custom version of [Path of Building's](https://github.com/PathOfBuildingCommunity/PathOfBuilding) datamined resources
 
-- leveling-tracker uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
-- seed-explorer uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
+- `leveling tracker` uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
+- `seed-explorer` uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
 <br>
 
 ## Legacy Features:
