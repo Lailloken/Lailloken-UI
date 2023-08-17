@@ -408,7 +408,7 @@ LeveltrackerFade()
 	local
 	global vars, settings
 
-	If settings.leveltracker.fade && !vars.leveltracker.fade && (vars.leveltracker.last + settings.leveltracker.fadetime <= A_TickCount) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
+	If settings.leveltracker.fade && (WinGet("transparent", "ahk_id "vars.hwnd.leveltracker.main) != 25) && (vars.leveltracker.last + settings.leveltracker.fadetime <= A_TickCount) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
 	&& (!LLK_IsBetween(vars.general.xMouse, vars.leveltracker.x, vars.leveltracker.x + vars.leveltracker.w) || !LLK_IsBetween(vars.general.yMouse, vars.leveltracker.y, vars.leveltracker.y + vars.leveltracker.h + vars.leveltracker.h2))
 	&& !vars.leveltracker.overlays && !InStr(vars.log.areaID, "_town")
 	{
@@ -418,7 +418,7 @@ LeveltrackerFade()
 		WinSet, Trans, 25, % "ahk_id "vars.hwnd.leveltracker.controls2
 		vars.leveltracker.fade := 1
 	}
-	Else If settings.leveltracker.fade && vars.leveltracker.fade && WinExist("ahk_id "vars.hwnd.leveltracker.main)
+	Else If settings.leveltracker.fade && (WinGet("transparent", "ahk_id "vars.hwnd.leveltracker.main) = 25) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
 	&& ((settings.leveltracker.fade_hover && LLK_IsBetween(vars.general.xMouse, vars.leveltracker.x, vars.leveltracker.x + vars.leveltracker.w) && LLK_IsBetween(vars.general.yMouse, vars.leveltracker.y, vars.leveltracker.y + vars.leveltracker.h + vars.leveltracker.h2)
 	&& !GetKeyState(settings.hotkeys.movekey, "P")) || vars.leveltracker.overlays || InStr(vars.log.areaID, "_town"))
 	{
@@ -1094,7 +1094,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			If InStr(part, "(img:")
 			{
 				img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1)
-				Gui, %leveltracker_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(InStr(step, "(hint)") ? 0 : settings.leveltracker.fWidth/2)) " BackgroundTrans hp" - 2 " w-1", % "img\GUI\leveling tracker\"img ".png"
+				Gui, %leveltracker_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(InStr(step, "(hint)") ? 0 : settings.leveltracker.fWidth/2)) " BackgroundTrans "(InStr(step, "(hint)") ? "hp-2" : "h" settings.leveltracker.fHeight - 2) " w-1", % "img\GUI\leveling tracker\"img ".png"
 			}
 			Else
 			{

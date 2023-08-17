@@ -19,7 +19,7 @@
 			Gui, % StrReplace(cloneframe, " ", "_") ": Destroy"
 			vars.hwnd.Delete(cloneframe)
 		}
-		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := "", vars.cloneframes.active.corner := ""
+		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 	
 	iniread := StrReplace(LLK_IniRead("ini\clone frames.ini"), "settings`n")
@@ -48,8 +48,8 @@
 		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y + 4))
 		vars.cloneframes.list[A_LoopField].width := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200))
 		vars.cloneframes.list[A_LoopField].height := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200))
-		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.monitor.w/2 - 100))
-		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", 13))
+		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.client.x + vars.client.w/2 - 100))
+		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", vars.client.y + 13))
 		vars.cloneframes.list[A_LoopField].xScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling x-axis", 100)
 		vars.cloneframes.list[A_LoopField].yScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling y-axis", 100)
 		vars.cloneframes.list[A_LoopField].opacity := LLK_IniRead("ini\clone frames.ini", A_LoopField, "opacity", 5)

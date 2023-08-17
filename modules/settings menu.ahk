@@ -432,9 +432,9 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Add, Text, % "xs Section cYellow", % "target x/y: "
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.x + 4
+	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % Format("{:0.0f}", vars.client.x + vars.client.w/2 - 100)
 	vars.hwnd.settings.xTarget := vars.cloneframes.scroll.xTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll||||"] := hwnd
-	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 13
 	vars.hwnd.settings.yTarget := vars.cloneframes.scroll.yTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll|||||"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 
@@ -2410,7 +2410,7 @@ Settings_ScreenChecksValid()
 	valid := 1
 	For key, val in vars.pixelsearch.list
 	{
-		If (key = "inventory" && !settings.iteminfo.compare)
+		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder))
 			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
 	}
