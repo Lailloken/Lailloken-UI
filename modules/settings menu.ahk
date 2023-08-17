@@ -2560,6 +2560,10 @@ Settings_updater()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "Section xs y+"vars.settings.spacing, version information:
 	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Text, % "Section xs Center Border HWNDpage gSettings_updater2", % " github page "
+	Gui, %GUI%: Add, Text, % "ys Center Border HWNDreleases gSettings_updater2", % " releases "
+	vars.hwnd.settings["githubpage_"(InStr(LLK_FileRead("data\versions.json"), "main.zip") ? "main" : "beta")] := page, vars.hwnd.settings.releases_page := releases
 	Gui, %GUI%: Add, Text, % "ys Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % " refresh "
 	Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border HWNDhwnd0 BackgroundBlack cGreen Range0-10", 0
 	vars.hwnd.settings.update_refresh := hwnd, vars.hwnd.settings.update_refresh_bar := hwnd0
@@ -2629,7 +2633,11 @@ Settings_updater2(cHWND := "")
 	If in_progress
 		Return
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
-	If (check = "update_check")
+	If InStr(check, "githubpage_")
+		Run, % "https://github.com/Lailloken/Lailloken-UI/tree/"control
+	Else If (check = "releases_page")
+		Run, % "https://github.com/Lailloken/Lailloken-UI/releases"
+	Else If (check = "update_check")
 	{
 		settings.updater.update_check := LLK_ControlGet(cHWND)
 		IniWrite, % settings.updater.update_check, ini\config.ini, settings, update auto-check
