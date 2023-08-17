@@ -11,7 +11,7 @@
 	settings.cloneframes.hide := LLK_IniRead("ini\clone frames.ini", "Settings", "hide in hideout", 0)
 	
 	If !IsObject(vars.cloneframes)
-		vars.cloneframes := {"enabled": 0}
+		vars.cloneframes := {"enabled": 0, "scroll": {}}
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
 		For cloneframe in vars.cloneframes.list
@@ -19,7 +19,7 @@
 			Gui, % StrReplace(cloneframe, " ", "_") ": Destroy"
 			vars.hwnd.Delete(cloneframe)
 		}
-		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := "", vars.cloneframes.active.corner := ""
+		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 	
 	iniread := StrReplace(LLK_IniRead("ini\clone frames.ini"), "settings`n")
@@ -44,12 +44,12 @@
 		If vars.cloneframes.list[A_LoopField].enable
 			vars.cloneframes.enabled += 1
 		
-		vars.cloneframes.list[A_LoopField].xSource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x + 4) ;coordinates refer to monitor's coordinates (without offsets)
-		vars.cloneframes.list[A_LoopField].ySource := LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y + 4)
-		vars.cloneframes.list[A_LoopField].width := LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200)
-		vars.cloneframes.list[A_LoopField].height := LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200)
-		vars.cloneframes.list[A_LoopField].xTarget := LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.monitor.w/2 - 100)
-		vars.cloneframes.list[A_LoopField].yTarget := LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", 13)
+		vars.cloneframes.list[A_LoopField].xSource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x + 4)) ;coordinates refer to monitor's coordinates (without offsets)
+		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y + 4))
+		vars.cloneframes.list[A_LoopField].width := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200))
+		vars.cloneframes.list[A_LoopField].height := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200))
+		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.client.x + vars.client.w/2 - 100))
+		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", vars.client.y + 13))
 		vars.cloneframes.list[A_LoopField].xScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling x-axis", 100)
 		vars.cloneframes.list[A_LoopField].yScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling y-axis", 100)
 		vars.cloneframes.list[A_LoopField].opacity := LLK_IniRead("ini\clone frames.ini", A_LoopField, "opacity", 5)
@@ -60,7 +60,7 @@
 CloneframesHide()
 {
 	local
-	global vars
+	global vars, settings
 	
 	For cloneframe in vars.cloneframes.list
 	{
@@ -87,7 +87,7 @@ CloneframesSettingsAdd()
 	If vars.cloneframes.list.HasKey(name)
 		error := ["name already in use", 1.5, "red"]
 	Else If vars.cloneframes.editing
-		error := ["cannot add in edit-mode", 1.5, "red"]
+		error := ["exit edit-mode first", 1.5, "red"]
 	Else If (name = "")
 		error := ["name cannot be blank", 1.5, "red"]
 
@@ -109,7 +109,7 @@ CloneframesSettingsAdd()
 	}
 
 	IniDelete, ini\clone frames.ini, % name
-	IniWrite, 0, ini\clone frames.ini, % name, enable
+	IniWrite, 1, ini\clone frames.ini, % name, enable
 	Init_cloneframes()
 	Settings_menu("clone-frames")
 }
@@ -127,7 +127,7 @@ CloneframesSettingsRefresh(name := "")
 	}
 
 	Init_cloneframes()
-	vars.cloneframes.editing := name, vars.cloneframes.active_corner := 1
+	vars.cloneframes.editing := name
 	GuiControl, +cLime, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	If (name = "")
@@ -137,10 +137,22 @@ CloneframesSettingsRefresh(name := "")
 		Settings_menu("clone-frames")
 		Return
 	}
-	GuiControl, % style "Disabled "(style = "+" ? "cWhite" : "cBlack"), % vars.hwnd.settings.xScale ;it's not possible to remove Disabled and set the new value with a single GuiControl call
+	GuiControl, % style "Disabled", % vars.hwnd.settings.xSource ;it's not possible to remove Disabled and set the new value with a single GuiControl call
+	GuiControl,, % vars.hwnd.settings.xSource, % vars.cloneframes.list[name].xSource
+	GuiControl, % style "Disabled", % vars.hwnd.settings.ySource
+	GuiControl,, % vars.hwnd.settings.ySource, % vars.cloneframes.list[name].ySource
+	GuiControl, % style "Disabled", % vars.hwnd.settings.width
+	GuiControl,, % vars.hwnd.settings.width, % vars.cloneframes.list[name].width
+	GuiControl, % style "Disabled", % vars.hwnd.settings.height
+	GuiControl,, % vars.hwnd.settings.height, % vars.cloneframes.list[name].height
+	GuiControl, % style "Disabled", % vars.hwnd.settings.xTarget
+	GuiControl,, % vars.hwnd.settings.xTarget, % vars.cloneframes.list[name].xTarget
+	GuiControl, % style "Disabled", % vars.hwnd.settings.yTarget
+	GuiControl,, % vars.hwnd.settings.yTarget, % vars.cloneframes.list[name].yTarget
+	GuiControl, % style "Disabled", % vars.hwnd.settings.xScale
 	GuiControl,, % vars.hwnd.settings.xScale, % vars.cloneframes.list[name].xScale
-	GuiControl, % style "Disabled "(style = "+" ? "cWhite" : "cBlack"), % vars.hwnd.settings.yScale
-	GuiControl, , % vars.hwnd.settings.yScale, % vars.cloneframes.list[name].yScale
+	GuiControl, % style "Disabled", % vars.hwnd.settings.yScale
+	GuiControl,, % vars.hwnd.settings.yScale, % vars.cloneframes.list[name].yScale
 	GuiControl, % style "Disabled", % vars.hwnd.settings.opacity
 	GuiControl,, % vars.hwnd.settings.opacity, % vars.cloneframes.list[name].opacity
 	GuiControl, % style "Disabled", % vars.hwnd.settings.xSource
@@ -155,7 +167,7 @@ CloneframesSettingsRefresh(name := "")
 CloneframesSettingsSave()
 {
 	local
-	global vars
+	global vars, settings
 
 	name := vars.cloneframes.editing
 	IniWrite, % vars.cloneframes.list[name].xSource, ini\clone frames.ini, % name, source x-coordinate
@@ -169,6 +181,27 @@ CloneframesSettingsSave()
 	IniWrite, % vars.cloneframes.list[name].opacity, ini\clone frames.ini, % name, opacity
 
 	CloneframesSettingsRefresh()
+}
+
+CloneframesSettingsApply(cHWND, hotkey := "")
+{
+	local
+	global vars, settings
+	
+	If Blank(vars.cloneframes.editing)
+		Return
+	check := LLK_HasVal(vars.cloneframes.scroll, cHWND), editing := vars.cloneframes.editing
+
+	value := InStr(hotkey, "wheel") ? vars.cloneframes.list[editing][check] + (hotkey = "WheelUp" ? 1 : -1) : LLK_ControlGet(cHWND), value := Blank(value) ? 0 : value
+	If (check = "opacity")
+		value := (value > 5) ? 5 : (value < 1) ? 1 : value, vars.cloneframes.list[editing][check] := value
+	If InStr("width, height", check)
+		value := (value < 8) ? 8 : value
+	If InStr(check, "scale")
+		value := (value < 20) ? 20 : value
+	If InStr(hotkey, "wheel")
+		GuiControl,, % vars.hwnd.settings[check], % value
+	Else vars.cloneframes.list[editing][check] := value
 }
 
 CloneframesShow()
@@ -250,56 +283,31 @@ CloneframesShow()
 CloneframesSnap(hotkey)
 {
 	local
-	global vars
+	global vars, settings
 	
-	hotkey := StrReplace(hotkey, "*")	
-	If vars.cloneframes.last && IsNumber(hotkey)
+	If vars.cloneframes.last
 		Return
-	name := vars.cloneframes.editing, start := A_TickCount, vars.cloneframes.last := IsNumber(hotkey) ? A_TickCount : ""
-	If IsNumber(hotkey)
-		vars.cloneframes.active_corner := hotkey
-	corner := vars.cloneframes.active_corner ;short-cut variable
-
-	While GetKeyState(hotkey, "P") && IsNumber(hotkey) ;check for long-press
-	{
-		If (A_TickCount >= start + 250)
-		{
-			longpress := 1
-			Break
-		}
-	}
-	If !longpress && IsNumber(hotkey) || !IsNumber(hotkey) && !vars.cloneframes.active_corner ;ignore 1-3 shortpresses, and arrow-key presses if no corner is active
-		Return
-
+	name := vars.cloneframes.editing, vars.cloneframes.last := A_TickCount
+	
 	Switch hotkey
 	{
-		Case "1":
-			vars.cloneframes.list[name].xSource := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].ySource := vars.general.yMouse - vars.monitor.y
-		Case "2":
+		Case "F1":
+			;vars.cloneframes.list[name].xSource := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].ySource := vars.general.yMouse - vars.monitor.y
+			GuiControl,, % vars.hwnd.settings.xSource, % vars.general.xMouse - vars.monitor.x
+			GuiControl,, % vars.hwnd.settings.ySource, % vars.general.yMouse - vars.monitor.y
+		Case "F2":
 			If (vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource <= 0) || (vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource <= 0) ;prevent negative widths/heights
 			{
 				LLK_ToolTip("invalid frame borders",,,,, "red")
 				Return
 			}
-			vars.cloneframes.list[name].width := vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
-			vars.cloneframes.list[name].height := vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
-		Case "3":
-			vars.cloneframes.list[name].xTarget := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].yTarget := vars.general.yMouse - vars.monitor.y
-		Case "left":
-			key := (corner = "1") ? "xSource" : (corner = "2") ? "width" : "xTarget"
-			If (key = "width") && (vars.cloneframes.list[name].width = 10 || vars.cloneframes.list[name].width <= 20 && GetKeyState("Ctrl", "P")) ;prevent frame from getting too small
-				Return
-			vars.cloneframes.list[name][key] -= GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "right":
-			key := (corner = "1") ? "xSource" : (corner = "2") ? "width" : "xTarget"
-			vars.cloneframes.list[name][key] += GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "up":
-			key := (corner = "1") ? "ySource" : (corner = "2") ? "height" : "yTarget"
-			If (key = "height") && (vars.cloneframes.list[name].height = 10 || vars.cloneframes.list[name].height <= 20 && GetKeyState("Ctrl", "P")) ;prevent frame from getting too small
-				Return
-			vars.cloneframes.list[name][key] -= GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "down":
-			key := (corner = "1") ? "ySource" : (corner = "2") ? "height" : "yTarget"
-			vars.cloneframes.list[name][key] += GetKeyState("Ctrl", "P") ? 10 : 1
+			;vars.cloneframes.list[name].width := vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
+			;vars.cloneframes.list[name].height := vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
+			GuiControl,, % vars.hwnd.settings.width, % vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
+			GuiControl,, % vars.hwnd.settings.height, % vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
+		Case "F3":
+			;vars.cloneframes.list[name].xTarget := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].yTarget := vars.general.yMouse - vars.monitor.y
+			GuiControl,, % vars.hwnd.settings.xTarget, % vars.general.xMouse - vars.monitor.x
+			GuiControl,, % vars.hwnd.settings.yTarget, % vars.general.yMouse - vars.monitor.y
 	}
 }

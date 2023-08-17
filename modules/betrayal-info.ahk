@@ -5,6 +5,8 @@
 	
 	check := {"t": "transportation", "f": "fortification", "r": "research", "i": "intervention"}
 	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)
+	If FileExist("data\Betrayal.ini")
+		FileDelete, data\Betrayal.ini
 	
 	settings.betrayal := {}
 	settings.betrayal.fSize := LLK_IniRead("ini\betrayal info.ini", "Settings", "font-size", settings.general.fSize)
@@ -15,42 +17,35 @@
 	settings.betrayal.colors := []
 	settings.betrayal.colors[0] := "White"
 	settings.betrayal.sPrio := vars.client.h * (2/15)
+	settings.betrayal.ruthless := LLK_IniRead("ini\betrayal info.ini", "settings", "ruthless", 0)
 	
 	Loop 3
 		settings.betrayal.colors[A_Index] := LLK_IniRead("ini\betrayal info.ini", "settings", "rank "A_Index " color", settings.betrayal.dColors[A_Index])
 	
 	ini := LLK_IniRead("ini\betrayal info.ini", "settings", "board")
-	If ini
+	If !IsObject(vars.betrayal.board) && ini
 		vars.betrayal.board := Json.Load(ini)
 
-	vars.betrayal.members := {}
+	vars.betrayal.members := Json.Load(LLK_FileRead("data\Betrayal.json"))
 	vars.betrayal.divisions := {"transportation": {}, "fortification": {}, "research": {}, "intervention": {}} ;each object stores the BIS members of a given division
 	vars.betrayal.divisions.list := ["transportation", "fortification", "research", "intervention"]
-	IniRead, betrayal_list, data\Betrayal.ini
 	
 	If !FileExist("ini\betrayal info.ini")
 	{
 		IniWrite, % settings.general.fSize, ini\betrayal info.ini, Settings, font-size
 		IniWrite, 220, ini\betrayal info.ini, Settings, transparency
-		
-		Loop, Parse, betrayal_list, `n
-			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % A_LoopField
+		For member in vars.betrayal.members
+			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member
 	}
+	If !InStr(LLK_FileRead("ini\betrayal info.ini"), " - ruthless")
+		For member in vars.betrayal.members
+			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member " - ruthless"
 	
-	Loop, Parse, betrayal_list, `n
+	For member in vars.betrayal.members
 	{
-		vars.betrayal.members[A_LoopField] := {}
-		vars.betrayal.members[A_LoopField].ranks := {}
-		vars.betrayal.members[A_LoopField].texts := {}
-		member := A_LoopField
-		ini := LLK_IniRead("data\betrayal.ini", A_LoopField)
-		Loop, Parse, ini, `n
-		{
-			division := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
-			text := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-			vars.betrayal.members[member].ranks[division] := LLK_IniRead("ini\betrayal info.ini", member, division, 0)
-			vars.betrayal.members[member].texts[division] := StrReplace(text, "(n)", "`n")
-		}
+		vars.betrayal.members[member].ranks := {}
+		For division in vars.betrayal.divisions
+			vars.betrayal.members[member].ranks[division] := LLK_IniRead("ini\betrayal info.ini", member (settings.betrayal.ruthless ? " - ruthless" : ""), division, 0)
 	}
 	BetrayalRefreshRanks()
 }
@@ -58,7 +53,7 @@
 Betrayal()
 {
 	local
-	global vars
+	global vars, settings
 	
 	ThisHotkey_copy := A_ThisHotkey, start := A_TickCount
 	If !IsObject(vars.betrayal.board)
@@ -125,8 +120,7 @@ BetrayalCalibrate(cHWND := "")
 		Gui, betrayal_setup: Show
 		Loop ;use this kind of loop instead of a hard-coded hotkey to close this setup-window
 		{
-			KeyWait, ESC, D T0.25
-			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || !ErrorLevel
+			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || GetKeyState("ESC", "P")
 			{
 				If IsObject(vars.hwnd.betrayal_setup)
 					LLK_ToolTip("screen-cap aborted",,,,, "red")
@@ -158,13 +152,13 @@ BetrayalInfo(member, div := "", x := "", y := "")
 
 	parse := []
 	For key, division in vars.betrayal.divisions.list
-		parse.Push(vars.betrayal.members[member].texts[division]) ;push the active member's reward-texts into an array
+		parse.Push(vars.betrayal.members[member].rewards[division][settings.betrayal.ruthless ? 2 : 1]) ;push the active member's reward-texts into an array
 	LLK_PanelDimensions(parse, settings.betrayal.fSize, width, height, "center") ;use the array to get the maximum width/height among all text-boxes
 
 	Loop, Parse, % member ", 1, transportation, t, fortification, f, research, r, intervention, i", `,, % A_Space ;create the GUI: header with name, left-side column with TFRI, right-side column with rewards
 	{
 		division := (StrLen(A_LoopField) = 1) ? div_check[A_LoopField] : A_LoopField
-		text := vars.betrayal.members[member].texts[division]
+		text := vars.betrayal.members[member].rewards[division][settings.betrayal.ruthless ? 2 : 1]
 		color := settings.betrayal.colors[vars.betrayal.members[member].ranks[division]]
 		
 		If (A_LoopField = member)
@@ -304,7 +298,7 @@ BetrayalRank(rank)
 		GuiControl, movedraw, % vars.hwnd.betrayal_info[division "_"]
 
 		vars.betrayal.members[vars.hwnd.betrayal_info.active].ranks[division] := rank
-		IniWrite, % rank, ini\betrayal info.ini, % vars.hwnd.betrayal_info.active, % division
+		IniWrite, % rank, ini\betrayal info.ini, % vars.hwnd.betrayal_info.active (settings.betrayal.ruthless ? " - ruthless" : ""), % division
 		BetrayalRefreshRanks()
 		If !WinActive("ahk_id " vars.hwnd.settings.main)
 			BetrayalPrioview()
@@ -315,7 +309,7 @@ BetrayalRank(rank)
 BetrayalRefreshRanks()
 {
 	local
-	global vars
+	global vars, settings
 
 	For key, division in vars.betrayal.divisions.list
 	{
@@ -333,7 +327,7 @@ BetrayalRefreshRanks()
 BetrayalSearch(hotkey)
 {
 	local
-	global vars, settings, Json
+	global vars, settings
 	
 	prioview := 1, removed := [], delay := ["", 0]
 	Loop, Files, % "img\Recognition ("vars.client.h "p)\Betrayal\*.bmp" ;delete any non-Betrayal or unintentionally saved files to prevent unnecessary scanning
@@ -470,20 +464,6 @@ BetrayalSearch(hotkey)
 			If member1 && (member1 != vars.hwnd.betrayal_info.active)
 				BetrayalInfo(member1, division1)
 			BetrayalPrioview()
-
-			/*
-			text := ""
-			For key, division in vars.betrayal.divisions.list
-			{
-				text .= !text ? division ": " : "`n" division ": "
-				For member in vars.betrayal.members
-				{
-					If (vars.betrayal.board[member] = division)
-						text .= "`n      "member
-				}
-			}
-			LLK_ToolTip(text, 10, 0, 0, "betrayal")
-			*/
 		}
 	}
 	Gui, % vars.hwnd.betrayal_prioview.main ": Destroy"

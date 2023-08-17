@@ -35,7 +35,7 @@
 MapinfoGUI(mode := 1)
 {
 	local
-	global vars, settings, Json
+	global vars, settings
 
 	map := vars.mapinfo.active_map ;short-cut variable
 	Gui, New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
@@ -240,29 +240,6 @@ MapinfoParse(mode := 1)
 				MapinfoLineparse(IteminfoModRemoveRange(StrReplace(A_LoopField, "per 25% alert level", "per alert level")), text, value)
 				texts.Push(text), values.Push(Format("{:0.0f}", Floor(value * mod_multi))), check := "", value := ""
 			}
-			/*
-			Loop, Parse, A_LoopField, `n
-			{
-				If (A_Index = 1) || (SubStr(A_LoopField, 1, 1) = "(")
-					Continue
-				parse := IteminfoModRemoveRange(StrReplace(A_LoopField, " per 25% alert level"))
-				Loop, Parse, parse
-				{
-					If (A_Index = 1)
-						text := "", value := ""
-					If LLK_IsType(A_LoopField, "alpha") || InStr(",'", A_LoopField)
-						text .= A_LoopField
-					Else If IsNumber(A_LoopField)
-						value .= A_LoopField
-				}
-				text := StrReplace(text, "  ", " ")
-				While (SubStr(text, 1, 1) = " ")
-					text := SubStr(text, 2)
-				While (SubStr(text, 0) = " ")
-					text := SubStr(text, 1, -1)
-				texts.Push(text), values.Push(value), check := "", value := ""
-			}
-			*/
 			For index, text in texts
 			{
 				If mods.HasKey(text)
@@ -331,101 +308,7 @@ MapinfoParse(mode := 1)
 	map.quantity := quantity, map.rarity := rarity, map.packsize := packsize, map.name := name, map.mods := mod_count
 	Return 1
 }
-/*
-MapinfoParse(mode := 1)
-{
-	local
-	global vars, settings, db
-	static clip
 
-	If mode
-		clip := StrReplace(StrReplace(Clipboard, "`r`n", ";"), " — Unscalable Value")
-	vars.mapinfo.active_map := {"player": {}, "bosses": {}, "monsters": {}, "area": {}, "heist": {}}, mod_count := 0
-	map := vars.mapinfo.active_map, mods := db.mapinfo.mods ;short-cut variables
-	For key in map
-		Loop 5
-			map[key][(A_Index = 5) ? 0 : A_Index] := []
-	
-	Loop, Parse, clip, `;
-	{
-		If StrMatch(A_LoopField, "rarity: ")
-			map_rarity := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
-		Else If StrMatch(A_LoopField, "item quantity: ")
-			quantity := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), quantity := SubStr(quantity, 1, InStr(quantity, " ") - 1), quantity := StrReplace(StrReplace(quantity, "%"), "+")
-		Else If StrMatch(A_LoopField, "item rarity: ")
-			rarity := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), rarity := SubStr(rarity, 1, InStr(rarity, " ") - 1), rarity := StrReplace(StrReplace(rarity, "%"), "+")
-		Else If StrMatch(A_LoopField, "monster pack size: ")
-			packsize := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), packsize := SubStr(packsize, 1, InStr(packsize, " ") - 1), packsize := StrReplace(StrReplace(packsize, "%"), "+")
-		Else If StrMatch(A_LoopField, "{ prefix modifier """) || StrMatch(A_LoopField, "{ suffix modifier """)
-		{
-			mod_count += 1, texts := [], values := [], affix := InStr(A_LoopField, "{ prefix") ? "prefix" : "suffix", %affix% := SubStr(A_LoopField, InStr(A_LoopField, """") + 1), %affix% := SubStr(%affix%, 1, InStr(%affix%, """") - 1)
-			name := StrReplace(name, (affix = "prefix") ? %affix% " " : " " %affix%)
-			Loop, Parse, A_LoopField, `n
-			{
-				If (A_Index = 1) || (SubStr(A_LoopField, 1, 1) = "(")
-					Continue
-				parse := IteminfoModRemoveRange(StrReplace(A_LoopField, " per 25% alert level"))
-				Loop, Parse, parse
-				{
-					If (A_Index = 1)
-						text := "", value := ""
-					If LLK_IsType(A_LoopField, "alpha") || InStr(",'", A_LoopField)
-						text .= A_LoopField
-					Else If IsNumber(A_LoopField)
-						value .= A_LoopField
-				}
-				text := StrReplace(text, "  ", " ")
-				While (SubStr(text, 1, 1) = " ")
-					text := SubStr(text, 2)
-				While (SubStr(text, 0) = " ")
-					text := SubStr(text, 1, -1)
-				texts.Push(text), values.Push(value), check := "", value := ""
-			}
-			For index, text in texts
-			{
-				If mods.HasKey(text)
-				{
-					pushtext := InStr(mods[text].text, ": +") ? StrReplace(mods[text].text, ": +", ": +" values[index],, 1) : InStr(mods[text].text, "%") ? StrReplace(mods[text].text, "%", values[index] "%",, 1) : mods[text].text
-					If !settings.mapinfo.IDs[mods[text].id].show
-					{
-						If !IsObject(map[mods[text].type].0[settings.mapinfo.IDs[mods[text].id].rank])
-							map[mods[text].type].0[settings.mapinfo.IDs[mods[text].id].rank] := []
-						map[mods[text].type].0[settings.mapinfo.IDs[mods[text].id].rank].Push([pushtext, mods[text].id])
-					}
-					Else map[mods[text].type][settings.mapinfo.IDs[mods[text].id].rank].Push([pushtext, mods[text].id])
-				}
-				Else check .= !check ? text : "|" text, value .= !value ? values[index] : "/" values[index]
-			}
-			If check && mods.HasKey(check)
-			{
-				pushtext := InStr(mods[check].text, ": +") ? StrReplace(mods[check].text, ": +", ": +" value,, 1) : InStr(mods[check].text, "%") ? StrReplace(mods[check].text, "%", value "%",, 1) : mods[check].text
-				If !settings.mapinfo.IDs[mods[check].id].show
-				{
-					If !IsObject(map[mods[check].type].0[settings.mapinfo.IDs[mods[check].id].rank])
-						map[mods[check].type].0[settings.mapinfo.IDs[mods[check].id].rank] := []
-					map[mods[check].type].0[settings.mapinfo.IDs[mods[check].id].rank].Push([pushtext, mods[check].id])
-				}
-				Else map[mods[check].type][settings.mapinfo.IDs[mods[check].id].rank].Push([pushtext, mods[check].id])
-			}
-		}
-		Else If (A_Index = 3)
-			name := A_LoopField
-		Else If (A_Index = 4) && !InStr(A_LoopField, "---")
-			name := A_LoopField
-	}
-	If InStr("normal,unique", map_rarity)
-		error := ["not supported:`n" (map_rarity = "normal" ? "white" : LLK_StringCase(map_rarity)) " maps", 1.5, "Red"]
-	Else If InStr(Clipboard, "`r`nunidentified`r`n")
-		error := ["not supported:`nun-ID maps", 1.5, "Red"]
-	If error
-	{
-		LLK_ToolTip(error.1, error.2,,,, error.3)
-		Return 0
-	}
-	map.quantity := quantity, map.rarity := rarity, map.packsize := packsize, map.name := name, map.mods := mod_count
-	Return 1
-}
-*/
 MapinfoRank(hotkey)
 {
 	local

@@ -1,7 +1,7 @@
 ﻿Init_cheatsheets()
 {
-	global
-	local iniread, iniread1, font_height, font_width, key, parse, parse1
+	local
+	global vars, settings
 	
 	settings.features.cheatsheets := LLK_IniRead("ini\config.ini", "Features", "enable cheat-sheets", 0)
 	
@@ -103,7 +103,7 @@ CheatsheetActivate(name, hotkey)
 CheatsheetAdd(name, type)
 {
 	local
-	global vars
+	global vars, settings
 
 	WinGetPos, xPos, yPos, width, height, % "ahk_id " vars.hwnd.settings.name
 	While (SubStr(name, 1, 1) = " ")
@@ -408,7 +408,8 @@ CheatsheetCalibrate()
 
 CheatsheetClose()
 {
-	global
+	local
+	global vars, settings
 
 	vars.cheatsheets.active := ""
 	LLK_Overlay(vars.hwnd.cheatsheet.main, "hide")
@@ -1116,7 +1117,7 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 CheatsheetMenuClose()
 {
 	local
-	global vars
+	global vars, settings
 
 	name := vars.cheatsheet_menu.active
 	If (vars.cheatsheets.list[name].type = "app") && (LLK_ControlGet(vars.hwnd.cheatsheet_menu.title) = "")
@@ -1192,7 +1193,7 @@ CheatsheetMenuEntryAdd()
 CheatsheetMenuEntrySave()
 {
 	local
-	global vars
+	global vars, settings
 	
 	name := vars.cheatsheet_menu.active
 	Loop 4
@@ -1206,7 +1207,7 @@ CheatsheetMenuEntrySave()
 CheatsheetMenuPaste(index)
 {
 	local
-	global vars
+	global vars, settings
 	
 	name := vars.cheatsheet_menu.active
 	If InStr(Clipboard, ":\",,, 2) && InStr(Clipboard, "`r`n") ;multiple files in clipboard
@@ -1327,81 +1328,11 @@ CheatsheetMenuPreview(name, filename)
 	Gui, cheatsheet_tooltip: Destroy
 	vars.hwnd.Delete("cheatsheet_tooltip")
 }
-/*
-CheatsheetMenuSnip(index)
-{
-	local
-	global vars, settings
-
-	name := vars.cheatsheet_menu.active
-	KeyWait, LButton
-	If (index = "00") || FileExist("cheat-sheets\"name "\[00]*")
-	{
-		If !WinExist("ahk_id " vars.hwnd.cheatsheet_snip.main)
-		{
-			Gui, cheatsheet_snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd, Lailloken UI: snipping widget
-			Gui, cheatsheet_snip: Color, Aqua
-			WinSet, trans, 100
-			vars.hwnd.cheatsheet_snip := {"main": hwnd}
-			
-			Gui, cheatsheet_snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans gSettings_help HWNDhwnd", img\GUI\help.png
-			vars.hwnd.cheatsheet_snip.help := hwnd
-			If vars.snip.w
-				Gui, cheatsheet_snip: Show, % "w"vars.snip.w " h"vars.snip.h
-			Else Gui, cheatsheet_snip: Show, % "w"settings.general.fWidth*31 " h"settings.general.fHeight*11
-			Return
-		}
-	}
-	Else
-	{
-		If WinExist("ahk_id " hwnd_snip)
-			cheatsheet_snipGUIClose()
-	}
-	
-	vars.general.gui_hide := 1
-	LLK_Overlay("hide")
-	Gui, cheatsheet_menu: Hide
-
-	If (index = "00") || FileExist("cheat-sheets\"name "\[00]*")
-	{
-		WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.cheatsheet_snip.main
-		Gui, cheatsheet_snip: Hide
-		sleep 100
-		pBitmap := Gdip_BitmapFromScreen(x + vars.system.xborder "|" y + vars.system.yborder + vars.system.caption "|" w - vars.system.xborder*2 "|" h - vars.system.yborder*2 - vars.system.caption)
-		Gui, cheatsheet_snip: Show
-	}
-	Else
-	{
-		Clipboard := ""
-		SendInput, #+{s}
-		WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
-		WinWaitNotActive, ahk_exe ScreenClippingHost.exe
-		pBitmap := Gdip_CreateBitmapFromClipboard()
-	}
-
-	vars.general.gui_hide := 0
-	Gui, cheatsheet_menu: Show, NA
-	If (pBitmap <= 0)
-	{
-		LLK_ToolTip("screen-cap failed",,,,, "red")
-		Return
-	}
-	Else
-	{
-		FileDelete, % "cheat-sheets\"name "\["index "]*"
-		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets\"name "\["index "].png", 100)
-		Gdip_DisposeImage(pBitmap)
-		CheatsheetMenu(name)
-	}
-	If WinExist("ahk_id "vars.hwnd.cheatsheet_snip.main)
-		WinActivate, % "ahk_id "vars.hwnd.cheatsheet_snip.main
-}
-*/
 
 CheatsheetMenuTag(cHWND, index)
 {
 	local
-	global vars
+	global vars, settings
 	
 	key := LLK_ControlGet(cHWND), name := vars.cheatsheet_menu.active
 	WinGetPos, x, y, w,, % "ahk_id "cHWND
@@ -1442,7 +1373,7 @@ CheatsheetRank()
 CheatsheetSearch(name)
 {
 	local
-	global vars
+	global vars, settings
 
 	If !FileExist("cheat-sheets\"name "\[check].bmp") ;return 0 if reference img-file is missing
 	{

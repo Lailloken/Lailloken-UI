@@ -30,11 +30,11 @@
       "type in your character name and press enter",
       "specifying it here enables optional features such as level tracking and e-exp calculations"
     ],
-	"active character status": [
-	  "red: no name specified",
-	  "yellow: char not found / waiting for level 2",
-	  "green: char found, tracking active"
-	],
+    "active character status": [
+      "red: no name specified",
+      "yellow: char not found / waiting for level 2",
+      "green: char found, tracking active"
+    ],
     "force resolution": [
       "you can force the client to run with a custom resolution not available by default",
       "it will be applied on every script start, or when starting the client while the script is running",
@@ -64,6 +64,9 @@
       "provides an interactive cheat sheet overlay for the betrayal league mechanic",
       "requires the <betrayal> image-check to be set up correctly in the <screen-checks> section of the settings menu",
       "while the syndicate board is on screen, hold the omni-key to activate the overlay"
+    ],
+    "betrayal ruthless": [
+      "show ruthless rewards and use separate highlighting instead"
     ],
     "betrayal folder": [
       "folder that contains calibration files"
@@ -140,9 +143,11 @@
     ],
     "cloneframes corners": [
       "edit-mode adds colored corners to the source and target frame",
-      "number keys: activate corner #\narrow keys: move active corner by 1 pixel\nctrl + arrows: move corner by 10 pixels",
-      "long-press a number key to snap corner # to the cursor's position",
+      "f-keys: snap the corresponding corner to the cursor's position",
       "hitting esc or <discard> exits edit-mode"
+    ],
+    "cloneframes scroll": [
+      "for fine-tuning, scroll the mouse-wheel to adjust this value by 1"
     ],
     "hotkeys ingame-keybinds": [
       "to avoid conflicts between custom in-game keybinds and the script's hotkeys:\n- tick anything that applies to you\n- provide alternative keys when asked to"
@@ -160,7 +165,7 @@
     "hotkeys omnikey": [
       "if you want to move the omni-key to a different key, specify it in the edit-field",
       "since the hotkey is used a lot, i highly recommend avoiding key combinations",
-	  "don't bind it to a key used for chatting, as features might randomly activate",
+      "don't bind it to a key used for chatting, as features might randomly activate",
       "for special keys, check the links above to find proper names and formatting"
     ],
     "hotkeys omnikey2": [
@@ -179,11 +184,11 @@
     "hotkeys tab": [
       "this hotkey (re)activates certain widgets and non-permanent overlays",
       "if something is bound to tab in game and requires it to be held down (e.g. skills, movement), you'll have to specify an alternative key in the edit field",
-	  "tooltips will refer to it as tab, even when rebound"
+      "tooltips will refer to it as tab, even when rebound"
     ],
-	"hotkeys restart": [
-	  "if the script crashes and stops responding, use this combination to restart"
-	],
+    "hotkeys restart": [
+      "if the script crashes and stops responding, use this combination to restart"
+    ],
     "iteminfo profiles": [
       "customized highlighting can be saved in individual profiles",
       "if the tooltip is on screen when selecting a profile, the changes will be applied on the fly"
@@ -241,12 +246,12 @@
       "overlay fades back in when hovered over",
       "has no effect while the move key is pressed"
     ],
-	"leveltracker geartracker": [
-	  "notifies you when new gear can be equipped (the guide button will flash green)",
-	  "accessed by right-clicking the guide button",
-	  "while the panel is open, omni-click items to add them to the list",
-	  "requires specifying your character name in the <general> settings"
-	],
+    "leveltracker geartracker": [
+      "notifies you when new gear can be equipped (the guide button will flash green)",
+      "accessed by right-clicking the guide button",
+      "while the panel is open, omni-click items to add them to the list",
+      "requires specifying your character name in the <general> settings"
+    ],
     "leveltracker skilltree-info": [
       "while the skilltree is on screen, hold the omni-key to show overlays with skilltree images",
       "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
@@ -272,17 +277,46 @@
     "leveltracker reset": [
       "hold to reset your progress and start over"
     ],
-	"leveltracker layouts": [
-	  "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
-	  "while active, hold middle-mouse to view an info-panel with explanations",
-	  "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
-	],
+    "leveltracker layouts": [
+      "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
+      "while active, hold middle-mouse to view an info-panel with explanations",
+      "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
+    ],
+    "leveltracker hints": [
+      "inserts additional information underneath specific guide-steps",
+      "this info is displayed in indented lines with smaller text"
+    ],
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
       "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
     ],
     "maptracker side-content": [
-      "side-areas you enter and the time spent inside will be logged"
+      "side-areas you enter and the time spent inside will be logged",
+      "examples: abyssal depths, lab trials, vaal areas"
+    ],
+    "maptracker mechanics": [
+      "logs certain mechanics you encounter while mapping"
+    ],
+    "maptracker dialogue tracking": [
+      "these mechanics can be tracked automatically via in-game dialogue",
+      "requires enabling <output dialogue to chat> at the bottom of the game's <ui> settings"
+    ],
+    "maptracker screen tracking": [
+      "these mechanics will be tracked by searching the screen for specific ui elements",
+      "the screen will be checked whenever you hold tab",
+      "requires manual calibration"
+    ],
+    "maptracker dialoguemechanic": [
+      "mechanics can be toggled individually"
+    ],
+    "maptracker screenmechanic": [
+      "mechanics can be toggled individually",
+      "red highlighting indicates missing calibration",
+      "right-click to open the snipping tool and screen-cap a unique ui element of the mechanic"
+    ],
+    "maptracker portal reminder": [
+      "when using a portal scroll, a tooltip will remind you to double-check if map content has been completed",
+      "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> section of the menu"
     ],
     "maptracker loot-tracker": [
       "items you ctrl-click into the stash will be logged",
@@ -403,36 +437,36 @@
     "searchstrings add": [
       "type in a name and press enter"
     ],
-	"trade enable": [
-	  "scans the trade window and sums up the currency in it",
-	  "pressing the omni-key while a trade window is up will open a movable grid",
-	  "requires the <trade> image-check to be set up correctly in the <screen-check> section of the menu"
-	],
-	"trade offset": [
-	  "it's possible the grid needs some fine-tuning at some resolutions",
-	  "adjust the offsets until the grid more or less matches the trade window"
-	],
-	"update check": [
-	  "checks for updates on script launch and in the background while running",
-	  "if there is an update available, the llk-ui panel will turn green"
-	],
-	"update restart": [
-	  "hold to update and restart",
-	  "active overlays and unsaved data will be lost"
-	],
-	"update manual": [
-	  "downloads a zip-file with the complete release, then opens it and the script-folder",
-	  "the zip contains one folder: do not extract it! open it instead",
-	  "extract what's inside into the script-folder that will open in a separate window"
-	],
-	"update github": [
-	  "opens your browser and downloads the newest version",
-	  "also opens the script folder in a separate window"
-	],
-	"update skip": [
-	  "hold to skip this version and no longer receive notifications",
-	  "notifications will start showing again with the next version"
-	]
+    "trade enable": [
+      "scans the trade window and sums up the currency in it",
+      "pressing the omni-key while a trade window is up will open a movable grid",
+      "requires the <trade> image-check to be set up correctly in the <screen-check> section of the menu"
+    ],
+    "trade offset": [
+      "it's possible the grid needs some fine-tuning at some resolutions",
+      "adjust the offsets until the grid more or less matches the trade window"
+    ],
+    "update check": [
+      "checks for updates on script launch and in the background while running",
+      "if there is an update available, the llk-ui panel will turn green"
+    ],
+    "update restart": [
+      "hold to update and restart",
+      "active overlays and unsaved data will be lost"
+    ],
+    "update manual": [
+      "downloads a zip-file with the complete release, then opens it and the script-folder",
+      "the zip contains one folder: do not extract it! open it instead",
+      "extract what's inside into the script-folder that will open in a separate window"
+    ],
+    "update github": [
+      "opens your browser and downloads the newest version",
+      "also opens the script folder in a separate window"
+    ],
+    "update skip": [
+      "hold to skip this version and no longer receive notifications",
+      "notifications will start showing again with the next version"
+    ]
   },
   "cheatsheets": {
     "menu screencheck": [
@@ -466,7 +500,7 @@
     "menu snip0": [
       "opens the snipping widget to snip images into slots"
     ],
-	"menu snip": [
+    "menu snip": [
       "opens the clipping tool to clip images into slots"
     ],
     "menu show": [
@@ -512,48 +546,48 @@
     ]
   },
   "geartracker": {
-	"about": [
-	  "click items on the list to highlight them in in-game searches",
-	  "hold right-click to remove an item from the list",
-	  "hold the <clear> button to remove every highlighted item"
-	]
+    "about": [
+      "click items on the list to highlight them in in-game searches",
+      "hold right-click to remove an item from the list",
+      "hold the <clear> button to remove every highlighted item"
+    ]
   },
   "lab": {
-	"button": [
-	  "red = layout unavailable/outdated, yellow = layout only, green = layout + tracking",
-	  "click to open poelab.com: select difficulty, right-click layout image, click <copy image>",
-	  "optional: right-click <lab compass file>, click <copy link address>"
-	]
+    "button": [
+      "red = layout unavailable/outdated, yellow = layout only, green = layout + tracking",
+      "click to open poelab.com: select difficulty, right-click layout image, click <copy image>",
+      "optional: right-click <lab compass file>, click <copy link address>"
+    ]
   },
   "leveltracker": {
-	"skilltree-cap about": [
-	  "load images into slots via pasting or snipping"
-	],
-	"skilltree-cap ascend": [
-	  "load images into slots via pasting or snipping",
-	  "slot 05 is reserved for a potential endgame respec"
-	],
-	"skilltree-cap index": [
-	  "click to add a caption to this slot"
-	],
-	"skilltree-cap paste": [
-	  "paste image file or data into this slot"
-	],
-	"skilltree-cap snip": [
-	  "opens the snipping widget, or triggers a screen-cap"
-	],
-	"skilltree-cap show": [
-	  "hold to view the image"
-	],
-	"skilltree-cap delete": [
-	  "hold to delete the image"
-	],
-	"skilltree-cap delete-all": [
-	  "hold to delete all images"
-	],
-	"skilltree-cap caption": [
-	  "type in a caption and press enter"
-	]
+    "skilltree-cap about": [
+      "load images into slots via pasting or snipping"
+    ],
+    "skilltree-cap ascend": [
+      "load images into slots via pasting or snipping",
+      "slot 05 is reserved for a potential endgame respec"
+    ],
+    "skilltree-cap index": [
+      "click to add a caption to this slot"
+    ],
+    "skilltree-cap paste": [
+      "paste image file or data into this slot"
+    ],
+    "skilltree-cap snip": [
+      "opens the snipping widget, or triggers a screen-cap"
+    ],
+    "skilltree-cap show": [
+      "hold to view the image"
+    ],
+    "skilltree-cap delete": [
+      "hold to delete the image"
+    ],
+    "skilltree-cap delete-all": [
+      "hold to delete all images"
+    ],
+    "skilltree-cap caption": [
+      "type in a caption and press enter"
+    ]
   },
   "maptracker": {
     "logviewer day-select": [
@@ -591,24 +625,24 @@
       "has to be enabled in the <mapping tracker> section of the menu"
     ],
     "logviewer header content": [
-      "side-content you have entered in a map",
+      "side-content you have found in a map",
       "has to be enabled in the <mapping tracker> section of the menu"
     ],
-	"logviewer header tier": [
-	  "the tier (map) or level (e.g. contract) of the run"
-	]
+    "logviewer header tier": [
+      "the tier (map) or level (e.g. contract) of the run"
+    ]
   },
   "notepad": {
-	"widget": [
-	  "click to select tab, drag to create a widget, hold right-click to delete"
+    "widget": [
+      "click to select tab, drag to create a widget, hold right-click to delete"
     ],
-	"widget help": [
-	  "widgets are inactive (unclickable) unless tab is held down",
-	  "left-click to drag widgets, right-click to destroy widgets"
-	],
-	"widget grouped": [
-	  "drag to combine every note into a single, scrollable widget"
-	]
+    "widget help": [
+      "widgets are inactive (unclickable) unless tab is held down",
+      "left-click to drag widgets, right-click to destroy widgets"
+    ],
+    "widget grouped": [
+      "drag to combine every note into a single, scrollable widget"
+    ]
   },
   "screenchecks": {
     "gamescreen": [
@@ -630,7 +664,8 @@
       "-> follow the instructions in <test>",
       "",
       "(/bold)(/underline)used for:",
-      "-> item-info league-start mode"
+      "-> item-info league-start mode",
+      "-> mapping tracker portal reminder"
     ],
     "betrayal": [
       "(/bold)(/underline)instructions:",
@@ -662,30 +697,30 @@
     ]
   },
   "searchstrings": {
-	"config entry-about": [
-	  "use-cases have their own entries that will be listed in the context-menu",
-	  "type in a descriptive name for the string(s) and press enter"
-	],
-	"config entry-list": [
-	  "click an entry to edit its string(s), hold <del> to remove it",
-	  "each line in the edit-field is an individual string",
-	  "adding multiple lines turns the entry into a scrollable search"
-	]
+    "config entry-about": [
+      "use-cases have their own entries that will be listed in the context-menu",
+      "type in a descriptive name for the string(s) and press enter"
+    ],
+    "config entry-list": [
+      "click an entry to edit its string(s), hold <del> to remove it",
+      "each line in the edit-field is an individual string",
+      "adding multiple lines turns the entry into a scrollable search"
+    ]
   },
   "seed-explorer": {
-	"import": [
-	  "imports a jewel from clipboard (e.g. copied from trade)"
-	],
-	"trade": [
-	  "opens the trade-site with a search for this seed"
-	]
+    "import": [
+      "imports a jewel from clipboard (e.g. copied from trade)"
+    ],
+    "trade": [
+      "opens the trade-site with a search for this seed"
+    ]
   },
   "snip": {
-	"about": [
-	  "resize and place this widget over an area you want to screencap",
-	  "use arrow keys to move/resize the widget by 1 pixel",
-	  "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
-	  "click <snip> on a specific slot to save the image into it"
-	]
+    "about": [
+      "resize and place this widget over an area you want to screencap",
+      "use arrow keys to move/resize the widget by 1 pixel",
+      "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
+      "click <snip> on a specific slot to save the image into it"
+    ]
   }
 }

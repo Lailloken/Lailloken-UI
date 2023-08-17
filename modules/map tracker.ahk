@@ -16,10 +16,14 @@
 	settings.maptracker.xButton := LLK_IniRead("ini\map tracker.ini", "UI", "button xcoord")
 	settings.maptracker.yButton := LLK_IniRead("ini\map tracker.ini", "UI", "button ycoord")
 	settings.maptracker.sidecontent := LLK_IniRead("ini\map tracker.ini", "Settings", "track side-areas", 0)
+	settings.maptracker.mechanics := LLK_IniRead("ini\map tracker.ini", "Settings", "track league mechanics", 0)
+	settings.maptracker.portal_reminder := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll reminder", 0)
 	settings.maptracker.xOffset := LLK_IniRead("ini\map tracker.ini", "UI", "map tracker x-offset", 0)
 	settings.maptracker.yOffset := LLK_IniRead("ini\map tracker.ini", "UI", "map tracker y-offset", 0)
 	If !IsObject(vars.maptracker)
-		vars.maptracker := {}
+		vars.maptracker := {"mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "metamorph": 2, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1}}
+	For mechanic in vars.maptracker.mechanics
+		settings.maptracker[mechanic] := LLK_IniRead("ini\map tracker.ini", "mechanics", mechanic, 0)
 }
 
 Maptracker(cHWND := "")
@@ -30,11 +34,11 @@ Maptracker(cHWND := "")
 	check := LLK_HasVal(vars.hwnd.maptracker, cHWND)
 	If check
 	{
-		If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (vars.maptracker.refresh_kills = 2)
+		If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2)
 			MaptrackerKills()
-		Else If !(InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub"))
+		Else If !MaptrackerTowncheck()
 			LLK_ToolTip("cannot save in maps", 1.5,,,, "Red")
-		Else If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
+		Else If MaptrackerTowncheck() && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
 		{
 			MaptrackerSave()
 			vars.maptracker.Delete("map")
@@ -84,13 +88,13 @@ Maptracker(cHWND := "")
 MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content
 {
 	local
-	global vars
+	global vars, settings
 	
 	If !mode
-		parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0}
+		parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0}
 	Else If (mode = 1)
 		parse := {"abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
-	Else parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
+	Else parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
 
 	For key, val in parse
 		If InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
@@ -155,6 +159,9 @@ MaptrackerGUI(mode := 0)
 	vars.hwnd.maptracker.save := hwnd
 	Gui, %maptracker%: Add, Progress, % "xp yp wp hp Disabled range0-500 BackgroundBlack cGreen HWNDhwnd", 0
 	vars.hwnd.maptracker.delbar := hwnd
+
+	For index, content in vars.maptracker.map.content
+		Gui, %maptracker%: Add, Pic, % "ys hp w-1 BackgroundTrans", % "img\GUI\mapping tracker\"(InStr(content, "(vaal area)") ? "vaal area" : InStr(content, "trial of ") ? "lab trial" : content) ".png"
 	
 	If mode
 	{
@@ -311,8 +318,8 @@ MaptrackerLogs()
 			LLK_FontDimensions(settings.maptracker.fSize + 4, font_height, font_width)
 			width := (width < font_height) ? font_height : width, header_tooltips := ["map", "e-exp", "kills", "loot", "mapinfo", "content", "tier"]
 
-			If (header = "content") && (width < content_icons * (settings.maptracker.fHeight + settings.maptracker.fWidth/2))
-				width := content_icons * (settings.maptracker.fHeight + settings.maptracker.fWidth/2)
+			If (header = "content") && (width < content_icons * (settings.maptracker.fHeight * 1.33))
+				width := content_icons * (settings.maptracker.fHeight * 1.33)
 
 			Gui, %maptracker_logs%: Add, Text, % (A_Index = 1 ? "xs x-1 y+"settings.maptracker.fHeight/4 : "ys") . " Section BackgroundTrans Border Center HWNDhwnd w"width, % icon ? "" : (header = "tier") ? "t/l" : (header = "#") ? "" : header
 			Gui, %maptracker_logs%: Font, % "s"settings.maptracker.fSize
@@ -586,6 +593,77 @@ MaptrackerMapinfo()
 	vars.maptracker.map.mapinfo := parse, vars.mapinfo.active_map.expired := 1 ;flag to prevent the maptracker from logging the same map-info more than once
 }
 
+MaptrackerMechanicsCheck()
+{
+	local
+	global vars, settings
+	static wait
+
+	check := 0, start := A_TickCount
+	For mechanic, type in vars.maptracker.mechanics
+		If (type = 2)
+			check += !settings.maptracker[mechanic] || !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"mechanic ".bmp") ? 0 : 1
+	If wait || !check ;|| !LLK_IsBetween(vars.general.xMouse - vars.client.x, vars.client.x, vars.client.x + vars.client.w) || !LLK_IsBetween(vars.general.yMouse - vars.client.y, vars.client.y, vars.client.y + vars.client.h)
+		Return
+	wait := 1, pScreen := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
+	If settings.general.blackbars ;crop the screenshot if there are black bars
+		pScreen_copy := Gdip_CloneBitmapArea(pScreen, vars.client.x, 0, vars.client.w, vars.client.h,, 1), Gdip_DisposeImage(pScreen), pScreen := pScreen_copy
+
+	For mechanic, type in vars.maptracker.mechanics
+	{
+		If (type != 2) || LLK_HasVal(vars.maptracker.map.content, mechanic)
+			Continue
+		pNeedle := Gdip_LoadImageFromFile("img\Recognition ("vars.client.h "p)\Mapping Tracker\"mechanic ".bmp")
+		If (0 < Gdip_ImageSearch(pScreen, pNeedle, LIST,,,,, 10))
+			vars.maptracker.map.content.Push(mechanic)
+		Gdip_DisposeImage(pNeedle)
+	}
+	Gdip_DisposeImage(pScreen), MaptrackerGUI(), wait := 0
+}
+
+MaptrackerParseDialogue(line)
+{
+	local
+	global vars, settings
+	static ignore, blight, delirium, expedition, harvest, incursion, bestiary, betrayal, delve
+
+	If !IsObject(ignore)
+	{
+		ignore := ["DEBUG", "You have entered", "SHADER", "ENGINE", "RENDER", "DOWNLOAD", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server"]
+		blight := [" sister cassia"], delirium := [" strange voice"], expedition := [" dannig", " gwennen", " rog", " tujen"], harvest := [" oshabi"], incursion := [" alva"], bestiary := [" einhar"], betrayal := [" jun"], delve := [" niko"]
+		For member in vars.betrayal.members
+			betrayal.Push(" "(member = "it" ? "it that fled" : member))
+	}
+
+	For index, skip in ignore
+		If InStr(line, skip, 1) ;skip certain key-words to avoid erroneous tracking
+			Return
+
+	For mechanic, type in vars.maptracker.mechanics
+	{
+		If (type != 1) || !settings.maptracker[mechanic] || LLK_HasVal(vars.maptracker.map.content, mechanic) || (mechanic = "delirium") && InStr(vars.log.areaID, "affliction") || InStr(vars.log.areaID, mechanic)
+			Continue
+		For index, identifier in %mechanic%
+			If InStr(line, identifier)
+			{
+				vars.maptracker.map.content.Push(mechanic)
+				Return
+			}
+	}
+}
+
+MaptrackerReminder()
+{
+	local
+	global vars, settings
+
+	Clipboard := ""
+	SendInput, ^{c}
+	ClipWait, 0.05
+	If InStr(Clipboard, "`r`nportal scroll`r`n")
+		LLK_ToolTip("double-check`nmap content!", 3,,,, "aqua", settings.general.fSize + 4,,, 1)
+}
+
 MaptrackerSave(mode := 0)
 {
 	local
@@ -631,14 +709,14 @@ MaptrackerTimer()
 	If MaptrackerCheck() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
 		vars.maptracker.refresh_kills := 2
 	
-	If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
+	If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
 	{
 		Gui, % vars.hwnd.maptracker.main ": Color", % (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
 		Gui, % vars.hwnd.maptracker.main ": -E0x20"
 		vars.maptracker.color := (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
 		GuiControl, % "+Background" vars.maptracker.color, % vars.hwnd.maptracker.delbar
 	}
-	Else If (!(InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
+	Else If (!MaptrackerTowncheck() || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
 	{
 		Gui, % vars.hwnd.maptracker.main ": Color", Black
 		vars.maptracker.color := "Black"
@@ -672,4 +750,13 @@ MaptrackerTimer()
 		ToolTip_Mouse("killtracker"), vars.maptracker.refresh_kills := 1 ;three-state flag used to determine which kill-count is parsed from the client-log and how the tracker needs to be colored
 	vars.maptracker.map.time += 1 ;advance the timer
 	Return
+}
+
+MaptrackerTowncheck()
+{
+	local
+	global vars, settings
+
+	If InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(vars.log.areaID, "menagerie")
+		Return 1
 }

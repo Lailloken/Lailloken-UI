@@ -80,16 +80,6 @@
 				OmniContextMenu()
 			Case "horizons":
 				HorizonsTooltip("a")
-				/*
-				While GetKeyState(ThisHotkey_copy, "P")
-				{
-					Input, keypress, L1 T0.5
-					If LLK_IsType(keypress, "alpha") && db.mapinfo.maps[keypress]
-						HorizonsTooltip(keypress)
-					If !Blank(keypress)
-						KeyWait, % keypress
-				}
-				*/
 				KeyWait, % ThisHotkey_copy
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "horizons_map":
@@ -148,27 +138,8 @@ Omnikey2()
 		Screenchecks_PixelSearch("gamescreen")
 	
 	If !vars.pixelsearch.gamescreen.check
-	{
-		/*
-		If (InStr(current_location, "_town") || InStr(current_location, "1_3_17_1")) && WinExist("ahk_id " hwnd_leveling_guide2) && InStr(text2, "hold omni-key")
-		{
-			If searchstrings_scroll_contents
-				searchstrings_scroll_contents := ""
-			start := A_TickCount
-			While GetKeyState(ThisHotkey_copy, "P")
-			{
-				If (A_TickCount >= start + 100)
-				{
-					;LLK_StringPick("exile leveling")
-					KeyWait, % ThisHotkey_copy
-					Return
-				}
-			}
-		}
-		*/
-		
+	{		
 		Screenchecks_ImageSearch()
-		
 		If settings.features.betrayal && vars.imagesearch.betrayal.check
 		{
 			Betrayal()
@@ -213,35 +184,12 @@ Omnikey2()
 			Gdip_DisposeImage(vars.searchstrings.pHaystack)
 		}
 	}
-	Return
-
-	pHaystack := Gdip_BitmapFromHWND(hwnd_poe_client, 1)
-	For key, value in searchstrings_enabled
-	{
-		If bla ;LLK_StringSearch(value)
-		{
-			If WinExist("ahk_id " hwnd_searchstrings_menu)
-			{
-				Gui, searchstrings_menu: Submit, NoHide
-				;LLK_StringMenuSave()
-			}
-			parse := StrReplace(value, " ", "_")
-			If !searchstrings_%parse%_contents.Count()
-			{
-				LLK_ToolTip("no strings set up for:`n" value, 1.5)
-				Return
-			}
-			searchstring_activated := value, searchstring_activated1 := StrReplace(searchstring_activated, " ", "_")
-			;LLK_StringActivate(value)
-			Break
-		}
-	}
-	Gdip_DisposeImage(pHaystack)
 }
 
 OmniRelease()
 {
-	global
+	local
+	global vars, settings
 	
 	If IsObject(vars.omnikey)
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
@@ -249,9 +197,10 @@ OmniRelease()
 
 OmniURL(site)
 {
-	global
-	local exceptions := ["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask", "crimson jewel", "viridian jewel", "cobalt jewel", "prismatic jewel"]
+	local
+	global vars, settings
 	
+	exceptions := ["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask", "crimson jewel", "viridian jewel", "cobalt jewel", "prismatic jewel"]
 	Switch site
 	{
 		Case "wiki":
@@ -378,8 +327,8 @@ OmniContext(mode := 0)
 
 OmniContextMenu()
 {
-	global
-	local cluster_type, mouseX, mouseY, x_context, w_context
+	local
+	global vars, settings
 
 	Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 	Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/3
@@ -458,26 +407,12 @@ OmniContextMenu()
 	If (x_context < vars.client.x)
 		Gui, omni_context: Show, % "NA x"vars.client.x " y"mouseY
 	Else Gui, omni_context: Show, % "NA x"mouseX - w_context " y"mouseY
-	;WinWaitNotActive, % "ahk_id " vars.hwnd.omni_context
-	/*
-	While WinActive("ahk_id " vars.hwnd.omni_context)
-	{
-		KeyWait, ESC, D T0.05
-		If !ErrorLevel
-			Break
-	}
-	If WinExist("ahk_id " vars.hwnd.omni_context)
-	{
-		Gui, omni_context: destroy
-		vars.hwnd.Delete("omni_context")
-	}
-	*/
 }
 
 OmniContextMenuPick()
 {
-	global
-	local browser_search, clusterURL
+	local
+	global vars, settings
 
 	KeyWait, LButton
 	Switch A_GuiControl

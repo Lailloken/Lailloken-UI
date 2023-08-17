@@ -52,7 +52,7 @@ LogLoop(mode := 0)
 		Return
 
 	If IsObject(vars.maptracker)
-		vars.maptracker.hideout := InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
+		vars.maptracker.hideout := MaptrackerTowncheck() ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
 
 	log_content := vars.log.file.Read()
 	If !Blank(log_content)
@@ -146,7 +146,7 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 				areatier := (parse - 67 < 10 ? "0" : "") parse - 67
 			Else areatier := arealevel
 		}
-		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.")
+		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.") || InStr(A_LoopField, "*****")
 			areaID := "login"
 
 		If InStr(A_LoopField, "you have entered ")
@@ -175,8 +175,11 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 			}
 			If (vars.maptracker.refresh_kills = 1)
 				vars.maptracker.map.kills := [parse], LLK_ToolTip("kill-count updated",,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
-			Else If (vars.maptracker.refresh_kills > 1) && (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub"))
+			Else If (vars.maptracker.refresh_kills > 1) && MaptrackerTowncheck()
 				vars.maptracker.map.kills.2 := parse, LLK_ToolTip("kill-count updated",,,,, "Lime"), vars.maptracker.refresh_kills := 3
 		}
+
+		If settings.features.maptracker && settings.maptracker.mechanics && (vars.log.areaID = vars.maptracker.map.id)
+			MaptrackerParseDialogue(A_LoopField)
 	}
 }

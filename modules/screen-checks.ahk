@@ -53,7 +53,7 @@
 Screenchecks_ImageRecalibrate()
 {
 	local
-	global vars
+	global vars, settings
 
 	Clipboard := ""
 	KeyWait, LButton
@@ -172,7 +172,7 @@ Screenchecks_Info(name) ;holding the <info> button to view instructions
 Screenchecks_PixelRecalibrate(name) ;recalibrating a pixel-check
 {
 	local
-	global vars
+	global vars, settings
 
 	Switch name
 	{
@@ -192,7 +192,7 @@ Screenchecks_PixelRecalibrate(name) ;recalibrating a pixel-check
 Screenchecks_PixelSearch(name) ;performing pixel-checks
 {
 	local
-	global vars
+	global vars, settings
 
 	pixel_check := 1
 	Switch name

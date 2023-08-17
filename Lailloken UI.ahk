@@ -172,11 +172,6 @@ FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to 
 	While !mode && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
 		time := SubStr(time, 2)
 	return time
-    /*
-    ; Unlike the method used above, this would not support more than 24 hours worth of seconds:
-    FormatTime, hmmss, %time%, h:mm:ss
-    return hmmss
-    */
 }
 
 LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
@@ -340,7 +335,6 @@ Init_client()
 	}
 	Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution ;disable custom resolutions for streaming clients
 	
-	local xScreenOffset_monitor, yScreenOffSet_monitor, width_native, height_native, x, y
 	;determine native resolution of the active monitor
 	WinGetPos, x, y,,, ahk_group poe_window
 	Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
@@ -351,7 +345,7 @@ Init_client()
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native} ;, "hTask": h, "wTask": w, "xTask": x, "yTask": y}
 	
-	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "left")
+	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "center"), vars.client.docked2 := LLK_IniRead("ini\config.ini", "Settings", "window-position vertical", "center")
 	vars.client.borderless := (vars.client.fullscreen = "true") ? 0 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
 	vars.client.customres := [LLK_IniRead("ini\config.ini", "Settings", "custom-width"), LLK_IniRead("ini\config.ini", "Settings", "custom-resolution")]
 	If IsNumber(vars.client.customres.1) && IsNumber(vars.client.customres.2)
@@ -376,27 +370,26 @@ Init_client()
 			Else WinMove, ahk_group poe_window,,, % vars.monitor.y, % vars.client.customres.1, % vars.client.customres.2
 		}
 	}
-	
-	local x, y, w, h, xTarget
 
 	WinGetPos, x, y, w, h, ahk_group poe_window ;get the initial offsets, widths, and heights (separately saved as x0, y0, etc. because of potential recalculation later on)
 	vars.client.x_offset := (vars.client.fullscreen = "false" && !vars.client.borderless) ? vars.system.xborder : 0
 	xTarget := (vars.client.docked = "left") ? vars.monitor.x - vars.client.x_offset : (vars.client.docked = "center") ? vars.monitor.x + (vars.monitor.w - w) / 2 : vars.monitor.x + vars.monitor.w - (w - vars.client.x_offset)
+	yTarget := (vars.client.docked2 = "top") ? vars.monitor.y : (vars.client.docked2 = "center") ? vars.monitor.y + (vars.monitor.h - h)/2 : vars.monitor.y + vars.monitor.h - (h - (vars.client.borderless ? 0 : vars.system.yBorder))
 	If (vars.client.fullscreen = "false")
 	{
-		WinMove, ahk_group poe_window,, % xTarget, % vars.monitor.y
+		WinMove, ahk_group poe_window,, % xTarget, % yTarget
 		WinGetPos, x, y, w, h, ahk_group poe_window
 	}
-	vars.client.x0 := x, vars.client.y0 := y, vars.client.x := x, vars.client.y := y
-	vars.client.w0 := w, vars.client.h0 := h, vars.client.w := w, vars.client.h := h
+	vars.client.x := vars.client.x0 := x, vars.client.y := vars.client.y0 := y
+	vars.client.w := vars.client.w0 := w, vars.client.h := vars.client.h0 := h
 
 	;apply overlay offsets if client is running in bordered windowed mode
 	If (vars.client.fullscreen = "false") && !vars.client.borderless
 	{
-		vars.client.w -= 2* vars.system.xborder
-		vars.client.h := vars.client.h - vars.system.caption - 2* vars.system.yborder
-		vars.client.x += vars.system.xborder
-		vars.client.y += vars.system.caption + vars.system.yborder
+		vars.client.w0 := vars.client.w -= 2* vars.system.xborder
+		vars.client.h0 := vars.client.h := vars.client.h - vars.system.caption - 2* vars.system.yborder
+		vars.client.x0 := vars.client.x += vars.system.xborder
+		vars.client.y0 := vars.client.y += vars.system.caption + vars.system.yborder
 	}
 	vars.client.xc := vars.client.x + vars.client.w//2 - 1, vars.client.yc := vars.client.y + vars.client.h//2 - 1 ;client's horizontal and vertical centers
 
@@ -427,6 +420,8 @@ Init_client()
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\GUI\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\Betrayal\")
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Betrayal\"
+		If !FileExist("img\Recognition (" vars.client.h "p)\Mapping Tracker\")
+			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Mapping Tracker\"
 		;If !FileExist("img\Recognition (" vars.client.h "p)\Trade-check\")
 		;	FileCreateDir, % "img\Recognition (" vars.client.h "p)\Trade-check\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\")
@@ -436,7 +431,8 @@ Init_client()
 
 Init_geforce()
 {
-	global
+	local
+	global vars, settings
 	
 	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 0)
 	vars.imagesearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "image-check variation", 25)
@@ -444,8 +440,8 @@ Init_geforce()
 
 Init_general()
 {
-	global
-	local font_height, font_width
+	local
+	global vars, settings
 	
 	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version")
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") || FileExist("modules\delve-helper.ahk")
@@ -585,12 +581,12 @@ Loop()
 Loop_main()
 {
 	local
-	global vars, settings, Json
+	global vars, settings
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
 	{
-		vars.cloneframes.editing := "", vars.cloneframes.active_corner := ""
+		vars.cloneframes.editing := ""
 		Init_cloneframes()
 	}
 	
@@ -635,10 +631,7 @@ Loop_main()
 	{
 		For key, val in vars.tooltip ;timed tooltips are stored in this object and destroyed via this loop
 			If val && (val <= A_TickCount)
-			{
-				LLK_Overlay(key, "destroy")
-				remove_tooltips .= !remove_tooltips ? key : ";" key
-			}
+				LLK_Overlay(key, "destroy"), remove_tooltips .= !remove_tooltips ? key : ";" key
 	
 		Loop, Parse, remove_tooltips, `; ;separate loop to delete entries from the vars.tooltip object without interfering with the for-loop above
 			vars.tooltip.Delete(A_LoopField)
@@ -673,8 +666,8 @@ Loop_main()
 
 MouseHover()
 {
-	global
-	local win_hover, control_hover, xPos, yPos
+	local
+	global vars, settings
 
 	MouseGetPos, xPos, yPos, win_hover, control_hover, 2
 	vars.general.xMouse := xPos, vars.general.yMouse := yPos
@@ -683,8 +676,8 @@ MouseHover()
 
 Resolution_check()
 {
-	global
-	local text, poe_height := vars.client.h
+	local
+	global vars, settings
 	
 	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h) ;&& !vars.general.supported_resolutions.HasKey(vars.client.h + vars.system.caption + vars.system.yborder* 2)
 	{
@@ -730,7 +723,8 @@ Resolution_check()
 
 RightClick()
 {
-	global
+	local
+	global vars, settings
 
 	If GetKeyState("LButton", "P")
 		Return
@@ -743,7 +737,7 @@ RightClick()
 SnipGuiClose()
 {
 	local
-	global vars
+	global vars, settings
 
 	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
 	vars.snip := {"x": x, "y": y, "w": w, "h": h}
@@ -811,7 +805,7 @@ SnippingTool(mode := 0)
 SnippingToolMove()
 {
 	local
-	global vars
+	global vars, settings
 
 	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
 	Switch A_ThisHotkey
@@ -923,8 +917,8 @@ StrMatch(string, check)
 ToolTip_Mouse(mode := "", timeout := 0)
 {
 	local
-	static name, start
 	global vars, settings
+	static name, start
 
 	If mode
 	{
@@ -967,7 +961,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 		Case "killtracker":
 			text := "press the omni-key to`nstart the kill-tracker"
 		Case "lab":
-			text := "-> select lab difficulty`n-> right-click layout image`n-> click <copy image>`noptional:`n-> right-click <lab compass file>`n-> click <copy link address>"
+			text := "-> select lab difficulty`n-> right-click layout image`n-> click <copy image>`noptional:`n-> right-click <lab compass file>`n-> click <copy link address>`n(esc to exit)"
 	}
 
 	If vars.tooltip_mouse.timeout && WinActive("ahk_group poe_window") && IsNumber(start) && (A_TickCount >= start + 1000) || GetKeyState("ESC", "P") && (name != "killtracker") || !vars.tooltip_mouse
@@ -1024,7 +1018,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 	{
 		version := SubStr(A_LoopFileName, InStr(A_LoopFileName, "_") + 1), version := StrReplace(version, ".zip")
 		If Blank(version) || (version <= versions_local["_release"].1)
-			FileDelete, % A_LoopFileName
+			FileDelete, % A_LoopFileLongPath
 	}
 	
 	FileDelete, data\version_check.json
@@ -1107,7 +1101,6 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 UpdateDownload(mode := "")
 {
 	local
-	global vars
 	static dl_bar := 0, HWND_bar
 
 	If (mode = "reset")
@@ -1125,279 +1118,7 @@ UpdateDownload(mode := "")
 
 	dl_bar += (dl_bar = 10) ? -10 : 1
 	GuiControl,, % HWND_bar, % dl_bar
-	;GuiControl, movedraw, % vars.hwnd.update_notification.dl_bar
 }
-
-/*
-UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this function was called via the timer or during script-start
-{
-	local
-	global Json, update := [0]
-
-	If (timer = 1) && !LLK_IniRead("ini\config.ini", "settings", "update auto-check", 1)
-		Return
-	FileDelete, update.* ;delete any leftover files
-	If FileExist("update.*")
-	{
-		If !timer
-			LLK_FilePermissionError("delete")
-		Return
-	}
-	versions_local := Json.Load(LLK_FileRead("data\versions.json")) ;load local versions
-	If !IsObject(versions_local)
-		Return
-	Loop, Files, % "update_*.zip"
-	{
-		version := SubStr(A_LoopFileName, InStr(A_LoopFileName, "_") + 1), version := StrReplace(version, ".zip")
-		If (version <= versions_local["_release"].1)
-			FileDelete, % A_LoopFileName
-	}
-	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	whr.Open("GET", "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/data/versions.json", true) ;get version-list from GitHub
-	whr.Send(), whr.WaitForResponse()
-	If !InStr(whr.ResponseText, "{")
-		Return
-	versions_live := Json.Load(whr.ResponseText) ;load version-list into object
-	For key, val in versions_live ;parse online version-list and compare versions between each file
-	{
-		If !versions_local[key].1 || (val.1 > versions_local[key].1) ;newer version is listed online
-		{
-			If (key = "_release") && !timer ;if new release-version is online, and updatecheck was called on script-start
-			{
-				update := [], update.0 := ["", val.1] ;create array with versions (to display them in the notification)
-				Loop, Parse, % val.1 ;parse the version-number from the file to create a more readable one (e.g. 15000.1 = v1.50.0-hotfix1)
-					update.1 .= InStr("13", A_Index) ? A_LoopField "." : (A_LoopField = ".") ? "-hotfix" : (A_Index = 4 && A_LoopField = "0") ? "" : A_LoopField
-				Loop, Parse, % versions_local[key].1
-					update.0.1 .= InStr("13", A_Index) ? A_LoopField "." : (A_LoopField = ".") ? "-hotfix" : (A_Index = 4 && A_LoopField = "0") ? "" : A_LoopField
-				update.2 := val.2.Clone(), update.3 := val.3  ;[2] includes a short summary of what the update contains, [3] the direct-download link
-				Return ;if there's a new release, skip the remaining file-update checks: it's likely that the new releas is required to make use of the updated files
-			}
-			Else If (key = "_release") && timer ;new release-version, but updatecheck was called via the timer (no update notification, only the llk-ui panel turning green)
-			{
-				update := [1]
-				Break ;if there's a new release, skip the remaining file-update checks: it's likely that the new releas is required to make use of the updated files
-			}
-			extension := SubStr(key, InStr(key, ".",,, LLK_InStrCount(key, "."))), branch := InStr(val.2, "/main/") ? "main" : "beta"
-			UrlDownloadToFile, % val.2, % "update" extension ;download the new file into the root folder first (w/o replacing the target file) in order to check write-permissions first (and to prevent bricking the target)
-			If ErrorLevel || !FileExist("update" extension) ;check for errors
-			{
-				update := [!FileExist("update" extension) ? -1 : -2, branch] ;error codes: -1 (file couldn't be written), -2 download failed ;split these two just in case a download can error out AND still create a file
-				Break
-			}
-			FileMove, % "update" extension, % key, 1 ;move downloaded file to target destination
-			If ErrorLevel
-			{
-				update := [-3, branch] ;error code -3: some write error
-				Break
-			}
-			If (key = "lailloken ui.ahk") && !timer
-				restart := 1
-			update.1 += 10
-		}
-	}
-	If (update.1 < 10) && timer
-	{
-		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black" ;update the color of the llk-ui panel
-		Return
-	}
-	If (update.1 = 0) || (update.1 < 0) && !timer ;no update, or there was an error while updating on script-start
-		Return
-	FileDelete, data\versions.json
-	If FileExist("data\versions.json")
-	{
-		update := [-4, branch]
-		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
-		Return
-	}
-	FileAppend, % Json.Dump(versions_live), % "data\versions.json"
-	If restart
-	{
-		Reload
-		ExitApp
-	}
-	update := timer ? [1] : [0]
-	If timer
-		Gui, LLK_panel: Color, % !IsNumber(update.1) ? "Black" : (update.1 > 0) ? "Green" : (update.1 < 0) ? "Maroon" : "Black"
-}
-*/
-
-/*
-UpdateDownload(mode := "")
-{
-	local
-	global vars
-	static dl_bar := 0
-
-	If (mode = "reset")
-	{
-		dl_bar := 0
-		GuiControl,, % vars.hwnd.update_notification.dl_bar, % dl_bar
-		GuiControl, movedraw, % vars.hwnd.update_notification.dl_bar
-		Return
-	}
-
-	dl_bar += (dl_bar = 10) ? -10 : 1
-	GuiControl,, % vars.hwnd.update_notification.dl_bar, % dl_bar
-	GuiControl, movedraw, % vars.hwnd.update_notification.dl_bar
-}
-*/
-
-/*
-UpdateNotification(code)
-{
-	local
-	global vars, settings, update
-	static in_progress
-	
-	If in_progress || IsObject(code) && !code.1
-		Return
-	
-	If (code.0.2 = LLK_IniRead("ini\config.ini", "versions", "skip", 6969)) ;check if user wants to skip this new version
-	{
-		update := 0
-		Return
-	}
-	check := LLK_HasVal(vars.hwnd.update_notification, code)
-	If (check = "winbar")
-	{
-		start := A_TickCount
-		WinGetPos,,, Width, Height, % "ahk_id "vars.hwnd.update_notification.main
-		While GetKeyState("LButton", "P")
-			If (A_TickCount >= start + 250)
-			{
-				LLK_Drag(width, height, xPos, yPos, 1)
-				Sleep 1
-			}
-	}
-	Else If (check = "download")
-	{
-		SetTimer, UpdateDownload, 50
-		in_progress := 1
-		UrlDownloadToFile, % update.3, % "update_" update.0.2 ".zip"
-		SetTimer, UpdateDownload, Delete
-		in_progress := 0, UpdateDownload("reset")
-		If !FileExist("update_" update.0.2 ".zip") || ErrorLevel
-		{
-			Gui, update_notification: Hide
-			MsgBox, 4096, download failed, An error occurred while downloading or saving the update-file.`n`nIf this keeps happening, run the write-permissions test in the <general> section of the settings menu.
-		}
-		UpdateNotification("refresh")
-	}
-	Else If (check = "open")
-	{
-		Run, explore %A_ScriptDir%
-		Run, % "update_" update.0.2 ".zip"
-		ExitApp
-	}
-	Else If (check = "notes")
-		Run, https://github.com/Lailloken/Lailloken-UI/releases
-	Else If (check = "later")
-	{
-		KeyWait, LButton
-		LLK_Overlay(vars.hwnd.update_notification.main, "destroy"), update := ["later"]
-	}
-	Else If (check = "skip") && LLK_Progress(vars.hwnd.update_notification.skip_bar, "LButton")
-	{
-		IniWrite, % update.0.2, ini\config.ini, versions, skip
-		LLK_Overlay(vars.hwnd.update_notification.main, "destroy"), update := 0
-		KeyWait, LButton
-	}
-	Else If (check = "restart")
-	{
-		Reload
-		ExitApp
-	}
-	Else If (check = "write_test")
-	{
-		in_progress := 1, Settings_menu("general")
-		WinWaitActive, % "ahk_id "vars.hwnd.settings.main
-		Settings_WriteTest(), in_progress := 0
-	}
-	Else If (check = "manual_update")
-	{
-		Run, % "https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/"update.2 ".zip" ;branch stored in update.2
-		Run, explore %A_ScriptDir%
-		ExitApp
-	}
-	If check
-		Return
-
-	Gui, update_notification: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDupdate_notification
-	Gui, update_notification: Color, Black
-	Gui, update_notification: Margin, % settings.general.fWidth, % settings.general.fWidth/4
-	Gui, update_notification: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
-	vars.hwnd.update_notification := {"main": update_notification}
-
-	Gui, update_notification: Add, Text, % "x-1 y-1 Center Border HWNDhwnd gUpdateNotification", % " lailloken ui: update checker "
-	vars.hwnd.update_notification.winbar := hwnd
-	Gui, update_notification: Font, % "s"settings.general.fSize
-
-	If IsObject(code.0) || (code = "refresh")
-	{
-		code := (code = "refresh") ? update : code
-		Gui, update_notification: Add, Text, % "Section xs HWNDhwnd xp+"settings.general.fWidth " y+"settings.general.fWidth/2, % "currently running: " code.0.1
-		ControlGetPos,,, cWidth0,,, ahk_id %hwnd%
-		Gui, update_notification: Add, Text, % "xs HWNDhwnd y+0", % "latest version: " code.1
-		ControlGetPos,,, cWidth,,, ahk_id %hwnd%
-		cWidth := Max(cWidth0, cWidth)
-		Gui, update_notification: Font, underline
-		Gui, update_notification: Add, Text, % "xs y+"settings.general.fWidth/2, % "summary of changes:"
-		Gui, update_notification: Font, norm
-		For index, text in code.2
-			Gui, update_notification: Add, Text, % "xs y+0 w"cWidth, % "-> " text
-
-		Gui, update_notification: Font, % "s"settings.general.fSize - 2
-		If !FileExist("update_" update.0.2 ".zip")
-		{
-			Gui, update_notification: Add, Text, % "Section xs Border Center BackgroundTrans HWNDhwnd0 gUpdateNotification y+"settings.general.fWidth, % "download zip-file"
-			Gui, update_notification: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd range0-10 BackgroundBlack cGreen", 0
-			vars.hwnd.update_notification.download := hwnd0, vars.hwnd.update_notification.dl_bar := hwnd
-		}
-		Else
-		{
-			Gui, update_notification: Add, Text, % "Section xs Border Center HWNDhwnd gUpdateNotification y+"settings.general.fWidth, % "open zip && close script"
-			vars.hwnd.update_notification.open := hwnd, vars.hwnd.help_tooltips["updater_open file"] := hwnd
-		}
-		Gui, update_notification: Add, Text, % "xs Border Center HWNDhwnd gUpdateNotification", % "release notes (github)"
-		vars.hwnd.update_notification.notes := hwnd
-		Gui, update_notification: Add, Text, % "xs Border Center HWNDhwnd gUpdateNotification", % "update later"
-		vars.hwnd.update_notification.later := hwnd
-		Gui, update_notification: Add, Text, % "xs Border Center BackgroundTrans HWNDhwnd0 gUpdateNotification", % "skip this version"
-		Gui, update_notification: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd range0-500 BackgroundBlack cRed", 0
-		vars.hwnd.update_notification.skip := hwnd0, vars.hwnd.update_notification.skip_bar := vars.hwnd.help_tooltips["updater_skip release"] := hwnd
-		
-	}
-	Else If (code.1 < 0) && (code.1 != -2)
-	{
-		Gui, update_notification: Font, underline
-		Gui, update_notification: Add, Text, % "Section xs HWNDhwnd xp+"settings.general.fWidth " y+"settings.general.fWidth/2, % "file-error detected during update"
-		Gui, update_notification: Font, norm
-		ControlGetPos,,, cWidth,,, ahk_id %hwnd%
-		Gui, update_notification: Add, Text, % "xs HWNDhwnd w"cWidth, -> the updater has encountered errors while trying to save downloaded files.
-		;Gui, update_notification: Add, Text, % "xs HWNDhwnd w"cWidth, -> the script may not have the required write permissions in its current location on your system.
-		Gui, update_notification: Add, Text, % "xs HWNDhwnd w"cWidth, -> you have the following options to troubleshoot this:
-
-		Gui, update_notification: Add, Text, % "Section xs Center Border HWNDhwnd gUpdateNotification y+"settings.general.fWidth/2, % "re-try update"
-		vars.hwnd.update_notification.restart := vars.hwnd.help_tooltips["updater_retry update"] := hwnd
-		Gui, update_notification: Add, Text, % "Section xs Center Border BackgroundTrans HWNDhwnd0 gUpdateNotification y+"settings.general.fWidth/2, % "run write-permissions test"
-		Gui, update_notification: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled Range0-700 BackgroundBlack cGreen", 0
-		vars.hwnd.update_notification.write_test := hwnd0, vars.hwnd.update_notification.write_test_bar := vars.hwnd.help_tooltips["updater_write permissions"] := hwnd
-		Gui, update_notification: Add, Text, % "Section xs Center Border BackgroundTrans HWNDhwnd gUpdateNotification y+"settings.general.fWidth/2, % "download && apply manually"
-		vars.hwnd.update_notification.manual_update := vars.hwnd.help_tooltips["updater_manual update"] := hwnd
-	}
-
-	Gui, update_notification: Show, NA x10000 y10000
-	WinGetPos,,, w, h, ahk_id %update_notification%
-	ControlMove,,,, w,, % "ahk_id "vars.hwnd.update_notification.winbar
-	For key in vars.hwnd.update_notification
-	{
-		If InStr("winbar, main", key)
-			Continue
-		ControlMove,,,, w - settings.general.fWidth*2,, % "ahk_id "vars.hwnd.update_notification[key]
-	}
-	Gui, update_notification: Show, NA Center
-}
-*/
 
 UpdateParseVersion(string)
 {
@@ -1469,7 +1190,7 @@ LLK_ControlGetPos(cHWND, return_val)
 LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "") ; raw parameter: 1 for GUIs with a static size that require raw coordinates
 {
 	local
-	global vars
+	global vars, settings
 	
 	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1
 	MouseGetPos, xPos, yPos
@@ -1541,7 +1262,7 @@ LLK_Error(ErrorMessage, restart := 0)
 
 LLK_FileCheck()
 {
-	If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Betrayal.ini") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
+	If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Betrayal.json") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
 		Return 0
 	Else Return 1
 }
@@ -1594,7 +1315,7 @@ LLK_FindHWND(object, HWND)
 LLK_FontDefault()
 {
 	local
-	global vars
+	global vars, settings
 
 	Return LLK_IniRead("data\Resolutions.ini", vars.monitor.h "p", "font", 16)
 }
@@ -1681,7 +1402,7 @@ LLK_IsType(character, type)
 LLK_Overlay(guiHWND, mode := "show", NA := 1)
 {
 	local
-	global vars, settings, Json
+	global vars, settings
 	
 	If Blank(guiHWND)
 		Return
@@ -1746,6 +1467,8 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1)
 
 LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", header_offset := 0, margins := 1)
 {
+	local
+	
 	Gui, panel_dimensions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
 	Gui, panel_dimensions: Margin, 0, 0
 	Gui, panel_dimensions: Color, Black
@@ -1774,9 +1497,9 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 
 LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress bar, key = key that is held down to fill the progress bar, HWND_control = HWND of the button (to undo clipping)
 {
-	global
-	local start := A_TickCount, wMouse := vars.general.wMouse
+	local
 	
+	start := A_TickCount
 	While GetKeyState(key, "P")
 	{
 		GuiControl,, %HWND_bar%, % A_TickCount - start
@@ -1862,4 +1585,12 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 		vars.tooltip[vars.hwnd["tooltip"name]] := A_TickCount + duration* 1000
 	Else LLK_Overlay(vars.hwnd["tooltip"name], "show")
 	vars.tooltip.wait := 0
+}
+
+WinGet(command, win_title)
+{
+	local
+
+	WinGet, out, %command%, %win_title%
+	Return out
 }
