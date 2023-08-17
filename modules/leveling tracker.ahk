@@ -27,6 +27,7 @@
 	settings.leveltracker.fade_hover := LLK_IniRead("ini\leveling tracker.ini", "Settings", "show on hover", 1)
 	settings.leveltracker.geartracker := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable geartracker", 0)
 	settings.leveltracker.layouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable zone-layout overlay", 0)
+	settings.leveltracker.hints := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable additional hints", 0)
 	settings.leveltracker.fSize := LLK_IniRead("ini\leveling tracker.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width)
 	settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
@@ -307,7 +308,7 @@ Leveltracker(cHWND := "")
 				KeyWait, LButton
 				Return
 			}
-
+			LLK_ToolTip(vars.leveltracker.guide.group0.Count(), 2, 500, 500)
 			Loop, % vars.leveltracker.guide.group0.Count()
 			{
 				IniDelete, ini\leveling guide.ini, progress, % "step_"guide.progress.MaxIndex()
@@ -443,10 +444,7 @@ LeveltrackerImport()
 		Return
 	}
 
-	import := Json.Load(Clipboard)
-	FileRead, areas, data\leveling tracker\areas.json
-	FileRead, gems, data\leveling tracker\gems.json
-	FileRead, quests, data\leveling tracker\quests.json
+	import := Json.Load(Clipboard), areas := LLK_FileRead("data\leveling tracker\areas.json"), gems := LLK_FileRead("data\leveling tracker\gems.json"), quests := LLK_FileRead("data\leveling tracker\quests.json")
 	areas := Json.Load(areas), gems := Json.Load(gems), quests := Json.Load(quests)
 
 	For act_index, act in import ;parse all acts
@@ -503,7 +501,8 @@ LeveltrackerImport()
 							Case "area":
 								step_text .= "areaID" part.areaId " "
 							Case "dir":
-								step_text .= !InStr(step_text, "follow") && !InStr(step_text, "search") ? "(img:"part.dirIndex ") ," : "(img:"part.dirIndex ") "
+								step_text .= "(img:"part.dirIndex ") " (!InStr(step_text, "follow") && !InStr(step_text, "search") ? "," : "")
+								;step_text .= !InStr(step_text, "follow") && !InStr(step_text, "search") ? "(img:"part.dirIndex ") ," : "(img:"part.dirIndex ") "
 							Case "crafting":
 								step_text .= "(img:craft) "
 							Case "generic":
@@ -515,7 +514,7 @@ LeveltrackerImport()
 							Case "reward_quest":
 								step_text .= "take reward: " StrReplace(part.item, " ", "_")
 							Default:
-								If settings.general.dev ;startup-beep = pseudo dev-mode
+								If settings.general.dev
 									MsgBox, % "unknown type: "part.type
 								Else
 								{
@@ -548,7 +547,41 @@ LeveltrackerImport()
 			If (step_text = "talk to lady dialla") && (act_index = 3)
 				Continue
 			guide_text .= StrReplace(step_text, ",,", ",") "`n"
+
+			For ss_index, ss_array in step.subSteps
+			{
+				ss_text := "(hint)_______"
+				For ss_part_index, ss_parts in ss_array.parts
+				{
+					If !IsObject(ss_parts)
+					{
+						text := (SubStr(ss_parts, 1, 1) = " ") ? SubStr(ss_parts, 2) : ss_parts ;, text := (SubStr(text, 0) = " ") ? SubStr(text, 1, -1) : text
+						ss_text .= ((ss_text != "(hint)") ? "" : "_______") StrReplace(text, " ", "_")
+					}
+					Else
+					{
+						Switch ss_parts.type
+						{
+							Case "dir":
+								ss_text .= " (img:"ss_parts.dirIndex ") "
+							Case "waypoint":
+								ss_text .= (InStr(ss_text, "broken") ? "" : "the_") " (img:waypoint) "
+							Case "quest_text":
+								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
+							Case "generic":
+								ss_text .= """" ss_parts.value """"
+							Default:
+								If settings.general.dev
+									MsgBox, % "unknown type: " ss_parts.type
+						}
+					}
+				}
+				If (SubStr(ss_text, 0) = ",")
+					ss_text := SubStr(ss_text, 1, -1)
+				guide_text .= StrReplace(ss_text, ",,", ",") "`n"
+			}
 		}
+
 	}
 
 	While (SubStr(gem_notes, 0) = "`n")
@@ -793,7 +826,7 @@ LeveltrackerScreencapMenu2(cHWND)
 LeveltrackerScreencapMenuClose()
 {
 	local
-	global vars
+	global vars, settings
 	
 	Gui, % vars.hwnd.leveltracker_screencap.main ": Destroy"
 	vars.leveltracker.Delete("screencap_active")
@@ -959,27 +992,48 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to"))
 		&& !InStr(step, "arena:") ;&& !InStr(step, "the warden's_chambers") && !InStr(step, "sewer_outlet") && !InStr(step, "resurrection_site") && !InStr(step, "the_black_core")
 		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the")
+		{
+			Loop
+			{
+				If InStr(guide.text_raw[raw_index + A_Index], "(hint)")
+					guide.group1.Push(guide.text_raw[raw_index + A_Index])
+				Else Break
+			}
 			Break
+		}
 	}
 	
-	If InStr(guide.group1[guide.group1.Count()], "areaid")
-	{
-		Loop, Parse, % guide.group1[guide.group1.Count()], %A_Space% ;parse location names from the final step of the group that's currently on display
-			If InStr(A_LoopField, "areaid")
-				guide.target_area := StrReplace(A_LoopField, "areaid")
-	}
-	Else guide.target_area := ""
+	For index, val in guide.group1
+		If InStr(val, "areaid")
+			Loop, Parse, val, %A_Space% ;parse location names from the final step of the group that's currently on display
+				If InStr(A_LoopField, "areaid")
+					guide.target_area := StrReplace(A_LoopField, "areaid")
 
 	guide.group0 := [], steps := []
 	For progress_index, step in guide.progress
 	{
+		If !guide.group0.Count() && InStr(step, "(hint)")
+			Continue
 		guide.group0.Push(step)
+		
 		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to"))
 		&& !InStr(step, "arena:") ;&& !InStr(step, "the warden's_chambers") && !InStr(step, "sewer_outlet") && !InStr(step, "resurrection site") && !InStr(step, "the black core")
-		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the") && (progress_index != guide.progress.MaxIndex())
+		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the")
+		{
+			If (progress_index = guide.progress.MaxIndex())
+				Continue
+			Loop
+				{
+					If InStr(guide.progress[progress_index + A_Index], "(hint)")
+						guide.group0.Push(guide.progress[progress_index + A_Index])
+					Else Break
+					If (progress_index + A_Index = guide.progress.MaxIndex())
+						Break 2
+				}
 			guide.group0 := []
+		}
 	}
-
+	
 	If vars.leveltracker.fast ;skip redrawing the GUIs during fast-forwarding
 	{
 		in_progress := 0
@@ -1010,6 +1064,9 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	guide.gems := [], guide.items := []
 	For index_raw, step in guide.group1
 	{
+		If InStr(step, "(hint)") && !settings.leveltracker.hints
+			Continue
+		
 		style := "Section xs", line := step, kill := 0, text_parts := []
 		Loop, Parse, step, %A_Space%
 		{
@@ -1037,22 +1094,23 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			If InStr(part, "(img:")
 			{
 				img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1)
-				Gui, %leveltracker_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"settings.leveltracker.fWidth/2) " BackgroundTrans h"settings.leveltracker.fHeight - 2 " w-1", % "img\GUI\leveling tracker\"img ".png"
+				Gui, %leveltracker_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(InStr(step, "(hint)") ? 0 : settings.leveltracker.fWidth/2)) " BackgroundTrans hp" - 2 " w-1", % "img\GUI\leveling tracker\"img ".png"
 			}
 			Else
 			{
-				text := LLK_StringRemove(part, "<,>,arena:"), area := StrReplace(text, "areaid")
+				text := LLK_StringRemove(part, "<,>,arena:,(hint)"), area := StrReplace(text, "areaid")
 				If InStr(text, "areaid") ;translate ID to location-name (and add potential act-clarification)
 					text := ((areas[area].act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout") ? (areas[area].act = 11 ? "epilogue" : "a" areas[area].act) " | " : "") . areas[StrReplace(text, "areaid")][InStr(line, "to areaid") && areas[area].map_name ? "map_name" : "name"]
 				text := StrReplace(text, "_", " "), text := StrReplace(text, "(a11)", "(epilogue)")
 				If InStr(part, "(quest:")
-					text := StrReplace(StrReplace(text, "(quest:"), ")")
-				color := InStr(part, "areaid") ? "FEC076" : kill && (part != "everything") || InStr(part, "arena:") ? "FF8111" : InStr(part, "<") ? "FFDB1F" : InStr(part, "(quest:") ? "Lime" : InStr(part, "trial") || InStr(part, "_lab") ;cont
-				? "569777" : "White"
+					replace := SubStr(text, InStr(text, "(quest:")), replace := SubStr(replace, 1, InStr(replace, ")")), item := StrReplace(SubStr(replace, InStr(replace, ":") + 1), ")"), text := StrReplace(text, replace, item)
+				color := InStr(part, "areaid") ? "FEC076" : kill && (part != "everything") || InStr(part, "arena:") ? "FF8111" : InStr(part, "<") ? "FFDB1F" : InStr(part, "(quest:") ? "Lime" : InStr(part, "trial") || InStr(part, "_lab") ? "569777" : "White"
 				If InStr(part, "(color:")
 					color := SubStr(part, InStr(part, "(color:") + 7), color := SubStr(color, 1, InStr(color, ")") - 1), text := StrReplace(text, "(color:"color ")")
-
+				If InStr(step, "(hint)")
+					Gui, %leveltracker_main%: Font, % "s"settings.leveltracker.fSize - 2
 				Gui, %leveltracker_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || (text_parts[index + 1] = ",") || InStr(text_parts[index + 1], "(img:") ? text : text " "
+				Gui, %leveltracker_main%: Font, % "s"settings.leveltracker.fSize
 				kill := (part = "kill") ? 1 : 0
 			}
 			style := InStr(part, "(img:") ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0"
@@ -1129,7 +1187,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 LeveltrackerProgressReset()
 {
 	local
-	global vars
+	global vars, settings
 
 	IniDelete, ini\leveling guide.ini, Progress
 	vars.leveltracker.guide.progress := []
@@ -1143,7 +1201,7 @@ LeveltrackerProgressReset()
 LeveltrackerScreencapPaste(index)
 {
 	local
-	global vars
+	global vars, settings
 
 	active := vars.leveltracker.screencap_active
 	If InStr(Clipboard, ":\")
@@ -1605,13 +1663,6 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 		Else style := (vars.log.areaID = "2_7_4" && A_Index = 4) ? " xs Section" : (A_Index = 1) ? " Section" : " ys"
 		Gui, %leveltracker_zones%: Add, Picture, % "Border HWNDhwnd"style " w"vars.monitor.w/settings.leveltracker.sLayouts " h-1", % A_LoopFilePath
 		vars.hwnd.leveltracker_zones[vars.log.areaID A_Index] := hwnd
-		/*
-		If (A_Index = 1)
-		{
-			Gui, %leveltracker_zones%: Add, Picture, % (settings.leveltracker.aLayouts = "vertical" ? "ys x+0 hp w-1" : "xs y+0 wp h-1") " HWNDhwnd", % "img\GUI\leveling tracker\zones_"settings.leveltracker.aLayouts ".png"
-			vars.hwnd.leveltracker_zones.toggle := hwnd
-		}
-		*/
 	}
 	If mode
 		Gui, %leveltracker_zones%: Add, Picture, % "Border ys w"vars.monitor.w/Ceil(settings.leveltracker.sLayouts/2) " h-1", % "img\GUI\leveling tracker\zones\explanation.png"

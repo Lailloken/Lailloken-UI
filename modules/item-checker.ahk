@@ -1353,7 +1353,7 @@ Iteminfo4_GUI()
 IteminfoClose(mode := 0) ;closes the tooltip and potential markers, and removes HWNDs
 {
 	local
-	global vars
+	global vars, settings
 
 	LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 	If mode
@@ -1767,7 +1767,7 @@ IteminfoModRemoveRange(string) ;takes mod-text string and returns it without rol
 IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item-comparisons
 {
 	local
-	global vars
+	global vars, settings
 
 	Loop, Parse, A_ThisHotkey
 	{
@@ -2027,7 +2027,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 IteminfoMarker() ;placing markers while using the shift-trigger feature
 {
 	local
-	global vars
+	global vars, settings
 
 	If !WinExist("ahk_id "vars.hwnd.iteminfo.main) && !WinExist("ahk_id "vars.hwnd.iteminfo_markers.1)
 		Return

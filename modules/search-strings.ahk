@@ -334,7 +334,7 @@ StringScroll(hotkey)
 StringSearch(name)
 {
 	local
-	global vars
+	global vars, settings
 
 	var := vars.searchstrings.list[name]
 	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing

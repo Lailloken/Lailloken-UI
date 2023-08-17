@@ -8,10 +8,13 @@
 	Gui, %GUI%: Add, Link, % "ys HWNDhwnd0 x+"2*settings.general.fWidth, <a href="https://www.rapidtables.com/web/color/RGB_Color.html">rgb website</a>
 	
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_betrayal2 HWNDhwnd Checked"settings.features.betrayal, % "enable the betrayal-info overlay"
-	vars.hwnd.settings.enable := hwnd, vars.hwnd.help_tooltips["settings_rgb website"] := hwnd0, vars.hwnd.help_tooltips["settings_betrayal enable"] := hwnd
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_betrayal enable"] := hwnd, vars.hwnd.help_tooltips["settings_rgb website"] := hwnd0
 	If !settings.features.betrayal
 		Return
 	
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_betrayal2 HWNDhwnd Checked"settings.betrayal.ruthless, % "ruthless rewards && highlighting"
+	vars.hwnd.settings.ruthless := vars.hwnd.help_tooltips["settings_betrayal ruthless"] := hwnd
+
 	Gui, %GUI%: Font, % "underline bold"
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "image-recognition:"
 	Gui, %GUI%: Font, % "norm"
@@ -66,9 +69,15 @@ Settings_betrayal2(cHWND := "")
 
 	If (check = "enable")
 	{
-		IniWrite, % LLK_ControlGet(cHWND), ini\config.ini, Features, enable betrayal-info
 		settings.features.betrayal := LLK_ControlGet(cHWND)
+		IniWrite, % settings.features.betrayal, ini\config.ini, Features, enable betrayal-info
 		Settings_menu("betrayal-info")
+	}
+	Else If (check = "ruthless")
+	{
+		settings.betrayal.ruthless := LLK_ControlGet(cHWND)
+		IniWrite, % settings.betrayal.ruthless, ini\betrayal info.ini, settings, ruthless
+		Init_betrayal()
 	}
 	Else If (check = "folder")
 	{
@@ -117,64 +126,8 @@ Settings_betrayal2(cHWND := "")
 		vars.hwnd.betrayal_info.active := ""
 		LLK_Overlay(vars.hwnd.betrayal_info.main, "destroy")
 	}
-	Else LLK_ToolTip("no effect")
+	Else LLK_ToolTip("no action")
 }
-
-/*
-Settings_menu_alarm(hwnd := "", guievent := "", eventinfo := "", errlevel := "", mode := "") ;the first four parameters are passed automatically when calling a function directly via a control
-{
-	global
-	static enable_alarm
-	
-	If (A_Gui = "settings"vars.settings.GUI) && A_GuiControl && !mode
-	{
-		Gui, settings_menu_section: Submit, NoHide
-		Switch A_GuiControl
-		{
-			Case "enable_alarm":
-			IniWrite, % %A_GuiControl%, ini\config.ini, Features, enable alarm
-			settings.features.alarm := %A_GuiControl%
-			Settings_menu("alarm-timer")
-			Alarm("enable_alarm")
-			
-			Case " apply clipboard-rgb":
-			
-		}
-		Return
-	}
-	
-	Gui, settings_menu_section: Add, Link, % "Section x"0.2* vars.settings.wSelection - 0.75* settings.general.fwidth, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features">wiki page</a>
-	Gui, settings_menu_section: Add, Text, % "xp yp hidden", hidden text control
-	Gui, settings_menu_section: Margin, % settings.general.fwidth* 0.75, % settings.general.fheight* 0.1
-	
-	Gui, settings_menu_section: Add, Checkbox, % "xs BackgroundTrans venable_alarm gSettings_alarm checked"settings.features.alarm, enable alarm-timer
-	If (settings.features.alarm = 1)
-	{
-		Alarm()
-		Gui, settings_menu_section: Add, Text, % "xs Section Center BackgroundTrans", text color:
-		Gui, settings_menu_section: Add, Text, % "ys x+"settings.general.fWidth / 2 " Section Center BackgroundTrans c"settings.alarm.color " gSettings_alarm Border", % " apply clipboard-rgb "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfontcolor_red cRed gAlarm Border x+"fSize0//4, % " red "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfontcolor_aqua cAqua gAlarm Border x+"fSize0//4, % " cyan "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfontcolor_yellow cYellow gAlarm Border x+"fSize0//4, % " yellow "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfontcolor_lime cLime gAlarm Border x+"fSize0//4, % " lime "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfontcolor_fuchsia cFuchsia gAlarm Border x+"fSize0//4, % " purple "
-		
-		Gui, settings_menu_section: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, text-size:
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_minus gAlarm Border", % " – "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_reset gAlarm Border x+2 wp", % "r"
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vfSize_alarm_plus gAlarm Border x+2 wp", % "+"
-		
-		Gui, settings_menu_section: Add, Text, % "ys Center BackgroundTrans", opacity:
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center valarm_opac_minus gAlarm Border", % " – "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center valarm_opac_plus gAlarm Border x+2 wp", % "+"
-		
-		Gui, settings_menu_section: Add, Text, % "xs Section Center BackgroundTrans y+"fSize0*1.2, button size:
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_minus gAlarm Border", % " – "
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_reset gAlarm Border x+2 wp", % "r"
-		Gui, settings_menu_section: Add, Text, % "ys BackgroundTrans Center vbutton_alarm_plus gAlarm Border x+2 wp", % "+"
-	}
-}
-*/
 
 Settings_cheatsheets()
 {
@@ -452,7 +405,120 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % "clone-frame editing:"
-	colors := ["005AB5", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
+	colors := ["3399FF", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
+	Gui, %GUI%: Font, norm
+	Loop 3
+	{
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/2 " Center BackgroundTrans Border cBlack w"settings.general.fWidth*3, % "f" A_Index
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd c"colors[A_Index], 100
+		handle .= "|", vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
+	}
+	Gui, %GUI%: Add, Text, % "xs Section c3399FFlue", % "source x/y: "
+	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys x+0 hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.x + 4
+	vars.hwnd.settings.xSource := vars.cloneframes.scroll.xSource := vars.hwnd.help_tooltips["settings_cloneframes scroll"] := hwnd
+	ControlGetPos, x, y,,,, ahk_id %hwnd%
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4
+	vars.hwnd.settings.ySource := vars.cloneframes.scroll.ySource := vars.hwnd.help_tooltips["settings_cloneframes scroll|"] := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize
+	
+	Gui, %GUI%: Add, Text, % "ys cDC3220", % "w/h: "
+	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys x+0 hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % 200
+	vars.hwnd.settings.width := vars.cloneframes.scroll.width := vars.hwnd.help_tooltips["settings_cloneframes scroll||"] := hwnd
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % 200
+	vars.hwnd.settings.height := vars.cloneframes.scroll.height := vars.hwnd.help_tooltips["settings_cloneframes scroll|||"] := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize
+
+	Gui, %GUI%: Add, Text, % "xs Section cYellow", % "target x/y: "
+	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.x + 4
+	vars.hwnd.settings.xTarget := vars.cloneframes.scroll.xTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll||||"] := hwnd
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4
+	vars.hwnd.settings.yTarget := vars.cloneframes.scroll.yTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll|||||"] := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize
+
+	Gui, %GUI%: Add, Text, % "ys", % "scale: "
+	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys x+0 hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*3, 100
+	vars.hwnd.settings.xScale := vars.cloneframes.scroll.xScale := vars.hwnd.help_tooltips["settings_cloneframes scroll||||||"] := hwnd
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*3, 100
+	vars.hwnd.settings.yScale := vars.cloneframes.scroll.yScale := vars.hwnd.help_tooltips["settings_cloneframes scroll|||||||"] := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize
+	Gui, %GUI%: Add, Text, % "xs Section", % "opacity: "
+	Gui, %GUI%: Add, Text, % "ys x+0 0x200 hp Border Center HWNDhwnd w"settings.general.fWidth*2, 5
+	;Gui, %GUI%: Add, UpDown, % "ys hp Disabled range0-5 gSettings_cloneframes2 HWNDhwnd", 5
+	vars.hwnd.settings.opacity := vars.cloneframes.scroll.opacity := vars.hwnd.help_tooltips["settings_cloneframes scroll||||||||"] := hwnd
+	
+	Gui, %GUI%: Add, Text, % "ys cGray Border HWNDhwnd", % " save "
+	vars.hwnd.settings.save := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " cGray Border HWNDhwnd", % " discard "
+	vars.hwnd.settings.discard := hwnd
+}
+
+/*
+Settings_cloneframes()
+{
+	local
+	global vars, settings
+
+	Init_cloneframes()
+	GUI := vars.hwnd.settings.main
+	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
+	
+	If (vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") || vars.log.file_location) && settings.features.pixelchecks
+	{
+		Gui, %GUI%: Font, underline bold
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "automatic toggling:"
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
+		Gui, %GUI%: Font, norm
+		vars.hwnd.help_tooltips["settings_cloneframes toggle-info"] := hwnd
+	}
+
+	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") && settings.features.pixelchecks
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, hide outside the gamescreen
+		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
+	}
+	If vars.log.file_location
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.hide, hide in hideouts/towns
+		vars.hwnd.settings.hide_town := hwnd, vars.hwnd.help_tooltips["settings_cloneframes hideout"] := hwnd
+	}
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % "list of available clone-frames:"
+	WinGetPos,,, width,, % "ahk_id " hwnd
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "xs Section Border gSettings_cloneframes2 HWNDhwnd Center w"settings.general.fWidth*8.25, % "add new"
+	vars.hwnd.settings.add := hwnd, vars.hwnd.help_tooltips["settings_cloneframes new"] := hwnd
+	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default gSettings_cloneframes2 HWNDhwnd", % "ok"
+	vars.hwnd.settings.add2 := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd w"width - settings.general.fWidth*9
+	vars.hwnd.settings.name := hwnd, vars.hwnd.help_tooltips["settings_cloneframes new|"] := hwnd
+	Gui, %GUI%: Font, % "s"settings.general.fSize
+
+	For cloneframe, val in vars.cloneframes.list
+	{
+		If (cloneframe = "settings_cloneframe")
+			continue
+		Gui, %GUI%: Add, Text, % "xs w"settings.general.fWidth*4 " Section Border Center gSettings_cloneframes2 HWNDhwnd", % "edit"
+		handle .= "|", vars.hwnd.settings["edit_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes edit"handle] := hwnd
+		Gui, %GUI%: Add, Text, % "ys hp x+"settings.general.fWidth/4 " w"settings.general.fWidth*4 " Border gSettings_cloneframes2 BackgroundTrans Center HWNDhwnd0", % "del"
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack range0-500 cRed HWNDhwnd", 0
+		vars.hwnd.settings["delbar_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes delete"handle] := hwnd, vars.hwnd.settings["del_"cloneframe] := hwnd0
+		Gui, %GUI%: Add, Checkbox, % "ys gSettings_cloneframes2 HWNDhwnd Checked"val.enable " c"(val.enable ? "White" : "Gray"), % cloneframe
+		vars.hwnd.settings["enable_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes toggle"handle] := hwnd
+		Gui, %GUI%: Font, norm
+	}
+
+	If (vars.cloneframes.list.Count() = 1)
+		Return
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % "clone-frame editing:"
+	colors := ["3399FF", "DC3220", "Yellow"], handle := "", vars.hwnd.settings.edit_text := vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
 	Gui, %GUI%: Font, norm
 	Loop 3
 	{
@@ -490,6 +556,7 @@ Settings_cloneframes()
 	;Gui, %GUI%: Add, UpDown, % "ys x+"settings.general.fWidth/4 " hp Disabled gSettings_cloneframes2 left -16 HWNDhwnd range-"vars.monitor.h "--1 w"settings.general.fWidth, 0
 	;vars.hwnd.settings.yTarget := hwnd
 }
+*/
 
 Settings_cloneframes2(cHWND)
 {
@@ -516,7 +583,7 @@ Settings_cloneframes2(cHWND)
 	{
 		If vars.cloneframes.editing
 		{
-			LLK_ToolTip("cannot delete in edit-mode", 1.5,,,, "red")
+			LLK_ToolTip("exit edit-mode first", 1.5,,,, "red")
 			Return
 		}
 		If LLK_Progress(vars.hwnd.settings["delbar_"control], "LButton", cHWND)
@@ -529,90 +596,24 @@ Settings_cloneframes2(cHWND)
 	}
 	Else If InStr(check, "enable_")
 	{
+		If vars.cloneframes.editing
+		{
+			LLK_ToolTip("exit edit-mode first", 1.5,,,, "red")
+			GuiControl,, % cHWND, % vars.cloneframes.list[control].enable
+			Return
+		}
 		vars.cloneframes.list[control].enable := LLK_ControlGet(cHWND)
 		GuiControl, % "+c"(LLK_ControlGet(cHWND) ? "White" : "Gray"), % cHWND
 		GuiControl, movedraw, % cHWND
 		IniWrite, % vars.cloneframes.list[control].enable, ini\clone frames.ini, % control, enable
 		Init_cloneframes()
-		/*
-		If vars.cloneframes.list[control].enable
-		{
-			vars.cloneframes.enabled += 1
-			Gui, % StrReplace(control, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
-			vars.hwnd.cloneframes[control] := hwnd
-			vars.Gui[hwnd] := [0]
-			GuiControl, % (control = vars.cloneframes.editing) ? "+cLime" : "+cWhite", % cHWND
-			GuiControl, movedraw, % cHWND
-		}
-		Else
-		{
-			vars.cloneframes.enabled -= 1
-			If (control != vars.cloneframes.editing)
-			{
-				Gui, % StrReplace(control, " ", "_") ": Destroy"
-				vars.GUI.Delete(vars.hwnd.cloneframes[control]), vars.hwnd.cloneframes.Delete(control)
-			}
-			GuiControl, % (control = vars.cloneframes.editing) ? "+cLime" : "+cGray", % cHWND
-			GuiControl, movedraw, % cHWND
-		}
-		*/
 	}
 	Else If (check = "save")
 		CloneframesSettingsSave()
 	Else If (check = "discard")
 		CloneframesSettingsRefresh()
-	Else If (check = "xScale")
-	{
-		If (LLK_ControlGet(cHWND) <= 10) || (LLK_ControlGet(cHWND) >= 300)
-			Return
-
-		vars.cloneframes.list[name].xScale := LLK_ControlGet(cHWND)
-		/*
-		If (LLK_ControlGet(cHWND) < vars.cloneframes.list[name].xScale)
-		{
-			vars.cloneframes.list[name].xScale -= 5
-			GuiControl,, % vars.hwnd.settings.xScale, % vars.cloneframes.list[name].xScale
-		}
-		Else
-		{
-			vars.cloneframes.list[name].xScale += 5
-			GuiControl,, % vars.hwnd.settings.xScale, % vars.cloneframes.list[name].xScale
-		}
-		*/
-	}
-	Else If (check = "yScale")
-	{
-		If (LLK_ControlGet(cHWND) <= 10) || (LLK_ControlGet(cHWND) >= 300)
-			Return
-
-		vars.cloneframes.list[name].yScale := LLK_ControlGet(cHWND)
-		/*
-		If (LLK_ControlGet(cHWND) < vars.cloneframes.list[name].yScale)
-		{
-			vars.cloneframes.list[name].yScale -= 5
-			GuiControl,, % vars.hwnd.settings.yScale, % vars.cloneframes.list[name].yScale
-		}
-		Else
-		{
-			vars.cloneframes.list[name].yScale += 5
-			GuiControl,, % vars.hwnd.settings.yScale, % vars.cloneframes.list[name].yScale
-		}
-		*/
-	}
 	Else If (check = "opacity")
 		vars.cloneframes.list[name].opacity := LLK_ControlGet(cHWND)
-	Else If (check = "ySource")
-		vars.cloneframes.list[name].ySource := -LLK_ControlGet(cHWND)
-	Else If (check = "xSource")
-		vars.cloneframes.list[name].xSource := LLK_ControlGet(cHWND)
-	Else If (check = "height")
-		vars.cloneframes.list[name].height := -LLK_ControlGet(cHWND)
-	Else If (check = "width")
-		vars.cloneframes.list[name].width := LLK_ControlGet(cHWND)
-	Else If (check = "xTarget")
-		vars.cloneframes.list[name].xTarget := LLK_ControlGet(cHWND)
-	Else If (check = "yTarget")
-		vars.cloneframes.list[name].yTarget := -LLK_ControlGet(cHWND)
 	Else LLK_ToolTip("no action")
 }
 
@@ -683,7 +684,7 @@ Settings_general()
 	Else
 	{
 		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-		Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2 " w"settings.general.fWidth*4, % vars.client.w0 - (!vars.client.borderless ? 2* vars.system.xborder : 0)
+		Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2 " w"settings.general.fWidth*4, % vars.client.w0
 		vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution||"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fsize
 	}
@@ -703,6 +704,8 @@ Settings_general()
 		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
 		Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd w"Floor(settings.general.fwidth* 6.5) " gSettings_general2", % StrReplace("left|center|right|", vars.client.docked "|", vars.client.docked "||")
 		vars.hwnd.settings.dock := hwnd, vars.hwnd.help_tooltips["settings_window position|"] := hwnd
+		Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd wp gSettings_general2", % StrReplace("top|center|bottom|", vars.client.docked2 "|", vars.client.docked2 "||")
+		vars.hwnd.settings.dock2 := hwnd, vars.hwnd.help_tooltips["settings_window position||"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fsize
 		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", force borderless-windowed mode
 		vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
@@ -842,6 +845,7 @@ Settings_general2(cHWND := "")
 				Return
 			}
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.dock), ini\config.ini, Settings, window-position
+			IniWrite, % LLK_ControlGet(vars.hwnd.settings.dock2), ini\config.ini, Settings, window-position vertical
 			IniWrite, % height, ini\config.ini, Settings, custom-resolution
 			IniWrite, % width, ini\config.ini, Settings, custom-width
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.remove_borders), ini\config.ini, settings, remove window-borders
@@ -851,6 +855,9 @@ Settings_general2(cHWND := "")
 			Reload
 			ExitApp
 		Case "dock":
+			GuiControl, +cRed, % vars.hwnd.settings.apply
+			GuiControl, movedraw, % vars.hwnd.settings.apply
+		Case "dock2":
 			GuiControl, +cRed, % vars.hwnd.settings.apply
 			GuiControl, movedraw, % vars.hwnd.settings.apply
 		Case "remove_borders":
@@ -1240,13 +1247,6 @@ Settings_iteminfo2(cHWND)
 		settings.iteminfo.itembase := LLK_ControlGet(cHWND)
 		IniWrite, % settings.iteminfo.itembase, ini\item-checker.ini, settings, enable base-info
 	}
-	/*
-	Else If (check = "dps")
-	{
-		settings.iteminfo.dps := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.dps, ini\item-checker.ini, settings, selective dps
-	}
-	*/
 	Else If (check = "ilvl")
 	{
 		settings.iteminfo.ilvl := LLK_ControlGet(cHWND)
@@ -1369,6 +1369,9 @@ Settings_leveltracker()
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % "enable zone-layout overlay"
 	vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.hints, % "show additional hints in the guide"
+	vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "skill-tree overlay settings:"
@@ -1505,6 +1508,13 @@ Settings_leveltracker2(cHWND := "")
 	{
 		settings.leveltracker.layouts := LLK_ControlGet(cHWND)
 		IniWrite, % settings.leveltracker.layouts, ini\leveling tracker.ini, settings, enable zone-layout overlay
+		If WinExist("ahk_id "vars.hwnd.leveltracker.main)
+			LeveltrackerProgress(1)
+	}
+	Else If (check = "hints")
+	{
+		settings.leveltracker.hints := LLK_ControlGet(cHWND)
+		IniWrite, % settings.leveltracker.hints, ini\leveling tracker.ini, settings, enable additional hints
 		If WinExist("ahk_id "vars.hwnd.leveltracker.main)
 			LeveltrackerProgress(1)
 	}
@@ -1716,8 +1726,6 @@ Settings_maptracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing, general settings:
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, track side-areas in maps
-	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot, enable loot tracker
 	vars.hwnd.settings.loot := vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, enable kill tracker
@@ -1727,9 +1735,45 @@ Settings_maptracker()
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo, include map-info panel mods
 		vars.hwnd.settings.mapinfo := vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
 	}
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, track side-areas in maps
+	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mechanics, track optional content
+	vars.hwnd.settings.mechanics := vars.hwnd.help_tooltips["settings_maptracker mechanics"] := hwnd
+	If settings.maptracker.mechanics
+	{
+		Gui, %GUI%: Add, Text, % "xs Section Center xp+"settings.general.fWidth * 2, % "–> dialogue tracking:"
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_maptracker dialogue tracking"] := hwnd, added := 0, ingame_dialogs := InStr(LLK_FileRead(vars.system.config), "output_all_dialogue_to_chat=true") ? 1 : 0
+		Gui, %GUI%: Font, c505050
+		For mechanic, type in vars.maptracker.mechanics
+		{
+			If (type != 1)
+				Continue
+			added += 1, color := !ingame_dialogs ? " cRed" : settings.maptracker[mechanic] ? " cLime" : ""
+			Gui, %GUI%: Add, Text, % (added = 1 || !Mod(added - 1, 4) ? "xs Section" : "ys x+"settings.general.fWidth/4) " Border Center gSettings_maptracker2 HWNDhwnd"color, % " " mechanic " "
+			vars.hwnd.settings["mechanic_"mechanic] := vars.hwnd.help_tooltips["settings_maptracker dialoguemechanic"handle] := hwnd, handle .= "|"
+		}
+		Gui, %GUI%: Font, cWhite
+		
+		Gui, %GUI%: Add, Text, % "xs Section Center", % "–> screen tracking:"
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_maptracker screen tracking"] := hwnd, handle := "", added := 0
+		Gui, %GUI%: Font, c505050
+		For mechanic, type in vars.maptracker.mechanics
+		{
+			If (type != 2)
+				Continue
+			added += 1, color := !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"mechanic ".bmp") ? "red" : settings.maptracker[mechanic] ? " cLime" : ""
+			Gui, %GUI%: Add, Text, % (added = 1 || !Mod(added - 1, 4) ? "xs Section" : "ys x+"settings.general.fWidth/4) " Border Center gSettings_maptracker2 HWNDhwnd c"color, % " " mechanic " "
+			vars.hwnd.settings["screenmechanic_"mechanic] := vars.hwnd.help_tooltips["settings_maptracker screenmechanic"handle] := hwnd, handle .= "|"
+		}
+		Gui, %GUI%: Font, cWhite
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.portal_reminder, portal-scroll reminder
+		vars.hwnd.settings.portal_reminder := vars.hwnd.help_tooltips["settings_maptracker portal reminder"] := hwnd, handle := ""
+	}
 	
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing, ui settings:
+	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing " x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2, ui settings:
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section Center HWNDhwnd0", % "text-size: "
 	Gui, %GUI%: Add, Text, % "ys x+0 Center gSettings_maptracker2 Border HWNDhwnd w"settings.general.fWidth*2, % "–"
@@ -1763,19 +1807,26 @@ Settings_maptracker2(cHWND)
 				vars.maptracker.Delete("map"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
 			Init_GUI("maptracker")
 			Settings_menu("mapping tracker")
-		Case "sidecontent":
-			settings.maptracker.sidecontent := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.sidecontent, ini\map tracker.ini, settings, track side-areas
 		Case "loot":
 			settings.maptracker.loot := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
 			Settings_ScreenChecksValid()
 		Case "kills":
-			settings.maptracker.kills := LLK_ControlGet(cHWND)
+			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
 		Case "mapinfo":
 			settings.maptracker.mapinfo := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.mapinfo, ini\map tracker.ini, settings, log mods from map-info panel
+		Case "sidecontent":
+			settings.maptracker.sidecontent := LLK_ControlGet(cHWND)
+			IniWrite, % settings.maptracker.sidecontent, ini\map tracker.ini, settings, track side-areas
+		Case "mechanics":
+			settings.maptracker.mechanics := LLK_ControlGet(cHWND)
+			IniWrite, % settings.maptracker.mechanics, ini\map tracker.ini, settings, track league mechanics
+			Settings_menu("mapping tracker")
+		Case "portal_reminder":
+			settings.maptracker.portal_reminder := LLK_ControlGet(cHWND)
+			IniWrite, % settings.maptracker.portal_reminder, ini\map tracker.ini, settings, portal-scroll reminder
 		Default:
 			If InStr(check, "font_")
 			{
@@ -1809,6 +1860,38 @@ Settings_maptracker2(cHWND)
 				IniWrite, % settings.maptracker.oButton, ini\map tracker.ini, Settings, button-offset
 				settings.maptracker.sButton := vars.monitor.w* 0.03* settings.maptracker.oButton
 				Init_Gui("maptracker")
+			}
+			Else If InStr(check, "mechanic_")
+			{
+				If InStr(check, "screen") && (vars.system.click = 2)
+				{
+					KeyWait, RButton
+					Clipboard := ""
+					SendInput, #+{s}
+					WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
+					WinWaitNotActive, ahk_exe ScreenClippingHost.exe
+					pClipboard := Gdip_CreateBitmapFromClipboard()
+					If (0 >= pClipboard)
+					{
+						LLK_ToolTip("screen-cap failed", 1.5,,,, "red")
+						Return
+					}
+					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp"), Gdip_DisposeImage(pClipboard)
+					GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % vars.hwnd.settings["screenmechanic_"control]
+					GuiControl, movedraw, % vars.hwnd.settings["screenmechanic_"control]
+					Return
+				}
+				If InStr(check, "screen") && !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp")
+					Return
+				If !InStr(check, "screen") && !InStr(LLK_FileRead(vars.system.config), "output_all_dialogue_to_chat=true")
+				{
+					LLK_ToolTip("<output dialogue to chat> has to`nbe enabled in the game's <ui> settings", 3,,,, "red")
+					Return
+				}
+				settings.maptracker[control] := !settings.maptracker[control] ? 1 : 0
+				IniWrite, % settings.maptracker[control], ini\map tracker.ini, mechanics, % control
+				GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % cHWND
+				GuiControl, movedraw, % cHWND
 			}
 			Else LLK_ToolTip("no action")
 	}
@@ -1981,52 +2064,12 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 		Case "updater":
 			Settings_updater()
 	}
-	/*
-	Else If InStr(GuiControl_copy, "alarm") || (restart_section = "alarm")
-		GoSub, Settings_menu_alarm
-	Else If InStr(GuiControl_copy, "betrayal") && !InStr(GuiControl_copy, "image") && !InStr(GuiControl_copy, "cheatsheets") || (restart_section = "betrayal")
-		GoSub, Settings_menu_betrayal
-	Else If InStr(GuiControl_copy, "cheatsheets") || (restart_section = "cheat sheets")
-		GoSub, Settings_menu_cheatsheets
-	Else If InStr(GuiControl_copy, "clone") || (new_clone_menu_closed = 1) || (restart_section = "clone frames")
-		GoSub, Settings_menu_clone_frames
-	Else If InStr(GuiControl_copy, "delve") || (restart_section = "delve")
-	{
-		If enable_delve
-		{
-			xsettings_menu := xScreenOffSet
-			ysettings_menu := yScreenOffSet + poe_height/3
-		}
-		GoSub, Settings_menu_delve
-	}
-	Else If InStr(GuiControl_copy, "item-info") || InStr(GuiControl_copy, "itemchecker") || (restart_section = "itemchecker")
-		GoSub, Settings_menu_itemchecker
-	Else If InStr(GuiControl_copy, "leveling") || (restart_section = "leveling guide")
-		GoSub, Settings_menu_leveling_guide
-	Else If (InStr(GuiControl_copy, "map") && InStr(GuiControl_copy, "tracker")) || (restart_section = "map tracker")
-	{
-		map_tracker_clicked := A_TickCount ;workaround for stupid UpDown behavior that leads to rare error message
-		GoSub, Settings_menu_map_tracker
-	}
-	Else If InStr(GuiControl_copy, "map-info") || InStr(GuiControl_copy, "map_info") || (restart_section = "map info")
-		GoSub, Settings_menu_map_info
-	Else If InStr(GuiControl_copy, "notepad") || (restart_section = "notepad")
-		GoSub, Settings_menu_notepad
-	Else If InStr(GuiControl_copy, "hotkeys") || (restart_section = "hotkeys")
-		GoSub, Settings_menu_hotkeys
-	Else If InStr(GuiControl_copy, "image") || InStr(GuiControl_copy, "pixel") || InStr(GuiControl_copy, "screen") || (restart_section = "screenchecks")
-		GoSub, Settings_menu_screenchecks
-	Else If InStr(GuiControl_copy, "search-strings") || InStr(GuiControl_copy, "stash_search") || InStr(GuiControl_copy, "searchstrings") || (new_stash_search_menu_closed = 1) || (restart_section = "stash search")
-		GoSub, Settings_menu_stash_search
-	Else If InStr(GuiControl_copy, "geforce")
-		GoSub, Settings_menu_geforce_now
-	*/
 }
 
 Settings_menuClose()
 {
 	local
-	global vars
+	global vars, settings
 	
 	KeyWait, LButton
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
@@ -2228,7 +2271,7 @@ Settings_screenchecks()
 
 	For key in vars.pixelsearch.list
 	{
-		If (key = "inventory") && !settings.iteminfo.compare
+		If (key = "inventory") && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder)
 			continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " info "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks pixel-info"handle] := hwnd
@@ -2654,7 +2697,7 @@ Settings_updater2(cHWND := "")
 Settings_WriteTest()
 {
 	local
-	global vars
+	global vars, settings
 	static running
 
 	If (A_GuiControl = " restart script as admin ")

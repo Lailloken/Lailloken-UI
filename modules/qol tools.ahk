@@ -631,6 +631,8 @@ NotepadWidget(tab, mode := 0)
 		LLK_ToolTip("can't create widget:`ntab is blank", 2,,,, "Red")
 		Return
 	}
+	If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
+		Return
 	start := A_TickCount
 	If (mode = 2)
 	{

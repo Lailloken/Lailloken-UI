@@ -55,7 +55,9 @@ HotkeysESC()
 	local
 	global vars, settings
 	
-	If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
+	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
+		CloneframesSettingsRefresh()
+	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
 	{
 		Gui, tooltipgem_notes: Destroy
 		vars.hwnd.Delete("tooltipgem_notes")
@@ -152,6 +154,8 @@ HotkeysTab()
 		If (A_TickCount >= start + 200)
 		{
 			vars.maptracker.toggle := 1, active .= " maptracker", MaptrackerGUI()
+			If settings.maptracker.mechanics
+				SetTimer, MaptrackerMechanicsCheck, -1
 			Break
 		}
 
@@ -223,36 +227,22 @@ HotkeysTab()
 	If InStr(active, "mapinfo")
 		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.toggle := 0
 	If InStr(active, "maptracker")
+	{
 		vars.maptracker.toggle := 0
+		Gui, % vars.hwnd.maptracker.main ": -E0x20"
+	}
 	If InStr(active, " lab") && WinExist("ahk_id "vars.hwnd.lab.main)
 		LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
 	If active
 		WinActivate, ahk_group poe_window
 }
 
-LLK_Hotstring(hotkey)
-{
-	local
-	global vars
-
-	If WinExist("ahk_id "vars.hwnd.cheatsheet_menu.main) || WinExist("ahk_id "vars.hwnd.searchstrings_menu.main) || WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main)
-	{
-		LLK_ToolTip("close the configuration window first", 2)
-		Return
-	}
-
-	SendInput, {ESC}
-	If InStr(hotkey, "r.llk")
-	{
-		Reload
-		ExitApp
-	}
-	Else If InStr(hotkey, ".llk")
-		Settings_menu("general")
-}
-
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
+
+#If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse - vars.monitor.x - vars.client.x > vars.client.w/2)
+
+~RButton::MaptrackerReminder()
 
 #If !vars.mapinfo.toggle && (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main) ;clicking the client to hide the map-info tooltip
 
@@ -368,20 +358,20 @@ Return
 LButton::
 RButton::IteminfoGearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse))
 
-#If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id " vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via number and arrow keys
+#If vars.cloneframes.editing && vars.general.cMouse && LLK_HasVal(vars.cloneframes.scroll, vars.general.cMouse)
 
-*Left::
-*Right::
-*Up::
-*Down::
-1::
-2::
-3::CloneframesSnap(A_ThisHotkey)
-ESC::CloneframesSettingsRefresh()
+WheelUp::
+WheelDown::CloneframesSettingsApply(vars.general.cMouse, A_ThisHotkey)
 
-1 UP::
-2 UP::
-3 UP::vars.cloneframes.last := ""
+#If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via f-keys
+
+F1::
+F2::
+F3::CloneframesSnap(A_ThisHotkey)
+
+F1 UP::
+F2 UP::
+F3 UP::vars.cloneframes.last := ""
 
 #If WinActive("ahk_id "vars.hwnd.snip.main) ;moving the snip-widget via arrow keys
 
@@ -468,11 +458,11 @@ Return
 
 #IfWinActive ahk_group poe_ahk_window
 
+ESC::HotkeysESC()
+
+#If
+
 RWin & Space::
 LWin & Space::
 Reload
 ExitApp
-
-ESC::HotkeysESC()
-
-#If
