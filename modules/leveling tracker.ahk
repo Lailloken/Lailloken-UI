@@ -308,7 +308,7 @@ Leveltracker(cHWND := "")
 				KeyWait, LButton
 				Return
 			}
-			LLK_ToolTip(vars.leveltracker.guide.group0.Count(), 2, 500, 500)
+			
 			Loop, % vars.leveltracker.guide.group0.Count()
 			{
 				IniDelete, ini\leveling guide.ini, progress, % "step_"guide.progress.MaxIndex()

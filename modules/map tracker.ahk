@@ -625,14 +625,19 @@ MaptrackerParseDialogue(line)
 {
 	local
 	global vars, settings
-	static blight, delirium, expedition, harvest, incursion, bestiary, betrayal
+	static ignore, blight, delirium, expedition, harvest, incursion, bestiary, betrayal, delve
 
-	If !IsObject(blight)
+	If !IsObject(ignore)
 	{
+		ignore := ["DEBUG", "You have entered", "SHADER", "ENGINE", "RENDER", "DOWNLOAD", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server"]
 		blight := [" sister cassia"], delirium := [" strange voice"], expedition := [" dannig", " gwennen", " rog", " tujen"], harvest := [" oshabi"], incursion := [" alva"], bestiary := [" einhar"], betrayal := [" jun"], delve := [" niko"]
 		For member in vars.betrayal.members
 			betrayal.Push(" "(member = "it" ? "it that fled" : member))
 	}
+
+	For index, skip in ignore
+		If InStr(line, skip, 1) ;skip certain key-words to avoid erroneous tracking
+			Return
 
 	For mechanic, type in vars.maptracker.mechanics
 	{
