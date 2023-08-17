@@ -589,7 +589,7 @@ Loop_main()
 		vars.cloneframes.editing := ""
 		Init_cloneframes()
 	}
-
+	
 	If WinExist("ahk_id "vars.hwnd.searchstrings_context) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.searchstrings_context)
 	{
 		Gui, searchstrings_context: Destroy
@@ -1585,4 +1585,12 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 		vars.tooltip[vars.hwnd["tooltip"name]] := A_TickCount + duration* 1000
 	Else LLK_Overlay(vars.hwnd["tooltip"name], "show")
 	vars.tooltip.wait := 0
+}
+
+WinGet(command, win_title)
+{
+	local
+
+	WinGet, out, %command%, %win_title%
+	Return out
 }
