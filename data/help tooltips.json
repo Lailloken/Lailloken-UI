@@ -85,6 +85,7 @@
     ],
     "cheatsheets modifier-key": [
       "cheat sheets are activated by pressing the modifier and omni-key simultaneously",
+	  "if a sheet is configured as <hold>, only the omni-key has to be held down",
       "pick a combination that is not used in game"
     ],
     "cheatsheets color": [
