@@ -1705,6 +1705,7 @@
     "parent_town_area_id": "2_7_town",
     "connection_ids": [
       "2_7_2",
+      "SanctumFoyer_Fellshrine",
       "2_7_4"
     ],
     "crafting_recipes": []
@@ -1767,6 +1768,19 @@
     "connection_ids": [
       "2_6_15",
       "2_7_1"
+    ],
+    "crafting_recipes": []
+  },
+  "SanctumFoyer_Fellshrine": {
+    "id": "SanctumFoyer_Fellshrine",
+    "name": "The Forbidden Sanctum",
+    "map_name": null,
+    "act": 7,
+    "has_waypoint": false,
+    "is_town_area": false,
+    "parent_town_area_id": "2_7_town",
+    "connection_ids": [
+      "2_7_3"
     ],
     "crafting_recipes": []
   },
