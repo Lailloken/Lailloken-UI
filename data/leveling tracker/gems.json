@@ -1279,6 +1279,14 @@
     "is_support": true,
     "cost": "chance"
   },
+  "Metadata/Items/Gems/SupportGemReturningProjectiles": {
+    "id": "Metadata/Items/Gems/SupportGemReturningProjectiles",
+    "name": "Returning Projectiles Support",
+    "primary_attribute": "dexterity",
+    "required_level": 38,
+    "is_support": true,
+    "cost": "alchemy"
+  },
   "Metadata/Items/Gems/SkillGemFlammability": {
     "id": "Metadata/Items/Gems/SkillGemFlammability",
     "name": "Flammability",
@@ -4150,5 +4158,109 @@
     "required_level": 1,
     "is_support": false,
     "cost": "wisdom"
+  },
+  "Metadata/Items/Gems/SupportGemTrauma": {
+    "id": "Metadata/Items/Gems/SupportGemTrauma",
+    "name": "Trauma Support",
+    "primary_attribute": "strength",
+    "required_level": 38,
+    "is_support": true,
+    "cost": "alchemy"
+  },
+  "Metadata/Items/Gems/SupportGemSpellblade": {
+    "id": "Metadata/Items/Gems/SupportGemSpellblade",
+    "name": "Spellblade Support",
+    "primary_attribute": "intelligence",
+    "required_level": 38,
+    "is_support": true,
+    "cost": "alchemy"
+  },
+  "Metadata/Items/Gems/SupportGemDevour": {
+    "id": "Metadata/Items/Gems/SupportGemDevour",
+    "name": "Devour Support",
+    "primary_attribute": "intelligence",
+    "required_level": 8,
+    "is_support": true,
+    "cost": "transmutation"
+  },
+  "Metadata/Items/Gems/SupportGemFreshMeat": {
+    "id": "Metadata/Items/Gems/SupportGemFreshMeat",
+    "name": "Fresh Meat Support",
+    "primary_attribute": "intelligence",
+    "required_level": 18,
+    "is_support": true,
+    "cost": "alteration"
+  },
+  "Metadata/Items/Gems/SupportGemFlamewood": {
+    "id": "Metadata/Items/Gems/SupportGemFlamewood",
+    "name": "Flamewood Support",
+    "primary_attribute": "strength",
+    "required_level": 8,
+    "is_support": true,
+    "cost": "transmutation"
+  },
+  "Metadata/Items/Gems/SupportGemCorruptingCry": {
+    "id": "Metadata/Items/Gems/SupportGemCorruptingCry",
+    "name": "Corrupting Cry Support",
+    "primary_attribute": "strength",
+    "required_level": 31,
+    "is_support": true,
+    "cost": "chance"
+  },
+  "Metadata/Items/Gems/SupportGemConflagration": {
+    "id": "Metadata/Items/Gems/SupportGemConflagration",
+    "name": "[UNUSED] Conflagration Support",
+    "primary_attribute": "strength",
+    "required_level": 18,
+    "is_support": true,
+    "cost": "alteration"
+  },
+  "Metadata/Items/Gems/SupportGemGuardiansBlessing": {
+    "id": "Metadata/Items/Gems/SupportGemGuardiansBlessing",
+    "name": "Guardian's Blessing Support",
+    "primary_attribute": "strength",
+    "required_level": 31,
+    "is_support": true,
+    "cost": "chance"
+  },
+  "Metadata/Items/Gems/SupportGemSacrifice": {
+    "id": "Metadata/Items/Gems/SupportGemSacrifice",
+    "name": "Sacrifice Support",
+    "primary_attribute": "intelligence",
+    "required_level": 31,
+    "is_support": true,
+    "cost": "chance"
+  },
+  "Metadata/Items/Gems/SupportGemFrigidBond": {
+    "id": "Metadata/Items/Gems/SupportGemFrigidBond",
+    "name": "Frigid Bond Support",
+    "primary_attribute": "intelligence",
+    "required_level": 38,
+    "is_support": true,
+    "cost": "alchemy"
+  },
+  "Metadata/Items/Gems/SupportGemLocusMine": {
+    "id": "Metadata/Items/Gems/SupportGemLocusMine",
+    "name": "Locus Mine Support",
+    "primary_attribute": "dexterity",
+    "required_level": 8,
+    "is_support": true,
+    "cost": "transmutation"
+  },
+  "Metadata/Items/Gems/SupportGemSadism": {
+    "id": "Metadata/Items/Gems/SupportGemSadism",
+    "name": "Sadism Support",
+    "primary_attribute": "dexterity",
+    "required_level": 18,
+    "is_support": true,
+    "cost": "alteration"
+  },
+  "Metadata/Items/Gems/SupportGemControlledBlaze": {
+    "id": "Metadata/Items/Gems/SupportGemControlledBlaze",
+    "name": "Controlled Blaze Support",
+    "primary_attribute": "strength",
+    "required_level": 31,
+    "is_support": true,
+    "cost": "chance"
   }
 }

@@ -1,5 +1,10 @@
 [
   [
+	["1.50.2.1", 15002.01],
+	"3.22 atlas data",
+	"3.22 gem data"
+  ],
+  [
 	["1.50.2", 15002],
 	"this is not the 3.22 update",
 	"clone-frames: tweaked setup",
