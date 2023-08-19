@@ -991,6 +991,14 @@
     "is_support": true,
     "cost": "wisdom"
   },
+  "Metadata/Items/Gems/SupportGemVolatility": {
+    "id": "Metadata/Items/Gems/SupportGemVolatility",
+    "name": "Volatility Support",
+    "primary_attribute": "strength",
+    "required_level": 18,
+    "is_support": true,
+    "cost": "alteration"
+  },
   "Metadata/Items/Gems/SupportGemBloodMagic": {
     "id": "Metadata/Items/Gems/SupportGemBloodMagic",
     "name": "Arrogance Support",

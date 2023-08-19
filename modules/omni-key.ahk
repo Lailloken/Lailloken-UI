@@ -441,7 +441,7 @@ OmniContextMenuPick()
 			LegionParse(), LegionGUI()
 		Case "vilsol's calculator":
 			LegionParse()
-			Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel="vars.legion.jewel_number "&conqueror="vars.legion.leader "&seed="vars.legion.seed "&mode=seed"
+			Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel="vars.legion.jewel_number "&conqueror="LLK_StringCase(vars.legion.leader,, 1) "&seed="vars.legion.seed "&mode=seed"
 		Case "chromatics":
 			Run, https://siveran.github.io/calc.html
 			If settings.features.browser

@@ -138,7 +138,7 @@ HotkeysTab()
 	While WinExist("ahk_id " vars.hwnd.leveltracker.main) && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
-			active .= " leveltracker", LeveltrackerOverlays(), LeveltrackerZoneLayouts()
+			active .= " leveltracker", LeveltrackerOverlays(), LeveltrackerZoneLayouts(), LeveltrackerHints()
 			Break
 		}
 	

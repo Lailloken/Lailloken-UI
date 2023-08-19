@@ -432,6 +432,32 @@ LeveltrackerFade()
 	}
 }
 
+LeveltrackerHints()
+{
+	local
+	global vars, settings
+
+	If !settings.leveltracker.hints || !LLK_HasVal(vars.leveltracker.guide.group1, "(hint)", 1)
+		Return
+	Gui, New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDleveltracker_hints
+	Gui, %leveltracker_hints%: Color, Black
+	Gui, %leveltracker_hints%: Margin, 0, 0
+	Gui, %leveltracker_hints%: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+
+	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
+		If LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1)
+		{
+			Gui, %leveltracker_hints%: Add, Pic, % "w"vars.leveltracker.w - 2 " h-1", % A_LoopFileLongPath
+			Break
+		}
+
+	Gui, %leveltracker_hints%: Show, NA x10000 y10000
+	WinGetPos,,, w, h, ahk_id %leveltracker_hints%
+	Gui, %leveltracker_hints%: Show, % "NA x"vars.leveltracker.x " y"vars.leveltracker.y - h + 1
+	KeyWait, % settings.hotkeys.tab
+	Gui, %leveltracker_hints%: Destroy
+}
+
 LeveltrackerImport()
 {
 	local
@@ -1115,6 +1141,13 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			}
 			style := InStr(part, "(img:") ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0"
 		}
+		If InStr(step, "(hint)")
+			Loop, Files, img\GUI\leveling tracker\hints\*.jpg
+				If InStr(step, StrReplace(A_LoopFileName, ".jpg"))
+				{
+					Gui, %leveltracker_main%: Add, Picture, % "ys hp w-1", img\GUI\help.png
+					Break
+				}
 	}
 	If (guide.gems.Count() || guide.items.Count())
 		LeveltrackerStrings()
