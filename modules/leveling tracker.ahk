@@ -1161,8 +1161,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	While Mod(wButtons, 2)
 		wButtons += 1
 	wPanels := (width - wButtons*2)/2
-	xPos := (vars.client.fullscreen = "true") ? "Center" : vars.client.xc - width/2
-	yPos := vars.client.y + vars.client.h
+	xPos := vars.client.xc - width/2, yPos := vars.client.y + vars.client.h
 	
 	Gui, %leveltracker_back%: Show, % "NA x"xPos " y"yPos - height - height1 - 1 " w"width - 2 " h"height
 	Gui, %leveltracker_main%: Show, % "NA x"xPos " y"yPos - height - height1 - 1 " w"width - 2 " h"height
