@@ -397,7 +397,7 @@ Lab(mode := "", override := 0)
 	
 	Gui, %lab%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %lab%
-	Gui, %lab%: Show, % "NA xCenter y"vars.monitor.y + vars.monitor.h - h
+	Gui, %lab%: Show, % "NA x"vars.client.xc - w/2 " y"vars.monitor.y + vars.monitor.h - h
 	WinGetPos, x, y,,, ahk_id %lab%
 
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDlab2"
@@ -436,15 +436,17 @@ Notepad(cHWND := "")
 
 	start := A_TickCount, check := LLK_HasVal(vars.hwnd.notepad, cHWND), skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget"]
 	control := SubStr(check, InStr(check, "_") + 1), sum_height := 0, max_width := vars.monitor.w*0.9, max_height := vars.monitor.h*0.9
+	If (A_Gui = "notepad_button")
+		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.notepad_button.main
 	While (A_Gui = "notepad_button") && GetKeyState("LButton", "P")
 		If (A_TickCount >= start + 200)
 		{
-			LLK_Drag(settings.notepad.sButton + 2, settings.notepad.sButton + 2, x, y,, "notepad_button")
+			LLK_Drag(w, h, x, y,, "notepad_button")
 			Sleep 1
 		}
 	If !Blank(x)
 	{
-		settings.notepad.xButton := x - 1, settings.notepad.yButton := y - 1
+		settings.notepad.xButton := x, settings.notepad.yButton := y
 		IniWrite, % settings.notepad.xButton, ini\qol tools.ini, notepad, x-coordinate button
 		IniWrite, % settings.notepad.yButton, ini\qol tools.ini, notepad, y-coordinate button
 		Return
@@ -612,11 +614,11 @@ Notepad(cHWND := "")
 	{
 		vars.notepad.x := (vars.notepad.x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : vars.notepad.x
 		vars.notepad.y := (vars.notepad.y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : vars.notepad.y
-		Gui, %notepad%: Show, % "NA x"vars.notepad.x " y"vars.notepad.y
+		Gui, %notepad%: Show, % "NA x"vars.monitor.x + vars.notepad.x " y"vars.monitor.y + vars.notepad.y
 	}
-	Else Gui, %notepad%: Show, % "NA Center"
+	Else Gui, %notepad%: Show, % "NA x"vars.client.xc - w/2 " y"vars.client.yc - h/2
 	WinGetPos, x, y,,, ahk_id %notepad%
-	vars.notepad.x := x, vars.notepad.y := y
+	vars.notepad.x := x - vars.monitor.x, vars.notepad.y := y - vars.monitor.y
 	If WinExist("ahk_id "hwnd_old)
 		Gui, % hwnd_old ": Destroy"
 }

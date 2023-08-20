@@ -86,8 +86,8 @@ BetrayalCalibrate(cHWND := "")
 	{
 		Clipboard := ""
 		SendInput, +#{s}
-		WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
-		WinWaitNotActive, ahk_exe ScreenClippingHost.exe
+		WinWaitActive, ahk_group snipping_tools,, 2
+		WinWaitNotActive, ahk_group snipping_tools
 		pBetrayal := Gdip_CreateBitmapFromClipboard()
 		If (pBetrayal < 0)
 		{

@@ -347,8 +347,8 @@ CheatsheetCalibrate()
 
 	Clipboard := ""
 	SendInput, #+{s}
-	WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
-	WinWaitNotActive, ahk_exe ScreenClippingHost.exe
+	WinWaitActive, ahk_group snipping_tools,, 2
+	WinWaitNotActive, ahk_group snipping_tools
 	pBitmap := Gdip_CreateBitmapFromClipboard()
 	If (pBitmap <= 0)
 	{
@@ -383,7 +383,9 @@ CheatsheetCalibrate()
 	Gui, cheatsheet_calibration: Add, Text, % "ys hp 0x200 Border Center w"settings.general.fWidth*10 " gCheatsheetCalibrate", % " save && edit "
 	;Gui, cheatsheet_calibration: Add, Button, % "x0 y0 BackgroundTrans Hidden Default gCheatsheets vCheatsheets_calibration_save2", % "save"
 	
-	Gui, cheatsheet_calibration: Show
+	Gui, cheatsheet_calibration: Show, NA x10000 y10000
+	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.cheatsheet_calibration.main
+	Gui, cheatsheet_calibration: Show, % "x"vars.client.xc - w/2 " y"vars.client.yc - h/2
 	While !vars.cheatsheets.active.choice && WinActive("ahk_id " vars.hwnd.cheatsheet_calibration.main)
 		sleep 50
 	

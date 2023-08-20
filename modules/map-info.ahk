@@ -156,8 +156,8 @@ MapinfoGUI(mode := 1)
 		Gui, %mapinfo%: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
 		MouseGetPos, xPos, yPos
-		x := (mode = 2) ? vars.monitor.x + vars.monitor.w - w : (xPos - w/2 < vars.monitor.x) ? vars.monitor.x : (xPos + w/2 > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos - w/2
-		y := (mode = 2) ? "Center" : (yPos - (h + settings.mapinfo.fHeight * 2) < vars.monitor.y) ? yPos + h*0.1 : yPos - (h + settings.mapinfo.fHeight * 2)
+		x := (mode = 2) ? vars.client.x + vars.client.w - w : (xPos - w/2 < vars.client.x) ? vars.client.x : (xPos + w/2 > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : xPos - w/2
+		y := (mode = 2) ? vars.client.yc - h/2 : (yPos - (h + settings.mapinfo.fHeight * 2) < vars.client.y) ? yPos + h*0.1 : yPos - (h + settings.mapinfo.fHeight * 2)
 	}
 	Gui, %mapinfo%: Show, % (mode ? "NA " : "") "x"x " y"y
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main

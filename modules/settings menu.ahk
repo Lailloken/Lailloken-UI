@@ -415,10 +415,10 @@ Settings_cloneframes()
 	}
 	Gui, %GUI%: Add, Text, % "xs Section c3399FFlue", % "source x/y: "
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys x+0 hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.x + 4
+	Gui, %GUI%: Add, Edit, % "ys x+0 hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.x + 4 - vars.monitor.x
 	vars.hwnd.settings.xSource := vars.cloneframes.scroll.xSource := vars.hwnd.help_tooltips["settings_cloneframes scroll"] := hwnd
 	ControlGetPos, x, y,,,, ahk_id %hwnd%
-	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4 - vars.monitor.y
 	vars.hwnd.settings.ySource := vars.cloneframes.scroll.ySource := vars.hwnd.help_tooltips["settings_cloneframes scroll|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	
@@ -432,9 +432,9 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Add, Text, % "xs Section cYellow", % "target x/y: "
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % Format("{:0.0f}", vars.client.x + vars.client.w/2 - 100)
+	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % Format("{:0.0f}", vars.client.xc - 100 - vars.monitor.x)
 	vars.hwnd.settings.xTarget := vars.cloneframes.scroll.xTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll||||"] := hwnd
-	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 13
+	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 13 - vars.monitor.y
 	vars.hwnd.settings.yTarget := vars.cloneframes.scroll.yTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll|||||"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 
@@ -1868,8 +1868,8 @@ Settings_maptracker2(cHWND)
 					KeyWait, RButton
 					Clipboard := ""
 					SendInput, #+{s}
-					WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
-					WinWaitNotActive, ahk_exe ScreenClippingHost.exe
+					WinWaitActive, ahk_group snipping_tools,, 2
+					WinWaitNotActive, ahk_group snipping_tools
 					pClipboard := Gdip_CreateBitmapFromClipboard()
 					If (0 >= pClipboard)
 					{

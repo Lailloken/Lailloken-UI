@@ -359,7 +359,7 @@ MaptrackerLogs()
 	ControlMove,,,, % w - settings.maptracker.fWidth*2 + 1,, % "ahk_id "vars.hwnd.maptracker_logs.winbar
 	ControlMove,, % w - settings.maptracker.fWidth*2,,,, % "ahk_id "vars.hwnd.maptracker_logs.winx
 	ControlFocus,, % "ahk_id "vars.hwnd.maptracker_logs.winbar
-	Gui, %maptracker_logs%: Show, % "NA xCenter y"vars.monitor.y + vars.monitor.h/10
+	Gui, %maptracker_logs%: Show, % "NA x"vars.client.xc - w/2 " y"vars.monitor.y + vars.monitor.h/10
 	LLK_Overlay(vars.hwnd.maptracker_logs.main, "show", 0)
 	LLK_Overlay(hwnd_old, "destroy")
 }
@@ -656,7 +656,7 @@ MaptrackerReminder()
 {
 	local
 	global vars, settings
-
+	SoundBeep
 	Clipboard := ""
 	SendInput, ^{c}
 	ClipWait, 0.05

@@ -987,7 +987,7 @@ LeveltrackerScreencapMenu()
 	Sleep 50
 	If !Blank(xPos)
 		xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos, yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
-	Gui, %leveltracker_screencap%: Show, % "x"(Blank(xPos) ? (A_Gui ? vars.client.x : vars.monitor.x) : xPos) " y"(Blank(xPos) ? (A_Gui ? "Center" : vars.client.yc - h//2) : yPos)
+	Gui, %leveltracker_screencap%: Show, % "x"(Blank(xPos) ? (A_Gui ? vars.client.x : vars.monitor.x) : xPos) " y"(Blank(xPos) ? vars.client.yc - h//2 : yPos)
 	If hwnd_old
 		Gui, %hwnd_old%: Destroy
 
@@ -1631,7 +1631,9 @@ LeveltrackerTimerGUI()
 	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*7, % "act "(timer.current_act = 11 ? 10 : timer.current_act)
 	vars.hwnd.leveltracker_timer.pause	:= hwnd
 
-	Gui, %leveltracker_timer%: Show, % "NA x"vars.client.xc - vars.leveltracker.custom_fontwidth*15 " y"vars.client.y + vars.client.h - vars.leveltracker.h2
+	Gui, %leveltracker_timer%: Show, % "NA x10000 y10000"
+	WinGetPos,,, w, h, ahk_id %leveltracker_timer%
+	Gui, %leveltracker_timer%: Show, % "NA x"vars.client.xc - w/2 " y"vars.client.y + vars.client.h - vars.leveltracker.h2
 	LLK_Overlay(vars.hwnd.leveltracker_timer.main, "show")
 	LLK_Overlay(hwnd_old, "destroy")
 }
@@ -1704,7 +1706,7 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 		x := (settings.leveltracker.xLayouts > vars.monitor.w/2 - 1) ? settings.leveltracker.xLayouts - w + 1 : settings.leveltracker.xLayouts
 	If IsNumber(settings.leveltracker.yLayouts)
 		y := (settings.leveltracker.yLayouts > vars.monitor.h/2 - 1) ? settings.leveltracker.yLayouts - h + 1 : settings.leveltracker.yLayouts
-	Gui, %leveltracker_zones%: Show, % "NA x"(IsNumber(x) ? vars.monitor.x + x : "Center") " y"(IsNumber(y) ? vars.monitor.y + y : "Center")
+	Gui, %leveltracker_zones%: Show, % "NA x"(IsNumber(x) ? vars.monitor.x + x : vars.client.xc - w/2) " y"(IsNumber(y) ? vars.monitor.y + y : vars.client.yc - h/2)
 	LLK_Overlay(hwnd_old, "destroy")
 }
 

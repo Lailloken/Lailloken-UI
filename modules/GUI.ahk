@@ -59,12 +59,13 @@ GuiButton(name := "", x := "", y := "")
 
 	If !Blank(settings[name].xButton)
 	{
-		xPos := (settings[name].xButton > vars.monitor.w/2 - 1) ? settings[name].xButton - (w - 1) : settings[name].xButton
-		xPos := (xPos + w > vars.monitor.w - 1) ? (vars.monitor.w - 1) - (w - 1) : xPos ;prevent panel from leaving screen
-		yPos := (settings[name].yButton > vars.monitor.h/2 - 1) ? settings[name].yButton - (h - 1) : settings[name].yButton
-		yPos := (yPos + h > vars.monitor.h - 1) ? (vars.monitor.h - 1) - (h - 1) : yPos ;prevent panel from leaving screen
+		settings[name].xButton := (settings[name].xButton < 0) ? vars.client.xc - w/2 - vars.monitor.x : settings[name].xButton, settings[name].yButton := (settings[name].yButton < 0) ? vars.client.y + vars.client.h - vars.monitor.y : settings[name].yButton
+		xPos := (settings[name].xButton > vars.monitor.w/2 - 1) ? settings[name].xButton - w : settings[name].xButton
+		xPos := (xPos + w > vars.monitor.w - 1) ? vars.monitor.w - w : xPos ;prevent panel from leaving screen
+		yPos := (settings[name].yButton > vars.monitor.h/2 - 1) ? settings[name].yButton - h : settings[name].yButton
+		yPos := (yPos + h > vars.monitor.h - 1) ? vars.monitor.h - h : yPos ;prevent panel from leaving screen
 	}
-	Else xPos := vars.client.xc - w/2, yPos := vars.client.y + (vars.client.h - 1) - (h - 1)
+	Else xPos := vars.client.xc - w/2 - vars.monitor.x, yPos := vars.client.y + vars.client.h - h - vars.monitor.y
 
 	Gui, %name%_button: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(vars.hwnd[name "_button"].main, "show")
