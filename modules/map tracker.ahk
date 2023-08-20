@@ -656,7 +656,7 @@ MaptrackerReminder()
 {
 	local
 	global vars, settings
-	SoundBeep
+	
 	Clipboard := ""
 	SendInput, ^{c}
 	ClipWait, 0.05
