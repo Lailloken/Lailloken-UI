@@ -1,5 +1,10 @@
 [
   [
+	["1.50.4", 15004],
+	"various multi-monitor fixes when playing on secondary monitor",
+	"calibration fixes for older windows versions"
+  ],
+  [
 	["1.50.3", 15003],
 	"3.22 legion jewels",
 	"3.22 amulet anoints",
