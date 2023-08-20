@@ -1028,10 +1028,10 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			Break
 		}
 	}
-	
+	guide.target_area := ""
 	For index, val in guide.group1
 		If InStr(val, "areaid")
-			Loop, Parse, val, %A_Space% ;parse location names from the final step of the group that's currently on display
+			Loop, Parse, val, %A_Space%
 				If InStr(A_LoopField, "areaid")
 					guide.target_area := StrReplace(A_LoopField, "areaid")
 
