@@ -266,7 +266,7 @@ HelpToolTip(HWND_key)
 		}
 	Gui, %tooltip%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := (control = "update changelog") && (height > vars.monitor.h - (y + h)) ? "Center" : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := (control = "update changelog") && (height > vars.monitor.h - (y + h)) ? vars.client.yc - h/2 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
 	Gui, %tooltip%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings", check) ? yWin : yPos)
 	LLK_Overlay(hwnd_old, "destroy")
 }
@@ -762,7 +762,7 @@ SnippingTool(mode := 0)
 		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
 		If vars.snip.w
 			Gui, snip: Show, % "x"vars.snip.x " y"vars.snip.y " w"vars.snip.w - vars.system.xBorder*2 " h"vars.snip.h - vars.system.caption - vars.system.yBorder*2
-		Else Gui, snip: Show, % "w"settings.general.fWidth*31 " h"settings.general.fHeight*11
+		Else Gui, snip: Show, % "x"vars.client.xc - settings.general.fWidth * 16 " y"vars.client.yc - settings.general.fwidth * 6 " w"settings.general.fWidth*31 " h"settings.general.fHeight*11
 		Return 0
 	}
 	Else If !mode && WinExist("ahk_id " vars.hwnd.snip.main)
@@ -784,8 +784,8 @@ SnippingTool(mode := 0)
 	{
 		Clipboard := ""
 		SendInput, #+{s}
-		WinWaitActive, ahk_exe ScreenClippingHost.exe,, 2
-		WinWaitNotActive, ahk_exe ScreenClippingHost.exe
+		WinWaitActive, ahk_group snipping_tools,, 2
+		WinWaitNotActive, ahk_group snipping_tools
 		pBitmap := Gdip_CreateBitmapFromClipboard()
 	}
 
@@ -856,6 +856,8 @@ Startup()
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_window, ahk_class POEWindowClass
+	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
+	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
@@ -1204,52 +1206,28 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "") ; raw 
 		Return
 	}
 
+	xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	xPos -= vars.monitor.x, yPos -= vars.monitor.y
-	If (xPos >= vars.monitor.w - 1)
-		xPos := vars.monitor.w - 1
+	If (xPos >= vars.monitor.w)
+		xPos := vars.monitor.w
 
 	If (xPos > vars.monitor.w / 2 - 1) && !raw
 		xTarget := xPos - (width - 1)
 	Else xTarget := xPos
 	
-	If (yPos >= vars.monitor.h - 1)
-		yPos := vars.monitor.h - 1
+	If (yPos >= vars.monitor.h)
+		yPos := vars.monitor.h
 	
 	If (yPos > vars.monitor.h / 2 - 1) && !raw
 		yTarget := yPos - (height - 1)
 	Else yTarget := yPos
 	
-	;ToolTip, % xTarget ", " yTarget "`n" vars.client.x + vars.client.w - protect - 1 ", " vars.client.x + vars.client.w
-	;If IsBetween(xTarget, vars.client.x + vars.client.w - protect - 1, vars.client.x + vars.client.w) && IsBetween(yTarget, vars.client.y, vars.pixelsearch.gamescreen.y1 + 1)
-	If !raw && (xPos >= vars.client.x + vars.client.w - protect - 1) && (yTarget <= vars.client.y + vars.pixelsearch.gamescreen.y1 + 1)
-		yTarget := vars.client.y + vars.pixelsearch.gamescreen.y1 + 1, yPos := yTarget
-
 	If raw && (xTarget + width > vars.monitor.w)
 		xTarget := vars.monitor.w - width, xPos := xTarget
 	If raw && (yTarget + height > vars.monitor.h)
 		yTarget := vars.monitor.h - height, yPos := yTarget
 
 	Gui, %gui_name%: Show, % "NA x"vars.monitor.x + xTarget " y"vars.monitor.y + yTarget
-	;WinMove, % "ahk_id "vars.hwnd.settings.main,, % vars.monitor.x + xTarget, % vars.monitor.y + yTarget
-	
-	If InStr(A_Gui, "notepad_drag") ;notepad and alarm have secondary squares with which to drag the main GUI
-	{
-		local notepad_gui := "notepad" StrReplace(A_Gui, "notepad_drag")
-		Gui, %notepad_gui%: Show, NA x10000 x10000
-		WinGetPos,,, w, h, % "ahk_id " vars.hwnd[notepad_gui]
-		x := (xPos > vars.client.w / 2 - 1) ? xTarget - (w - 1) : xTarget
-		y := (yPos > vars.client.h / 2 - 1) ? yTarget - (h - 1) : yTarget
-		Gui, %notepad_gui%: Show, % "NA x"xScreenOffSet + x " y"yScreenOffSet + y
-	}
-	
-	If (A_Gui = "alarm_drag")
-	{
-		Gui, alarm: Show, NA x10000 y10000
-		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.alarm
-		x := (xPos > vars.client.w / 2 - 1) ? xTarget - (w - 1) : xTarget
-		y := (yPos > vars.client.h / 2 - 1) ? yTarget - (h - 1) : yTarget
-		Gui, alarm: Show, % "NA x"xScreenOffSet + x " y"yScreenOffSet + y
-	}
 }
 
 LLK_Error(ErrorMessage, restart := 0)
@@ -1577,9 +1555,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 		yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
 	Else yPos := (yPos - h < vars.monitor.y) ? vars.monitor.y + h : yPos
 
-	If (name = "update")
-		Gui, tooltip%name%: Show, % "NA xCenter" " y"vars.client.y
-	Else Gui, tooltip%name%: Show, % "NA x"xPos " y"yPos - (y = "" || InStr(y, "+") || InStr(y, "-") ? h : 0)
+	Gui, tooltip%name%: Show, % "NA x"xPos " y"yPos - (y = "" || InStr(y, "+") || InStr(y, "-") ? h : 0)
 
 	If duration
 		vars.tooltip[vars.hwnd["tooltip"name]] := A_TickCount + duration* 1000
