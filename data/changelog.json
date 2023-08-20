@@ -1,5 +1,9 @@
 [
   [
+	["1.50.4.1", 15004.01],
+	"leveling tracker: fixed repeated error-message when closing guide in epilogue"
+  ],
+  [
 	["1.50.4", 15004],
 	"various multi-monitor fixes when playing on secondary monitor",
 	"calibration fixes for older windows versions"
