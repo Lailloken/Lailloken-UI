@@ -91,7 +91,7 @@ I will not be taking direct code input or optimizations from people because lear
 <br>
 
 ### \*[Mapping tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker): collect, save, view, and export mapping-related data for statistical analysis
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d3a59541-0c13-487e-99da-198a62777c75) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/8cdf2e78-43e1-465d-a61f-c58f263182db) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/209f7650-753f-4997-88a0-7bba23dbc6e7) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/437d5ea8-b3a7-4783-a9cd-ad49d06a6f8d) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/8cdf2e78-43e1-465d-a61f-c58f263182db) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/209f7650-753f-4997-88a0-7bba23dbc6e7) |
 | --- | --- | --- |
 <br>
 
