@@ -248,9 +248,19 @@ HotkeysTab()
 
 LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) ;hovering the lab-layout button and clicking it
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && LLK_HasVal(vars.hwnd.lab, vars.general.cMouse) ;hovering the lab-layout button and clicking it
+
+*LButton::Lab("override")
+*RButton::Return
+
+#If (vars.system.timeout = 0) && vars.general.wMouse && (LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) = "button") ;hovering the lab-layout button and clicking it
 
 *LButton::Lab("link")
+*RButton::Return
+
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && !LLK_HasVal(vars.hwnd.lab, vars.general.cMouse)
+
+*LButton::Return
 *RButton::Return
 
 #If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them

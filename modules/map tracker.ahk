@@ -36,9 +36,9 @@ Maptracker(cHWND := "")
 	{
 		If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2)
 			MaptrackerKills()
-		Else If !MaptrackerTowncheck()
+		Else If MaptrackerCheck(2)
 			LLK_ToolTip("cannot save in maps", 1.5,,,, "Red")
-		Else If MaptrackerTowncheck() && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
+		Else If !MaptrackerCheck(2) && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
 		{
 			MaptrackerSave()
 			vars.maptracker.Delete("map")
@@ -749,7 +749,6 @@ MaptrackerTimer()
 	If new && settings.maptracker.kills ;if entered map is new and kill-tracker is enabled, create a reminder-tooltip that follows the mouse
 		ToolTip_Mouse("killtracker"), vars.maptracker.refresh_kills := 1 ;three-state flag used to determine which kill-count is parsed from the client-log and how the tracker needs to be colored
 	vars.maptracker.map.time += 1 ;advance the timer
-	Return
 }
 
 MaptrackerTowncheck()

@@ -1066,10 +1066,6 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		Return
 	}
 
-	;Loop, Parse, % "background,main,controls1,controls2", `,
-	;	If WinExist("ahk_id "vars.hwnd.leveltracker[A_LoopField])
-	;		vars.GUI.Delete(vars.hwnd.leveltracker[A_LoopField])
-
 	Gui, New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_back"
 	Gui, %leveltracker_back%: Color, Black
 	Gui, %leveltracker_back%: Margin, % settings.general.fWidth, 0
@@ -1083,7 +1079,6 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	If mode && vars.leveltracker.fade
 		WinSet, Transparent, 25
 	Else WinSet, TransColor, Black
-	;WinSet, Transparent, % settings.leveltracker.trans
 	Gui, %leveltracker_main%: Font, % "s"settings.leveltracker.fSize " cWhite", Fontin SmallCaps
 	vars.hwnd.leveltracker.main := leveltracker_main
 	
