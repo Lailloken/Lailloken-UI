@@ -335,9 +335,6 @@ Lab(mode := "", override := 0)
 	If !vars.lab.custom_font
 		vars.lab.custom_font := LLK_FontSizeGet(text_height, width)
 
-	If !IsObject(vars.lab.trials)
-		vars.lab.trials := {}
-
 	If !vars.lab.rooms.Count()
 	{
 		If InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "airlock")
