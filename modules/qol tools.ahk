@@ -257,7 +257,15 @@ Lab(mode := "", override := 0)
 {
 	local
 	global vars, settings, Json
-
+	
+	start := A_TickCount, check := LLK_HasVal(vars.hwnd.lab, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
+	While (mode = "override") && GetKeyState("LButton", "P") && (vars.lab.compass.rooms[control].name = vars.log.areaname)
+		If (A_TickCount >= start + 250)
+			vars.lab.rooms[vars.lab.room.1] := "", mode := "progress", override := control
+	
+	If (mode = "override")
+		Return
+	
 	If !IsObject(vars.lab) || (mode = "init")
 		vars.lab := {"rooms": []}
 
@@ -297,13 +305,6 @@ Lab(mode := "", override := 0)
 				lab_compass_json := Json.Load(lab_compass.ResponseText)
 				If lab_compass_json.Count()
 				{
-					For index, room in lab_compass_json.rooms
-					{
-						If (room.name = "aspirant's trial")
-							Continue
-						For dir, number in room.exits
-							lab_compass_json.rooms[number].exits["backtrack_to_"index] := index
-					}
 					LLK_ToolTip("compass-import successful", 1.5,,,, "lime")
 					FileAppend, % Json.Dump(lab_compass_json), img\lab compass.json
 					Break
@@ -320,7 +321,7 @@ Lab(mode := "", override := 0)
 			Return
 		}
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
-		pBitmap := Gdip_ResizeBitmap(pBitmap_copy, vars.client.w * 53/128, 10000, 1, 7)
+		pBitmap := Gdip_ResizeBitmap(pBitmap_copy, vars.client.w * 53/128, 10000, 1, 7, 1)
 		Gdip_SaveBitmapToFile(pBitmap, "img\lab.jpg", 100), Gdip_DisposeImage(pBitmap_copy), Gdip_DisposeImage(pBitmap)
 		Return
 	}
@@ -328,31 +329,52 @@ Lab(mode := "", override := 0)
 	If !IsObject(vars.lab.compass) && FileExist("img\lab compass.json")
 		vars.lab.compass := LLK_FileRead("img\lab compass.json"), vars.lab.compass := Json.Load(vars.lab.compass)
 	If !vars.lab.scale
-		pBitmap := Gdip_LoadImageFromFile("img\lab.jpg"), Gdip_GetImageDimensions(pBitmap, w, h), vars.lab.width := !w ? vars.client.w * 53/128 : w, vars.lab.height := !h ? (vars.client.w * 53/128)/2.112 : h ;cont
-		, vars.lab.scale := vars.lab.width/1175, Gdip_DisposeImage(pBitmap)
+		pBitmap := Gdip_LoadImageFromFile("img\lab.jpg"), Gdip_GetImageDimensions(pBitmap, w, h), vars.lab.width := !w ? vars.client.w * 53/128 : w, vars.lab.height := !h ? (vars.client.w * 53/128)/2.112 : h, vars.lab.scale := vars.lab.width/1175, Gdip_DisposeImage(pBitmap)
 	
 	scale := vars.lab.scale, dim := 50 * scale, difficulties := {33: "normal", 55: "cruel", 68: "merciless", 75: "uber", 83: "uber"}, text_height := dim/2
 	If !vars.lab.custom_font
 		vars.lab.custom_font := LLK_FontSizeGet(text_height, width)
 
 	If !vars.lab.rooms.Count()
-		vars.lab.room := [1, vars.lab.compass.rooms.1.name], vars.lab.rooms.1 := {"name": vars.lab.compass.rooms.1.name, "seed": ""}, started := 1, vars.lab.outdated := !Blank(vars.lab.compass.date) && (StrReplace(vars.lab.compass.date, "-") != SubStr(A_NowUTC, 1, 8)) ? 1 : 0
+	{
+		If InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "airlock")
+		{
+			For index, room in vars.lab.compass.rooms
+				If (room.name = vars.log.areaname)
+				{
+					vars.lab.room := [index, room.name], vars.lab.rooms[index] := {"name": room.name, "seed": ""}
+					Break
+				}
+		}
+		Else vars.lab.room := [1, vars.lab.compass.rooms.1.name], vars.lab.rooms.1 := {"name": vars.lab.compass.rooms.1.name, "seed": ""}
+		started := 1, vars.lab.outdated := !Blank(vars.lab.compass.date) && (StrReplace(vars.lab.compass.date, "-") != SubStr(A_NowUTC, 1, 8)) ? 1 : 0
+	}
 	
 	If (mode = "progress") && !started
 	{
-		vars.lab.room := [vars.lab.exits.numbers[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.lab.exits.names[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.log.areaID]
+		vars.lab.room := [override ? override : vars.lab.exits.numbers[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], override ? vars.lab.compass.rooms[override].name : vars.lab.exits.names[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.log.areaID]
 		vars.lab.rooms[vars.lab.room.1] := {"name": vars.log.areaname, "seed": vars.log.areaseed}
 	}
 	Else If (mode = "backtrack")
 		vars.lab.room := [override, vars.lab.rooms[override].name]
-	
+
+	If (vars.lab.room.2 = "aspirant's trial")
+		Loop, % vars.lab.compass.rooms.Count()
+		{
+			If (A_Index = vars.lab.room.1)
+				Continue
+			Else If (A_Index < vars.lab.room.1)
+				vars.lab.rooms[A_Index] := {"name": vars.lab.rooms[A_Index].name ? 1 : 0, "seed": vars.lab.rooms[A_Index].seed ? 1 : 0}
+			Else vars.lab.rooms[A_Index] := ""
+		}
+
 	vars.lab.exits := {"numbers": [], "names": []}
 	For dir, number in vars.lab.compass.rooms[vars.lab.room.1].exits
 		vars.lab.exits.numbers.Push(number), vars.lab.exits.names.Push(vars.lab.compass.rooms[number].name)
-	If InStr("progress,init,backtrack", mode) && !vars.lab.toggle
+	If mode && InStr("progress,init,backtrack", mode) && !GetKeyState(settings.hotkeys.tab, "P")
 		Return
 
-	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDlab"
+	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDlab"
 	Gui, %lab%: Color, Black
 	Gui, %lab%: Margin, 0, 0
 	Gui, %lab%: Font, % "s"vars.lab.custom_font " cWhite", Fontin SmallCaps
@@ -376,14 +398,16 @@ Lab(mode := "", override := 0)
 
 	For index, room in vars.lab.compass.rooms
 	{
-		If InStr(vars.log.areaID, "airlock") || !LLK_HasVal(vars.lab.exits.numbers, index) && !vars.lab.rooms[index] && (index != vars.lab.room.1)
+		If InStr(vars.log.areaID, "airlock")
 			Continue
-		If LLK_HasVal(vars.lab.exits.numbers, index) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1)
-			Gui, %lab%: Add, Text, % "BackgroundTrans Center x"(room.x + 12) * scale - dim/2 " w"dim*2 " y"(room.y + 47) * scale - text_height, % SubStr(room.name, 1, 2) " " SubStr(room.name, InStr(room.name, " ") + 1, 2)
+		If LLK_HasVal(vars.lab.exits.numbers, index) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1) ;&& !(vars.lab.room.1 > index)
+			Gui, %lab%: Add, Text, % "BackgroundTrans Center x"(room.x + 12) * scale - dim/2 " w"dim*2 " y"(room.y + 48) * scale - text_height, % SubStr(room.name, 1, 2) " " SubStr(room.name, InStr(room.name, " ") + 1, 2)
 		If (vars.lab.room.1 = index)
-			Gui, %lab%: Add, Pic, % "BackgroundTrans x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 47) * scale, img\GUI\square_purple_trans.png
-		Else If vars.lab.rooms[index].Count()
-			Gui, %lab%: Add, Pic, % "BackgroundTrans x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 47) * scale, img\GUI\square_green_trans.png 
+			Gui, %lab%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_purple_trans.png
+		Else If vars.lab.rooms[index].Count() && vars.lab.rooms[index].name
+			Gui, %lab%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_green_trans.png
+		Else Gui, %lab%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_trans.png
+		vars.hwnd.lab["square_"index] := vars.hwnd.help_tooltips["lab_square"room.id] := hwnd
 	}
 	If FileExist("img\lab.jpg")
 		Gui, %lab%: Add, Pic, % "x0 y0", img\lab.jpg
@@ -405,7 +429,7 @@ Lab(mode := "", override := 0)
 	Gui, %lab2%: Margin, 0, 0
 	Gui, %lab2%: Font, % "s"vars.lab.custom_font " cWhite", Fontin SmallCaps
 	
-	Gui, %lab2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab"(file_missing || vars.lab.outdated || mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
+	Gui, %lab2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
 	vars.hwnd.lab.button := lab2, vars.hwnd.help_tooltips["lab_button"] := hwnd
 	Gui, %lab2%: Show, % "NA x"x " y"y
 	LLK_Overlay(hwnd_old, "destroy"), LLK_Overlay(hwnd_old2, "destroy")

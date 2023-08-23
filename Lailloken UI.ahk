@@ -220,13 +220,15 @@ HelpToolTip(HWND_key)
 {
 	local
 	global vars, settings
-
+	
 	WinGetPos,, y,, h, % "ahk_id "vars.hwnd.help_tooltips[HWND_key]
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
 	, "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
+	If (check = "lab" && InStr(control, "square"))
+		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name]
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
 		Return
@@ -262,7 +264,7 @@ HelpToolTip(HWND_key)
 			Gui, %tooltip%: Font, % font
 			Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
 			Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
+			Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (text = vars.lab.room.2 ? " cLime" : ""), % StrReplace(text, "(/bold)")
 		}
 	Gui, %tooltip%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
@@ -617,7 +619,7 @@ Loop_main()
 	
 	If vars.general.cMouse
 		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|")
-	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (vars.help[check][control].Count() || control = "update changelog") && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (vars.help[check][control].Count() || control = "update changelog" || check = "lab" && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 		HelpTooltip(check_help)
 	Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 		LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""

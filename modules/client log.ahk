@@ -54,7 +54,7 @@ LogLoop(mode := 0)
 	If IsObject(vars.maptracker)
 		vars.maptracker.hideout := MaptrackerTowncheck() ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
 
-	log_content := vars.log.file.Read()
+	log_content := vars.log.file.Read(), level0 := vars.log.level
 	If !Blank(log_content)
 	{
 		LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
@@ -65,7 +65,7 @@ LogLoop(mode := 0)
 			If (A_Index = 1) && !Blank(%A_LoopField%)
 				vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
 		}
-		If !Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) && WinExist("ahk_id "vars.hwnd.leveltracker.main) ;player has moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
+		If (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && WinExist("ahk_id "vars.hwnd.leveltracker.main) ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
 			LeveltrackerProgress(1)
 		If settings.qol.alarm && vars.alarm.timestamp && (areaID = "1_1_1") ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
 			vars.alarm.timestamp := A_Now
@@ -83,15 +83,20 @@ LogLoop(mode := 0)
 			If check
 				Lab("backtrack", check)
 			Else If LLK_HasVal(vars.lab.exits.names, areaname) ;check which adjacent room has been entered
-				Lab("progress")
+				For index, room in vars.lab.exits.names
+					If (room = areaname) && Blank(vars.lab.rooms[vars.lab.exits.numbers[index]].seed)
+					{
+						Lab("progress", vars.lab.exits.numbers[index])
+						Break
+					}
 		}
 	}
 	
 	If mode
 		Return
 
-	If settings.qol.lab && InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "Airlock") && vars.log.areaseed && vars.lab.rooms.Count() && !vars.lab.rooms.1.seed
-		vars.lab.rooms.1.seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
+	If settings.qol.lab && InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "Airlock") && vars.log.areaseed && vars.lab.rooms.Count() && !vars.lab.rooms[vars.lab.room.1].seed
+		vars.lab.rooms[vars.lab.room.1].seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
 	{

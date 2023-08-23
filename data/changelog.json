@@ -1,5 +1,10 @@
 [
   [
+	["1.50.5", 15005],
+	"leveling tracker: update e-exp on level up",
+	"lab overlay: improved tracking, added override"
+  ],
+  [
 	["1.50.4.1", 15004.01],
 	"leveling tracker: fixed repeated error-message when closing guide in epilogue"
   ],
