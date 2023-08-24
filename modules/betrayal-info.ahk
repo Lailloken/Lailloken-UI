@@ -117,7 +117,9 @@ BetrayalCalibrate(cHWND := "")
 		Gui, betrayal_setup: Add, DDL, ys Section cBlack HWNDhwnd gBetrayalCalibrate, % ddl
 		vars.hwnd.betrayal_setup.ddl := hwnd
 		Gui, betrayal_setup: Add, Text, xs Section wp, % "press esc, or click into the client to abort"
-		Gui, betrayal_setup: Show
+		Gui, betrayal_setup: Show, NA x10000 y10000
+		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.betrayal_setup.main
+		Gui, betrayal_setup: Show, % "x"vars.client.xc - w//2 " y"vars.client.yc - h//2
 		Loop ;use this kind of loop instead of a hard-coded hotkey to close this setup-window
 		{
 			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || GetKeyState("ESC", "P")
