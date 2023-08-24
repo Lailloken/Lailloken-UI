@@ -697,18 +697,28 @@ Settings_general()
 	vars.hwnd.settings.custom_resolution := hwnd, vars.hwnd.help_tooltips["settings_force resolution|||"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fsize
 	
-	If (vars.client.fullscreen = "false") && !vars.general.safe_mode
+	WinGetPos,,, wCheck, hCheck, ahk_group poe_window
+	If !vars.general.safe_mode && (wCheck < vars.monitor.w || hCheck < vars.monitor.h)
 	{
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", window-position:
 		vars.hwnd.help_tooltips["settings_window position"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-		Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd w"Floor(settings.general.fwidth* 6.5) " gSettings_general2", % StrReplace("left|center|right|", vars.client.docked "|", vars.client.docked "||")
-		vars.hwnd.settings.dock := hwnd, vars.hwnd.help_tooltips["settings_window position|"] := hwnd
-		Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd wp gSettings_general2", % StrReplace("top|center|bottom|", vars.client.docked2 "|", vars.client.docked2 "||")
-		vars.hwnd.settings.dock2 := hwnd, vars.hwnd.help_tooltips["settings_window position||"] := hwnd
-		Gui, %GUI%: Font, % "s"settings.general.fsize
-		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", force borderless-windowed mode
-		vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
+		If (wCheck < vars.monitor.w)
+		{
+			Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd w"Floor(settings.general.fWidth* 6.5) " gSettings_general2", % StrReplace("left|center|right|", vars.client.docked "|", vars.client.docked "||")
+			vars.hwnd.settings.dock := hwnd, vars.hwnd.help_tooltips["settings_window position|"] := hwnd
+		}
+		If (hCheck < vars.monitor.h)
+		{
+			Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd gSettings_general2" (wCheck < vars.monitor.w ? " wp" : " w"settings.general.fWidth * 6.5), % StrReplace("top|center|bottom|", vars.client.docked2 "|", vars.client.docked2 "||")
+			vars.hwnd.settings.dock2 := hwnd, vars.hwnd.help_tooltips["settings_window position||"] := hwnd
+			Gui, %GUI%: Font, % "s"settings.general.fsize
+		}
+		If (vars.client.fullscreen = "false")
+		{
+			Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", force borderless-windowed mode
+			vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
+		}
 	}
 	
 	;If (vars.client.fullscreen = "false")

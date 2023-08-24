@@ -338,17 +338,17 @@ Init_client()
 	Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution ;disable custom resolutions for streaming clients
 	
 	;determine native resolution of the active monitor
-	WinGetPos, x, y,,, ahk_group poe_window
+	WinGetPos, x, y, w, h, ahk_group poe_window
 	Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 	WinSet, Trans, 0
-	Gui, Test: Show, % "NA x" x " y" y " Maximize"
+	Gui, Test: Show, % "NA x" x + w//2 " y" y + h//2 " Maximize"
 	WinGetPos, xScreenOffset_monitor, yScreenOffSet_monitor, width_native, height_native
 	Gui, Test: Destroy
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native} ;, "hTask": h, "wTask": w, "xTask": x, "yTask": y}
 	
 	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "center"), vars.client.docked2 := LLK_IniRead("ini\config.ini", "Settings", "window-position vertical", "center")
-	vars.client.borderless := (vars.client.fullscreen = "true") ? 0 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
+	vars.client.borderless := (vars.client.fullscreen = "true") ? 1 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
 	vars.client.customres := [LLK_IniRead("ini\config.ini", "Settings", "custom-width"), LLK_IniRead("ini\config.ini", "Settings", "custom-resolution")]
 	If IsNumber(vars.client.customres.1) && IsNumber(vars.client.customres.2)
 	{
@@ -368,8 +368,8 @@ Init_client()
 			WinSet, Style, % (vars.client.borderless ? "-" : "+") "0x40000", ahk_group poe_window ;add resize-borders
 			WinSet, Style, % (vars.client.borderless ? "-" : "+") "0xC00000", ahk_group poe_window ;add caption
 			If !vars.client.borderless
-				WinMove, ahk_group poe_window,,, % vars.monitor.y, % vars.client.customres.1 + 2* vars.system.xborder, % vars.client.customres.2 + vars.system.caption + 2* vars.system.yborder
-			Else WinMove, ahk_group poe_window,,, % vars.monitor.y, % vars.client.customres.1, % vars.client.customres.2
+				WinMove, ahk_group poe_window,,,, % vars.client.customres.1 + 2* vars.system.xborder, % vars.client.customres.2 + vars.system.caption + 2* vars.system.yborder
+			Else WinMove, ahk_group poe_window,,,, % vars.client.customres.1, % vars.client.customres.2
 		}
 	}
 
@@ -377,7 +377,7 @@ Init_client()
 	vars.client.x_offset := (vars.client.fullscreen = "false" && !vars.client.borderless) ? vars.system.xborder : 0
 	xTarget := (vars.client.docked = "left") ? vars.monitor.x - vars.client.x_offset : (vars.client.docked = "center") ? vars.monitor.x + (vars.monitor.w - w) / 2 : vars.monitor.x + vars.monitor.w - (w - vars.client.x_offset)
 	yTarget := (vars.client.docked2 = "top") ? vars.monitor.y : (vars.client.docked2 = "center") ? vars.monitor.y + (vars.monitor.h - h)/2 : vars.monitor.y + vars.monitor.h - (h - (vars.client.borderless ? 0 : vars.system.yBorder))
-	If (vars.client.fullscreen = "false")
+	If (vars.client.fullscreen = "false") || (vars.client.w < vars.monitor.w) || (vars.client.h < vars.monitor.h)
 	{
 		WinMove, ahk_group poe_window,, % xTarget, % yTarget
 		WinGetPos, x, y, w, h, ahk_group poe_window
@@ -399,13 +399,9 @@ Init_client()
 	Loop, Parse, iniread, `n
 	{
 		If (A_Index = 1)
-		{
-			vars.general.supported_resolutions := {}
-			vars.general.available_resolutions := ""
-		}
+			vars.general.supported_resolutions := {}, vars.general.available_resolutions := ""
 		vars.general.supported_resolutions[StrReplace(A_LoopField, "p")] := 1
-		If (StrReplace(A_Loopfield, "p") <= vars.monitor.h && (vars.client.fullscreen = "true" || vars.client.borderless)) ;cont
-		|| (StrReplace(A_LoopField, "p") < vars.monitor.h && (vars.client.fullscreen = "false") && !vars.client.borderless)
+		If (StrReplace(A_Loopfield, "p") <= vars.monitor.h && (vars.client.fullscreen = "true" || vars.client.borderless)) || (StrReplace(A_LoopField, "p") < vars.monitor.h && (vars.client.fullscreen = "false") && !vars.client.borderless)
 			vars.general.available_resolutions := !vars.general.available_resolutions ? StrReplace(A_Loopfield, "p") :  StrReplace(A_Loopfield, "p") "|" vars.general.available_resolutions
 	}
 	vars.general.available_resolutions .= "|"
@@ -659,7 +655,7 @@ Loop_main()
 		location := vars.log.areaID ;short-cut variable
 		If (vars.cloneframes.enabled
 		&& ((settings.cloneframes.pixelchecks && vars.pixelsearch.gamescreen.check) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
-		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
+		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 		|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
 			CloneframesShow()
 		Else CloneframesHide()
@@ -680,6 +676,7 @@ Resolution_check()
 {
 	local
 	global vars, settings
+	poe_height := vars.client.h
 	
 	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h) ;&& !vars.general.supported_resolutions.HasKey(vars.client.h + vars.system.caption + vars.system.yborder* 2)
 	{
