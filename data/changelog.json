@@ -1,5 +1,10 @@
 [
   [
+	["1.50.6", 15006],
+	"multi-monitor tweaks/fixes",
+	"clone-frames: auto-toggling in Rogue Harbor"
+  ],
+  [
 	["1.50.5", 15005],
 	"leveling tracker: update e-exp on level up",
 	"lab overlay: improved tracking, added override"
