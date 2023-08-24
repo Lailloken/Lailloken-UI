@@ -676,6 +676,7 @@ Resolution_check()
 {
 	local
 	global vars, settings
+	poe_height := vars.client.h
 	
 	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h) ;&& !vars.general.supported_resolutions.HasKey(vars.client.h + vars.system.caption + vars.system.yborder* 2)
 	{
