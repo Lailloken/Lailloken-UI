@@ -137,9 +137,14 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 	local
 	global vars, settings, db
 
+	ignore := ["[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]"]
 	StringLower, content, content
 	Loop, Parse, content, `n, `r
 	{
+		For index, skip in ignore
+			If InStr(A_LoopField, skip, 1) ;skip lines with certain key-words
+				Continue 2
+		
 		If InStr(A_LoopField, "generating level")
 		{
 			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var

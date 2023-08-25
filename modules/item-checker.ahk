@@ -191,7 +191,7 @@ Iteminfo(refresh := 0)
 			vars.iteminfo.clipboard := "
 			(LTrim
 			Item Class: Body Armours`r`nRarity: Rare`r`nDoom Pelt`r`nGeneral's Brigandine`r`n--------`r`nQuality: +30% (augmented)`r`nArmour: 580 (augmented)`r`nEvasion Rating: 580 (augmented)`r--------`r
-			Requirements:`r`nLevel: 70`r`nStr: 106`r`nDex: 103`r`nInt: 68`r`n--------`r`nSockets: W-W-W-W-W-R `r`n--------`r`nItem Level: 85`r`n--------`r`n{ Eater of Worlds Implicit Modifier (Lesser) — Life }
+			Requirements`:`r`nLevel: 70`r`nStr: 106`r`nDex: 103`r`nInt: 68`r`n--------`r`nSockets: W-W-W-W-W-R `r`n--------`r`nItem Level: 85`r`n--------`r`n{ Eater of Worlds Implicit Modifier (Lesser) — Life }
 			7% increased Life Recovery rate (implicit)`r`n{ Searing Exarch Implicit Modifier (Greater) — Aura }`n12(11-12)% increased effect of Non-Curse Auras from your Skills (implicit)`r`n--------`r
 			{ Prefix Modifier ""Vigorous"" (Tier: 3) — Life }`n+100(100-109) to maximum Life (fractured)`r`n{ Prefix Modifier ""Chosen"" (Tier: 1) — Life, Mana }`n9(9-10)% increased maximum Life
 			9(9-10)% increased maximum Mana`r`n{ Suffix Modifier ""of the Maelstrom"" (Tier: 3) — Elemental, Lightning, Resistance }`n+39(36-41)% to Lightning Resistance`r`n{ Suffix Modifier ""of Revoking"" (Tier: 3) }
@@ -1238,7 +1238,7 @@ Iteminfo4_GUI()
 			, % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;dummy text-panel to gauge the required height of the text
 			GuiControlGet, text_, Pos, % hwnd
 
-			rolls := IteminfoModRollCheck(A_LoopField), color := unique ? "994C00" : !InStr(LLK_StringRemove(mod, " (fractured), (crafted)"), "(") ? "303060" : "404040"
+			rolls := IteminfoModRollCheck(A_LoopField), color := unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
 
 			;if dummy text-panel is single-line, increase height slightly to make small cells square
 			Gui, %iteminfo%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center" ;cont
@@ -1277,7 +1277,7 @@ Iteminfo4_GUI()
 			Else If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && (tier = 1 || tier = "#") ;if the mod is desired and t1 or untiered, apply white background and red text (Neversink's t1 color-scheme)
 				color := "White", color_t := "Red"
 			Else If (item.class = "base jewels") ;for base/generic jewel mods, use shades of gray (lighter shade = lower weight/probability)
-				color := IsNumber(tier) ? 129-tier*2 . 129-tier*2 . 129-tier*2 : "Black", color_t := "White"
+				color := IsNumber(tier) ? 119-tier*2 . 119-tier*2 . 119-tier*2 : "Black", color_t := "White"
 			Else color := InStr("c#", tier) ? tColors.0 : (tier >= 6) ? tColors.6 : IsNumber(tier) ? tColors[tier] : "Black"
 
 			label := IteminfoModgroupCheck(name, 1) ? IteminfoModgroupCheck(name, 1) : IteminfoModCheck(mod, item.type), label := InStr(A_LoopField, " (crafted)") ? "mastercraft" : label ;check for suitable icon

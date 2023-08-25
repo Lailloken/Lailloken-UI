@@ -65,6 +65,17 @@
 				LLK_Overlay(vars.hwnd.essences.main, "destroy")
 			Case "iteminfo":
 				Iteminfo()
+			Case "gemnotepad":
+				text := StrReplace(LLK_ControlGet(vars.hwnd.notepad.note), "`n", "(n)"), text .= (Blank(text) ? "" : "(n)") vars.omnikey.item.name
+				While (SubStr(text, 1, 1) = " ") || (SubStr(text, 1, 3) = "(n)")
+					text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : SubStr(text, 4)
+				If InStr(LLK_IniRead("ini\qol tools.ini", "notepad", "gems"), vars.omnikey.item.name)
+					LLK_ToolTip("gem already added",,,,, "red")
+				Else
+				{
+					IniWrite, % LLK_StringCase(text), ini\qol tools.ini, notepad, gems
+					Notepad(), LLK_ToolTip("gem added",,,,, "lime")
+				}
 			Case "gemnotes":
 				note := vars.leveltracker.guide.gem_notes[vars.omnikey.item.name]
 				LLK_ToolTip(!note ? "no notes" : note, note? 0 : 1,,, "gem_notes")
@@ -256,6 +267,9 @@ OmniContext(mode := 0)
 
 	If WinExist("ahk_id "vars.hwnd.legion.main) && InStr(clipboard, "passives in radius are conquered by ")
 		Return "legion"
+
+	If WinExist("ahk_id "vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && InStr(vars.omnikey.clipboard, "rarity: gem")
+		Return "gemnotepad"
 
 	If vars.hwnd.tooltipgem_notes && WinExist("ahk_id "vars.hwnd.tooltipgem_notes) && InStr(vars.omnikey.clipboard, "rarity: gem")
 		Return "gemnotes"

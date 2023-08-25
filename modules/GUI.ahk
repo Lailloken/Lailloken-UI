@@ -18,11 +18,11 @@
 		Gui, LLK_panel: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.LLK_panel
 		
-		xPos := (settings.general.xButton > vars.monitor.w / 2 - 1) ? settings.general.xButton - (w - 1) : settings.general.xButton ;apply right-alignment if applicable (i.e. if button is on the right half of monitor)
-		xPos := (xPos + (w - 1) >= vars.monitor.w - 1) ? (vars.monitor.w - 1) - (w - 1) : xPos ;correct the coordinates if panel ends up out of monitor-bounds
+		xPos := (settings.general.xButton > vars.monitor.w / 2 - 1) ? settings.general.xButton - w + 1 : settings.general.xButton ;apply right-alignment if applicable (i.e. if button is on the right half of monitor)
+		xPos := (xPos + (w - 1) > vars.monitor.w - 1) ? vars.monitor.w - 1 - w : xPos ;correct the coordinates if panel ends up out of monitor-bounds
 		
-		yPos := (settings.general.yButton > vars.monitor.h / 2 - 1) ? settings.general.yButton - (h - 1) : settings.general.yButton ;apply top-alignment if applicable (i.e. if button is on the top half of monitor)
-		yPos := (yPos + (h - 1) >= vars.monitor.h - 1) ? (vars.monitor.h - 1) - (h - 1): yPos ;correct the coordinates if panel ends up out of monitor-bounds
+		yPos := (settings.general.yButton > vars.monitor.h / 2 - 1) ? settings.general.yButton - h + 1 : settings.general.yButton ;apply top-alignment if applicable (i.e. if button is on the top half of monitor)
+		yPos := (yPos + (h - 1) > vars.monitor.h - 1) ? vars.monitor.h - 1 - h : yPos ;correct the coordinates if panel ends up out of monitor-bounds
 		
 		Gui, LLK_panel: Show, % "Hide x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 		LLK_Overlay(vars.hwnd.LLK_panel, "show") ;LLK_Overlay(vars.hwnd.LLK_panel, settings.general.hide_button ? "hide" : "show")
@@ -60,10 +60,10 @@ GuiButton(name := "", x := "", y := "")
 	If !Blank(settings[name].xButton)
 	{
 		settings[name].xButton := (settings[name].xButton < 0) ? vars.client.x - vars.monitor.x : settings[name].xButton, settings[name].yButton := (settings[name].yButton < 0) ? vars.client.y - vars.monitor.y : settings[name].yButton
-		xPos := (settings[name].xButton > vars.monitor.w/2 - 1) ? settings[name].xButton - w : settings[name].xButton
-		xPos := (xPos + w > vars.monitor.w - 1) ? vars.monitor.w - w : xPos ;prevent panel from leaving screen
-		yPos := (settings[name].yButton > vars.monitor.h/2 - 1) ? settings[name].yButton - h : settings[name].yButton
-		yPos := (yPos + h > vars.monitor.h - 1) ? vars.monitor.h - h : yPos ;prevent panel from leaving screen
+		xPos := (settings[name].xButton > vars.monitor.w/2 - 1) ? settings[name].xButton - w + 1 : settings[name].xButton
+		xPos := (xPos + (w - 1) > vars.monitor.w - 1) ? vars.monitor.w - 1 - w : xPos ;prevent panel from leaving screen
+		yPos := (settings[name].yButton > vars.monitor.h/2 - 1) ? settings[name].yButton - h + 1 : settings[name].yButton
+		yPos := (yPos + (h - 1) > vars.monitor.h - 1) ? vars.monitor.h - 1 - h : yPos ;prevent panel from leaving screen
 	}
 	Else xPos := vars.client.x - vars.monitor.x, yPos := vars.client.y - vars.monitor.y
 

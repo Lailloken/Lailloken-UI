@@ -629,22 +629,25 @@ MaptrackerParseDialogue(line)
 
 	If !IsObject(ignore)
 	{
-		ignore := ["DEBUG", "You have entered", "SHADER", "ENGINE", "RENDER", "DOWNLOAD", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server"]
-		blight := [" sister cassia"], delirium := [" strange voice"], expedition := [" dannig", " gwennen", " rog", " tujen"], harvest := [" oshabi"], incursion := [" alva"], bestiary := [" einhar"], betrayal := [" jun"], delve := [" niko"]
-		For member in vars.betrayal.members
-			betrayal.Push(" "(member = "it" ? "it that fled" : member))
+		ignore := ["You have entered"]
+		blight := ["sister cassia"], delirium := ["strange voice"], expedition := ["dannig, warrior skald", "gwennen, the gambler", "rog", "tujen, the haggler"], harvest := ["oshabi"], incursion := ["alva, master explorer"], bestiary := ["einhar, beastmaster"], delve := ["niko, master of the depths"]
+		betrayal := ["jun, veiled master", "aisling laffrey, the silent butcher", "cameria the coldblooded", "elreon, light's judge", "gravicius reborn", "guff ""tiny"" grenn", "haku, warmaster", "hillock, the blacksmith", "it that fled", "janus perandus", "thane jorgin the banished", "korell goya, son of stone", "leo, wolf of the pits", "riker maloney, midnight tinkerer", "rin yuushu", "tora, the culler", "vagan, victory's herald", "vorici, silent brother"]
 	}
 
 	For index, skip in ignore
-		If InStr(line, skip, 1) ;skip certain key-words to avoid erroneous tracking
+		If InStr(line, skip, 1) ;skip certain key words/phrases to avoid erroneous tracking
+			Return
+
+	For mechanic, type in vars.maptracker.mechanics
+		If (type = 1) && (InStr(vars.log.areaID, mechanic) || (mechanic = "delirium") && InStr(vars.log.areaID, "affliction") || InStr(vars.log.areaID, "maven") || InStr(vars.log.areaID, "heist")) ;don't track contents in league-specific instances (logbook, temple, syndicate hideouts, heists, etc.)
 			Return
 
 	For mechanic, type in vars.maptracker.mechanics
 	{
-		If (type != 1) || !settings.maptracker[mechanic] || LLK_HasVal(vars.maptracker.map.content, mechanic) || (mechanic = "delirium") && InStr(vars.log.areaID, "affliction") || InStr(vars.log.areaID, mechanic)
+		If (type != 1) || !settings.maptracker[mechanic] || LLK_HasVal(vars.maptracker.map.content, mechanic)
 			Continue
 		For index, identifier in %mechanic%
-			If InStr(line, identifier)
+			If InStr(line, " " identifier ": ")
 			{
 				vars.maptracker.map.content.Push(mechanic)
 				Return
@@ -657,10 +660,13 @@ MaptrackerReminder()
 	local
 	global vars, settings
 	
+	;missable_content := ["incursion", "delve", "betrayal", "ritual", "metamorph"], check := 0
 	Clipboard := ""
 	SendInput, ^{c}
 	ClipWait, 0.05
-	If InStr(Clipboard, "`r`nportal scroll`r`n")
+	;For index, content in missable_content
+	;	check += LLK_HasVal(vars.maptracker.map.content, content) ? 1 : 0
+	If InStr(Clipboard, "`r`nportal scroll`r`n") ;&& check
 		LLK_ToolTip("double-check`nmap content!", 3,,,, "aqua", settings.general.fSize + 4,,, 1)
 }
 
