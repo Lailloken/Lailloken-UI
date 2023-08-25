@@ -215,7 +215,7 @@
     ],
     "iteminfo item-tier": [
       "click a box to apply an rgb code from clipboard, right click to reset",
-      "<fr> refers to fractured, <#> to un-tiered mods",
+      "<fr> refers to fractured, <#> to untiered mods",
       "t1 and t6 are also used for desired/undesired"
     ],
     "iteminfo item-level": [

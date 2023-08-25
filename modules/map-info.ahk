@@ -180,7 +180,7 @@ MapinfoLineparse(line, ByRef text, ByRef value)
 			text := "", value := ""
 		If LLK_IsType(A_LoopField, "alpha") || InStr(",'", A_LoopField)
 			text .= A_LoopField
-		Else If IsNumber(A_LoopField)
+		Else If IsNumber(A_LoopField) || InStr(".", A_LoopField)
 			value .= A_LoopField
 	}
 	text := StrReplace(text, "  ", " ")
@@ -238,7 +238,7 @@ MapinfoParse(mode := 1)
 				If (A_Index = 1) || (SubStr(A_LoopField, 1, 1) = "(")
 					Continue
 				MapinfoLineparse(IteminfoModRemoveRange(StrReplace(A_LoopField, "per 25% alert level", "per alert level")), text, value)
-				texts.Push(text), values.Push(Format("{:0.0f}", Floor(value * mod_multi))), check := "", value := ""
+				texts.Push(text), values.Push(Format("{:0." (InStr(value, ".") ? 1 : 0) "f}", (mod_multi != 1) ? Floor(value * mod_multi) : value)), check := "", value := ""
 			}
 			For index, text in texts
 			{

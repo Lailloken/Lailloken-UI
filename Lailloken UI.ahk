@@ -527,7 +527,9 @@ Init_vars()
 	vars.hwnd := {"help_tooltips": {}}
 	vars.help := Json.Load(LLK_FileRead("data\help tooltips.json"))
 	vars.snip := {}
-	vars.system := {"timeout": 1, "font1": New CustomFont("data\Fontin-SmallCaps.ttf"), "click": 1}
+	Loop, Files, data\alt_font*
+		alt_font := A_LoopFileName
+	vars.system := {"timeout": 1, "font1": New CustomFont("data\" (!Blank(alt_font) ? alt_font : "Fontin-SmallCaps.ttf")), "click": 1}
 	vars.tooltip := {}
 	vars.general := {"buggy_resolutions": {768: 1, 1024: 1, 1050: 1}, "inactive": 0, "startup": A_TickCount, "updatetick": 0}
 	If !IsObject(vars.updater)
@@ -535,8 +537,6 @@ Init_vars()
 		version := Json.Load(LLK_FileRead("data\versions.json")), version := version._release.1
 		vars.updater := {"version": [version]}, vars.updater.version.2 := UpdateParseVersion(version)
 	}
-	
-	vars.recombinators := {"classes": "shield, sword, quiver, bow, claw, dagger, mace, ring, amulet, helmet, glove, boot, belt, wand,staves,axe,sceptre,body,sentinel"}
 }
 
 Loop()
@@ -703,7 +703,6 @@ Resolution_check()
 			You have to run the client with a custom resolution, which you can set up in the following window.
 			)
 		}
-		
 		MsgBox, % text
 		vars.general.safe_mode := 1
 		settings_menu("general")
@@ -1211,14 +1210,14 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "") ; raw 
 		xPos := vars.monitor.w
 
 	If (xPos > vars.monitor.w / 2 - 1) && !raw
-		xTarget := xPos - (width - 1)
+		xTarget := xPos - width + 1
 	Else xTarget := xPos
 	
 	If (yPos >= vars.monitor.h)
 		yPos := vars.monitor.h
 	
 	If (yPos > vars.monitor.h / 2 - 1) && !raw
-		yTarget := yPos - (height - 1)
+		yTarget := yPos - height + 1
 	Else yTarget := yPos
 	
 	If raw && (xTarget + width > vars.monitor.w)
