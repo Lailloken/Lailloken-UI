@@ -1,5 +1,12 @@
 [
   [
+	["1.50.7", 15007],
+	"item-info: jewel-weight fix",
+	"mapping tracker: improved tracking accuracy",
+	"map-info: decimal values fix",
+	"leveling tracker: gem reminder-notes"
+  ],
+  [
 	["1.50.6", 15006],
 	"multi-monitor tweaks/fixes",
 	"clone-frames: auto-toggling in Rogue Harbor"
