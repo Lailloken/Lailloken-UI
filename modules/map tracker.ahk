@@ -662,7 +662,7 @@ MaptrackerReminder()
 	For index, mechanic in ignore
 		If LLK_HasVal(vars.maptracker.map.content, mechanic, 1)
 			Return
-	If InStr(Clipboard, "`r`n"vars.lang.portal)
+	If InStr(Clipboard, "`r`n"vars.lang.portal, 1)
 		LLK_ToolTip("double-check`nmap content!", 3,,,, "aqua", settings.general.fSize + 4,,, 1)
 }
 
