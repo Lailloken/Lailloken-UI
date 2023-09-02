@@ -4,6 +4,9 @@
 
 ; the script ignores lines that start with a semicolon
 ; this lang_english text-file can be used as a template to create new language-files
+; feel free to publish your translation files in the Lailloken UI discussions section or your own GitHub repository
+; I kindly ask you not to publish them as part of a Lailloken UI fork (imho, a translation for which I have laid the groundwork does not warrant a separate fork)
+
 ; make a __COPY__ of this file, then rename the __COPY__ to lang_XYZ (XYZ will be displayed in the drop-down menu in the <general> section of the settings menu, and it will also be used as a suffix for other required files, e.g. Betrayal-info data)
 ; the next time you restart the script, there should be a drop-down list with languages in the <general> section of the settings menu
 ; I know enough German to supply some edge-case examples/requirements for syntax-structures that differ from English, but not enough to add complete support for German game-clients
@@ -30,6 +33,19 @@
 ; simply add one or more additional line(s) with the same key: it's important to list them in the correct order, i.e. following the sentence structure
 ;		enter			=	"Ihr habt"
 ;		enter			=	"betreten"
+
+
+
+;#####################################################
+; credits: translators
+;#####################################################
+
+; these names will be shown when hovering over the translator label next to the drop-down list in the settings menu
+		translator		=	"lailloken"
+;		translator		=	"0"
+;		translator		=	"0"
+;		translator		=	"0"
+;		translator		=	"0"
 
 
 
