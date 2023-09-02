@@ -137,15 +137,15 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 	local
 	global vars, settings, db
 
-	ignore := ["[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]"]
-	StringLower, content, content
-	Loop, Parse, content, `n, `r
+	ignore := ["[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]", "[Item Filter]"]
+	
+	Loop, Parse, content, `n, `r.
 	{
 		For index, skip in ignore
-			If InStr(A_LoopField, skip, 1) ;skip lines with certain key-words
+			If InStr(A_LoopField, skip, 1) ;skip lines with certain key words/phrases
 				Continue 2
 		
-		If InStr(A_LoopField, "generating level")
+		If InStr(A_LoopField, "Generating level ", 1)
 		{
 			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var
 			areaseed := SubStr(A_Loopfield, InStr(A_Loopfield, "with seed ") + 10), areaname := ""
@@ -159,22 +159,22 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.") || InStr(A_LoopField, "*****")
 			areaID := "login"
 
-		If InStr(A_LoopField, "you have entered ")
-			parse := SubStr(A_LoopField, InStr(A_LoopField, "you have entered") + 17), areaname := SubStr(parse, 1, -1)
+		If LangLineParse(A_LoopField, vars.lang.enter)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.enter.1)), areaname := LLK_StringCase(LangLineTrim(parse, vars.lang.enter, 1))
 
-		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && InStr(A_LoopField, " is now level ")
+		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && LangLineParse(A_LoopField, vars.lang.level)
 		{
-			level := SubStr(A_Loopfield, InStr(A_Loopfield, "is now level ")), level := StrReplace(level, "is now level ")
+			level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.level.1)), level := LangLineTrim(level, vars.lang.level)
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 		}
 
-		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (InStr(A_LoopField, " has been slain.") || InStr(A_LoopField, " has committed suicide."))
+		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (LangLineParse(A_LoopField, vars.lang.slain) || LangLineParse(A_LoopField, vars.lang.suicide))
 			vars.maptracker.map.deaths += 1
 
-		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && InStr(A_LoopField, "you have killed ")
+		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && LangLineParse(A_LoopField, vars.lang.killed)
 		{
-			parse := SubStr(A_LoopField, InStr(A_LoopField, "you have killed ") + 16), parse := SubStr(parse, 1, InStr(parse, " monsters") - 1)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.killed.1)), parse := LangLineTrim(parse, vars.lang.killed)
 			Loop, Parse, parse
 			{
 				If (A_Index = 1)
