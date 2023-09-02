@@ -112,4 +112,4 @@
 ; mapping tracker: item names
 ;#####################################################
 
-		portal			=	"portal scroll"
+		portal			=	"Portal Scroll"
