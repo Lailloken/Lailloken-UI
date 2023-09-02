@@ -655,7 +655,7 @@ Settings_general()
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c"(vars.log.level ? "Lime" : settings.general.character? "Yellow" : "Red"), % "active character: "
 		vars.hwnd.settings.character_text := hwnd, vars.hwnd.help_tooltips["settings_active character status"] := hwnd
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack wp r1 hp gSettings_general2 HWNDhwnd", % settings.general.character
+		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack wp r1 hp gSettings_general2 HWNDhwnd", % LLK_StringCase(settings.general.character)
 		If vars.log.level
 			Gui, %GUI%: Add, Text, % "ys x+-1 hp 0x200 Center Border", % " lvl " vars.log.level " "
 		Gui, %GUI%: Font, % "s"settings.general.fSize
@@ -665,11 +665,27 @@ Settings_general()
 	}
 
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "game-window settings:"
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % "game-client settings:"
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_general2", % " apply && restart "
-	vars.hwnd.settings.apply := hwnd
+	vars.hwnd.settings.apply := hwnd, check := ""
 	
+	Loop, Files, data\lang_*
+		parse := SubStr(A_LoopFileName, InStr(A_LoopFileName, "_") + 1), parse := LLK_StringCase(StrReplace(parse, ".txt")), check .= parse "|"
+
+	If (LLK_InStrCount(check, "|") > 1)
+	{
+		parse := 0
+		Loop, Parse, check, |
+			parse := (StrLen(A_LoopField) > parse) ? StrLen(A_LoopField) : parse
+		Gui, %GUI%: Add, Text, % "xs Section", % "language: "
+		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+		Gui, %GUI%: Add, DDL, % "ys x+0 HWNDhwnd0 gSettings_general2 r"LLK_InStrCount(check, "|") " w"settings.general.fWidth * parse + settings.general.fWidth, % StrReplace(check, settings.general.lang, settings.general.lang "|")
+		Gui, %GUI%: Font, % "s"settings.general.fSize
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd x+"settings.general.fWidth, (translators)
+		vars.hwnd.settings.language := hwnd0, vars.hwnd.help_tooltips["settings_lang translators"] := hwnd
+	}
+
 	Gui, %GUI%: Add, Text, % "xs Section", % "detected mode: "
 	Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd w"settings.general.fwidth* 20, % (vars.client.fullscreen = "true") ? "windowed fullscreen" : !vars.client.borderless ? "windowed" : "borderless windowed"
 	vars.hwnd.settings.window_mode := hwnd
@@ -822,10 +838,6 @@ Settings_general2(cHWND := "")
 			IniWrite, general, ini\config.ini, versions, reload settings
 			Reload
 			ExitApp
-		Case "hide":
-			IniWrite, % LLK_ControlGet(cHWND), ini\config.ini, UI, hide panel
-			settings.general.hide_button := LLK_ControlGet(cHWND)
-			Init_GUI()
 		Case "character":
 			GuiControl, +cRed, % vars.hwnd.settings.character
 			GuiControl, movedraw, % vars.hwnd.settings.character
@@ -840,6 +852,9 @@ Settings_general2(cHWND := "")
 			If WinExist("ahk_id "vars.hwnd.leveltracker.main)
 				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience()
 			Settings_menu("general")
+		Case "language":
+			GuiControl, +cRed, % vars.hwnd.settings.apply
+			GuiControl, movedraw, % vars.hwnd.settings.apply
 		Case "custom_width":
 			GuiControl, +cRed, % vars.hwnd.settings.apply
 			GuiControl, movedraw, % vars.hwnd.settings.apply
@@ -859,6 +874,7 @@ Settings_general2(cHWND := "")
 			IniWrite, % height, ini\config.ini, Settings, custom-resolution
 			IniWrite, % width, ini\config.ini, Settings, custom-width
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.remove_borders), ini\config.ini, settings, remove window-borders
+			IniWrite, % LLK_ControlGet(vars.hwnd.settings.language), ini\config.ini, settings, language
 			If vars.hwnd.settings.blackbars
 				IniWrite, % LLK_ControlGet(vars.hwnd.settings.blackbars), ini\config.ini, Settings, black-bar compensation
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings
@@ -1736,14 +1752,20 @@ Settings_maptracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing, general settings:
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot, enable loot tracker
-	vars.hwnd.settings.loot := vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot (settings.general.lang != "english" ? " cGray" : ""), enable loot tracker
+	vars.hwnd.settings.loot := hwnd
+	If (settings.general.lang = "english")
+		vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
+	Else vars.hwnd.help_tooltips["settings_lang unavailable"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, enable kill tracker
 	vars.hwnd.settings.kills := vars.hwnd.help_tooltips["settings_maptracker kill-tracker"] := hwnd
 	If settings.features.mapinfo
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo, include map-info panel mods
-		vars.hwnd.settings.mapinfo := vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo (settings.general.lang != "english" ? " cGray" : ""), include map-info panel mods
+		vars.hwnd.settings.mapinfo := hwnd
+		If (settings.general.lang = "english")
+			vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
+		Else vars.hwnd.help_tooltips["settings_lang unavailable|"] := hwnd
 	}
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, track side-areas in maps
 	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
@@ -1818,6 +1840,11 @@ Settings_maptracker2(cHWND)
 			Init_GUI("maptracker")
 			Settings_menu("mapping tracker")
 		Case "loot":
+			If (settings.general.lang != "english")
+			{
+				GuiControl,, % cHWND, 0
+				Return
+			}
 			settings.maptracker.loot := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
 			Settings_ScreenChecksValid()
@@ -1825,6 +1852,11 @@ Settings_maptracker2(cHWND)
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
 		Case "mapinfo":
+			If (settings.general.lang != "english")
+			{
+				GuiControl,, % cHWND, 0
+				Return
+			}
 			settings.maptracker.mapinfo := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.mapinfo, ini\map tracker.ini, settings, log mods from map-info panel
 		Case "sidecontent":

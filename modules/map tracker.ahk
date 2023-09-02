@@ -5,9 +5,9 @@
 	
 	settings.features.maptracker := LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 	
-	settings.maptracker := {"loot": LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
+	settings.maptracker := {"loot": (settings.general.lang != "english") ? 0 : LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
 	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
-	settings.maptracker.mapinfo := LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
+	settings.maptracker.mapinfo := (settings.general.lang != "english") ? 0 : LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
 	settings.maptracker.fSize := LLK_IniRead("ini\map tracker.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.maptracker.fSize, height, width)
 	settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
@@ -91,10 +91,10 @@ MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content
 	global vars, settings
 	
 	If !mode
-		parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0}
+		parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer"}
 	Else If (mode = 1)
 		parse := {"abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
-	Else parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
+	Else parse := {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
 
 	For key, val in parse
 		If InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
@@ -625,21 +625,16 @@ MaptrackerParseDialogue(line)
 {
 	local
 	global vars, settings
-	static ignore, blight, delirium, expedition, harvest, incursion, bestiary, betrayal, delve
+	static blight, delirium, expedition, harvest, incursion, bestiary, betrayal, delve
 
 	If !IsObject(ignore)
 	{
-		ignore := ["You have entered"]
-		blight := ["sister cassia"], delirium := ["strange voice"], expedition := ["dannig, warrior skald", "gwennen, the gambler", "rog", "tujen, the haggler"], harvest := ["oshabi"], incursion := ["alva, master explorer"], bestiary := ["einhar, beastmaster"], delve := ["niko, master of the depths"]
-		betrayal := ["jun, veiled master", "aisling laffrey, the silent butcher", "cameria the coldblooded", "elreon, light's judge", "gravicius reborn", "guff ""tiny"" grenn", "haku, warmaster", "hillock, the blacksmith", "it that fled", "janus perandus", "thane jorgin the banished", "korell goya, son of stone", "leo, wolf of the pits", "riker maloney, midnight tinkerer", "rin yuushu", "tora, the culler", "vagan, victory's herald", "vorici, silent brother"]
+		blight := [vars.lang.cassia.1], delirium := [vars.lang["strange voice"].1], expedition := [vars.lang.dannig.1, vars.lang.gwennen.1, vars.lang.rog.1, vars.lang.tujen.1], harvest := [vars.lang.oshabi.1], incursion := [vars.lang.alva.1], bestiary := [vars.lang.einhar.1], delve := [vars.lang.niko.1]
+		betrayal := [vars.lang.jun.1, vars.lang.aisling.1, vars.lang.cameria.1, vars.lang.elreon.1, vars.lang.gravicius.1, vars.lang.guff.1, vars.lang.haku.1, vars.lang.hillock.1, vars.lang.it.1, vars.lang.janus.1, vars.lang.jorgin.1, vars.lang.korell.1, vars.lang.leo.1, vars.lang.riker.1, vars.lang.rin.1, vars.lang.tora.1, vars.lang.vagan.1, vars.lang.vorici.1]
 	}
 
-	For index, skip in ignore
-		If InStr(line, skip, 1) ;skip certain key words/phrases to avoid erroneous tracking
-			Return
-
 	For mechanic, type in vars.maptracker.mechanics
-		If (type = 1) && (InStr(vars.log.areaID, mechanic) || (mechanic = "delirium") && InStr(vars.log.areaID, "affliction") || InStr(vars.log.areaID, "maven") || InStr(vars.log.areaID, "heist")) ;don't track contents in league-specific instances (logbook, temple, syndicate hideouts, heists, etc.)
+		If (type = 1) && (InStr(vars.log.areaID, mechanic) || (mechanic = "delirium") && InStr(vars.log.areaID, "affliction") || InStr(vars.log.areaID, "maven") || InStr(vars.log.areaID, "heist") || InStr(vars.log.areaID, "sanctum")) ;don't track contents in league-specific instances (logbook, temple, syndicate hideouts, heists, etc.)
 			Return
 
 	For mechanic, type in vars.maptracker.mechanics
@@ -647,7 +642,7 @@ MaptrackerParseDialogue(line)
 		If (type != 1) || !settings.maptracker[mechanic] || LLK_HasVal(vars.maptracker.map.content, mechanic)
 			Continue
 		For index, identifier in %mechanic%
-			If InStr(line, " " identifier ": ")
+			If InStr(line, identifier, 1)
 			{
 				vars.maptracker.map.content.Push(mechanic)
 				Return
@@ -660,13 +655,14 @@ MaptrackerReminder()
 	local
 	global vars, settings
 	
-	;missable_content := ["incursion", "delve", "betrayal", "ritual", "metamorph"], check := 0
+	ignore := ["(vaal area)", "abyssal depths", "lab trial"]
 	Clipboard := ""
 	SendInput, ^{c}
 	ClipWait, 0.05
-	;For index, content in missable_content
-	;	check += LLK_HasVal(vars.maptracker.map.content, content) ? 1 : 0
-	If InStr(Clipboard, "`r`nportal scroll`r`n") ;&& check
+	For index, mechanic in ignore
+		If LLK_HasVal(vars.maptracker.map.content, mechanic, 1)
+			Return
+	If InStr(Clipboard, "`r`n"vars.lang.portal, 1)
 		LLK_ToolTip("double-check`nmap content!", 3,,,, "aqua", settings.general.fSize + 4,,, 1)
 }
 
@@ -737,7 +733,7 @@ MaptrackerTimer()
 	Else
 	{
 		vars.maptracker.map.name := !vars.maptracker.map.name ? (StrMatch(vars.log.areaID, "expedition") ? "logbook: " : "") vars.log.areaname : vars.maptracker.map.name ;areaID and areaname are sometimes parsed on two different loop-ticks, so it has to be declared separately here
-		If (vars.maptracker.map.id != vars.log.areaID || vars.maptracker.map.seed != vars.log.areaseed) && !MaptrackerCheck(1) ;entering a new map
+		If !MaptrackerCheck(1) && (vars.maptracker.map.id != vars.log.areaID || !InStr(vars.log.areaID, "sanctum") && vars.maptracker.map.seed != vars.log.areaseed)  ;entering a new map
 			MaptrackerSave(), new := 1
 
 		vars.maptracker.map.portals += vars.maptracker.hideout && !new ? 1 : 0 ;entering through a portal from hideout? -> increase portal-count
@@ -762,6 +758,6 @@ MaptrackerTowncheck()
 	local
 	global vars, settings
 
-	If InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(vars.log.areaID, "menagerie")
+	If InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(vars.log.areaID, "menagerie") || InStr(vars.log.areaID, "sanctumfoyer")
 		Return 1
 }

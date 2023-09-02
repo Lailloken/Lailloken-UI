@@ -1,5 +1,10 @@
 [
   [
+	["1.50.8", 15008],
+	"mapping tracker: sanctum support",
+	"general: preliminary support for community translations"
+  ],
+  [
 	["1.50.7", 15007],
 	"item-info: jewel-weight fix",
 	"mapping tracker: improved tracking accuracy",

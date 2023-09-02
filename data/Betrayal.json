@@ -102,7 +102,7 @@
   "haku": {
     "rewards": {
       "fortification": [
-        "strongboxes",
+        "unique strongbox",
         "mixed items"
       ],
       "intervention": [
@@ -110,7 +110,7 @@
         "ambush scarab"
       ],
       "research": [
-        "qual rare items",
+        "quality rares",
         "quality items"
       ],
       "transportation": [
@@ -250,7 +250,7 @@
         "blight scarab"
       ],
       "research": [
-        "take one: catalyst,\nsplinter, essence, fossil",
+        "take one: oil, catalyst,\nsplinter, essence, fossil",
         "fractured item"
       ],
       "transportation": [

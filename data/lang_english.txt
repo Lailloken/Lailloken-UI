@@ -1,0 +1,115 @@
+;#####################################################
+; general information/instructions
+;#####################################################
+
+; the script ignores lines that start with a semicolon
+; this lang_english text-file can be used as a template to create new language-files
+; feel free to publish your translation files in the Lailloken UI discussions section or your own GitHub repository
+; I kindly ask you not to publish them as part of a Lailloken UI fork (imho, a translation for which I have laid the groundwork does not warrant a separate fork)
+
+; make a __COPY__ of this file, then rename the __COPY__ to lang_XYZ (XYZ will be displayed in the drop-down menu in the <general> section of the settings menu, and it will also be used as a suffix for other required files, e.g. Betrayal-info data)
+; the next time you restart the script, there should be a drop-down list with languages in the <general> section of the settings menu
+; I know enough German to supply some edge-case examples/requirements for syntax-structures that differ from English, but not enough to add complete support for German game-clients
+; use these examples to adjust the language-file to your own language
+
+; each line of the main data is divided into two parts:
+;		key		=	"value"
+
+; __DO NOT__ edit the key of a line, i.e. whatever is left of the equal sign
+; always use TABs wherever this sample file uses them: if preferred, you can also remove them, but __DO NOT__ replace them with simple spaces
+
+; the value contains in-game text AS IT IS DISPLAYED IN THE CHAT-BOX, and that's also what the script is looking for in the client.txt log-file
+; the value has to be enclosed in quotation marks, and it is also case-sensitive
+; to leave a value blank, set it to "0"
+
+; depending on the syntax of a language, info-extraction from the client.txt file has to be adjusted
+; generally, the script looks for certain patterns to determine what kind of information is present within a line in the log-file
+; for English, "You have entered Highgate." will be displayed whenever you enter Highgate
+; the script recognizes "You have entered", then 'knows' that the rest of the sentence is the location-name (so white-space and everything else will be removed)
+; for German (and maybe others as well), "Ihr habt 'Hohenpforte' betreten." will be displayed
+; so the script has to look for "Ihr habt" and "betreten" instead, then remove them to extract the location-name
+
+; to let the script 'know' of this structural difference, additional key/value pairs have to be provided
+; simply add one or more additional line(s) with the same key: it's important to list them in the correct order, i.e. following the sentence structure
+;		enter			=	"Ihr habt"
+;		enter			=	"betreten"
+
+
+
+;#####################################################
+; credits: translators
+;#####################################################
+
+; these names will be shown when hovering over the translator label next to the drop-down list in the settings menu
+		translator		=	"lailloken"
+;		translator		=	"0"
+;		translator		=	"0"
+;		translator		=	"0"
+;		translator		=	"0"
+
+
+
+;#####################################################
+; general: character tracking
+;#####################################################
+
+; certain languages may use sign-characters to highlight location-names (e.g. German uses apostrophes: Highgate -> 'Hohenpforte')
+;		location		=	"'"
+
+; English doesn't, so the value stays blank ("0")
+		location		=	"0"
+		enter			=	"You have entered"
+		level			=	"is now level"
+		slain			=	"has been slain"
+		suicide			=	"has committed suicide"
+		killed			=	"You have killed"
+		killed			=	"monsters"
+
+
+
+;#####################################################
+; mapping tracker: league-content tracking (dialogue)
+;#####################################################
+
+; colons are included in the value (just in case they need to be swapped out in certain languages), so pay attention
+; don't leave out colons because they are important for accuracy (especially Rog)
+		cassia			=	"Sister Cassia:"
+		strange voice	=	"Strange Voice:"
+		oshabi			=	"Oshabi:"
+		alva			=	"Alva, Master Explorer:"
+		einhar			=	"Einhar, Beastmaster:"
+		niko			=	"Niko, Master of the Depths:"
+		jun				=	"Jun, Veiled Master:"
+		aisling			=	"Aisling Laffrey, The Silent Butcher:"
+		cameria			=	"Cameria the Coldblooded:"
+		elreon			=	"Elreon, Light's Judge:"
+		gravicius		=	"Gravicius Reborn:"
+		guff			=	"Guff "Tiny" Grenn:"
+		haku			=	"Haku, Warmaster:"
+		hillock			=	"Hillock, the Blacksmith:"
+		it				=	"It That Fled:"
+		janus			=	"Janus Perandus:"
+		jorgin			=	"Thane Jorgin the Banished:"
+		korell			=	"Korell Goya, Son of Stone:"
+		leo				=	"Leo, Wolf of the Pits:"
+		riker			=	"Riker Maloney, Midnight Tinkerer:"
+		rin				=	"Rin Yuushu:"
+		tora			=	"Tora, the Culler:"
+		vagan			=	"Vagan, Victory's Herald:"
+		vorici			=	"Vorici, Silent Brother:"
+
+; expedition note: there is a difference in displayed names depending on whether the NPCs greet you when they first see you in a map (Gwennen, the Gambler) or whether the encounter has finished (Gwennen)
+; always use the name displayed when they greet you
+; for some reason, Rog is always displayed as simply "Rog", regardless of when he speaks (at least in English)
+		dannig			=	"Dannig, Warrior Skald:"
+		gwennen			=	"Gwennen, the Gambler:"
+		rog				=	"Rog:"
+		tujen			=	"Tujen, the Haggler:"
+
+
+
+;#####################################################
+; mapping tracker: item names
+;#####################################################
+
+		portal			=	"Portal Scroll"

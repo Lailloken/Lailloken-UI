@@ -83,6 +83,7 @@ Return
 #Include modules\hotkeys.ahk
 #Include *i modules\hotkeys custom.ahk
 #Include modules\item-checker.ahk
+#Include modules\languages.ahk
 #Include modules\leveling tracker.ahk
 #Include modules\map-info.ahk
 #Include modules\map tracker.ahk
@@ -229,6 +230,7 @@ HelpToolTip(HWND_key)
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	If (check = "lab" && InStr(control, "square"))
 		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name]
+	
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
 		Return
@@ -522,6 +524,7 @@ Init_vars()
 	vars.cheatsheets := {}
 	vars.client := {}
 	vars.leveltracker := {}
+	vars.lang := {}
 	vars.log := {} ;store data related to the game's log here
 	vars.mapinfo := {}
 	vars.hwnd := {"help_tooltips": {}}
@@ -723,7 +726,7 @@ RightClick()
 {
 	local
 	global vars, settings
-
+	
 	If GetKeyState("LButton", "P")
 		Return
 	vars.system.click := 2
@@ -888,6 +891,7 @@ Startup()
 		sleep 4000
 	
 	Init_client()
+	Init_lang()
 	
 	vars.hwnd.poe_client := WinExist("ahk_group poe_window") ;save the client's handle
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)	
@@ -1238,7 +1242,7 @@ LLK_Error(ErrorMessage, restart := 0)
 
 LLK_FileCheck()
 {
-	If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Betrayal.json") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\")
+	If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Betrayal.json") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\") || !FileExist("data\lang_english.txt")
 		Return 0
 	Else Return 1
 }
@@ -1261,12 +1265,13 @@ LLK_FilePermissionError(issue, folder)
 	MsgBox, % text
 }
 
-LLK_FileRead(file)
+LLK_FileRead(file, keep_case := 0, encoding := "")
 {
 	local
 
-	FileRead, read, % file
-	StringLower, read, read
+	FileRead, read, % (!Blank(encoding) ? "*P"encoding " " : "") file
+	If !keep_case
+		StringLower, read, read
 	Return read
 }
 
