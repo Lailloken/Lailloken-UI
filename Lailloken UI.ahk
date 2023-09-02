@@ -1265,11 +1265,11 @@ LLK_FilePermissionError(issue, folder)
 	MsgBox, % text
 }
 
-LLK_FileRead(file, keep_case := 0)
+LLK_FileRead(file, keep_case := 0, encoding := "")
 {
 	local
 
-	FileRead, read, % file
+	FileRead, read, % (!Blank(encoding) ? "*P"encoding " " : "") file
 	If !keep_case
 		StringLower, read, read
 	Return read
