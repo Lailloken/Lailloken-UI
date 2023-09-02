@@ -230,6 +230,7 @@ HelpToolTip(HWND_key)
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	If (check = "lab" && InStr(control, "square"))
 		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name]
+	
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
 		Return
