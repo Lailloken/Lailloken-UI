@@ -20,6 +20,7 @@
 			vars.lang[key] := []
 		vars.lang[key].Push(val)
 	}
+	vars.help.settings["lang translators"] := vars.lang.translator.Clone()
 }
 
 LangLineParse(line, array)

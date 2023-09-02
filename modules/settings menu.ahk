@@ -680,9 +680,10 @@ Settings_general()
 			parse := (StrLen(A_LoopField) > parse) ? StrLen(A_LoopField) : parse
 		Gui, %GUI%: Add, Text, % "xs Section", % "language: "
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, DDL, % "ys x+0 HWNDhwnd gSettings_general2 r"LLK_InStrCount(check, "|") " w"settings.general.fWidth * parse + settings.general.fWidth, % StrReplace(check, settings.general.lang, settings.general.lang "|")
-		vars.hwnd.settings.language := hwnd
+		Gui, %GUI%: Add, DDL, % "ys x+0 HWNDhwnd0 gSettings_general2 r"LLK_InStrCount(check, "|") " w"settings.general.fWidth * parse + settings.general.fWidth, % StrReplace(check, settings.general.lang, settings.general.lang "|")
 		Gui, %GUI%: Font, % "s"settings.general.fSize
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd x+"settings.general.fWidth, (translators)
+		vars.hwnd.settings.language := hwnd0, vars.hwnd.help_tooltips["settings_lang translators"] := hwnd
 	}
 
 	Gui, %GUI%: Add, Text, % "xs Section", % "detected mode: "
