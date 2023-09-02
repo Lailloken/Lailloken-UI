@@ -5,9 +5,9 @@
 	
 	settings.features.maptracker := LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 	
-	settings.maptracker := {"loot": LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
+	settings.maptracker := {"loot": (settings.general.lang != "english") ? 0 : LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
 	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
-	settings.maptracker.mapinfo := LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
+	settings.maptracker.mapinfo := (settings.general.lang != "english") ? 0 : LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
 	settings.maptracker.fSize := LLK_IniRead("ini\map tracker.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.maptracker.fSize, height, width)
 	settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
@@ -662,7 +662,7 @@ MaptrackerReminder()
 	For index, mechanic in ignore
 		If LLK_HasVal(vars.maptracker.map.content, mechanic, 1)
 			Return
-	If InStr(Clipboard, "`r`nportal scroll`r`n")
+	If InStr(Clipboard, "`r`n"vars.lang.portal)
 		LLK_ToolTip("double-check`nmap content!", 3,,,, "aqua", settings.general.fSize + 4,,, 1)
 }
 

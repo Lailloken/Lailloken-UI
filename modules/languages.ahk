@@ -4,7 +4,7 @@
 	global vars, settings, Json
 
 	lang := LLK_IniRead("ini\config.ini", "settings", "language", "english"), lang := !FileExist("data\lang_"lang ".txt") ? "english" : lang, settings.general.lang := lang
-	Loop, Parse, % StrReplace(LLK_FileRead("data\lang_"settings.general.lang ".txt", 1), "`t"), `n, `r
+	Loop, Parse, % StrReplace(LLK_FileRead("data\lang_"settings.general.lang ".txt", 1, "65001"), "`t"), `n, `r
 	{
 		If Blank(A_LoopField) || (SubStr(A_LoopField, 1, 1) = ";")
 			Continue
@@ -46,7 +46,7 @@ LangLineTrim(line, array, location := 0)
 	local
 	global vars, settings
 
-	location := location ? vars.lang.location_identifier.1 : ""
+	location := location ? vars.lang.location.1 : ""
 	For index, segment in array
 		line := StrReplace(line, segment,,, 1)
 	While InStr(" "location, SubStr(line, 1, 1))

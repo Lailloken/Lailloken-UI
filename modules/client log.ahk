@@ -5,7 +5,7 @@
 
 	If !IsObject(vars.log.file)
 	{
-		vars.log.file := FileOpen(vars.log.file_location, "r")
+		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
 		log_content := vars.log.file.Read()
 	}
 	Else FileRead, log_content, % vars.log.file_location

@@ -1752,14 +1752,20 @@ Settings_maptracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing, general settings:
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot, enable loot tracker
-	vars.hwnd.settings.loot := vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot (settings.general.lang != "english" ? " cGray" : ""), enable loot tracker
+	vars.hwnd.settings.loot := hwnd
+	If (settings.general.lang = "english")
+		vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
+	Else vars.hwnd.help_tooltips["settings_lang unavailable"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, enable kill tracker
 	vars.hwnd.settings.kills := vars.hwnd.help_tooltips["settings_maptracker kill-tracker"] := hwnd
 	If settings.features.mapinfo
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo, include map-info panel mods
-		vars.hwnd.settings.mapinfo := vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo (settings.general.lang != "english" ? " cGray" : ""), include map-info panel mods
+		vars.hwnd.settings.mapinfo := hwnd
+		If (settings.general.lang = "english")
+			vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
+		Else vars.hwnd.help_tooltips["settings_lang unavailable|"] := hwnd
 	}
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, track side-areas in maps
 	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
@@ -1834,6 +1840,11 @@ Settings_maptracker2(cHWND)
 			Init_GUI("maptracker")
 			Settings_menu("mapping tracker")
 		Case "loot":
+			If (settings.general.lang != "english")
+			{
+				GuiControl,, % cHWND, 0
+				Return
+			}
 			settings.maptracker.loot := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
 			Settings_ScreenChecksValid()
@@ -1841,6 +1852,11 @@ Settings_maptracker2(cHWND)
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
 		Case "mapinfo":
+			If (settings.general.lang != "english")
+			{
+				GuiControl,, % cHWND, 0
+				Return
+			}
 			settings.maptracker.mapinfo := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.mapinfo, ini\map tracker.ini, settings, log mods from map-info panel
 		Case "sidecontent":
