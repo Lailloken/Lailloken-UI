@@ -32,7 +32,7 @@
     ],
     "active character status": [
       "red: no name specified",
-      "yellow: char not found / waiting for level 2",
+      "yellow: char not found / waiting for level-up",
       "green: char found, tracking active"
     ],
     "force resolution": [
@@ -85,7 +85,7 @@
     ],
     "cheatsheets modifier-key": [
       "cheat sheets are activated by pressing the modifier and omni-key simultaneously",
-	  "if a sheet is configured as <hold>, only the omni-key has to be held down",
+      "if a sheet is configured as <hold>, only the omni-key has to be held down",
       "pick a combination that is not used in game"
     ],
     "cheatsheets color": [
@@ -228,6 +228,9 @@
       "single-click solution to mark larger mod groups as un/desired",
       "the name specifies which mods are affected, the color whether they'll be set to un/desired"
     ],
+    "lang unavailable": [
+      "this feature is currently not available on non-english clients"
+    ],
     "leveltracker enable": [
       "provides an automated leveling guide overlay and several campaign qol-tools"
     ],
@@ -321,6 +324,7 @@
     ],
     "maptracker loot-tracker": [
       "items you ctrl-click into the stash will be logged",
+      "ctrl-rightclick will remove previously added items one by one",
       "requires the <stash> image-check to be set up correctly in the <screen-checks> menu"
     ],
     "maptracker kill-tracker": [

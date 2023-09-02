@@ -105,3 +105,11 @@
 		gwennen			=	"Gwennen, the Gambler:"
 		rog				=	"Rog:"
 		tujen			=	"Tujen, the Haggler:"
+
+
+
+;#####################################################
+; mapping tracker: item names
+;#####################################################
+
+		portal			=	"portal scroll"
