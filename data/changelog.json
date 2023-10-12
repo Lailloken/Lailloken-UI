@@ -1,5 +1,12 @@
 [
   [
+	["1.50.9", 15009],
+	"v1.50 now out of beta",
+	"item-info: rune dagger fix",
+	"leveling tracker: timer ui fix",
+	"map-info: large font-size fix"
+  ],
+  [
 	["1.50.8", 15008],
 	"mapping tracker: sanctum support",
 	"general: preliminary support for community translations"
