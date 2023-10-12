@@ -317,7 +317,7 @@ Lab(mode := "", override := 0)
 		WinWaitActive, ahk_group poe_window
 		If !step
 		{
-			LLK_ToolTip("lab-import aborted", 1.5, vars.client.xc, vars.client.yc,, "red"), Gdip_DisposeImage(pBitmap)
+			LLK_ToolTip("lab-import aborted", 1.5, vars.client.xc, vars.client.yc,, "red", settings.general.fSize + 4,,, 1), Gdip_DisposeImage(pBitmap)
 			Return
 		}
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)

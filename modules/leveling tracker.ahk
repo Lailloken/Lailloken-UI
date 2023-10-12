@@ -466,7 +466,9 @@ LeveltrackerImport()
 	KeyWait, LButton
 	If (SubStr(Clipboard, 1, 2) != "[{") || !InStr(Clipboard, """enter""")
 	{
-		LLK_ToolTip("invalid import data",,,,, "red")
+		If (SubStr(Clipboard, 1, 2) = "[{") && !InStr(Clipboard, """enter""")
+			LLK_ToolTip("""gems only"" exports`nnot supported", 2,,,, "red")
+		Else LLK_ToolTip("invalid import data",,,,, "red")
 		Return
 	}
 
@@ -595,7 +597,7 @@ LeveltrackerImport()
 							Case "quest_text":
 								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
 							Case "generic":
-								ss_text .= """" ss_parts.value """"
+								ss_text .= """" ss_parts.value """ "
 							Default:
 								If settings.general.dev
 									MsgBox, % "unknown type: " ss_parts.type
@@ -1626,10 +1628,14 @@ LeveltrackerTimerGUI()
 	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*7, % "act "(timer.current_act = 11 ? 10 : timer.current_act)
 	vars.hwnd.leveltracker_timer.pause	:= hwnd
 
-	Gui, %leveltracker_timer%: Show, % "NA x10000 y10000"
-	WinGetPos,,, w, h, ahk_id %leveltracker_timer%
-	Gui, %leveltracker_timer%: Show, % "NA x"vars.client.xc - w/2 " y"vars.client.y + vars.client.h - vars.leveltracker.h2
-	LLK_Overlay(vars.hwnd.leveltracker_timer.main, "show")
+	ControlGetPos, xControl,,,,, % ahk_id %hwnd%
+	If !Blank(xControl)
+	{
+		Gui, %leveltracker_timer%: Show, % "NA x10000 y10000"
+		WinGetPos,,, w, h, ahk_id %leveltracker_timer%
+		Gui, %leveltracker_timer%: Show, % "NA x"vars.client.xc - w/2 " y"vars.client.y + vars.client.h - vars.leveltracker.h2
+		LLK_Overlay(vars.hwnd.leveltracker_timer.main, "show")
+	}
 	LLK_Overlay(hwnd_old, "destroy")
 }
 
