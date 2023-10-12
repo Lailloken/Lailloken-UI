@@ -223,6 +223,11 @@ HelpToolTip(HWND_key)
 	global vars, settings
 	
 	WinGetPos,, y,, h, % "ahk_id "vars.hwnd.help_tooltips[HWND_key]
+	If Blank(y) || Blank(h)
+	{
+		MouseGetPos, x, y
+		h := settings.general.fHeight
+	}
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
 	, "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
@@ -444,7 +449,7 @@ Init_general()
 	global vars, settings
 	
 	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version")
-	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") || FileExist("modules\delve-helper.ahk")
+	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
@@ -1059,7 +1064,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Gui, update_download: Add, Progress, range0-10 HWNDhwnd BackgroundBlack cGreen, 0
 		Gui, update_download: Show
 		UpdateDownload(hwnd)
-		branch := InStr(versions_live._release.2, "/main/") ? "main" : "beta"
+		branch := InStr(versions_live._release.2, "/main.zip") ? "main" : "beta"
 		If !FileExist("update\update_"vars.updater.latest.1 ".zip")
 			UrlDownloadToFile, % versions_live._release.2, % "update\update_"vars.updater.latest.1 ".zip"
 		If ErrorLevel || !FileExist("update\update_"vars.updater.latest.1 ".zip")

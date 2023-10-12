@@ -306,7 +306,7 @@ Iteminfo2_stats()
 			item.ilvl_max := class_val.HasKey("_ilvl_max") ? class_val["_ilvl_max"] : item.ilvl_max ;get class-specific max ilvl, e.g. gloves = 85
 			For subtype, subtype_val in class_val ;parse through the sub-types within the class, e.g. armour/evasion
 			{
-				If subtype_val.HasKey(item.itembase) || InStr(item.class, subtype) && (item.class != "body armours") && (item.class != "jewels") && (item.class != "warstaves") || InStr(clip, "Added Small Passive Skills grant:") && (subtype = "cluster")
+				If subtype_val.HasKey(item.itembase) || InStr(item.class, subtype) && (item.class != "body armours") && (item.class != "jewels") && (item.class != "warstaves") && item.class != "rune daggers" || InStr(clip, "Added Small Passive Skills grant:") && (subtype = "cluster")
 				{
 					item.ilvl_max := subtype_val.HasKey("_ilvl_max") ? subtype_val["_ilvl_max"] : item.ilvl_max ;get sub-type-specific max ilvl, e.g. cluster jewels = 84
 					If (item.type = "defense") ;get defense-stats (min/max values, combined, block)

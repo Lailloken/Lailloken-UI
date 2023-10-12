@@ -156,8 +156,10 @@ MapinfoGUI(mode := 1)
 		Gui, %mapinfo%: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
 		MouseGetPos, xPos, yPos
-		x := (mode = 2) ? vars.client.x + vars.client.w - w : (xPos - w/2 < vars.client.x) ? vars.client.x : (xPos + w/2 > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : xPos - w/2
-		y := (mode = 2) ? vars.client.yc - h/2 : (yPos - (h + settings.mapinfo.fHeight * 2) < vars.client.y) ? yPos + h*0.1 : yPos - (h + settings.mapinfo.fHeight * 2)
+		y := (mode = 2) ? vars.client.yc - h/2 : (yPos - (h + vars.client.h/25) < vars.client.y) ? yPos + vars.client.h/25 : yPos - (h + vars.client.h/25), oob := (y + h > vars.client.y + vars.client.h) ? 1 : 0
+		If oob
+			x := (xPos - vars.client.h/25 - w < vars.client.x) ? xPos + vars.client.h/25 : xPos - vars.client.h/25 - w, y := (yPos + h/2 > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : (yPos - h/2 < vars.client.y) ? vars.client.y : yPos - h/2
+		Else x := (mode = 2) ? vars.client.x + vars.client.w - w : (xPos - w/2 < vars.client.x) ? vars.client.x : (xPos + w/2 > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : xPos - w/2
 	}
 	Gui, %mapinfo%: Show, % (mode ? "NA " : "") "x"x " y"y
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
