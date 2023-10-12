@@ -1064,7 +1064,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this functi
 		Gui, update_download: Add, Progress, range0-10 HWNDhwnd BackgroundBlack cGreen, 0
 		Gui, update_download: Show
 		UpdateDownload(hwnd)
-		branch := InStr(versions_live._release.2, "/main/") ? "main" : "beta"
+		branch := InStr(versions_live._release.2, "/main.zip") ? "main" : "beta"
 		If !FileExist("update\update_"vars.updater.latest.1 ".zip")
 			UrlDownloadToFile, % versions_live._release.2, % "update\update_"vars.updater.latest.1 ".zip"
 		If ErrorLevel || !FileExist("update\update_"vars.updater.latest.1 ".zip")
