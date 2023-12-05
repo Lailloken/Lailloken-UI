@@ -1,5 +1,5 @@
 ## About:
-A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. This project is **`not`** affiliated with or endorsed by Grinding Gear Games (GGG) in any way.  
+A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. `This project is not affiliated with or endorsed by Grinding Gear Games (GGG) in any way`.  
 <br>
 
 ## Download & Setup
@@ -8,40 +8,28 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 <br>
 
-## Ideas & Feedback
-I am very open to suggestions and ideas from other players. So if you have ideas on how to improve PoE-gameplay or this script, post them in the [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback).
-<br>
+## Contributions
+| accepted | how/where? | `not` accepted | why? |
+|---|---|---|---|
+| community translations / adapting the tool for non-English clients | coming soon | direct code-input / pull requests | this is my personal fun-project, and I'd like to find solutions and fix problems myself |
+| constructive feedback & ideas | [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback) | outlandish feature-suggestions disguised as "QoL" | I avoid features that are "OP" or abusable |
+| bug reports | [issues section](https://github.com/Lailloken/Lailloken-UI/issues) | requests to "fix"/improve something that only GGG could | I'm self-taught and lack any dev knowledge outside my niche |
 <br>
 
-## Philosophy, Motivation, Contributions
-This project is my personal collection of UI and QoL features to improve the PoE gameplay experience. I am a self-taught tinkerer, and this is simply a fun project and learning experience for me that I decided to share for feedback and new ideas. It doesn't have a clearly defined scope but instead contains all kinds of features (both conventional and experimental) that reflect how I approach certain problems that I or other players come across while playing PoE.
-
-I will not be taking direct code input or optimizations from people because learning-by-doing and problem-solving is what makes this project fun for me. I appreciate the fact that my project motivates people to work on it as well, but having to go through, double-check, and test other people's code sounds like a chore to me.
-<br>
+## Context / Scope: What (not) to expect from this project
+| expectation | reality |
+|---|---|
+| trade/stash/account features | I exclusively play SSF and wouldn't even know how to implement such features either |
+| profit/efficiency-oriented features | I'm a super casual player who plays for fun, without any ambitions or goals |
+| polished, focused product that meets certain standards | I throw in features and do things as I see fit because I don't regard my project as a "product" but instead as a personal collection/toolkit |
 <br>
 
 ## Transparency Notice / Things you should know
-- I'm in no position to claim whether or not this tool will get you banned, GGG has the final say
-
-- all I can say is that I strictly follow GGG's official third-party policy regarding executable apps: [developer docs](https://www.pathofexile.com/developer/docs/index#policy)
-- creation and publication of apps that violate the guidelines is as punishable as their usage, so it's in my best interest to adhere to them
-<br>
-
-- this tool reads the game's client.txt log-file while you're playing to:
-  - track your character's in-game location and level
- 
-  - track character-deaths and monster-kills (kills are tracked on-demand after prompting the user to activate a macro with the /kills command)
-- it automates the following key-inputs `exclusively after being initiated manually by the user`:
-  - `CTRL + ALT + C` to copy item information from the client
- 
-  - `CTRL + F`, `CTRL + V`, `Enter` to initiate in-game searches in interfaces that support it
-  - `Enter`, `CTRL + A + V`, `Enter` to paste chat-commands built into the game
-- it reads the screen exclusively for context-assessment
-  - in the background: to check if **`something within the script itself`** needs to be toggled on/off, e.g. hiding an overlay that would otherwise block an in-game interface
- 
-  - after pressing the `omni-key`: to determine the context of why/when it was pressed, e.g. while interacting with certain NPCs, or looking at / interacting with a specific interface
-  - I want to stress that it merely searches for open interfaces/windows/panels, it **`does not`** read values or bars off the screen
-- however, this context-assessment is not used to cycle between actions that affect or influence the game in any way
+| things this tool does || FAQ: has GGG approved this? / can I be banned? |
+|---|---|---|
+| reads the game's client.txt log-file for certain character stats || to my knowledge, GGG has never approved any 3rd-party tool |
+| sends key-presses to copy item-info or activate chat-commands and in-game searches || I can't make any claims regarding bans, only that I strictly follow [GGG's guidelines](https://www.pathofexile.com/developer/docs/index#policy) |
+| reads the screen for context-sensitivity only (i.e. to adapt **`script-internal`** processes) || (weak) annectodal evidence: I have not been banned, nor have I heard of anyone else being banned |
 <br>
 
 ## Main Features
@@ -133,7 +121,7 @@ I will not be taking direct code input or optimizations from people because lear
 - `seed-explorer` uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
 <br>
 
-## Legacy Features:
+## (Temporarily-)retired / Legacy Features:
 | [Archnemesis Recipe Helper/Scanner](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Archnemesis) | \*[Overlayke: Kalandra Planner/Preview Overlay](https://github.com/Lailloken/Lailloken-UI/wiki/%5BArchive%5D-Overlayke) |
 |---|---|
 | ![Archnemesis UI](https://user-images.githubusercontent.com/61888437/165942652-07ff9ee1-3108-44ce-8291-5a1afff5720f.jpg) | ![Overlayke](https://user-images.githubusercontent.com/61888437/186435575-4b67b189-25de-426f-a045-24fef5d725ed.png) |
