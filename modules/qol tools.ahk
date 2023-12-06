@@ -3,8 +3,8 @@
 	local
 	global vars, settings
 
-	settings.qol := {"alarm": LLK_IniRead("ini\qol tools.ini", "features", "alarm", 0), "notepad": LLK_IniRead("ini\qol tools.ini", "features", "notepad", 0), "lab": LLK_IniRead("ini\qol tools.ini", "features", "lab", 0)}
-	;settings.qol.trade := LLK_IniRead("ini\qol tools.ini", "features", "trade", 0)
+	settings.qol := {"alarm": LLK_IniRead("ini\qol tools.ini", "features", "alarm", 0), "notepad": LLK_IniRead("ini\qol tools.ini", "features", "notepad", 0)}
+	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\qol tools.ini", "features", "lab", 0)
 
 	settings.alarm := {"fSize": LLK_IniRead("ini\qol tools.ini", "alarm", "font-size", settings.general.fSize)}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
@@ -26,9 +26,6 @@
 	settings.notepad.oButton := LLK_IniRead("ini\qol tools.ini", "notepad", "button-offset", 1)
 	settings.notepad.sButton := vars.monitor.w * 0.03 * settings.notepad.oButton
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
-
-	;settings.trade := {"offset": LLK_IniRead("ini\qol tools.ini", "trade-check", "cell-size offset", 0), "spacing": LLK_IniRead("ini\qol tools.ini", "trade-check", "cell-spacing offset", 0)}
-	;coordinates := LLK_IniRead("ini\qol tools.ini", "trade-check", "grid coordinates", "0, 0"), settings.trade.xGrid := SubStr(coordinates, 1, InStr(coordinates, ",") - 1), settings.trade.yGrid := SubStr(coordinates, InStr(coordinates, ",") + 2)
 }
 
 Alarm(click := 0)
@@ -48,7 +45,7 @@ Alarm(click := 0)
 		}
 		If !InStr(input, ":") && !IsNumber(input) || error
 		{
-			LLK_ToolTip("invalid input",, x, y + h,, "red")
+			LLK_ToolTip(LangTrans("global_error"),, x, y + h,, "red")
 			Return
 		}
 		For index, section in sections
@@ -104,7 +101,7 @@ Alarm(click := 0)
 			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDalarm_set"
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
-			Gui, alarm_set: Font, % "s" settings.alarm.fSize//2 " cWhite", Fontin SmallCaps
+			Gui, alarm_set: Font, % "s" settings.alarm.fSize//2 " cWhite", % vars.system.font
 			vars.hwnd.alarm.alarm_set := alarm_set
 			
 			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd r1 w"vars.alarm.wPanel - 2,
@@ -121,7 +118,7 @@ Alarm(click := 0)
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDalarm"(vars.alarm.toggle || vars.alarm.timestamp <= A_Now ? "" : " +E0x20")
 	Gui, %alarm%: Color, Black
 	Gui, %alarm%: Margin, % 0, 0
-	Gui, %alarm%: Font, % "s" settings.alarm.fSize " c"settings.alarm.color, Fontin SmallCaps
+	Gui, %alarm%: Font, % "s" settings.alarm.fSize " c"settings.alarm.color, % vars.system.font
 	hwnd_old := vars.hwnd.alarm.main, vars.hwnd.alarm := {"main": alarm}
 
 	If vars.alarm.timestamp
@@ -177,7 +174,7 @@ EssenceTooltip(cHWND)
 	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDessences
 	Gui, %essences%: Color, Black
 	Gui, %essences%: Margin, 0, 0
-	Gui, %essences%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	Gui, %essences%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.essences.main, vars.hwnd.essences := {"main": essences}
 
 	For index, val in db.essences[type][tier].1
@@ -218,7 +215,7 @@ HorizonsTooltip(mode := "")
 	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDhorizons
 	Gui, %horizons%: Color, Black
 	Gui, %horizons%: Margin, % settings.general.fWidth/2, 0
-	Gui, %horizons%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	Gui, %horizons%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.horizons.main, vars.hwnd.horizons := {"main": horizons}
 
 	If !mode
@@ -227,13 +224,13 @@ HorizonsTooltip(mode := "")
 				mode .= A_LoopField
 
 	If LLK_IsType(mode, "alpha") && (mode != "shaper")
-		Gui, %horizons%: Add, Text, xs, % db.mapinfo.maps[mode]
+		Gui, %horizons%: Add, Text, xs, % LLK_StringCase(db.mapinfo.maps[mode])
 	Else If LLK_IsType(mode, "number") || (mode = "shaper")
 	{
 		Gui, %horizons%: Font, underline bold
 		Gui, %horizons%: Add, Text, xs, horizons:
 		Gui, %horizons%: Font, norm
-		Gui, %horizons%: Add, Text, xs, % (mode = "shaper") ? "maze of the minotaur`nforge of the phoenix`nlair of the hydra`npit of the chimera" : db.mapinfo.maps[mode]
+		Gui, %horizons%: Add, Text, xs, % (mode = "shaper") ? LLK_StringCase(db.mapinfo.localization["forge of the phoenix"] "`n" db.mapinfo.localization["lair of the hydra"] "`n" db.mapinfo.localization["maze of the minotaur"] "`n" db.mapinfo.localization["pit of the chimera"]) : LLK_StringCase(db.mapinfo.maps[mode])
 		If vars.log.level
 		{
 			Gui, %horizons%: Font, underline bold
@@ -272,7 +269,7 @@ Lab(mode := "", override := 0)
 	If (mode = "link")
 	{
 		If GetKeyState(settings.hotkeys.tab, "P")
-			LLK_ToolTip("release key: "settings.hotkeys.tab, 0,,, "poelab")
+			LLK_ToolTip(LangTrans("global_releasekey") " " settings.hotkeys.tab, 0,,, "poelab")
 		KeyWait, % settings.hotkeys.tab
 		LLK_Overlay(vars.hwnd["tooltippoelab"], "destroy"), LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
 		Run, % "https://www.poelab.com/"
@@ -293,7 +290,7 @@ Lab(mode := "", override := 0)
 				pBitmap := Gdip_CreateBitmapFromClipboard()
 			If !step && (pBitmap > 0)
 			{
-				LLK_ToolTip("img-import successful", 1.5,,,, "lime")
+				LLK_ToolTip(LangTrans("global_success"), 1.5,,,, "lime")
 				Clipboard := "", vars.lab := {"rooms": []}
 				FileDelete, img\lab compass.json
 				step := 1
@@ -305,11 +302,13 @@ Lab(mode := "", override := 0)
 				lab_compass_json := Json.Load(lab_compass.ResponseText)
 				If lab_compass_json.Count()
 				{
-					LLK_ToolTip("compass-import successful", 1.5,,,, "lime")
+					LLK_ToolTip(LangTrans("global_success"), 1.5,,,, "lime")
+					Loop, % lab_compass_json.rooms.Count()
+						roomname := lab_compass_json.rooms[A_Index].name, lab_compass_json.rooms[A_Index].name := LangTrans("lab_" roomname) ? LangTrans("lab_" roomname) : roomname
 					FileAppend, % Json.Dump(lab_compass_json), img\lab compass.json
 					Break
 				}
-				Else LLK_ToolTip("compass-import failed", 1.5,,,, "lime")
+				Else LLK_ToolTip(LangTrans("global_fail"), 1.5,,,, "lime")
 				Clipboard := ""
 			}
 			Sleep 250
@@ -317,7 +316,7 @@ Lab(mode := "", override := 0)
 		WinWaitActive, ahk_group poe_window
 		If !step
 		{
-			LLK_ToolTip("lab-import aborted", 1.5, vars.client.xc, vars.client.yc,, "red", settings.general.fSize + 4,,, 1), Gdip_DisposeImage(pBitmap)
+			LLK_ToolTip(LangTrans("global_abort"), 1.5, vars.client.xc, vars.client.yc,, "red", settings.general.fSize + 4,,, 1), Gdip_DisposeImage(pBitmap)
 			Return
 		}
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
@@ -326,6 +325,9 @@ Lab(mode := "", override := 0)
 		Return
 	}
 	
+	If !FileExist("img\lab.jpg")
+		FileDelete, img\lab compass.json
+
 	If !IsObject(vars.lab.compass) && FileExist("img\lab compass.json")
 		vars.lab.compass := LLK_FileRead("img\lab compass.json"), vars.lab.compass := Json.Load(vars.lab.compass)
 	If !vars.lab.scale
@@ -377,20 +379,20 @@ Lab(mode := "", override := 0)
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDlab"
 	Gui, %lab%: Color, Black
 	Gui, %lab%: Margin, 0, 0
-	Gui, %lab%: Font, % "s"vars.lab.custom_font " cWhite", Fontin SmallCaps
+	Gui, %lab%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.lab.main, hwnd_old2 := vars.hwnd.lab.button, vars.hwnd.lab := {"main": lab}
 
 	If vars.lab.outdated
 	{
 		Gui, %lab%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %lab%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`nlayout is outdated!`n`nloaded: "vars.lab.compass.date "`nlatest: "SubStr(A_NowUTC, 1, 4) "-" SubStr(A_NowUTC, 5, 2) "-" SubStr(A_NowUTC, 7, 2)
+		Gui, %lab%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_outdated") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.date "`n" LangTrans("lab_outdated", 3) " " SubStr(A_NowUTC, 1, 4) "-" SubStr(A_NowUTC, 5, 2) "-" SubStr(A_NowUTC, 7, 2)
 		Gui, %lab%: Font, % "s"vars.lab.custom_font
 		Gui, %lab%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, img\GUI\square_red_trans.png
 	}
 	Else If !InStr(vars.log.areaID, "airlock") && !Blank(vars.lab.compass.difficulty) && (difficulties[vars.log.arealevel] != vars.lab.compass.difficulty)
 	{
 		Gui, %lab%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %lab%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`nlayouts don't match!`n`nloaded: "vars.lab.compass.difficulty "`nentered: " difficulties[vars.log.arealevel]
+		Gui, %lab%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_mismatch") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.difficulty "`n" LangTrans("lab_mismatch", 2) " " difficulties[vars.log.arealevel]
 		Gui, %lab%: Font, % "s"vars.lab.custom_font
 		Gui, %lab%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, img\GUI\square_red_trans.png
 		mismatch := 1
@@ -414,7 +416,7 @@ Lab(mode := "", override := 0)
 	Else
 	{
 		Gui, %lab%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %lab%: Add, Text, % "x0 y0 Center 0x200 w"vars.client.w * 53/128 " h"(vars.client.w * 53/128)/2.112, couldn't load img-file
+		Gui, %lab%: Add, Text, % "x0 y0 Center 0x200 w"vars.client.w * 53/128 " h"(vars.client.w * 53/128)/2.112, % LangTrans("cheat_loaderror") " img\lab.jpg"
 		Gui, %lab%: Font, % "s"vars.lab.custom_font
 		file_missing := 1
 	}
@@ -427,7 +429,7 @@ Lab(mode := "", override := 0)
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDlab2"
 	Gui, %lab2%: Color, Black
 	Gui, %lab2%: Margin, 0, 0
-	Gui, %lab2%: Font, % "s"vars.lab.custom_font " cWhite", Fontin SmallCaps
+	Gui, %lab2%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
 	
 	Gui, %lab2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
 	vars.hwnd.lab.button := lab2, vars.hwnd.help_tooltips["lab_button"] := hwnd
@@ -507,13 +509,13 @@ Notepad(cHWND := "")
 		While (SubStr(name, 0) = " ")
 			name := SubStr(name, 1, -1)
 		Loop, Parse, name
-			error := InStr("[=]", A_LoopField) ? "contains unsupported`ncharacters" : error
-		If InStr(ini, "`n"name "=")
-			error := "tab already exists"
+			error := InStr("[=]", A_LoopField) ? LangTrans("global_errorname", 5) . "[=]" : error
+		If InStr(ini, "`n" name "=")
+			error := LangTrans("global_errorname", 4)
 		If Blank(name) || error
 		{
 			WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.notepad.name
-			LLK_ToolTip("invalid name" (error ? ":`n" error : ""), error ? 2 : 1, x, y + h,, "red")
+			LLK_ToolTip(LangTrans("global_errorname", 2) . (error ? ":`n" error : ""), error ? 2 : 1, x, y + h,, "red")
 			Return
 		}
 		Notepad("save")
@@ -565,7 +567,7 @@ Notepad(cHWND := "")
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDnotepad"
 	Gui, %notepad%: Color, Black
 	Gui, %notepad%: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
-	Gui, %notepad%: Font, % "s" settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, %notepad%: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.notepad.main, vars.hwnd.notepad := {"main": notepad}
 
 	Gui, %notepad%: Add, Text, % "x-1 y-1 Section HWNDhwnd Center Border gNotepad", lailloken ui: notepad
@@ -574,7 +576,7 @@ Notepad(cHWND := "")
 	vars.hwnd.notepad.winx := hwnd
 
 	Gui, %notepad%: Font, % "s" settings.general.fSize
-	Gui, %notepad%: Add, Text, % "xs x"settings.general.fWidth/2 " Section HWNDhwnd", % "add a new tab: "
+	Gui, %notepad%: Add, Text, % "xs x"settings.general.fWidth/2 " Section HWNDhwnd", % LangTrans("notepad_add") " "
 	Gui, %notepad%: Font, % "s" settings.general.fSize - 4
 	ControlGetPos,,, w,,, ahk_id %hwnd%
 	Gui, %notepad%: Add, Edit, % "ys x+-1 r1 cBlack HWNDhwnd w"wBox
@@ -605,12 +607,12 @@ Notepad(cHWND := "")
 	{
 		If (check > 1)
 		{
-			Gui, %notepad%: Add, Text, % "xs y+-1 wp Border Center HWNDhwnd gNotepad", % "grouped widget"
+			Gui, %notepad%: Add, Text, % "xs y+-1 wp Border Center HWNDhwnd gNotepad", % LangTrans("notepad_group")
 			ControlGetPos,,,, h,, ahk_id %hwnd%
 			vars.hwnd.notepad["select_grouped widget"] := vars.hwnd.help_tooltips["notepad_widget grouped"] := hwnd, sum_height + h - 1
 			
 		}
-		Gui, %notepad%: Add, Text, % "xs wp Center BackgroundTrans HWNDhwnd0", how to use widgets
+		Gui, %notepad%: Add, Text, % "xs wp Center BackgroundTrans HWNDhwnd0", % LangTrans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %notepad%: Font, % "s" settings.notepad.fSize
 		Gui, %notepad%: Add, Edit, % "ys x+-1 cBlack -Wrap Multi Hidden HWNDhwnd"(Blank(vars.notepad.entries[vars.notepad.selected_entry]) ? " w"wBox : ""), % vars.notepad.entries[vars.notepad.selected_entry]
@@ -654,7 +656,7 @@ NotepadWidget(tab, mode := 0)
 
 	If (tab != "grouped widget") && Blank(vars.notepad.entries[tab]) && A_Gui
 	{
-		LLK_ToolTip("can't create widget:`ntab is blank", 2,,,, "Red")
+		LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [tab]), 2,,,, "Red")
 		Return
 	}
 	If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
@@ -699,7 +701,7 @@ NotepadWidget(tab, mode := 0)
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDwidget"(vars.notepad.toggle ? "" : " +E0x20")
 	Gui, %widget%: Color, Black
 	Gui, %widget%: Margin, % settings.notepad.fWidth/2, 0
-	Gui, %widget%: Font, % "s" settings.notepad.fSize " c"settings.notepad.color, Fontin SmallCaps
+	Gui, %widget%: Font, % "s" settings.notepad.fSize " c"settings.notepad.color, % vars.system.font
 	;WinSet, Transparent, 255
 	hwnd_old := vars.hwnd.notepad_widgets[tab], vars.hwnd.notepad_widgets[tab] := widget
 	If (A_Gui = DummyGUI(vars.hwnd.notepad.main) || mode = 1)

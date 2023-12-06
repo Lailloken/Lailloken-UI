@@ -35,7 +35,7 @@ Init_hotkeys()
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 
-	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab WinExist("ahk_id " vars.hwnd.cheatsheet.main)
+	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
 	Hotkey, % settings.hotkeys.tab, CheatsheetTAB, On
 		
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
@@ -44,7 +44,7 @@ Init_hotkeys()
 	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
 	For key in db.mapinfo.maps
 		If LLK_IsType(SubStr(key, 1, 1), "alpha")
-			Hotkey, % "*"SubStr(key, 1, 1), HorizonsTooltip, On
+			Hotkey, % "*" SubStr(key, 1, 1), HorizonsTooltip, On
 
 	Loop, Parse, % "*~!+#^"
 		settings.hotkeys.tab := StrReplace(settings.hotkeys.tab, A_LoopField), settings.hotkeys.omnikey := StrReplace(settings.hotkeys.omnikey, A_LoopField), settings.hotkeys.omnikey2 := StrReplace(settings.hotkeys.omnikey2, A_LoopField)
@@ -62,10 +62,6 @@ HotkeysESC()
 		Gui, tooltipgem_notes: Destroy
 		vars.hwnd.Delete("tooltipgem_notes")
 	}
-	;Else If WinExist("ahk_id "vars.hwnd.tradecheck_cal.main)
-	;	TradeCalibrate("close")
-	;Else If WinExist("ahk_id "vars.hwnd.tradecheck.main)
-	;	TradeCheck("close")
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
 		LLK_Overlay(vars.hwnd.legion.main, "destroy"), vars.hwnd.legion.main := "", LLK_Overlay(vars.hwnd.legion_tree.main, "destroy"), LLK_Overlay(vars.hwnd.legion.tooltip, "destroy")
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
@@ -88,7 +84,7 @@ HotkeysESC()
 		Gui, searchstrings_context: Destroy
 		vars.hwnd.Delete("searchstrings_context")
 	}
-	Else If WinExist("ahk_id " vars.hwnd.omni_context)
+	Else If WinExist("ahk_id " vars.hwnd.omni_context.main)
 	{
 		Gui, omni_context: Destroy
 		vars.hwnd.Delete("omni_context")
@@ -141,9 +137,9 @@ HotkeysTab()
 			active .= " leveltracker", LeveltrackerOverlays(), LeveltrackerZoneLayouts(), LeveltrackerHints()
 			Break
 		}
-	
-	While settings.features.mapinfo && settings.mapinfo.tabtoggle && vars.mapinfo.active_map.name && GetKeyState(settings.hotkeys.tab, "P") ;cont
-	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(vars.mapinfo.active_map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub"))
+	map := vars.mapinfo.active_map
+	While settings.features.mapinfo && settings.mapinfo.tabtoggle && map.name && GetKeyState(settings.hotkeys.tab, "P")
+	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(map.english, "invitation") && LLK_PatternMatch(vars.log.areaID, "", ["MavenHub", "PrimordialBoss"]))
 		If (A_TickCount >= start + 200)
 		{
 			active .= " mapinfo", vars.mapinfo.toggle := 1, MapinfoGUI(2)
@@ -159,7 +155,7 @@ HotkeysTab()
 			Break
 		}
 
-	While settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials") && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " lab", vars.lab.toggle := 1, Lab()
@@ -242,7 +238,7 @@ HotkeysTab()
 
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse > vars.client.xc)
 
-~RButton::MaptrackerReminder()
+~RButton UP::MaptrackerReminder()
 
 #If !vars.mapinfo.toggle && (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.poe_client) && WinExist("ahk_id "vars.hwnd.mapinfo.main) ;clicking the client to hide the map-info tooltip
 
@@ -341,7 +337,7 @@ Return
 ~+LButton UP::IteminfoTrigger(1)
 +RButton::IteminfoMarker()
 
-#If (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to start shift-clicking items
+#If (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
 
 ~+RButton UP::IteminfoTrigger()
 
@@ -352,7 +348,7 @@ Gui, searchstrings_context: Destroy
 vars.hwnd.Delete("searchstrings_context")
 Return
 
-#If vars.hwnd.omni_context && WinExist("ahk_id " vars.hwnd.omni_context) && (vars.general.wMouse = vars.hwnd.poe_client) ;closing the omni-key context menu when clicking into the client
+#If vars.hwnd.omni_context.main && WinExist("ahk_id " vars.hwnd.omni_context.main) && (vars.general.wMouse = vars.hwnd.poe_client) ;closing the omni-key context menu when clicking into the client
 
 ~LButton::
 Gui, omni_context: destroy
@@ -415,7 +411,7 @@ Space::CheatsheetRank()
 3::
 Space::BetrayalRank(A_ThisHotkey)
 
-#If (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;image-cheatsheet hotkeys
+#If (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;image-cheatsheet hotkeys
 
 Up::
 Down::
