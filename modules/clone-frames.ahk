@@ -85,21 +85,21 @@ CloneframesSettingsAdd()
 		name := SubStr(name, 1, -1)
 
 	If vars.cloneframes.list.HasKey(name)
-		error := ["name already in use", 1.5, "red"]
+		error := [LangTrans("global_errorname", 4), 1.5, "red"]
 	Else If vars.cloneframes.editing
-		error := ["exit edit-mode first", 1.5, "red"]
+		error := [LangTrans("m_clone_exitedit"), 1.5, "red"]
 	Else If (name = "")
-		error := ["name cannot be blank", 1.5, "red"]
+		error := [LangTrans("global_errorname", 1), 1.5, "red"]
 
 	Loop, Parse, name
 		If !LLK_IsType(A_LoopField, "alnum")
 		{
-			error := ["regular letters, spaces,`nand numbers only", 2, "red"]
+			error := [LangTrans("global_errorname", 3), 2, "red"]
 			Break
 		}
 
 	If InStr(name, "settings")
-		error := ["name must not`ncontain <settings>", 2, "red"]
+		error := [LangTrans("global_errorname", 5) "settings", 2, "red"]
 
 	If error
 	{
@@ -298,7 +298,7 @@ CloneframesSnap(hotkey)
 		Case "F2":
 			If (vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource <= 0) || (vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource <= 0) ;prevent negative widths/heights
 			{
-				LLK_ToolTip("invalid frame borders",,,,, "red")
+				LLK_ToolTip(LangTrans("m_clone_errorborders"),,,,, "red")
 				Return
 			}
 			;vars.cloneframes.list[name].width := vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
