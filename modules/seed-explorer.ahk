@@ -5,7 +5,9 @@
 	
 	If !mode
 	{
-		db.legion := Json.Load(LLK_FileRead("data\timeless jewels\jewels.json"))
+		If !FileExist("data\" settings.general.lang_client "\timeless jewels.json")
+			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
+		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
 		
 		settings.legion := {"fSize": LLK_IniRead("ini\seed-explorer.ini", "settings", "font-size", settings.general.fSize)}
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height
@@ -132,30 +134,30 @@ LegionGUI()
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDlegion"
 	Gui, %legion%: Color, Black
 	Gui, %legion%: Margin, 0, 0
-	Gui, %legion%: Font, % "s"settings.legion.fSize " cWhite", Fontin SmallCaps
+	Gui, %legion%: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.legion.main, vars.hwnd.legion := {"main": legion, "old": hwnd_old, "tooltips": {}, "tooltips2": {}}
 	
-	Gui, %legion%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % "profile: "
+	Gui, %legion%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % LangTrans("seed_profile")
 	ControlGetPos, xAnchor, yAnchor, wAnchor, hAnchor,, ahk_id %hwnd%
 	Loop 5
 	{
-		Gui, %legion%: Add, Text, % "ys x+"(A_Index = 1 ? 0 : settings.legion.fWidth/4) " Border BackgroundTrans Center gLegion HWNDhwnd w"settings.legion.fWidth*2 (A_Index = settings.legion.profile ? " cFuchsia" : ""), % A_Index
+		Gui, %legion%: Add, Text, % "ys x+"(settings.legion.fWidth/(A_Index = 1 ? 2 : 4)) " Border BackgroundTrans Center gLegion HWNDhwnd w"settings.legion.fWidth*2 (A_Index = settings.legion.profile ? " cFuchsia" : ""), % A_Index
 		Gui, %legion%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed Range0-500 HWNDhwndbar", 0
 		vars.hwnd.legion["profile_"A_Index] := hwnd, vars.hwnd.legion["delbar_"A_Index] := hwndbar
 	}
 	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % "jewel:"
+	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % LangTrans("seed_jewel")
 	Gui, %legion%: Font, % "norm"
-	Gui, %legion%: Add, Text, % "xs y+0", % "type: "vars.legion.jewel
-	Gui, %legion%: Add, Text, % "xs y+0", % "seed: "vars.legion.seed
-	Gui, %legion%: Add, Text, % "xs y+0", % "conqueror: "vars.legion.leader
+	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("global_type") " " vars.legion.jewel
+	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("seed_seed") " " vars.legion.seed
+	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("seed_conqueror") " " vars.legion.leader
 
-	Gui, %legion%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " import "
-	Gui, %legion%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " trade-check "
+	Gui, %legion%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " " LangTrans("global_import") " "
+	Gui, %legion%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " " LangTrans("seed_trade") " "
 	vars.hwnd.legion.import := vars.hwnd.help_tooltips["seed-explorer_import"] := hwndimport, vars.hwnd.legion.trade := vars.hwnd.help_tooltips["seed-explorer_trade"] := hwndtrade
 
 	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % "keystones:"
+	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_keystones")
 	Gui, %legion%: Font, % "norm"
 	For keystone, val in db.legion.jewels[vars.legion.jewel]
 		If !InStr(keystone, "decoder")
@@ -167,7 +169,7 @@ LegionGUI()
 	If vars.legion.socket
 	{
 		Gui, %legion%: Font, % "underline bold"
-		Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % "resulting notables:"
+		Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_notables")
 		Gui, %legion%: Font, % "norm"
 		mods := {}
 		For index, node in db.legion.sockets[vars.legion.socket].nodes
@@ -185,7 +187,7 @@ LegionGUI()
 	Gui, %legion%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", img\GUI\legion_treemap.jpg
 	vars.hwnd.legion.treemap := hwnd
 
-	Gui, %legion%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % "text-size: "
+	Gui, %legion%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % LangTrans("global_font") " "
 	Gui, %legion%: Add, Text, % "ys x+0 Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "–"
 	vars.hwnd.legion.font_minus := hwnd
 	Gui, %legion%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*3, % settings.legion.fSize
@@ -194,7 +196,7 @@ LegionGUI()
 	vars.hwnd.legion.font_plus := hwnd
 
 	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % vars.legion.socket ? "notables around socket:" : "jewel notables:"
+	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
 	Gui, %legion%: Font, % "norm"
 
 	If !vars.legion.socket
@@ -250,7 +252,7 @@ LegionHover()
 		Gui, legion_tooltip: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip"
 		Gui, legion_tooltip: Color, 202020
 		Gui, legion_tooltip: Margin, 0, 0
-		Gui, legion_tooltip: Font, % "s"settings.legion.fSize " cWhite", Fontin SmallCaps
+		Gui, legion_tooltip: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
 		vars.hwnd.legion.tooltip := tooltip, parse := db.legion.jewels.descriptions[check ? check : check2] ? db.legion.jewels.descriptions[check ? check : check2].Clone() : []
 		If check2
 			parse.0 := "result:`n"check2
@@ -268,48 +270,29 @@ LegionParse()
 	local
 	global vars, settings, db
 
-	leaders := ["asenath", "balbala", "nasima", "cadiro", "caspiro", "victario", "ahuana", "doryani", "xibaqua", "akoya", "kaom", "rakiata", "avarius", "dominus", "maxarius"]
-	jewels := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"], vars.legion.selection := "", sections := InStr(Clipboard, "(implicit)") ? 0 : 1
+	leaders := vars.lang.seed_conquerors, item := vars.omnikey.item
+	jewels := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"], vars.legion.selection := ""
+	vars.legion.jewel := LLK_StringCase(item.name), vars.legion.jewel_number := LLK_HasVal(jewels, item.name) ;the url for vilsol's calculator uses numbers to specify the jewel-type
 
-	If !InStr(Clipboard, "Passives in radius are Conquered by")
+	Loop, Parse, % StrReplace(vars.omnikey.clipboard, "`r`n", ";"), `;
 	{
-		LLK_ToolTip("invalid item-info in clipboard", 2,,,, "red")
-		Return 0
-	}
-
-	StringLower, Clipboard, Clipboard
-	Loop, Parse, % StrReplace(Clipboard, "`r`n", ";"), `;
-	{
-		If InStr(A_LoopField, "----")
-		{
-			sections += 1
+		If !InStr(A_LoopField, LangTrans("items_uniquemod"))
 			Continue
-		}
-		If (A_Index = 3)
-			vars.legion.jewel := A_LoopField, vars.legion.jewel_number := LLK_HasVal(jewels, A_LoopField) ;the url for vilsol's calculator uses numbers to specify the jewel-type
-		If InStr(A_LoopField, "{ unique modifier")
-		{
-			mod_text := SubStr(A_LoopField, InStr(A_LoopField, "}") + 2), mod_text := SubStr(mod_text, 1, InStr(mod_text, "Passives in radius are Conquered") - 2), mod_text := IteminfoModRemoveRange(mod_text)
-			Break
-		}
-		If !InStr(Clipboard, "{ unique modifier") && (sections = 4)
-		{
-			mod_text := A_LoopField
-			Break
-		}
+		mod_text := SubStr(A_LoopField, InStr(A_LoopField, "`n") + 1), mod_text := IteminfoModRemoveRange(SubStr(mod_text, 1, InStr(mod_text, "`n") - 1))
+		Break
 	}
 	Loop, Parse, mod_text
 		If IsNumber(A_LoopField)
 			seed .= A_LoopField
 	vars.legion.seed := seed
-
+	
 	For index, leader in leaders
 		If InStr(mod_text, leader)
 			vars.legion.leader := leader
 	If (vars.legion.data.1 != vars.legion.jewel || vars.legion.data.2 != vars.legion.seed)
 	{
 		vars.legion.data := [vars.legion.jewel, vars.legion.seed, []]
-		Loop, Parse, % LLK_FileRead("data\timeless jewels\"vars.legion.jewel ".csv"), `n, `r
+		Loop, Parse, % LLK_FileRead("data\global\[legion] " vars.legion.jewel ".csv"), `n, `r
 		{
 			If !vars.legion.nodes && (A_Index = 1)
 				vars.legion.nodes := SubStr(A_LoopField, InStr(A_LoopField, ",") + 1)
@@ -320,8 +303,7 @@ LegionParse()
 						vars.legion.data.3.Push(A_LoopField)
 				Break
 			}
-		}
-			
+		}	
 	}
 	vars.legion.jewel_mods := [], vars.legion.decoder_invert := {}
 	For index, mod in db.legion.jewels[vars.legion.jewel]["_decoder"]
@@ -341,7 +323,7 @@ LegionTree()
 	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner"vars.hwnd.legion.main
 	Gui, %tree%: Color, Black
 	Gui, %tree%: Margin, 0, 0
-	Gui, %tree%: Font, % "s"vars.legion.fSize_tree " cWhite bold", Fontin SmallCaps
+	Gui, %tree%: Font, % "s"vars.legion.fSize_tree " cWhite bold", % vars.system.font
 	hwnd_old := vars.hwnd.legion_tree.main, vars.hwnd.legion_tree := {"main": tree}
 
 	For socket, val in db.legion.sockets
@@ -360,7 +342,7 @@ LegionTree()
 	}
 	Gui, %tree%: Add, Pic, % "x0 y0 Border HWNDhwnd w"vars.legion.width*2 - 3 " h-1", img\GUI\legion_treemap.jpg
 	vars.hwnd.legion_tree.map := hwnd
-	Gui, %tree%: Show, % "NA x0 y"vars.monitor.y + vars.monitor.h - vars.legion.width*2
+	Gui, %tree%: Show, % "NA x" vars.monitor.x " y" vars.monitor.y + vars.monitor.h - vars.legion.width*2
 	LLK_Overlay(hwnd_old, "destroy"), vars.legion.wait := 0
 	Gui, %tree%: -Owner
 }
