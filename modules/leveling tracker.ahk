@@ -1,7 +1,7 @@
 ﻿Init_leveltracker()
 {
 	local
-	global vars, settings
+	global vars, settings, db, Json
 	
 	settings.features.leveltracker := LLK_IniRead("ini\config.ini", "Features", "enable leveling guide", 0)
 	
@@ -26,6 +26,7 @@
 	settings.leveltracker.fadetime := LLK_IniRead("ini\leveling tracker.ini", "Settings", "fade-time", 5000)
 	settings.leveltracker.fade_hover := LLK_IniRead("ini\leveling tracker.ini", "Settings", "show on hover", 1)
 	settings.leveltracker.geartracker := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable geartracker", 0)
+	settings.leveltracker.expbar := LLK_IniRead("ini\leveling tracker.ini", "Settings", "exp-bar offset", 0)
 	settings.leveltracker.layouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable zone-layout overlay", 0)
 	settings.leveltracker.hints := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable additional hints", 0)
 	settings.leveltracker.fSize := LLK_IniRead("ini\leveling tracker.ini", "Settings", "font-size", settings.general.fSize)
@@ -75,8 +76,9 @@
 			vars.leveltracker.timer.total_time += iniread
 		}
 	}
-	
 	vars.leveltracker.skilltree := {"active": LLK_IniRead("ini\leveling tracker.ini", "Settings", "last skilltree-image", "00")}
+
+	lang := settings.general.lang_client, db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json")), "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] gems.json")), "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json")), "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] gem regex.json") ? lang : "global") "\[leveltracker] gem regex.json"))}
 }
 
 Geartracker(mode := "")
@@ -112,7 +114,7 @@ Geartracker(mode := "")
 		If (vars.system.click = 1)
 		{
 			KeyWait, LButton
-			Clipboard := """" SubStr(check, (InStr(check, ":") ? InStr(check, ": ") + 2 : InStr(check, " ") + 1)) """"
+			regex := SubStr(check, (InStr(check, ":") ? InStr(check, ": ") + 2 : InStr(check, " ") + 1)), regex := (StrLen(regex) > 48) ? SubStr(regex, 1, 48) : regex, Clipboard := """" regex """"
 			WinActivate, ahk_group poe_window
 			WinWaitActive, ahk_group poe_window
 			SendInput, ^{f}
@@ -137,25 +139,26 @@ GeartrackerAdd()
 	local
 	global vars, settings
 
-	If (vars.omnikey.item.rarity != "unique") && !InStr(vars.omnikey.item.name, "flask")
-		class := SubStr(vars.omnikey.item.class, InStr(vars.omnikey.item.class, " ",,, LLK_InStrCount(vars.omnikey.item.class, " ")) + 1), class := InStr("boots,gloves", class) ? class : SubStr(class, 1, -1)
+	item := vars.omnikey.item
+	If (item.rarity != LangTrans("items_unique")) && !InStr(item.name, "Flask", 1)
+		class := SubStr(vars.omnikey.item.class_copy, InStr(vars.omnikey.item.class_copy, " ",,, LLK_InStrCount(vars.omnikey.item.class_copy, " ")) + 1), class := (settings.general.lang_client = "english") ? (InStr("boots,gloves", class) ? class : SubStr(class, 1, -1)) : class, class := LLK_StringCase(class)
 
 	If !vars.omnikey.item.lvl_req
-		error := ["gear-tracker:`nno lvl requirement", 2, "red"]
+		error := [LangTrans("lvltracker_gearadd", 4), 2, "red"]
 	Else If (vars.omnikey.item.lvl_req < vars.log.level)
-		error := ["gear-tracker:`nalready equippable", 2, "yellow"]
-	Else If LLK_HasVal(vars.leveltracker.gear, "("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name)
-		error := ["gear-tracker:`nitem already added", 2, "red"]
+		error := [LangTrans("lvltracker_gearadd", 3), 2, "yellow"]
+	Else If LLK_HasVal(vars.leveltracker.gear, "("vars.omnikey.item.lvl_req ") " (class ? class ": " : "") vars.omnikey.item.name_copy)
+		error := [LangTrans("lvltracker_gearadd", 2), 1.5, "red"]
 
 	If error
 	{
 		LLK_ToolTip(error.1, error.2,,,, error.3)
 		Return
 	}
-	Else LLK_ToolTip("gear-tracker:`nitem added", 1.5,,,, "lime")
-	vars.leveltracker.gear.Push("("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name)
+	Else LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, "lime")
+	vars.leveltracker.gear.Push(LLK_StringCase("("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name_copy))
 	vars.leveltracker.gear := LLK_ArraySort(vars.leveltracker.gear)
-	IniWrite, 1, ini\leveling tracker.ini, gear, % "("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name
+	IniWrite, 1, ini\leveling tracker.ini, gear, % "("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name_copy
 	GeartrackerGUI()
 }
 
@@ -171,13 +174,13 @@ GeartrackerGUI(mode := "")
 		Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDgeartracker", geartracker
 		Gui, %geartracker%: Color, Black
 		Gui, %geartracker%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
-		Gui, %geartracker%: Font, % "s" settings.leveltracker.fSize " cWhite", Fontin SmallCaps
+		Gui, %geartracker%: Font, % "s" settings.leveltracker.fSize " cWhite", % vars.system.font
 		hwnd_old := vars.hwnd.geartracker.main, vars.hwnd.geartracker := {"main": geartracker}
 
-		Gui, %geartracker%: Add, Text, % "Section"(Blank(settings.general.character) || !vars.log.level ? " cRed" : ""), % "char (lvl): "(Blank(settings.general.character) ? "unknown" : settings.general.character) " ("vars.log.level ")"
+		Gui, %geartracker%: Add, Text, % "Section"(Blank(settings.general.character) || !vars.log.level ? " cRed" : ""), % LangTrans("lvltracker_gearlist") " " (Blank(settings.general.character) ? "unknown" : settings.general.character) " (" vars.log.level ")"
 		Gui, %geartracker%: Font, % "s" settings.leveltracker.fSize - 2
 		Gui, %geartracker%: Add, Pic, % "ys hp w-1 HWNDhwnd0", img\GUI\help.png
-		Gui, %geartracker%: Add, Checkbox, % "xs Section gGeartracker HWNDhwnd checked"vars.leveltracker.gearfilter, only show next 5 lvls
+		Gui, %geartracker%: Add, Checkbox, % "xs Section gGeartracker HWNDhwnd checked"vars.leveltracker.gearfilter, % LangTrans("lvltracker_gear5levels")
 		vars.hwnd.geartracker.filter := hwnd, vars.hwnd.help_tooltips["geartracker_about"] := hwnd0
 		ControlGetPos, x0, y0, w0, h0,, % "ahk_id "hwnd
 		Gui, %geartracker%: Font, % "s" settings.leveltracker.fSize
@@ -190,11 +193,20 @@ GeartrackerGUI(mode := "")
 				color := (SubStr(item, 2, 2) <= vars.log.level) ? " cLime" : ""
 				count += color ? 1 : 0
 				If (y + h >= vars.client.h*0.85)
+				{
+					If !ellipsis
+					{
+						Gui, %geartracker%: Add, Text, % "xs BackgroundTrans", % "[...]"
+						ellipsis := 1
+					}
 					Continue
-				Gui, %geartracker%: Add, Text, % "xs BackgroundTrans gGeartracker HWNDhwnd Section"(A_Index = 1 ? " y+"settings.leveltracker.fHeight*0.25 : "") color, % item
+				}
+				Gui, %geartracker%: Add, Text, % "xs BackgroundTrans gGeartracker HWNDhwnd Section"(A_Index = 1 ? " y+"settings.leveltracker.fHeight*0.25 : "") color, % (StrLen(item) > 35) ? SubStr(item, 1, 35) : item
 				vars.hwnd.geartracker["select_"item] := hwnd
 				Gui, %geartracker%: Add, Progress, % "xp yp wp hp BackgroundBlack cRed Disabled HWNDhwnd range0-500", 0
 				vars.hwnd.geartracker["delbar_"item] := hwnd
+				If (StrLen(item) > 35)
+					Gui, %geartracker%: Add, Text, % "ys BackgroundTrans", % "[...]"
 				ControlGetPos, x, y, w, h,, % "ahk_id "hwnd
 			}
 		count := !count ? 0 : count, vars.leveltracker.gear_ready := count
@@ -234,7 +246,7 @@ Leveltracker(cHWND := "")
 			If (guide.group1[guide.group1.Count()] = guide.import[guide.import.Count()]) ;end-of-guide reached, can't go further
 			{
 				Gui, % vars.hwnd.leveltracker.controls2 ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip("can't go further",, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
+				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
 				KeyWait, LButton
 				Return
 			}
@@ -262,7 +274,7 @@ Leveltracker(cHWND := "")
 			If (loop = 1000) && !area_check
 			{
 				Gui, % vars.hwnd.leveltracker.controls2 ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip("can't fast-forward to current location", 2, vars.client.xc , vars.leveltracker.y - settings.general.fHeight + 1,, "red",,,, 1)
+				LLK_ToolTip(LangTrans("lvltracker_fastforwarderror"), 3, vars.client.xc , vars.leveltracker.y - settings.general.fHeight + 1,, "red",,,, 1)
 				vars.leveltracker.fast := 0
 				KeyWait, LButton
 				Return
@@ -293,7 +305,7 @@ Leveltracker(cHWND := "")
 			If !guide.progress.Count() ;guide-start reached, can't to further
 			{
 				Gui, % vars.hwnd.leveltracker.controls2 ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip("can't go further",, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
+				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
 				KeyWait, LButton
 				Return
 			}
@@ -359,7 +371,7 @@ Leveltracker(cHWND := "")
 			LeveltrackerLoad()
 		If !vars.leveltracker.guide.import.Count()
 		{
-			LLK_ToolTip("no import-data",,,,, "red")
+			LLK_ToolTip(LangTrans("lvltracker_guidemissing"), 2,,,, "red")
 			vars.leveltracker.Delete("guide")
 			Return
 		}
@@ -442,7 +454,7 @@ LeveltrackerHints()
 	Gui, New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDleveltracker_hints
 	Gui, %leveltracker_hints%: Color, Black
 	Gui, %leveltracker_hints%: Margin, 0, 0
-	Gui, %leveltracker_hints%: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, %leveltracker_hints%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 
 	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
 		If LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1)
@@ -461,19 +473,18 @@ LeveltrackerHints()
 LeveltrackerImport()
 {
 	local
-	global vars, settings, Json
+	global vars, settings, Json, db
 
 	KeyWait, LButton
 	If (SubStr(Clipboard, 1, 2) != "[{") || !InStr(Clipboard, """enter""")
 	{
 		If (SubStr(Clipboard, 1, 2) = "[{") && !InStr(Clipboard, """enter""")
-			LLK_ToolTip("""gems only"" exports`nnot supported", 2,,,, "red")
-		Else LLK_ToolTip("invalid import data",,,,, "red")
+			LLK_ToolTip(LangTrans("lvltracker_importerror"), 2,,,, "red")
+		Else LLK_ToolTip(LangTrans("lvltracker_importerror", 2), 1.5,,,, "red")
 		Return
 	}
 
-	import := Json.Load(Clipboard), areas := LLK_FileRead("data\leveling tracker\areas.json"), gems := LLK_FileRead("data\leveling tracker\gems.json"), quests := LLK_FileRead("data\leveling tracker\quests.json")
-	areas := Json.Load(areas), gems := Json.Load(gems), quests := Json.Load(quests)
+	import := Json.Load(Clipboard), areas := db.leveltracker.areas, gems := db.leveltracker.gems, quests := db.leveltracker.quests
 
 	For act_index, act in import ;parse all acts
 	{
@@ -543,12 +554,8 @@ LeveltrackerImport()
 								step_text .= "take reward: " StrReplace(part.item, " ", "_")
 							Default:
 								If settings.general.dev
-									MsgBox, % "unknown type: "part.type
-								Else
-								{
-									LLK_ToolTip("incompatible guide-data,`nupdate required", 2,,,, "red")
-									Return
-								}
+									MsgBox, % "unknown type: " part.type
+								Continue 2
 						}
 					}
 				}
@@ -609,7 +616,6 @@ LeveltrackerImport()
 				guide_text .= StrReplace(ss_text, ",,", ",") "`n"
 			}
 		}
-
 	}
 
 	While (SubStr(gem_notes, 0) = "`n")
@@ -664,21 +670,20 @@ LeveltrackerImport()
 		{
 			If (A_Loopfield = "")
 				break
-			parse_gem := SubStr(A_Loopfield, 5)
-			IniRead, gem_regex, data\leveling tracker\gems.ini, % parse_gem, regex, % A_Space
+			parse_gem := SubStr(A_Loopfield, 5), gem_regex := db.leveltracker.regex[parse_gem].1
 			If !gem_regex
 				gem_regex := parse_gem
 			gem_regex := StrReplace(gem_regex, " ", "\s")
 			
-			If (StrLen(parse_string gem_regex) <= 47)
+			If (StrLen(parse_string . gem_regex) <= 48)
 				parse_string .= gem_regex "|"
 			Else
 			{
-				search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ");"
+				search_string_%loop% .= "(" SubStr(parse_string, 1, -1) ");"
 				parse_string := gem_regex "|"
 			}
 		}
-		search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ")"
+		search_string_%loop% .= "(" SubStr(parse_string, 1, -1) ")"
 	}
 	
 	Loop, Parse, parse, `,, `,
@@ -716,7 +721,7 @@ LeveltrackerImport()
 	IniWrite, % guide_text, ini\leveling guide.ini, Steps
 	
 	Settings_menu("leveling tracker")
-	LLK_ToolTip("success",,,,, "Lime")
+	LLK_ToolTip(LangTrans("global_success"),,,,, "Lime")
 	Init_leveltracker()
 	If settings.leveltracker.geartracker
 		GeartrackerGUI("refresh")
@@ -828,7 +833,7 @@ LeveltrackerScreencapMenu2(cHWND)
 		Loop, Parse, % "\/:*?""<>|"
 			If InStr(caption, A_LoopField)
 			{
-				LLK_ToolTip("invalid character: " A_LoopField, 2, x, y + h,, "red")
+				LLK_ToolTip(LangTrans("global_errorname", 5) A_LoopField, 2, x, y + h,, "red")
 				Return
 			}
 		GuiControl, +cBlack, % vars.hwnd.leveltracker_screencap.caption
@@ -877,10 +882,10 @@ LeveltrackerScreencapMenu()
 	Gui, New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_screencap
 	Gui, %leveltracker_screencap%: Color, Black
 	Gui, %leveltracker_screencap%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
-	Gui, %leveltracker_screencap%: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, %leveltracker_screencap%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main) ? vars.hwnd.leveltracker_screencap.main : "", vars.hwnd.leveltracker_screencap := {"main": leveltracker_screencap}
 
-	Gui, %leveltracker_screencap%: Add, Text, % "x-1 y-1 Border Hidden Center Section gLeveltrackerScreencapMenu2 HWNDhwnd", % "skilltree-overlay config"
+	Gui, %leveltracker_screencap%: Add, Text, % "x-1 y-1 Border Hidden Center Section gLeveltrackerScreencapMenu2 HWNDhwnd", % LangTrans("lvltracker_header")
 	vars.hwnd.leveltracker_screencap.winbar := hwnd
 	Gui, %leveltracker_screencap%: Add, Text, % "ys x+-1 Border Hidden Center gLeveltrackerScreencapMenuClose HWNDhwnd w"settings.general.fWidth*2, % "x"
 	vars.hwnd.leveltracker_screencap.winx := hwnd
@@ -893,7 +898,7 @@ LeveltrackerScreencapMenu()
 	}
 	
 	Gui, %leveltracker_screencap%: Font, % "bold underline s"settings.general.fSize
-	Gui, %leveltracker_screencap%: Add, Text, % "xs Section HWNDanchor x"settings.general.fWidth/2, % "skill-tree:"
+	Gui, %leveltracker_screencap%: Add, Text, % "xs Section HWNDanchor x"settings.general.fWidth/2, % LangTrans("global_skilltree")
 	Gui, %leveltracker_screencap%: Font, norm
 	Gui, %leveltracker_screencap%: Add, Picture, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
 	vars.hwnd.help_tooltips["leveltracker_skilltree-cap about"] := hwnd
@@ -906,25 +911,25 @@ LeveltrackerScreencapMenu()
 		vars.hwnd.leveltracker_screencap["select_"index] := hwnd
 		If FileExist("img\GUI\skill-tree\["index "]*")
 			vars.hwnd.help_tooltips["leveltracker_skilltree-cap index"handle] := hwnd
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd"(A_Index = files + 1 ? " cLime" : ""), % " paste "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd"(A_Index = files + 1 ? " cLime" : ""), % " " LangTrans("global_paste") " "
 		vars.hwnd.leveltracker_screencap["paste_"index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap paste"handle] := hwnd
 		wButtons += (A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd"(A_Index = files + 1 ? " cLime" : ""), % " snip "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd"(A_Index = files + 1 ? " cLime" : ""), % " " LangTrans("global_snip") " "
 		vars.hwnd.leveltracker_screencap["snip_"index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap snip"handle] := hwnd
 		wButtons += (A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
 		If (A_Index = files + 1) && (A_Index != 1)
 		{
-			Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2 Center w"wButtons2 + settings.general.fWidth/4, % " del all "
+			Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2 Center w"wButtons2 + settings.general.fWidth/4, % " " LangTrans("lvltracker_deleteall") " "
 			Gui, %leveltracker_screencap%: Add, Progress, % "xp yp wp hp Border Disabled range0-500 BackgroundBlack cRed HWNDhwnd", 0
 			vars.hwnd.leveltracker_screencap.delall := hwnd0, vars.hwnd.leveltracker_screencap.delbarall := vars.hwnd.help_tooltips["leveltracker_skilltree-cap delete-all"] := hwnd
 		}
 
 		If !FileExist("img\GUI\skill-tree\["index "]*")
 			Continue
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " show "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " " LangTrans("global_show") " "
 		vars.hwnd.leveltracker_screencap["preview_"index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap show"handle] := hwnd
 		wButtons += (A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0, wButtons2 := LLK_ControlGetPos(hwnd, "w")
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2", % " del "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2", % " " LangTrans("global_delete", 2) " "
 		Gui, %leveltracker_screencap%: Add, Progress, % "xp yp wp hp Border Disabled range0-500 BackgroundBlack cRed HWNDhwnd", 0
 		vars.hwnd.leveltracker_screencap["del_"index] := hwnd0, vars.hwnd.leveltracker_screencap["delbar_"index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap delete"handle] := hwnd
 		wButtons += (A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0, wButtons2 += LLK_ControlGetPos(hwnd, "w"), handle .= "|"
@@ -941,7 +946,7 @@ LeveltrackerScreencapMenu()
 	}
 
 	Gui, %leveltracker_screencap%: Font, bold underline
-	Gui, %leveltracker_screencap%: Add, Text, % "xs Section y+"settings.general.fHeight*0.8, % "ascendancy-tree:"
+	Gui, %leveltracker_screencap%: Add, Text, % "xs Section y+"settings.general.fHeight*0.8, % LangTrans("global_ascendancy")
 	Gui, %leveltracker_screencap%: Add, Picture, % "ys hp w-1 HWNDhwnd69", img\GUI\help.png
 	Gui, %leveltracker_screencap%: Font, norm
 	Loop 5
@@ -951,18 +956,18 @@ LeveltrackerScreencapMenu()
 		vars.hwnd.leveltracker_screencap["select_-"A_Index] := hwnd, handle .= "|"
 		If FileExist("img\GUI\skill-tree\[lab"A_Index "]*")
 			vars.hwnd.help_tooltips["leveltracker_skilltree-cap index"handle] := hwnd
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " paste "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
 		vars.hwnd.leveltracker_screencap["paste_-"A_Index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap paste"handle] := hwnd
 		wButtons += (-A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " snip "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
 		vars.hwnd.leveltracker_screencap["snip_-"A_Index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap snip"handle] := hwnd
 		wButtons += (-A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
 		If !FileExist("img\GUI\skill-tree\[lab"A_Index "]*")
 			Continue
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " show "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gLeveltrackerScreencapMenu2 HWNDhwnd", % " " LangTrans("global_show") " "
 		vars.hwnd.leveltracker_screencap["preview_-"A_Index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap show"handle] := hwnd
 		wButtons += (-A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
-		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2", % " del "
+		Gui, %leveltracker_screencap%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gLeveltrackerScreencapMenu2", % " " LangTrans("global_delete", 2) " "
 		Gui, %leveltracker_screencap%: Add, Progress, % "xp yp wp hp Border Disabled range0-500 BackgroundBlack cRed HWNDhwnd", 0
 		vars.hwnd.leveltracker_screencap["del_-"A_Index] := hwnd0, vars.hwnd.leveltracker_screencap["delbar_-"A_Index] := vars.hwnd.help_tooltips["leveltracker_skilltree-cap delete"handle] := hwnd
 		wButtons += (-A_Index = active) ? LLK_ControlGetPos(hwnd, "w") : 0
@@ -1081,7 +1086,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	If mode && vars.leveltracker.fade
 		WinSet, Transparent, 25
 	Else WinSet, TransColor, Black
-	Gui, %leveltracker_main%: Font, % "s"settings.leveltracker.fSize " cWhite", Fontin SmallCaps
+	Gui, %leveltracker_main%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.main := leveltracker_main
 	
 	guide.gems := [], guide.items := []
@@ -1160,8 +1165,8 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	wPanels := (width - wButtons*2)/2
 	xPos := vars.client.xc - width/2, yPos := vars.client.y + vars.client.h
 	
-	Gui, %leveltracker_back%: Show, % "NA x"xPos " y"yPos - height - height1 - 1 " w"width - 2 " h"height
-	Gui, %leveltracker_main%: Show, % "NA x"xPos " y"yPos - height - height1 - 1 " w"width - 2 " h"height
+	Gui, %leveltracker_back%: Show, % "NA x"xPos " y"yPos - height - height1*(settings.leveltracker.expbar ? 2 : 1) - 1 " w"width - 2 " h"height
+	Gui, %leveltracker_main%: Show, % "NA x"xPos " y"yPos - height - height1*(settings.leveltracker.expbar ? 2 : 1) - 1 " w"width - 2 " h"height
 	WinGetPos, x, y, width, height, % "ahk_id " vars.hwnd.leveltracker.main
 	vars.leveltracker.x := x, vars.leveltracker.y := y, vars.leveltracker.w := width, vars.leveltracker.h := height
 	LLK_Overlay(vars.hwnd.leveltracker.background, "show"), LLK_Overlay(vars.hwnd.leveltracker.main, "show")
@@ -1170,8 +1175,8 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Gui, New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_controls1"
 	Gui, %leveltracker_controls1%: Color, Black
 	Gui, %leveltracker_controls1%: Margin, 0, 0
-	WinSet, Transparent, % mode && vars.leveltracker.fade ? 25 : 140
-	Gui, %leveltracker_controls1%: Font, % "s"settings.leveltracker.fSize " cWhite", Fontin SmallCaps
+	WinSet, Transparent, % mode && vars.leveltracker.fade ? 25 : settings.leveltracker.expbar ? settings.leveltracker.trans : 120
+	Gui, %leveltracker_controls1%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.controls1 := leveltracker_controls1
 	Gui, %leveltracker_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"wPanels " h"height1, % ""
 	vars.hwnd.leveltracker.dummy1 := hwnd
@@ -1194,7 +1199,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Else WinSet, TransColor, Black
 	vars.leveltracker.custom_font := !vars.leveltracker.custom_font ? LLK_FontSizeGet(height1, custom_fontwidth) : vars.leveltracker.custom_font
 	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
-	Gui, %leveltracker_controls2%: Font, % "s"Min(settings.leveltracker.fSize, vars.leveltracker.custom_font) " cWhite", Fontin SmallCaps
+	Gui, %leveltracker_controls2%: Font, % "s"Min(settings.leveltracker.fSize, vars.leveltracker.custom_font) " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.controls2 := leveltracker_controls2
 	Gui, %leveltracker_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " h"height1, % settings.leveltracker.layouts ? check " zl" : ""
 	vars.hwnd.leveltracker.layouts := hwnd
@@ -1203,8 +1208,8 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Gui, %leveltracker_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % LeveltrackerExperience()
 	vars.hwnd.leveltracker.experience := hwnd
 
-	Gui, %leveltracker_controls2%: Show, % "NA x"xPos " y"yPos - height1
-	Gui, %leveltracker_controls1%: Show, % "NA x"xPos " y"yPos - height1
+	Gui, %leveltracker_controls2%: Show, % "NA x"xPos " y"yPos - height1*(settings.leveltracker.expbar ? 2 : 1)
+	Gui, %leveltracker_controls1%: Show, % "NA x"xPos " y"yPos - height1*(settings.leveltracker.expbar ? 2 : 1)
 	LLK_Overlay(vars.hwnd.leveltracker.controls1, "show"), LLK_Overlay(vars.hwnd.leveltracker.controls2, "show")
 	LLK_Overlay(hwnd_old2, "destroy"), LLK_Overlay(hwnd_old3, "destroy")
 	vars.leveltracker.last := A_TickCount
@@ -1237,17 +1242,17 @@ LeveltrackerScreencapPaste(index)
 	{
 		If !LLK_CheckClipImages()
 		{
-			LLK_ToolTip("some of the clipboard-`nfiles are not supported", 2,,,, "red")
+			LLK_ToolTip(LangTrans("lvltracker_multipaste"), 2,,,, "red")
 			Return
 		}
 		If InStr(Clipboard, ":\",,, 2)
 		{
 			If InStr(index, "-")
 			{
-				LLK_ToolTip("multi-paste not supported`nfor ascendancy-trees", 2,,,, "red")
+				LLK_ToolTip(LangTrans("lvltracker_multipaste", 2), 2,,,, "red")
 				Return
 			}
-			MsgBox, 4, Clipboard multi-paste, % LLK_InStrCount(Clipboard, ":") " entries starting from "index " will potentially be overwritten.`nContinue?"
+			MsgBox, 4, Clipboard multi-paste, % LangTrans("lvltracker_multipaste", 3, [LLK_InStrCount(Clipboard, ":"), index])
 			IfMsgBox No
 				Return
 		}
@@ -1259,7 +1264,7 @@ LeveltrackerScreencapPaste(index)
 		pBitmap := Gdip_CreateBitmapFromClipboard()
 		If (pBitmap < 0)
 		{
-			LLK_ToolTip("couldn't find image-`ndata in clipboard", 1.5,,,, "red")
+			LLK_ToolTip(LangTrans("global_imageinvalid"), 1.5,,,, "red")
 			Return
 		}
 		Gdip_SaveBitmapToFile(pBitmap, "img\GUI\skill-tree\["(InStr(index, "-") ? "lab" : "") StrReplace(index, "-") "].png", 100)
@@ -1294,7 +1299,7 @@ LeveltrackerSkilltree(index := 0)
 		Gui, New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_skilltree
 		Gui, %leveltracker_skilltree%: Margin, 0, 0
 		Gui, %leveltracker_skilltree%: Color, Black
-		Gui, %leveltracker_skilltree%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+		Gui, %leveltracker_skilltree%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		hwnd_old := WinExist("ahk_id "vars.hwnd.leveltracker_skilltree.main) ? vars.hwnd.leveltracker_skilltree.main : "", hwnd_old1 := WinExist("ahk_id "vars.hwnd.leveltracker_skilltree.labs) ? vars.hwnd.leveltracker_skilltree.labs : ""
 		vars.hwnd.leveltracker_skilltree := {"main": leveltracker_skilltree}, count := 0
 
@@ -1356,7 +1361,7 @@ LeveltrackerSkilltree(index := 0)
 			Gui, %leveltracker_skilltree_labs%: Destroy
 		vars.hwnd.Delete("leveltracker_skilltree")
 	}
-	Else LLK_ToolTip("couldn't find image-files", 1.5,,,, "red")
+	Else LLK_ToolTip(LangTrans("lvltracker_noimages"), 1.5,,,, "red")
 }
 
 LeveltrackerSkilltreeHover()
@@ -1385,7 +1390,7 @@ LeveltrackerSkilltreeHover()
 			If !FileExist("img\GUI\skill-tree\["check "]*")
 			{
 				WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.leveltracker_skilltree.main
-				LLK_ToolTip("can't go further",, x, y,, "yellow")
+				LLK_ToolTip(LangTrans("lvltracker_endreached"),, x, y,, "yellow")
 				KeyWait, RButton
 				check := ""
 				Continue
@@ -1423,7 +1428,7 @@ LeveltrackerSkilltreeLab(file)
 	Gui, New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_skilltree_lab
 	Gui, %leveltracker_skilltree_lab%: Margin, 0, 0
 	Gui, %leveltracker_skilltree_lab%: Color, Black
-	Gui, %leveltracker_skilltree_lab%: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	Gui, %leveltracker_skilltree_lab%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	hwnd_old := WinExist("ahk_id "vars.hwnd.leveltracker_skilltree.lab) ? vars.hwnd.leveltracker_skilltree.lab : "", vars.hwnd.leveltracker_skilltree.lab := leveltracker_skilltree_lab
 
 	Loop, Files, % "img\GUI\skill-tree\[lab*]*"
@@ -1442,9 +1447,9 @@ LeveltrackerSkilltreeLab(file)
 LeveltrackerStrings()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 
-	strings := [], string := ""
+	strings := [], string := "", attr_check := ["str", "dex", "int"], attr_check.0 := "none"
 	For key, val in vars.leveltracker.guide.items
 	{
 		If (StrLen(string "|" StrReplace(val, " ", "\s")) > 47)
@@ -1459,17 +1464,17 @@ LeveltrackerStrings()
 
 	For key, val in vars.leveltracker.guide.gems
 	{
-		regex := StrReplace(LLK_IniRead("data\leveling tracker\gems.ini", val, "regex"), " ", "\s")
+		regex := StrReplace(db.leveltracker.regex[val].1, " ", "\s"), regex := !regex ? val : regex
 		If LLK_HasVal(vars.leveltracker.guide.group1, "fixture_of_fate", 1)
 		{
-			attr := LLK_IniRead("data\leveling tracker\gems.ini", val, "attribute"), type := InStr(val, " support") ? "_supp" : ""
-			If (StrLen(string_%attr%%type% "|" regex) > 47)
+			attr := attr_check[db.leveltracker.regex[val].2], type := InStr(val, " support") ? "_supp" : ""
+			If (StrLen(string_%attr%%type% "|" regex) > 48)
 				strings_%attr%%type%.Push(string_%attr%%type%), string_%attr%%type% := regex
 			Else string_%attr%%type% .= (Blank(string_%attr%%type%) ? "" : "|") regex
 		}
 		Else
 		{
-			If (StrLen(string_gems "|" regex) > 47)
+			If (StrLen(string_gems "|" regex) > 48)
 				strings_gems.Push(string_gems), string_gems := regex
 			Else string_gems .= (Blank(string_gems) ? "" : "|") regex
 		}
@@ -1479,7 +1484,7 @@ LeveltrackerStrings()
 
 	vars.leveltracker.string := []
 	For key, val in strings
-		vars.leveltracker.string.Push("^("val ")")
+		vars.leveltracker.string.Push("("val ")")
 
 	If LLK_HasVal(vars.leveltracker.guide.group1, "fixture_of_fate", 1)
 	{
@@ -1488,13 +1493,13 @@ LeveltrackerStrings()
 			If !Blank(string_%A_LoopField%)
 				strings_%A_LoopField%.Push(string_%A_LoopField%)
 			For key, val in strings_%A_LoopField%
-				vars.leveltracker.string.Push("^("val ")")
+				vars.leveltracker.string.Push("("val ")")
 		}
 	}
 	Else
 	{
 		For key, val in strings_gems
-			vars.leveltracker.string.Push("^("val ")")
+			vars.leveltracker.string.Push("("val ")")
 	}
 }
 
@@ -1613,7 +1618,7 @@ LeveltrackerTimerGUI()
 	;WinSet, TransColor, Black
 	vars.leveltracker.custom_font := !vars.leveltracker.custom_font ? LLK_FontSizeGet(height1, custom_fontwidth) : vars.leveltracker.custom_font
 	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
-	Gui, %leveltracker_timer%: Font, % "s"vars.leveltracker.custom_font " cWhite", Fontin SmallCaps	
+	Gui, %leveltracker_timer%: Font, % "s"vars.leveltracker.custom_font " cWhite", % vars.system.font	
 	hwnd_old := vars.hwnd.leveltracker_timer.main, vars.hwnd.leveltracker_timer := {"main": leveltracker_timer}
 
 	Gui, %leveltracker_timer%: Add, Text, % "Section BackgroundTrans Border Center 0x200 HWNDhwnd w"vars.leveltracker.custom_fontwidth*7 " h"vars.leveltracker.h2, total
