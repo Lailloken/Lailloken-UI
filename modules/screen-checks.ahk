@@ -68,7 +68,7 @@ Screenchecks_ImageRecalibrate()
 		vars.general.gui_hide := 0
 		LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 		WinWait, % "ahk_id " vars.hwnd.settings.main
-		LLK_ToolTip("screen-cap failed",,,,, "red")
+		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 		Return
 	}
 	vars.general.gui_hide := 0
@@ -144,7 +144,7 @@ Screenchecks_Info(name) ;holding the <info> button to view instructions
 	Gui, screencheck_info: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDscreencheck_info
 	Gui, screencheck_info: Color, 202020
 	Gui, screencheck_info: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
-	Gui, screencheck_info: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, screencheck_info: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	vars.hwnd.screencheck_info := {"main": screencheck_info}
 	
 	If FileExist("img\GUI\screen-checks\"name ".jpg")
