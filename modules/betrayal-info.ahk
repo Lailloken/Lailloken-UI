@@ -3,12 +3,8 @@
 	local
 	global vars, settings, Json
 	
-	check := {"t": "transportation", "f": "fortification", "r": "research", "i": "intervention"}
-	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)
-	If FileExist("data\Betrayal.ini")
-		FileDelete, data\Betrayal.ini
-	
-	settings.betrayal := {}
+	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)	
+	settings.betrayal := {}, file := FileExist("data\" settings.general.lang_client "\Betrayal.json") ? settings.general.lang_client : "english"
 	settings.betrayal.fSize := LLK_IniRead("ini\betrayal info.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.betrayal.fSize, font_height, font_width)
 	settings.betrayal.fHeight := font_height, settings.betrayal.fWidth := font_width
@@ -26,8 +22,12 @@
 	If !IsObject(vars.betrayal.board) && ini
 		vars.betrayal.board := Json.Load(ini)
 
-	vars.betrayal.members := Json.Load(LLK_FileRead("data\Betrayal.json"))
+	vars.betrayal.members := Json.Load(LLK_FileRead("data\" file "\Betrayal.json", 0, "65001")), vars.betrayal.members_localized := {}, vars.betrayal.divisions_localized := {}
+	For key in vars.betrayal.members ;create an object with localized names (solely for alphabetical ordering)
+		vars.betrayal.members_localized[LangTrans("betrayal_" key)] := key
 	vars.betrayal.divisions := {"transportation": {}, "fortification": {}, "research": {}, "intervention": {}} ;each object stores the BIS members of a given division
+	For key in vars.betrayal.divisions ;create an object with localized names (solely for alphabetical ordering)
+		vars.betrayal.divisions_localized[LangTrans("betrayal_" key, 2)] := key
 	vars.betrayal.divisions.list := ["transportation", "fortification", "research", "intervention"]
 	
 	If !FileExist("ini\betrayal info.ini")
@@ -78,9 +78,10 @@ BetrayalCalibrate(cHWND := "")
 
 	If cHWND && (cHWND = vars.hwnd.betrayal_setup.ddl) ;function is called by interacting with the screen-cap window
 	{
-		If InStr(A_GuiControl, "-----")
+		If !vars.betrayal.members_localized[A_GuiControl] && !vars.betrayal.divisions_localized[A_GuiControl]
 			Return
-		Gdip_SaveBitmapToFile(pBetrayal, "img\Recognition (" vars.client.h "p)\Betrayal\" A_GuiControl ".bmp", 100)
+		selection := vars.betrayal.members_localized[A_GuiControl] ? vars.betrayal.members_localized[A_GuiControl] : vars.betrayal.divisions_localized[A_GuiControl]
+		Gdip_SaveBitmapToFile(pBetrayal, "img\Recognition (" vars.client.h "p)\Betrayal\" selection ".bmp", 100)
 	}
 	Else
 	{
@@ -91,7 +92,7 @@ BetrayalCalibrate(cHWND := "")
 		pBetrayal := Gdip_CreateBitmapFromClipboard()
 		If (pBetrayal < 0)
 		{
-			LLK_ToolTip("screen-cap failed",,,,, "red")
+			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 			Return
 		}
 		Else
@@ -107,16 +108,16 @@ BetrayalCalibrate(cHWND := "")
 		Gui, betrayal_setup: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, betrayal_setup: Margin, 12, 4
 		Gui, betrayal_setup: Color, Black
-		Gui, betrayal_setup: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+		Gui, betrayal_setup: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.betrayal_setup := {"main": hwnd}
 
 		Gui, betrayal_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBetrayal%
-		ddl := "transportation||fortification|research|intervention|----------|"
-		For member in vars.betrayal.members
+		ddl := LangTrans("betrayal_transportation", 2) "||" LangTrans("betrayal_fortification", 2) "|" LangTrans("betrayal_research", 2) "|" LangTrans("betrayal_intervention", 2) "|----------|"
+		For member in vars.betrayal.members_localized
 			ddl .= member "|"
 		Gui, betrayal_setup: Add, DDL, ys Section cBlack HWNDhwnd gBetrayalCalibrate, % ddl
 		vars.hwnd.betrayal_setup.ddl := hwnd
-		Gui, betrayal_setup: Add, Text, xs Section wp, % "press esc, or click into the client to abort"
+		Gui, betrayal_setup: Add, Text, xs Section wp, % LangTrans("betrayal_abort")
 		Gui, betrayal_setup: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.betrayal_setup.main
 		Gui, betrayal_setup: Show, % "x"vars.client.xc - w//2 " y"vars.client.yc - h//2
@@ -125,9 +126,9 @@ BetrayalCalibrate(cHWND := "")
 			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || GetKeyState("ESC", "P")
 			{
 				If IsObject(vars.hwnd.betrayal_setup)
-					LLK_ToolTip("screen-cap aborted",,,,, "red")
-				Else LLK_ToolTip("success",,,,, "lime")
-				break
+					LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_abort"),,,,, "red")
+				Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_success"),,,,, "lime")
+				Break
 			}
 		}
 	}
@@ -145,11 +146,11 @@ BetrayalInfo(member, div := "", x := "", y := "")
 	local
 	global vars, settings
 
-	div_check := {"t": "transportation", "f": "fortification", "r": "research", "i": "intervention"}
+	div_check := {"t": "transportation", "f": "fortification", "r": "research", "i": "intervention"}, loc_check := {"t": "trans", "f": "fort", "r": "research", "i": "inter"}
 	Gui, New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDbetrayal_info
 	Gui, %betrayal_info%: Margin, 0, 0
 	Gui, %betrayal_info%: Color, Black
-	Gui, %betrayal_info%: Font, % "s"settings.betrayal.fSize " cWhite", Fontin SmallCaps
+	Gui, %betrayal_info%: Font, % "s"settings.betrayal.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.betrayal_info.main, vars.hwnd.betrayal_info := {"main": betrayal_info}, vars.hwnd.betrayal_info.active := member
 
 	parse := []
@@ -159,9 +160,7 @@ BetrayalInfo(member, div := "", x := "", y := "")
 
 	Loop, Parse, % member ", 1, transportation, t, fortification, f, research, r, intervention, i", `,, % A_Space ;create the GUI: header with name, left-side column with TFRI, right-side column with rewards
 	{
-		division := (StrLen(A_LoopField) = 1) ? div_check[A_LoopField] : A_LoopField
-		text := vars.betrayal.members[member].rewards[division][settings.betrayal.ruthless ? 2 : 1]
-		color := settings.betrayal.colors[vars.betrayal.members[member].ranks[division]]
+		division := (StrLen(A_LoopField) = 1) ? div_check[A_LoopField] : A_LoopField, color := settings.betrayal.colors[vars.betrayal.members[member].ranks[division]]
 		
 		If (A_LoopField = member)
 			pos := " x"settings.betrayal.fWidth*2 " y0 Section w"width
@@ -173,7 +172,7 @@ BetrayalInfo(member, div := "", x := "", y := "")
 		
 		If (A_LoopField = member)
 		{
-			Gui, %betrayal_info%: Add, Text, % "Center BackgroundTrans Border HWNDhwnd" pos, % member
+			Gui, %betrayal_info%: Add, Text, % "Center BackgroundTrans Border HWNDhwnd" pos, % LangTrans("betrayal_" member)
 			vars.hwnd.betrayal_info[member] := hwnd
 			Gui, %betrayal_info%: Add, Progress, % "BackgroundBlack Disabled cRed Border xp yp wp hp HWNDhwnd range0-500", 0
 			vars.hwnd.betrayal_info[member "_progress"] := hwnd
@@ -181,12 +180,12 @@ BetrayalInfo(member, div := "", x := "", y := "")
 		Else If (StrLen(A_Loopfield) = 1)
 		{
 			color1 := (A_LoopField = SubStr(div, 1, 1)) ? "606060" : "Black"
-			Gui, %betrayal_info%: Add, Text, % pos " center BackgroundTrans Border 0x200 hp w"settings.betrayal.fWidth* 2, % (A_LoopField = 1) ? " " : A_LoopField
+			Gui, %betrayal_info%: Add, Text, % pos " center BackgroundTrans Border 0x200 hp w"settings.betrayal.fWidth* 2, % (A_LoopField = 1) ? " " : SubStr(LangTrans("betrayal_" div_check[A_LoopField]), 1, 1)
 			Gui, %betrayal_info%: Add, Progress, % "xp yp wp hp Background"color1, 0
 		}
 		Else
 		{
-			Gui, %betrayal_info%: Add, Text, % "center BackgroundTrans HWNDhwnd Border c"color pos " w"width, % text
+			Gui, %betrayal_info%: Add, Text, % "center BackgroundTrans HWNDhwnd Border c"color pos " w"width, % vars.betrayal.members[member].rewards[division][settings.betrayal.ruthless ? 2 : 1]
 			vars.hwnd.betrayal_info[A_Loopfield "_"] := hwnd
 		}
 	}
@@ -221,21 +220,26 @@ BetrayalPrioview()
 	Gui, New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDbetrayal_prioview ;the 'E0x' styles improve UI rendering and reduce flicker but require inverted control stacking
 	Gui, %betrayal_prioview%: Margin, % settings.betrayal.fWidth, 0
 	Gui, %betrayal_prioview%: Color, 202020
-	Gui, %betrayal_prioview%: Font, % "s"settings.betrayal.fSize " cWhite", Fontin SmallCaps
+	Gui, %betrayal_prioview%: Font, % "s"settings.betrayal.fSize " cWhite", % vars.system.font
 	WinSet, TransColor, 202020
-	hwnd_old := WinExist("ahk_id "vars.hwnd.betrayal_prioview.main) ? vars.hwnd.betrayal_prioview.main : "", vars.hwnd.betrayal_prioview := {"main": betrayal_prioview}
-	LLK_PanelDimensions(["gravicius"], settings.betrayal.fSize, width, height)
+	hwnd_old := WinExist("ahk_id "vars.hwnd.betrayal_prioview.main) ? vars.hwnd.betrayal_prioview.main : "", vars.hwnd.betrayal_prioview := {"main": betrayal_prioview}, wMembers := []
+
+	For key in vars.betrayal.members ; create an array with every member in order to find the widest
+		wMembers.Push(LangTrans("betrayal_" key))
+	For key in div_check
+		wMembers.Push(LangTrans("betrayal_" key)) ; also push division headers into the array
+	LLK_PanelDimensions(wMembers, settings.betrayal.fSize, width, height)
 
 	For member in vars.betrayal.members
 		If !vars.betrayal.board[member]
 			unspec += 1
 
-	Loop, Parse, % "trans, fort, unassigned, research, inter", `,, % A_Space
+	Loop, Parse, % "transportation, fortification, unassigned, research, intervention", `,, % A_Space
 	{
-		division := (A_LoopField = "unassigned") ? "" : div_check[A_LoopField]
+		division := (A_LoopField = "unassigned") ? "" : A_LoopField
 		If (A_LoopField = "unassigned")
 		{
-			Gui, %betrayal_prioview%: Add, Text, % (A_Index = 1 ? "" : "ys ") " w"2*width " Section Center HWNDhwnd BackgroundTrans Border cGray", % A_LoopField
+			Gui, %betrayal_prioview%: Add, Text, % (A_Index = 1 ? "" : "ys ") " w"2*width " Section Center HWNDhwnd BackgroundTrans Border cGray", % LangTrans("betrayal_" A_LoopField)
 			Gui, %betrayal_prioview%: Add, Progress, % "xp yp wp hp cRed Disabled BackgroundBlack range0-500 HWNDhwnd", 0 ;progress and text controls are stacked in reverse order for the 'E0x' styles
 			vars.hwnd.betrayal_prioview.unassigned_progress := hwnd
 		}
@@ -251,12 +255,12 @@ BetrayalPrioview()
 			}
 
 			pos := (A_LoopField = "research") ? "ys y0 " : (A_Index = 1) ? "" : "ys "
-			Gui, %betrayal_prioview%: Add, Text, % pos " Section w"width " Center BackgroundTrans Border c"color, % A_LoopField
+			Gui, %betrayal_prioview%: Add, Text, % pos " Section w"width " Center BackgroundTrans Border c"color, % LangTrans("betrayal_" A_LoopField)
 			Gui, %betrayal_prioview%: Add, Progress, % "xp yp wp hp cRed Border BackgroundBlack range0-500 HWNDhwnd", 0
 			vars.hwnd.betrayal_prioview[A_LoopField "_progress"] := hwnd
 		}
 
-		For member in vars.betrayal.members
+		For member_loc, member in vars.betrayal.members_localized
 		{
 			If (division = vars.betrayal.board[member])
 			{
@@ -270,7 +274,7 @@ BetrayalPrioview()
 				Else color := "White"
 
 				pos := (!division && added = 0) ? "Section xs " : (added = unspec//2) ? "Section x+0 ys " : "xs "
-				Gui, %betrayal_prioview%: Add, Text, % pos " w"width " BackgroundTrans Border c"color, % " " member
+				Gui, %betrayal_prioview%: Add, Text, % pos " w"width " BackgroundTrans Border c"color, % " " LangTrans("betrayal_" member)
 				Gui, %betrayal_prioview%: Add, Progress, % "xp yp wp hp Background" (vars.hwnd.betrayal_info.active = member ? "606060" : "Black") " cRed Border range0-500 HWNDhwnd", 0
 				vars.hwnd.betrayal_prioview[member "_progress"] := hwnd
 				If !division

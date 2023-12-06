@@ -11,7 +11,7 @@
 		Gui, LLK_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, LLK_panel: Margin, % settings.general.fWidth/4, 0
 		Gui, LLK_panel: Color, % !IsNumber(update.1) || (update.1 = 0) ? "Black" : (update.1 > 0) ? "Green" : "Maroon"
-		Gui, LLK_panel: Font, % "s"settings.general.fSize " cWhite underline", Fontin SmallCaps
+		Gui, LLK_panel: Font, % "s"settings.general.fSize " cWhite underline", % vars.system.font
 		vars.hwnd.LLK_panel := hwnd
 		
 		Gui, LLK_panel: Add, Text, Section Center BackgroundTrans gSettings_general2, % "LLK-UI"
