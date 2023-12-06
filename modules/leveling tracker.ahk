@@ -206,7 +206,7 @@ GeartrackerGUI(mode := "")
 				Gui, %geartracker%: Add, Progress, % "xp yp wp hp BackgroundBlack cRed Disabled HWNDhwnd range0-500", 0
 				vars.hwnd.geartracker["delbar_"item] := hwnd
 				If (StrLen(item) > 35)
-					Gui, %geartracker%: Add, Text, % "ys BackgroundTrans", % "[...]"
+					Gui, %geartracker%: Add, Text, % "ys BackgroundTrans" color, % "[...]"
 				ControlGetPos, x, y, w, h,, % "ahk_id "hwnd
 			}
 		count := !count ? 0 : count, vars.leveltracker.gear_ready := count

@@ -116,7 +116,7 @@ LogLoop(mode := 0)
 			If LLK_HasVal(vars.mapinfo.expedition_areas, parse) && (parse != vars.log.areaname)
 				vars.mapinfo.categories[A_Index] := ""
 		}
-		vars.mapinfo.active_map.name := "logbook: " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1
+		vars.mapinfo.active_map.name := LangTrans("maps_logbook") ": " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1
 	}
 
 	MaptrackerTimer()

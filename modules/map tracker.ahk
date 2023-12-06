@@ -544,7 +544,7 @@ MaptrackerLoot(mode := "")
 			name := StrReplace(A_LoopField, "superior ")
 		If (A_Index = 4) && !InStr(A_LoopField, "---")
 			base := A_LoopField
-		If StrMatch(A_LoopField, LangTrans("items_raity"))
+		If StrMatch(A_LoopField, LangTrans("items_rarity"))
 			rarity := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 		If StrMatch(A_LoopField, LangTrans("items_stack"))
 		{
