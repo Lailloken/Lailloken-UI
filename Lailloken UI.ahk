@@ -17,6 +17,7 @@ SetControlDelay, -1
 SetWinDelay, -1
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 OnMessage(0x0204, "RightClick")
+StringCaseSense, Locale
 SetKeyDelay, 100
 CoordMode, Mouse, Screen
 CoordMode, Pixel, Screen
@@ -43,7 +44,6 @@ Init_cheatsheets()
 Init_cloneframes()
 If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 	Init_geforce()
-Init_hotkeys()
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
@@ -51,6 +51,7 @@ Init_searchstrings()
 Init_leveltracker()
 Init_maptracker()
 Init_qol()
+Init_hotkeys()
 Resolution_check()
 
 SetTimer, Loop, 1000
@@ -107,7 +108,7 @@ ClipRGB()
 
 	If !(StrLen(Clipboard) = 6 || (StrLen(Clipboard) = 7 && SubStr(Clipboard, 1, 1) = "#"))
 	{
-		LLK_ToolTip("invalid rgb-code in clipboard", 1.5,,,, "red")
+		LLK_ToolTip(LangTrans("global_rgbinvalid"), 1.5,,,, "red")
 		Return
 	}
 	Return (StrLen(Clipboard) = 7) ? SubStr(Clipboard, 2) : Clipboard
@@ -234,7 +235,8 @@ HelpToolTip(HWND_key)
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	If (check = "lab" && InStr(control, "square"))
-		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name]
+		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name], vars.help.lab[control].1 .= (vars.help.lab[control].1 = vars.lab.room.2) ? " (" LangTrans("lab_movemarker") ")" : ""
+	database := !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
 	
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
@@ -242,7 +244,7 @@ HelpToolTip(HWND_key)
 	Gui, New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
 	Gui, %tooltip%: Color, 202020
 	Gui, %tooltip%: Margin, 0, 0
-	Gui, %tooltip%: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, %tooltip%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
 	
 	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
@@ -265,13 +267,13 @@ HelpToolTip(HWND_key)
 				Break
 		}
 	Else
-		For index, text in vars.help[check][control]
+		For index, text in database[check][control]
 		{
 			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 			Gui, %tooltip%: Font, % font
 			Gui, %tooltip%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "(/bold)")
 			Gui, %tooltip%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (text = vars.lab.room.2 ? " cLime" : ""), % StrReplace(text, "(/bold)")
+			Gui, %tooltip%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % StrReplace(text, "(/bold)")
 		}
 	Gui, %tooltip%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
@@ -427,8 +429,6 @@ Init_client()
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Betrayal\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\Mapping Tracker\")
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Mapping Tracker\"
-		;If !FileExist("img\Recognition (" vars.client.h "p)\Trade-check\")
-		;	FileCreateDir, % "img\Recognition (" vars.client.h "p)\Trade-check\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\")
 			LLK_FilePermissionError("create", "img\Recognition ("vars.client.h "p)")
 	}
@@ -485,40 +485,8 @@ Init_vars()
 	
 	db := {}
 	;read databases for item-info tooltip
-	db.item_mods := Json.Load(LLK_FileRead("data\item info\mods.json"))
-	db.item_bases := Json.Load(LLK_FileRead("data\item info\base items.json"))
-	db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\leveling tracker\areas.json")), "gems": Json.Load(LLK_FileRead("data\leveling tracker\gems.json"))}
-	db.essences := Json.Load(LLK_FileRead("data\essences.json"))
-	db.mapinfo := {}
-
-	db.mapinfo.maps := {}	
-	Loop, Parse, % LLK_StringCase(LLK_IniRead("data\Atlas.ini", "Maps")), `n, `r
-	{
-		val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-		maps .= StrReplace(val, ",", " (" A_Index "),") ;create a list of all maps
-		Sort, val, D`,
-		db.mapinfo.maps[A_Index] := StrReplace(SubStr(val, 1, -1), ",", "`n") ;store tier X maps here
-	}
-	Sort, maps, D`,
-	Loop, Parse, maps, `,
-	{
-		If !A_LoopField
-			continue
-		db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] .= !db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] ? A_LoopField : "`n" A_LoopField ;store maps starting with a-z here
-	}
-
-	db.mapinfo.mods := {}
-	Loop, Parse, % LLK_IniRead("data\Map mods.ini"), `n, `r
-	{
-		If (A_LoopField = "sample map")
-			Continue
-		key0 := A_LoopField, db.mapinfo.mods[key0] := {}
-		Loop, Parse, % LLK_IniRead("data\Map mods.ini", A_LoopField), `n, `r
-		{
-			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-			db.mapinfo.mods[key0][key] := val
-		}
-	}
+	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
+	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases.json", 1))
 
 	settings := {}
 	settings.features := {}
@@ -529,11 +497,11 @@ Init_vars()
 	vars.cheatsheets := {}
 	vars.client := {}
 	vars.leveltracker := {}
-	vars.lang := {}
+	vars.lang := {}, vars.lang2 := {}
 	vars.log := {} ;store data related to the game's log here
 	vars.mapinfo := {}
 	vars.hwnd := {"help_tooltips": {}}
-	vars.help := Json.Load(LLK_FileRead("data\help tooltips.json"))
+	vars.help := Json.Load(LLK_FileRead("data\english\help tooltips.json",, "65001"))
 	vars.snip := {}
 	Loop, Files, data\alt_font*
 		alt_font := A_LoopFileName
@@ -601,7 +569,7 @@ Loop_main()
 		Gui, searchstrings_context: Destroy
 		vars.hwnd.Delete("searchstrings_context")
 	}
-	If WinExist("ahk_id "vars.hwnd.omni_context) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.omni_context)
+	If WinExist("ahk_id "vars.hwnd.omni_context.main) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.omni_context.main)
 	{
 		Gui, omni_context: destroy
 		vars.hwnd.Delete("omni_context")
@@ -622,8 +590,8 @@ Loop_main()
 	IteminfoOverlays()
 	
 	If vars.general.cMouse
-		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|")
-	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (vars.help[check][control].Count() || control = "update changelog" || check = "lab" && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|"), database := IsObject(vars.help[check][control]) ? vars.help : vars.help2
+	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || control = "update changelog" || check = "lab" && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 		HelpTooltip(check_help)
 	Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 		LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
@@ -799,7 +767,7 @@ SnippingTool(mode := 0)
 	Gui, %A_Gui%: Show, NA
 	If (pBitmap <= 0)
 	{
-		LLK_ToolTip("screen-cap failed",,,,, "red")
+		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 		Return 0
 	}
 	If WinExist("ahk_id "vars.hwnd.snip.main)
@@ -908,10 +876,7 @@ Startup()
 	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\kakaoclient.txt"
 	
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info
-	{
-		vars.log.file_location := poe_log_file
-		Init_log()
-	}
+		vars.log.file_location := poe_log_file, Init_log()
 	Else vars.log.file_location := 0
 }
 
@@ -944,7 +909,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 	Switch vars.tooltip_mouse.name
 	{
 		Case "chromatics":
-			text := "click into the socket-number`nfield and press space`n(esc to exit)"
+			text := LangTrans("omnikey_chromes") . "`n" . LangTrans("omnikey_escape")
 			If GetKeyState("Space", "P") ;GetKeyState("Ctrl", "P") && GetKeyState("v", "P")
 			{
 				SetTimer, ToolTip_Mouse, Delete
@@ -954,7 +919,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 				vars.tooltip_mouse := ""
 			}
 		Case "cluster":
-			text := "press ctrl-f to highlight`nthe selected jewel type`n(esc to exit)"
+			text := LangTrans("omnikey_clustersearch") . "`n" . LangTrans("omnikey_escape")
 			If GetKeyState("Control", "P") && GetKeyState("F", "P")
 			{
 				SetTimer, ToolTip_Mouse, Delete
@@ -966,11 +931,11 @@ ToolTip_Mouse(mode := "", timeout := 0)
 				vars.tooltip_mouse := ""
 			}
 		Case "searchstring":
-			text := "scrolling... "(InStr(vars.searchstrings.clipboard, ";") ? "" : vars.searchstrings.active.3 "/" vars.searchstrings.active.4) "`n(esc to exit)"
+			text := LangTrans("omnikey_scroll") . " " . (InStr(vars.searchstrings.clipboard, ";") ? "" : vars.searchstrings.active.3 "/" vars.searchstrings.active.4) . "`n" . LangTrans("omnikey_escape")
 		Case "killtracker":
-			text := "press the omni-key to`nstart the kill-tracker"
+			text := LangTrans("maptracker_kills")
 		Case "lab":
-			text := "-> select lab difficulty`n-> right-click layout image`n-> click <copy image>`noptional:`n-> right-click <lab compass file>`n-> click <copy link address>`n(esc to exit)"
+			text := "-> " . LangTrans("omnikey_labimport") . "`n-> " . LangTrans("omnikey_labimport", 2) . "`n-> " . LangTrans("omnikey_labimport", 3) . "`n-> " . LangTrans("omnikey_labimport", 4) . "`n-> " . LangTrans("omnikey_labimport", 5) . "`n" . LangTrans("omnikey_escape")
 	}
 
 	If vars.tooltip_mouse.timeout && WinActive("ahk_group poe_window") && IsNumber(start) && (A_TickCount >= start + 1000) || GetKeyState("ESC", "P") && (name != "killtracker") || !vars.tooltip_mouse
@@ -988,7 +953,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 		Gui, tooltip_mouse: Color, Black
 		Gui, tooltip_mouse: Margin, % settings.general.fwidth / 2, 0
 		WinSet, Transparent, 255
-		Gui, tooltip_mouse: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+		Gui, tooltip_mouse: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		Gui, tooltip_mouse: Add, Text, % "HWNDhwnd1"(vars.tooltip_mouse.name = "searchstring" ? " w"settings.general.fWidth*14 : ""), % text
 		vars.hwnd.tooltip_mouse := {"main": hwnd, "text": hwnd1}
 	}
@@ -1001,7 +966,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 UpdateCheck(timer := 0) ;checks for updates: timer refers to whether this function was called via the timer or during script-start
 {
 	local
-	global Json, vars
+	global vars, Json
 	
 	vars.update := [0], update := vars.update
 	If !FileExist("update\")
@@ -1247,7 +1212,13 @@ LLK_Error(ErrorMessage, restart := 0)
 
 LLK_FileCheck()
 {
-	If !FileExist("data\Resolutions.ini") || !FileExist("data\Class_CustomFont.ahk") || !FileExist("data\Fontin-SmallCaps.ttf") || !FileExist("data\JSON.ahk") || !FileExist("data\External Functions.ahk") || !FileExist("data\Map mods.ini") || !FileExist("data\Betrayal.json") || !FileExist("data\Atlas.ini") || !FileExist("data\timeless jewels\") || !FileExist("data\leveling tracker\") || !FileExist("data\lang_english.txt")
+	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\"]
+		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
+		{
+			FileDelete, data\%val%
+			FileRemoveDir, data\%val%, 1
+		}
+	If !FileExist("data\") || !FileExist("data\global\") || !FileExist("data\english\") || !FileExist("data\english\UI.txt") || !FileExist("data\english\client.txt")
 		Return 0
 	Else Return 1
 }
@@ -1256,25 +1227,14 @@ LLK_FilePermissionError(issue, folder)
 {
 	local
 
-	text = 
-	(LTrim
-	The script couldn't %issue% a file/folder: %folder%.
-
-	There seem to be write-permission issues in the current folder location.
-	Try moving the script to another location or running it as administrator.
-
-	There is a write-permissions test in the settings menu that you can use to troubleshoot this issue.
-
-	It's highly recommended to fix this issue as many features will not work correctly otherwise.
-	)
-	MsgBox, % text
+	MsgBox, % LangTrans("m_permission_error1", (issue = "create") ? 1 : 2) " " folder "`n`n" LangTrans("m_permission_error1", 3) "`n" LangTrans("m_permission_error1", 4) "`n`n" LangTrans("m_permission_error1", 5) "`n`n" LangTrans("m_permission_error1", 6)
 }
 
-LLK_FileRead(file, keep_case := 0, encoding := "")
+LLK_FileRead(file, keep_case := 0, encoding := "65001")
 {
 	local
 
-	FileRead, read, % (!Blank(encoding) ? "*P"encoding " " : "") file
+	FileRead, read, % (!Blank(encoding) ? "*P" encoding " " : "") file
 	If !keep_case
 		StringLower, read, read
 	Return read
@@ -1309,11 +1269,12 @@ LLK_FontDefault()
 LLK_FontDimensions(size, ByRef font_height_x, ByRef font_width_x)
 {
 	local
+	global vars
 
 	Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
 	Gui, font_size: Margin, 0, 0
 	Gui, font_size: Color, Black
-	Gui, font_size: Font, % "cWhite s"size, Fontin SmallCaps
+	Gui, font_size: Font, % "cWhite s"size, % vars.system.font
 	Gui, font_size: Add, Text, % "Border HWNDhwnd", % "7"
 	GuiControlGet, font_check_, Pos, % hwnd
 	font_height_x := font_check_h
@@ -1324,13 +1285,14 @@ LLK_FontDimensions(size, ByRef font_height_x, ByRef font_width_x)
 LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the height passed to the function
 {
 	local
+	global vars
 
 	Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
 	Gui, font_size: Margin, 0, 0
 	Gui, font_size: Color, Black
 	Loop
 	{
-		Gui, font_size: Font, % "cWhite s"A_Index, Fontin SmallCaps
+		Gui, font_size: Font, % "cWhite s"A_Index, % vars.system.font
 		Gui, font_size: Add, Text, % "Border HWNDhwnd", % "7"
 		ControlGetPos,,, font_width, font_height,, % "ahk_id "hwnd
 		check += (font_height > height) ? 1 : 0
@@ -1454,11 +1416,12 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1)
 LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", header_offset := 0, margins := 1)
 {
 	local
+	global vars
 	
 	Gui, panel_dimensions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
 	Gui, panel_dimensions: Margin, 0, 0
 	Gui, panel_dimensions: Color, Black
-	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", Fontin SmallCaps
+	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", % vars.system.font
 	width := 0, height := 0
 	
 	For key, val in array
@@ -1549,7 +1512,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	Gui, tooltip%name%: Color, Black
 	Gui, tooltip%name%: Margin, % settings.general.fwidth / 2, 0
 	WinSet, Transparent, % trans
-	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", Fontin SmallCaps
+	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
 	vars.hwnd["tooltip"name] := hwnd
 	
 	Gui, tooltip%name%: Add, Text, % "c"color align , % message
