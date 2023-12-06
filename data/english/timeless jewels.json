@@ -1,0 +1,1506 @@
+{
+  "jewels": {
+    "brutal restraint": {
+      "_decoder": [
+        "cold resistance: 20%",
+        "chance to blind: 5%",
+        "maximum life: 4%",
+        "flask charges: 10%",
+        "poison damage: 20%",
+        "non-dmg ailment effect: 10%",
+        "evasion rating: 20%",
+        "crit chance: 25% inc",
+        "minion damage: 20%",
+        "global accuracy: 5%",
+        "non-curse aura effect: 8%",
+        "dexterity: +20",
+        "dexterity: 5%",
+        "f-charge on kill: 5%",
+        "stun avoidance: 20%",
+        "movement speed: 5%",
+        "minion move speed: 15%",
+        "attack + cast speed: 5%",
+        "faster poison damage: 10%",
+        "projectile damage: 20%",
+        "onslaught on kill: 8s",
+        "elemental damage: 20%",
+        "e-ailment duration: 10%",
+        "phys as extra cold: 5%",
+        "alch genius: 25% chance"
+      ],
+      "dance with death": [
+        "asenath",
+        "can't use helmets",
+        "your critical strike chance is lucky",
+        "your damage with critical strikes is lucky",
+        "enemies' damage with critical strikes against you is lucky"
+      ],
+      "second sight": [
+        "nasima",
+        "you are blind",
+        "blind does not affect your light radius",
+        "25% more melee critical strike chance while blinded"
+      ],
+      "the traitor": [
+        "balbala",
+        "flasks gain 4 charges per empty flask slot every 5 seconds"
+      ]
+    },
+    "descriptions": {
+      "alch genius: 25% chance": [
+        "25% chance to gain alchemist's genius when you use a flask",
+        "alchemist's genius increases flask charges gained by 20% and effect of flasks by 10%, for 4 seconds"
+      ],
+      "ancient hex": [
+        "(7-10)% increased effect of your curses",
+        "curse skills have 20% increased skill effect duration"
+      ],
+      "automaton studies": [
+        "(30-40)% increased armour",
+        "(3-4)% additional physical damage reduction"
+      ],
+      "axiom warden": [
+        "minions have 80% increased maximum life"
+      ],
+      "baleful augmentation": [
+        "+50% to lightning resistance"
+      ],
+      "blood-quenched bulwark": [
+        "+5% chance to block attack damage",
+        "+(6-10) life gained when you block"
+      ],
+      "bloody flowers' rebellion": [
+        "80% increased cold damage with attack skills"
+      ],
+      "bloody savagery": [
+        "(25-35)% increased physical damage",
+        "bleeding you inflict deals damage 10% faster"
+      ],
+      "brutal execution": [
+        "+40% to critical strike multiplier"
+      ],
+      "calming devotion": [
+        "15% of physical damage converted to cold damage while you have at least 150 devotion"
+      ],
+      "chainbreaker": [
+        "akoya",
+        "regenerate 3 rage per second",
+        "increases and reductions to mana regeneration rate instead apply to rage regeneration rate",
+        "skills cost +3 rage"
+      ],
+      "chitus' heart": [
+        "80% increased lightning damage with attack skills"
+      ],
+      "city walls": [
+        "+8% chance to block attack damage"
+      ],
+      "cloistered": [
+        "immune to elemental ailments while on consecrated ground if you have at least 150 devotion"
+      ],
+      "commanding presence": [
+        "(7-10)% increased effect of non-curse auras from your skills",
+        "20% increased area of effect of aura skills"
+      ],
+      "construct studies": [
+        "(30-40)% increased evasion rating",
+        "(5-7)% chance to blind enemies on hit"
+      ],
+      "corrupted soul": [
+        "doryani",
+        "50% of non-chaos damage taken bypasses energy shield",
+        "gain 15% of maximum life as extra maximum energy shield"
+      ],
+      "crematorium worker": [
+        "+50% to fire resistance"
+      ],
+      "cult of chaos": [
+        "+(13-19)% to chaos resistance",
+        "+1% to maximum chaos resistance"
+      ],
+      "cult of fire": [
+        "+(20-30)% to fire resistance",
+        "+1% to maximum fire resistance"
+      ],
+      "cult of ice": [
+        "+(20-30)% to cold resistance",
+        "+1% to maximum cold resistance"
+      ],
+      "cult of lightning": [
+        "+(20-30)% to lightning resistance",
+        "+1% to maximum lightning resistance"
+      ],
+      "dance with death": [
+        "asenath",
+        "can't use helmets",
+        "your critical strike chance is lucky",
+        "your damage with critical strikes is lucky",
+        "enemies' damage with critical strikes against you is lucky"
+      ],
+      "dialla's wit": [
+        "15% increased cast speed"
+      ],
+      "discerning taste": [
+        "40% increased rarity of items found"
+      ],
+      "divine flesh": [
+        "xibaqua",
+        "all damage taken bypasses energy shield",
+        "50% of elemental damage taken as chaos damage",
+        "+5% to maximum chaos resistance"
+      ],
+      "enduring faith": [
+        "+1 to minimum endurance charges while you have at least 150 devotion"
+      ],
+      "energy flow studies": [
+        "(8-12)% increased maximum energy shield",
+        "(10-15)% increased energy shield recharge rate"
+      ],
+      "eternal adaptiveness": [
+        "8% increased evasion rating per frenzy charge"
+      ],
+      "eternal bloodlust": [
+        "10% increased damage per frenzy charge"
+      ],
+      "eternal dominance": [
+        "10% increased damage per endurance charge"
+      ],
+      "eternal exploitation": [
+        "10% increased damage per power charge"
+      ],
+      "eternal fervour": [
+        "10% chance to gain a frenzy charge on hit"
+      ],
+      "eternal fortitude": [
+        "8% increased armour per endurance charge"
+      ],
+      "eternal resilience": [
+        "gain 1 endurance charge every second if you've been hit recently"
+      ],
+      "eternal separation": [
+        "4% increased energy shield per power charge"
+      ],
+      "eternal subjugation": [
+        "15% chance to gain a power charge on critical strike"
+      ],
+      "exquisite pain": [
+        "(25-35)% increased damage over time",
+        "(7-11)% increased skill effect duration"
+      ],
+      "flawless execution": [
+        "80% increased critical strike chance"
+      ],
+      "flesh to flames": [
+        "(25-35)% increased fire damage",
+        "10% of physical damage converted to fire damage"
+      ],
+      "flesh to frost": [
+        "(25-35)% increased cold damage",
+        "10% of physical damage converted to cold damage"
+      ],
+      "flesh to lightning": [
+        "(25-35)% increased lightning damage",
+        "10% of physical damage converted to lightning damage"
+      ],
+      "flesh worship": [
+        "(6-10)% increased maximum life",
+        "0.4% of attack damage leeched as life"
+      ],
+      "frenzied faith": [
+        "+1 to minimum frenzy charges while you have at least 150 devotion"
+      ],
+      "freshly brewed": [
+        "20% increased flask effect duration"
+      ],
+      "gemling ambush": [
+        "80% increased critical strike chance for spells"
+      ],
+      "gemling inquisition": [
+        "80% increased spell damage"
+      ],
+      "gemling training": [
+        "80% increased physical damage"
+      ],
+      "geofri's end": [
+        "50% increased damage with bleeding",
+        "bleeding you inflict deals damage 10% faster"
+      ],
+      "gleaming legion": [
+        "80% increased armour"
+      ],
+      "heated devotion": [
+        "15% of physical damage converted to fire damage while you have at least 150 devotion"
+      ],
+      "hierarchy": [
+        "minions deal (25-35)% increased damage",
+        "minions have (15-20)% increased maximum life"
+      ],
+      "immortal ambition": [
+        "ahuana",
+        "energy shield starts at zero",
+        "cannot recharge or regenerate energy shield",
+        "lose 5% of energy shield per second",
+        "life leech effects are not removed when unreserved life is filled",
+        "life leech effects recover energy shield instead while on full life"
+      ],
+      "inner conviction": [
+        "dominus",
+        "3% more spell damage per power charge",
+        "gain power charges instead of frenzy charges"
+      ],
+      "intolerance of sin": [
+        "+1% to all maximum resistances if you have at least 150 devotion"
+      ],
+      "jungle paths": [
+        "(8-10)% chance to avoid elemental ailments",
+        "(8-10)% chance to avoid being stunned"
+      ],
+      "laureate": [
+        "50% increased mana regeneration rate"
+      ],
+      "lioneye's focus": [
+        "80% increased projectile attack damage"
+      ],
+      "martyr's might": [
+        "5% additional physical damage reduction while you have at least 150 devotion"
+      ],
+      "might/legacy of vaal": [
+        "3-4 random offense/defense mods"
+      ],
+      "night of a thousand ribbons": [
+        "80% increased fire damage with attack skills"
+      ],
+      "pooled resources": [
+        "30% increased maximum mana"
+      ],
+      "power of purpose": [
+        "avarius",
+        "80% of maximum mana is converted to twice that much armour"
+      ],
+      "powerful faith": [
+        "+1 to minimum power charges while you have at least 150 devotion"
+      ],
+      "purity rebel": [
+        "+12% chance to suppress spell damage"
+      ],
+      "revitalising darkness": [
+        "(25-35)% increased chaos damage",
+        "0.2% of chaos damage leeched as life"
+      ],
+      "revitalising flames": [
+        "(25-35)% increased fire damage",
+        "0.2% of fire damage leeched as life"
+      ],
+      "revitalising frost": [
+        "(25-35)% increased cold damage",
+        "0.2% of cold damage leeched as life"
+      ],
+      "revitalising lightning": [
+        "(25-35)% increased lightning damage",
+        "0.2% of lightning damage leeched as life"
+      ],
+      "revitalising winds": [
+        "(25-35)% increased physical damage",
+        "0.2% of physical damage leeched as life"
+      ],
+      "rigwald's might": [
+        "80% increased melee physical damage"
+      ],
+      "rites of lunaris": [
+        "30% increased effect of chill"
+      ],
+      "rites of solaris": [
+        "80% chance to avoid being chilled"
+      ],
+      "ritual of flesh": [
+        "(6-10)% increased maximum life",
+        "regenerate (0.7-1.2)% of life per second"
+      ],
+      "ritual of immolation": [
+        "(25-35)% increased fire damage",
+        "damage penetrates (2-4)% fire resistance"
+      ],
+      "ritual of memory": [
+        "(17-23)% increased maximum mana",
+        "(15-25)% increased mana regeneration rate"
+      ],
+      "ritual of might": [
+        "(25-35)% increased physical damage",
+        "(2-4)% chance to deal double damage"
+      ],
+      "ritual of shadows": [
+        "(25-35)% increased chaos damage",
+        "25% chance to inflict withered for 2 seconds on hit"
+      ],
+      "ritual of stillness": [
+        "(25-35)% increased cold damage",
+        "damage penetrates (2-4)% cold resistance"
+      ],
+      "ritual of thunder": [
+        "(25-35)% increased lightning damage",
+        "damage penetrates (2-4)% lightning resistance"
+      ],
+      "robust diet": [
+        "10% increased maximum life"
+      ],
+      "rural life": [
+        "80% chance to avoid being shocked"
+      ],
+      "sceptre pinnacle": [
+        "8% chance to block spell damage"
+      ],
+      "second sight": [
+        "nasima",
+        "you are blind",
+        "blind does not affect your light radius",
+        "25% more melee critical strike chance while blinded"
+      ],
+      "secret tunnels": [
+        "20% chance to avoid elemental ailments"
+      ],
+      "shadowy streets": [
+        "80% increased evasion rating"
+      ],
+      "slum lord": [
+        "minions deal 80% increased damage"
+      ],
+      "smite the heretical": [
+        "10% chance to inflict lightning exposure on hit if you have at least 150 devotion"
+      ],
+      "smite the ignorant": [
+        "10% chance to inflict cold exposure on hit if you have at least 150 devotion"
+      ],
+      "smite the wicked": [
+        "10% chance to inflict fire exposure on hit if you have at least 150 devotion"
+      ],
+      "soul worship": [
+        "(8-12)% increased maximum energy shield",
+        "0.3% of spell damage leeched as energy shield"
+      ],
+      "street urchin": [
+        "+50% to cold resistance"
+      ],
+      "strength of blood": [
+        "kaom",
+        "life recovery from non-instant leech is not applied",
+        "2% additional physical damage reduction for every 3% life recovery per second from leech"
+      ],
+      "superiority": [
+        "12% increased effect of non-curse auras from your skills"
+      ],
+      "supreme decadence": [
+        "cadiro",
+        "life recovery from flasks also applies to energy shield",
+        "30% less life recovery from flasks"
+      ],
+      "supreme grandstanding": [
+        "victario",
+        "nearby allies and enemies share charges with you",
+        "enemies hitting you have 10% chance to gain an endurance, frenzy, or power charge"
+      ],
+      "supreme ostentation": [
+        "caspiro",
+        "ignore attribute requirements",
+        "gain no inherent bonuses from attributes"
+      ],
+      "tempered by war": [
+        "rakiata",
+        "50% of cold and lightning damage taken as fire damage",
+        "50% less cold resistance",
+        "50% less lightning resistance"
+      ],
+      "temple paths": [
+        "+6% chance to suppress spell damage",
+        "+(8-10)% to all elemental resistances"
+      ],
+      "thaumaturgical aptitude": [
+        "(25-35)% increased spell damage",
+        "(35-50)% increased critical strike chance for spells"
+      ],
+      "thaumaturgical protection": [
+        "5% chance to block spell damage",
+        "(20-30)% increased defences from equipped shield"
+      ],
+      "the traitor": [
+        "balbala",
+        "flasks gain 4 charges per empty flask slot every 5 seconds"
+      ],
+      "thoughts and prayers": [
+        "gain 5% of maximum mana as extra maximum energy shield while you have at least 150 devotion"
+      ],
+      "thundrous devotion": [
+        "15% of physical damage converted to lightning damage while you have at least 150 devotion"
+      ],
+      "transcendence": [
+        "maxarius",
+        "armour applies to fire, cold and lightning damage taken from hits instead of physical damage",
+        "-15% to all maximum elemental resistances"
+      ],
+      "virtue gem surgery": [
+        "30% increased effect of shock"
+      ],
+      "voll's coup": [
+        "15% increased attack speed"
+      ],
+      "war games": [
+        "25% increased global accuracy rating"
+      ],
+      "with eyes open": [
+        "+37% to chaos resistance"
+      ],
+      "zealot": [
+        "gain arcane surge on hit with spells if you have at least 150 devotion"
+      ]
+    },
+    "elegant hubris": {
+      "_decoder": [
+        "pooled resources",
+        "flawless execution",
+        "brutal execution",
+        "gleaming legion",
+        "axiom warden",
+        "gemling ambush",
+        "eternal separation",
+        "rigwald's might",
+        "crematorium worker",
+        "gemling inquisition",
+        "dialla's wit",
+        "sceptre pinnacle",
+        "eternal dominance",
+        "discerning taste",
+        "bloody flowers' rebellion",
+        "slum lord",
+        "eternal exploitation",
+        "purity rebel",
+        "lioneye's focus",
+        "shadowy streets",
+        "chitus' heart",
+        "rites of lunaris",
+        "virtue gem surgery",
+        "freshly brewed",
+        "secret tunnels",
+        "baleful augmentation",
+        "gemling training",
+        "rural life",
+        "city walls",
+        "street urchin",
+        "rites of solaris",
+        "geofri's end",
+        "eternal fortitude",
+        "eternal bloodlust",
+        "with eyes open",
+        "superiority",
+        "war games",
+        "laureate",
+        "robust diet",
+        "night of a thousand ribbons",
+        "eternal fervour",
+        "voll's coup",
+        "eternal adaptiveness",
+        "eternal subjugation",
+        "eternal resilience"
+      ],
+      "supreme decadence": [
+        "cadiro",
+        "life recovery from flasks also applies to energy shield",
+        "30% less life recovery from flasks"
+      ],
+      "supreme grandstanding": [
+        "victario",
+        "nearby allies and enemies share charges with you",
+        "enemies hitting you have 10% chance to gain an endurance, frenzy, or power charge"
+      ],
+      "supreme ostentation": [
+        "caspiro",
+        "ignore attribute requirements",
+        "gain no inherent bonuses from attributes"
+      ]
+    },
+    "glorious vanity": {
+      "_decoder": [
+        "might/legacy of vaal",
+        "revitalising frost",
+        "revitalising winds",
+        "commanding presence",
+        "ritual of might",
+        "blood-quenched bulwark",
+        "construct studies",
+        "ritual of flesh",
+        "thaumaturgical protection",
+        "cult of chaos",
+        "flesh to lightning",
+        "flesh to flames",
+        "exquisite pain",
+        "flesh worship",
+        "automaton studies",
+        "soul worship",
+        "thaumaturgical aptitude",
+        "ritual of shadows",
+        "revitalising darkness",
+        "revitalising flames",
+        "hierarchy",
+        "jungle paths",
+        "ritual of memory",
+        "ritual of stillness",
+        "revitalising lightning",
+        "cult of lightning",
+        "cult of fire",
+        "energy flow studies",
+        "temple paths",
+        "bloody savagery",
+        "ritual of immolation",
+        "flesh to frost",
+        "cult of ice",
+        "ancient hex",
+        "ritual of thunder"
+      ],
+      "corrupted soul": [
+        "doryani",
+        "50% of non-chaos damage taken bypasses energy shield",
+        "gain 15% of maximum life as extra maximum energy shield"
+      ],
+      "divine flesh": [
+        "xibaqua",
+        "all damage taken bypasses energy shield",
+        "50% of elemental damage taken as chaos damage",
+        "+5% to maximum chaos resistance"
+      ],
+      "immortal ambition": [
+        "ahuana",
+        "energy shield starts at zero",
+        "cannot recharge or regenerate energy shield",
+        "lose 5% of energy shield per second",
+        "life leech effects are not removed when unreserved life is filled",
+        "life leech effects recover energy shield instead while on full life"
+      ]
+    },
+    "lethal pride": {
+      "_decoder": [
+        "faster ignite damage: 10%",
+        "attack leech: 0.4%",
+        "fire resistance: 20%",
+        "strength: +20",
+        "burn damage: 20%",
+        "melee crit chance: 30%",
+        "physical damage: 20%",
+        "melee damage: 20%",
+        "double damage: 5%",
+        "fortification: +1",
+        "melee crit multi: 15%",
+        "e-charge on kill: 5%",
+        "totem damage: 20%",
+        "stun duration enemy: 20%",
+        "reduced dmg from crits: 10%",
+        "warcry buff effect: 8%",
+        "phys taken as fire: 5%",
+        "life regen: 1%",
+        "strength: 5%",
+        "armor: 20%",
+        "enemy stun threshold: -10%",
+        "phys as extra fire: 5%",
+        "maximum life: 4%",
+        "totem placement speed: 12%",
+        "intimidate on hit: 10%"
+      ],
+      "chainbreaker": [
+        "akoya",
+        "regenerate 3 rage per second",
+        "increases and reductions to mana regeneration rate instead apply to rage regeneration rate",
+        "skills cost +3 rage"
+      ],
+      "strength of blood": [
+        "kaom",
+        "life recovery from non-instant leech is not applied",
+        "2% additional Physical Damage Reduction for every 3% Life Recovery per second from Leech"
+      ],
+      "tempered by war": [
+        "rakiata",
+        "50% of cold and lightning damage taken as fire damage",
+        "50% less cold resistance",
+        "50% less lightning resistance"
+      ]
+    },
+    "militant faith": {
+      "_decoder": [
+        "+5 devotion",
+        "calming devotion",
+        "cloistered",
+        "smite the wicked",
+        "intolerance of sin",
+        "enduring faith",
+        "zealot",
+        "smite the heretical",
+        "thoughts and prayers",
+        "powerful faith",
+        "frenzied faith",
+        "thundrous devotion",
+        "martyr's might",
+        "heated devotion",
+        "smite the ignorant"
+      ],
+      "inner conviction": [
+        "dominus",
+        "3% more spell damage per power charge",
+        "gain power charges instead of frenzy charges"
+      ],
+      "power of purpose": [
+        "avarius",
+        "80% of maximum mana is converted to twice that much armour"
+      ],
+      "transcendence": [
+        "maxarius",
+        "armour applies to fire, cold and lightning damage taken from hits instead of physical damage",
+        "-15% to all maximum elemental resistances"
+      ]
+    }
+  },
+  "notables": [
+    "acrimony",
+    "acuity",
+    "adamant",
+    "adder's touch",
+    "adjacent animosity",
+    "admonisher",
+    "aggressive bastion",
+    "agility",
+    "alacrity",
+    "ambidexterity",
+    "amplify",
+    "ancestral knowledge",
+    "annihilation",
+    "anointed flesh",
+    "arcane capacitor",
+    "arcane chemistry",
+    "arcane expanse",
+    "arcane focus",
+    "arcane guarding",
+    "arcane potency",
+    "arcane sanctuary",
+    "arcane will",
+    "arcanist's dominion",
+    "arcing blows",
+    "arsonist",
+    "art of the gladiator",
+    "ash frost and storm",
+    "aspect of stone",
+    "aspect of the eagle",
+    "aspect of the lynx",
+    "assassination",
+    "assured strike",
+    "asylum",
+    "atrophy",
+    "avatar of the hunt",
+    "backstabbing",
+    "ballistics",
+    "bannerman",
+    "barbarism",
+    "bastion breaker",
+    "battle rouse",
+    "beef",
+    "berserking",
+    "blacksmith's clout",
+    "blade barrier",
+    "blade master",
+    "blade of cunning",
+    "bladedancer",
+    "blast radius",
+    "blast waves",
+    "blood drinker",
+    "blood siphon",
+    "bloodless",
+    "bloodletting",
+    "blunt trauma",
+    "bone breaker",
+    "born to fight",
+    "brand equity",
+    "bravery",
+    "breath of flames",
+    "breath of lightning",
+    "breath of rime",
+    "brink of death",
+    "brinkmanship",
+    "brutal blade",
+    "burning brutality",
+    "butchery",
+    "cannibalistic rite",
+    "careful conservationist",
+    "cauterisation",
+    "champion of the cause",
+    "charisma",
+    "circle of life",
+    "claws of the falcon",
+    "claws of the hawk",
+    "claws of the magpie",
+    "cleansed thoughts",
+    "cleaving",
+    "clever construction",
+    "clever thief",
+    "cloth and chain",
+    "coldhearted calculation",
+    "combat stamina",
+    "command of steel",
+    "concussive force",
+    "conjured barrier",
+    "constitution",
+    "coordination",
+    "corruption",
+    "counterweight",
+    "courage",
+    "crackling speed",
+    "cruel preparation",
+    "crusader",
+    "crystal skin",
+    "dance of blades",
+    "dark arts",
+    "dazzling strikes",
+    "deadly draw",
+    "deadly inclinations",
+    "death attunement",
+    "decay ward",
+    "deep breaths",
+    "deep thoughts",
+    "deep wisdom",
+    "defiance",
+    "defiled forces",
+    "deflection",
+    "depth perception",
+    "dervish",
+    "destroyer",
+    "destructive apparatus",
+    "devastating devices",
+    "devotion",
+    "diamond skin",
+    "dire torment",
+    "dirty techniques",
+    "disciple of the forbidden",
+    "disciple of the slaughter",
+    "disciple of the unyielding",
+    "discipline and training",
+    "discord artisan",
+    "disemboweling",
+    "disintegration",
+    "dismembering",
+    "divine fervour",
+    "divine fury",
+    "divine judgement",
+    "divine wrath",
+    "doom cast",
+    "dreamer",
+    "druidic rite",
+    "dynamo",
+    "eagle eye",
+    "efficient explosives",
+    "elder power",
+    "elemental focus",
+    "empowered bond",
+    "endurance",
+    "enduring bond",
+    "enigmatic defence",
+    "enigmatic reach",
+    "entrench",
+    "entropy",
+    "escalation",
+    "essence extraction",
+    "essence infusion",
+    "essence sap",
+    "essence surge",
+    "ethereal feast",
+    "exceptional performance",
+    "excess sustenance",
+    "executioner",
+    "expeditious munitions",
+    "expert hunter",
+    "expertise",
+    "explosive elements",
+    "explosive impact",
+    "explosive runes",
+    "faith and steel",
+    "fangs of frost",
+    "fangs of the viper",
+    "farsight",
+    "fatal blade",
+    "fatal toxins",
+    "fearsome force",
+    "feller of foes",
+    "fending",
+    "fervour",
+    "field medicine",
+    "finesse",
+    "fingers of frost",
+    "fire walker",
+    "flash freeze",
+    "flaying",
+    "fleetfoot",
+    "force shaper",
+    "forceful skewering",
+    "forces of nature",
+    "foresight",
+    "forethought",
+    "freedom of movement",
+    "frenetic",
+    "from the shadows",
+    "frost walker",
+    "fury bolts",
+    "fusillade",
+    "galvanic hammer",
+    "glacial cage",
+    "gladiator's perseverance",
+    "golem commander",
+    "golem's blood",
+    "goliath",
+    "graceful assault",
+    "grave intentions",
+    "gravepact",
+    "growth and decay",
+    "hard knocks",
+    "hardened scars",
+    "harpooner",
+    "harrier",
+    "harvester of foes",
+    "hatchet master",
+    "heart and soul",
+    "heart of darkness",
+    "heart of flame",
+    "heart of ice",
+    "heart of oak",
+    "heart of the warrior",
+    "heart of thunder",
+    "heartseeker",
+    "hearty",
+    "heavy draw",
+    "hematophagy",
+    "herbalism",
+    "high explosives",
+    "high voltage",
+    "hired killer",
+    "holy dominion",
+    "holy fire",
+    "hunter's gambit",
+    "indomitable army",
+    "inexorable",
+    "influence",
+    "infused flesh",
+    "infused",
+    "insightfulness",
+    "inspiring bond",
+    "instability",
+    "instinct",
+    "intuition",
+    "inveterate",
+    "invigorating blaze",
+    "ironwood",
+    "juggernaut",
+    "kinetic impacts",
+    "king of the hill",
+    "last rites",
+    "lava lash",
+    "leadership",
+    "lethality",
+    "life raker",
+    "light eater",
+    "light of divinity",
+    "lightning walker",
+    "longshot",
+    "lord of the dead",
+    "lust for carnage",
+    "magmatic strikes",
+    "malicious intent",
+    "mana flows",
+    "mark the prey",
+    "marked for death",
+    "martial experience",
+    "master fletcher",
+    "master of blades",
+    "master of the arena",
+    "master sapper",
+    "measured fury",
+    "melding",
+    "mental rapidity",
+    "merciless skewering",
+    "might",
+    "mind drinker",
+    "multishot",
+    "mystic bulwark",
+    "mystic talents",
+    "mysticism",
+    "natural authority",
+    "natural remedies",
+    "nightstalker",
+    "nimbleness",
+    "one with nature",
+    "one with the river",
+    "overcharge",
+    "overcharged",
+    "overprepared",
+    "pain forger",
+    "panopticon",
+    "path of the hunter",
+    "path of the savant",
+    "path of the warrior",
+    "perfectionist",
+    "persistence",
+    "physique",
+    "piercing shots",
+    "poisonous fangs",
+    "potency of will",
+    "potent connections",
+    "powerful bond",
+    "practical application",
+    "precision",
+    "presage",
+    "primal manifestation",
+    "primal spirit",
+    "primeval force",
+    "prism weave",
+    "prismatic skin",
+    "prodigal perfection",
+    "profane chemistry",
+    "proficiency",
+    "prowess",
+    "purity of flesh",
+    "quick recovery",
+    "quickstep",
+    "rampart",
+    "ravenous horde",
+    "razor's edge",
+    "redemption",
+    "reflexes",
+    "relentless pursuit",
+    "relentless",
+    "replenishing remedies",
+    "resourcefulness",
+    "retaliation",
+    "retribution",
+    "revelry",
+    "revenge of the hunted",
+    "ribcage crusher",
+    "righteous army",
+    "righteous decree",
+    "righteous fury",
+    "robust",
+    "runesmith",
+    "saboteur",
+    "sacrifice",
+    "safeguard",
+    "sanctity",
+    "sanctuary",
+    "sanctum of thought",
+    "savage wounds",
+    "savagery",
+    "searing heat",
+    "season of ice",
+    "seasoned swordplay",
+    "sentinel",
+    "serpent stance",
+    "serpentine spellslinger",
+    "settling ash",
+    "shaman's dominion",
+    "shamanistic fury",
+    "shaper",
+    "silent steps",
+    "skittering runes",
+    "skull cracking",
+    "slaughter",
+    "sleight of hand",
+    "smashing strikes",
+    "snowforged",
+    "soul of steel",
+    "soul siphon",
+    "soul thief",
+    "sovereignty",
+    "spiked bulwark",
+    "spinecruncher",
+    "spirit void",
+    "spiritual aid",
+    "spiritual command",
+    "split shot",
+    "stamina",
+    "static blows",
+    "steadfast",
+    "steelwood stance",
+    "steeped in the profane",
+    "storm weaver",
+    "strong arm",
+    "successive detonations",
+    "surge of vigour",
+    "surveillance",
+    "survivalist",
+    "swagger",
+    "swift venoms",
+    "taste for blood",
+    "tempest blast",
+    "tenacity",
+    "testudo",
+    "thick skin",
+    "thief's craft",
+    "thrill killer",
+    "throatseeker",
+    "tireless",
+    "titanic impacts",
+    "tolerance",
+    "totemic zeal",
+    "toxic strikes",
+    "tranquility",
+    "trial of the faith",
+    "tribal fury",
+    "trick shot",
+    "trickery",
+    "true strike",
+    "twin terrors",
+    "undertaker",
+    "unfaltering",
+    "unnatural calm",
+    "unstable munitions",
+    "utmost intellect",
+    "utmost might",
+    "utmost swiftness",
+    "vampirism",
+    "vanquisher",
+    "vengeant cascade",
+    "versatility",
+    "veteran soldier",
+    "vigour",
+    "vitality void",
+    "void barrier",
+    "volatile mines",
+    "wandslinger",
+    "warrior training",
+    "warrior's blood",
+    "wasting",
+    "watchtowers",
+    "way of the warrior",
+    "weapon artistry",
+    "weathered hunter",
+    "whirling barrier",
+    "whispers of doom",
+    "will of blades",
+    "window of opportunity",
+    "winter spirit",
+    "winter's embrace",
+    "wisdom of the glade",
+    "wrecking ball",
+    "written in blood"
+  ],
+  "sockets": {
+    "blunt trauma": {
+      "nodes": [
+        "might",
+        "arcane guarding",
+        "death attunement",
+        "serpent stance",
+        "acrimony",
+        "corruption",
+        "empowered bond",
+        "fearsome force",
+        "defiled forces",
+        "unnatural calm",
+        "agility",
+        "prism weave",
+        "blunt trauma",
+        "enigmatic reach"
+      ],
+      "x": "0.215",
+      "y": "0.02"
+    },
+    "call to arms": {
+      "nodes": [
+        "executioner",
+        "steadfast",
+        "tribal fury",
+        "champion of the cause",
+        "blade of cunning",
+        "bannerman",
+        "bastion breaker"
+      ],
+      "x": "0.201",
+      "y": "0.927"
+    },
+    "cleaving": {
+      "nodes": [
+        "aggressive bastion",
+        "cleaving",
+        "spiked bulwark",
+        "slaughter",
+        "harpooner",
+        "savage wounds",
+        "hearty",
+        "robust",
+        "juggernaut",
+        "strong arm",
+        "stamina",
+        "barbarism",
+        "cannibalistic rite",
+        "disemboweling",
+        "lust for carnage",
+        "warrior training",
+        "diamond skin"
+      ],
+      "x": "0.06",
+      "y": "0.62"
+    },
+    "divine shield": {
+      "nodes": [
+        "skull cracking",
+        "vanquisher",
+        "sanctum of thought",
+        "counterweight",
+        "bone breaker",
+        "whirling barrier",
+        "smashing strikes",
+        "shamanistic fury",
+        "disemboweling"
+      ],
+      "x": "0.002",
+      "y": "0.461"
+    },
+    "eldritch battery": {
+      "nodes": [
+        "light eater",
+        "physique",
+        "influence",
+        "fusillade",
+        "whispers of doom",
+        "alacrity",
+        "searing heat",
+        "elder power",
+        "winter's embrace",
+        "efficient explosives",
+        "mysticism",
+        "conjured barrier",
+        "arcane sanctuary",
+        "throatseeker",
+        "disintegration",
+        "high voltage",
+        "glacial cage"
+      ],
+      "x": "0.743",
+      "y": "0.019"
+    },
+    "elemental equilibrium": {
+      "nodes": [
+        "avatar of the hunt",
+        "burning brutality",
+        "crystal skin",
+        "profane chemistry",
+        "heavy draw",
+        "art of the gladiator",
+        "deadly draw",
+        "weathered hunter",
+        "gladiator's perseverance"
+      ],
+      "x": "0.581",
+      "y": "0.687"
+    },
+    "eternal youth": {
+      "nodes": [
+        "sanctuary",
+        "combat stamina",
+        "dynamo",
+        "sanctity",
+        "gravepact",
+        "expertise",
+        "steelwood stance",
+        "deep breaths",
+        "ancestral knowledge",
+        "righteous fury",
+        "blacksmith's clout",
+        "inspiring bond"
+      ],
+      "x": "0.241",
+      "y": "0.453"
+    },
+    "ghost dance": {
+      "nodes": [
+        "from the shadows",
+        "arcing blows",
+        "clever thief",
+        "backstabbing",
+        "claws of the hawk",
+        "coldhearted calculation",
+        "infused",
+        "blood drinker",
+        "soul thief",
+        "mark the prey",
+        "will of blades",
+        "flaying",
+        "resourcefulness",
+        "frenetic",
+        "elemental focus",
+        "mind drinker",
+        "fangs of the viper",
+        "saboteur",
+        "master of blades",
+        "depth perception",
+        "circle of life",
+        "claws of the magpie",
+        "expeditious munitions",
+        "sleight of hand"
+      ],
+      "x": "0.887",
+      "y": "0.334"
+    },
+    "hex master": {
+      "nodes": [
+        "enigmatic defence",
+        "heart of ice",
+        "mental rapidity",
+        "prodigal perfection",
+        "breath of lightning",
+        "breath of flames",
+        "mystic bulwark",
+        "instability",
+        "breath of rime",
+        "cruel preparation",
+        "wandslinger",
+        "deep thoughts",
+        "arcane will",
+        "lord of the dead",
+        "golem commander",
+        "malicious intent",
+        "discord artisan",
+        "infused flesh",
+        "presage",
+        "frost walker",
+        "heart of thunder",
+        "essence surge"
+      ],
+      "x": "0.482",
+      "y": "0.062"
+    },
+    "iron grip": {
+      "nodes": [
+        "window of opportunity",
+        "battle rouse",
+        "path of the warrior",
+        "skittering runes",
+        "sentinel",
+        "path of the hunter",
+        "arcane chemistry",
+        "reflexes",
+        "hired killer",
+        "exceptional performance",
+        "constitution",
+        "totemic zeal"
+      ],
+      "x": "0.473",
+      "y": "0.521"
+    },
+    "iron will": {
+      "nodes": [
+        "potency of will",
+        "foresight",
+        "dreamer",
+        "path of the warrior",
+        "skittering runes",
+        "decay ward",
+        "forethought",
+        "relentless",
+        "path of the savant",
+        "potent connections",
+        "ash frost and storm",
+        "veteran soldier",
+        "constitution",
+        "inspiring bond",
+        "totemic zeal",
+        "shaper"
+      ],
+      "x": "0.428",
+      "y": "0.441"
+    },
+    "measured fury": {
+      "nodes": [
+        "surveillance",
+        "golem's blood",
+        "vigour",
+        "revelry",
+        "deflection",
+        "assured strike",
+        "cloth and chain",
+        "savagery",
+        "ribcage crusher",
+        "dervish",
+        "titanic impacts",
+        "master of the arena",
+        "destroyer",
+        "measured fury",
+        "testudo",
+        "bravery",
+        "art of the gladiator",
+        "adamant",
+        "defiance",
+        "mana flows",
+        "dirty techniques",
+        "fury bolts"
+      ],
+      "x": "0.473",
+      "y": "0.847"
+    },
+    "mind over matter": {
+      "nodes": [
+        "asylum",
+        "enduring bond",
+        "arcanist's dominion",
+        "anointed flesh",
+        "quick recovery",
+        "essence infusion",
+        "fire walker",
+        "annihilation",
+        "essence extraction"
+      ],
+      "x": "0.354",
+      "y": "0.243"
+    },
+    "pain attunement": {
+      "nodes": [
+        "nimbleness",
+        "tolerance",
+        "vampirism",
+        "melding",
+        "undertaker",
+        "deep wisdom",
+        "steeped in the profane",
+        "grave intentions"
+      ],
+      "x": "0.612",
+      "y": "0.259"
+    },
+    "perfect agony": {
+      "nodes": [
+        "from the shadows",
+        "forces of nature",
+        "split shot",
+        "clever thief",
+        "hunter's gambit",
+        "multishot",
+        "silent steps",
+        "perfectionist",
+        "piercing shots",
+        "survivalist",
+        "fatal toxins",
+        "careful conservationist",
+        "mark the prey",
+        "trick shot",
+        "inveterate",
+        "heartseeker"
+      ],
+      "x": "0.93",
+      "y": "0.475"
+    },
+    "point blank": {
+      "nodes": [
+        "twin terrors",
+        "dazzling strikes",
+        "longshot",
+        "thick skin",
+        "marked for death",
+        "feller of foes",
+        "blade barrier",
+        "fangs of frost",
+        "utmost swiftness",
+        "bladedancer"
+      ],
+      "x": "0.732",
+      "y": "0.935"
+    },
+    "solipsism": {
+      "nodes": [
+        "potency of will",
+        "foresight",
+        "window of opportunity",
+        "master sapper",
+        "path of the hunter",
+        "destructive apparatus",
+        "true strike",
+        "harrier",
+        "path of the savant",
+        "reflexes",
+        "potent connections",
+        "thrill killer",
+        "hired killer",
+        "exceptional performance",
+        "leadership"
+      ],
+      "x": "0.519",
+      "y": "0.441"
+    },
+    "supreme ego": {
+      "nodes": [
+        "charisma",
+        "master sapper",
+        "dire torment",
+        "adder's touch",
+        "wasting",
+        "overcharged",
+        "void barrier",
+        "ballistics",
+        "replenishing remedies",
+        "revenge of the hunted",
+        "taste for blood",
+        "excess sustenance"
+      ],
+      "x": "0.697",
+      "y": "0.482"
+    },
+    "the agnostic": {
+      "nodes": [
+        "endurance",
+        "divine judgement",
+        "divine wrath",
+        "runesmith",
+        "sanctum of thought",
+        "surge of vigour",
+        "divine fervour",
+        "holy dominion",
+        "overcharge",
+        "faith and steel",
+        "devotion",
+        "divine fury",
+        "powerful bond",
+        "arcane capacitor",
+        "smashing strikes",
+        "light of divinity"
+      ],
+      "x": "0.062",
+      "y": "0.322"
+    },
+    "unwavering stance": {
+      "nodes": [
+        "eagle eye",
+        "berserking",
+        "bloodletting",
+        "martial experience",
+        "admonisher",
+        "command of steel",
+        "prismatic skin",
+        "brink of death"
+      ],
+      "x": "0.336",
+      "y": "0.682"
+    },
+    "wind dancer": {
+      "nodes": [
+        "quickstep",
+        "forces of nature",
+        "weapon artistry",
+        "swift venoms",
+        "multishot",
+        "flash freeze",
+        "silent steps",
+        "perfectionist",
+        "herbalism",
+        "survivalist",
+        "aspect of the lynx",
+        "intuition",
+        "winter spirit",
+        "trick shot",
+        "fervour",
+        "king of the hill",
+        "acuity",
+        "master fletcher",
+        "inveterate",
+        "heartseeker"
+      ],
+      "x": "0.881",
+      "y": "0.586"
+    }
+  }
+}

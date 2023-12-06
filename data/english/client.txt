@@ -1,1 +1,341 @@
+;#####################################################
+;## general information/instructions
+;#####################################################
 
+;## purpose of this file
+	;## the script uses this file to detect specific word patterns in data that was copied from the game-client in order to extract information
+	;## these patterns used to be hard-coded for English only, but they are now exposed in this txt-file and can be adapted to new target languages
+
+
+;## file structure
+	;## the script ignores TABs, empty lines, as well as lines/sections marked as comments (;##)
+	;## each non-comment line in this file is a key/value pair, divided into two parts:
+		;##	key			=	"value"
+		;## the value has to be enclosed in quotation marks
+		;## the value itself can still contain quotation marks, e.g. key = "Guff "Tiny" Grenn" (just make sure the total number of quotation marks is even)
+		;## to leave a value blank, set it to "0" (there will be examples of this further below)
+
+
+;## how to translate/localize the data in this file
+	;## NEVER edit the key of a line, i.e. whatever is left of the equal sign
+	;## if a value contains an abbreviation or text-string that's not immediately clear, look at the key-name for more context (e.g. global_calibrate = "cal")
+	;## the majority of values in this file are text-strings as they are displayed in game, so you'll have to replace them with the ones from the target language
+
+
+;## some notation remarks
+	;## AutoHotkey-specific:
+		;## in order to add ampersands (&) to a string, include double ampersands in the value, e.g. key = "this && that"
+	;## custom notations:
+		;## in order to add line-breaks to a string, include ";" in the value, e.g. "line 1;line2"
+		;## I use "<>" as a replacement for quotation marks because they look better when using Fontin Smallcaps
+
+
+;## syntax differences
+	;## depending on the target language, info-extraction from the game-client has to be adjusted
+	;## generally, the script looks for certain patterns to determine what kind of information is present within the data copied from the client
+	;## I know enough German to supply some edge-case examples/requirements for syntax-structures that differ from English, but not enough to add complete support for German game-clients
+	;## use these examples to adjust the language-file to your own language:
+
+	;## with an English client, "You have entered Highgate." will be displayed whenever you enter Highgate
+		;## the script uses this key-value pair to extract the location-name from the text in the chat-window:
+		;## 		log_enter	=	"You have entered"
+		;## the script recognizes "You have entered", then 'knows' that the rest of the sentence is the location-name (so white-space and everything else will be removed)
+
+	;## with a German client, "Ihr habt 'Hohenpforte' betreten." will be displayed instead
+		;## so the script has to look for "Ihr habt" and "betreten" instead, then remove them to extract the location-name
+		;## to let the script 'know' of this structural difference, placeholders have to be included in the value
+		;## simply add one or more placeholders in the correct spots:
+		;##		log_enter	=	"Ihr habt # betreten"
+
+
+
+;#####################################################
+;## system-settings
+;#####################################################
+
+;## these are some global system-settings that are dependant on the target language
+		system_font			=	"Fontin SmallCaps"		;## except for Fontin SmallCaps, the specified font-type has to be installed on the system
+		system_fullstop			=	"."				;## the type of punctuation mark the language uses at the end of a sentence (e.g. Japanese uses a different fullstop)
+		system_poedb_lang		=	"us"				;## which language to use on poedb (available: tw, cn, kr, us, jp, ru, po, th, fr, de, es)
+		system_poedb_lang		=	"modifiers"			;## it's the localized name of this section on poeDB: https://poedb.tw/us/Modifiers
+
+
+;#####################################################
+;## credits: contributors
+;#####################################################
+
+;## these names will be shown in a tooltip when hovering over the "credits" label	;## the tooltip is segmented into smaller boxes
+		contributor			=	"lailloken"			;## you can add additional <contributor> lines, and each value will have its own box
+
+
+
+;#####################################################
+;## mapping-related strings
+;#####################################################
+
+;## these strings will be used in the mapping-tracker to add more information to log-entries
+;## these strings will be added, so instead of only displaying "bunker", the entry will read "heist: bunker"
+		maps_heist			=	"heist"
+		maps_logbook			=	"logbook"
+		maps_delirium			=	"simulacrum"
+		maps_boss			=	"boss"
+
+;## these strings will replace certain map names entirely, e.g. <boss: elder> instead of <absence of value and meaning>
+		maps_maven_invitation		=	"maven invitation"
+		maps_maven			=	"maven"
+		maps_hunger			=	"infinite hunger"
+		maps_blackstar			=	"black star"
+		maps_exarch			=	"searing exarch"
+		maps_eater			=	"eater of worlds"
+		maps_shaper			=	"shaper"
+		maps_elder			=	"elder"
+		maps_elder			=	"uber elder"
+		maps_oshabi			=	"oshabi"
+		maps_atziri			=	"atziri"
+		maps_atziri			=	"uber atziri"
+		maps_sirus			=	"sirus"
+
+;## these strings are shown in the map-info panel
+		maps_stats			=	"m#q#p#r"		;## these stand for modifiers, quantity, pack-size, rarity
+
+
+
+
+
+;#####################################################
+;## character tracking
+;#####################################################
+
+;## the script continually looks for patterns in the client.txt log-file generated by the game in order to track various statistics
+;## replace the English text-strings with the corresponding ones from the target language
+;## REMINDERS: case-sensitivity, match text in chat-window
+		log_location			=	"0"				;## certain languages may highlight location-names with characters that the script has to remove (German uses apostrophes: 'Hohenpforte'). English doesn't, so the value stays blank.
+		log_enter			=	"You have entered"		;## as mentioned earlier, this key may need placeholders depending on the target language
+		log_level			=	"is now level"
+		log_slain			=	"has been slain"		;## when your character dies
+		log_suicide			=	"has committed suicide"		;## when your character dies from self-damage
+		log_killed			=	"You have killed # monsters"	;## when activating the "/kills" command
+
+;## these strings are required to make tracking in the lab-overlay possible on non-English clients
+;## these are not case-sensitive but still need to match the in-game names 1:1
+		lab_aspirant's trial		=	"aspirant's trial"
+		lab_basilica annex		=	"basilica annex"
+		lab_basilica atrium		=	"basilica atrium"
+		lab_basilica halls		=	"basilica halls"
+		lab_basilica passage		=	"basilica passage"
+		lab_domain crossing		=	"domain crossing"
+		lab_domain enclosure		=	"domain enclosure"
+		lab_domain path			=	"domain path"
+		lab_domain walkways		=	"domain walkways"
+		lab_estate crossing		=	"estate crossing"
+		lab_estate enclosure		=	"estate enclosure"
+		lab_estate path			=	"estate path"
+		lab_estate walkways		=	"estate walkways"
+		lab_mansion annex		=	"mansion annex"
+		lab_mansion atrium		=	"mansion atrium"
+		lab_mansion halls		=	"mansion halls"
+		lab_mansion passage		=	"mansion passage"
+		lab_sanitorium annex		=	"sanitorium annex"
+		lab_sanitorium atrium		=	"sanitorium atrium"
+		lab_sanitorium halls		=	"sanitorium halls"
+		lab_sanitorium passage		=	"sanitorium passage"
+		lab_sepulchre annex		=	"sepulchre annex"
+		lab_sepulchre atrium		=	"sepulchre atrium"
+		lab_sepulchre halls		=	"sepulchre halls"
+		lab_sepulchre passage		=	"sepulchre passage"
+
+
+
+;#####################################################
+;## league-content tracking via dialogue
+;#####################################################
+
+;## colons are included in the value and not hard-coded (just in case a language uses a different punctuation mark), so pay attention to how text is displayed in the chat-window
+;## don't leave out the punctuation mark because it's important for accuracy and to avoid unwanted matches (especially Rog)
+;## REMINDER: case-sensitivity, match text in chat-window
+		log_blight			=	"Sister Cassia:"
+		log_delirium			=	"Strange Voice:"
+		log_harvest			=	"Oshabi:"
+		log_incursion			=	"Alva, Master Explorer:"
+		log_bestiary			=	"Einhar, Beastmaster:"
+		log_delve			=	"Niko, Master of the Depths:"
+		log_betrayal			=	"Jun, Veiled Master:"
+		log_betrayal			=	"Aisling Laffrey, The Silent Butcher:"
+		log_betrayal			=	"Cameria the Coldblooded:"
+		log_betrayal			=	"Elreon, Light's Judge:"
+		log_betrayal			=	"Gravicius Reborn:"
+		log_betrayal			=	"Guff "Tiny" Grenn:"
+		log_betrayal			=	"Haku, Warmaster:"
+		log_betrayal			=	"Hillock, the Blacksmith:"
+		log_betrayal			=	"It That Fled:"
+		log_betrayal			=	"Janus Perandus:"
+		log_betrayal			=	"Thane Jorgin the Banished:"
+		log_betrayal			=	"Korell Goya, Son of Stone:"
+		log_betrayal			=	"Leo, Wolf of the Pits:"
+		log_betrayal			=	"Riker Maloney, Midnight Tinkerer:"
+		log_betrayal			=	"Rin Yuushu:"
+		log_betrayal			=	"Tora, the Culler:"
+		log_betrayal			=	"Vagan, Victory's Herald:"
+		log_betrayal			=	"Vorici, Silent Brother:"
+		log_ultimatum			=	"The Trialmaster:"
+		log_maven			=	"The Maven:"
+
+;## expedition note: there is a difference in displayed names depending on whether the NPCs greet you when they first see you in a map (Gwennen, the Gambler) or whether the encounter has finished (Gwennen)
+;## always use the name displayed when they greet you
+		log_expedition			=	"Dannig, Warrior Skald:"
+		log_expedition			=	"Gwennen, the Gambler:"
+		log_expedition			=	"Rog:"				;## for some reason, Rog is always displayed as simply "Rog", regardless of when he speaks (at least in English)
+		log_expedition			=	"Tujen, the Haggler:"
+
+
+
+;#####################################################
+;## item-related strings
+;#####################################################
+
+;## the script checks which item is being right- or omni-clicked
+;## REMINDER: case-sensitivity, match text in item-tooltip
+;## NOTE: the following sections are divided into groups depending on where to find the required patterns (to make it simpler), but the script itself always checks the text copied from the game via ALT + CTRL + C
+;## NOTE: it's possible that there's a difference in the ALT-CTRL-C text and the easier-to-find text (e.g. German tooltips display "ss" whenever the ALT-CTRL-C text contains "ß"), so be aware of that if the target language has such variations
+
+;## these strings are displayed in the in-game tooltip when hovering over an item
+		items_unidentified		=	"Unidentified"
+		items_unmodifiable		=	"Unmodifiable"						;## example: memories (atlas item), sanctum relics
+		items_corrupted			=	"Corrupted"
+		items_mirrored			=	"Mirrored"
+		items_unequippable		=	"You cannot use this item. Its stats will be ignored"	;## when you equip an item, then lower your attributes below its requirements
+		items_armour			=	"Armour:"
+		items_evasion			=	"Evasion Rating:"
+		items_energy			=	"Energy Shield:"
+		items_ward			=	"Ward:"
+		items_aps			=	"Attacks per Second:"
+		items_quality			=	"Quality:"
+		items_phys_dmg			=	"Physical Damage:"
+		items_ele_dmg			=	"Elemental Damage:"
+		items_chaos_dmg			=	"Chaos Damage:"
+		items_maptier			=	"Map Tier:"
+		items_mapquantity		=	"Item Quantity:"
+		items_maprarity			=	"Item Rarity:"
+		items_mappacksize		=	"Monster Pack Size:"
+		items_stack			=	"Stack Size:"
+		items_mapname			=	"# Map"							;## the format of map-items, e.g. Frozen River Map (German, for example, uses 'Frozen River'-Map)
+
+
+;## these strings are displayed in the in-game tooltip when hovering over an item and holding the hotkey for advanced item descriptions (usually ALT)
+		items_prefix			=	"Prefix Modifier"
+		items_suffix			=	"Suffix Modifier"
+		items_affix			=	""#""					;## in my limited testing, I only found Japanese to use something other than quotation marks (「#」)
+		items_uniquemod			=	"Unique Modifier"
+		items_implicit			=	"Implicit Modifier"
+		items_implicit_exarch		=	"Searing Exarch Implicit Modifier"
+		items_implicit_eater		=	"Eater of Worlds Implicit Modifier"
+		items_implicit_vaal		=	"Corruption Implicit Modifier"
+		items_implicit_tiers		=	"Lesser"				;## the six types of eldritch-implicit tiers, in ascending order
+		items_implicit_tiers		=	"Greater"
+		items_implicit_tiers		=	"Grand"
+		items_implicit_tiers		=	"Exceptional"
+		items_implicit_tiers		=	"Exquisite"
+		items_implicit_tiers		=	"Perfect"
+		items_tier			=	"Tier:"					;## this refers to modifier tiers, usually displayed as "(Tier: X)"
+		items_unscalable		=	"Unscalable Value"			;## this is displayed next to certain modifiers, e.g. "Hits cannot be evaded", "Socketed gems are supported by XYZ"
+
+
+;## these strings are displayed in the item-text when copying advanced item descriptions into clipboard (usually ALT + CTRL + C)
+		items_ilevel			=	"Item Level:"
+
+		items_requirements		=	"Requirements:"			;## important: every string in the following block has to match the one in the "Rarity: XYZ" line in the clipboard-info
+		items_level			=	"Level:"
+		items_str			=	"Strength:"			;## for some reason, unidentified items show full attribute-strings, while ID'd ones show abbreviations
+		items_str			=	"Str:"
+		items_dex			=	"Dexterity:"
+		items_dex			=	"Dex:"
+		items_int			=	"Intelligence:"
+		items_int			=	"Int:"
+;## -----------------------------------------------------------------------------------
+		items_rarity			=	"Rarity:"			;## important: every string in the following block has to match the one in the "Rarity: XYZ" line in the clipboard-info
+		items_rare			=	"Rare"				;## do not mix these strings with those from the "Item Class: XYZ" line (class and rarity are sometimes similar but not 100% the same)
+		items_unique			=	"Unique"
+		items_normal			=	"Normal"
+		items_magic			=	"Magic"
+		items_gem			=	"Gem"
+		items_currency			=	"Currency"
+;## -----------------------------------------------------------------------------------
+		items_class			=	"Item Class:"			;## important: every string in the following lines has to match the one in the "Item Class: XYZ" line in the clipboard-info
+		items_heist brooches		=	"Heist Brooches"
+		items_heist cloaks		=	"Heist Cloaks"
+		items_heist gear		=	"Heist Gear"
+		items_heist tools		=	"Heist Tools"
+
+
+;## these are mod-related strings, e.g. "+X to Armour", "+X to maximum Energy Shield"
+		mods_cluster_enchant		=	"Adds # Passive Skills"		;## the first line on cluster jewels: "Adds X Passive Skills (enchant)"
+
+		mods_cluster_passive		=	"Added Small Passive Skills grant:"
+		mods_cluster_passive		=	"Added Small Passive Skills also grant:"
+		mods_cluster_passive		=	"1 Added Passive Skill is"	;## when a mod provides a notable, e.g. "1 Added Passive Skill is Magnifier"
+
+		mods_cluster_remove		=	"Dagger Attacks deal increased Damage with Hits and Ailments"		;## the %-values need to be removed from this block of values ("deal x% damage" -> "deal damage")
+		mods_cluster_remove		=	"Sword Attacks deal increased Damage with Hits and Ailments"		;## the usual # as a placeholder for the %-value doesn't work here
+		mods_cluster_remove		=	"Mace or Sceptre Attacks deal increased Damage with Hits and Ailments"	;## these are specific cluster-enchants that have two lines because they affect multiple item-classes
+		mods_cluster_remove		=	"increased Mana Recovery from Flasks"					;## one line will be removed, the other will be edited in order to make the tooltip more compact
+
+		mods_cluster_replace		=	"Axe Attacks"				;## these values are groups of two, where the first string will be replaced with the second
+		mods_cluster_replace		=	"Axe && Sword Attacks"			;## so instead of displaying two lines, the tooltip will display:
+		mods_cluster_replace		=	"Staff Attacks"				;## Axe & Sword Attacks deal increased Damage with Hits and Ailments
+		mods_cluster_replace		=	"Staff, Mace or Sceptre Attacks"
+		mods_cluster_replace		=	"Claw Attacks"
+		mods_cluster_replace		=	"Claw && Dagger Attacks"
+		mods_cluster_replace		=	"Life Recovery"
+		mods_cluster_replace		=	"Life && Mana Recovery"
+		mods_cluster_replace		=	"Damage Over Time"
+		mods_cluster_replace		=	"DoT"					;## if the target language doesn't have a common abbreviation, simply leave both values as they are
+
+		mods_cluster_replace		=	"to # Resistance"			;## these resistance strings need to be replaced because cluster-enchants are displayed without value
+		mods_cluster_replace		=	"# Resistance"				;## instead of "+15% to Cold Resistance", the tooltip will simply display "Cold Resistance" (since enchants don't have rolls)
+												;## if the target language doesn't have a preposition that needs to be removed, simply leave both values as they are
+
+		mods_blight_enchant		=	"Allocates"				;## e.g. "Allocates Tribal Fury"
+
+		mods_eldritch_condition		=	"While a # is in your Presence,"	;## the condition for certain eldritch implicits, e.g. "While a Unique Enemy is in your Presence, +2 to maximum Cold Resistance"
+
+		mods_eldritch_interval		=	", no more than once every # seconds"	;## the script changes this line into "(X sec)" to be more compact
+
+		mods_eldritch_targets		=	"Non-Vaal Strike Skills target # additional nearby"	;## this mod has two versions (enemy & enemies), so shorten this string and insert placeholders until the remainder matches both versions
+
+		mods_implicit_vendor		=	"Item sells for much more to vendors"			;## delve implicit
+
+		mods_qual_enchant		=	"Quality does not increase Defences"			;## harvest enchant
+		mods_armour_flat		=	"+# to Armour"
+		mods_evasion_flat		=	"+# to Evasion Rating"
+		mods_energy_flat		=	"+# to maximum Energy Shield"
+		mods_ward_flat			=	"+# to Ward"
+
+		mods_armour_%			=	"% increased Armour"
+		mods_evasion_%			=	"% increased Evasion Rating"
+		mods_energy_%			=	"% increased Energy Shield"
+		mods_ward_%			=	"% increased Ward"
+		mods_armour_evasion_%		=	"% increased Armour and Evasion"
+		mods_armour_energy_%		=	"% increased Armour and Energy Shield"
+		mods_evasion_energy_%		=	"% increased Evasion and Energy Shield"
+		mods_armour_evasion_energy_%	=	"% increased Armour, Evasion and Energy Shield"		;## crafting bench
+
+		mods_contract_alert		=	"per # Alert Level"				;## there are alert-specific mods on contracts
+		mods_memory_magnitude		=	"increased Explicit Modifier magnitudes"	;## atlas memories have an enchant that multiplies mod-values
+
+
+;## these are the names on Timeless Jewels, just in case the target language uses localized names
+		seed_conquerors			=	"asenath"	;## it's important keep the order as is
+		seed_conquerors			=	"balbala"
+		seed_conquerors			=	"nasima"
+		seed_conquerors			=	"cadiro"
+		seed_conquerors			=	"caspiro"
+		seed_conquerors			=	"victario"
+		seed_conquerors			=	"ahuana"
+		seed_conquerors			=	"doryani"
+		seed_conquerors			=	"xibaqua"
+		seed_conquerors			=	"akoya"
+		seed_conquerors			=	"kaom"
+		seed_conquerors			=	"rakiata"
+		seed_conquerors			=	"avarius"
+		seed_conquerors			=	"dominus"
+		seed_conquerors			=	"maxarius"

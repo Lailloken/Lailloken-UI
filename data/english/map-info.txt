@@ -1,0 +1,699 @@
+[Map Names]
+Maven's Invitation: The Feared		=	The Feared
+Maven's Invitation: The Forgotten	=	The Forgotten
+Maven's Invitation: The Formed		=	The Formed
+Maven's Invitation: The Hidden		=	The Hidden
+Maven's Invitation: The Twisted		=	The Twisted
+Maven's Invitation: The Elderslayers	=	The Elderslayers
+Maven's Invitation: The Atlas		=	Atlas Invitation
+Expedition Logbook			=	Logbook
+
+[mod types]
+player
+monsters
+bosses
+area
+heist
+
+[expedition groups]
+black scythe mercenaries	=	tujen
+order of the chalice		=	rog
+druids of the broken circle	=	gwennen
+knights of the sun		=	dannig
+
+[expedition areas]
+battleground graves
+bluffs
+cemetery
+desert ruins
+dried riverbed
+forest ruins
+karui wargraves
+mountainside
+rotting temple
+sarn slums
+scrublands
+shipwreck reef
+utzaal outskirts
+vaal temple
+volcanic island
+
+[monsters reflect # of elemental damage]
+type=monsters
+text=ele reflect: %
+id=001
+
+[monsters reflect # of physical damage]
+type=monsters
+text=phys reflect: %
+id=002
+
+[players cannot regenerate life, mana or energy shield]
+type=player
+text=no regen
+id=003
+
+[cannot leech # from monsters]
+type=player
+text=no leech
+id=004
+
+[players are cursed with temporal chains]
+type=player
+text=temp chains
+id=005
+
+[# maximum player resistances]
+type=player
+text=max res: -%
+id=006
+
+[players have # less recovery rate of life and energy shield]
+type=player
+text=less recovery: %
+id=007
+
+[monsters are hexproof]
+type=monsters
+text=hexproof
+id=008
+
+[unique bosses are possessed]
+type=bosses
+text=possessed
+id=009
+
+[players have # reduced effect of noncurse auras from skills]
+type=player
+text=aura effect: -%
+id=010
+
+[players are cursed with enfeeble]
+type=player
+text=enfeeble
+id=011
+
+[monsters have # increased critical strike chance|# to monster critical strike multiplier]
+type=monsters
+text=crit/multi: +%
+id=012
+
+[unique boss deals # increased damage|unique boss has # increased attack and cast speed]
+type=bosses
+text=dmg/a+c speed: +%
+id=013
+
+[# increased monster damage]
+type=monsters
+text=damage: +%
+id=014
+
+[monsters deal # extra physical damage as cold]
+type=monsters
+text=phys as cold: %
+id=015
+
+[monsters deal # extra physical damage as fire]
+type=monsters
+text=phys as fire: %
+id=016
+
+[monsters deal # extra physical damage as lightning]
+type=monsters
+text=phys as light: %
+id=017
+
+[area has patches of shocked ground which increase damage taken by #]
+type=area
+text=shocked ground: %
+id=018
+
+[all monster damage from hits always ignites]
+type=monsters
+text=hits ignite
+id=019
+
+[monsters cannot be stunned]
+type=monsters
+text=stun immune
+id=020
+
+[# increased monster movement speed|# increased monster attack speed|# increased monster cast speed]
+type=monsters
+text=m/a/c speed: +%
+id=021
+
+[monsters have a # chance to cause elemental ailments on hit]
+type=monsters
+text=e-ailments on hit: %
+id=022
+
+[monsters poison on hit]
+type=monsters
+text=poison on hit
+id=023
+
+[monsters cannot be taunted|monsters' action speed cannot be modified to below base value]
+type=monsters
+text=slow/taunt immune
+id=024
+
+[monsters have # chance to impale with attacks]
+type=monsters
+text=impale chance: %
+id=025
+
+[monsters have # increased area of effect]
+type=monsters
+text=area of effect: +%
+id=026
+
+[area has patches of consecrated ground]
+type=area
+text=consecrated ground
+id=027
+
+[monsters gain # of maximum life as extra maximum energy shield]
+type=monsters
+text=life as es: %
+id=028
+
+[unique boss has # increased life|unique boss has # increased area of effect]
+type=bosses
+text=life/aoe: +%
+id=029
+
+[# more monster life]
+type=monsters
+text=more life: %
+id=030
+
+[players cannot inflict exposure]
+type=player
+text=no exposure
+id=031
+
+[# monster physical damage reduction]
+type=monsters
+text=phys reduction: +%
+id=032
+
+[# monster chaos resistance|# monster elemental resistances]
+type=monsters
+text=c/e-resist: +%
+id=033
+
+[# less effect of curses on monsters]
+type=monsters
+text=curse resist: %
+id=034
+
+[monsters have # chance to suppress spell damage]
+type=monsters
+text=suppress chance: +%
+id=035
+
+[players have # reduced chance to block]
+type=player
+text=reduced block: %
+id=036
+
+[players have # less armour]
+type=player
+text=less armor: %
+id=037
+
+[players have # to amount of suppressed spell damage prevented]
+type=player
+text=suppressed dmg: -%
+id=038
+
+[monsters have # increased accuracy rating]
+type=monsters
+text=accuracy: +%
+id=039
+
+[monsters have # chance to avoid elemental ailments]
+type=monsters
+text=e-ailment avoid: %
+id=040
+
+[monsters take # reduced extra damage from critical strikes]
+type=monsters
+text=crit resist: %
+id=041
+
+[slaying enemies close together can attract monsters from beyond this realm]
+type=monsters
+text=beyond
+id=042
+
+[buffs on players expire # faster]
+type=player
+text=buff expiration: +%
+id=043
+
+[players gain # reduced flask charges]
+type=player
+text=flask charges: -%
+id=044
+
+[players have # less area of effect]
+type=player
+text=less area: %
+id=045
+
+[players have # less cooldown recovery rate]
+type=player
+text=less cd recovery: %
+id=046
+
+[players have # less accuracy rating]
+type=player
+text=less accuracy: %
+id=047
+
+[players are cursed with vulnerability]
+type=player
+text=vulnerability
+id=048
+
+[players are cursed with elemental weakness]
+type=player
+text=ele weakness
+id=049
+
+[monsters' skills chain # additional times]
+type=monsters
+text=chains: +
+id=050
+
+[monsters fire # additional projectiles]
+type=monsters
+text=projectiles: +
+id=051
+
+[monsters have a # chance to avoid poison, impale, and bleeding]
+type=monsters
+text=psn/imp/bld avoid: %
+id=052
+
+[monsters gain an endurance charge on hit]
+type=monsters
+text=e-charge on hit
+id=053
+
+[monsters gain a frenzy charge on hit]
+type=monsters
+text=f-charge on hit
+id=054
+
+[monsters gain a power charge on hit]
+type=monsters
+text=p-charge on hit
+id=055
+
+[monsters blind on hit]
+type=monsters
+text=blind on hit
+id=056
+
+[monsters maim on hit with attacks]
+type=monsters
+text=attacks maim
+id=057
+
+[monsters hinder on hit with spells]
+type=monsters
+text=spells hinder
+id=058
+
+[monsters steal power, frenzy and endurance charges on hit]
+type=monsters
+text=steal charges
+id=059
+
+[area has patches of burning ground]
+type=area
+text=burning ground
+id=060
+
+[area has patches of chilled ground]
+type=area
+text=chilled ground
+id=061
+
+[area has patches of desecrated ground]
+type=area
+text=desecrated ground
+id=062
+
+[area has increased monster variety]
+type=monsters
+text=increased variety
+id=063
+
+[area is inhabited by undead]
+type=monsters
+text=undead
+id=064
+
+[area is inhabited by sea witches and their spawn]
+type=monsters
+text=sea witches
+id=065
+
+[area is inhabited by solaris fanatics]
+type=monsters
+text=solaris fanatics
+id=066
+
+[area is inhabited by skeletons]
+type=monsters
+text=skeletons
+id=067
+
+[area is inhabited by ranged monsters]
+type=monsters
+text=ranged
+id=068
+
+[area is inhabited by lunaris fanatics]
+type=monsters
+text=lunaris fanatics
+id=069
+
+[area is inhabited by cultists of kitava]
+type=monsters
+text=kitava cultists
+id=070
+
+[area is inhabited by humanoids]
+type=monsters
+text=humanoids
+id=071
+
+[area is inhabited by goatmen]
+type=monsters
+text=goatmen
+id=072
+
+[area is inhabited by ghosts]
+type=monsters
+text=ghosts
+id=073
+
+[area is inhabited by demons]
+type=monsters
+text=demons
+id=074
+
+[area is inhabited by animals]
+type=monsters
+text=animals (porcupines)
+id=075
+
+[area is inhabited by abominations]
+type=monsters
+text=abominations
+id=076
+
+[area contains many totems]
+type=area
+text=many totems
+id=077
+
+[area is inhabited by # additional rogue exiles]
+type=area
+text=rogue exiles: +
+id=078
+
+[# more magic monsters]
+type=monsters
+text=more magic mobs: %
+id=079
+
+[area contains two unique bosses]
+type=bosses
+text=twinned
+id=080
+
+[# increased number of rare monsters]
+type=monsters
+text=rare mobs: +%
+id=081
+
+[monsters deal # extra physical damage as chaos]
+type=monsters
+text=phys as chaos: %
+id=082
+
+[monsters inflict withered for # seconds on hit]
+type=monsters
+text=wither on hit
+id=083
+
+[Players in Area are Delirious]
+type=player
+text=delirious: %
+id=084
+
+[Maven releases all Bosses at once]
+type=bosses
+text=all at once
+id=085
+
+[monsters have # chance to gain a frenzy charge on hit]
+type=monsters
+text=f-charge on hit: %
+id=201
+
+[monsters have # chance to gain an endurance charge on hit]
+type=monsters
+text=e-charge on hit: %
+id=202
+
+[monsters have # chance to gain a power charge on hit]
+type=monsters
+text=p-charge on hit: %
+id=203
+
+[players have # less energy shield recovery rate per # alert level]
+type=player
+text=less es rec per al: %
+id=204
+
+[players have # less life recovery rate per # alert level]
+type=player
+text=less life rec per al: %
+id=205
+
+[players have # less mana recovery rate per # alert level]
+type=player
+text=less mana rec per al: %
+id=206
+
+[patrol packs have # increased chance to be replaced by an elite patrol pack]
+type=monsters
+text=elite patrol packs: +%
+id=207
+
+[patrolling monsters deal # increased damage]
+type=monsters
+text=patrol monster dmg: +%
+id=208
+
+[patrol packs take # reduced damage]
+type=monsters
+text=patrol packs dmg taken: -%
+id=209
+
+[reward room monsters deal # increased damage]
+type=monsters
+text=rr monster dmg: +%
+id=210
+
+[# maximum player resistances per # alert level]
+type=player
+text=max res per al: -%
+id=211
+
+[reward room monsters take # reduced damage]
+type=monsters
+text=rr monsters dmg taken: -%
+id=212
+
+[guards deal # increased damage]
+type=monsters
+text=guard damage: +%
+id=213
+
+[guards take # reduced damage]
+type=monsters
+text=guards dmg taken: -%
+id=214
+
+[# reduced job speed]
+type=heist
+text=job speed: -%
+id=215
+
+[reward rooms have # increased monsters]
+type=monsters
+text=rr monsters: +%
+id=216
+
+[players gain # reduced flask charges per # alert level]
+type=player
+text=flasks per al: -%
+id=217
+
+[reinforcements have # increased attack speed|reinforcements have # increased cast speed|reinforcements have # increased movement speed]
+type=monsters
+text=reinforce m/a/c speed: +%
+id=218
+
+[lockdown occurs immediately when alert level is full]
+type=heist
+text=insta-lockdown on full al
+id=219
+
+[players have # less armour per # alert level]
+type=player
+text=less armor per al: %
+id=220
+
+[players have # less evasion per # alert level]
+type=player
+text=less evasion per al: %
+id=221
+
+[# increased total heist fee]
+type=heist
+text=total fee: +%
+id=222
+
+[the ring takes no cut]
+type=heist
+text=ring takes no cut
+id=223
+
+[no travel cost]
+type=heist
+text=no travel cost
+id=224
+
+[alert level increases by # per second]
+type=heist
+text=al per second: +%
+id=225
+
+[# player fire resistance per # alert level]
+type=player
+text=fire res per al: -%
+id=226
+
+[player cold resistance per # alert level]
+type=player
+text=cold res per al: -%
+id=227
+
+[player lightning resistance per # alert level]
+type=player
+text=light res per al: -%
+id=228
+
+[black scythe mercenaries]
+type=expedition
+text=tujen
+id=301
+
+[order of the chalice]
+type=expedition
+text=rog
+id=302
+
+[druids of the broken circle]
+type=expedition
+text=gwennen
+id=303
+
+[knights of the sun]
+type=expedition
+text=dannig
+id=304
+
+[area contains # increased number of remnants]
+type=expedition
+text=increased remnants: %
+id=305
+
+[# increased explosive radius]
+type=expedition
+text=explosives radius: +%
+id=306
+
+[# increased number of explosives]
+type=expedition
+text=explosives count: +%
+id=307
+
+[excavated chests have a # chance to contain twice as many items]
+type=expedition
+text=2x chest-reward chance: %
+id=308
+
+[remnants have # chance to have an additional suffix modifier]
+type=expedition
+text=extra remnant suffix: %
+id=309
+
+[# increased explosive placement range]
+type=expedition
+text=placement range: +%
+id=310
+
+[area contains # increased number of monster markers]
+type=expedition
+text=monster markers: +%
+id=311
+
+[area contains an additional underground area]
+type=expedition
+text=extra underground area
+id=312
+
+[area contains # increased number of runic monster markers]
+type=expedition
+text=runic markers: +%
+id=313
+
+[area contains # additional chest markers]
+type=expedition
+text=chest markers: +
+id=314
+
+[# increased quantity of artifacts dropped by monsters]
+type=expedition
+text=artifact-drops: +%
+id=315
+
+[area contains medved, feller of heroes]
+type=expedition
+text=medved (boss)
+id=316
+
+[area contains vorana, last to fall]
+type=expedition
+text=vorana (boss)
+id=317
+
+[area contains uhtred, covetous traitor]
+type=expedition
+text=uhtred (boss)
+id=318
+
+[area contains olroth, origin of the fall]
+type=expedition
+text=olroth (boss)
+id=319

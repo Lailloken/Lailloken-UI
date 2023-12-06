@@ -1,0 +1,740 @@
+{
+  "settings": {
+    "kill timer": [
+      "automatically closes the script if the game client is not running",
+      "specify how long it may run without the game"
+    ],
+    "browser features": [
+      "enables additional features when accessing 3rd-party websites via the script",
+      "examples:\n-> chrome calculator: auto-paste stats\n-> poe.db cluster jewels: auto-highlight type"
+    ],
+    "capslock toggling": [
+      "only uncheck this box if something outside of this script is bound to capslock",
+      "whenever ahk sends inputs, it toggles capslock back and forth, which triggers whatever is bound to it (e.g. voice chat mute)",
+      "toggling this option will restart the script"
+    ],
+    "lang language": [
+      "select the script's display language",
+      "the script will restart upon selection"
+    ],
+    "llk button": [
+      "hides the llk-ui button that is used to open the settings menu and restart the script",
+      "if hidden, type .llk in chat to open the settings menu, and r.llk to restart the script"
+    ],
+    "button-size": [
+      "size of the movable button that opens this feature"
+    ],
+    "font-size": [
+      "– and + can be held down, the middle button resets the size"
+    ],
+    "generic color": [
+      "click to apply an rgb code from clipboard, right click to reset"
+    ],
+    "active character": [
+      "type in your character name and press enter",
+      "specifying it here enables optional features such as level tracking and e-exp calculations"
+    ],
+    "active character status": [
+      "red: no name specified",
+      "yellow: char not found / waiting for level-up",
+      "green: char found, tracking active"
+    ],
+    "force resolution": [
+      "you can force the client to run with a custom resolution not available by default",
+      "it will be applied on every script start, or when starting the client while the script is running",
+      "vertical resolutions (second value) are limited to specific ones for compatibility reasons"
+    ],
+    "window position": [
+      "the client has to be docked to a specific spot to ensure that overlays are positioned correctly",
+      "pick a preferred position, the client will be placed there automatically every time"
+    ],
+    "black bars": [
+      "the client's aspect ratio is limited to 24:10 and there will be black bars if it's wider",
+      "this option repositions the script's overlays and screen-checks to compensate for this"
+    ],
+    "window borders": [
+      "removes borders around the client window",
+      "mostly relevant for 32:9 monitor users"
+    ],
+    "write permissions": [
+      "troubleshoot write permission issues on your system if the script can't create/edit files",
+      "when these issues are detected, an error message will appear and ask you to run this test",
+      "if the test results show errors, move the script-folder to a different location or restart the script as admin, then re-run the test"
+    ],
+    "rgb website": [
+      "3rd-party website to generate rgb codes for color customization"
+    ],
+    "betrayal enable": [
+      "provides an interactive cheat sheet overlay for the betrayal league mechanic",
+      "requires the <betrayal> image-check to be set up correctly in the <screen-checks> section of the settings menu",
+      "while the syndicate board is on screen, hold the omni-key to activate the overlay"
+    ],
+    "betrayal ruthless": [
+      "show ruthless rewards and use separate highlighting instead"
+    ],
+    "betrayal folder": [
+      "folder that contains calibration files"
+    ],
+    "betrayal color": [
+      "click a button to apply an rgb code from clipboard, right click to reset",
+      "hover over a reward and press a number key to apply the corresponding color"
+    ],
+    "betrayal rewards": [
+      "long-click a name below to show that member's rewards",
+      "hover over a reward and press a number key to apply a color, or space to remove it",
+      "rewards can also be tiered when using the overlay on the syndicate board"
+    ],
+    "cheatsheets enable": [
+      "provides a toolkit to create and manage customizable cheat sheet overlays"
+    ],
+    "cheatsheets modifier-key": [
+      "cheat sheets are activated by pressing the modifier and omni-key simultaneously",
+      "if a sheet is configured as <hold>, only the omni-key has to be held down",
+      "pick a combination that is not used in game"
+    ],
+    "cheatsheets color": [
+      "click a button to apply an rgb code from clipboard, right click to reset",
+      "hover over a note and press a number key to apply color, or press space to remove it"
+    ],
+    "cheatsheets types": [
+      "images: import/capture images and display them in an overlay, switch between them, or rearrange the information on them",
+      "app: specify an app and launch or bring it to the front with a single press of a button instead of tabbing out/repeatedly",
+      "advanced: create custom tooltips that show information for specific in-game elements while hovering over them"
+    ],
+    "cheatsheets calibrate": [
+      "pressing the key combination will open the correct sheet for what is on screen in game",
+      "for the script to know which sheet is the correct one, manual calibration is required",
+      "opens the clipping tool: use it to clip a unique element from the in-game ui"
+    ],
+    "cheatsheets test": [
+      "click while the specific in-game ui is on screen, the test should return positive",
+      "click while the specific ui is not on screen, the test should return negative",
+      "results have to be consistent and repeatable"
+    ],
+    "cheatsheets edit": [
+      "opens a menu to configure the cheat sheet"
+    ],
+    "cheatsheets delete": [
+      "long-click to delete the cheat sheet"
+    ],
+    "cheatsheets info": [
+      "long-click to view the sheet's properties"
+    ],
+    "cheatsheets toggle": [
+      "enables/disables the cheat sheet"
+    ],
+    "cloneframes toggle-info": [
+      "automatic toggling is disabled while this section of the menu is open"
+    ],
+    "cloneframes pixelchecks": [
+      "hides frames if you're not on the main screen (where you control your character)",
+      "requires the <gamescreen> pixel-check to be configured correctly in the <screen-checks> section of the menu",
+      "only works while playing with the minimap in the center of the screen"
+    ],
+    "cloneframes hideout": [
+      "hides clone-frames while you're inside towns and hideouts"
+    ],
+    "cloneframes new": [
+      "to create a new frame, enter a name and click <add new>"
+    ],
+    "cloneframes edit": [
+      "enters edit-mode, which activates the section below and allows you to adjust the frame's settings"
+    ],
+    "cloneframes delete": [
+      "long-click to delete the clone-frame"
+    ],
+    "cloneframes toggle": [
+      "enables/disables the clone-frame"
+    ],
+    "cloneframes corners": [
+      "edit-mode adds colored corners to the source and target frame",
+      "f-keys: snap the corresponding corner to the cursor's position",
+      "hitting esc or <discard> exits edit-mode"
+    ],
+    "cloneframes scroll": [
+      "for fine-tuning, scroll the mouse-wheel to adjust this value by 1"
+    ],
+    "hotkeys ingame-keybinds": [
+      "to avoid conflicts between custom in-game keybinds and the script's hotkeys:\n- tick anything that applies to you\n- provide alternative keys when asked to"
+    ],
+    "hotkeys movekey": [
+      "specifying the key allows the script to adapt its behavior in certain situations",
+      "example: not activating on-hover overlays while moving the character",
+      "for special keys, check the links above to find proper names and formatting"
+    ],
+    "hotkeys omnikey-info": [
+      "context-sensitive hotkey that activates the majority of the script's features",
+      "instead of specifying hotkeys for every feature, you calibrate screen-checks to help this hotkey interpret which feature has to be activated when pressed",
+      "it does not block game actions bound to it"
+    ],
+    "hotkeys omnikey": [
+      "if you want to move the omni-key to a different key, specify it in the edit-field",
+      "since the hotkey is used a lot, i highly recommend avoiding key combinations",
+      "don't bind it to a key used for chatting, as features might randomly activate",
+      "for special keys, check the links above to find proper names and formatting"
+    ],
+    "hotkeys omnikey2": [
+      "due to a game bug, having the c-key rebound in game requires a secondary omni-key for items",
+      "whenever a feature requires you to omni-click an item, you will have to use this secondary one",
+      "for special keys, check the links above to find proper names and formatting"
+    ],
+    "hotkeys omniblock": [
+      "while the game-client or script is focused, the keypress will only be registered by the script and not the rest of the system",
+      "only script features will be activated by the keypress, and special keys (e.g. windows or accent keys, capslock, etc.) can be used without their usual side effects"
+    ],
+    "hotkeys altkey": [
+      "specify the alternative key in the edit field",
+      "for special keys, check the links above to find proper names and formatting"
+    ],
+    "hotkeys tab": [
+      "this hotkey (re)activates certain widgets and non-permanent overlays",
+      "if something is bound to tab in game and requires it to be held down (e.g. skills, movement), you'll have to specify an alternative key in the edit field",
+      "tooltips will refer to it as tab, even when rebound"
+    ],
+    "hotkeys restart": [
+      "if the script crashes and stops responding, use this combination to restart"
+    ],
+    "iteminfo profiles": [
+      "customized highlighting can be saved in individual profiles",
+      "if the tooltip is on screen when selecting a profile, the changes will be applied on the fly"
+    ],
+    "iteminfo reset": [
+      "long-click one of the buttons to reset specific highlighting in the currently-selected profile"
+    ],
+    "iteminfo shift-click": [
+      "automatically refreshes the tooltip when applying currency to items via shift-click",
+      "you have to hold shift first, right click currency, and then click items"
+    ],
+    "iteminfo league-start": [
+      "adds a section where the item's stats are compared to your current gear",
+      "this section replaces the base info section and requires the <inventory> pixel check to be set up correctly in the <screen-checks> menu"
+    ],
+    "iteminfo base-info": [
+      "adds a section that shows how the item's stats compare to the best-in-class stats",
+      "it also shows the base-percentile roll and ilvl, highlighting good values"
+    ],
+    "iteminfo enable item-level": [
+      "adds the ilvl requirement to each mod, which exposes high-tier but low-lvl mods",
+      "this option caters more to advanced users because it adds even more information"
+    ],
+    "iteminfo item-tier": [
+      "click a box to apply an rgb code from clipboard, right click to reset",
+      "<fr> refers to fractured, <#> to untiered mods",
+      "t1 and t6 are also used for desired/undesired"
+    ],
+    "iteminfo item-level": [
+      "click a box to apply an rgb-code from clipboard, right click to reset"
+    ],
+    "iteminfo override": [
+      "undesired mods will always be marked as t6, except fractured ones"
+    ],
+    "iteminfo rules": [
+      "single-click solution to mark larger mod groups as un/desired",
+      "the name specifies which mods are affected, the color whether they'll be set to un/desired"
+    ],
+    "lang unavailable": [
+      "this feature is currently not available on non-english clients"
+    ],
+    "lang incompatible": [
+      "this feature is not available on clients with an unsupported language",
+      "it will be available once a language-pack for the current language has been installed"
+    ],
+    "leveltracker enable": [
+      "provides an automated leveling guide overlay and several campaign qol-tools"
+    ],
+    "leveltracker timer": [
+      "adds a timer that records your act times and stores them in csv-files",
+      "it is placed on the exp bar and only visible while paused or while holding tab"
+    ],
+    "leveltracker timer-pause": [
+      "automatically pauses the timer in hideouts, and resumes it when you leave"
+    ],
+    "leveltracker fade-timer": [
+      "overlay becomes almost invisible after a delay (except when in towns)",
+      "delay: x seconds after switching guide pages",
+      "fades back to normal while holding tab"
+    ],
+    "leveltracker fade mouse": [
+      "overlay fades back in when hovered over",
+      "has no effect while the move key is pressed"
+    ],
+    "leveltracker geartracker": [
+      "notifies you when new gear can be equipped (the guide button will flash green)",
+      "accessed by right-clicking the guide button",
+      "while the panel is open, omni-click items to add them to the list",
+      "requires specifying your character name in the <general> settings"
+    ],
+    "leveltracker expbar": [
+      "slightly moves the guide-overlay up so it doesn't cover the exp-bar"
+    ],
+    "leveltracker skilltree-info": [
+      "while the skilltree is on screen, hold the omni-key to show overlays with skilltree images",
+      "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
+    ],
+    "leveltracker pob": [
+      "m-mouse in pob will open the screen-cap menu",
+      "use this menu to manage overlay images"
+    ],
+    "leveltracker screen-cap menu": [
+      "opens the screen-cap menu",
+      "use this menu to manage overlay images"
+    ],
+    "leveltracker folder": [
+      "opens the folder with overlay images",
+      "if you want to edit the images yourself, you can move them to this folder manually"
+    ],
+    "leveltracker generate": [
+      "opens exile-leveling to generate a guide"
+    ],
+    "leveltracker import": [
+      "imports guide data from clipboard"
+    ],
+    "leveltracker reset": [
+      "hold to reset your progress and start over"
+    ],
+    "leveltracker layouts": [
+      "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
+      "while active, hold middle-mouse to view an info-panel with explanations",
+      "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
+    ],
+    "leveltracker hints": [
+      "inserts additional information underneath specific guide-steps",
+      "this info is displayed in indented lines with smaller text"
+    ],
+    "maptracker enable": [
+      "provides automated tracking of your map runs, and a log viewer with export tools",
+      "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
+    ],
+    "maptracker rename": [
+      "tags and renames boss maps for easier filtering",
+	  "example: <boss: elder> instead of <absence of value and meaning>"
+    ],
+    "maptracker side-content": [
+      "side-areas you enter and the time spent inside will be logged",
+      "examples: abyssal depths, lab trials, vaal areas"
+    ],
+    "maptracker mechanics": [
+      "logs certain mechanics you encounter while mapping"
+    ],
+    "maptracker dialogue tracking": [
+      "these mechanics can be tracked automatically via in-game dialogue",
+      "requires enabling <output dialogue to chat> at the bottom of the game's <ui> settings"
+    ],
+    "maptracker screen tracking": [
+      "these mechanics will be tracked by searching the screen for specific ui elements",
+      "the screen will be checked whenever you hold tab",
+      "requires manual calibration"
+    ],
+    "maptracker dialoguemechanic": [
+      "mechanics can be toggled individually"
+    ],
+    "maptracker screenmechanic": [
+      "mechanics can be toggled individually",
+      "red highlighting indicates missing calibration",
+      "right-click to open the snipping tool and screen-cap a unique ui element of the mechanic"
+    ],
+    "maptracker portal reminder": [
+      "when using a portal scroll, a tooltip will remind you to double-check if map content has been completed",
+      "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> section of the menu"
+    ],
+    "maptracker loot-tracker": [
+      "items you ctrl-click into the stash will be logged",
+      "ctrl-rightclick will remove previously added items one by one",
+      "requires the <stash> image-check to be set up correctly in the <screen-checks> menu"
+    ],
+    "maptracker kill-tracker": [
+      "monster kills in completed maps will be logged",
+      "leaving a map causes the tracker panel to flash until you click the timer to refresh kills",
+      "refreshing kills only has to be done if you have finished the map and won't go back in"
+    ],
+    "maptracker mapinfo": [
+      "map-mod data loaded into the map-info panel will be logged"
+    ],
+    "mapinfo enable": [
+      "provides a compact and customizable info-panel for map mods",
+      "omni-clicking a map opens the panel, and pressing 1-4 while hovering over mods applies highlight colors",
+      "to ignore mods, press space while hovering over them"
+    ],
+    "mapinfo shift-click": [
+      "refreshes the tooltip whenever you apply currency to maps via shift-click",
+      "you have to hold shift first, right click currency, and then click a map"
+    ],
+    "mapinfo tab": [
+      "hold tab to view a compact version of the panel on the right of the screen",
+      "only works in hideouts and the map that was loaded into the panel"
+    ],
+    "mapinfo colors": [
+      "click a button to apply an rgb code from clipboard, right click to reset",
+      "header: color of the headers that divide the panel into sections",
+      "while hovering over mods, press 1-4 to apply a color, or space to strike out"
+    ],
+    "mapinfo logbooks": [
+      "logbook mods use positive rankings, with 4 being the best value",
+      "while hovering over mods, press 1-4 to apply a color, or space to strike out"
+    ],
+    "alarm enable": [
+      "small timer widget with alarm and stopwatch functionality",
+      "hold tab to display the widget, then click it to enter a time",
+      "right-click it to stop a running timer"
+    ],
+    "notepad enable": [
+      "notepad tool with individual tabs and floating widgets"
+    ],
+    "lab enable": [
+      "simple lab layout overlay and tracker for casual runs",
+      "activated by holding tab in lab or the aspirants' plaza"
+    ],
+    "screenchecks pixel-about": [
+      "the script continually checks the screen for certain ui elements",
+      "this enables context sensitivity and automatic overlay toggling",
+      "these checks will never result in any interaction with the client"
+    ],
+    "screenchecks pixel-calibration": [
+      "follow the instructions from <info> before clicking this",
+      "captures certain pixel-values and stores them for future checks"
+    ],
+    "screenchecks pixel-test": [
+      "click this button while the ui element mentioned in <info> is visible, the test should return positive",
+      "click it again while the ui element mentioned in <info> is not visible, the test should return negative"
+    ],
+    "screenchecks pixel-info": [
+      "hold to see instructions"
+    ],
+    "screenchecks pixel-background": [
+      "important background process that enables context-sensitivity",
+      "in case of performance issues, disable temporarily to check if it's the cause"
+    ],
+    "screenchecks image-about": [
+      "same principle as pixel-checks (see above) but more precise",
+      "these help the omni-key interpret which feature to activate when pressed"
+    ],
+    "screenchecks image-info": [
+      "hold to see instructions"
+    ],
+    "screenchecks image-calibration": [
+      "follow the instructions from <info> before clicking this",
+      "opens the clipping tool: use it to clip the ui element from <info>"
+    ],
+    "screenchecks image-test": [
+      "click this button while the ui element mentioned in <info> is visible, the test should return positive",
+      "click it again while the ui element mentioned in <info> is not visible, the test should return negative"
+    ],
+    "screenchecks folder": [
+      "opens the folder with calibration files",
+      "if tests keep failing, open the files to check if they have the correct data"
+    ],
+    "searchstrings poe-regex": [
+      "3rd-party website for regex-strings"
+    ],
+    "searchstrings about": [
+      "regex-strings are grouped into use-cases, e.g. gwennen, vendor, stash",
+      "when pressing the omni-key, the script detects the right use-case and displays a context-menu with strings to choose from",
+      "this detection requires manual image calibration for each use-case"
+    ],
+    "searchstrings calibrate": [
+      "opens the clipping tool: use it to clip a ui element that is unique to the search"
+    ],
+    "searchstrings test": [
+      "click this button while the ui element is on screen, the test should return positive",
+      "click it again while the ui element is not on screen, the test should return negative",
+      "results have to be consistent and repeatable"
+    ],
+    "searchstrings edit": [
+      "opens a menu where strings for this use-case can be added or edited"
+    ],
+    "searchstrings delete": [
+      "hold to delete this use-case and its strings"
+    ],
+    "searchstrings enable": [
+      "enable/disable the specific use-case"
+    ],
+    "searchstrings enable-beastcrafting": [
+      "enable/disable the specific use-case",
+      "this is included by default and contains strings for flask crafting"
+    ],
+    "searchstrings enable-lilly": [
+      "enable/disable the specific use-case",
+      "this is part of the imported leveling guide and contains strings for every gem"
+    ],
+    "searchstrings add": [
+      "type in a name and press enter"
+    ],
+    "update check": [
+      "checks for updates on script launch and in the background while running",
+      "if there is an update available, the llk-ui panel will turn green"
+    ],
+    "update restart": [
+      "hold to update and restart",
+      "active overlays and unsaved data will be lost"
+    ],
+    "update manual": [
+      "downloads a zip-file with the complete release, then opens it and the script-folder",
+      "the zip contains one folder: do not extract it! open it instead",
+      "extract what's inside into the script-folder that will open in a separate window"
+    ],
+    "update github": [
+      "opens your browser and downloads the newest version",
+      "also opens the script folder in a separate window"
+    ],
+    "update skip": [
+      "hold to skip this version and no longer receive notifications",
+      "notifications will start showing again with the next version"
+    ]
+  },
+  "cheatsheets": {
+    "menu screencheck": [
+      "refers to the position of the ui element that activates this sheet",
+      "static: always stays in the same position, e.g. stash/inventory plaque",
+      "dynamic: can move around slightly, e.g. parts of the syndicate board"
+    ],
+    "menu activation": [
+      "how long the sheet stays on screen after activation",
+      "hold: until omni-key is released",
+      "toggle: until esc is pressed",
+      "activating a sheet by pressing two modifier keys will always <toggle>"
+    ],
+    "menu image-files": [
+      "image files are loaded into numbered slots within each sheet",
+      "while the sheet is active, press number keys to access these files",
+      "slot 00 is reserved for segmented sheets (hover <00> for more info)"
+    ],
+    "menu 00": [
+      "loading an image into 00 turns the sheet into a segmented one",
+      "only works if the information on it is presented in a table or diagram",
+      "image 00 is the header of the sheet, the rest are individual segments (e.g. columns or rows)"
+    ],
+    "menu header": [
+      "positioning of the header relative to the rest of the segments"
+    ],
+    "menu paste": [
+      "paste image(s) into this slot: supports files and raw data",
+      "pasting multiple files at once overwrites x slots, starting with this one"
+    ],
+    "menu snip0": [
+      "opens the snipping widget to snip images into slots"
+    ],
+    "menu snip": [
+      "opens the clipping tool to clip images into slots"
+    ],
+    "menu show": [
+      "hold to see a preview of the image"
+    ],
+    "menu delete": [
+      "hold to delete the image in this slot"
+    ],
+    "menu hotkey": [
+      "type in a letter to tag the image",
+      "that letter can be used like a hotkey to activate this slot",
+      "useful if data in the sheet is alphabetical and not numerical"
+    ],
+    "menu preview": [
+      "hold to see a preview of the sheet"
+    ],
+    "menu entry-about": [
+      "every cheat sheet has multiple entries, and each entry up to 4 notes",
+      "an entry is simply something in the game you want to save notes for",
+      "syndicate: each member is an entry\nsanctum: each room is an entry"
+    ],
+    "menu entry-image": [
+      "hold to view the calibration image"
+    ],
+    "menu entry-delete": [
+      "hold to delete this entry"
+    ],
+    "menu entry-select": [
+      "click this entry to access its notes"
+    ],
+    "menu entry-preview": [
+      "hold to see a preview of this entry's notes"
+    ],
+    "menu windowtitle": [
+      "title of the window you want to use as a cheat sheet",
+      "it is case-sensitive but doesn't require the whole title"
+    ],
+    "menu exe-delete": [
+      "hold to remove the app from the launcher"
+    ],
+    "menu exe-test": [
+      "click to check if the app launches correctly"
+    ]
+  },
+  "geartracker": {
+    "about": [
+      "click items on the list to highlight them in in-game searches",
+      "hold right-click to remove an item from the list",
+      "hold the <clear> button to remove every highlighted item"
+    ]
+  },
+  "lab": {
+    "button": [
+      "red = layout unavailable/outdated, yellow = layout only, green = layout + tracking",
+      "click to open poelab.com: select difficulty, right-click layout image, click <copy image>",
+      "optional: right-click <lab compass file>, click <copy link address>"
+    ]
+  },
+  "leveltracker": {
+    "skilltree-cap about": [
+      "load images into slots via pasting or snipping"
+    ],
+    "skilltree-cap ascend": [
+      "load images into slots via pasting or snipping",
+      "slot 05 is reserved for a potential endgame respec"
+    ],
+    "skilltree-cap index": [
+      "click to add a caption to this slot"
+    ],
+    "skilltree-cap paste": [
+      "paste image file or data into this slot"
+    ],
+    "skilltree-cap snip": [
+      "opens the snipping widget, or triggers a screen-cap"
+    ],
+    "skilltree-cap show": [
+      "hold to view the image"
+    ],
+    "skilltree-cap delete": [
+      "hold to delete the image"
+    ],
+    "skilltree-cap delete-all": [
+      "hold to delete all images"
+    ],
+    "skilltree-cap caption": [
+      "type in a caption and press enter"
+    ]
+  },
+  "maptracker": {
+    "logviewer day-select": [
+      "list of dates with logged map runs"
+    ],
+    "logviewer day-delete": [
+      "hold to delete the logs of the selected date",
+      "hold right-click to clear the entire log collection"
+    ],
+    "logviewer export-day": [
+      "hold to export the logs of the selected date into a separate file, overwriting any existing file with the same date"
+    ],
+    "logviewer export-all": [
+      "hold to export the entire log collection into a single file, overwriting any existing file"
+    ],
+    "logviewer export-folder": [
+      "opens the folder containing the exported csv-files"
+    ],
+    "logviewer header map": [
+      "click a name to edit it, hold right-click to delete a specific run"
+    ],
+    "logviewer header e-exp": [
+      "effective exp gained in a map, based on your level and the monsters'",
+      "requires specifying your character name in the <general> section of the settings menu"
+    ],
+    "logviewer header kills": [
+      "number of monsters killed in a map (uses /kills command)",
+      "has to be enabled in the <mapping tracker> section of the menu"
+    ],
+    "logviewer header loot": [
+      "loot found in a map: long-click green cells in this column",
+      "has to be enabled in the <mapping tracker> section of the menu"
+    ],
+    "logviewer header mapinfo": [
+      "mods rolled on a map: long-click green cells in this column",
+      "has to be enabled in the <mapping tracker> section of the menu"
+    ],
+    "logviewer header content": [
+      "side-content you have found in a map",
+      "has to be enabled in the <mapping tracker> section of the menu"
+    ],
+    "logviewer header tier": [
+      "the tier (map) or level (e.g. contract) of the run"
+    ]
+  },
+  "notepad": {
+    "widget": [
+      "click to select tab, drag to create a widget, hold right-click to delete"
+    ],
+    "widget help": [
+      "widgets are inactive (unclickable) unless tab is held down",
+      "left-click to drag widgets, right-click to destroy widgets"
+    ],
+    "widget grouped": [
+      "drag to combine every note into a single, scrollable widget"
+    ]
+  },
+  "screenchecks": {
+    "gamescreen": [
+      "(/bold)(/underline)instructions:",
+      "-> close every in-game menu: atlas, inventory, etc.",
+      "-> the minimap has to be in the center",
+      "-> the info-panel (img) has to be fully visible",
+      "-> click <cal>",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> omni-key context, clone-frames toggling"
+    ],
+    "inventory": [
+      "(/bold)(/underline)instructions:",
+      "-> open the inventory",
+      "-> the corner (img: yellow) has to be fully visible",
+      "-> click <cal>",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> item-info league-start mode",
+      "-> mapping tracker portal reminder"
+    ],
+    "betrayal": [
+      "(/bold)(/underline)instructions:",
+      "-> open the syndicate board",
+      "-> don't move or zoom into it",
+      "-> click <cal> and clip the marked area (img)",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> betrayal-info overlay"
+    ],
+    "skilltree": [
+      "(/bold)(/underline)instructions:",
+      "-> open the skilltree",
+      "-> click <cal> and clip the marked area (img)",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> leveling tracker: skilltree overlay"
+    ],
+    "stash": [
+      "(/bold)(/underline)instructions:",
+      "-> open the stash",
+      "-> click <cal> and clip the marked area (img)",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> mapping tracker: loot tracker"
+    ]
+  },
+  "searchstrings": {
+    "config entry-about": [
+      "use-cases have their own entries that will be listed in the context-menu",
+      "type in a descriptive name for the string(s) and press enter"
+    ],
+    "config entry-list": [
+      "click an entry to edit its string(s), long-click <del> to remove it",
+      "each line in the edit-field is an individual string",
+      "adding multiple lines turns the entry into a scrollable search"
+    ]
+  },
+  "seed-explorer": {
+    "import": [
+      "imports a jewel from clipboard (e.g. copied from trade)"
+    ],
+    "trade": [
+      "opens the trade-site with a search for this seed"
+    ]
+  },
+  "snip": {
+    "about": [
+      "resize and place this widget over an area you want to screencap",
+      "use arrow keys to move/resize the widget by 1 pixel",
+      "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
+      "click <snip> on a specific slot to save the image into it"
+    ]
+  }
+}
