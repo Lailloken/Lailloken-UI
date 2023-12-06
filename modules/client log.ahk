@@ -8,7 +8,7 @@
 		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
 		log_content := vars.log.file.Read()
 	}
-	Else FileRead, log_content, % vars.log.file_location
+	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001") ;FileRead, log_content, % vars.log.file_location
 
 	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
@@ -24,6 +24,9 @@
 			log_chunk := SubStr(log_chunk, 1, -1)
 		log_chunk := SubStr(log_chunk, 1, -1)
 		
+		If !settings.general.lang_client ;check if the current client-language is supported, i.e. if any available language-pack matches the client.txt
+			LangClient(log_chunk)
+
 		If vars.log.areaID && !check || (5000*A_Index >= log_length) ;break if character could not be found in the whole log
 			Break
 		If vars.log.areaID && !InStr(log_chunk, " " settings.general.character " (") ;skip chunk if it doesn't contain level-up messages
@@ -34,7 +37,7 @@
 			If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 				vars.log[A_LoopField] := %A_LoopField% ;store parsed info globally (only once, and as close to the end of the log as possible)
 	}
-	vars.log.level := !vars.log.level ? 0 : vars.log.level
+	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
 }
 
 LogLoop(mode := 0)
@@ -72,7 +75,7 @@ LogLoop(mode := 0)
 
 		If settings.qol.lab && InStr(areaID, "labyrinth_airlock") ;entering Aspirants' Plaza: reset previous lab-progress (if there is any)
 			Lab("init")
-		Else If settings.qol.lab && (InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "Airlock") || InStr(areaID, "labyrinth_") && !InStr(areaID, "Airlock")) && areaname ;entering a new room
+		Else If settings.qol.lab && areaname && (InStr(vars.log.areaID, "labyrinth_") && !LLK_PatternMatch(vars.log.areaID, "", ["Airlock", "_trials_"]) || InStr(areaID, "labyrinth_") && !LLK_PatternMatch(areaID, "", ["Airlock", "_trials_"])) ;entering a new room
 		{
 			For index, room in vars.lab.rooms ;go through previously-entered rooms to check if player is backtracking or not
 				If (room.name = areaname && room.seed = vars.log.areaseed)
@@ -113,8 +116,7 @@ LogLoop(mode := 0)
 			If LLK_HasVal(vars.mapinfo.expedition_areas, parse) && (parse != vars.log.areaname)
 				vars.mapinfo.categories[A_Index] := ""
 		}
-			
-		vars.mapinfo.active_map.expedition_filter := 1
+		vars.mapinfo.active_map.name := "logbook: " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1
 	}
 
 	MaptrackerTimer()
@@ -139,7 +141,7 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 
 	ignore := ["[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]", "[Item Filter]"]
 	
-	Loop, Parse, content, `n, `r.
+	Loop, Parse, content, `n, % "`r" vars.lang.system_fullstop.1
 	{
 		For index, skip in ignore
 			If InStr(A_LoopField, skip, 1) ;skip lines with certain key words/phrases
@@ -159,34 +161,28 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.") || InStr(A_LoopField, "*****")
 			areaID := "login"
 
-		If LangLineParse(A_LoopField, vars.lang.enter)
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.enter.1)), areaname := LLK_StringCase(LangLineTrim(parse, vars.lang.enter, 1))
+		If LangMatch(A_LoopField, vars.lang.log_enter)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_enter.1)), areaname := LLK_StringCase(LangTrim(parse, vars.lang.log_enter, LangTrans("log_location")))
 
-		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && LangLineParse(A_LoopField, vars.lang.level)
+		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && LangMatch(A_LoopField, vars.lang.log_level)
 		{
-			level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.level.1)), level := LangLineTrim(level, vars.lang.level)
+			level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := LangTrim(level, vars.lang.log_level)
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 		}
 
-		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (LangLineParse(A_LoopField, vars.lang.slain) || LangLineParse(A_LoopField, vars.lang.suicide))
+		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (LangMatch(A_LoopField, vars.lang.log_slain) || LangMatch(A_LoopField, vars.lang.log_suicide))
 			vars.maptracker.map.deaths += 1
 
-		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && LangLineParse(A_LoopField, vars.lang.killed)
+		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && LangMatch(A_LoopField, vars.lang.log_killed)
 		{
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.killed.1)), parse := LangLineTrim(parse, vars.lang.killed)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_killed.1)), parse := LangTrim(parse, vars.lang.log_killed)
 			Loop, Parse, parse
-			{
-				If (A_Index = 1)
-					parse := ""
-				If !IsNumber(A_LoopField)
-					Continue
-				parse .= A_LoopField
-			}
+				parse := (A_Index = 1) ? "" : parse, parse .= IsNumber(A_LoopField) ? A_LoopField : ""
 			If (vars.maptracker.refresh_kills = 1)
-				vars.maptracker.map.kills := [parse], LLK_ToolTip("kill-count updated",,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
+				vars.maptracker.map.kills := [parse], LLK_ToolTip(LangTrans("maptracker_kills", 2),,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
 			Else If (vars.maptracker.refresh_kills > 1) && MaptrackerTowncheck()
-				vars.maptracker.map.kills.2 := parse, LLK_ToolTip("kill-count updated",,,,, "Lime"), vars.maptracker.refresh_kills := 3
+				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(LangTrans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3
 		}
 
 		If settings.features.maptracker && settings.maptracker.mechanics && (vars.log.areaID = vars.maptracker.map.id)
