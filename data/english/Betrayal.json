@@ -283,7 +283,7 @@
     "rewards": {
       "fortification": [
         "quality gems\nt4: 21-23%",
-        "trapped chest:\nsupport gems"
+        "trapped chest:\ngems"
       ],
       "intervention": [
         "harbinger scarabs",
@@ -291,7 +291,7 @@
       ],
       "research": [
         "gem exp (mil):\n20 / 70 / 200 / 2x 200",
-        "gem exp (mil):\n15 / 35 / 75 / 150"
+        "support gems"
       ],
       "transportation": [
         "take one: gem",
