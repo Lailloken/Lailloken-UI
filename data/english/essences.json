@@ -1,0 +1,2431 @@
+{
+  "_tiers": [
+    "whispering",
+    "muttering",
+    "weeping",
+    "wailing",
+    "screaming",
+    "shrieking",
+    "deafening"
+  ],
+  "anger": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (14-20) to (29-33) fire damage",
+        "adds (14-20) to (29-33) fire damage",
+        "adds (8-10) to (15-18) fire damage",
+        "(12-17)% to fire resistance",
+        "(12-17)% to fire resistance",
+        "(12-17)% to fire resistance",
+        "(11-14)% increased fire damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (32-44) to (65-76) fire damage",
+        "adds (32-44) to (65-76) fire damage",
+        "adds (17-24) to (35-41) fire damage",
+        "(18-23)% to fire resistance",
+        "(18-23)% to fire resistance",
+        "(18-23)% to fire resistance",
+        "(15-18)% increased fire damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (63-85) to (128-148) fire damage",
+        "adds (63-85) to (128-148) fire damage",
+        "adds (34-46) to (68-80) fire damage",
+        "(24-29)% to fire resistance",
+        "(24-29)% to fire resistance",
+        "(24-29)% to fire resistance",
+        "(19-22)% increased fire damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (110-150) to (223-260) fire damage",
+        "adds (110-150) to (223-260) fire damage",
+        "adds (59-81) to (120-140) fire damage",
+        "(36-41)% to fire resistance",
+        "(36-41)% to fire resistance",
+        "(36-41)% to fire resistance",
+        "(23-26)% increased fire damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (137-188) to (279-325) fire damage",
+        "adds (137-188) to (279-325) fire damage",
+        "adds (74-101) to (150-175) fire damage",
+        "(42-45)% to fire resistance",
+        "(42-45)% to fire resistance",
+        "(42-45)% to fire resistance",
+        "(27-30)% increased fire damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (149-203) to (302-351) fire damage",
+        "adds (149-203) to (302-351) fire damage",
+        "adds (80-109) to (162-189) fire damage",
+        "(46-48)% to fire resistance",
+        "(46-48)% to fire resistance",
+        "(46-48)% to fire resistance",
+        "(31-34)% increased fire damage"
+      ]
+    ]
+  ],
+  "anguish": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (24-33) to (48-57) fire damage to spells",
+        "adds (32-44) to (65-76) fire damage to spells",
+        "adds (5-7) to (11-13) fire damage to attacks",
+        "(6-7)% chance to avoid fire damage from hits",
+        "(6-7)% chance to avoid fire damage from hits",
+        "(43-46)% chance to avoid being ignited",
+        "adds (17-22) to (33-38) fire damage to attacks",
+        "(43-46)% chance to avoid being ignited",
+        "adds (11-15) to (23-27) fire damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (31-42) to (64-73) fire damage to spells",
+        "adds (42-56) to (85-99) fire damage to spells",
+        "adds (7-10) to (15-18) fire damage to attacks",
+        "(7-8)% chance to avoid fire damage from hits",
+        "(7-8)% chance to avoid fire damage from hits",
+        "(47-50)% chance to avoid being ignited",
+        "adds (27-35) to (53-62) fire damage to attacks",
+        "(47-50)% chance to avoid being ignited",
+        "adds (16-22) to (32-38) fire damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (40-52) to (79-91) fire damage to spells",
+        "adds (53-70) to (107-123) fire damage to spells",
+        "adds (9-12) to (19-22) fire damage to attacks",
+        "(8-9)% chance to avoid fire damage from hits",
+        "(8-9)% chance to avoid fire damage from hits",
+        "(51-55)% chance to avoid being ignited",
+        "adds (37-50) to (74-87) fire damage to attacks",
+        "(51-55)% chance to avoid being ignited",
+        "adds (19-25) to (39-45) fire damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (49-66) to (98-115) fire damage to spells",
+        "adds (66-88) to (132-155) fire damage to spells",
+        "adds (11-15) to (23-27) fire damage to attacks",
+        "(9-10)% chance to avoid fire damage from hits",
+        "(9-10)% chance to avoid fire damage from hits",
+        "(56-60)% chance to avoid being ignited",
+        "adds (41-55) to (81-96) fire damage to attacks",
+        "(56-60)% chance to avoid being ignited",
+        "adds (23-27) to (43-48) fire damage to attacks"
+      ]
+    ]
+  ],
+  "contempt": [
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds 1 to (2-3) physical damage",
+        "adds 2 to (4-5) physical damage",
+        "adds 1 to 2 physical damage to attacks",
+        "reflects (1-4) physical damage to melee attackers",
+        "adds 1 to 2 physical damage to attacks",
+        "reflects (1-4) physical damage to melee attackers",
+        "adds 1 to 2 physical damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (4-5) to (8-9) physical damage",
+        "adds (6-8) to (12-15) physical damage",
+        "adds (2-3) to (4-5) physical damage to attacks",
+        "reflects (5-10) physical damage to melee attackers",
+        "adds (2-3) to (4-5) physical damage to attacks",
+        "reflects (5-10) physical damage to melee attackers",
+        "adds (2-3) to (4-5) physical damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (6-9) to (13-15) physical damage",
+        "adds (10-13) to (21-25) physical damage",
+        "adds (3-4) to (6-7) physical damage to attacks",
+        "reflects (11-24) physical damage to melee attackers",
+        "adds (4-6) to (9-10) physical damage to attacks",
+        "reflects (11-24) physical damage to melee attackers",
+        "adds (4-6) to (9-10) physical damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "adds (8-12) to (17-20) physical damage",
+        "adds (13-17) to (28-32) physical damage",
+        "adds (3-5) to (7-8) physical damage to attacks",
+        "reflects (25-50) physical damage to melee attackers",
+        "adds (6-9) to (13-15) physical damage to attacks",
+        "adds (6-9) to (13-15) physical damage to attacks",
+        "adds (5-7) to (11-12) physical damage to attacks",
+        "reflects (25-50) physical damage to melee attackers"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "adds (13-18) to (27-31) physical damage",
+        "adds (20-28) to (43-51) physical damage",
+        "adds (4-5) to (8-9) physical damage to attacks",
+        "reflects (51-100) physical damage to melee attackers",
+        "adds (9-12) to (19-22) physical damage to attacks",
+        "adds (9-12) to (19-22) physical damage to attacks",
+        "adds (6-8) to (12-13) physical damage to attacks",
+        "reflects (51-100) physical damage to melee attackers"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "adds (16-21) to (32-38) physical damage",
+        "adds (25-33) to (52-61) physical damage",
+        "adds (5-6) to (9-10) physical damage to attacks",
+        "reflects (101-150) physical damage to melee attackers",
+        "adds (11-15) to (22-26) physical damage to attacks",
+        "adds (11-15) to (22-26) physical damage to attacks",
+        "adds (7-9) to (13-15) physical damage to attacks",
+        "reflects (101-150) physical damage to melee attackers"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "adds (20-26) to (40-47) physical damage",
+        "adds (31-42) to (65-75) physical damage",
+        "adds (6-7) to (10-11) physical damage to attacks",
+        "reflects (151-200) physical damage to melee attackers",
+        "adds (16-18) to (27-30) physical damage to attacks",
+        "adds (16-18) to (27-30) physical damage to attacks",
+        "adds (10-11) to (16-17) physical damage to attacks",
+        "reflects (151-200) physical damage to melee attackers"
+      ]
+    ]
+  ],
+  "doubt": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "armour",
+        "quiver",
+        "amulet",
+        "other jewellery"
+      ],
+      [
+        "(131-215) to accuracy rating",
+        "(64-82) to evasion rating",
+        "(100-165) to accuracy rating",
+        "(14-18)% increased evasion rating",
+        "(36-60) to evasion rating"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "other jewellery"
+      ],
+      [
+        "(216-325) to accuracy rating",
+        "(81-90) to evasion rating",
+        "(81-90) to evasion rating",
+        "(121-150) to evasion rating",
+        "(102-120) to evasion rating",
+        "(166-250) to accuracy rating",
+        "(19-23)% increased evasion rating",
+        "(61-80) to evasion rating"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "other jewellery"
+      ],
+      [
+        "(326-455) to accuracy rating",
+        "(151-200) to evasion rating",
+        "(121-140) to evasion rating",
+        "(151-225) to evasion rating",
+        "(91-105) to evasion rating",
+        "(251-350) to accuracy rating",
+        "(24-28)% increased evasion rating",
+        "(81-120) to evasion rating"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "other jewellery"
+      ],
+      [
+        "(456-624) to accuracy rating",
+        "(301-400) to evasion rating",
+        "(141-160) to evasion rating",
+        "(226-300) to evasion rating",
+        "(106-120) to evasion rating",
+        "(351-480) to accuracy rating",
+        "(29-31)% increased evasion rating",
+        "(121-150) to evasion rating"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "other jewellery"
+      ],
+      [
+        "(625-780) to accuracy rating",
+        "(390-475) to evasion rating",
+        "(161-180) to evasion rating",
+        "(301-375) to evasion rating",
+        "(121-135) to evasion rating",
+        "(481-600) to accuracy rating",
+        "(32-33)% increased evasion rating",
+        "(151-180) to evasion rating"
+      ]
+    ]
+  ],
+  "dread": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "wand",
+        "bow",
+        "other 1h weapon",
+        "2h melee weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(34-41)% increased projectile speed",
+        "+1 to level of socketed bow gems",
+        "(12-16)% increased impale effect",
+        "(25-29)% increased impale effect",
+        "(151-200) to armour",
+        "(121-140) to armour",
+        "(151-225) to armour",
+        "(91-105) to armour",
+        "(34-41)% increased projectile speed",
+        "(24-28)% increased armour",
+        "(80-120) to armour",
+        "(323-400) to armour"
+      ]
+    ],
+    [
+      [
+        "wand",
+        "bow",
+        "other 1h weapon",
+        "2h melee weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(42-46)% increased projectile speed",
+        "+2 to level of socketed bow gems",
+        "(17-21)% increased impale effect",
+        "(30-34)% increased impale effect",
+        "(301-400) to armour",
+        "(141-160) to armour",
+        "(226-300) to armour",
+        "(106-120) to armour",
+        "(42-46)% increased projectile speed",
+        "(29-31)% increased armour",
+        "(121-200) to armour",
+        "(401-460) to armour"
+      ]
+    ],
+    [
+      [
+        "wand",
+        "bow",
+        "other 1h weapon",
+        "2h melee weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(47-52)% increased projectile speed",
+        "+2 to level of socketed bow gems",
+        "(22-25)% increased impale effect",
+        "(35-38)% increased impale effect",
+        "(390-475) to armour",
+        "(161-180) to armour",
+        "(301-375) to armour",
+        "(121-135) to armour",
+        "(47-52)% increased projectile speed",
+        "(32-33)% increased armour",
+        "(201-300) to armour",
+        "(481-520) to armour"
+      ]
+    ]
+  ],
+  "envy": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (37-59) to (79-103) chaos damage",
+        "adds (61-103) to (149-193) chaos damage",
+        "(21-25)% to chaos resistance",
+        "adds (11-15) to (27-33) chaos damage to attacks",
+        "(21-25)% to chaos resistance",
+        "(23-26)% increased chaos damage"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (43-67) to (89-113) chaos damage",
+        "adds (73-113) to (163-205) chaos damage",
+        "(26-30)% to chaos resistance",
+        "adds (17-21) to (37-43) chaos damage to attacks",
+        "(26-30)% to chaos resistance",
+        "(27-30)% increased chaos damage"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (53-79) to (101-131) chaos damage",
+        "adds (89-131) to (181-229) chaos damage",
+        "(31-35)% to chaos resistance",
+        "adds (23-37) to (49-61) chaos damage to attacks",
+        "(31-35)% to chaos resistance",
+        "(31-34)% increased chaos damage"
+      ]
+    ]
+  ],
+  "fear": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (20-29)% increased damage",
+        "minions deal (30-44)% increased damage",
+        "minions deal (13-15)% increased damage",
+        "(13-15)% increased minion accuracy rating",
+        "minions have (13-15)% increased maximum life",
+        "minions have (13-15)% increased movement speed",
+        "minions have (13-15)% increased maximum life",
+        "minions have (13-15)% increased movement speed"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (30-39)% increased damage",
+        "minions deal (45-59)% increased damage",
+        "minions deal (16-18)% increased damage",
+        "(16-18)% increased minion accuracy rating",
+        "minions have (16-18)% increased maximum life",
+        "minions have (16-18)% increased movement speed",
+        "minions have (16-18)% increased maximum life",
+        "minions have (16-18)% increased movement speed"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (40-54)% increased damage",
+        "minions deal (60-84)% increased damage",
+        "minions deal (19-21)% increased damage",
+        "(19-21)% increased minion accuracy rating",
+        "minions have (19-21)% increased maximum life",
+        "minions have (19-21)% increased movement speed",
+        "minions have (19-21)% increased maximum life",
+        "minions have (19-21)% increased movement speed"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (50-66)% increased damage",
+        "minions deal (85-106)% increased damage",
+        "minions deal (22-24)% increased damage",
+        "(22-24)% increased minion accuracy rating",
+        "minions have (22-24)% increased maximum life",
+        "minions have (22-24)% increased movement speed",
+        "minions have (22-24)% increased maximum life",
+        "minions have (22-24)% increased movement speed"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (67-82)% increased damage",
+        "minions deal (107-122)% increased damage",
+        "minions deal (25-27)% increased damage",
+        "(25-27)% increased minion accuracy rating",
+        "minions have (25-27)% increased maximum life",
+        "minions have (25-27)% increased movement speed",
+        "minions have (25-27)% increased maximum life",
+        "minions have (25-27)% increased movement speed"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "helmet",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "minions deal (83-94)% increased damage",
+        "minions deal (123-144)% increased damage",
+        "minions deal (28-30)% increased damage",
+        "(28-30)% increased minion accuracy rating",
+        "minions have (28-30)% increased maximum life",
+        "minions have (28-30)% increased movement speed",
+        "minions have (28-30)% increased maximum life",
+        "minions have (28-30)% increased movement speed"
+      ]
+    ]
+  ],
+  "greed": [
+    [
+      [
+        "weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(0.5-0.7)% of physical attack damage leeched as life",
+        "(5-14) to maximum life",
+        "(0.5-0.7)% of physical attack damage leeched as life",
+        "(8-11)% increased flask life recovery rate",
+        "regenerate (1-2) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(0.6-0.8)% of physical attack damage leeched as life",
+        "(15-30) to maximum life",
+        "(0.6-0.8)% of physical attack damage leeched as life",
+        "(12-15)% increased flask life recovery rate",
+        "regenerate (2.1-8) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(0.7-0.9)% of physical attack damage leeched as life",
+        "(31-45) to maximum life",
+        "(0.7-0.9)% of physical attack damage leeched as life",
+        "(16-19)% increased flask life recovery rate",
+        "regenerate (8.1-16) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(0.8-1)% of physical attack damage leeched as life",
+        "(60-69) to maximum life",
+        "(60-69) to maximum life",
+        "(70-79) to maximum life",
+        "(0.8-1)% of physical attack damage leeched as life",
+        "(20-23)% increased flask life recovery rate",
+        "regenerate (16.1-24) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(0.9-1.1)% of physical attack damage leeched as life",
+        "(90-99) to maximum life",
+        "(80-89) to maximum life",
+        "(90-99) to maximum life",
+        "(70-79) to maximum life",
+        "(0.9-1.1)% of physical attack damage leeched as life",
+        "(24-27)% increased flask life recovery rate",
+        "regenerate (24.1-32) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(1-1.2)% of physical attack damage leeched as life",
+        "(110-119) to maximum life",
+        "(90-99) to maximum life",
+        "(100-109) to maximum life",
+        "(80-89) to maximum life",
+        "(1-1.2)% of physical attack damage leeched as life",
+        "(28-31)% increased flask life recovery rate",
+        "regenerate (32.1-48) life per second"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(1.1-1.3)% of physical attack damage leeched as life",
+        "(120-126) to maximum life",
+        "(100-106) to maximum life",
+        "(110-116) to maximum life",
+        "(90-96) to maximum life",
+        "(1.1-1.3)% of physical attack damage leeched as life",
+        "(32-35)% increased flask life recovery rate",
+        "regenerate (48.1-64) life per second"
+      ]
+    ]
+  ],
+  "hatred": [
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (2-3) to (6-7) cold damage",
+        "adds (2-3) to (6-7) cold damage",
+        "adds (1-2) to (3-4) cold damage",
+        "(6-11)% to cold resistance",
+        "(6-11)% to cold resistance",
+        "(6-11)% to cold resistance",
+        "(6-10)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (12-17) to (26-30) cold damage",
+        "adds (12-17) to (26-30) cold damage",
+        "adds (7-9) to (14-16) cold damage",
+        "(12-17)% to cold resistance",
+        "(12-17)% to cold resistance",
+        "(12-17)% to cold resistance",
+        "(11-14)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (29-40) to (58-68) cold damage",
+        "adds (29-40) to (58-68) cold damage",
+        "adds (16-21) to (31-37) cold damage",
+        "(18-23)% to cold resistance",
+        "(18-23)% to cold resistance",
+        "(18-23)% to cold resistance",
+        "(15-18)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (57-77) to (114-132) cold damage",
+        "adds (57-77) to (114-132) cold damage",
+        "adds (31-42) to (62-71) cold damage",
+        "(24-29)% to cold resistance",
+        "(24-29)% to cold resistance",
+        "(24-29)% to cold resistance",
+        "(19-22)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (99-136) to (200-232) cold damage",
+        "adds (99-136) to (200-232) cold damage",
+        "adds (54-74) to (108-126) cold damage",
+        "(36-41)% to cold resistance",
+        "(36-41)% to cold resistance",
+        "(36-41)% to cold resistance",
+        "(23-26)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (124-170) to (250-290) cold damage",
+        "adds (124-170) to (250-290) cold damage",
+        "adds (68-92) to (136-157) cold damage",
+        "(42-45)% to cold resistance",
+        "(42-45)% to cold resistance",
+        "(42-45)% to cold resistance",
+        "(27-30)% increased cold damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (134-184) to (270-313) cold damage",
+        "adds (134-184) to (270-313) cold damage",
+        "adds (73-100) to (147-170) cold damage",
+        "(46-48)% to cold resistance",
+        "(46-48)% to cold resistance",
+        "(46-48)% to cold resistance",
+        "(31-34)% increased cold damage"
+      ]
+    ]
+  ],
+  "loathing": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(20-24)% increased critical strike chance",
+        "(15-17)% increased global critical strike chance",
+        "(16-20)% chance to avoid elemental ailments",
+        "(6-7)% chance to block",
+        "(3-4)% increased mana reservation efficiency of skills",
+        "(25-29)% increased global critical strike chance",
+        "(25-29)% increased global critical strike chance",
+        "(15-17)% increased global critical strike chance",
+        "(21-25)% increased stun duration on enemies"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(25-29)% increased critical strike chance",
+        "(18-20)% increased global critical strike chance",
+        "(21-25)% chance to avoid elemental ailments",
+        "(8-9)% chance to block",
+        "(5-6)% increased mana reservation efficiency of skills",
+        "(30-34)% increased global critical strike chance",
+        "(30-34)% increased global critical strike chance",
+        "(18-20)% increased global critical strike chance",
+        "(26-30)% increased stun duration on enemies"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(30-34)% increased critical strike chance",
+        "(21-23)% increased global critical strike chance",
+        "(26-30)% chance to avoid elemental ailments",
+        "(10-11)% chance to block",
+        "(7-8)% increased mana reservation efficiency of skills",
+        "(35-38)% increased global critical strike chance",
+        "(35-38)% increased global critical strike chance",
+        "(21-23)% increased global critical strike chance",
+        "(31-35)% increased stun duration on enemies"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(35-38)% increased critical strike chance",
+        "(24-26)% increased global critical strike chance",
+        "(31-35)% chance to avoid elemental ailments",
+        "(12-13)% chance to block",
+        "(9-10)% increased mana reservation efficiency of skills",
+        "(39-42)% increased global critical strike chance",
+        "(39-42)% increased global critical strike chance",
+        "(24-26)% increased global critical strike chance",
+        "(36-39)% increased stun duration on enemies"
+      ]
+    ]
+  ],
+  "misery": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(21-24)% increased cast speed",
+        "(32-37)% increased cast speed",
+        "(50-59)% increased mana regeneration rate",
+        "(55-59) to maximum mana",
+        "(0.2-0.4)% of physical attack damage leeched as mana",
+        "(11-15)% increased flask mana recovery rate",
+        "(50-59)% increased mana regeneration rate"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(25-28)% increased cast speed",
+        "(38-43)% increased cast speed",
+        "(60-69)% increased mana regeneration rate",
+        "(65-68) to maximum mana",
+        "(0.6-0.8)% of physical attack damage leeched as mana",
+        "(16-20)% increased flask mana recovery rate",
+        "(60-69)% increased mana regeneration rate"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "(29-32)% increased cast speed",
+        "(44-49)% increased cast speed",
+        "(70-76)% increased mana regeneration rate",
+        "(69-77) to maximum mana",
+        "(0.9-1)% of physical attack damage leeched as mana",
+        "(21-25)% increased flask mana recovery rate",
+        "(70-76)% increased mana regeneration rate"
+      ]
+    ]
+  ],
+  "rage": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 4% fire resistance",
+        "damage penetrates (7-8)% fire resistance",
+        "(18-22) to strength"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 5% fire resistance",
+        "damage penetrates (9-10)% fire resistance",
+        "(28-32) to strength"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 6% fire resistance",
+        "damage penetrates (11-12)% fire resistance",
+        "(33-37) to strength"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 7% fire resistance",
+        "damage penetrates (13-14)% fire resistance",
+        "(43-50) to strength"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 8% fire resistance",
+        "damage penetrates (15-16)% fire resistance",
+        "(51-58) to strength"
+      ]
+    ]
+  ],
+  "scorn": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(80-99)% increased critical strike chance for spells",
+        "(31-39)% increased stun threshold",
+        "(80-99)% increased critical strike chance for spells",
+        "(23-26)% chance to avoid being stunned",
+        "(25-29)% to global critical strike multiplier",
+        "(25-29)% to global critical strike multiplier",
+        "(15-17)% to global critical strike multiplier",
+        "(12-13)% reduced enemy stun threshold"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(100-109)% increased critical strike chance for spells",
+        "(40-45)% increased stun threshold",
+        "(100-109)% increased critical strike chance for spells",
+        "(27-30)% chance to avoid being stunned",
+        "(30-34)% to global critical strike multiplier",
+        "(30-34)% to global critical strike multiplier",
+        "(18-20)% to global critical strike multiplier",
+        "(14-15)% reduced enemy stun threshold"
+      ]
+    ],
+    [
+      [
+        "weapon",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(110-119)% increased critical strike chance for spells",
+        "(46-60)% increased stun threshold",
+        "(110-119)% increased critical strike chance for spells",
+        "(31-44)% chance to avoid being stunned",
+        "(35-41)% to global critical strike multiplier",
+        "(35-41)% to global critical strike multiplier",
+        "(21-25)% to global critical strike multiplier",
+        "(16-17)% reduced enemy stun threshold"
+      ]
+    ]
+  ],
+  "sorrow": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 3% cold resistance",
+        "damage penetrates (5-6)% cold resistance",
+        "(13-17) to dexterity"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 4% cold resistance",
+        "damage penetrates (7-8)% cold resistance",
+        "(18-22) to dexterity"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 5% cold resistance",
+        "damage penetrates (9-10)% cold resistance",
+        "(28-32) to dexterity"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 6% cold resistance",
+        "damage penetrates (11-12)% cold resistance",
+        "(33-37) to dexterity"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 7% cold resistance",
+        "damage penetrates (13-14)% cold resistance",
+        "(43-50) to dexterity"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 8% cold resistance",
+        "damage penetrates (15-16)% cold resistance",
+        "(51-58) to dexterity"
+      ]
+    ]
+  ],
+  "spite": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 5% lightning resistance",
+        "damage penetrates (9-10)% lightning resistance",
+        "(28-32) to intelligence"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 6% lightning resistance",
+        "damage penetrates (11-12)% lightning resistance",
+        "(33-37) to intelligence"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 7% lightning resistance",
+        "damage penetrates (13-14)% lightning resistance",
+        "(43-50) to intelligence"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "other item"
+      ],
+      [
+        "damage penetrates 8% lightning resistance",
+        "damage penetrates (15-16)% lightning resistance",
+        "(51-58) to intelligence"
+      ]
+    ]
+  ],
+  "suffering": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (11-15) to (22-25) cold damage to spells",
+        "adds (16-22) to (33-38) cold damage to spells",
+        "adds (3-4) to (7-8) cold damage to attacks",
+        "(5-6)% chance to avoid cold damage from hits",
+        "(5-6)% chance to avoid cold damage from hits",
+        "(39-42)% chance to avoid being frozen",
+        "adds (10-13) to (19-22) cold damage to attacks",
+        "(39-42)% chance to avoid being frozen",
+        "adds (6-9) to (13-16) cold damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (20-26) to (40-46) cold damage to spells",
+        "adds (30-40) to (59-69) cold damage to spells",
+        "adds (5-7) to (10-12) cold damage to attacks",
+        "(6-7)% chance to avoid cold damage from hits",
+        "(6-7)% chance to avoid cold damage from hits",
+        "(43-46)% chance to avoid being frozen",
+        "adds (15-20) to (30-35) cold damage to attacks",
+        "(43-46)% chance to avoid being frozen",
+        "adds (10-13) to (20-24) cold damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (26-35) to (51-60) cold damage to spells",
+        "adds (39-52) to (77-90) cold damage to spells",
+        "adds (6-9) to (13-16) cold damage to attacks",
+        "(7-8)% chance to avoid cold damage from hits",
+        "(7-8)% chance to avoid cold damage from hits",
+        "(47-50)% chance to avoid being frozen",
+        "adds (18-24) to (36-42) cold damage to attacks",
+        "(47-50)% chance to avoid being frozen",
+        "adds (12-16) to (24-28) cold damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (33-43) to (64-75) cold damage to spells",
+        "adds (49-64) to (96-113) cold damage to spells",
+        "adds (8-11) to (16-19) cold damage to attacks",
+        "(8-9)% chance to avoid cold damage from hits",
+        "(8-9)% chance to avoid cold damage from hits",
+        "(51-55)% chance to avoid being frozen",
+        "adds (33-45) to (67-78) cold damage to attacks",
+        "(51-55)% chance to avoid being frozen",
+        "adds (17-22) to (34-40) cold damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (41-54) to (81-93) cold damage to spells",
+        "adds (61-81) to (120-140) cold damage to spells",
+        "adds (10-13) to (20-24) cold damage to attacks",
+        "(9-10)% chance to avoid cold damage from hits",
+        "(9-10)% chance to avoid cold damage from hits",
+        "(56-60)% chance to avoid being frozen",
+        "adds (36-50) to (74-86) cold damage to attacks",
+        "(56-60)% chance to avoid being frozen",
+        "adds (20-24) to (38-44) cold damage to attacks"
+      ]
+    ]
+  ],
+  "torment": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (1-2) to (21-22) lightning damage to spells",
+        "adds (1-3) to (32-34) lightning damage to spells",
+        "adds 1 to 5 lightning damage to attacks",
+        "(4-5)% chance to avoid lightning damage from hits",
+        "(4-5)% chance to avoid lightning damage from hits",
+        "(35-38)% chance to avoid being shocked",
+        "adds 2 to (16-18) lightning damage to attacks",
+        "(35-38)% chance to avoid being shocked",
+        "adds 1 to (14-15) lightning damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (1-4) to (46-48) lightning damage to spells",
+        "adds (2-5) to (69-73) lightning damage to spells",
+        "adds 1 to (14-15) lightning damage to attacks",
+        "(5-6)% chance to avoid lightning damage from hits",
+        "(5-6)% chance to avoid lightning damage from hits",
+        "(39-42)% chance to avoid being shocked",
+        "adds (2-3) to (35-40) lightning damage to attacks",
+        "(39-42)% chance to avoid being shocked",
+        "adds (1-2) to (27-28) lightning damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (2-7) to (84-88) lightning damage to spells",
+        "adds (3-10) to (126-133) lightning damage to spells",
+        "adds (1-2) to (22-23) lightning damage to attacks",
+        "(6-7)% chance to avoid lightning damage from hits",
+        "(6-7)% chance to avoid lightning damage from hits",
+        "(43-46)% chance to avoid being shocked",
+        "adds (2-5) to (56-62) lightning damage to attacks",
+        "(43-46)% chance to avoid being shocked",
+        "adds (1-4) to (40-43) lightning damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (2-9) to (109-115) lightning damage to spells",
+        "adds (5-12) to (164-173) lightning damage to spells",
+        "adds (1-2) to (27-28) lightning damage to attacks",
+        "(7-8)% chance to avoid lightning damage from hits",
+        "(7-8)% chance to avoid lightning damage from hits",
+        "(47-50)% chance to avoid being shocked",
+        "adds (3-8) to (89-99) lightning damage to attacks",
+        "(47-50)% chance to avoid being shocked",
+        "adds (3-6) to (57-61) lightning damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (4-11) to (136-144) lightning damage to spells",
+        "adds (5-17) to (204-216) lightning damage to spells",
+        "adds (1-3) to (33-34) lightning damage to attacks",
+        "(8-9)% chance to avoid lightning damage from hits",
+        "(8-9)% chance to avoid lightning damage from hits",
+        "(51-55)% chance to avoid being shocked",
+        "adds (5-11) to (124-140) lightning damage to attacks",
+        "(51-55)% chance to avoid being shocked",
+        "adds (3-7) to (68-72) lightning damage to attacks"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "body armour",
+        "shield",
+        "other armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (4-14) to (170-179) lightning damage to spells",
+        "adds (7-20) to (255-270) lightning damage to spells",
+        "adds (1-4) to (40-43) lightning damage to attacks",
+        "(9-10)% chance to avoid lightning damage from hits",
+        "(9-10)% chance to avoid lightning damage from hits",
+        "(56-60)% chance to avoid being shocked",
+        "adds (6-13) to (136-155) lightning damage to attacks",
+        "(56-60)% chance to avoid being shocked",
+        "adds (4-8) to (71-76) lightning damage to attacks"
+      ]
+    ]
+  ],
+  "woe": [
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(10-19)% increased spell damage",
+        "(15-29)% increased spell damage",
+        "(3-5) to maximum energy shield",
+        "(5-10)% increased damage with bow skills",
+        "(2-4)% increased maximum energy shield",
+        "(1-3) to maximum energy shield",
+        "(1-3) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(20-29)% increased spell damage",
+        "(30-44)% increased spell damage",
+        "(6-11) to maximum energy shield",
+        "(11-20)% increased damage with bow skills",
+        "(5-7)% increased maximum energy shield",
+        "(4-8) to maximum energy shield",
+        "(4-8) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(30-39)% increased spell damage",
+        "(45-59)% increased spell damage",
+        "(17-23) to maximum energy shield",
+        "(21-25)% increased damage with bow skills",
+        "(8-10)% increased maximum energy shield",
+        "(16-19) to maximum energy shield",
+        "(16-19) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "gloves",
+        "boots",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(40-54)% increased spell damage",
+        "(60-84)% increased spell damage",
+        "(18-26) to maximum energy shield",
+        "(18-26) to maximum energy shield",
+        "(39-49) to maximum energy shield",
+        "(31-38) to maximum energy shield",
+        "(26-30)% increased damage with bow skills",
+        "(11-13)% increased maximum energy shield",
+        "(23-26) to maximum energy shield",
+        "(23-26) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(50-66)% increased spell damage",
+        "(85-106)% increased spell damage",
+        "(50-61) to maximum energy shield",
+        "(39-45) to maximum energy shield",
+        "(50-59) to maximum energy shield",
+        "(27-32) to maximum energy shield",
+        "(31-36)% increased damage with bow skills",
+        "(14-16)% increased maximum energy shield",
+        "(27-31) to maximum energy shield",
+        "(27-31) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(67-82)% increased spell damage",
+        "(107-122)% increased spell damage",
+        "(77-90) to maximum energy shield",
+        "(46-51) to maximum energy shield",
+        "(60-69) to maximum energy shield",
+        "(28-35) to maximum energy shield",
+        "(37-42)% increased damage with bow skills",
+        "(17-18)% increased maximum energy shield",
+        "(38-43) to maximum energy shield",
+        "(32-37) to maximum energy shield"
+      ]
+    ],
+    [
+      [
+        "1h weapon",
+        "2h weapon",
+        "body armour",
+        "helmet",
+        "shield",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(83-94)% increased spell damage",
+        "(123-144)% increased spell damage",
+        "(88-95) to maximum energy shield",
+        "(52-58) to maximum energy shield",
+        "(75-85) to maximum energy shield",
+        "(38-45) to maximum energy shield",
+        "(43-50)% increased damage with bow skills",
+        "(18-19)% increased maximum energy shield",
+        "(44-47) to maximum energy shield",
+        "(38-43) to maximum energy shield"
+      ]
+    ]
+  ],
+  "wrath": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (5-8) to (106-123) lightning damage",
+        "adds (5-8) to (106-123) lightning damage",
+        "adds 3 to (57-67) lightning damage",
+        "(18-23)% to lightning resistance",
+        "(18-23)% to lightning resistance",
+        "(18-23)% to lightning resistance",
+        "(8-12)% increased lightning damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (11-14) to (208-242) lightning damage",
+        "adds (11-14) to (208-242) lightning damage",
+        "adds (5-8) to (112-131) lightning damage",
+        "(24-29)% to lightning resistance",
+        "(24-29)% to lightning resistance",
+        "(24-29)% to lightning resistance",
+        "(13-17)% increased lightning damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (19-25) to (366-425) lightning damage",
+        "adds (19-25) to (366-425) lightning damage",
+        "adds (10-14) to (197-229) lightning damage",
+        "(36-41)% to lightning resistance",
+        "(36-41)% to lightning resistance",
+        "(36-41)% to lightning resistance",
+        "(23-26)% increased lightning damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (23-32) to (458-531) lightning damage",
+        "adds (23-32) to (458-531) lightning damage",
+        "adds (13-17) to (247-286) lightning damage",
+        "(42-45)% to lightning resistance",
+        "(42-45)% to lightning resistance",
+        "(42-45)% to lightning resistance",
+        "(27-30)% increased lightning damage"
+      ]
+    ],
+    [
+      [
+        "bow",
+        "2h melee weapon",
+        "other weapon",
+        "armour",
+        "quiver",
+        "belt",
+        "other jewellery"
+      ],
+      [
+        "adds (25-34) to (494-575) lightning damage",
+        "adds (25-34) to (494-575) lightning damage",
+        "adds (13-19) to (266-310) lightning damage",
+        "(46-48)% to lightning resistance",
+        "(46-48)% to lightning resistance",
+        "(46-48)% to lightning resistance",
+        "(31-34)% increased lightning damage"
+      ]
+    ]
+  ],
+  "zeal": [
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "0"
+      ],
+      [
+        "0"
+      ]
+    ],
+    [
+      [
+        "melee weapon",
+        "ranged weapon",
+        "gloves",
+        "boots",
+        "body armour",
+        "helmet",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(20-22)% increased attack speed",
+        "(11-12)% increased attack speed",
+        "(8-10)% increased attack speed",
+        "20% increased movement speed",
+        "(21-25)% increased totem placement speed",
+        "(15-20)% increased warcry speed",
+        "(20-22)% increased stun and block recovery",
+        "(6-7)% increased attack speed",
+        "(5-8)% increased cast speed",
+        "(5-8)% increased cast speed",
+        "(7-10)% increased trap and mine throwing speed"
+      ]
+    ],
+    [
+      [
+        "melee weapon",
+        "ranged weapon",
+        "gloves",
+        "boots",
+        "body armour",
+        "helmet",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(23-25)% increased attack speed",
+        "(13-14)% increased attack speed",
+        "(11-13)% increased attack speed",
+        "25% increased movement speed",
+        "(26-30)% increased totem placement speed",
+        "(21-25)% increased warcry speed",
+        "(23-25)% increased stun and block recovery",
+        "(8-9)% increased attack speed",
+        "(9-12)% increased cast speed",
+        "(9-12)% increased cast speed",
+        "(11-13)% increased trap and mine throwing speed"
+      ]
+    ],
+    [
+      [
+        "melee weapon",
+        "ranged weapon",
+        "gloves",
+        "boots",
+        "body armour",
+        "helmet",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(26-27)% increased attack speed",
+        "(15-16)% increased attack speed",
+        "(14-16)% increased attack speed",
+        "30% increased movement speed",
+        "(31-35)% increased totem placement speed",
+        "(26-30)% increased warcry speed",
+        "(26-28)% increased stun and block recovery",
+        "(10-12)% increased attack speed",
+        "(13-16)% increased cast speed",
+        "(13-14)% increased cast speed",
+        "(14-17)% increased trap and mine throwing speed"
+      ]
+    ],
+    [
+      [
+        "melee weapon",
+        "ranged weapon",
+        "gloves",
+        "boots",
+        "body armour",
+        "helmet",
+        "other armour",
+        "quiver",
+        "amulet",
+        "ring",
+        "belt"
+      ],
+      [
+        "(28-30)% increased attack speed",
+        "(17-18)% increased attack speed",
+        "(17-18)% increased attack speed",
+        "32% increased movement speed",
+        "(36-45)% increased totem placement speed",
+        "(31-35)% increased warcry speed",
+        "(29-34)% increased stun and block recovery",
+        "(13-15)% increased attack speed",
+        "(17-20)% increased cast speed",
+        "(15-16)% increased cast speed",
+        "(18-21)% increased trap and mine throwing speed"
+      ]
+    ]
+  ]
+}

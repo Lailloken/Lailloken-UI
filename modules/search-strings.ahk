@@ -21,6 +21,8 @@
 	Loop, Parse, % LLK_IniRead("ini\search-strings.ini", "searches"), `n
 	{
 		inikey := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), inival := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		If (settings.general.lang_client != "english" && inikey = "beast crafting")
+			Continue
 		vars.searchstrings.list[inikey] := {"enable": inival}
 		If inival
 			vars.searchstrings.enabled += 1
@@ -100,14 +102,14 @@ StringContextMenu(name := "")
 
 	If !vars.searchstrings.list[name].strings.Count()
 	{
-		LLK_ToolTip("no strings for:`n"name, 1.5,,,, "yellow")
+		LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [name]), 1.5,,,, "yellow")
 		Return
 	}
 	Gui, searchstrings_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 	Gui, searchstrings_context: Margin, % settings.general.fWidth, % settings.general.fHeight/3
 	Gui, searchstrings_context: Color, Black
 	WinSet, Transparent, % settings.general.trans
-	Gui, searchstrings_context: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
+	Gui, searchstrings_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	vars.hwnd.searchstrings_context := hwnd, vars.searchstrings.active := [name]
 
 	For key, val in strings
@@ -129,16 +131,16 @@ StringMenu(name)
 	Gui, New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsearchstrings_menu, Lailloken UI: search-string configuration
 	Gui, %searchstrings_menu%: Color, Black
 	Gui, %searchstrings_menu%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/4
-	Gui, %searchstrings_menu%: Font, % "s"settings.general.fSize - 2 " cWhite", Fontin SmallCaps
+	Gui, %searchstrings_menu%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.searchstrings_menu.main, vars.hwnd.searchstrings_menu := {"main": searchstrings_menu}
 	
-	Gui, %searchstrings_menu%: Add, Text, % "x-1 y-1 Section Border Center gStringMenu2 HWNDhwnd", % "search-strings config: " name
+	Gui, %searchstrings_menu%: Add, Text, % "x-1 y-1 Section Border Center gStringMenu2 HWNDhwnd", % LangTrans("search_header") " " name
 	vars.hwnd.searchstrings_menu.winbar := hwnd
 	Gui, %searchstrings_menu%: Add, Text, % "ys x+-1 Border gStringMenuClose Center HWNDhwnd w"settings.general.fWidth*2, % "x"
 	vars.hwnd.searchstrings_menu.winx := hwnd
 
 	Gui, %searchstrings_menu%: Font, % "bold underline s"settings.general.fSize
-	Gui, %searchstrings_menu%: Add, Text, % "Section xs HWNDhwnd x"settings.general.fWidth/2, % "add entry:"
+	Gui, %searchstrings_menu%: Add, Text, % "Section xs HWNDhwnd x"settings.general.fWidth/2, % LangTrans("global_newentry")
 	WinGetPos,, yPos,,, ahk_id %hwnd%
 	Gui, %searchstrings_menu%: Font, % "norm s"settings.general.fSize - 2
 	Gui, %searchstrings_menu%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd0", img\GUI\help.png
@@ -154,7 +156,7 @@ StringMenu(name)
 		If !header
 		{
 			Gui, %searchstrings_menu%: Font, % "bold underline s"settings.general.fSize
-			Gui, %searchstrings_menu%: Add, Text, % "Section xs y+"settings.general.fHeight*0.8 " Center BackgroundTrans", % "saved entries:"
+			Gui, %searchstrings_menu%: Add, Text, % "Section xs y+"settings.general.fHeight*0.8 " Center BackgroundTrans", % LangTrans("global_savedentry")
 			Gui, %searchstrings_menu%: Font, norm
 			Gui, %searchstrings_menu%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd", img\GUI\help.png
 			WinGetPos, xPos,, width, height, ahk_id %hwnd%
@@ -164,7 +166,7 @@ StringMenu(name)
 		If !vars.searchstrings.menu.active.2
 			vars.searchstrings.menu.active.2 := key
 		style := !added ? "y+0" : "y+"settings.general.fHeight/6, added += 1
-		Gui, %searchstrings_menu%: Add, Text, % "Section xs Border "style " Center BackgroundTrans", % " del "
+		Gui, %searchstrings_menu%: Add, Text, % "Section xs Border "style " Center BackgroundTrans", % " " LangTrans("global_delete", 2) " "
 		Gui, %searchstrings_menu%: Add, Progress, % "xp yp wp hp range0-500 Disabled BackgroundBlack cRed HWNDhwnd",
 		vars.hwnd.searchstrings_menu["delbar_"key] := hwnd
 		Gui, %searchstrings_menu%: Add, Text, % "xp yp wp hp gStringMenu2 HWNDhwnd", % ""
@@ -322,7 +324,7 @@ StringScroll(hotkey)
 	}
 	
 	If !InStr(clip, ";")
-		GuiControl, text, % vars.hwnd.tooltip_mouse.text, % "scrolling... "vars.searchstrings.active.3 "/" vars.searchstrings.active.4 "`n(esc to exit)"
+		GuiControl, text, % vars.hwnd.tooltip_mouse.text, % LangTrans("omnikey_scroll") " " vars.searchstrings.active.3 "/" vars.searchstrings.active.4 "`n" LangTrans("omnikey_escape")
 	If index
 		vars.searchstrings.clipboard := StrReplace(vars.searchstrings.clipboard, original, ";"index ";"), Clipboard := StrReplace(vars.searchstrings.clipboard, ";")
 	Else Clipboard := (active.1 = "exile-leveling") ? vars.leveltracker.string[active.3] : vars.searchstrings.list[active.1].strings[active.2][active.3]
@@ -340,7 +342,7 @@ StringSearch(name)
 	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing
 	{
 		If (A_Gui = DummyGUI(vars.hwnd.settings.main))
-			LLK_ToolTip("calibrate first",,,,, "yellow")
+			LLK_ToolTip(LangTrans("global_calibrate", 2),,,,, "yellow")
 		Return 0
 	}
 	
@@ -355,7 +357,7 @@ StringSearch(name)
 	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
 	If (A_Gui = DummyGUI(vars.hwnd.settings.main)) && (pNeedle_searchstrings <= 0)
 	{
-		MsgBox,% "The calibration file could not be loaded correctly.`n`nYou should recalibrate this search: " name
+		MsgBox, % LangTrans("cheat_loaderror") " " name
 		Return 0
 	}
 	
@@ -368,11 +370,11 @@ StringSearch(name)
 		}
 		Gdip_DisposeImage(pNeedle_searchstrings) ;clear reference-img file from memory
 		If (A_Gui = DummyGUI(vars.hwnd.settings.main))
-			LLK_ToolTip("positive",,,,, "lime")
+			LLK_ToolTip(LangTrans("global_positive"),,,,, "lime")
 		Return 1
 	}
 	Else Gdip_DisposeImage(pNeedle_searchstrings)
 	If (A_Gui = DummyGUI(vars.hwnd.settings.main))
-		LLK_ToolTip("negative",,,,, "red")
+		LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 	Return 0
 }

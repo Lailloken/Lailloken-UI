@@ -6,12 +6,16 @@
     ],
     "browser features": [
       "enables additional features when accessing 3rd-party websites via the script",
-      "-> chrome calculator: auto-paste stats\n-> poe.db cluster jewels: auto-highlight type"
+      "examples:\n-> chrome calculator: auto-paste stats\n-> poe.db cluster jewels: auto-highlight type"
     ],
     "capslock toggling": [
       "only uncheck this box if something outside of this script is bound to capslock",
       "whenever ahk sends inputs, it toggles capslock back and forth, which triggers whatever is bound to it (e.g. voice chat mute)",
       "toggling this option will restart the script"
+    ],
+    "lang language": [
+      "select the script's display language",
+      "the script will restart upon selection"
     ],
     "llk button": [
       "hides the llk-ui button that is used to open the settings menu and restart the script",
@@ -21,7 +25,7 @@
       "size of the movable button that opens this feature"
     ],
     "font-size": [
-      "<-> and <+> can be held down, the middle button resets the size"
+      "– and + can be held down, the middle button resets the size"
     ],
     "generic color": [
       "click to apply an rgb code from clipboard, right click to reset"
@@ -46,7 +50,7 @@
     ],
     "black bars": [
       "the client's aspect ratio is limited to 24:10 and there will be black bars if it's wider",
-      "this option repositions the script's overlays to compensate for this"
+      "this option repositions the script's overlays and screen-checks to compensate for this"
     ],
     "window borders": [
       "removes borders around the client window",
@@ -175,7 +179,7 @@
       "for special keys, check the links above to find proper names and formatting"
     ],
     "hotkeys omniblock": [
-      "the keypress will only be registered by the script and not the rest of the system",
+      "while the game-client or script is focused, the keypress will only be registered by the script and not the rest of the system",
       "only script features will be activated by the keypress, and special keys (e.g. windows or accent keys, capslock, etc.) can be used without their usual side effects"
     ],
     "hotkeys altkey": [
@@ -231,6 +235,10 @@
     "lang unavailable": [
       "this feature is currently not available on non-english clients"
     ],
+    "lang incompatible": [
+      "this feature is not available on clients with an unsupported language",
+      "it will be available once a language-pack for the current language has been installed"
+    ],
     "leveltracker enable": [
       "provides an automated leveling guide overlay and several campaign qol-tools"
     ],
@@ -255,6 +263,9 @@
       "accessed by right-clicking the guide button",
       "while the panel is open, omni-click items to add them to the list",
       "requires specifying your character name in the <general> settings"
+    ],
+    "leveltracker expbar": [
+      "slightly moves the guide-overlay up so it doesn't cover the exp-bar"
     ],
     "leveltracker skilltree-info": [
       "while the skilltree is on screen, hold the omni-key to show overlays with skilltree images",
@@ -293,6 +304,10 @@
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
       "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
+    ],
+    "maptracker rename": [
+      "tags and renames boss maps for easier filtering",
+	  "example: <boss: elder> instead of <absence of value and meaning>"
     ],
     "maptracker side-content": [
       "side-areas you enter and the time spent inside will be logged",
@@ -358,7 +373,9 @@
       "while hovering over mods, press 1-4 to apply a color, or space to strike out"
     ],
     "alarm enable": [
-      "small timer widget with alarm and stopwatch functionality"
+      "small timer widget with alarm and stopwatch functionality",
+      "hold tab to display the widget, then click it to enter a time",
+      "right-click it to stop a running timer"
     ],
     "notepad enable": [
       "notepad tool with individual tabs and floating widgets"
@@ -410,8 +427,8 @@
       "3rd-party website for regex-strings"
     ],
     "searchstrings about": [
-      "regex-strings are grouped into use-cases",
-      "when pressing the omni-key, the script detects the right use-case and displays a context-menu with strings to choose",
+      "regex-strings are grouped into use-cases, e.g. gwennen, vendor, stash",
+      "when pressing the omni-key, the script detects the right use-case and displays a context-menu with strings to choose from",
       "this detection requires manual image calibration for each use-case"
     ],
     "searchstrings calibrate": [
@@ -441,15 +458,6 @@
     ],
     "searchstrings add": [
       "type in a name and press enter"
-    ],
-    "trade enable": [
-      "scans the trade window and sums up the currency in it",
-      "pressing the omni-key while a trade window is up will open a movable grid",
-      "requires the <trade> image-check to be set up correctly in the <screen-check> section of the menu"
-    ],
-    "trade offset": [
-      "it's possible the grid needs some fine-tuning at some resolutions",
-      "adjust the offsets until the grid more or less matches the trade window"
     ],
     "update check": [
       "checks for updates on script launch and in the background while running",
@@ -596,10 +604,11 @@
   },
   "maptracker": {
     "logviewer day-select": [
-      "list of days with logged map runs"
+      "list of dates with logged map runs"
     ],
     "logviewer day-delete": [
-      "hold to delete the selected day and its logs"
+      "hold to delete the logs of the selected date",
+      "hold right-click to clear the entire log collection"
     ],
     "logviewer export-day": [
       "hold to export the logs of the selected date into a separate file, overwriting any existing file with the same date"
@@ -707,7 +716,7 @@
       "type in a descriptive name for the string(s) and press enter"
     ],
     "config entry-list": [
-      "click an entry to edit its string(s), hold <del> to remove it",
+      "click an entry to edit its string(s), long-click <del> to remove it",
       "each line in the edit-field is an individual string",
       "adding multiple lines turns the entry into a scrollable search"
     ]

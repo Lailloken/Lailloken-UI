@@ -11,21 +11,11 @@
 	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
 	If !IsObject(vars.omnikey)
 		vars.omnikey := {}
-	;If WinExist("ahk_id " vars.hwnd.mapinfo)
-	;	LLK_MapInfoClose()
 
 	Loop, Parse, % "*,~,!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
 
-	If settings.features.cheatsheets && vars.cheatsheets.enabled && GetKeyState(settings.cheatsheets.omni_modifier, "P")
-	|| (InStr(vars.log.areaID, "_town") || vars.log.areaID = "1_3_17_1") && WinExist("ahk_id "vars.hwnd.leveltracker.main) && (guide.group1.gems.Count() || guide.group1.items.Count())
-	{
-		Omnikey2()
-		Return
-	}
-
 	Clipboard := ""
-	
 	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id "vars.hwnd.poe_client)
 	{
 		WinActivate, ahk_group poe_window
@@ -37,20 +27,17 @@
 		SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
 	Else SendInput !^{c}
 
-	If GetKeyState("Ctrl", "p") && settings.general.dev ;override clipboard for testing purposes
-	{
-		Clipboard := 
-		(LTrim
-		)
-	}
-	ClipWait, 0.05
+	ClipWait, 0.1
 
 	If Clipboard
 	{
-		vars.omnikey.start := A_TickCount
-		vars.omnikey.item := {} ;store data about the clicked item here
-		vars.omnikey.clipboard := StrReplace(Clipboard, "You cannot use this item. Its stats will be ignored`r`n--------`r`n")
+		If (settings.general.lang_client = "unknown")
+		{
+			LLK_ToolTip(LangTrans("omnikey_language"), 3,,,, "red")
+			Return
+		}
 		
+		vars.omnikey.start := A_TickCount, vars.omnikey.item := {} ;store data about the clicked item here
 		OmniItemInfo()
 
 		Switch OmniContext()
@@ -66,19 +53,19 @@
 			Case "iteminfo":
 				Iteminfo()
 			Case "gemnotepad":
-				text := StrReplace(LLK_ControlGet(vars.hwnd.notepad.note), "`n", "(n)"), text .= (Blank(text) ? "" : "(n)") vars.omnikey.item.name
+				text := StrReplace(LLK_ControlGet(vars.hwnd.notepad.note), "`n", "(n)"), text .= (Blank(text) ? "" : "(n)") vars.omnikey.item.name_copy
 				While (SubStr(text, 1, 1) = " ") || (SubStr(text, 1, 3) = "(n)")
 					text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : SubStr(text, 4)
-				If InStr(LLK_IniRead("ini\qol tools.ini", "notepad", "gems"), vars.omnikey.item.name)
-					LLK_ToolTip("gem already added",,,,, "red")
+				If InStr(LLK_IniRead("ini\qol tools.ini", "notepad", "gems"), vars.omnikey.item.name_copy)
+					LLK_ToolTip(LangTrans("notepad_addgems", 2),,,,, "red")
 				Else
 				{
 					IniWrite, % LLK_StringCase(text), ini\qol tools.ini, notepad, gems
-					Notepad(), LLK_ToolTip("gem added",,,,, "lime")
+					Notepad(), LLK_ToolTip(LangTrans("notepad_addgems"),,,,, "lime")
 				}
 			Case "gemnotes":
 				note := vars.leveltracker.guide.gem_notes[vars.omnikey.item.name]
-				LLK_ToolTip(!note ? "no notes" : note, note? 0 : 1,,, "gem_notes")
+				LLK_ToolTip(!note ? LangTrans("lvltracker_gemnotes") : note, note? 0 : 2,,, "gem_notes")
 			Case "geartracker":
 				GeartrackerAdd()
 			Case "recombinators_blank":
@@ -206,282 +193,224 @@ OmniRelease()
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
 }
 
-OmniURL(site)
-{
-	local
-	global vars, settings
-	
-	exceptions := ["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask", "crimson jewel", "viridian jewel", "cobalt jewel", "prismatic jewel"]
-	Switch site
-	{
-		Case "wiki":
-			If InStr(vars.omnikey.item.name, " Oil", 1)
-				Return "Oil"
-			Else If InStr(vars.omnikey.item.name, " Catalyst", 1)
-				Return "Catalyst"
-			Else If LLK_HasVal(vars.omnikey.item, " Cluster Jewel", 1, 1)
-				Return "Cluster_Jewel"
-			Else If LLK_HasVal(vars.omnikey.item, "Runic ", 1, 1) && InStr(vars.omnikey.clipboard, "ward: ")
-				Return "Runic_base_type#" vars.omnikey.item.class
-			Else If InStr(vars.omnikey.item.class, "heist ")
-			{
-				If vars.omnikey.item.heist_job
-					Return "Rogue's_equipment#"vars.omnikey.item.heist_job
-				Else If InStr(vars.omnikey.clipboard, "melee damage (implicit)")
-					Return "Rogue's_equipment#Melee"
-				Else If InStr(vars.omnikey.clipboard, "projectile attack damage (implicit)")
-					Return "Rogue's_equipment#Ranged"
-				Else If InStr(vars.omnikey.clipboard, "spell damage (implicit)")
-					Return "Rogue's_equipment#Caster"
-				Else Return "Rogue's_equipment#"StrReplace(vars.omnikey.item.class, "heist ")
-			}
-			Else Return (vars.omnikey.item.class = "Body armours") ? "Body_Armour" : StrReplace(vars.omnikey.item.class, " ", "_")
-		Case "poe.db":
-			If LLK_HasVal(vars.omnikey.item, "Runic ", 1, 1) && InStr(vars.omnikey.clipboard, "`nWard: ", 1)
-			{
-				If (vars.omnikey.item.class = "gloves")
-					Return "Runic_Gauntlets"
-				Else Return (vars.omnikey.item.class = "helmets") ? "Runic_Crown" : "Runic_Sabatons"
-			}
-			Else If LLK_HasVal(exceptions, vars.omnikey.item.itembase) || InStr(vars.omnikey.item.class, "heist ") && !InStr(vars.omnikey.item.class, " target") || (vars.omnikey.item.class = "abyss jewels")
-				Return StrReplace(vars.omnikey.item.itembase, " ", "_")
-			Else If InStr("Gloves,Boots,Body Armours,Helmets,Shields", vars.omnikey.item.class)
-				Return StrReplace(vars.omnikey.item.class, " ", "_") vars.omnikey.item.attributes
-			Else Return StrReplace(vars.omnikey.item.class, " ", "_")
-	}
-	
-}
-
 OmniContext(mode := 0)
 {
 	local
 	global vars, settings
 	
-	ThisHotkey_copy := A_ThisHotkey, clip := !mode ? vars.omnikey.clipboard : Clipboard
+	If mode
+		Iteminfo(2)
+	ThisHotkey_copy := A_ThisHotkey, clip := !mode ? vars.omnikey.clipboard : Clipboard, item := vars.omnikey.item
+
 	Loop, Parse, % "*~!+#^"
 		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
-	While GetKeyState(ThisHotkey_copy, "P") && InStr(vars.omnikey.item.name, " essence of ")
+	While GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1)
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
-
-	If WinExist("ahk_id "vars.hwnd.legion.main) && InStr(clipboard, "passives in radius are conquered by ")
+	If WinExist("ahk_id "vars.hwnd.legion.main) && (item.itembase = "Timeless Jewel")
 		Return "legion"
-
-	If WinExist("ahk_id "vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && InStr(vars.omnikey.clipboard, "rarity: gem")
+	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotepad"
-
-	If vars.hwnd.tooltipgem_notes && WinExist("ahk_id "vars.hwnd.tooltipgem_notes) && InStr(vars.omnikey.clipboard, "rarity: gem")
+	If vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotes"
-
-	While GetKeyState(ThisHotkey_copy, "P") && InStr(vars.omnikey.clipboard, "rarity: gem")
+	While GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
-
-	If WinExist("ahk_id " vars.hwnd.iteminfo.main) && !InStr(clip, "item class: maps") && !InStr(clip, "orb of horizon") && !InStr(clip, "rarity: gem") && !InStr(clip, "item class: blueprints") && !InStr(clip, "item class: contracts")
-		Return "iteminfo"
-
-	While GetKeyState(ThisHotkey_copy, "P") && !InStr(clip, "item class: maps") && !InStr(clip, "orb of horizon") && !InStr(clip, "rarity: gem") && !InStr(clip, "item class: blueprints") && !InStr(clip, "item class: contracts")
-		If (A_TickCount >= vars.omnikey.start + 200)
-			Return "iteminfo"
-
-	If WinExist("ahk_id "vars.hwnd.geartracker.main)
-		Return "geartracker"
-
-	If InStr(clip, "recombinator") || InStr(clip, "power core")
-		Return "recombinators_blank"
-
-	If WinExist("ahk_id " hwnd_recombinator_window)
-		Return "recombinators_add"
-	
-	If InStr(clip, "`nOil Extractor", 1) || InStr(clip, " catalyst`r`n") || InStr(clip, " class: map fragments") || InStr(clip, " splinter`r`n") || InStr(clip, "`r`nsplinter of ") || InStr(clip, "`r`nblessing of ")
-		Return "context_menu"
-
-	If !InStr(clip, "Rarity: Currency") && (!InStr(clip, "Item Class: Map") && !InStr(vars.omnikey.item.itembase, " invitation")) && !InStr(clip, "item class: heist target") && !InStr(clip, "Item Class: Expedition")
-	&& !InStr(clip, "Item Class: Stackable Currency") && !InStr(clip, "item class: blueprints") && !InStr(clip, "item class: contracts") && !InStr(clip, "rarity: quest")
-	|| InStr(clip, "to the goddess") || InStr(clip, "other oils")
-		Return "context_menu"
-
-	If InStr(clip, "Orb of Horizons")
-	{
+	If (item.name = "Orb of Horizons")
 		While GetKeyState(ThisHotkey_copy, "P")
-		{
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
-		}
-	}
-	
-	If (InStr(clip, "Item Class: Map") || InStr(vars.omnikey.item.itembase, " invitation") || InStr(clip, "item class: blueprints") || InStr(clip, "item class: contracts") || InStr(clip, "item class: expedition")) && !InStr(clip, "Fragment")
+	If LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
 	{
-		While GetKeyState(ThisHotkey_copy, "P") && !InStr(clip, "item class: blueprints") && !InStr(clip, "item class: contracts") && !InStr(clip, "item class: expedition")
-		{
+		While GetKeyState(ThisHotkey_copy, "P") && (LLK_PatternMatch(item.name, "", [" Map"]) || LLK_PatternMatch(item.itembase, "", [" Map"]))
 			If (A_TickCount >= vars.omnikey.start + 200)
 			{
-				Loop, Parse, clip, `n, `r
-				{
-					If InStr(A_Loopfield, "Map Tier: ")
-					{
-						vars.omnikey.item.tier := StrReplace(A_Loopfield, "Map Tier: ")
-						Break
-					}
-				}
-				If InStr(clip, "maze of the minotaur") || InStr(clip, "forge of the phoenix") || InStr(clip, "lair of the hydra") || InStr(clip, "pit of the chimera")
+				If LLK_PatternMatch(vars.omnikey.clipboard, "", ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"])
 					Return "horizons_shaper"
-				Else Return "horizons_map"
+				Else If item.tier
+					Return "horizons_map"
+				Else Return
 			}
-		}
 		If settings.features.mapinfo
-		{
-			If !LLK_CheckAdvancedItemInfo()
-				Return
 			Return "mapinfo"
-		}
 	}
+	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
+		Return "iteminfo"
+	While GetKeyState(ThisHotkey_copy, "P")
+		If (A_TickCount >= vars.omnikey.start + 200)
+			Return "iteminfo"
+	If WinExist("ahk_id " vars.hwnd.geartracker.main)
+		Return "geartracker"
+	If InStr(item.name, "recombinator") || InStr(item.name, "power core")
+		Return "recombinators_blank"
+	If WinExist("ahk_id " hwnd_recombinator_window)
+		Return "recombinators_add"
+	If !LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+		Return "context_menu"
 }
 
 OmniContextMenu()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 
-	Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
-	Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/3
-	Gui, omni_context: Color, Black
-	WinSet, Transparent, % settings.general.trans
-	Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", Fontin SmallCaps
-	vars.hwnd.omni_context := hwnd
+	Loop 2
+	{
+		Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd0
+		Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/8
+		Gui, omni_context: Color, Black
+		WinSet, Transparent, % settings.general.trans
+		Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
+		vars.hwnd.omni_context := {"main": hwnd0}, vars.omni_context := {}, item := vars.omnikey.item, style := (A_Index = 2) ? " w" width : "", hwnd := ""
 
-	If !InStr(Clipboard, "`nUnidentified", 1) && (InStr(Clipboard, "Rarity: Unique") || InStr(Clipboard, "Rarity: Gem") || InStr(Clipboard, "Class: Quest") || InStr(Clipboard, "Rarity: Divination Card") ;cont
-	|| InStr(Clipboard, "Class: Breachstones") || InStr(Clipboard, "Class: Memories") || InStr(Clipboard, "Class: map fragments") && !InStr(Clipboard, "to the goddess") || InStr(Clipboard, " splinter`r`n") || InStr(Clipboard, "`r`nsplinter of ")
-	|| InStr(Clipboard, "Class: Misc Map Items") || InStr(Clipboard, "`r`nblessing of "))
-		Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", wiki (exact item)
-	Else If InStr(Clipboard, " catalyst`r`n")
-		Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", wiki (item class)
-	Else If InStr(Clipboard, "to the goddess")
-	{
-		Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", wiki (exact item)
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", lab info
-	}
-	Else If InStr(Clipboard, "other oils")
-	{
-		Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", wiki (item class)
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", anoint table
-	}
-	Else If InStr(Clipboard, "cluster jewel")
-	{
-		If !LLK_CheckAdvancedItemInfo()
-			Return
-		If InStr(Clipboard, "small cluster")
-			cluster_type := "small"
-		Else cluster_type := InStr(Clipboard, "medium cluster") ? "medium" : "large"
-		
-		Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", poe.db: all cluster
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", poe.db: %cluster_type% cluster
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", craft of exile
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", wiki (item class)
-	}
-	Else
-	{
-		If !LLK_CheckAdvancedItemInfo()
-			Return
-		If !InStr(Clipboard, "rarity: unique") && !(vars.omnikey.item.itembase = "breach ring")
-			Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick", poe.db: modifiers
-		If !InStr(Clipboard, "`nUnidentified", 1) && !InStr(Clipboard, "item class: heist") && !(vars.omnikey.item.itembase = "breach ring")
-			Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", craft of exile
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", wiki (item class)
-	}
-
-	If InStr(Clipboard, "limited to: 1 historic")
-	{
-		If !LLK_CheckAdvancedItemInfo()
-			Return
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", seed-explorer
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", vilsol's calculator
-	}
-
-	If InStr(Clipboard, "Sockets: ") && !InStr(Clipboard, "Class: Ring") && !InStr(Clipboard, "Class: Amulet") && !InStr(Clipboard, "Class: Belt")
-		Gui, omni_context: Add, Text, % "xs Section gOmniContextMenuPick", chromatics
-	/*
-	Loop, Parse, % recombinators.classes, `,, `,
-	{
-		If InStr(item_class, A_Loopfield) && !InStr(Clipboard, "rarity: unique") && !InStr(Clipboard, "`nUnidentified", 1) && !InStr(Clipboard, "rarity: normal")
+		If !(item.unid && item.rarity = LangTrans("items_unique")) && (LLK_PatternMatch(item.name, "", ["Splinter"]) || item.itembase || !LLK_PatternMatch(item.rarity, "", [LangTrans("items_magic"), LangTrans("items_rare"), LangTrans("items_currency")]))
 		{
-			If !LLK_CheckAdvancedItemInfo()
-				Return
-			Gui, omni_context: Add, Text, % "xs Section gRecombinators_add", recombinator
-			break
+			Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase(item[item.itembase && item.rarity != LangTrans("items_unique") ? "itembase" : "name"])
+			ControlGetPos,,, w1,,, % "ahk_id " hwnd
+			vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := item[item.itembase && item.rarity != LangTrans("items_unique") ? "itembase" : "name"]
 		}
+
+		If (item.rarity != LangTrans("items_unique"))
+		&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || LLK_HasVal(db.item_bases._classes, item.class) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
+		{
+			If LLK_HasVal(db.item_bases._classes, item.class)
+				class := db.item_bases._classes[LLK_HasVal(db.item_bases._classes, item.class)]
+			Else If LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
+				class := LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
+			Else If (settings.general.lang_client = "english")
+				class := item.class
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
+			ControlGetPos,,, w2,,, % "ahk_id " hwnd
+			If (class != "cluster jewels") && (LLK_HasVal(db.item_bases._classes, item.class) || InStr(item.class, "heist") && item.itembase)
+			{
+				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "poe.db: " LangTrans("system_poedb_lang", 2)
+				ControlGetPos,,, w3,,, % "ahk_id " hwnd1
+			}
+			If !item.unid && (settings.general.lang_client = "english") && LLK_HasVal(db.item_bases._classes, item.class) && !LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil"])
+			{
+				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd2" style, % "craft of exile"
+				ControlGetPos,,, w4,,, % "ahk_id " hwnd2
+			}
+			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1, vars.hwnd.omni_context.craftofexile := hwnd2, width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width 
+		}
+
+		If InStr(item.name, "to the goddess")
+		{
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd", % "poelab.com"
+			ControlGetPos,,, w5,,, % "ahk_id " hwnd
+			vars.hwnd.omni_context.poelab := hwnd
+		}
+
+		If (class = "oil")
+		{
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd", % "raelys' blight-helper"
+			ControlGetPos,,, w6,,, % "ahk_id " hwnd
+			vars.hwnd.omni_context.oiltable := hwnd
+		}
+
+		If (class = "Cluster jewels")
+		{
+			cluster_type := InStr(item.itembase, "small") ? "small" : InStr(item.itembase, "medium") ? "medium" : "large"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "poe.db: all clusters"
+			Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "poe.db: " . cluster_type . " clusters"
+			ControlGetPos,,, w7,,, % "ahk_id " hwnd
+			ControlGetPos,,, w8,,, % "ahk_id " hwnd1
+			vars.hwnd.omni_context.poedb := hwnd, vars.hwnd.omni_context.poedb1 := hwnd1
+		}
+
+		If !item.unid && (item.itembase = "Timeless Jewel") && InStr(vars.omnikey.clipboard, LangTrans("items_uniquemod"))
+		{
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "seed-explorer"
+			ControlGetPos,,, w9,,, % "ahk_id " hwnd
+			Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "vilsol's calculator"
+			ControlGetPos,,, w10,,, % "ahk_id " hwnd
+			vars.hwnd.omni_context.seed := hwnd, vars.hwnd.omni_context.vilsol := hwnd1
+		}
+
+		If !item.unid && item.sockets
+		{
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "chromatic calculator"
+			ControlGetPos,,, w11,,, % "ahk_id " hwnd
+			vars.hwnd.omni_context.chromatics := hwnd
+		}
+		Loop 11
+			w%A_Index% := !w%A_Index% ? 0 : w%A_Index%
+		width := Max(w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11)
 	}
-	*/
+	
 	MouseGetPos, mouseX, mouseY
-	Gui, omni_context: Show, % "Hide x"mouseX " y"mouseY
-	WinGetPos, x_context,, w_context
-	Gui, omni_context: Show, % "Hide x"mouseX - w_context " y"mouseY
-	WinGetPos, x_context,, w_context
-	If (x_context < vars.client.x)
-		Gui, omni_context: Show, % "NA x"vars.client.x " y"mouseY
-	Else Gui, omni_context: Show, % "NA x"mouseX - w_context " y"mouseY
+	Gui, omni_context: Show, % "NA x10000 y10000"
+	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.omni_context.main
+	xTarget := (mouseX + w > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : mouseX
+	yTarget := (mouseY + h > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : mouseY
+	If (w > 50)
+		Gui, omni_context: Show, % "NA x" xTarget " y" yTarget
+	Else Gui, omni_context: Destroy
 }
 
-OmniContextMenuPick()
+OmniContextMenuPick(cHWND)
 {
 	local
 	global vars, settings
 
+	item := vars.omnikey.item, check := LLK_HasVal(vars.hwnd.omni_context, cHWND), control := SubStr(check, InStr(check, " ") + 1)
 	KeyWait, LButton
-	Switch A_GuiControl
+	If InStr(check, "wiki_")
 	{
-		Case "wiki (exact item)":
-			Run, % "https://www.poewiki.net/wiki/"StrReplace(vars.omnikey.item.name, " ", "_")
-		Case "wiki (item class)":
-			Run, % "https://www.poewiki.net/wiki/"OmniURL("wiki")
-		Case "lab info":
-			Run, % "https://www.poelab.com/"
-			If settings.qol.lab && settings.features.browser
-			{
-				WinWaitNotActive, ahk_group poe_ahk_window,, 2
-				ToolTip_Mouse("lab", 1)
-			}
-			If settings.qol.lab
-				Lab("import")
-		Case "poe.db: modifiers":
-			Run, % "https://poedb.tw/us/"OmniURL("poe.db") "#ModifiersCalc"
-			Clipboard := vars.omnikey.item.ilvl
-		Case "craft of exile":
-			Run, https://www.craftofexile.com/
-		Case "anoint table":
-			Run, https://blight.raelys.com/
-		Case "seed-explorer":
-			LegionParse(), LegionGUI()
-		Case "vilsol's calculator":
-			LegionParse()
-			Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel="vars.legion.jewel_number "&conqueror="LLK_StringCase(vars.legion.leader,, 1) "&seed="vars.legion.seed "&mode=seed"
-		Case "chromatics":
-			Run, https://siveran.github.io/calc.html
-			If settings.features.browser
-			{
-				WinWaitNotActive, ahk_group poe_ahk_window,, 2
-				ToolTip_Mouse("chromatics", 1)
-			}
-		Case "recombinator":
-			SoundBeep
+		class := StrReplace(vars.omni_context[cHWND], " ", "_"), class := (class = "body_armours") ? "Body_armour" : (InStr(item.itembase, "Runic ") ? "Runic_base_type#" : "") . class
+		class := StrReplace(class, "Jewels", "jewel"), class := InStr(item.class, "heist ") ? "Rogue's_equipment#" . StrReplace(item.class, "heist ") : class
+		Run, % "https://www.poewiki.net/wiki/" . class
 	}
-	If InStr(A_GuiControl, "poe.db:") && InStr(A_GuiControl, "cluster")
+	Else If (check = "poelab")
 	{
-		If !InStr(A_GuiControl, " all ")
+		Run, % "https://www.poelab.com/"
+		If settings.qol.lab && settings.features.browser
 		{
-			clusterURL := StrReplace(A_GuiControl, "poe.db: "), clusterURL := StrReplace(clusterURL, " cluster") "_"
-			StringUpper, clusterURL, clusterURL, T
+			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			ToolTip_Mouse("lab", 1)
 		}
-		Run, % "https://poedb.tw/us/"clusterURL "Cluster_Jewel#EnchantmentModifiers"
-		Clipboard := vars.omnikey.item.ilvl
-		If settings.features.browser
+		If settings.qol.lab
+			Lab("import")
+	}
+	Else If (check = "oiltable")
+		Run, https://blight.raelys.com/
+	Else If InStr(check, "poedb")
+	{
+		If InStr(item.itembase, "Cluster Jewel")
+			page := (InStr(A_GuiControl, "all clusters") ? "" : (InStr(item.itembase, "small") ? "Small_" : InStr(item.itembase, "medium") ? "Medium_" : "Large_")) "Cluster_Jewel"
+		Else If InStr(item.itembase, "Runic ", 1)
+			page := (item.class = "boots") ? "Runic_Sabatons" : (item.class = "helmets") ? "Runic_Crown" : "Runic_Gauntlets"
+		Else If LLK_HasVal(["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask"], item.itembase) || InStr(item.class, "jewels") || InStr(item.class, "heist")
+			page := StrReplace(item.itembase, " ", "_")
+		Else page := StrReplace(item.class, " ", "_") . item.attributes
+		Run, % "https://poedb.tw/" . LangTrans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")
+		Clipboard := item.ilvl
+		If InStr(page, "cluster_jewel") && settings.features.browser
 		{
 			WinWaitNotActive, ahk_group poe_ahk_window,, 2
 			ToolTip_Mouse("cluster", 1)
 		}
 	}
-	Gui, omni_context: Hide
+	Else If (check = "craftofexile")
+		Run, https://www.craftofexile.com/
+	Else If (check = "seed")
+		LegionParse(), LegionGUI()
+	Else If (check = "vilsol")
+	{
+		LegionParse()
+		Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel=" vars.legion.jewel_number "&conqueror=" LLK_StringCase(vars.legion.leader,, 1) "&seed=" vars.legion.seed "&mode=seed"
+	}
+	Else If (check = "chromatics")
+	{
+		Run, https://siveran.github.io/calc.html
+		If settings.features.browser
+		{
+			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			ToolTip_Mouse("chromatics", 1)
+		}
+	}
+	Gui, omni_context: Destroy
 }
 
 OmniItemInfo()
@@ -489,104 +418,39 @@ OmniItemInfo()
 	local
 	global vars, settings, db
 
-	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables
-
-	;store the item's name & base
-	Loop, Parse, clip, `n, `r ;store item's class, rarity, name, and base-type
-	{
-		If InStr(A_LoopField, "---")
-			Break
-		If InStr(A_LoopField, "Item class:")
-			item.class := StrReplace(A_LoopField, "item class: ") ;StrReplace(StrReplace(A_LoopField, "item class: "), " ", "_")
-		If InStr(A_LoopField, "Rarity: ")
-			item.rarity := StrReplace(A_LoopField, "rarity: ")
-		If (A_Index = 3)
-			item.name := StrReplace(StrReplace(A_LoopField, "superior "), "synthesised ") ;remove 'superior' and 'synthesised' from the name
-		If (A_Index = 4)
-			item.itembase := StrReplace(A_LoopField, "synthesised ") ;remove 'synthesised' from the base-type
-	}
-	item.unid := InStr(clip, "`r`nUnidentified`r`n", 1) ? 1 : 0
-	
-	If !item.itembase ;if base-type couldn't be directly determined from the first lines, derive it from the item's characteristics
-	{
-		If item.unid || (item.rarity = "normal") ;unid and normal items = name is also base-type
-			item.itembase := item.name
-		Else If (item.rarity = "magic") ;magic items = base-type has to be derived from affixes
-		{
-			item.itembase := item.name
-			parse := InStr(clip, "{ Prefix Modifier """)
-			prefix := parse ? SubStr(clip, parse + 19) : "", prefix := SubStr(prefix, 1, InStr(prefix, """") - 1)
-			parse := InStr(clip, "{ Suffix Modifier """)
-			suffix := parse ? SubStr(clip, parse + 19) : "", suffix := SubStr(suffix, 1, InStr(suffix, """") - 1)
-			If prefix
-				item.itembase := StrReplace(item.itembase, prefix " ")
-			If suffix
-				item.itembase := StrReplace(item.itembase, " "suffix)
-		}
-	}
+	Iteminfo(2)
+	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables	
 	
 	If item.itembase
 	{
 		item.attributes := ""
 		For class, val in db.item_bases
-		{
 			If InStr(item.class, class)
-			{
 				For subtype, val1 in val
-				{
 					If val1.HasKey(item.itembase)
 						item.attributes .= InStr(subtype, "armour") ? "_str" : "", item.attributes .= InStr(subtype, "evasion") ? "_dex" : "", item.attributes .= InStr(subtype, "energy") ? "_int" : ""
-				}
-			}
-		}
 	}
 
-	If InStr(clip, "`nSockets: ", 1)
-		item.str := 0, item.dex := 0, item.int := 0
-
-	Loop, Parse, clip, `n, `r ;store the item's class, rarity, and miscellaneous info
+	Loop, Parse, clip, `n, % "`r " ;store the item's class, rarity, and miscellaneous info
 	{	
-		If InStr(A_LoopField, "item class: ")
-			item.class := StrReplace(A_LoopField, "item class: ")
+		loopfield := A_LoopField
+		If InStr(A_LoopField, LangTrans("items_level"), 1) && !InStr(A_LoopField, LangTrans("items_ilevel"))
+			item.lvl_req := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), " (unmet)"), item.lvl_req := (item.lvl_req < 10) ? 0 . item.lvl_req : item.lvl_req
 
-		If InStr(A_LoopField, "rarity: ")
-			item.rarity := StrReplace(A_LoopField, "rarity: ")
-
-		If (SubStr(A_LoopField, 1, 7) = "Level: ")
-			item.lvl_req := StrReplace(A_LoopField, " (unmet)"), item.lvl_req := SubStr(item.lvl_req, InStr(item.lvl_req, " ") + 1)
-
-		If InStr(A_LoopField, "Level", 1) && InStr(A_LoopField, " in ") && !InStr(A_LoopField, " Any Job", 1)
-			item.heist_job := SubStr(A_LoopField, InStr(A_LoopField, "in ") + 3)
-
-		If InStr(A_LoopField, "Str: ") || InStr(A_LoopField, "Strength: ") ;oddly enough, unidentified items don't use abbreviations for attribute-requirements
-			item.str := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), item.str := StrReplace(item.str, " (augmented)"), item.str := StrReplace(item.str, " (unmet)")
+		Loop, Parse, % "str,dex,int", `,
+			If LLK_PatternMatch(loopfield, "", vars.lang["items_" A_LoopField])
+				item[A_LoopField] := StrReplace(StrReplace(SubStr(loopfield, InStr(loopfield, ":") + 2), " (augmented)"), " (unmet)")
 		
-		If InStr(A_LoopField, "Dex: ") || InStr(A_LoopField, "Dexterity: ")
-			item.dex := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), item.dex := StrReplace(item.dex, " (augmented)"), item.dex := StrReplace(item.dex, " (unmet)")
-		
-		If InStr(A_LoopField, "Int: ") || InStr(A_LoopField, "Intelligence: ")
-			item.int := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), item.int := StrReplace(item.int, " (augmented)"), item.int := StrReplace(item.int, " (unmet)")
-
-		If InStr(A_LoopField, "Item Level: ")
+		If InStr(A_LoopField, LangTrans("items_ilevel"))
 			item.ilvl := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 
-		If InStr(A_LoopField, "Added Small Passive Skills grant: ")
-			item.cluster_enchant := SubStr(A_LoopField, 35), item.cluster_enchant := StrReplace(item.cluster_enchant, "+"), item.cluster_enchant := StrReplace(item.cluster_enchant, " (enchant)")
+		If InStr(A_LoopField, LangTrans("mods_cluster_passive"))
+			item.cluster_enchant := StrReplace(StrReplace(SubStr(A_LoopField, StrLen(LangTrans("mods_cluster_passive")) + 2), "+"), " (enchant)")
 
-		If InStr(A_LoopField, "Sockets: ")
-			item.sockets := StrReplace(A_LoopField, "Sockets: "), item.sockets := StrReplace(item.sockets, " "), item.sockets := StrReplace(item.sockets, "-"), item.sockets := StrLen(item.sockets)
+		If !InStr("rings,belts,amulets", item.class) && LLK_PatternMatch(SubStr(A_LoopField, 0), "", ["R", "G", "B", "W", "A"])
+			item.sockets := StrLen(StrReplace(StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), " "), "-"))
 
-		If InStr(A_LoopField, "Map tier: ")
-			item.tier := StrReplace(A_LoopField, "Map tier: ")
+		If InStr(A_LoopField, LangTrans("items_maptier"))
+			item.tier := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 	}
-}
-
-LLK_CheckAdvancedItemInfo()
-{
-	If !InStr(Clipboard, "prefix modifier") && !InStr(Clipboard, "suffix modifier") && !InStr(Clipboard, "unique modifier") && !InStr(Clipboard, "`nRarity: Normal", 1) && !InStr(Clipboard, "`nUnidentified", 1)
-	{
-		LLK_ToolTip("couldn't copy advanced item-info.`nconfigure the omni-key in the hotkeys menu.", 3,,,, "red")
-		Return 0
-	}
-	Else Return 1
 }

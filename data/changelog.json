@@ -1,5 +1,14 @@
 [
   [
+	["1.51.0", 15100],
+	"3.23 updates",
+	"item-info fixes",
+	"leveling tracker tweaks",
+	"mapping tracker tweaks/fixes",
+	"omni-key context-menu tweaks",
+	"full community-translation support"
+  ],
+  [
 	["1.50.9", 15009],
 	"v1.50 now out of beta",
 	"item-info: rune dagger fix",

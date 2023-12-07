@@ -226,11 +226,11 @@
         "trapped chest:\nflasks"
       ],
       "intervention": [
-        "metamorph scrabs",
-        "metamorph scarab"
+        "ultimatum scrabs",
+        "ultimatum scarab"
       ],
       "research": [
-        "apply 50: chromes /\njeweller's / fusings",
+        "take one: item",
         "flask quality:\n22 / 24 / 26 / 28"
       ],
       "transportation": [
@@ -282,8 +282,8 @@
   "tora": {
     "rewards": {
       "fortification": [
-        "take one: enchanted\ngloves / boots / helmet",
-        "trapped chest:\nsupport gems"
+        "quality gems\nt4: 21-23%",
+        "trapped chest:\ngems"
       ],
       "intervention": [
         "harbinger scarabs",
@@ -291,10 +291,10 @@
       ],
       "research": [
         "gem exp (mil):\n20 / 70 / 200 / 2x 200",
-        "gem exp (mil):\n15 / 35 / 75 / 150"
+        "support gems"
       ],
       "transportation": [
-        "take one: currency,\ndiv, unique, veiled",
+        "take one: gem",
         "skill gems"
       ]
     }
@@ -334,7 +334,7 @@
         "apply fusings:\n10 / 15 / 20 / 30"
       ],
       "transportation": [
-        "quality gems",
+        "apply 50: chromes /\njeweller's / fusings",
         "apply chromatics:\n10 / 15 / 20 / 30"
       ]
     }
