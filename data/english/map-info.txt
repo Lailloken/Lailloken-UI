@@ -1,3 +1,24 @@
+;#####################################################
+;## general information/instructions
+;#####################################################
+
+;## purpose of this file
+	;## the script uses this file to detect specific word patterns in data that was copied from the game-client in order to extract information
+	;## these patterns used to be hard-coded for English only, but they are now exposed in this txt-file and can be adapted to new target languages
+
+
+;## file structure
+	;## the script ignores TABs, empty lines, as well as lines/sections marked as comments (;##)
+	;## the file is divided into [sections]: don't change them unless stated otherwise
+	;## each non-comment line in this file is a key/value pair, divided into two parts:
+		;##	key		=	value
+		;## some keys don't require a value
+
+
+;## these keys are map-names as they are displayed at the top of map-items
+;## these pairs are used to trim overly long names: if the key (partially) matches the item's name, the value will replace it
+;## replace the keys with the corresponding in-game strings of the target language, then create a trimmed value
+
 [Map Names]
 Maven's Invitation: The Feared		=	The Feared
 Maven's Invitation: The Forgotten	=	The Forgotten
@@ -8,6 +29,10 @@ Maven's Invitation: The Elderslayers	=	The Elderslayers
 Maven's Invitation: The Atlas		=	Atlas Invitation
 Expedition Logbook			=	Logbook
 
+
+;## map-mods will be grouped into these 5 categories
+;## translate these keys as you see fit, but don't change the order
+
 [mod types]
 player
 monsters
@@ -15,11 +40,19 @@ bosses
 area
 heist
 
+
+;## these are the different expedition groups/clans as they are displayed in the game, as well as the corresponding NPCs
+;## replace both key and value with the corresponding strings of the target language
+
 [expedition groups]
 black scythe mercenaries	=	tujen
 order of the chalice		=	rog
 druids of the broken circle	=	gwennen
 knights of the sun		=	dannig
+
+
+;## these are the different areas that can roll on logbooks
+;## replace the keys with the corresponding strings of the target language
 
 [expedition areas]
 battleground graves
@@ -38,662 +71,676 @@ utzaal outskirts
 vaal temple
 volcanic island
 
+
+;## from this point onwards, the [section] will be the strings of map-mods as they are displayed on map-items
+;## replace those strings with the corresponding strings of the target language and use placeholders where applicable
+
+;## each mod belongs to a type (from the five in the [mod types] section above)
+;## there's a sixth "expedition" type: don't change that
+;## you can simply use the "find & replace" feature in text-editors to quickly replace all the "type = X" lines (since there are only 5 different ones)
+
+;## each mod has a short text-string that will be used in the map-info panel instead of the full mod-text
+;## %-signs will be replaced by the actual %-roll of the map-mod, e.g. "ele reflect: %" -> "ele reflect: 15%"
+;## try to trim down the text-strings as much as possible in order to keep the map-info panel compact
+
+;## the text-strings between ID 200 and 300 make heavy use of abbreviations because the original mod-text is very long
+
 [monsters reflect # of elemental damage]
-type=monsters
-text=ele reflect: %
-id=001
+type	=	monsters
+text	=	ele reflect: %
+ID	=	001
 
 [monsters reflect # of physical damage]
-type=monsters
-text=phys reflect: %
-id=002
+type	=	monsters
+text	=	phys reflect: %
+ID	=	002
 
 [players cannot regenerate life, mana or energy shield]
-type=player
-text=no regen
-id=003
+type	=	player
+text	=	no regen
+ID	=	003
 
 [cannot leech # from monsters]
-type=player
-text=no leech
-id=004
+type	=	player
+text	=	no leech
+ID	=	004
 
 [players are cursed with temporal chains]
-type=player
-text=temp chains
-id=005
+type	=	player
+text	=	temp chains
+ID	=	005
 
 [# maximum player resistances]
-type=player
-text=max res: -%
-id=006
+type	=	player
+text	=	max res: -%
+ID	=	006
 
 [players have # less recovery rate of life and energy shield]
-type=player
-text=less recovery: %
-id=007
+type	=	player
+text	=	less recovery: %
+ID	=	007
 
 [monsters are hexproof]
-type=monsters
-text=hexproof
-id=008
+type	=	monsters
+text	=	hexproof
+ID	=	008
 
 [unique bosses are possessed]
-type=bosses
-text=possessed
-id=009
+type	=	bosses
+text	=	possessed
+ID	=	009
 
 [players have # reduced effect of noncurse auras from skills]
-type=player
-text=aura effect: -%
-id=010
+type	=	player
+text	=	aura effect: -%
+ID	=	010
 
 [players are cursed with enfeeble]
-type=player
-text=enfeeble
-id=011
+type	=	player
+text	=	enfeeble
+ID	=	011
 
 [monsters have # increased critical strike chance|# to monster critical strike multiplier]
-type=monsters
-text=crit/multi: +%
-id=012
+type	=	monsters
+text	=	crit/multi: +%
+ID	=	012
 
 [unique boss deals # increased damage|unique boss has # increased attack and cast speed]
-type=bosses
-text=dmg/a+c speed: +%
-id=013
+type	=	bosses
+text	=	dmg/a+c speed: +%
+ID	=	013
 
 [# increased monster damage]
-type=monsters
-text=damage: +%
-id=014
+type	=	monsters
+text	=	damage: +%
+ID	=	014
 
 [monsters deal # extra physical damage as cold]
-type=monsters
-text=phys as cold: %
-id=015
+type	=	monsters
+text	=	phys as cold: %
+ID	=	015
 
 [monsters deal # extra physical damage as fire]
-type=monsters
-text=phys as fire: %
-id=016
+type	=	monsters
+text	=	phys as fire: %
+ID	=	016
 
 [monsters deal # extra physical damage as lightning]
-type=monsters
-text=phys as light: %
-id=017
+type	=	monsters
+text	=	phys as light: %
+ID	=	017
 
 [area has patches of shocked ground which increase damage taken by #]
-type=area
-text=shocked ground: %
-id=018
+type	=	area
+text	=	shocked ground: %
+ID	=	018
 
 [all monster damage from hits always ignites]
-type=monsters
-text=hits ignite
-id=019
+type	=	monsters
+text	=	hits ignite
+ID	=	019
 
 [monsters cannot be stunned]
-type=monsters
-text=stun immune
-id=020
+type	=	monsters
+text	=	stun immune
+ID	=	020
 
 [# increased monster movement speed|# increased monster attack speed|# increased monster cast speed]
-type=monsters
-text=m/a/c speed: +%
-id=021
+type	=	monsters
+text	=	m/a/c speed: +%
+ID	=	021
 
 [monsters have a # chance to cause elemental ailments on hit]
-type=monsters
-text=e-ailments on hit: %
-id=022
+type	=	monsters
+text	=	e-ailments on hit: %
+ID	=	022
 
 [monsters poison on hit]
-type=monsters
-text=poison on hit
-id=023
+type	=	monsters
+text	=	poison on hit
+ID	=	023
 
 [monsters cannot be taunted|monsters' action speed cannot be modified to below base value]
-type=monsters
-text=slow/taunt immune
-id=024
+type	=	monsters
+text	=	slow/taunt immune
+ID	=	024
 
 [monsters have # chance to impale with attacks]
-type=monsters
-text=impale chance: %
-id=025
+type	=	monsters
+text	=	impale chance: %
+ID	=	025
 
 [monsters have # increased area of effect]
-type=monsters
-text=area of effect: +%
-id=026
+type	=	monsters
+text	=	area of effect: +%
+ID	=	026
 
 [area has patches of consecrated ground]
-type=area
-text=consecrated ground
-id=027
+type	=	area
+text	=	consecrated ground
+ID	=	027
 
 [monsters gain # of maximum life as extra maximum energy shield]
-type=monsters
-text=life as es: %
-id=028
+type	=	monsters
+text	=	life as es: %
+ID	=	028
 
 [unique boss has # increased life|unique boss has # increased area of effect]
-type=bosses
-text=life/aoe: +%
-id=029
+type	=	bosses
+text	=	life/aoe: +%
+ID	=	029
 
 [# more monster life]
-type=monsters
-text=more life: %
-id=030
+type	=	monsters
+text	=	more life: %
+ID	=	030
 
 [players cannot inflict exposure]
-type=player
-text=no exposure
-id=031
+type	=	player
+text	=	no exposure
+ID	=	031
 
 [# monster physical damage reduction]
-type=monsters
-text=phys reduction: +%
-id=032
+type	=	monsters
+text	=	phys reduction: +%
+ID	=	032
 
 [# monster chaos resistance|# monster elemental resistances]
-type=monsters
-text=c/e-resist: +%
-id=033
+type	=	monsters
+text	=	c/e-resist: +%
+ID	=	033
 
 [# less effect of curses on monsters]
-type=monsters
-text=curse resist: %
-id=034
+type	=	monsters
+text	=	curse resist: %
+ID	=	034
 
 [monsters have # chance to suppress spell damage]
-type=monsters
-text=suppress chance: +%
-id=035
+type	=	monsters
+text	=	suppress chance: +%
+ID	=	035
 
 [players have # reduced chance to block]
-type=player
-text=reduced block: %
-id=036
+type	=	player
+text	=	reduced block: %
+ID	=	036
 
 [players have # less armour]
-type=player
-text=less armor: %
-id=037
+type	=	player
+text	=	less armor: %
+ID	=	037
 
 [players have # to amount of suppressed spell damage prevented]
-type=player
-text=suppressed dmg: -%
-id=038
+type	=	player
+text	=	suppressed dmg: -%
+ID	=	038
 
 [monsters have # increased accuracy rating]
-type=monsters
-text=accuracy: +%
-id=039
+type	=	monsters
+text	=	accuracy: +%
+ID	=	039
 
 [monsters have # chance to avoid elemental ailments]
-type=monsters
-text=e-ailment avoid: %
-id=040
+type	=	monsters
+text	=	e-ailment avoid: %
+ID	=	040
 
 [monsters take # reduced extra damage from critical strikes]
-type=monsters
-text=crit resist: %
-id=041
+type	=	monsters
+text	=	crit resist: %
+ID	=	041
 
 [slaying enemies close together can attract monsters from beyond this realm]
-type=monsters
-text=beyond
-id=042
+type	=	monsters
+text	=	beyond
+ID	=	042
 
 [buffs on players expire # faster]
-type=player
-text=buff expiration: +%
-id=043
+type	=	player
+text	=	buff expiration: +%
+ID	=	043
 
 [players gain # reduced flask charges]
-type=player
-text=flask charges: -%
-id=044
+type	=	player
+text	=	flask charges: -%
+ID	=	044
 
 [players have # less area of effect]
-type=player
-text=less area: %
-id=045
+type	=	player
+text	=	less area: %
+ID	=	045
 
 [players have # less cooldown recovery rate]
-type=player
-text=less cd recovery: %
-id=046
+type	=	player
+text	=	less cd recovery: %
+ID	=	046
 
 [players have # less accuracy rating]
-type=player
-text=less accuracy: %
-id=047
+type	=	player
+text	=	less accuracy: %
+ID	=	047
 
 [players are cursed with vulnerability]
-type=player
-text=vulnerability
-id=048
+type	=	player
+text	=	vulnerability
+ID	=	048
 
 [players are cursed with elemental weakness]
-type=player
-text=ele weakness
-id=049
+type	=	player
+text	=	ele weakness
+ID	=	049
 
 [monsters' skills chain # additional times]
-type=monsters
-text=chains: +
-id=050
+type	=	monsters
+text	=	chains: +
+ID	=	050
 
 [monsters fire # additional projectiles]
-type=monsters
-text=projectiles: +
-id=051
+type	=	monsters
+text	=	projectiles: +
+ID	=	051
 
 [monsters have a # chance to avoid poison, impale, and bleeding]
-type=monsters
-text=psn/imp/bld avoid: %
-id=052
+type	=	monsters
+text	=	psn/imp/bld avoid: %
+ID	=	052
 
 [monsters gain an endurance charge on hit]
-type=monsters
-text=e-charge on hit
-id=053
+type	=	monsters
+text	=	e-charge on hit
+ID	=	053
 
 [monsters gain a frenzy charge on hit]
-type=monsters
-text=f-charge on hit
-id=054
+type	=	monsters
+text	=	f-charge on hit
+ID	=	054
 
 [monsters gain a power charge on hit]
-type=monsters
-text=p-charge on hit
-id=055
+type	=	monsters
+text	=	p-charge on hit
+ID	=	055
 
 [monsters blind on hit]
-type=monsters
-text=blind on hit
-id=056
+type	=	monsters
+text	=	blind on hit
+ID	=	056
 
 [monsters maim on hit with attacks]
-type=monsters
-text=attacks maim
-id=057
+type	=	monsters
+text	=	attacks maim
+ID	=	057
 
 [monsters hinder on hit with spells]
-type=monsters
-text=spells hinder
-id=058
+type	=	monsters
+text	=	spells hinder
+ID	=	058
 
 [monsters steal power, frenzy and endurance charges on hit]
-type=monsters
-text=steal charges
-id=059
+type	=	monsters
+text	=	steal charges
+ID	=	059
 
 [area has patches of burning ground]
-type=area
-text=burning ground
-id=060
+type	=	area
+text	=	burning ground
+ID	=	060
 
 [area has patches of chilled ground]
-type=area
-text=chilled ground
-id=061
+type	=	area
+text	=	chilled ground
+ID	=	061
 
 [area has patches of desecrated ground]
-type=area
-text=desecrated ground
-id=062
+type	=	area
+text	=	desecrated ground
+ID	=	062
 
 [area has increased monster variety]
-type=monsters
-text=increased variety
-id=063
+type	=	monsters
+text	=	increased variety
+ID	=	063
 
 [area is inhabited by undead]
-type=monsters
-text=undead
-id=064
+type	=	monsters
+text	=	undead
+ID	=	064
 
 [area is inhabited by sea witches and their spawn]
-type=monsters
-text=sea witches
-id=065
+type	=	monsters
+text	=	sea witches
+ID	=	065
 
 [area is inhabited by solaris fanatics]
-type=monsters
-text=solaris fanatics
-id=066
+type	=	monsters
+text	=	solaris fanatics
+ID	=	066
 
 [area is inhabited by skeletons]
-type=monsters
-text=skeletons
-id=067
+type	=	monsters
+text	=	skeletons
+ID	=	067
 
 [area is inhabited by ranged monsters]
-type=monsters
-text=ranged
-id=068
+type	=	monsters
+text	=	ranged
+ID	=	068
 
 [area is inhabited by lunaris fanatics]
-type=monsters
-text=lunaris fanatics
-id=069
+type	=	monsters
+text	=	lunaris fanatics
+ID	=	069
 
 [area is inhabited by cultists of kitava]
-type=monsters
-text=kitava cultists
-id=070
+type	=	monsters
+text	=	kitava cultists
+ID	=	070
 
 [area is inhabited by humanoids]
-type=monsters
-text=humanoids
-id=071
+type	=	monsters
+text	=	humanoids
+ID	=	071
 
 [area is inhabited by goatmen]
-type=monsters
-text=goatmen
-id=072
+type	=	monsters
+text	=	goatmen
+ID	=	072
 
 [area is inhabited by ghosts]
-type=monsters
-text=ghosts
-id=073
+type	=	monsters
+text	=	ghosts
+ID	=	073
 
 [area is inhabited by demons]
-type=monsters
-text=demons
-id=074
+type	=	monsters
+text	=	demons
+ID	=	074
 
 [area is inhabited by animals]
-type=monsters
-text=animals (porcupines)
-id=075
+type	=	monsters
+text	=	animals (porcupines)
+ID	=	075
 
 [area is inhabited by abominations]
-type=monsters
-text=abominations
-id=076
+type	=	monsters
+text	=	abominations
+ID	=	076
 
 [area contains many totems]
-type=area
-text=many totems
-id=077
+type	=	area
+text	=	many totems
+ID	=	077
 
 [area is inhabited by # additional rogue exiles]
-type=area
-text=rogue exiles: +
-id=078
+type	=	area
+text	=	rogue exiles: +
+ID	=	078
 
 [# more magic monsters]
-type=monsters
-text=more magic mobs: %
-id=079
+type	=	monsters
+text	=	more magic mobs: %
+ID	=	079
 
 [area contains two unique bosses]
-type=bosses
-text=twinned
-id=080
+type	=	bosses
+text	=	twinned
+ID	=	080
 
 [# increased number of rare monsters]
-type=monsters
-text=rare mobs: +%
-id=081
+type	=	monsters
+text	=	rare mobs: +%
+ID	=	081
 
 [monsters deal # extra physical damage as chaos]
-type=monsters
-text=phys as chaos: %
-id=082
+type	=	monsters
+text	=	phys as chaos: %
+ID	=	082
 
 [monsters inflict withered for # seconds on hit]
-type=monsters
-text=wither on hit
-id=083
+type	=	monsters
+text	=	wither on hit
+ID	=	083
 
 [Players in Area are Delirious]
-type=player
-text=delirious: %
-id=084
+type	=	player
+text	=	delirious: %
+ID	=	084
 
 [Maven releases all Bosses at once]
-type=bosses
-text=all at once
-id=085
+type	=	bosses
+text	=	all at once
+ID	=	085
 
 [monsters have # chance to gain a frenzy charge on hit]
-type=monsters
-text=f-charge on hit: %
-id=201
+type	=	monsters
+text	=	f-charge on hit: %
+ID	=	201
 
 [monsters have # chance to gain an endurance charge on hit]
-type=monsters
-text=e-charge on hit: %
-id=202
+type	=	monsters
+text	=	e-charge on hit: %
+ID	=	202
 
 [monsters have # chance to gain a power charge on hit]
-type=monsters
-text=p-charge on hit: %
-id=203
+type	=	monsters
+text	=	p-charge on hit: %
+ID	=	203
 
 [players have # less energy shield recovery rate per # alert level]
-type=player
-text=less es rec per al: %
-id=204
+type	=	player
+text	=	less es rec per al: %
+ID	=	204
 
 [players have # less life recovery rate per # alert level]
-type=player
-text=less life rec per al: %
-id=205
+type	=	player
+text	=	less life rec per al: %
+ID	=	205
 
 [players have # less mana recovery rate per # alert level]
-type=player
-text=less mana rec per al: %
-id=206
+type	=	player
+text	=	less mana rec per al: %
+ID	=	206
 
 [patrol packs have # increased chance to be replaced by an elite patrol pack]
-type=monsters
-text=elite patrol packs: +%
-id=207
+type	=	monsters
+text	=	elite patrol packs: +%
+ID	=	207
 
 [patrolling monsters deal # increased damage]
-type=monsters
-text=patrol monster dmg: +%
-id=208
+type	=	monsters
+text	=	patrol monster dmg: +%
+ID	=	208
 
 [patrol packs take # reduced damage]
-type=monsters
-text=patrol packs dmg taken: -%
-id=209
+type	=	monsters
+text	=	patrol packs dmg taken: -%
+ID	=	209
 
 [reward room monsters deal # increased damage]
-type=monsters
-text=rr monster dmg: +%
-id=210
+type	=	monsters
+text	=	rr monster dmg: +%
+ID	=	210
 
 [# maximum player resistances per # alert level]
-type=player
-text=max res per al: -%
-id=211
+type	=	player
+text	=	max res per al: -%
+ID	=	211
 
 [reward room monsters take # reduced damage]
-type=monsters
-text=rr monsters dmg taken: -%
-id=212
+type	=	monsters
+text	=	rr monsters dmg taken: -%
+ID	=	212
 
 [guards deal # increased damage]
-type=monsters
-text=guard damage: +%
-id=213
+type	=	monsters
+text	=	guard damage: +%
+ID	=	213
 
 [guards take # reduced damage]
-type=monsters
-text=guards dmg taken: -%
-id=214
+type	=	monsters
+text	=	guards dmg taken: -%
+ID	=	214
 
 [# reduced job speed]
-type=heist
-text=job speed: -%
-id=215
+type	=	heist
+text	=	job speed: -%
+ID	=	215
 
 [reward rooms have # increased monsters]
-type=monsters
-text=rr monsters: +%
-id=216
+type	=	monsters
+text	=	rr monsters: +%
+ID	=	216
 
 [players gain # reduced flask charges per # alert level]
-type=player
-text=flasks per al: -%
-id=217
+type	=	player
+text	=	flasks per al: -%
+ID	=	217
 
 [reinforcements have # increased attack speed|reinforcements have # increased cast speed|reinforcements have # increased movement speed]
-type=monsters
-text=reinforce m/a/c speed: +%
-id=218
+type	=	monsters
+text	=	reinforce m/a/c speed: +%
+ID	=	218
 
 [lockdown occurs immediately when alert level is full]
-type=heist
-text=insta-lockdown on full al
-id=219
+type	=	heist
+text	=	insta-lockdown on full al
+ID	=	219
 
 [players have # less armour per # alert level]
-type=player
-text=less armor per al: %
-id=220
+type	=	player
+text	=	less armor per al: %
+ID	=	220
 
 [players have # less evasion per # alert level]
-type=player
-text=less evasion per al: %
-id=221
+type	=	player
+text	=	less evasion per al: %
+ID	=	221
 
 [# increased total heist fee]
-type=heist
-text=total fee: +%
-id=222
+type	=	heist
+text	=	total fee: +%
+ID	=	222
 
 [the ring takes no cut]
-type=heist
-text=ring takes no cut
-id=223
+type	=	heist
+text	=	ring takes no cut
+ID	=	223
 
 [no travel cost]
-type=heist
-text=no travel cost
-id=224
+type	=	heist
+text	=	no travel cost
+ID	=	224
 
 [alert level increases by # per second]
-type=heist
-text=al per second: +%
-id=225
+type	=	heist
+text	=	al per second: +%
+ID	=	225
 
 [# player fire resistance per # alert level]
-type=player
-text=fire res per al: -%
-id=226
+type	=	player
+text	=	fire res per al: -%
+ID	=	226
 
 [player cold resistance per # alert level]
-type=player
-text=cold res per al: -%
-id=227
+type	=	player
+text	=	cold res per al: -%
+ID	=	227
 
 [player lightning resistance per # alert level]
-type=player
-text=light res per al: -%
-id=228
+type	=	player
+text	=	light res per al: -%
+ID	=	228
 
 [black scythe mercenaries]
-type=expedition
-text=tujen
-id=301
+type	=	expedition
+text	=	tujen
+ID	=	301
 
 [order of the chalice]
-type=expedition
-text=rog
-id=302
+type	=	expedition
+text	=	rog
+ID	=	302
 
 [druids of the broken circle]
-type=expedition
-text=gwennen
-id=303
+type	=	expedition
+text	=	gwennen
+ID	=	303
 
 [knights of the sun]
-type=expedition
-text=dannig
-id=304
+type	=	expedition
+text	=	dannig
+ID	=	304
 
 [area contains # increased number of remnants]
-type=expedition
-text=increased remnants: %
-id=305
+type	=	expedition
+text	=	increased remnants: %
+ID	=	305
 
 [# increased explosive radius]
-type=expedition
-text=explosives radius: +%
-id=306
+type	=	expedition
+text	=	explosives radius: +%
+ID	=	306
 
 [# increased number of explosives]
-type=expedition
-text=explosives count: +%
-id=307
+type	=	expedition
+text	=	explosives count: +%
+ID	=	307
 
 [excavated chests have a # chance to contain twice as many items]
-type=expedition
-text=2x chest-reward chance: %
-id=308
+type	=	expedition
+text	=	2x chest-reward chance: %
+ID	=	308
 
 [remnants have # chance to have an additional suffix modifier]
-type=expedition
-text=extra remnant suffix: %
-id=309
+type	=	expedition
+text	=	extra remnant suffix: %
+ID	=	309
 
 [# increased explosive placement range]
-type=expedition
-text=placement range: +%
-id=310
+type	=	expedition
+text	=	placement range: +%
+ID	=	310
 
 [area contains # increased number of monster markers]
-type=expedition
-text=monster markers: +%
-id=311
+type	=	expedition
+text	=	monster markers: +%
+ID	=	311
 
 [area contains an additional underground area]
-type=expedition
-text=extra underground area
-id=312
+type	=	expedition
+text	=	extra underground area
+ID	=	312
 
 [area contains # increased number of runic monster markers]
-type=expedition
-text=runic markers: +%
-id=313
+type	=	expedition
+text	=	runic markers: +%
+ID	=	313
 
 [area contains # additional chest markers]
-type=expedition
-text=chest markers: +
-id=314
+type	=	expedition
+text	=	chest markers: +
+ID	=	314
 
 [# increased quantity of artifacts dropped by monsters]
-type=expedition
-text=artifact-drops: +%
-id=315
+type	=	expedition
+text	=	artifact-drops: +%
+ID	=	315
 
 [area contains medved, feller of heroes]
-type=expedition
-text=medved (boss)
-id=316
+type	=	expedition
+text	=	medved (boss)
+ID	=	316
 
 [area contains vorana, last to fall]
-type=expedition
-text=vorana (boss)
-id=317
+type	=	expedition
+text	=	vorana (boss)
+ID	=	317
 
 [area contains uhtred, covetous traitor]
-type=expedition
-text=uhtred (boss)
-id=318
+type	=	expedition
+text	=	uhtred (boss)
+ID	=	318
 
 [area contains olroth, origin of the fall]
-type=expedition
-text=olroth (boss)
-id=319
+type	=	expedition
+text	=	olroth (boss)
+ID	=	319
