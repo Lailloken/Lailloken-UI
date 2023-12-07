@@ -287,6 +287,8 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel")
 	{
 		LLK_ToolTip(LangTrans("ms_item-info") ":`n" LangTrans("iteminfo_unsupported"), 2,,,, "red")
+		If WinExist("ahk_id " vars.hwnd.iteminfo.main)
+			LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return
 	}
 
@@ -583,8 +585,8 @@ Iteminfo3_mods()
 				item.anoint := db.anoints.rings[StrReplace(A_LoopField, " (enchant)")]
 		}
 
-		If InStr(A_LoopField, LangTrans("items_implicit_vaal")) || InStr(A_LoopField, LangTrans("items_implicit_eater")) || InStr(A_LoopField, LangTrans("items_implicit_exarch"))
-		|| ((InStr(clip, "`r`nSynthesised ", 1) || InStr(item.itembase, " Talisman", 1) && (item.rarity != LangTrans("items_unique"))) && InStr(A_LoopField, LangTrans("items_implicit")) && !settings.iteminfo.compare)
+		If (InStr(A_LoopField, LangTrans("items_implicit_vaal")) || InStr(A_LoopField, LangTrans("items_implicit_eater")) || InStr(A_LoopField, LangTrans("items_implicit_exarch"))
+		|| ((InStr(clip, "`r`nSynthesised ", 1) || InStr(item.itembase, " Talisman", 1) && (item.rarity != LangTrans("items_unique"))) && InStr(A_LoopField, LangTrans("items_implicit")))) && !settings.iteminfo.compare
 			item.implicits.Push(StrReplace(A_LoopField, " (implicit)")) ;store implicits: eater, exarch, corruption, synthesis, rare talisman
 
 		If InStr(A_LoopField, LangTrans("items_implicit")) && settings.iteminfo.compare
@@ -1601,7 +1603,7 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 		If (item.type = "defense") || (item.type = "jewelry")
 		{
 			If settings.iteminfo.rules.res && InStr(string, "to ") && InStr(string, " resistance") && !InStr(string, "minion")
-				itemchecker_rule_applies := 1
+				itemchecker_rule_applies := "+1"
 			If (itemchecker_rule_applies != "")
 			{
 				If (mode != 0)

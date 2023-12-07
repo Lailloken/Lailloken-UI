@@ -1560,7 +1560,7 @@ Settings_leveltracker2(cHWND := "")
 			WinSet, Trans, Off, % "ahk_id "vars.hwnd.leveltracker.main
 			WinSet, TransColor, Black, % "ahk_id "vars.hwnd.leveltracker.main
 			WinSet, Trans, % settings.leveltracker.trans, % "ahk_id "vars.hwnd.leveltracker.background
-			WinSet, Trans, 140, % "ahk_id "vars.hwnd.leveltracker.controls1
+			WinSet, Trans, % settings.leveltracker.expbar ? settings.leveltracker.trans : 120, % "ahk_id "vars.hwnd.leveltracker.controls1
 			WinSet, TransColor, Black, % "ahk_id "vars.hwnd.leveltracker.controls2
 			vars.leveltracker.fade := 0
 		}

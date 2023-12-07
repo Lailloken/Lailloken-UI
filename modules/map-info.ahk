@@ -12,7 +12,7 @@
 	settings.features.mapinfo := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map-info panel", 0)
 	settings.mapinfo := {"IDs": {}}
 
-	Loop, Parse, % LLK_FileRead("data\english\map-info.txt"), `n, `r
+	Loop, Parse, % StrReplace(LLK_FileRead("data\english\map-info.txt"), "`t"), `n, `r
 	{
 		If !InStr(A_LoopField, "id=")
 			Continue
@@ -47,7 +47,7 @@
 			db.mapinfo[section].Push(line)
 		Else If (section = "expedition groups")
 			db.mapinfo[section][key] := val
-		Else If LLK_PatternMatch(key, "", ["type", "text", "id"])
+		Else If LLK_PatternMatch(key, "", ["type", "text", "ID"])
 		{
 			If !IsObject(db.mapinfo.mods[section])
 				db.mapinfo.mods[section] := {}

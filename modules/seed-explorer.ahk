@@ -272,23 +272,31 @@ LegionParse()
 
 	leaders := vars.lang.seed_conquerors, item := vars.omnikey.item
 	jewels := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"], vars.legion.selection := ""
-	vars.legion.jewel := LLK_StringCase(item.name), vars.legion.jewel_number := LLK_HasVal(jewels, item.name) ;the url for vilsol's calculator uses numbers to specify the jewel-type
-
-	Loop, Parse, % StrReplace(vars.omnikey.clipboard, "`r`n", ";"), `;
-	{
-		If !InStr(A_LoopField, LangTrans("items_uniquemod"))
-			Continue
-		mod_text := SubStr(A_LoopField, InStr(A_LoopField, "`n") + 1), mod_text := IteminfoModRemoveRange(SubStr(mod_text, 1, InStr(mod_text, "`n") - 1))
-		Break
-	}
-	Loop, Parse, mod_text
-		If IsNumber(A_LoopField)
-			seed .= A_LoopField
-	vars.legion.seed := seed
 	
-	For index, leader in leaders
-		If InStr(mod_text, leader)
-			vars.legion.leader := leader
+	For index, val in jewels
+		For index1, val1 in vars.lang["seed_" val]
+			If InStr(Clipboard, val1)
+				vars.legion.jewel := val, vars.legion.leader := val1, check := 1
+
+	If !check
+	{
+		LLK_ToolTip(LangTrans("lvltracker_importerror", 2), 1.5,,,, "red")
+		Return 0
+	}
+
+	Loop, Parse, Clipboard, `n, `r
+	{
+		If !InStr(A_LoopField, vars.legion.leader)
+			Continue
+		Loop, Parse, A_LoopField
+		{
+			seed .= IsNumber(A_LoopField) ? A_LoopField : ""
+			If seed && !IsNumber(A_LoopField)
+				Break 2
+		}
+	}
+	
+	vars.legion.seed := seed, vars.legion.jewel_number := LLK_HasVal(jewels, vars.legion.jewel) ;the url for vilsol's calculator uses numbers to specify the jewel-type
 	If (vars.legion.data.1 != vars.legion.jewel || vars.legion.data.2 != vars.legion.seed)
 	{
 		vars.legion.data := [vars.legion.jewel, vars.legion.seed, []]
@@ -309,7 +317,8 @@ LegionParse()
 	For index, mod in db.legion.jewels[vars.legion.jewel]["_decoder"]
 		vars.legion.jewel_mods.Push(mod), vars.legion.decoder_invert[mod] := index
 	vars.legion.jewel_mods := LLK_ArraySort(vars.legion.jewel_mods)
-	Return 1
+	If vars.legion.jewel_mods.Count()
+		Return 1
 }
 
 LegionTree()
