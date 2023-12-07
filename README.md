@@ -11,7 +11,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 ## Contributions
 | accepted | how/where? | `not` accepted | why? |
 |---|---|---|---|
-| community translations / adapting the tool for non-English clients | coming soon | direct code-input / pull requests | this is my personal fun-project, and I'd like to find solutions and fix problems myself |
+| community translations / adapting the tool for non-English clients | [discussions section](https://github.com/Lailloken/Lailloken-UI/discussions/326) | direct code-input / pull requests | this is my personal fun-project, and I'd like to find solutions and fix problems myself |
 | constructive feedback & ideas | [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback) | outlandish feature-suggestions disguised as "QoL" | I avoid features that are "OP" or abusable |
 | bug reports | [issues section](https://github.com/Lailloken/Lailloken-UI/issues) | requests to "fix"/improve something that only GGG could | I'm self-taught and lack any dev knowledge outside my niche |
 <br>
