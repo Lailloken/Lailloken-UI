@@ -1,3 +1,6 @@
+![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a76b5344-446d-477b-98f2-8a84f83e2885)
+
+
 ## About:
 A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. `This project is not affiliated with or endorsed by Grinding Gear Games (GGG) in any way`.  
 <br>
