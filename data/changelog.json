@@ -1,5 +1,9 @@
 [
   [
+  ["1.51.1", 15101],
+  "regex fixes: ball lightning, storm rain"
+  ],
+  [
 	["1.51.0", 15100],
 	"3.23 updates",
 	"item-info fixes",
