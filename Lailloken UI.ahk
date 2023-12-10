@@ -498,7 +498,7 @@ Init_vars()
 	vars.client := {}
 	vars.leveltracker := {}
 	vars.lang := {}, vars.lang2 := {}
-	vars.log := {} ;store data related to the game's log here
+	vars.log := {"skip": ["[ENTITY]", "Failed to create ", "[WARN Client ", "Enumerated ", "[MAT]", "[GRAPH]", "[TRAILS]", "[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]", "[Item Filter]"]} ;store data related to the game's log here
 	vars.mapinfo := {}
 	vars.hwnd := {"help_tooltips": {}}
 	vars.help := Json.Load(LLK_FileRead("data\english\help tooltips.json",, "65001"))
@@ -1307,6 +1307,7 @@ LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the 
 LLK_IniRead(file, section := "", key := "", default := "")
 {
 	IniRead, iniread, % file, % section, % key, % !default ? A_Space : default
+	iniread := (iniread = " ") ? "" : iniread
 	If (default != "") && (iniread = "") ;IniRead's 'default' is only read if the key cannot be found in the ini-file
 		Return default ;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
 	Else Return iniread
