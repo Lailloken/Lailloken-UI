@@ -3,12 +3,20 @@
 	local
 	global vars, settings
 
-	If !IsObject(vars.log.file)
+	If !IsObject(vars.log.file) ;at script-startup
 	{
 		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
-		log_content := vars.log.file.Read()
+		log_content := vars.log.file.Read(), log_content := SubStr(log_content, StrLen(log_content) * 0.75), log_content := SubStr(log_content, InStr(log_content, "`n") + 1)
 	}
-	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001") ;FileRead, log_content, % vars.log.file_location
+	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001") ;when specifying "active character" in the settings menu
+
+	Loop, Parse, log_content, `n ;extract relevant lines only
+	{
+		If (A_Index = 1)
+			log_content := ""
+		If LLK_PatternMatch(A_LoopField, "", ["Generating level ", " : ", ".login.", "*****"])
+			log_content .= A_LoopField "`n"
+	}
 
 	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
@@ -23,11 +31,11 @@
 		While (SubStr(log_chunk, 0) != "`r") ;remove incomplete line at the end
 			log_chunk := SubStr(log_chunk, 1, -1)
 		log_chunk := SubStr(log_chunk, 1, -1)
-		
+
 		If !settings.general.lang_client ;check if the current client-language is supported, i.e. if any available language-pack matches the client.txt
 			LangClient(log_chunk)
 
-		If vars.log.areaID && !check || (5000*A_Index >= log_length) ;break if character could not be found in the whole log
+		If vars.log.areaID && !check || (5000*A_Index >= log_length) ;break if character could not be found
 			Break
 		If vars.log.areaID && !InStr(log_chunk, " " settings.general.character " (") ;skip chunk if it doesn't contain level-up messages
 			Continue
@@ -139,13 +147,10 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 	local
 	global vars, settings, db
 
-	ignore := ["[SHADER]", "[ENGINE]", "[RENDER]", "[DOWNLOAD]", "Tile hash", "Doodad hash", "Connecting to", "Connect time", "login server", "[D3D12]", "[D3D11]", "[WINDOW]", "Precalc", "[STARTUP]", "[WARN", "[VULKAN]", "[DXC]", "[TEXTURE]", "[BUNDLE]", "[JOB]", "Enumerated", "[SOUND]", "Queue file to download", "[STORAGE]", "[RESOURCE]", "[PARTICLE]", "[Item Filter]"]
-	
 	Loop, Parse, content, `n, % "`r" vars.lang.system_fullstop.1
 	{
-		For index, skip in ignore
-			If InStr(A_LoopField, skip, 1) ;skip lines with certain key words/phrases
-				Continue 2
+		If LLK_PatternMatch(A_LoopField, "", vars.log.skip)
+			Continue
 		
 		If InStr(A_LoopField, "Generating level ", 1)
 		{

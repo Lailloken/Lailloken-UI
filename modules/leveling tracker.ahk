@@ -1633,7 +1633,7 @@ LeveltrackerTimerGUI()
 	Gui, %leveltracker_timer%: Add, Text, % "ys Border Center 0x200 x+-1 HWNDhwnd hp w"vars.leveltracker.custom_fontwidth*7, % "act "(timer.current_act = 11 ? 10 : timer.current_act)
 	vars.hwnd.leveltracker_timer.pause	:= hwnd
 
-	ControlGetPos, xControl,,,,, % ahk_id %hwnd%
+	ControlGetPos, xControl,,,,, ahk_id %hwnd%
 	If !Blank(xControl)
 	{
 		Gui, %leveltracker_timer%: Show, % "NA x10000 y10000"
