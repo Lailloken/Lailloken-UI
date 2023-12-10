@@ -1,5 +1,9 @@
 [
   [
+  ["1.51.2", 15102],
+  "language-detection tweaks for client.txt files with many error-messages or crashes"
+  ],
+  [
   ["1.51.1", 15101],
   "regex fixes: ball lightning, storm rain"
   ],
