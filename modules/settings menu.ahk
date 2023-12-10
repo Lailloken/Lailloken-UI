@@ -789,6 +789,7 @@ Settings_general2(cHWND := "")
 {
 	local
 	global vars, settings
+	static char_wait
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), update := vars.update
 	If !check
@@ -864,7 +865,10 @@ Settings_general2(cHWND := "")
 			GuiControl, +cRed, % vars.hwnd.settings.character
 			GuiControl, movedraw, % vars.hwnd.settings.character
 		Case "save_character":
-			parse := LLK_ControlGet(vars.hwnd.settings.character), settings.general.character := InStr(parse, " (") ? SubStr(parse, 1, InStr(parse, " (") - 1) : parse
+			If char_wait
+				Return
+			char_wait := 1, parse := LLK_ControlGet(vars.hwnd.settings.character), settings.general.character := InStr(parse, " (") ? SubStr(parse, 1, InStr(parse, " (") - 1) : parse
+			GuiControl, +disabled, % vars.hwnd.settings.character
 			IniWrite, % settings.general.character, ini\config.ini, Settings, active character
 			Init_log()
 			If WinExist("ahk_id "vars.hwnd.geartracker.main)
@@ -873,7 +877,7 @@ Settings_general2(cHWND := "")
 				GeartrackerGUI("refresh")
 			If WinExist("ahk_id "vars.hwnd.leveltracker.main)
 				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience()
-			Settings_menu("general")
+			Settings_menu("general"), char_wait := 0
 		Case "language":
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.language), ini\config.ini, settings, language
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings

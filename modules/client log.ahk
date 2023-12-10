@@ -8,7 +8,7 @@
 		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
 		log_content := vars.log.file.Read(), log_content := SubStr(log_content, StrLen(log_content) * 0.75), log_content := SubStr(log_content, InStr(log_content, "`n") + 1)
 	}
-	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001") ;when specifying "active character" in the settings menu
+	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001"), log_content := SubStr(log_content, StrLen(log_content) * 0.5), log_content := SubStr(log_content, InStr(log_content, "`n") + 1) ;when specifying "active character" in the settings menu
 
 	Loop, Parse, log_content, `n ;extract relevant lines only
 	{
@@ -190,7 +190,7 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(LangTrans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3
 		}
 
-		If settings.features.maptracker && settings.maptracker.mechanics && (vars.log.areaID = vars.maptracker.map.id)
+		If settings.features.maptracker && settings.maptracker.mechanics && vars.maptracker.map.id && (vars.log.areaID = vars.maptracker.map.id)
 			MaptrackerParseDialogue(A_LoopField)
 	}
 }
