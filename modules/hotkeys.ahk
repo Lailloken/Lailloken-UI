@@ -43,9 +43,8 @@ Init_hotkeys()
 	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
 
 	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
-	For key in db.mapinfo.maps
-		If LLK_IsType(SubStr(key, 1, 1), "alpha")
-			Hotkey, % "*" SubStr(key, 1, 1), HorizonsTooltip, On
+	Loop, Parse, % "abcdefghijklmnopqrstuvwxyz"
+		Hotkey, % "*" A_LoopField, HorizonsTooltip, On
 
 	Loop, Parse, % "*~!+#^"
 		settings.hotkeys.tab := StrReplace(settings.hotkeys.tab, A_LoopField), settings.hotkeys.omnikey := StrReplace(settings.hotkeys.omnikey, A_LoopField), settings.hotkeys.omnikey2 := StrReplace(settings.hotkeys.omnikey2, A_LoopField)
@@ -126,7 +125,7 @@ HotkeysTab()
 			active .= " notepad", vars.notepad.toggle := 1
 			For key, val in vars.hwnd.notepad_widgets
 			{
-				Gui, % val ": -E0x20"
+				Gui, % GuiName(val) ": -E0x20"
 				WinSet, Transparent, 255, % "ahk_id "val
 			}
 			Break
@@ -206,7 +205,7 @@ HotkeysTab()
 		vars.notepad.toggle := 0
 		For key, val in vars.hwnd.notepad_widgets
 		{
-			Gui, % val ": +E0x20"
+			Gui, % GuiName(val) ": +E0x20"
 			WinSet, Transparent, % settings.notepad.trans, % "ahk_id "val
 		}
 	}
@@ -214,10 +213,7 @@ HotkeysTab()
 	{
 		If !vars.leveltracker.timer.pause
 			LLK_Overlay(vars.hwnd.leveltracker_timer.main, "destroy")
-		If WinExist("ahk_id "vars.hwnd.leveltracker_zones.main)
-			Gui, % vars.hwnd.leveltracker_zones.main ": Destroy"
-		vars.leveltracker.overlays := 0
-	
+		LLK_Overlay(vars.hwnd.leveltracker_zones.main, "destroy"), vars.leveltracker.overlays := 0
 		If (settings.leveltracker.sLayouts != LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts size"))
 			IniWrite, % settings.leveltracker.sLayouts, ini\leveling tracker.ini, Settings, zone-layouts size
 	}
@@ -226,7 +222,7 @@ HotkeysTab()
 	If InStr(active, "maptracker")
 	{
 		vars.maptracker.toggle := 0
-		Gui, % vars.hwnd.maptracker.main ": -E0x20"
+		Gui, % GuiName(vars.hwnd.maptracker.main) ": -E0x20"
 	}
 	If InStr(active, " lab") && WinExist("ahk_id "vars.hwnd.lab.main)
 		LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
