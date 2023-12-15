@@ -161,7 +161,7 @@ CheatsheetAdvanced(name, hotkey)
 		Return
 	}
 	
-	If (A_Gui != DummyGUI(vars.hwnd.cheatsheet_menu.main))
+	If !InStr(A_Gui, "cheatsheet_menu")
 	{
 		pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
 		LLK_ToolTip(LangTrans("global_scan"), 10, vars.general.xMouse + vars.client.w/100, vars.general.yMouse, "cheatsheet")
@@ -248,12 +248,12 @@ CheatsheetAdvanced(name, hotkey)
 	Else xPos := (vars.general.xMouse + width/2 > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - width : vars.general.xMouse - width/2
 	yPos := (vars.general.yMouse + height > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - height : vars.general.yMouse
 	Gui cheatsheet: Show, NA x%xPos% y%yPos%
-	LLK_Overlay(vars.hwnd.cheatsheet.main, "show")
+	LLK_Overlay(vars.hwnd.cheatsheet.main, "show",, "cheatsheet")
 	
 	If (vars.cheatsheets.list[name].activation = "hold") && (vars.cheatsheets.active.toggle < 2)
 	{
 		KeyWait, % hotkey
-		If (A_Gui = DummyGUI(vars.hwnd.cheatsheet_menu.main))
+		If InStr(A_Gui, "cheatsheet_menu")
 			KeyWait, LButton
 		LLK_Overlay(vars.hwnd.cheatsheet.main, "hide")
 		vars.cheatsheets.active.type := "advanced"
@@ -656,7 +656,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 				style .= " y"vars.client.y + vars.client.h - height
 		}
 		Gui, cheatsheet: Show, NA AutoSize %style%
-		LLK_Overlay(vars.hwnd.cheatsheet.main, "show")
+		LLK_Overlay(vars.hwnd.cheatsheet.main, "show",, "cheatsheet")
 		vars.cheatsheets.active.type := "image"
 	}
 }
@@ -911,6 +911,7 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 {
 	local
 	global vars, settings
+	static toggle := 0
 	
 	If !refresh
 		vars.cheatsheet_menu := {"active": name}
@@ -918,37 +919,38 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 	
 	If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main)
 		WinGetPos, xPos, yPos,,, % "ahk_id " vars.hwnd.cheatsheet_menu.main
-	Gui, New, -DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDcheatsheet_menu, Lailloken UI: cheat-sheet configuration
-	Gui, %cheatsheet_menu%: Color, Black
-	Gui, %cheatsheet_menu%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
+	toggle := !toggle, GUI_name := "cheatsheet_menu" toggle
+	Gui, %GUI_name%: New, -DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDcheatsheet_menu, Lailloken UI: cheat-sheet
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
 	;WinSet, Transparent, %trans%
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.cheatsheet_menu.main, vars.hwnd.cheatsheet_menu := {"main": cheatsheet_menu}
 
-	Gui, %cheatsheet_menu%: Add, Text, % "Section x-1 y-1 Border Hidden gCheatsheetMenu2 Center HWNDhwnd", % LangTrans("cheat_header")
+	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Border Hidden gCheatsheetMenu2 Center HWNDhwnd", % LangTrans("cheat_header")
 	vars.hwnd.cheatsheet_menu.winbar := hwnd
-	Gui, %cheatsheet_menu%: Add, Text, % "ys x+-1 Border Hidden Center gCheatsheetMenuClose HWNDhwnd w"settings.general.fWidth*2, % "x"
+	Gui, %GUI_name%: Add, Text, % "ys x+-1 Border Hidden Center gCheatsheetMenuClose HWNDhwnd w"settings.general.fWidth*2, % "x"
 	vars.hwnd.cheatsheet_menu.winx := hwnd
 
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
-	Gui, %cheatsheet_menu%: Add, Text, % "xs Section x"settings.general.fWidth/2 " cSilver Center HWNDhwnd", % LangTrans("global_name")
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize
+	Gui, %GUI_name%: Add, Text, % "xs Section x"settings.general.fWidth/2 " cSilver Center HWNDhwnd", % LangTrans("global_name")
 	vars.hwnd.cheatsheet_menu.name := hwnd
 	ControlGetPos,, ySection,,,, ahk_id %hwnd%
-	Gui, %cheatsheet_menu%: Add, Text, % "ys Center", % name
-	Gui, %cheatsheet_menu%: Add, Text, % "Section xs cSilver Center", % LangTrans("global_type")
-	Gui, %cheatsheet_menu%: Add, Text, % "ys Center HWNDmain_text", % LangTrans("m_cheat_" vars.cheatsheets.list[name].type)
-	Gui, %cheatsheet_menu%: Add, Text, % "Section xs cSilver Center HWNDhwnd0", % LangTrans("cheat_check")
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI_name%: Add, Text, % "ys Center", % name
+	Gui, %GUI_name%: Add, Text, % "Section xs cSilver Center", % LangTrans("global_type")
+	Gui, %GUI_name%: Add, Text, % "ys Center HWNDmain_text", % LangTrans("m_cheat_" vars.cheatsheets.list[name].type)
+	Gui, %GUI_name%: Add, Text, % "Section xs cSilver Center HWNDhwnd0", % LangTrans("cheat_check")
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
 	LLK_PanelDimensions([LangTrans("cheat_static"), LangTrans("cheat_dynamic")], settings.general.fSize - 4, width, height,,, 1)
-	Gui, %cheatsheet_menu%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheetMenu2 AltSubmit HWNDhwnd", % StrReplace(LangTrans("cheat_static") "|" LangTrans("cheat_dynamic") "|", LangTrans("cheat_" vars.cheatsheets.list[name].area) "|", LangTrans("cheat_" vars.cheatsheets.list[name].area) "||")
+	Gui, %GUI_name%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheetMenu2 AltSubmit HWNDhwnd", % StrReplace(LangTrans("cheat_static") "|" LangTrans("cheat_dynamic") "|", LangTrans("cheat_" vars.cheatsheets.list[name].area) "|", LangTrans("cheat_" vars.cheatsheets.list[name].area) "||")
 	vars.hwnd.help_tooltips["cheatsheets_menu screencheck"] := hwnd0, vars.hwnd.cheatsheet_menu.check := vars.hwnd.help_tooltips["cheatsheets_menu screencheck|"] := hwnd
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
-	Gui, %cheatsheet_menu%: Add, Text, % "Section xs cSilver Center HWNDhwnd0", % "activation:"
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize
+	Gui, %GUI_name%: Add, Text, % "Section xs cSilver Center HWNDhwnd0", % "activation:"
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
 	LLK_PanelDimensions([LangTrans("cheat_hold"), LangTrans("cheat_toggle")], settings.general.fSize - 4, width, height,,, 1)
-	Gui, %cheatsheet_menu%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheetMenu2 AltSubmit HWNDhwnd", % StrReplace(LangTrans("cheat_hold") "|" LangTrans("cheat_toggle") "|", LangTrans("cheat_" vars.cheatsheets.list[name].activation) "|", LangTrans("cheat_" vars.cheatsheets.list[name].activation) "||")
+	Gui, %GUI_name%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheetMenu2 AltSubmit HWNDhwnd", % StrReplace(LangTrans("cheat_hold") "|" LangTrans("cheat_toggle") "|", LangTrans("cheat_" vars.cheatsheets.list[name].activation) "|", LangTrans("cheat_" vars.cheatsheets.list[name].activation) "||")
 	vars.hwnd.help_tooltips["cheatsheets_menu activation"] := hwnd0, vars.hwnd.cheatsheet_menu.activation := vars.hwnd.help_tooltips["cheatsheets_menu activation|"] := hwnd
-	Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize
 	
 	If (vars.cheatsheets.list[name].type = "images")
 	{
@@ -959,37 +961,37 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 				files := (A_Index < 10) ? "0" A_Index : A_Index
 		}
 		
-		Gui, %cheatsheet_menu%: Font, underline
-		Gui, %cheatsheet_menu%: Add, Text, % "y+"settings.general.fHeight//2 " Section xs", % LangTrans("cheat_manage")
-		Gui, %cheatsheet_menu%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
-		Gui, %cheatsheet_menu%: Font, norm
-		Gui, %cheatsheet_menu%: Add, Text, % "Section xs HWNDhwnd1 Center w"settings.general.fWidth*2, % "00"
-		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
+		Gui, %GUI_name%: Font, underline
+		Gui, %GUI_name%: Add, Text, % "y+"settings.general.fHeight//2 " Section xs", % LangTrans("cheat_manage")
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
+		Gui, %GUI_name%: Font, norm
+		Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd1 Center w"settings.general.fWidth*2, % "00"
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
 		vars.hwnd.help_tooltips["cheatsheets_menu image-files"] := hwnd0, vars.hwnd.help_tooltips["cheatsheets_menu 00"] := hwnd1, vars.hwnd.cheatsheet_menu.paste_00 := vars.hwnd.help_tooltips["cheatsheets_menu paste"] := hwnd
-		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
 		vars.hwnd.cheatsheet_menu.snip_00 := vars.hwnd.help_tooltips["cheatsheets_menu snip0"] := hwnd
 
 		If FileExist("cheat-sheets\" name "\[00]*")
 		{
 			IniRead, position, % "cheat-sheets\" name "\info.ini", general, 00-position, top
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd Center", % " " LangTrans("global_show") " "
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd Center", % " " LangTrans("global_show") " "
 			file_00 := 1, vars.hwnd.cheatsheet_menu.preview_00 := vars.hwnd.help_tooltips["cheatsheets_menu show"] := hwnd
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheetMenu2 HWNDhwnd0", % " " LangTrans("global_delete", 2) " "
-			Gui, %cheatsheet_menu%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd",
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheetMenu2 HWNDhwnd0", % " " LangTrans("global_delete", 2) " "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd",
 			vars.hwnd.cheatsheet_menu.del_00 := hwnd0, vars.hwnd.cheatsheet_menu.delbar_00 := vars.hwnd.help_tooltips["cheatsheets_menu delete"] := hwnd			
-			Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
-			Gui, %cheatsheet_menu%: Add, DDL, % "ys x+"settings.general.fWidth/2 " w"settings.general.fWidth*5 " cBlack gCheatsheetMenu2 HWNDhwnd", % StrReplace("top|left|", position, position "|")
+			Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
+			Gui, %GUI_name%: Add, DDL, % "ys x+"settings.general.fWidth/2 " w"settings.general.fWidth*5 " cBlack gCheatsheetMenu2 HWNDhwnd", % StrReplace("top|left|", position, position "|")
 			vars.hwnd.cheatsheet_menu.position := vars.hwnd.help_tooltips["cheatsheets_menu header"] := hwnd
-			Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
+			Gui, %GUI_name%: Font, % "s"settings.general.fSize
 		}
 		
 		Loop, % files
 		{
 			loop := (A_Index < 10) ? "0" A_Index : A_Index, handle .= "|"
-			Gui, %cheatsheet_menu%: Add, Text, % "Section xs HWNDhwnd Center w"settings.general.fWidth*2, % loop
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
+			Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd Center w"settings.general.fWidth*2, % loop
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
 			vars.hwnd.cheatsheet_menu["paste_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu paste"handle] := hwnd
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
 			vars.hwnd.cheatsheet_menu["snip_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu snip" (file_00 ? "0" : "") handle] := hwnd
 
 			If FileExist("cheat-sheets\"name "\["loop "]*")
@@ -998,107 +1000,108 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 					file := SubStr(A_LoopFileName, 1, InStr(A_LoopFileName, ".") - 1)
 				If (StrLen(file) = 4 || StrLen(file) > 6) ;file not tagged or tagged incorrectly
 					file := ""
-				Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd BackgroundTrans", % " " LangTrans("global_show") " "
+				Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd BackgroundTrans", % " " LangTrans("global_show") " "
 				vars.hwnd.cheatsheet_menu["preview_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu show"handle] := hwnd
-				Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gCheatsheetMenu2", % " " LangTrans("global_delete", 2) " "
-				Gui, %cheatsheet_menu%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd", 0
+				Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans HWNDhwnd0 gCheatsheetMenu2", % " " LangTrans("global_delete", 2) " "
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd", 0
 				vars.hwnd.cheatsheet_menu["del_"loop] := hwnd0, vars.hwnd.cheatsheet_menu["delbar_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu delete"handle] := hwnd
-				Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
-				Gui, %cheatsheet_menu%: Add, Edit, % "ys x+"settings.general.fWidth/2 " w"settings.general.fWidth*2 " cBlack Center Limit1 gCheatsheetMenu2 HWNDhwnd", % SubStr(file, 0)
+				Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
+				Gui, %GUI_name%: Add, Edit, % "ys x+"settings.general.fWidth/2 " w"settings.general.fWidth*2 " cBlack Center Limit1 gCheatsheetMenu2 HWNDhwnd", % SubStr(file, 0)
 				vars.hwnd.cheatsheet_menu["tag_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu hotkey"handle] := hwnd
-				Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
+				Gui, %GUI_name%: Font, % "s"settings.general.fSize
 			}
 		}
 		file := (files < 9) ? "0" files + 1 : files + 1
-		Gui, %cheatsheet_menu%: Add, Text, % "Section xs cLime Center w"settings.general.fWidth*2, % file
-		Gui, %cheatsheet_menu%: Add, Text, % "ys Border cLime gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
+		Gui, %GUI_name%: Add, Text, % "Section xs cLime Center w"settings.general.fWidth*2, % file
+		Gui, %GUI_name%: Add, Text, % "ys Border cLime gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "
 		vars.hwnd.cheatsheet_menu["paste_"file] := vars.hwnd.help_tooltips["cheatsheets_menu paste|"handle] := hwnd
-		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border cLime gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border cLime gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_snip") " "
 		vars.hwnd.cheatsheet_menu["snip_"file] := vars.hwnd.help_tooltips["cheatsheets_menu snip|"handle] := hwnd
 		
 		If files
 		{
-			Gui, %cheatsheet_menu%: Add, Text, % "Section xs Hidden Center w"settings.general.fWidth*2, % file
-			Gui, %cheatsheet_menu%: Add, Text, % "ys Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_preview") " "
+			Gui, %GUI_name%: Add, Text, % "Section xs Hidden Center w"settings.general.fWidth*2, % file
+			Gui, %GUI_name%: Add, Text, % "ys Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_preview") " "
 			vars.hwnd.cheatsheet_menu.preview_sheet := vars.hwnd.help_tooltips["cheatsheets_menu preview"] := hwnd
 		}
 	}
 	Else If (vars.cheatsheets.list[name].type = "app")
 	{
 		vars.cheatsheet_menu.type := "app", handle := ""
-		Gui, %cheatsheet_menu%: Add, Text, % "Section xs y+"settings.general.fHeight/2, % LangTrans("cheat_title")
-		Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
-		Gui, %cheatsheet_menu%: Add, Edit, % "Section xs w"settings.general.fWidth*18 " cBlack HWNDhwnd", % vars.cheatsheets.list[name].title
+		Gui, %GUI_name%: Add, Text, % "Section xs y+"settings.general.fHeight/2, % LangTrans("cheat_title")
+		Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
+		Gui, %GUI_name%: Add, Edit, % "Section xs w"settings.general.fWidth*18 " cBlack HWNDhwnd", % vars.cheatsheets.list[name].title
 		vars.hwnd.cheatsheet_menu.title := vars.hwnd.help_tooltips["cheatsheets_menu windowtitle"] := hwnd
-		Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
-		Gui, %cheatsheet_menu%: Add, Text, % "ys Border HWNDhwnd gCheatsheetMenu2", % " " LangTrans("global_test") " "
+		Gui, %GUI_name%: Font, % "s"settings.general.fSize
+		Gui, %GUI_name%: Add, Text, % "ys Border HWNDhwnd gCheatsheetMenu2", % " " LangTrans("global_test") " "
 		vars.hwnd.cheatsheet_menu.test_title := hwnd
 		
-		Gui, %cheatsheet_menu%: Add, Text, % "xs y+"settings.general.fHeight/2 " Section", % LangTrans("cheat_launch")
-		Gui, %cheatsheet_menu%: Add, Text, % "xs Section Border "(FileExist("cheat-sheets\" name "\app.lnk") ? "cLime" : "cWhite") " gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("cheat_exe") " "
+		Gui, %GUI_name%: Add, Text, % "xs y+"settings.general.fHeight/2 " Section", % LangTrans("cheat_launch")
+		Gui, %GUI_name%: Add, Text, % "xs Section Border "(FileExist("cheat-sheets\" name "\app.lnk") ? "cLime" : "cWhite") " gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("cheat_exe") " "
 		vars.hwnd.cheatsheet_menu.pick := vars.hwnd.help_tooltips["cheatsheets_menu exe-pick"] := hwnd
-		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheetMenu2 HWNDhwnd0", % " " LangTrans("global_delete", 2) " "
-		Gui, %cheatsheet_menu%: Add, Progress, % "xp yp wp hp Border BackgroundBlack cRed range0-500 Disabled HWNDhwnd", 0
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheetMenu2 HWNDhwnd0", % " " LangTrans("global_delete", 2) " "
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack cRed range0-500 Disabled HWNDhwnd", 0
 		vars.hwnd.cheatsheet_menu.exe_del := hwnd0, vars.hwnd.cheatsheet_menu.exe_delbar := vars.hwnd.help_tooltips["cheatsheets_menu exe-delete"] := hwnd
-		Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_test") " "
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_test") " "
 		vars.hwnd.cheatsheet_menu.test_exe := vars.hwnd.help_tooltips["cheatsheets_menu exe-test"] := hwnd
 	}
 	Else If (vars.cheatsheets.list[name].type = "advanced")
 	{
 		vars.cheatsheet_menu.type := "advanced", handle := ""
-		Gui, %cheatsheet_menu%: Font, underline bold
-		Gui, %cheatsheet_menu%: Add, Text, % "y+"settings.general.fHeight//2 " Section xs BackgroundTrans", % LangTrans("global_newentry")
-		Gui, %cheatsheet_menu%: Font, norm
-		Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize - 4
-		Gui, %cheatsheet_menu%: Add, Edit, % "Section xs w"settings.general.fWidth*18 " cBlack HWNDhwnd"
+		Gui, %GUI_name%: Font, underline bold
+		Gui, %GUI_name%: Add, Text, % "y+"settings.general.fHeight//2 " Section xs BackgroundTrans", % LangTrans("global_newentry")
+		Gui, %GUI_name%: Font, norm
+		Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
+		Gui, %GUI_name%: Add, Edit, % "Section xs w"settings.general.fWidth*18 " cBlack HWNDhwnd"
 		vars.hwnd.cheatsheet_menu.entryname := vars.hwnd.help_tooltips["cheatsheets_menu entry-about"] := hwnd
-		Gui, %cheatsheet_menu%: Font, % "s"settings.general.fSize
-		Gui, %cheatsheet_menu%: Add, Text, % "ys Border BackgroundTrans HWNDhwnd gCheatsheetMenu2", % " " LangTrans("global_add") " "
+		Gui, %GUI_name%: Font, % "s"settings.general.fSize
+		Gui, %GUI_name%: Add, Text, % "ys Border BackgroundTrans HWNDhwnd gCheatsheetMenu2", % " " LangTrans("global_add") " "
 		vars.hwnd.cheatsheet_menu.entryadd := vars.hwnd.help_tooltips["cheatsheets_menu entry-about|"] := hwnd
 		ControlGetPos, xSection,, wSection,,, ahk_id %hwnd%
 		width := xSection + wSection
 		
 		If vars.cheatsheets.list[name].entries.Count()
 		{
-			Gui, %cheatsheet_menu%: Font, underline bold
-			Gui, %cheatsheet_menu%: Add, Text, % "Section xs y+"settings.general.fHeight//2, % LangTrans("global_savedentry")
-			Gui, %cheatsheet_menu%: Font, norm
+			Gui, %GUI_name%: Font, underline bold
+			Gui, %GUI_name%: Add, Text, % "Section xs y+"settings.general.fHeight//2, % LangTrans("global_savedentry")
+			Gui, %GUI_name%: Font, norm
 		}
 		
 		For entry in vars.cheatsheets.list[name].entries
 		{
 			If (A_Index = 1) && !vars.cheatsheet_menu.entry
 				vars.cheatsheet_menu.entry := entry
-			Gui, %cheatsheet_menu%: Add, Text, % "Section xs w"settings.general.fWidth*2 " Center HWNDhwnd", % A_Index
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border Center gCheatsheetMenu2 HWNDhwnd"(FileExist("cheat-sheets\"name "\[check] " entry ".*") ? "" : " cGray"), % " " LangTrans("global_image") " "
+			Gui, %GUI_name%: Add, Text, % "Section xs w"settings.general.fWidth*2 " Center HWNDhwnd", % A_Index
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border Center gCheatsheetMenu2 HWNDhwnd"(FileExist("cheat-sheets\"name "\[check] " entry ".*") ? "" : " cGray"), % " " LangTrans("global_image") " "
 			vars.hwnd.cheatsheet_menu["previewentry_"entry] := vars.hwnd.help_tooltips["cheatsheets_menu entry-image"handle] := hwnd
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans HWNDhwnd0 gCheatsheetMenu2", % " " LangTrans("global_delete", 2) " "
-			Gui, %cheatsheet_menu%: Add, Progress, % "xp yp wp hp Disabled Border range0-500 BackgroundBlack cRed HWNDhwnd", 0
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans HWNDhwnd0 gCheatsheetMenu2", % " " LangTrans("global_delete", 2) " "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border range0-500 BackgroundBlack cRed HWNDhwnd", 0
 			vars.hwnd.cheatsheet_menu["delentry_"entry] := hwnd0, vars.hwnd.cheatsheet_menu["delbarentry_"entry] := vars.hwnd.help_tooltips["cheatsheets_menu entry-delete"handle] := hwnd
-			Gui, %cheatsheet_menu%: Add, Text, % "ys x+"settings.general.fWidth/2 " BackgroundTrans c"(entry = vars.cheatsheet_menu.entry ? "Fuchsia" : "White") " HWNDhwnd gCheatsheetMenu2", % entry
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 " BackgroundTrans c"(entry = vars.cheatsheet_menu.entry ? "Fuchsia" : "White") " HWNDhwnd gCheatsheetMenu2", % entry
 			vars.hwnd.cheatsheet_menu["selectentry_"entry] := vars.hwnd.help_tooltips["cheatsheets_menu entry-select"handle] := hwnd
 			ControlGetPos, xSection,, wSection,,, ahk_id %hwnd%
 			width := (xSection + wSection > width) ? xSection + wSection : width, handle .= "|"
 		}
 		
-		Gui, %cheatsheet_menu%: Add, Text, % "Section x"width + settings.general.fWidth*2 " y"ySection - 1 " BackgroundTrans", % LangTrans("cheat_notes")
-		Gui, %cheatsheet_menu%: Add, Edit, % "xs Hidden Center r4"
+		Gui, %GUI_name%: Add, Text, % "Section x"width + settings.general.fWidth*2 " y"ySection - 1 " BackgroundTrans", % LangTrans("cheat_notes")
+		Gui, %GUI_name%: Add, Edit, % "xs Hidden Center r4"
 		Loop 4
 		{
 			style := (A_Index = 1) ? "Section xp yp " : "Section xs "
-			Gui, %cheatsheet_menu%: Add, Text, % style "hp 0x200 Section Border w"settings.general.fWidth*2 " Center", % A_Index ":"
-			Gui, %cheatsheet_menu%: Add, Edit, % "ys hp x+0 Center Border Limit cBlack HWNDhwnd w"settings.general.fWidth*32 (!vars.cheatsheet_menu.entry ? " ReadOnly" : "") ;cont
+			Gui, %GUI_name%: Add, Text, % style "hp 0x200 Section Border w"settings.general.fWidth*2 " Center", % A_Index ":"
+			Gui, %GUI_name%: Add, Edit, % "ys hp x+0 Center Border Limit cBlack HWNDhwnd w"settings.general.fWidth*32 (!vars.cheatsheet_menu.entry ? " ReadOnly" : "") ;cont
 			, % vars.cheatsheets.list[name].entries[vars.cheatsheet_menu.entry].panels[A_Index]
 			vars.hwnd.cheatsheet_menu["panelentry_"A_Index] := hwnd
 		}
 		If vars.cheatsheet_menu.entry
 		{
-			Gui, %cheatsheet_menu%: Add, Text, % "Section xs Border Center gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_preview") " "
+			Gui, %GUI_name%: Add, Text, % "Section xs Border Center gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_preview") " "
 			vars.hwnd.cheatsheet_menu.preview_sheet := vars.hwnd.help_tooltips["cheatsheets_menu entry-preview"] := hwnd
 		}
 	}
 	
-	Gui, %cheatsheet_menu%: Show, % "x10000 y10000"
+	Gui, %GUI_name%: Show, % "x10000 y10000"
+	LLK_Overlay(cheatsheet_menu, "show",, GUI_name)
 	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.cheatsheet_menu.main
 	ControlMove,,,, w + 1 - settings.general.fWidth*2,, % "ahk_id "vars.hwnd.cheatsheet_menu.winbar
 	GuiControl, -Hidden, % vars.hwnd.cheatsheet_menu.winbar
@@ -1107,8 +1110,8 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 	Sleep 50
 	If !Blank(xPos)
 		xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos, yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
-	Gui, %cheatsheet_menu%: Show, % "x"(!Blank(xPos) ? xPos " y"yPos : vars.client.x " y"vars.client.yc - h//2)
-	LLK_Overlay(hwnd_old, "destroy")
+	Gui, %GUI_name%: Show, % "x"(!Blank(xPos) ? xPos " y"yPos : vars.client.x " y"vars.client.yc - h//2)
+	LLK_Overlay(cheatsheet_menu, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If !WinExist("ahk_id "vars.hwnd.snip.main)
 		GuiControl, Focus, % vars.hwnd.cheatsheet_menu.name
 	Else WinActivate, % "ahk_id "vars.hwnd.snip.main
@@ -1133,8 +1136,7 @@ CheatsheetMenuClose()
 	Else If (vars.cheatsheet_menu.type = "advanced") && (vars.cheatsheet_menu.entry)
 		CheatsheetMenuEntrySave()
 
-	Gui, % vars.hwnd.cheatsheet_menu.main ": Destroy"
-	SnipGuiClose()
+	LLK_Overlay(vars.hwnd.cheatsheet_menu.main, "destroy"), SnipGuiClose()
 	WinActivate, ahk_group poe_window
 	If vars.hwnd.settings.main
 		LLK_Overlay(vars.hwnd.settings.main, "show")
@@ -1377,16 +1379,16 @@ CheatsheetSearch(name)
 
 	If !FileExist("cheat-sheets\"name "\[check].bmp") ;return 0 if reference img-file is missing
 	{
-		If (A_Gui = DummyGUI(vars.hwnd.settings.main))
+		If InStr(A_Gui, "settings_menu")
 			LLK_ToolTip(LangTrans("global_calibrate", 2),,,,, "yellow")
 		Return 0
 	}
 	
-	If !vars.cheatsheets.list[name].x1 && (A_Gui != vars.hwnd.settings.main) ;return 0 if check has not been tested before
+	If !vars.cheatsheets.list[name].x1 && !InStr(A_Gui, "settings_menu") ;return 0 if check has not been tested before
 		Return 0
 	
-	pHaystack := (A_Gui = DummyGUI(vars.hwnd.settings.main)) ? Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1) : vars.cheatsheets.pHaystack
-	If (A_Gui = DummyGUI(vars.hwnd.settings.main)) ;search whole client-area if search was initiated from settings menu
+	pHaystack := InStr(A_Gui, "settings_menu") ? Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1) : vars.cheatsheets.pHaystack
+	If InStr(A_Gui, "settings_menu") ;search whole client-area if search was initiated from settings menu
 		x1 := 0, y1 := 0, x2 := 0, y2 := 0
 	Else ;otherwise, load last-known coordinates
 	{
@@ -1407,18 +1409,18 @@ CheatsheetSearch(name)
 	}
 	If (Gdip_ImageSearch(pHaystack, pNeedle, LIST, x1, y1, x2, y2, vars.imagesearch.variation,, 1, 1) > 0) ;reference img-file was found in the screenshot
 	{
-		If (A_Gui = DummyGUI(vars.hwnd.settings.main)) ;if search was initiated from settings menu, save positive coordinates
+		If InStr(A_Gui, "settings_menu") ;if search was initiated from settings menu, save positive coordinates
 		{
 			Gdip_GetImageDimension(pNeedle, width, height) ;get dimensions of the reference img-file
 			IniWrite, % LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height), % "cheat-sheets\"name "\info.ini", image search, last coordinates ;write string to ini-file
 		}
 		Gdip_DisposeImage(pNeedle) ;clear reference-img file from memory
-		If (A_Gui = DummyGUI(vars.hwnd.settings.main))
+		If InStr(A_Gui, "settings_menu")
 			Gdip_DisposeImage(pHaystack) ;clear screenshot from memory
 		Return 1
 	}
 	Gdip_DisposeImage(pNeedle)
-	If (A_Gui = DummyGUI(vars.hwnd.settings.main))
+	If InStr(A_Gui, "settings_menu")
 	{
 		LLK_ToolTip(LangTrans("global_negative"),,,,, "Red")
 		Gdip_DisposeImage(pHaystack)

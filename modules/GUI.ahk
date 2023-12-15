@@ -3,8 +3,6 @@
 	local
 	global vars, settings
 	
-	If !IsObject(vars.GUI)
-		vars.GUI := []
 	update := vars.update
 	If !name || (name = "LLK_panel")
 	{
@@ -25,7 +23,7 @@
 		yPos := (yPos + (h - 1) > vars.monitor.h - 1) ? vars.monitor.h - 1 - h : yPos ;correct the coordinates if panel ends up out of monitor-bounds
 		
 		Gui, LLK_panel: Show, % "Hide x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
-		LLK_Overlay(vars.hwnd.LLK_panel, "show") ;LLK_Overlay(vars.hwnd.LLK_panel, settings.general.hide_button ? "hide" : "show")
+		LLK_Overlay(vars.hwnd.LLK_panel, "show",, "LLK_panel") ;LLK_Overlay(vars.hwnd.LLK_panel, settings.general.hide_button ? "hide" : "show")
 	}
 
 	Loop, Parse, % "leveltracker, maptracker, notepad", `,, %A_Space%
@@ -68,5 +66,15 @@ GuiButton(name := "", x := "", y := "")
 	Else xPos := vars.client.x - vars.monitor.x, yPos := vars.client.y - vars.monitor.y
 
 	Gui, %name%_button: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
-	LLK_Overlay(vars.hwnd[name "_button"].main, "show")
+	LLK_Overlay(vars.hwnd[name "_button"].main, "show",, name "_button")
+}
+
+GuiName(GuiHWND)
+{
+	local
+	global vars
+
+	For index, val in vars.GUI
+		If LLK_HasVal(val, GuiHWND)
+			Return val.name
 }
