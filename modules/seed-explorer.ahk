@@ -25,7 +25,7 @@ Legion(cHWND := "")
 	local
 	global vars, settings, db
 
-	check := LLK_HasVal(A_Gui = vars.hwnd.legion_tree.main ? vars.hwnd.legion_tree : vars.hwnd.legion, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	check := LLK_HasVal(InStr(A_Gui, "tree") ? vars.hwnd.legion_tree : vars.hwnd.legion, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If InStr(check, "profile_")
 	{
 		If (vars.system.click = 2) && LLK_Progress(vars.hwnd.legion["delbar_"control], "RButton")
@@ -122,6 +122,7 @@ LegionGUI()
 {
 	local
 	global vars, settings, db
+	static toggle := 0
 
 	vars.legion.width := settings.legion.fWidth*29, LLK_Overlay(vars.hwnd.legion.tooltip, "destroy"), vars.legion.tooltip := "", vars.legion.wait := 1
 	If !IsObject(vars.legion.nodes)
@@ -131,79 +132,80 @@ LegionGUI()
 				vars.legion.nodes := {}, vars.legion.nodes_invert := []
 			vars.legion.nodes[A_LoopField] := A_Index, vars.legion.nodes_invert.Push(A_LoopField)
 		}
-	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDlegion"
-	Gui, %legion%: Color, Black
-	Gui, %legion%: Margin, 0, 0
-	Gui, %legion%: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
-	hwnd_old := vars.hwnd.legion.main, vars.hwnd.legion := {"main": legion, "old": hwnd_old, "tooltips": {}, "tooltips2": {}}
+	toggle := !toggle, GUI_name := "legion" toggle
+	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDlegion"
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, 0, 0
+	Gui, %GUI_name%: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
+	hwnd_old := vars.hwnd.legion.main, vars.hwnd.legion := {"main": legion, "tooltips": {}, "tooltips2": {}}
 	
-	Gui, %legion%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % LangTrans("seed_profile")
+	Gui, %GUI_name%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % LangTrans("seed_profile")
 	ControlGetPos, xAnchor, yAnchor, wAnchor, hAnchor,, ahk_id %hwnd%
 	Loop 5
 	{
-		Gui, %legion%: Add, Text, % "ys x+"(settings.legion.fWidth/(A_Index = 1 ? 2 : 4)) " Border BackgroundTrans Center gLegion HWNDhwnd w"settings.legion.fWidth*2 (A_Index = settings.legion.profile ? " cFuchsia" : ""), % A_Index
-		Gui, %legion%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed Range0-500 HWNDhwndbar", 0
+		Gui, %GUI_name%: Add, Text, % "ys x+"(settings.legion.fWidth/(A_Index = 1 ? 2 : 4)) " Border BackgroundTrans Center gLegion HWNDhwnd w"settings.legion.fWidth*2 (A_Index = settings.legion.profile ? " cFuchsia" : ""), % A_Index
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed Range0-500 HWNDhwndbar", 0
 		vars.hwnd.legion["profile_"A_Index] := hwnd, vars.hwnd.legion["delbar_"A_Index] := hwndbar
 	}
-	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % LangTrans("seed_jewel")
-	Gui, %legion%: Font, % "norm"
-	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("global_type") " " vars.legion.jewel
-	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("seed_seed") " " vars.legion.seed
-	Gui, %legion%: Add, Text, % "xs y+0", % LangTrans("seed_conqueror") " " vars.legion.leader
+	Gui, %GUI_name%: Font, % "underline bold"
+	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % LangTrans("seed_jewel")
+	Gui, %GUI_name%: Font, % "norm"
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("global_type") " " vars.legion.jewel
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("seed_seed") " " vars.legion.seed
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("seed_conqueror") " " vars.legion.leader
 
-	Gui, %legion%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " " LangTrans("global_import") " "
-	Gui, %legion%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " " LangTrans("seed_trade") " "
+	Gui, %GUI_name%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " " LangTrans("global_import") " "
+	Gui, %GUI_name%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " " LangTrans("seed_trade") " "
 	vars.hwnd.legion.import := vars.hwnd.help_tooltips["seed-explorer_import"] := hwndimport, vars.hwnd.legion.trade := vars.hwnd.help_tooltips["seed-explorer_trade"] := hwndtrade
 
-	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_keystones")
-	Gui, %legion%: Font, % "norm"
+	Gui, %GUI_name%: Font, % "underline bold"
+	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_keystones")
+	Gui, %GUI_name%: Font, % "norm"
 	For keystone, val in db.legion.jewels[vars.legion.jewel]
 		If !InStr(keystone, "decoder")
 		{
-			Gui, %legion%: Add, Text, % "xs HWNDhwnd y+0"(val.1 = vars.legion.leader ? " cLime" : ""), % keystone
+			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd y+0"(val.1 = vars.legion.leader ? " cLime" : ""), % keystone
 			vars.hwnd.legion.tooltips[keystone] := hwnd
 		}
 
 	If vars.legion.socket
 	{
-		Gui, %legion%: Font, % "underline bold"
-		Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_notables")
-		Gui, %legion%: Font, % "norm"
+		Gui, %GUI_name%: Font, % "underline bold"
+		Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_notables")
+		Gui, %GUI_name%: Font, % "norm"
 		mods := {}
 		For index, node in db.legion.sockets[vars.legion.socket].nodes
 			text := db.legion.jewels[vars.legion.jewel]["_decoder"][vars.legion.data.3[vars.legion.nodes[node]]], mods[text] := mods[text] ? mods[text] + 1 : 1
 		For mod, count in mods
 		{
-			Gui, %legion%: Add, Text, % "xs HWNDhwnd gLegion"(settings.legion.highlights[mod] ? " cAqua" : "") (vars.legion.selection = mod ? " Border" : ""), % mod " (" count ")"
+			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd gLegion"(settings.legion.highlights[mod] ? " cAqua" : "") (vars.legion.selection = mod ? " Border" : ""), % mod " (" count ")"
 			vars.hwnd.legion["mod_"mod] := hwnd
 			If db.legion.jewels.descriptions.HasKey(mod)
 				vars.hwnd.legion.tooltips[mod] := hwnd
 		}
 	}
 
-	Gui, %legion%: Add, Text, % "x0 y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h - vars.legion.width + 1
-	Gui, %legion%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", img\GUI\legion_treemap.jpg
+	Gui, %GUI_name%: Add, Text, % "x0 y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h - vars.legion.width + 1
+	Gui, %GUI_name%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", img\GUI\legion_treemap.jpg
 	vars.hwnd.legion.treemap := hwnd
 
-	Gui, %legion%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % LangTrans("global_font") " "
-	Gui, %legion%: Add, Text, % "ys x+0 Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "–"
+	Gui, %GUI_name%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % LangTrans("global_font") " "
+	Gui, %GUI_name%: Add, Text, % "ys x+0 Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "–"
 	vars.hwnd.legion.font_minus := hwnd
-	Gui, %legion%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*3, % settings.legion.fSize
+	Gui, %GUI_name%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*3, % settings.legion.fSize
 	vars.hwnd.legion.font_reset := hwnd
-	Gui, %legion%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "+"
+	Gui, %GUI_name%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "+"
 	vars.hwnd.legion.font_plus := hwnd
 
-	Gui, %legion%: Font, % "underline bold"
-	Gui, %legion%: Add, Text, % "xs y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
-	Gui, %legion%: Font, % "norm"
+	Gui, %GUI_name%: Font, % "underline bold"
+	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
+	Gui, %GUI_name%: Font, % "norm"
 
 	If !vars.legion.socket
 	{
 		For index, mod in vars.legion.jewel_mods
 		{
-			Gui, %legion%: Add, Text, % "xs HWNDhwnd gLegion"(settings.legion.highlights[mod] ? " cAqua" : ""), % mod
+			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd gLegion"(settings.legion.highlights[mod] ? " cAqua" : ""), % mod
 			vars.hwnd.legion["mod_"mod] := hwnd
 			If db.legion.jewels.descriptions.HasKey(mod)
 				vars.hwnd.legion.tooltips[mod] := hwnd
@@ -214,20 +216,20 @@ LegionGUI()
 		{
 			mod := db.legion.jewels[vars.legion.jewel]["_decoder"][vars.legion.data.3[vars.legion.nodes[node]]]
 			color := settings.legion.highlights[node] && settings.legion.highlights[mod] ? " cYellow" : settings.legion.highlights[node] ? " cLime" : ""
-			Gui, %legion%: Add, Text, % "xs HWNDhwnd gLegion"color (vars.legion.selection = node ? " Border" : ""), % node
+			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd gLegion"color (vars.legion.selection = node ? " Border" : ""), % node
 			While vars.hwnd.legion.tooltips2.HasKey(mod)
 				mod .= "_"
 			vars.hwnd.legion["mod_"node] := hwnd, vars.hwnd.legion.tooltips2[mod] := hwnd
 		}
 		
-	Gui, %legion%: Add, Text, % "x"vars.legion.width - 1 " y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h
+	Gui, %GUI_name%: Add, Text, % "x"vars.legion.width - 1 " y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h
 
-	Gui, %legion%: Show, % "NA x10000 y10000 h"vars.monitor.h
-	If (A_Gui = DummyGUI(vars.hwnd.legion_tree.main))
-		Gui, % vars.hwnd.legion_tree.main ": +Owner"legion
-	Gui, %legion%: Show, % "Hide x"vars.monitor.x " y"vars.monitor.y
-	LLK_Overlay(legion, "show", 0), LLK_Overlay(hwnd_old, "destroy")
-	If (A_Gui = DummyGUI(vars.hwnd.legion_tree.main))
+	Gui, %GUI_name%: Show, % "NA x10000 y10000 h"vars.monitor.h
+	If InStr(A_Gui, "tree")
+		Gui, % GuiName(vars.hwnd.legion_tree.main) ": +Owner" GUI_name
+	Gui, %GUI_name%: Show, % "Hide x"vars.monitor.x " y"vars.monitor.y
+	LLK_Overlay(legion, "show", 0, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+	If InStr(A_Gui, "tree")
 		LegionTree()
 	vars.legion.wait := 0
 }
@@ -260,9 +262,13 @@ LegionHover()
 			Gui, legion_tooltip: Add, Text, % (A_Index = 1 ? "" : "xs y+0") " Center Border w"settings.legion.fWidth*29 - 2, % text
 		vars.legion.tooltip := check ? check : check2
 		Gui, legion_tooltip: Show, % "NA x"(vars.general.xMouse - vars.monitor.x < vars.legion.width ? vars.monitor.x : vars.monitor.x + vars.legion.width - 1) " y"y + h + 1
+		LLK_Overlay(tooltip, "show",, "legion_tooltip")
 	}
 	Else If !check && !check2 && vars.legion.tooltip
-		vars.legion.tooltip := "", LLK_Overlay(tooltip, "destroy")
+	{
+		vars.legion.tooltip := ""
+		Gui, legion_tooltip: Destroy
+	}
 }
 
 LegionParse()
@@ -325,14 +331,17 @@ LegionTree()
 {
 	local
 	global vars, settings, db
+	static toggle := 0
 
 	vars.legion.wait := 1
 	If !vars.legion.fSize_tree
 		vars.legion.fSize_tree := LLK_FontSizeGet(vars.legion.width/20, width), LLK_FontDimensions(vars.legion.fSize_tree, fHeight, fWidth), vars.legion.fWidth_tree := fWidth, vars.legion.fHeight_tree := fHeight
-	Gui, New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner"vars.hwnd.legion.main
-	Gui, %tree%: Color, Black
-	Gui, %tree%: Margin, 0, 0
-	Gui, %tree%: Font, % "s"vars.legion.fSize_tree " cWhite bold", % vars.system.font
+
+	toggle := !toggle, GUI_name := "tree" toggle
+	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner" GuiName(vars.hwnd.legion.main)
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, 0, 0
+	Gui, %GUI_name%: Font, % "s"vars.legion.fSize_tree " cWhite bold", % vars.system.font
 	hwnd_old := vars.hwnd.legion_tree.main, vars.hwnd.legion_tree := {"main": tree}
 
 	For socket, val in db.legion.sockets
@@ -344,14 +353,14 @@ LegionTree()
 			text := db.legion.jewels[vars.legion.jewel]["_decoder"][vars.legion.data.3[vars.legion.nodes[node]]], mods[text] := mods[text] ? mods[text] + 1 : 1
 		For mod, count in mods
 			hAqua += settings.legion.highlights[mod] ? count : 0
-		Gui, %tree%: Add, Text, % "BackgroundTrans Center cYellow w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % hYellow ? hYellow : ""
-		Gui, %tree%: Add, Text, % "BackgroundTrans Center cAqua w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y+-"vars.legion.fHeight_tree*0.2, % hAqua ? hAqua : ""
-		Gui, %tree%: Add, Pic, % "BackgroundTrans gLegion HWNDhwnd h"vars.legion.fHeight_tree*1.8 " w-1 x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % "img\GUI\legion_socket"(socket = vars.legion.socket ? 1 : 0) ".jpg"
+		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center cYellow w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % hYellow ? hYellow : ""
+		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center cAqua w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y+-"vars.legion.fHeight_tree*0.2, % hAqua ? hAqua : ""
+		Gui, %GUI_name%: Add, Pic, % "BackgroundTrans gLegion HWNDhwnd h"vars.legion.fHeight_tree*1.8 " w-1 x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % "img\GUI\legion_socket"(socket = vars.legion.socket ? 1 : 0) ".jpg"
 		vars.hwnd.legion_tree["socket_"socket] := hwnd
 	}
-	Gui, %tree%: Add, Pic, % "x0 y0 Border HWNDhwnd w"vars.legion.width*2 - 3 " h-1", img\GUI\legion_treemap.jpg
+	Gui, %GUI_name%: Add, Pic, % "x0 y0 Border HWNDhwnd w"vars.legion.width*2 - 3 " h-1", img\GUI\legion_treemap.jpg
 	vars.hwnd.legion_tree.map := hwnd
-	Gui, %tree%: Show, % "NA x" vars.monitor.x " y" vars.monitor.y + vars.monitor.h - vars.legion.width*2
-	LLK_Overlay(hwnd_old, "destroy"), vars.legion.wait := 0
-	Gui, %tree%: -Owner
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x " y" vars.monitor.y + vars.monitor.h - vars.legion.width*2
+	LLK_Overlay(tree, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.legion.wait := 0
+	Gui, %GUI_name%: -Owner
 }
