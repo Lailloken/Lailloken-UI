@@ -128,8 +128,7 @@
 		Gui, iteminfo_button_%key%: Add, Picture, % "BackgroundTrans w"vars.iteminfo.compare.dButton " h-1", img\GUI\refresh.png
 		Gui, iteminfo_button_%key%: Show, % "Hide x"vars.client.x + vars.client.w - vars.iteminfo.compare.xBase + vars.iteminfo.compare.slots[key].x " y"vars.client.y + vars.iteminfo.compare.slots[key].y
 		vars.hwnd.iteminfo_comparison[key] := hwnd
-		LLK_Overlay(hwnd, "show",, "iteminfo_button_" key)
-		LLK_Overlay(hwnd, "hide")
+		LLK_Overlay(hwnd, "hide",, "iteminfo_button_" key)
 
 		;the box drawn by x1, x2, y1, and y2 is the area of a given inventory gear-slot and serves as a reference-point for clicks
 		vars.iteminfo.compare.slots[key].x1 := vars.client.x + vars.client.w - vars.iteminfo.compare.xBase + vars.iteminfo.compare.slots[key].x
