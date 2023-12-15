@@ -90,10 +90,10 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		If name ;if parameter was passed to function, override val
 			val := name
 		
-		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
+		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && !(settings.features.maptracker || settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
-		If (A_Gui = DummyGUI(vars.hwnd.settings.main)) && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)
+		If InStr(A_Gui, "settings_menu") && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)
 			x1 := 0, y1 := 0, x2 := 0, y2 := 0
 		Else If (val = "betrayal") ;scan a specific area for betrayal
 			x1 := settings.general.oGamescreen, y1 := 0, x2 := vars.client.w/2 + settings.general.oGamescreen, y2 := vars.client.h/8
