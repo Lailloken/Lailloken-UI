@@ -46,7 +46,7 @@ LangClient(log_chunk) ;finds out which language the client is running
 		}
 	}
 
-	Loop, Parse, log_chunk, `n, % "`r" vars.lang.system_fullstop.1
+	Loop, Parse, log_chunk, `n, `r
 	{
 		If InStr(A_LoopField, "Generating level ", 1) ;(potentially) reset parsed language-setting every time "Generating level" is found in the log
 			lang_reset := 1
