@@ -45,9 +45,7 @@
 	
 	If !IsObject(vars.iteminfo) ;only do this when the function is called for the very first time (i.e. at startup) ;this function is used whenever major features are toggled on/off
 	{
-		vars.iteminfo := {}
-		vars.iteminfo.UI := {}
-		vars.iteminfo.compare := {}
+		vars.iteminfo := {"UI": {}, "compare": {}}
 		vars.iteminfo.compare.slots := {"mainhand": {}, "offhand": {}, "helmet": {}, "body": {}, "amulet": {}, "ring1": {}, "ring2": {}, "belt": {}, "gloves": {}, "boots": {}}
 		vars.hwnd.iteminfo := {}
 		
@@ -55,10 +53,7 @@
 			vars.iteminfo.compare.slots[key].equipped := LLK_IniRead("ini\item-checker gear.ini", key,, "empty")
 	}
 	
-	vars.iteminfo.highlight := {}
-	vars.iteminfo.highlight.global := {}
-	vars.iteminfo.blacklist := {}
-	vars.iteminfo.blacklist.global := {}
+	vars.iteminfo.highlight := {"global": {}}, vars.iteminfo.blacklist := {"global": {}}
 	iniread := LLK_IniRead("ini\item-checker.ini", "highlighting " settings.iteminfo.profile)
 	
 	Loop, Parse, iniread, `n ;load global and slot-specific (un)desired highlighting
@@ -133,6 +128,8 @@
 		Gui, iteminfo_button_%key%: Add, Picture, % "BackgroundTrans w"vars.iteminfo.compare.dButton " h-1", img\GUI\refresh.png
 		Gui, iteminfo_button_%key%: Show, % "Hide x"vars.client.x + vars.client.w - vars.iteminfo.compare.xBase + vars.iteminfo.compare.slots[key].x " y"vars.client.y + vars.iteminfo.compare.slots[key].y
 		vars.hwnd.iteminfo_comparison[key] := hwnd
+		LLK_Overlay(hwnd, "show",, "iteminfo_button_" key)
+		LLK_Overlay(hwnd, "hide")
 
 		;the box drawn by x1, x2, y1, and y2 is the area of a given inventory gear-slot and serves as a reference-point for clicks
 		vars.iteminfo.compare.slots[key].x1 := vars.client.x + vars.client.w - vars.iteminfo.compare.xBase + vars.iteminfo.compare.slots[key].x
@@ -185,7 +182,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	}
 	UI.segments := 10 ;number of segments the tooltip is made of, i.e. the tooltip is 10 standardized widths wide
 	UI.hDivider := UI.hSegment//9 ;thickness of the dividing lines between implicits, prefixes, suffixes, etc.
-	
+
 	If (refresh = 1) ;refresh tooltip after changing settings in the menu, i.e. use the previously omni-clicked item's info and redraw the tooltip with new settings
 	{
 		If !vars.iteminfo.clipboard
@@ -196,11 +193,11 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 			WinGetPos, xPos, yPos,,, % "ahk_id " vars.hwnd.iteminfo.main
 			UI.xPos := xPos, UI.yPos := yPos
 		}
-		Else If (A_Gui = DummyGUI(vars.hwnd.settings.main))
+		Else If InStr(A_Gui, "settings_menu")
 			UI.xPos := vars.general.xMouse, UI.yPos := vars.general.yMouse + vars.monitor.h/100
 	}
 	Else UI.xPos := "", UI.yPos := "", vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard := StrReplace(StrReplace(StrReplace(StrReplace(Clipboard, "maelström", "maelstrom"), " — " LangTrans("items_unscalable")), "&", "&&"), LangTrans("items_unequippable") "`r`n--------`r`n"), vars[(refresh = 2) ? "omnikey" : "iteminfo"].item := {}
-	
+
 	clip := vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard, item := vars[(refresh = 2) ? "omnikey" : "iteminfo"].item ;short-cut variables
 	Loop, % (refresh = 2 && settings.general.lang_client != "english") ? 2 : 1
 	{
@@ -244,7 +241,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 		While ((SubStr(item[A_LoopField], 0) = " "))
 			item[A_LoopField] := SubStr(item[A_LoopField], 1, -1)
 	}	
-	
+
 	If InStr(clip, LangTrans("items_quality") . " +")
 		item.quality := SubStr(clip, InStr(clip, LangTrans("items_quality") . " +") + StrLen(LangTrans("items_quality") . " +")), item.quality := SubStr(item.quality, 1, InStr(item.quality, "%") - 1)
 
@@ -286,9 +283,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 
 	If !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel")
 	{
-		LLK_ToolTip(LangTrans("ms_item-info") ":`n" LangTrans("iteminfo_unsupported"), 2,,,, "red")
-		If WinExist("ahk_id " vars.hwnd.iteminfo.main)
-			LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
+		LLK_ToolTip(LangTrans("ms_item-info") ":`n" LangTrans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return
 	}
 
@@ -575,7 +570,7 @@ Iteminfo3_mods()
 		{
 			item.implicits.Push(StrReplace(A_LoopField, " (enchant)"))
 			If !settings.iteminfo.compare ;if item-comparison is turned off (comparison and base-info are mutually exclusive)
-				item.anoint := db.anoints.amulets[LangTrim(A_LoopField, vars.lang.mods_blight_enchant)]
+				item.anoint := db.anoints.amulets[StrReplace(LangTrim(A_LoopField, vars.lang.mods_blight_enchant), " (enchant)")]
 		}
 
 		If db.anoints.rings[StrReplace(A_LoopField, " (enchant)")]
@@ -733,12 +728,13 @@ Iteminfo4_GUI()
 {
 	local
 	global vars, settings, db
+	static toggle := 0
 	
-	clip := vars.iteminfo.clipboard, clip2 := vars.iteminfo.clipboard2, item := vars.iteminfo.item, UI := vars.iteminfo.UI ;short-cut variables
-	Gui, New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDiteminfo +E0x02000000 +E0x00080000 ;the last two styles reduce flashing by using double-buffering and bottom-to-top rendering
-	Gui, %iteminfo%: Margin, 0, 0
-	Gui, %iteminfo%: Color, Black
-	Gui, %iteminfo%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
+	toggle := !toggle, GUI_name := "iteminfo" toggle, clip := vars.iteminfo.clipboard, clip2 := vars.iteminfo.clipboard2, item := vars.iteminfo.item, UI := vars.iteminfo.UI ;short-cut variables
+	Gui, %GUI_name%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDiteminfo +E0x02000000 +E0x00080000 ;the last two styles reduce flashing by using double-buffering and bottom-to-top rendering
+	Gui, %GUI_name%: Margin, 0, 0
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo}
 	
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -762,14 +758,14 @@ Iteminfo4_GUI()
 			label := (item.dps.chaos = A_LoopField) ? "chaos" : (item.dps.ele = A_LoopField) ? "allres" : "phys" ;icon for the cell
 			If !filler
 			{
-				Gui, %iteminfo%: Add, Text, % style " Right Border w"filler_width*UI.wSegment " h"UI.hSegment, % LangTrans("iteminfo_dps") " " ;add the filler cell
+				Gui, %GUI_name%: Add, Text, % style " Right Border w"filler_width*UI.wSegment " h"UI.hSegment, % LangTrans("iteminfo_dps") " " ;add the filler cell
 				style := "ys", filler := 1
 			}
-			Gui, %iteminfo%: Add, Picture, % style " Border BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\"label ".png" ;icon for the dmg-type
-			Gui, %iteminfo%: Add, Text, % "ys Center Border w"UI.wSegment " h"UI.hSegment, % text ;dmg-text
+			Gui, %GUI_name%: Add, Picture, % style " Border BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\"label ".png" ;icon for the dmg-type
+			Gui, %GUI_name%: Add, Text, % "ys Center Border w"UI.wSegment " h"UI.hSegment, % text ;dmg-text
 		}
-		Gui, %iteminfo%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\damage.png" ;total-dps icon
-		Gui, %iteminfo%: Add, Text, % "ys Center Border w"UI.wSegment " h"UI.hSegment, % (item.dps.total < 1000) ? Format("{:0.1f}", item.dps.total) : Format("{:0.0f}", item.dps.total) ;total-dps text
+		Gui, %GUI_name%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\damage.png" ;total-dps icon
+		Gui, %GUI_name%: Add, Text, % "ys Center Border w"UI.wSegment " h"UI.hSegment, % (item.dps.total < 1000) ? Format("{:0.1f}", item.dps.total) : Format("{:0.0f}", item.dps.total) ;total-dps text
 	}
 	
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -805,7 +801,7 @@ Iteminfo4_GUI()
 					stats_present .= ","
 				Default:
 					stats_present := ""
-					If (item.anoint != "")
+					If (item.anoint != "") && !InStr(vars.iteminfo.clipboard, "`r`n" LangTrans("items_corrupted") "`r`n")
 						stats_present := item.anoint ","
 			}
 			If (item.rarity = LangTrans("items_unique")) && !item.anoint
@@ -949,7 +945,7 @@ Iteminfo4_GUI()
 							Else parse := compare.items.slots " "
 						}
 						Else parse := LangTrans("iteminfo_base") " " ;filler-text for base-item info
-						Gui, %iteminfo%: Add, Text, % style " Border Right BackgroundTrans w"filler_width " h"UI.hSegment, % parse
+						Gui, %GUI_name%: Add, Text, % style " Border Right BackgroundTrans w"filler_width " h"UI.hSegment, % parse
 						filler := 1
 						continue
 					}
@@ -996,13 +992,13 @@ Iteminfo4_GUI()
 
 					If (item.anoint = "") ;add oil-text and color the cell: the two "E0x" styles in the GUI require reverse stack-order for controls, which is why the picture-control is placed before the progress one
 					{
-						Gui, %iteminfo%: Add, Picture, % "ys Border BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\"label ".png"
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
+						Gui, %GUI_name%: Add, Picture, % "ys Border BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\"label ".png"
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
 					}
 
 					color1 := InStr("Black, 404040", color) ? "White" : "Black"
-					Gui, %iteminfo%: Add, Text, % style " Border Center BackgroundTrans c"color1 " h"UI.hSegment, % %A_LoopField%_text
-					Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % !settings.iteminfo.compare && (item.anoint = "") ? item.stats[A_LoopField].relative : 100
+					Gui, %GUI_name%: Add, Text, % style " Border Center BackgroundTrans c"color1 " h"UI.hSegment, % %A_LoopField%_text
+					Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % !settings.iteminfo.compare && (item.anoint = "") ? item.stats[A_LoopField].relative : 100
 				}
 				
 				If settings.iteminfo.compare ;for league-start mode, add an additional area with losses/wins, e.g. suppression, flat dmg on armour, etc.
@@ -1017,29 +1013,29 @@ Iteminfo4_GUI()
 						value *= (value < 0) ? -1 : 1
 						If InStr(value, ".")
 							value := Format("{:0.2f}", value)
-						Gui, %iteminfo%: Add, Text, % "xs Section w"UI.wSegment*UI.segments " h"UI.hSegment " Border Center BackgroundTrans c"settings.iteminfo.colors_tier.5, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Section Disabled Border BackgroundBlack w"UI.wSegment*UI.segments " h"UI.hSegment, 0
+						Gui, %GUI_name%: Add, Text, % "xs Section w"UI.wSegment*UI.segments " h"UI.hSegment " Border Center BackgroundTrans c"settings.iteminfo.colors_tier.5, % InStr(parse, "%") ? value StrReplace(parse, "_", " ") : value " " StrReplace(parse, "_", " ") ;add actual text label
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Section Disabled Border BackgroundBlack w"UI.wSegment*UI.segments " h"UI.hSegment, 0
 					}
-					Gui, %iteminfo%: Add, Progress, % "xs Section Disabled Background646464 w"UI.wSegment*UI.segments " h"UI.hDivider*2.5, 0
+					Gui, %GUI_name%: Add, Progress, % "xs Section Disabled Background646464 w"UI.wSegment*UI.segments " h"UI.hDivider*2.5, 0
 				}
 				Else
 				{
 					If (item.type = "defense") ;add the cells for the base-percentile roll
 					{
-						Gui, %iteminfo%: Add, Picture, % "ys Border BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\defense.png
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
+						Gui, %GUI_name%: Add, Picture, % "ys Border BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\defense.png
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
 						color := (item.base_percent >= 99) ? settings.iteminfo.colors_tier.1 : "404040", color1 := (color != "404040") ? "Black" : "White" ;highlight base-% bar green if >= 99
-						Gui, %iteminfo%: Add, Text, % "ys h"UI.hSegment " w"UI.wSegment " Border Center BackgroundTrans c"color1, % item.base_percent "%"
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % item.base_percent
+						Gui, %GUI_name%: Add, Text, % "ys h"UI.hSegment " w"UI.wSegment " Border Center BackgroundTrans c"color1, % item.base_percent "%"
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % item.base_percent
 					}
 					
 					If (item.rarity != LangTrans("items_unique"))
 					{
-						Gui, %iteminfo%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\ilvl.png
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
+						Gui, %GUI_name%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\ilvl.png
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
 						color := (item.ilvl >= item.ilvl_max) ? settings.iteminfo.colors_tier.1 : "404040", color1 := (color != "404040") ? "Black" : "White" ;highlight ilvl bar green if ilvl >= 86
-						Gui, %iteminfo%: Add, Text, % "ys h"UI.hSegment " w"UI.wSegment " Border Center BackgroundTrans c"color1, % (item.ilvl = 100) ? item.ilvl : item.ilvl "/" item.ilvl_max
-						Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border range66-"item.ilvl_max " BackgroundBlack c"color, % item.ilvl
+						Gui, %GUI_name%: Add, Text, % "ys h"UI.hSegment " w"UI.wSegment " Border Center BackgroundTrans c"color1, % (item.ilvl = 100) ? item.ilvl : item.ilvl "/" item.ilvl_max
+						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range66-"item.ilvl_max " BackgroundBlack c"color, % item.ilvl
 					}
 				}
 			}
@@ -1084,14 +1080,14 @@ Iteminfo4_GUI()
 		Else color := (highlight = 1) ? tColors.1 : tColors.6
 		
 		color1 := (color = "Black") ? "White" : "Black"
-		Gui, %iteminfo%: Add, Text, % "xs Center Hidden Border w"UI.wSegment*(UI.segments - 1.25) " HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add hidden text label as dummy to get the correct height
+		Gui, %GUI_name%: Add, Text, % "xs Center Hidden Border w"UI.wSegment*(UI.segments - 1.25) " HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add hidden text label as dummy to get the correct height
 		GuiControlGet, text_, Pos, %hwnd%
 		height := (text_h <= UI.hSegment) ? UI.hSegment : text_h ;if mod-text consists of two lines, use that height, otherwise force standardized height
-		Gui, %iteminfo%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add actual text label on top
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled Section HWNDhwnd BackgroundBlack c"color, 100 ;place progress bar on top of text label (reversed stack-order)
+		Gui, %GUI_name%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add actual text label on top
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled Section HWNDhwnd BackgroundBlack c"color, 100 ;place progress bar on top of text label (reversed stack-order)
 		
-		Gui, %iteminfo%: Add, Text, % "ys hp w"UI.wSegment/4 " Border 0x200 Center BackgroundTrans", % ""
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;small rectangle that displays neutral/(un)desired
+		Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment/4 " Border 0x200 Center BackgroundTrans", % ""
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;small rectangle that displays neutral/(un)desired
 		vars.hwnd.iteminfo["implicit_"implicit] := hwnd
 		
 		Switch tier ;translate eldritch tiers and set colors
@@ -1113,24 +1109,24 @@ Iteminfo4_GUI()
 		}
 		
 		width := (type = "") ? UI.wSegment : UI.wSegment/2, color1 := (tier = 1 || tier = 2) ? "Red" : "Black" ;cell-width and text-color
-		Gui, %iteminfo%: Add, Text, % "ys hp w"width " 0x200 Border Center BackgroundTrans c"color1, % tier ;text-cell
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;cell coloring
+		Gui, %GUI_name%: Add, Text, % "ys hp w"width " 0x200 Border Center BackgroundTrans c"color1, % tier ;text-cell
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;cell coloring
 
 		If type ;implicit has a suitable icon
 		{
 			If (height <= UI.hSegment) ;if cell is single-line height, add regular cell
-				Gui, %iteminfo%: Add, Picture, % "ys h"UI.hSegment-2 " w-1 Border BackgroundTrans HWNDhwnd", % (type != "") ? "img\GUI\item info\"type ".png" : ""
+				Gui, %GUI_name%: Add, Picture, % "ys h"UI.hSegment-2 " w-1 Border BackgroundTrans HWNDhwnd", % (type != "") ? "img\GUI\item info\"type ".png" : ""
 			Else ;if cell is multi-line height, add taller cell and place icon in the middle
 			{
-				Gui, %iteminfo%: Add, Text, % "ys wp hp Border BackgroundTrans HWNDhwnd", ;dummy text-cell with a border (can't use icon-border for this case)
-				Gui, %iteminfo%: Add, Picture, % "xp+1 yp+"height/2 - UI.hSegment/2 + 1 " BackgroundTrans h"UI.hSegment-2 " w-1", % (type != "") ? "img\GUI\item info\"type ".png" : ""
+				Gui, %GUI_name%: Add, Text, % "ys wp hp Border BackgroundTrans HWNDhwnd", ;dummy text-cell with a border (can't use icon-border for this case)
+				Gui, %GUI_name%: Add, Picture, % "xp+1 yp+"height/2 - UI.hSegment/2 + 1 " BackgroundTrans h"UI.hSegment-2 " w-1", % (type != "") ? "img\GUI\item info\"type ".png" : ""
 			}
 			ControlGetPos, x, y,,,, % "ahk_id " hwnd ;manually get coordinates of the appropriate control (can't use xp yp in the second case above)
-			Gui, %iteminfo%: Add, Progress, % "x"x-1 " y"y-1 " w"UI.wSegment/2 " h"height " Disabled Border BackgroundBlack c"color, 100
+			Gui, %GUI_name%: Add, Progress, % "x"x-1 " y"y-1 " w"UI.wSegment/2 " h"height " Disabled Border BackgroundBlack c"color, 100
 		}
 	}
 	If item.implicits.Count()
-		Gui, %iteminfo%: Add, Progress, % "xs w"UI.wSegment*UI.segments " Disabled h"UI.hDivider " Background"UI.cDivider, ;add divider-line to visually separate implicits
+		Gui, %GUI_name%: Add, Progress, % "xs w"UI.wSegment*UI.segments " Disabled h"UI.hDivider " Background"UI.cDivider, ;add divider-line to visually separate implicits
 	
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1143,21 +1139,21 @@ Iteminfo4_GUI()
 			color := "Black"
 		Else color := (highlight = 1) ? tColors.1 : tColors.6 ;determine which is the case
 		
-		Gui, %iteminfo%: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"UI.wSegment*(UI.segments - 1.25) " cWhite HWNDmain_text", % item.cluster.enchant ;dummy panel to get the correct height
+		Gui, %GUI_name%: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"UI.wSegment*(UI.segments - 1.25) " cWhite HWNDmain_text", % item.cluster.enchant ;dummy panel to get the correct height
 		GuiControlGet, check_, Pos, %main_text%
 		height := (check_h <= UI.hSegment) ? UI.hSegment : check_h, color1 := (color = "Black") ? "White" : "Black" ;get correct height, determine text-color
-		Gui, %iteminfo%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd_itemchecker_cluster_text c"color1, % item.cluster.enchant ;add actual text label
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100 ;add background color
+		Gui, %GUI_name%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd_itemchecker_cluster_text c"color1, % item.cluster.enchant ;add actual text label
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100 ;add background color
 	
-		Gui, %iteminfo%: Add, Text, % "ys hp w"UI.wSegment*0.25 " Border Center BackgroundTrans cBlack", % " " ;small rectangle to set the mod to (un)desired
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd BackgroundBlack c"color, 100
+		Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment*0.25 " Border Center BackgroundTrans cBlack", % " " ;small rectangle to set the mod to (un)desired
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd BackgroundBlack c"color, 100
 		vars.hwnd.iteminfo["implicit_"item.cluster.enchant] := hwnd
 
 		color := (item.cluster.passives >= item.cluster.optimal) ? tColors.1 : "404040", color1 := (color = tColors.1) ? "Black" : "White" ;determine cell- and text-color for passive-count
-		Gui, %iteminfo%: Add, Text, % "ys hp w"UI.wSegment " Border 0x200 Center BackgroundTrans c"color1, % -item.cluster.passives "/" -item.cluster.max ;add text: passives/max passives
-		Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled range"item.cluster.max "-"item.cluster.optimal " BackgroundBlack c"color, % item.cluster.passives
+		Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment " Border 0x200 Center BackgroundTrans c"color1, % -item.cluster.passives "/" -item.cluster.max ;add text: passives/max passives
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled range"item.cluster.max "-"item.cluster.optimal " BackgroundBlack c"color, % item.cluster.passives
 		If !InStr(clip, "rarity: normal") ;only add a divider if cluster jewel is not normal rarity
-			Gui, %iteminfo%: Add, Progress, % "xs Background"UI.cDivider " h"UI.hDivider " w"UI.wSegment*UI.segments,
+			Gui, %GUI_name%: Add, Progress, % "xs Background"UI.cDivider " h"UI.hDivider " w"UI.wSegment*UI.segments,
 	}
 
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1226,7 +1222,7 @@ Iteminfo4_GUI()
 			divider -= 1
 		If !unique && (SubStr(A_LoopField, 1, 1) = "{") && InStr(A_LoopField, LangTrans("items_suffix")) && (divider < 0)
 		{
-			Gui, %iteminfo%: Add, Progress, % "xs Section w"UI.segments*UI.wSegment " h"UI.hDivider " Background"UI.cDivider, 0 ;divider between pre- and suffixes
+			Gui, %GUI_name%: Add, Progress, % "xs Section w"UI.segments*UI.wSegment " h"UI.hDivider " Background"UI.cDivider, 0 ;divider between pre- and suffixes
 			divider := 1
 		}
 
@@ -1235,22 +1231,22 @@ Iteminfo4_GUI()
 		{
 			If unique && !InStr(A_LoopField, "(") ;for uniques, skip mod-parts that don't have a roll
 				Continue
-			Gui, %iteminfo%: Add, Text, % "xs Section HWNDhwnd Border Hidden Center w"(UI.segments - (unique ? 0 : 1.25))*UI.wSegment, % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;dummy text-panel to gauge the required height of the text
+			Gui, %GUI_name%: Add, Text, % "xs Section HWNDhwnd Border Hidden Center w"(UI.segments - (unique ? 0 : 1.25))*UI.wSegment, % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;dummy text-panel to gauge the required height of the text
 			GuiControlGet, text_, Pos, % hwnd
 
 			rolls := IteminfoModRollCheck(A_LoopField), color := unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
 			;if dummy text-panel is single-line, increase height slightly to make small cells square
-			Gui, %iteminfo%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center", % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;add actual text-panel with the correct size
+			Gui, %GUI_name%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center", % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;add actual text-panel with the correct size
 			GuiControlGet, text_, Pos, % hwnd ;get position and size of the text-panel
 			height += text_h ;sum up the heights of each line belonging to the same mod, so it can be used for the cells right next to them (highlight, tier, and potentially icon/ilvl)
-			Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Section HWNDhwnd Border Disabled BackgroundBlack range"(rolls.1 = rolls.3 ? 0 : rolls.1*100) "-"rolls.3*100 " c"color, % rolls.2*100
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Section HWNDhwnd Border Disabled BackgroundBlack range"(rolls.1 = rolls.3 ? 0 : rolls.1*100) "-"rolls.3*100 " c"color, % rolls.2*100
 			
 			If !unique ;add (un)desired rectangle for non-uniques
 			{
 				highlights .= highlight := IteminfoModHighlight(A_LoopField) ;highlights = (un)desired highlighting for the whole mod-group, highlight = highlighting for the single part
 				color := !highlight ? "Black" : (highlight = -2) ? iColors.8 : (highlight = -1) ? tColors.6 : (highlight = 1) ? tColors.1 : tColors.7 ;determine the right color
-				Gui, %iteminfo%: Add, Text, % "ys hp w"UI.wSegment/4 " Border BackgroundTrans Center", % " " ;add the rectangle
-				Gui, %iteminfo%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled hp Border BackgroundBlack c"color, 100 ;color the rectangle
+				Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment/4 " Border BackgroundTrans Center", % " " ;add the rectangle
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled hp Border BackgroundBlack c"color, 100 ;color the rectangle
 				vars.hwnd.iteminfo[StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")] := hwnd ;store the rectangle's HWND and include the mod-text
 			}
 			If (A_Index = 1) ;for the first line within a group, store the coordinates so that the tier-cell can be placed right next to it
@@ -1282,27 +1278,27 @@ Iteminfo4_GUI()
 			width := (label || settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") ? UI.wSegment/2 : UI.wSegment ;determine the width of the cell, and whether it needs to be divided into two parts
 			width := (settings.iteminfo.override && InStr(highlights, "-",,, LLK_InStrCount(A_LoopField, "`n")) && !InStr(A_LoopField, " (fractured)")) ? UI.wSegment : width
 			
-			Gui, %iteminfo%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center cBlack c"color_t, % tier ;add tier-cell
-			Gui, %iteminfo%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100
+			Gui, %GUI_name%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center cBlack c"color_t, % tier ;add tier-cell
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100
 
 			If (width < UI.wSegment) && (label || settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") ;divide tier-cell if necessary (to add icon/ilvl)
 			{
 				If (height <= UI.hSegment) ;if the mod is single-line, enforce standardized height for the cell
 				{
 					If (settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??")
-						Gui, %iteminfo%: Add, Text, % "ys h"UI.hSegment " wp Border Center BackgroundTrans HWNDhwnd c" ;cont
+						Gui, %GUI_name%: Add, Text, % "ys h"UI.hSegment " wp Border Center BackgroundTrans HWNDhwnd c" ;cont
 						. (ilvl >= settings.iteminfo.ilevels.1 && (settings.iteminfo.colors_ilvl.1 = "ffffff") ? "Red" : "Black"), % ilvl ;add ilvl-cell
-					Else Gui, %iteminfo%: Add, Picture, % "ys h"UI.hSegment-2 " w-1 Border BackgroundTrans HWNDhwnd", img\GUI\item info\%label%.png ;add icon-cell
+					Else Gui, %GUI_name%: Add, Picture, % "ys h"UI.hSegment-2 " w-1 Border BackgroundTrans HWNDhwnd", img\GUI\item info\%label%.png ;add icon-cell
 				}	
 				Else ;if the mod is multi-line, add a taller cell
 				{
 					If (settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??")
-						Gui, %iteminfo%: Add, Text, % "x+0 wp hp 0x200 Center Border BackgroundTrans HWNDhwnd c"
+						Gui, %GUI_name%: Add, Text, % "x+0 wp hp 0x200 Center Border BackgroundTrans HWNDhwnd c"
 						. (ilvl >= settings.iteminfo.ilevels.1 && (settings.iteminfo.colors_ilvl.1 = "ffffff") ? "Red" : "Black"), % ilvl ;add ilvl-cell
 					Else
 					{
-						Gui, %iteminfo%: Add, Text, % "x+0 wp hp Border BackgroundTrans HWNDhwnd", ;add dummy text-panel with borders (can't use icon's borders for taller cells)
-						Gui, %iteminfo%: Add, Picture, % "xp+1 yp+"height/2 - UI.hSegment/2 + 1 " BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\%label%.png ;add icon-cell
+						Gui, %GUI_name%: Add, Text, % "x+0 wp hp Border BackgroundTrans HWNDhwnd", ;add dummy text-panel with borders (can't use icon's borders for taller cells)
+						Gui, %GUI_name%: Add, Picture, % "xp+1 yp+"height/2 - UI.hSegment/2 + 1 " BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\%label%.png ;add icon-cell
 					} 
 				}
 				ControlGetPos, x, y,,,, % "ahk_id " hwnd ;get the cells coordinates to place progress-control right onto it (can't use xp yp in cases with taller cells that also contain an icon)
@@ -1318,12 +1314,12 @@ Iteminfo4_GUI()
 							color := settings.iteminfo.colors_ilvl.8
 							Break
 						}
-				Gui, %iteminfo%: Add, Progress, % "x"x-1 " y"y-1 " w"UI.wSegment/2 " h"height " Disabled Border BackgroundBlack c"color, 100 ;add color to the cell
+				Gui, %GUI_name%: Add, Progress, % "x"x-1 " y"y-1 " w"UI.wSegment/2 " h"height " Disabled Border BackgroundBlack c"color, 100 ;add color to the cell
 			}
 		}
 	}
 
-	Gui, %iteminfo%: Show, NA x10000 y10000 ;show the GUI outside the monitor's area to get dimensions
+	Gui, %GUI_name%: Show, NA x10000 y10000 ;show the GUI outside the monitor's area to get dimensions
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.iteminfo.main
 	If (vars.iteminfo.UI.xPos != "") ;if tooltip is being refreshed to apply changes in settings, use previous coordinates
 	{
@@ -1337,11 +1333,10 @@ Iteminfo4_GUI()
 		xPos := (xPos - w - vars.client.w/200 < vars.client.x) ? vars.client.x : xPos - w - vars.client.w/200
 		yPos := (yPos - h - vars.client.h/100 < vars.client.y) ? vars.client.y : yPos - h - vars.client.h/100
 	}
-	Gui, %iteminfo%: Show, % "NA x"xPos " y"yPos
-	LLK_Overlay(vars.hwnd.iteminfo.main, "show")
-	LLK_Overlay(hwnd_old, "destroy")
+	Gui, %GUI_name%: Show, % "NA x"xPos " y"yPos
+	LLK_Overlay(vars.hwnd.iteminfo.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 
-	If (w < UI.wSegment) ;if the tooltip is tiny, it contains no information (item was either not supported or doesn't have anything to present, e.g. unscalable uniques)
+	If (w < UI.wSegment) ;if the tooltip is tiny, it contains no information (item was either not supported or doesn't have anything worthwhile to display, e.g. unscalable uniques)
 		LLK_ToolTip(LangTrans("ms_item-info") ": " LangTrans("global_nothing"), 1.5,,,, "yellow"), IteminfoClose()
 }
 
@@ -2249,7 +2244,7 @@ IteminfoOverlays() ;show update buttons for specific gear-slots underneath the c
 		{
 			If vars.pixelsearch.inventory.check && LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")
 			&& !WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) && (vars.general.wMouse != vars.hwnd.iteminfo.main) && (vars.general.wMouse != vars.hwnd.omni_context.main) && WinActive("ahk_group poe_window")
-				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "show")
+				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "show",, "iteminfo_button_" slot)
 			Else If !vars.pixelsearch.inventory.check || !(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2))
 			&& WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window")
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "hide")
@@ -2274,7 +2269,8 @@ IteminfoTrigger(mode := 0) ;handles shift-clicks on items and currency for the s
 			Return
 		If settings.mapinfo.trigger && (OmniContext(1) = "mapinfo")
 			MapinfoParse(), MapinfoGUI()
-		Else Iteminfo()
+		Else If settings.iteminfo.trigger
+			Iteminfo()
 		Return
 	}
 	Else
@@ -2294,8 +2290,5 @@ IteminfoTrigger(mode := 0) ;handles shift-clicks on items and currency for the s
 	Else Return
 	KeyWait, Shift
 	vars.general.shift_trigger := 0
-	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
-		IteminfoClose()
-	If WinExist("ahk_id " vars.hwnd.mapinfo.main)
-		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
+	IteminfoClose(), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 }

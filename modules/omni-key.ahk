@@ -9,8 +9,6 @@
 
 	StringScroll("ESC") ;close searchstring-scrolling
 	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
-	If !IsObject(vars.omnikey)
-		vars.omnikey := {}
 
 	Loop, Parse, % "*,~,!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
