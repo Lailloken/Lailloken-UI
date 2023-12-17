@@ -99,6 +99,16 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 ![Untitled 17](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d96916c5-37b4-4b2c-9067-2db25a28c2ac)  
 <br>
 
+### \*Support for [community translations](https://github.com/Lailloken/Lailloken-UI/discussions/categories/translations-localization):
+| item-info tooltip in German | item-info tooltip in Japanese |
+|---|---|
+|![item info](https://github.com/Lailloken/Lailloken-UI/assets/61888437/bd523165-5118-41e3-8c6d-aab3e90e178f)|![japanese](https://github.com/Lailloken/Lailloken-UI/assets/61888437/315041a6-8c82-4a22-b472-7a2a64857b72)|
+
+| map-info tooltip in German |
+|---|
+|![mapinfo](https://github.com/Lailloken/Lailloken-UI/assets/61888437/93ab45e0-821d-4222-a3ca-1a2f97e50f3c)|
+<br>
+
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
 | essence tooltip to check the next tier's stats | orb of horizons tooltips |
 | --- | --- |
