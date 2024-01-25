@@ -4,7 +4,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 
 ## Download & Setup
 [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/autohotkey.png)](https://www.autohotkey.com/download/) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)  
-[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/changelog.png)](https://github.com/Lailloken/Lailloken-UI/blob/main/data/changelog.json)
+[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/issues/340) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/tracker.png)](https://github.com/Lailloken/Lailloken-UI/issues/339)  
+*requires v1.1.36 or newer, but not v2 (since that's a separate branch)
 <br>
 <br>
 
