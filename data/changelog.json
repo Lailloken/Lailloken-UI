@@ -1,11 +1,19 @@
 [
   [
-  ["1.51.2", 15102],
-  "language-detection tweaks for client.txt files with many error-messages or crashes"
+	["1.52.0", 15200],
+	"combined llk-ui panel and feature-buttons into a toolbar",
+	"updater: faster updates, easier version-switching and roll-backs",
+	"notepad: added a new quick-note feature",
+	"item-info: added unique drop-tiers and roll-percentages",
+	"fixes: gui-related issues, item-info, map-info, mapping tracker, gear tracker"
   ],
   [
-  ["1.51.1", 15101],
-  "regex fixes: ball lightning, storm rain"
+	["1.51.2", 15102],
+	"language-detection tweaks for client.txt files with many error-messages or crashes"
+  ],
+	[
+	["1.51.1", 15101],
+	"regex fixes: ball lightning, storm rain"
   ],
   [
 	["1.51.0", 15100],
