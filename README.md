@@ -4,7 +4,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 
 ## Download & Setup
 [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/autohotkey.png)](https://www.autohotkey.com/download/) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)  
-[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/wiki/Known-Issues-&-Limitations) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/changelog.png)](https://github.com/Lailloken/Lailloken-UI/blob/main/data/changelog.json)
+[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/issues/340) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/tracker.png)](https://github.com/Lailloken/Lailloken-UI/issues/339)  
+*requires v1.1.36 or newer, but not v2 (since that's a separate branch)
 <br>
 <br>
 
@@ -97,6 +98,16 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 
 ### [Seed-explorer](https://github.com/Lailloken/Lailloken-UI/wiki/Seed-explorer): in-client UI to quickly check the effects of a Legion seed across the skill-tree  
 ![Untitled 17](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d96916c5-37b4-4b2c-9067-2db25a28c2ac)  
+<br>
+
+### \*Support for [community translations](https://github.com/Lailloken/Lailloken-UI/discussions/categories/translations-localization):
+| item-info tooltip in German | item-info tooltip in Japanese |
+|---|---|
+|![item info](https://github.com/Lailloken/Lailloken-UI/assets/61888437/bd523165-5118-41e3-8c6d-aab3e90e178f)|![japanese](https://github.com/Lailloken/Lailloken-UI/assets/61888437/315041a6-8c82-4a22-b472-7a2a64857b72)|
+
+| map-info tooltip in German |
+|---|
+|![mapinfo](https://github.com/Lailloken/Lailloken-UI/assets/61888437/93ab45e0-821d-4222-a3ca-1a2f97e50f3c)|
 <br>
 
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
