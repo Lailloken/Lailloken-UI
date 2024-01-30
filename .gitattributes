@@ -1,3 +1,4 @@
 .gitattributes export-ignore
 *.md export-ignore
 img/readme/ export-ignore
+data/global/?legion?* export-ignore
