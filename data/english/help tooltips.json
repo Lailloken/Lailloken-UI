@@ -17,9 +17,9 @@
       "select the script's display language",
       "the script will restart upon selection"
     ],
-    "llk button": [
-      "hides the llk-ui button that is used to open the settings menu and restart the script",
-      "if hidden, type .llk in chat to open the settings menu, and r.llk to restart the script"
+    "toolbar hide": [
+      "permanently hides the button-toolbar. hold tab or move the cursor to the area to make it appear",
+      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
     ],
     "button-size": [
       "size of the movable button that opens this feature"
@@ -201,9 +201,14 @@
     "iteminfo reset": [
       "long-click one of the buttons to reset specific highlighting in the currently-selected profile"
     ],
+    "iteminfo modrolls": [
+      "hides the min/max range on explicit mods",
+      "+89 to maximum life\nvs.\n+89(80-89) to maximum Life"
+	],
     "iteminfo shift-click": [
       "automatically refreshes the tooltip when applying currency to items via shift-click",
-      "you have to hold shift first, right click currency, and then click items"
+      "you have to hold shift first, right click currency, and then click items",
+	  "requires the <inventory> pixel-check"
     ],
     "iteminfo league-start": [
       "adds a section where the item's stats are compared to your current gear",
@@ -357,7 +362,8 @@
     ],
     "mapinfo shift-click": [
       "refreshes the tooltip whenever you apply currency to maps via shift-click",
-      "you have to hold shift first, right click currency, and then click a map"
+      "you have to hold shift first, right click currency, and then click a map",
+	  "requires the <inventory> pixel-check"
     ],
     "mapinfo tab": [
       "hold tab to view a compact version of the panel on the right of the screen",
@@ -461,8 +467,12 @@
     ],
     "update check": [
       "checks for updates on script launch and in the background while running",
-      "if there is an update available, the llk-ui panel will turn green"
+      "if there is an update available, the toolbar will turn green"
     ],
+	"update versions": [
+	  "the list below shows the available versions to switch between or reinstall",
+	  "each line represents a major version and has buttons to select the minor version"
+	],
     "update restart": [
       "hold to update and restart",
       "active overlays and unsaved data will be lost"
@@ -673,13 +683,14 @@
     "inventory": [
       "(/bold)(/underline)instructions:",
       "-> open the inventory",
-      "-> the corner (img: yellow) has to be fully visible",
+      "-> the top-right corner (img: yellow) has to be fully visible",
       "-> click <cal>",
       "-> follow the instructions in <test>",
       "",
       "(/bold)(/underline)used for:",
       "-> item-info league-start mode",
-      "-> mapping tracker portal reminder"
+      "-> mapping tracker portal reminder",
+	  "-> item/map-info shift-click"
     ],
     "betrayal": [
       "(/bold)(/underline)instructions:",
@@ -727,7 +738,14 @@
     ],
     "trade": [
       "opens the trade-site with a search for this seed"
-    ]
+    ],
+	"download": [
+	  "the required databases have not been downloaded yet",
+	  "click this button to start the download"
+	],
+	"update": [
+	  "click this button to check for database updates"
+	]
   },
   "snip": {
     "about": [

@@ -251,6 +251,17 @@
 		iteminfo_base			=	"base"				;## as in item-base / crafting-base
 		iteminfo_ruleblock		=	"blocked by global rule"
 		iteminfo_clearfirst		=	"clear class-specific;highlighting first"
+		iteminfo_roll_percent		=	"roll-%"			;## refers to the overall quality/health of rolls on a unique (a perfectly-rolled item being 100%)
+		iteminfo_drop_tier		=	"drop"				;## refers to dropped items, e.g. "boss drop", "uber drop", "T0 drop"
+		iteminfo_drop_league		=	"league"			;## unique is limited to a specific...
+		iteminfo_drop_boss		=	"boss"
+		iteminfo_drop_limited		=	"limited"			;## either limited to div-cards or special events (e.g. oni-goroshi)
+		iteminfo_drop_uber		=	"uber"
+		iteminfo_drop_recipe		=	"recipe"			;## vendor-recipes
+		iteminfo_drop_pinnacle		=	"pinnacle"
+		iteminfo_drop_vaal		=	"vaal"				;## exclusive to corruption
+		iteminfo_drop_retired		=	"retired"			;## item is currently not obtainable
+		iteminfo_drop_unknown		=	"unknown"			;## no database-entry for this unique (e.g. new league)
 
 
 
@@ -383,6 +394,9 @@
 		seed_notables			=	"resulting notables:"		;## "resulting" as in after being modified by the jewel
 		seed_notables			=	"notables around socket:"	;## in range around a jewel socket on the passive tree
 		seed_notables			=	"legion notables:"
+		seed_download			=	"download databases"
+		seed_update			=	"update databases"
+		seed_uptodate			=	"databases are up to date"
 
 
 
@@ -430,6 +444,8 @@
 		m_general_permissions		=	"script write-permissions test:"
 		m_general_start			=	"start test"
 		m_general_admin			=	"restart script as admin"
+		m_general_toolbar		=	"toolbar-size:"
+		m_general_hidetoolbar		=	"permanently hide the toolbar"
 
 
 
@@ -550,6 +566,7 @@
 		m_iteminfo_profiles		=	"reset the profile's:"				;## you can choose between two options: a profile's desired, or undesired mods
 		m_iteminfo_desired		=	"desired"
 		m_iteminfo_undesired		=	"undesired"
+		m_iteminfo_modrolls		=	"hide roll-ranges on explicit mods"
 		m_iteminfo_shift		=	"shift-clicking activates item-info"
 		m_iteminfo_league		=	"enable league-start mode"
 		m_iteminfo_base			=	"show && compare item's base-stats"		;## base-stats as in armor, evasion, ES, attack-speed, phys/ele dmg
@@ -667,12 +684,13 @@
 		m_updater_version		=	"version information:"
 		m_updater_version		=	"current:"
 		m_updater_version		=	"latest:"
+		m_updater_versions		=	"available versions:"
 		m_updater_github		=	"github links:"
 		m_updater_github		=	"main page"
 		m_updater_github		=	"releases"
 		m_updater_refresh		=	"refresh"
 		m_updater_changelog		=	"changelog"
-		m_updater_skip			=	"skip version"
+		m_updater_skip			=	"skip"
 		m_updater_failed		=	"update failed:"
 		m_updater_error1		=	"the last update attempt failed because of write-permission errors. please open the <general> section of the settings and run the test at the bottom."
 		m_updater_error1		=	"fixing these issues is critical not just for the updater but for many other features as well."

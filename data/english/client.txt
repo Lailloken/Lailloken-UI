@@ -244,7 +244,7 @@
 ;## these strings are displayed in the item-text when copying advanced item descriptions into clipboard (usually ALT + CTRL + C)
 		items_ilevel			=	"Item Level:"
 
-		items_requirements		=	"Requirements:"			;## important: every string in the following block has to match the one in the "Rarity: XYZ" line in the clipboard-info
+		items_requirements		=	"Requirements:"
 		items_level			=	"Level:"
 		items_str			=	"Strength:"			;## for some reason, unidentified items show full attribute-strings, while ID'd ones show abbreviations
 		items_str			=	"Str:"
@@ -280,26 +280,36 @@
 		mods_cluster_remove		=	"Mace or Sceptre Attacks deal increased Damage with Hits and Ailments"	;## these are specific cluster-enchants that have two lines because they affect multiple item-classes
 		mods_cluster_remove		=	"increased Mana Recovery from Flasks"					;## one line will be removed, the other will be edited in order to make the tooltip more compact
 
-		mods_cluster_replace		=	"Axe Attacks"				;## these values are groups of two, where the first string will be replaced with the second
+;## -----------------------------------------------------------------------------------
+		mods_cluster_replace		=	"Axe Attacks"				;## these values are groups of two, where the first string will be replaced with the second one
 		mods_cluster_replace		=	"Axe && Sword Attacks"			;## so instead of displaying two lines, the tooltip will display:
-		mods_cluster_replace		=	"Staff Attacks"				;## Axe & Sword Attacks deal increased Damage with Hits and Ailments
+												;## Axe & Sword Attacks deal increased Damage with Hits and Ailments
+		mods_cluster_replace		=	"Staff Attacks"
 		mods_cluster_replace		=	"Staff, Mace or Sceptre Attacks"
+
 		mods_cluster_replace		=	"Claw Attacks"
 		mods_cluster_replace		=	"Claw && Dagger Attacks"
+
 		mods_cluster_replace		=	"Life Recovery"
 		mods_cluster_replace		=	"Life && Mana Recovery"
+
 		mods_cluster_replace		=	"Damage Over Time"
 		mods_cluster_replace		=	"DoT"					;## if the target language doesn't have a common abbreviation, simply leave both values as they are
 
-		mods_cluster_replace		=	"to # Resistance"			;## these resistance strings need to be replaced because cluster-enchants are displayed without value
-		mods_cluster_replace		=	"# Resistance"				;## instead of "+15% to Cold Resistance", the tooltip will simply display "Cold Resistance" (since enchants don't have rolls)
-												;## if the target language doesn't have a preposition that needs to be removed, simply leave both values as they are
+;## -----------------------------------------------------------------------------------
+		mods_cluster_replace_res	=	"to "					;## the tooltip doesn't show numerical values since cluster-enchants have fixed rolls, which looks weird if the language uses a preposition ("to cold resistance")
+		mods_cluster_replace_res	=	"Resistance"				;## the preposition has to be removed, so edit these strings so that it is the first value of this key: instead of using placeholders, you simply have to omit variable elements of this string
+												;## "to # Resistance" becomes:
+												;## 		"to "
+												;##		"Resistance"
+												;## if the target language doesn't have a preposition that needs to be removed, simply leave the values as they are
+;## -----------------------------------------------------------------------------------
 
-		mods_blight_enchant		=	"Allocates"				;## e.g. "Allocates Tribal Fury"
+		mods_blight_enchant		=	"Allocates"						;## e.g. "Allocates Tribal Fury"
 
-		mods_eldritch_condition		=	"While a # is in your Presence,"	;## the condition for certain eldritch implicits, e.g. "While a Unique Enemy is in your Presence, +2 to maximum Cold Resistance"
+		mods_eldritch_condition		=	"While a # is in your Presence,"			;## the condition for certain eldritch implicits, e.g. "While a Unique Enemy is in your Presence, +2 to maximum Cold Resistance"
 
-		mods_eldritch_interval		=	", no more than once every # seconds"	;## the script changes this line into "(X sec)" to be more compact
+		mods_eldritch_interval		=	", no more than once every # seconds"			;## the script changes this part into "(X sec)" to be more compact, e.g. "Gain 1 Rage on hit with attacks (X sec)"
 
 		mods_eldritch_targets		=	"Non-Vaal Strike Skills target # additional nearby"	;## this mod has two versions (enemy & enemies), so shorten this string and insert placeholders until the remainder matches both versions
 
@@ -321,7 +331,7 @@
 		mods_armour_evasion_energy_%	=	"% increased Armour, Evasion and Energy Shield"		;## crafting bench
 
 		mods_contract_alert		=	"per # Alert Level"					;## there are alert-specific mods on contracts
-		mods_memory_magnitude		=	"increased Explicit Modifier magnitudes"		;## atlas memories have an enchant that multiplies mod-values
+		mods_memory_magnitude		=	"increased Explicit Modifier magnitudes"		;## atlas memories apply an enchant that multiplies mod-values on maps (you'll have to use a memory and talk to Kirac to see this line)
 
 
 ;## these are the names on Timeless Jewels, just in case the target language uses localized names
