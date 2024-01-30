@@ -86,7 +86,7 @@ Geartracker(mode := "")
 	local
 	global vars, settings
 
-	If (A_Gui = "leveltracker_button")
+	If (mode = "toggle")
 	{
 		GeartrackerGUI("toggle")
 		WinActivate, ahk_group poe_window
@@ -227,7 +227,7 @@ GeartrackerGUI(mode := "")
 	}
 }
 
-Leveltracker(cHWND := "")
+Leveltracker(cHWND := "", hotkey := "")
 {
 	local
 	global vars, settings, Json, db
@@ -334,13 +334,13 @@ Leveltracker(cHWND := "")
 		LeveltrackerProgress()
 	}
 
-	If (A_Gui != "leveltracker_button")
+	If (cHWND != vars.hwnd.LLK_panel.leveltracker)
 		Return
 	
-	If (vars.system.click = 2)
+	If (hotkey = 2)
 	{
 		If settings.leveltracker.geartracker
-			Geartracker()
+			Geartracker("toggle")
 		Return
 	}
 	If settings.leveltracker.geartracker && Blank(vars.leveltracker.gear_ready)
@@ -376,7 +376,7 @@ Leveltracker(cHWND := "")
 			Return
 		}
 		LeveltrackerProgress()
-		Init_GUI("leveltracker")
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, % "img\GUI\leveltracker" (vars.leveltracker.button_color ? 1 : "") ".png"
 	}
 	Else If !WinExist("ahk_id "vars.hwnd.leveltracker.main)
 		LeveltrackerProgress()

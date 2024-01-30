@@ -29,7 +29,7 @@
 	vars.maptracker.dialog := InStr(LLK_FileRead(vars.system.config), "output_all_dialogue_to_chat=true")
 }
 
-Maptracker(cHWND := "")
+Maptracker(cHWND := "", hotkey := "")
 {
 	local
 	global vars, settings
@@ -43,9 +43,7 @@ Maptracker(cHWND := "")
 			LLK_ToolTip(LangTrans("maptracker_save", 2), 1.5,,,, "Red")
 		Else If !MaptrackerCheck(2) && vars.maptracker.map.date_time && LLK_Progress(vars.hwnd.maptracker.delbar, "LButton")
 		{
-			MaptrackerSave()
-			vars.maptracker.Delete("map")
-			MaptrackerGUI()
+			MaptrackerSave(), vars.maptracker.Delete("map"), MaptrackerGUI()
 			LLK_ToolTip(LangTrans("maptracker_save", 1),,,,, "Lime")
 			KeyWait, LButton
 		}
@@ -72,16 +70,16 @@ Maptracker(cHWND := "")
 		}
 	}
 
-	If (vars.system.click = 1) && !WinExist("ahk_id "vars.hwnd.maptracker_logs.main)
+	If (hotkey = 1) && !WinExist("ahk_id " vars.hwnd.maptracker_logs.main)
 		MaptrackerLogs()
-	Else If (vars.system.click = 1) && WinExist("ahk_id "vars.hwnd.maptracker_logs.main)
+	Else If (hotkey = 1) && WinExist("ahk_id " vars.hwnd.maptracker_logs.main)
 	{
 		LLK_Overlay(vars.hwnd.maptracker_logs.main, "destroy")
 		WinActivate, ahk_group poe_window
 	}
-	Else If (vars.system.click = 2)
+	Else If (hotkey = 2)
 	{
-		GuiControl,, % vars.hwnd.maptracker_button.img, % "img\GUI\maptracker" . (vars.maptracker.pause ? "" : "0") . ".jpg"
+		GuiControl,, % vars.hwnd.LLK_panel.maptracker, % "img\GUI\maptracker" . (vars.maptracker.pause ? "" : "0") . ".png"
 		vars.maptracker.pause := vars.maptracker.pause ? 0 : 1
 		MaptrackerGUI()
 		WinActivate, ahk_group poe_window
@@ -101,7 +99,6 @@ MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content
 		If InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
 			Return 1
 	}
-		
 }
 
 MaptrackerEdit(cHWND := "")
@@ -781,9 +778,9 @@ MaptrackerTimer()
 			}
 
 		If settings.features.mapinfo && settings.maptracker.mapinfo && !vars.maptracker.map.mapinfo && !vars.mapinfo.active_map.expired && vars.mapinfo.active_map.name
-		&& (InStr(vars.mapinfo.active_map.name, vars.maptracker.map.name) || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || vars.mapinfo.active_map.tag && InStr(vars.log.areaID, vars.mapinfo.active_map.tag))
+		&& (vars.maptracker.map.name && InStr(vars.mapinfo.active_map.name, vars.maptracker.map.name) || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || vars.mapinfo.active_map.tag && InStr(vars.log.areaID, vars.mapinfo.active_map.tag))
 		{
-			If LLK_PatternMatch(vars.mapinfo.active_map.tag, "", ["mavenhub", "heist"])
+			If LLK_PatternMatch(vars.mapinfo.active_map.tag, "", ["mavenhub", "heist", "blight"])
 				vars.maptracker.map.name := (settings.maptracker.rename && vars.mapinfo.active_map.tag = "mavenhub" ? LangTrans("maps_boss") ": " : "") LLK_StringCase(vars.mapinfo.active_map.name)
 			MaptrackerMapinfo() ;include map-info in logs
 		}

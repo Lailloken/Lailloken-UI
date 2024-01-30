@@ -394,7 +394,7 @@ MapinfoParse(mode := 1)
 		Else map[mods[map_mod].type][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
 	}
 
-	For key, val in {"maven's invitation": "mavenhub", "expedition logbook": "expedition", "contract:": "heist", "blueprint:": "heist", "writing invitation": "primordialboss1", "polaric invitation": "primordialboss2", "incandescent invitation": "primordialboss3", "screaming invitation": "primordialboss4"}
+	For key, val in {"maven's invitation": "mavenhub", "expedition logbook": "expedition", "contract:": "heist", "blueprint:": "heist", "writing invitation": "primordialboss1", "polaric invitation": "primordialboss2", "incandescent invitation": "primordialboss3", "screaming invitation": "primordialboss4", "blighted ": "blight", "blight-ravaged ": "blight"}
 		If InStr(item.name "`n" item.itembase, key)
 		{
 			map.tag := val

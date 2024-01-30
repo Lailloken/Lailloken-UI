@@ -23,6 +23,8 @@
 	settings.notepad.trans := LLK_IniRead("ini\qol tools.ini", "notepad", "transparency", 250)
 	settings.notepad.xButton := LLK_IniRead("ini\qol tools.ini", "notepad", "x-coordinate button")
 	settings.notepad.yButton := LLK_IniRead("ini\qol tools.ini", "notepad", "y-coordinate button")
+	settings.notepad.xQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "x-coordinate quicknote")
+	settings.notepad.yQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "y-coordinate quicknote")
 	settings.notepad.oButton := LLK_IniRead("ini\qol tools.ini", "notepad", "button-offset", 1)
 	settings.notepad.sButton := vars.monitor.w * 0.03 * settings.notepad.oButton
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
@@ -452,12 +454,12 @@ Lab(mode := "", override := 0)
 	LLK_Overlay(hwnd_old, "destroy"), LLK_Overlay(hwnd_old2, "destroy")
 }
 
-Notepad(cHWND := "")
+Notepad(cHWND := "", hotkey := "")
 {
 	local
 	global vars, settings
-	static toggle := 0
-
+	static toggle := 0, hwnd_reminder, hwnd_reminder_edit
+	
 	If (cHWND = "save") ;save any changes made to a note
 	{
 		If !vars.notepad.selected_entry
@@ -476,10 +478,11 @@ Notepad(cHWND := "")
 		Return
 	}
 
-	start := A_TickCount, check := LLK_HasVal(vars.hwnd.notepad, cHWND), skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget"]
+	start := A_TickCount, check := LLK_HasVal(vars.hwnd.notepad, cHWND), skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget", "x-coordinate quicknote", "y-coordinate quicknote"]
 	control := SubStr(check, InStr(check, "_") + 1), sum_height := 0, max_width := vars.monitor.w*0.9, max_height := vars.monitor.h*0.9
+	/*
 	If (A_Gui = "notepad_button")
-		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.notepad_button.main
+		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.notepad_button.main
 	While (A_Gui = "notepad_button") && GetKeyState("LButton", "P")
 		If (A_TickCount >= start + 200)
 		{
@@ -493,6 +496,7 @@ Notepad(cHWND := "")
 		IniWrite, % settings.notepad.yButton, ini\qol tools.ini, notepad, y-coordinate button
 		Return
 	}
+	*/
 
 	If (check = "winbar")
 	{
@@ -509,7 +513,37 @@ Notepad(cHWND := "")
 			vars.notepad.x := xPos, vars.notepad.y := yPos
 		Return
 	}
-	Else If (check = "winx") || (A_Gui = "notepad_button") && WinExist("ahk_id "vars.hwnd.notepad.main)
+	Else If (A_Gui = "notepad_reminder")
+	{
+		NotepadWidget(LLK_ControlGet(hwnd_reminder_edit), -1)
+		Gui, notepad_reminder: Destroy
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	Else If (cHWND = vars.hwnd.LLK_panel.notepad && (hotkey = 2 || vars.system.click = 2)) && !WinExist("ahk_id " vars.hwnd.notepad.main)
+	{
+		If !WinExist("ahk_id " vars.hwnd.notepad_widgets.notepad_reminder_feature)
+		{
+			Gui, notepad_reminder: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd_reminder", LLK-UI: notepad reminder
+			Gui, notepad_reminder: Color, Black
+			Gui, notepad_reminder: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
+			Gui, notepad_reminder: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
+
+			Gui, notepad_reminder: Add, Text, Section, quick-note:
+			Gui, notepad_reminder: Add, Edit, % "xs cBlack r1 HWNDhwnd_reminder_edit w"settings.general.fWidth*25
+			Gui, notepad_reminder: Add, Button, % "Default Hidden xp yp wp hp gNotepad"
+			Gui, notepad_reminder: Show, Center
+			vars.system.click := 1
+			While WinActive("ahk_id " hwnd_reminder)
+				Sleep 10
+			If WinExist("ahk_id " hwnd_reminder)
+				Gui, notepad_reminder: Destroy
+		}
+		Else LLK_Overlay(vars.hwnd.notepad_widgets.notepad_reminder_feature, "destroy"), vars.hwnd.notepad_widgets.Delete("notepad_reminder_feature")
+		WinActivate, ahk_group poe_window
+		Return
+	}
+	Else If (check = "winx") || (cHWND = vars.hwnd.LLK_panel.notepad) && WinExist("ahk_id " vars.hwnd.notepad.main)
 	{
 		KeyWait, LButton
 		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy")
@@ -549,7 +583,7 @@ Notepad(cHWND := "")
 			}
 		If (control = "grouped widget")
 			Return
-		If (vars.system.click = 2)
+		If (hotkey = 2 || vars.system.click = 2)
 		{
 			If LLK_Progress(vars.hwnd.notepad["delbar_"control], "RButton")
 			{
@@ -563,7 +597,7 @@ Notepad(cHWND := "")
 		}
 		If !Blank(vars.notepad.selected_entry)
 			Notepad("save")
-		vars.notepad.selected_entry := (vars.system.click = 1) ? control : vars.notepad.selected_entry
+		vars.notepad.selected_entry := (hotkey = 1 || vars.system.click = 1) ? control : vars.notepad.selected_entry
 	}
 	Else If (check = "drag")
 	{
@@ -667,57 +701,70 @@ NotepadWidget(tab, mode := 0)
 {
 	local
 	global vars, settings
-	static toggle := 0
+	static toggle := 0, reminder_text
 
-	If (tab != "grouped widget") && Blank(vars.notepad.entries[tab]) && A_Gui
+	If (mode = -1)
 	{
-		LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [tab]), 2,,,, "Red")
-		Return
+		If Blank(tab)
+			Return
+		reminder_text := tab, tab := "notepad_reminder_feature"
+		If !IsObject(vars.notepad.entries)
+			vars.notepad.entries := {}
+		LLK_PanelDimensions([reminder_text], settings.notepad.fSize, width, height)
+		vars.notepad.entries[tab] := reminder_text, vars.notepad_widgets[tab] := {"x": Blank(settings.notepad.xQuickNote) ? vars.client.xc - width//2 : settings.notepad.xQuickNote, "y": Blank(settings.notepad.xQuickNote) ? vars.client.y : settings.notepad.yQuickNote}
 	}
-	If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
-		Return
-	start := A_TickCount
-	If (mode = 2)
+	Else
 	{
-		LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy")
-		If (tab = "grouped widget")
-			vars.hwnd.Delete("notepad_widgets")
-		Else vars.hwnd.notepad_widgets.Delete(tab)
-		KeyWait, RButton
-		Return
+		If (tab != "grouped widget") && Blank(vars.notepad.entries[tab]) && A_Gui
+		{
+			LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [tab]), 2,,,, "Red")
+			Return
+		}
+		If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
+			Return
+		start := A_TickCount
+		If (mode = 2)
+		{
+			LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy")
+			If (tab = "grouped widget")
+				vars.hwnd.Delete("notepad_widgets")
+			Else vars.hwnd.notepad_widgets.Delete(tab)
+			KeyWait, RButton
+			Return
+		}
+
+		longpress := InStr(A_Gui, "notepad") ? 1 : 0
+		While GetKeyState("LButton", "P") && !longpress
+			If (A_TickCount >= start + 200)
+				longpress := 1
+
+		If (tab = "grouped widget" && mode = 4)
+			vars.notepad.active_widget += (vars.notepad.active_widget != vars.notepad.grouped_widget.Count()) ? 1 : 0, mode := 0
+		Else If (tab = "grouped widget" && mode = 3)
+			vars.notepad.active_widget -= (vars.notepad.active_widget > 1) ? 1 : 0, mode := 0
+		Else If !A_Gui && !longpress
+			Return
+		
+		If (tab = "grouped widget") && InStr(A_Gui, "notepad")
+		{
+			For key, val in vars.hwnd.notepad_widgets
+				LLK_Overlay(val, "destroy")
+			vars.hwnd.notepad_widgets := {}
+			vars.notepad.grouped_widget := []
+			For entry, text in vars.notepad.entries
+				If !Blank(text)
+					vars.notepad.grouped_widget.Push([entry, text])
+		}		
+
+		If (tab != "grouped widget")
+			LLK_Overlay(vars.hwnd.notepad_widgets["grouped widget"], "destroy"), vars.hwnd.notepad_widgets.Delete("grouped widget")
 	}
-
-	longpress := InStr(A_Gui, "notepad") ? 1 : 0
-	While GetKeyState("LButton", "P") && !longpress
-		If (A_TickCount >= start + 200)
-			longpress := 1
-
-	If (tab = "grouped widget" && mode = 4)
-		vars.notepad.active_widget += (vars.notepad.active_widget != vars.notepad.grouped_widget.Count()) ? 1 : 0, mode := 0
-	Else If (tab = "grouped widget" && mode = 3)
-		vars.notepad.active_widget -= (vars.notepad.active_widget > 1) ? 1 : 0, mode := 0
-	Else If !A_Gui && !longpress
-		Return
-	
-	If (tab = "grouped widget") && InStr(A_Gui, "notepad")
-	{
-		For key, val in vars.hwnd.notepad_widgets
-			LLK_Overlay(val, "destroy")
-		vars.hwnd.notepad_widgets := {}
-		vars.notepad.grouped_widget := []
-		For entry, text in vars.notepad.entries
-			If !Blank(text)
-				vars.notepad.grouped_widget.Push([entry, text])
-	}		
-
-	If (tab != "grouped widget")
-		LLK_Overlay(vars.hwnd.notepad_widgets["grouped widget"], "destroy"), vars.hwnd.notepad_widgets.Delete("grouped widget")
 
 	toggle := !toggle, GUI_name := "widget_" StrReplace(tab, " ", "_") . toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDwidget"(vars.notepad.toggle ? "" : " +E0x20")
-	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Color, % (tab = "notepad_reminder_feature") ? "White" : "Black"
 	Gui, %GUI_name%: Margin, % settings.notepad.fWidth/2, 0
-	Gui, %GUI_name%: Font, % "s" settings.notepad.fSize " c"settings.notepad.color, % vars.system.font
+	Gui, %GUI_name%: Font, % "s" settings.notepad.fSize " c" (tab = "notepad_reminder_feature" ? "Red" : settings.notepad.color), % vars.system.font
 	;WinSet, Transparent, 255
 	hwnd_old := vars.hwnd.notepad_widgets[tab], vars.hwnd.notepad_widgets[tab] := widget
 	If (InStr(A_Gui, "notepad") || mode = 1)
@@ -728,7 +775,7 @@ NotepadWidget(tab, mode := 0)
 		active := vars.notepad.active_widget := Blank(vars.notepad.active_widget) ? 1 : vars.notepad.active_widget
 		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(vars.notepad.grouped_widget[active].1, "&", "&&") " ("active "/" vars.notepad.grouped_widget.Count() "):`n" StrReplace(vars.notepad.grouped_widget[active].2, "&", "&&")
 	}
-	Else Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(vars.notepad.entries[tab], "&", "&&")
+	Else Gui, %GUI_name%: Add, Text, % "Section" (tab = "notepad_reminder_feature" ? " cRed" : ""), % StrReplace(vars.notepad.entries[tab], "&", "&&")
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %widget%
 	While longpress && (InStr(A_Gui, "notepad") || mode = 1) && GetKeyState("LButton", "P")
@@ -736,6 +783,13 @@ NotepadWidget(tab, mode := 0)
 		LLK_Drag(w, h, x, y,, GUI_name)
 		Sleep 1
 	}
+	If longpress && (tab = "notepad_reminder_feature") && !Blank(x)
+	{
+		settings.notepad.xQuickNote := x, settings.notepad.yQuickNote := y
+		IniWrite, % x, ini\qol tools.ini, notepad, x-coordinate quicknote
+		IniWrite, % y, ini\qol tools.ini, notepad, y-coordinate quicknote
+	}
+
 	If !vars.notepad.toggle
 		WinSet, Transparent, % settings.notepad.trans, % "ahk_id "widget
 	If !IsObject(vars.notepad_widgets[tab])

@@ -118,6 +118,14 @@ Legion(cHWND := "")
 	Else LLK_ToolTip("no action")
 }
 
+LegionClose()
+{
+	local
+	global vars
+
+	LLK_Overlay(vars.hwnd.legion.main, "destroy"), vars.hwnd.legion.main := "", LLK_Overlay(vars.hwnd.legion_tree.main, "destroy"), LLK_Overlay(vars.hwnd.legion.tooltip, "destroy")
+}
+
 LegionGUI()
 {
 	local
@@ -147,6 +155,12 @@ LegionGUI()
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed Range0-500 HWNDhwndbar", 0
 		vars.hwnd.legion["profile_"A_Index] := hwnd, vars.hwnd.legion["delbar_"A_Index] := hwndbar
 	}
+
+	file_check := !FileExist("data\global\[legion]*") ? 0 : 1
+	Gui, %GUI_name%: Add, Text, % "xs Border HWNDhwnd0 BackgroundTrans gLegionUpdate y+"settings.legion.fWidth/2 (file_check ? "" : " cRed"), % " " (!file_check ? LangTrans("seed_download") : LangTrans("seed_update")) " "
+	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack cGreen Range0-5 HWNDhwnd", 0
+	vars.hwnd.legion.update := hwnd0, vars.hwnd.legion.update_bar := vars.hwnd.help_tooltips["seed-explorer_" (file_check ? "update" : "download")] := hwnd
+
 	Gui, %GUI_name%: Font, % "underline bold"
 	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % LangTrans("seed_jewel")
 	Gui, %GUI_name%: Font, % "norm"
@@ -281,7 +295,7 @@ LegionParse()
 	
 	For index, val in jewels
 		For index1, val1 in vars.lang["seed_" val]
-			If InStr(Clipboard, val1)
+			If InStr(Clipboard, val1 "(")
 				vars.legion.jewel := val, vars.legion.leader := val1, check := 1
 
 	If !check
@@ -363,4 +377,54 @@ LegionTree()
 	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x " y" vars.monitor.y + vars.monitor.h - vars.legion.width*2
 	LLK_Overlay(tree, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.legion.wait := 0
 	Gui, %GUI_name%: -Owner
+}
+
+LegionUpdate()
+{
+	local
+	global vars, settings
+
+	jewels := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"]
+	For index, val in jewels
+		If FileExist("data\global\[legion] " val ".csv")
+			count := !count ? 1 : count + 1
+
+	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20version.txt", data\global\[legion] version_check.txt
+	If ErrorLevel || InStr(LLK_FileRead("data\global\[legion] version_check.txt"), "404: not found")
+	{
+		LLK_ToolTip(LangTrans("global_error") ": version-check", 2,,,, "Red")
+		FileDelete, data\global\[legion] version_check.txt
+		Return
+	}
+
+	If (count = 5)
+	{
+		version_online := StrReplace(StrReplace(LLK_FileRead("data\global\[legion] version_check.txt"), "`n"), "`r"), version_installed := !FileExist("data\global\[legion] version.txt") ? 0 : LLK_FileRead("data\global\[legion] version.txt")
+		update := (version_online > version_installed) ? 1 : 0
+		If !update
+			LLK_ToolTip(LangTrans("seed_uptodate"))
+	}
+
+	If (count != 5) || update
+	{
+		LLK_ToolTip("downloading...", 0,,, "legion_update", "Lime")
+		For index, val in jewels
+		{
+			UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20" StrReplace(val, " ", "%20") ".csv", % "data\global\[legion] " val ".csv"
+			If ErrorLevel
+			{
+				error := 1
+				Break
+			}
+			Else GuiControl,, % vars.hwnd.legion.update_bar, % index
+		}
+		vars.tooltip[vars.hwnd["tooltiplegion_update"]] := A_TickCount
+		If !error
+		{
+			FileMove, data\global\[legion] version_check.txt, data\global\[legion] version.txt, 1
+			vars.legion := {}, LegionParse(), LegionGUI(), LLK_ToolTip(LangTrans("global_success"), 1,,,, "Lime")
+		}
+		Else LLK_ToolTip(LangTrans("global_error"), 2,,, "Red")
+	}
+	FileDelete, data\global\[legion] version_check.txt
 }

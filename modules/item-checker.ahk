@@ -12,6 +12,7 @@
 	
 	settings.iteminfo := {}
 	settings.iteminfo.profile := LLK_IniRead("ini\item-checker.ini", "settings", "current profile", 1)
+	settings.iteminfo.modrolls := LLK_IniRead("ini\item-checker.ini", "settings", "hide roll-ranges", 1)
 	settings.iteminfo.trigger := LLK_IniRead("ini\item-checker.ini", "settings", "enable wisdom-scroll trigger", 0)
 	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "enable item-levels", 0)
 	settings.iteminfo.itembase := LLK_IniRead("ini\item-checker.ini", "Settings", "enable base-info", 1)
@@ -77,6 +78,14 @@
 			vars.iteminfo[category][class][A_LoopField] := 1
 		}
 	}
+
+	vars.iteminfo.inverted_mods := {}
+	Loop, Parse, % LLK_IniRead("ini\item-checker.ini", "inverted mods", "invert"), |, % A_Space
+	{
+		If Blank(A_LoopField)
+			Continue
+		vars.iteminfo.inverted_mods[A_LoopField] := 1
+	}
 	
 	If settings.iteminfo.compare
 		settings.iteminfo.itembase := 0 ;, settings.iteminfo.dps := 0
@@ -138,31 +147,12 @@
 	}
 }
 
-Iteminfo_apply(cHWND) ;apply (un)desired highlighting to a mod by clicking the rectangles while hovering over them
-{
-	local
-	global vars, settings
-
-	hotkey := A_ThisHotkey, check := LLK_HasVal(vars.hwnd.iteminfo, cHWND), start := A_TickCount, mode := InStr(A_ThisHotkey, "LButton") ? 1 : 2
-	Loop, Parse, % "*^!+"
-		hotkey := StrReplace(hotkey, A_LoopField)
-	While GetKeyState(hotkey, "P") && !InStr(check, "implicit_")
-		If (A_TickCount >= start + 250)
-		{
-			mode := -mode
-			Break
-		}
-	
-	If check && (IteminfoModHighlight(StrReplace(check, "implicit_"), mode, InStr(check, "implicit_")) >= 0)
-		Iteminfo(1)
-	KeyWait, % hotkey
-}
-
 Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard parsing only (omni-key)
 {
 	local
 	global vars, settings, db
 
+	Clipboard := StrReplace(Clipboard, LangTrans("items_unequippable") "`r`n--------`r`n") ;remove "you cannot use this item" line (removing it also enables craft of exile for such items)
 	UI := vars.iteminfo.UI ;short-cut variable
 	If !UI.wSegment ;width of a 'segment' (tooltip is made out of x segments) ;examples: dps-cells represent this width, the (un)desired rectangle represents a quarter of this width, icons one half
 	{
@@ -195,7 +185,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 		Else If InStr(A_Gui, "settings_menu")
 			UI.xPos := vars.general.xMouse, UI.yPos := vars.general.yMouse + vars.monitor.h/100
 	}
-	Else UI.xPos := "", UI.yPos := "", vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard := StrReplace(StrReplace(StrReplace(StrReplace(Clipboard, "maelström", "maelstrom"), " — " LangTrans("items_unscalable")), "&", "&&"), LangTrans("items_unequippable") "`r`n--------`r`n"), vars[(refresh = 2) ? "omnikey" : "iteminfo"].item := {}
+	Else UI.xPos := "", UI.yPos := "", vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard := StrReplace(StrReplace(StrReplace(Clipboard, "maelström", "maelstrom"), " — " LangTrans("items_unscalable")), "&", "&&"), vars[(refresh = 2) ? "omnikey" : "iteminfo"].item := {}
 
 	clip := vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard, item := vars[(refresh = 2) ? "omnikey" : "iteminfo"].item ;short-cut variables
 	Loop, % (refresh = 2 && settings.general.lang_client != "english") ? 2 : 1
@@ -280,7 +270,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If (refresh = 2)
 		Return
 
-	If !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel")
+	If !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") ;|| (item.name = "Impossible Escape")
 	{
 		LLK_ToolTip(LangTrans("ms_item-info") ":`n" LangTrans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return
@@ -460,7 +450,7 @@ Iteminfo2_stats()
 
 	If (item.quality >= 25)
 		vars.iteminfo.UI.cDivider := "ffd700" ;color of the dividing lines
-	Else vars.iteminfo.UI.cDivider := InStr(clip, "`r`n" LangTrans("items_corrupted"), 1) ? "dc0000" : InStr(clip, "`r`n" LangTrans("items_mirrored"), 1) ? "00cccc" : "e0e0e0"
+	Else vars.iteminfo.UI.cDivider := InStr(clip, "`r`n" LangTrans("items_corrupted") "`r`n", 1) ? "dc0000" : InStr(clip, "`r`n" LangTrans("items_mirrored") "`r`n", 1) ? "00cccc" : "e0e0e0"
 
 	If InStr(clip, LangTrans("items_aps")) ;calculate dps values if item is a weapon
 	{
@@ -629,8 +619,14 @@ Iteminfo3_mods()
 		While InStr(item.cluster.enchant, "  ")
 			item.cluster.enchant := StrReplace(item.cluster.enchant, "  ", " ")
 		item.cluster.enchant := StrReplace(item.cluster.enchant, "`n ", "`n"), item.cluster.enchant := LangTrim(item.cluster.enchant, vars.lang.mods_cluster_remove, "`n")
-		If LangMatch(item.cluster.enchant, vars.lang.mods_cluster_replace1)
-			item.cluster.enchant := LangTrim(item.cluster.enchant, vars.lang.mods_cluster_replace1), item.cluster.enchant .= vars.lang.mods_cluster_replace2.1
+		For index, val in vars.lang.mods_cluster_replace
+			If InStr(item.cluster.enchant, val)
+			{
+				item.cluster.enchant := LLK_StringCase(StrReplace(item.cluster.enchant, val, vars.lang.mods_cluster_replace[index + 1]))
+				Break
+			}
+		If LangMatch(item.cluster.enchant, vars.lang.mods_cluster_replace_res, 0)
+			item.cluster.enchant := StrReplace(item.cluster.enchant, vars.lang.mods_cluster_replace_res.1)
 		While (SubStr(item.cluster.enchant, 1, 1) = " ")
 			item.cluster.enchant := SubStr(item.cluster.enchant, 2)
 	}
@@ -734,7 +730,7 @@ Iteminfo4_GUI()
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
-	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo}
+	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo, "inverted_mods": {}}
 	
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -772,7 +768,7 @@ Iteminfo4_GUI()
 	;////////////////////////////////////////// base-info / league-start area
 
 	losses := vars.iteminfo.compare.losses, compare := vars.iteminfo.compare ;short-cut variables
-	If (settings.iteminfo.itembase && ((item.rarity != LangTrans("items_unique") || item.anoint) || (item.type = "defense" && item.base_percent))) || settings.iteminfo.compare
+	If (settings.iteminfo.itembase && ((item.rarity != LangTrans("items_unique") || item.anoint) || (item.type = "defense" && IsNumber(item.base_percent)))) || settings.iteminfo.compare
 	{
 		If !settings.iteminfo.compare ;if league-start mode is disabled, add base-item info
 		{
@@ -1160,6 +1156,7 @@ Iteminfo4_GUI()
 	;////////////////////////////////////////// explicit area
 
 	unique := (item.rarity = LangTrans("items_unique")) ? 1 : 0, divider := 0 ;is item unique, has a divider been placed?
+	roll_stats := [], roll_colors := {0: tColors[1], 10: tColors[2], 20: tColors[3], 30: tColors[4], 40: tColors[5], 50: tColors[6]}
 	Loop, Parse, clip2, | ;parse the item-info affix by affix
 	{
 		If (item.class != "base jewels")
@@ -1228,24 +1225,41 @@ Iteminfo4_GUI()
 		highlights := "", color_t := "Black" ;track (un)desired highlighting for every part of hybrid mods
 		Loop, Parse, mod, `n ;parse mod-text line by line
 		{
-			If unique && !InStr(A_LoopField, "(") ;for uniques, skip mod-parts that don't have a roll
+			text_check := StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)"), invert_check := vars.iteminfo.inverted_mods.HasKey(IteminfoModHighlight(A_LoopField, "parse"))
+			rolls := IteminfoModRollCheck(A_LoopField)
+			If invert_check
+				rolls[4] := rolls[1], rolls[1] := rolls[3], rolls [3] := rolls[4]
+			rolls_val := Abs(rolls.2 - rolls.1), rolls_max := Abs(rolls.3 - rolls.1), valid_rolls := (rolls.1 + rolls.2 + rolls.3 = 0 || !InStr(text_check, "(")) ? 0 : 1
+			If unique && !valid_rolls ;for uniques, skip mod-parts that don't have a roll
 				Continue
-			Gui, %GUI_name%: Add, Text, % "xs Section HWNDhwnd Border Hidden Center w"(UI.segments - (unique ? 0 : 1.25))*UI.wSegment, % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;dummy text-panel to gauge the required height of the text
+			mod_text := settings.iteminfo.modrolls ? IteminfoModRemoveRange(text_check) : text_check
+			Gui, %GUI_name%: Add, Text, % "xs Section HWNDhwnd Border Hidden Center w"(UI.segments - (unique ? 1 : 1.25))*UI.wSegment, % mod_text ;dummy text-panel to gauge the required height of the text
 			GuiControlGet, text_, Pos, % hwnd
 
-			rolls := IteminfoModRollCheck(A_LoopField), color := unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
+			color := unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
 			;if dummy text-panel is single-line, increase height slightly to make small cells square
-			Gui, %GUI_name%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center", % IteminfoModRemoveRange(StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")) ;add actual text-panel with the correct size
+			Gui, %GUI_name%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center", % mod_text ;add actual text-panel with the correct size
 			GuiControlGet, text_, Pos, % hwnd ;get position and size of the text-panel
 			height += text_h ;sum up the heights of each line belonging to the same mod, so it can be used for the cells right next to them (highlight, tier, and potentially icon/ilvl)
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Section HWNDhwnd Border Disabled BackgroundBlack range"(rolls.1 = rolls.3 ? 0 : rolls.1*100) "-"rolls.3*100 " c"color, % rolls.2*100
-			
-			If !unique ;add (un)desired rectangle for non-uniques
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Section HWNDhwnd Border Disabled BackgroundBlack range0-100 c"color, % (rolls_val / rolls_max) * 100
+			If InStr(text_check, "(")
+				vars.hwnd.iteminfo.inverted_mods[IteminfoModHighlight(A_LoopField, "parse")] := hwnd
+
+			If unique ;add roll-% to unique mods
+			{
+				color := "White", roll_percent := Format("{:0.0f}", rolls_val / rolls_max * 100), roll_percent := (roll_percent > 100) ? 100 : roll_percent
+				For key, val in roll_colors
+					color := (100 - roll_percent > key) ? val : color
+				Gui, %GUI_name%: Add, Text, % "ys hp w" UI.wSegment " Border 0x200 BackgroundTrans Center c" (color = "White" ? "Red" : "Black"), % roll_percent
+				roll_stats.Push([rolls_val, rolls_max])
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack c"color, 100
+			}
+			Else ;add (un)desired rectangle for non-uniques
 			{
 				highlights .= highlight := IteminfoModHighlight(A_LoopField) ;highlights = (un)desired highlighting for the whole mod-group, highlight = highlighting for the single part
 				color := !highlight ? "Black" : (highlight = -2) ? iColors.8 : (highlight = -1) ? tColors.6 : (highlight = 1) ? tColors.1 : tColors.7 ;determine the right color
 				Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment/4 " Border BackgroundTrans Center", % " " ;add the rectangle
-				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled hp Border BackgroundBlack c"color, 100 ;color the rectangle
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled Border BackgroundBlack c"color, 100 ;color the rectangle
 				vars.hwnd.iteminfo[StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")] := hwnd ;store the rectangle's HWND and include the mod-text
 			}
 			If (A_Index = 1) ;for the first line within a group, store the coordinates so that the tier-cell can be placed right next to it
@@ -1318,7 +1332,49 @@ Iteminfo4_GUI()
 		}
 	}
 
-	Gui, %GUI_name%: Show, NA x10000 y10000 ;show the GUI outside the monitor's area to get dimensions
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	;////////////////////////////////////////// unique drop-tier and roll-health
+
+	If unique
+	{
+		If roll_stats.Count()
+			Gui, %GUI_name%: Add, Progress, % "xs w" UI.wSegment*UI.segments " Disabled h" UI.hDivider " BackgroundWhite",
+		If db.item_drops[item.name]
+			drop_tier := (StrLen(db.item_drops[item.name]) > 2) ? LangTrans("iteminfo_drop_" db.item_drops[item.name]) : db.item_drops[item.name]
+		Else drop_tier := LangTrans("iteminfo_drop_unknown")
+		segments := 1, sFiller := UI.segments - (roll_stats.Count() > 1 ? 1 : 0)
+		LLK_PanelDimensions([LLK_StringCase(drop_tier " " LangTrans("items_unique"))], settings.iteminfo.fSize, wDrop, hDrop,,, 1)
+		While (wDrop >= UI.wSegment * segments)
+			segments += 0.25
+		wDrop := UI.wSegment * segments, sFiller -= segments, roll_stats_val := roll_stats_max := 0
+		
+		For index, roll in roll_stats
+			roll_stats_val += roll.1, roll_stats_max += roll.2
+		roll_stats_average := Format("{:0.0f}", (roll_stats_val / roll_stats_max) * 100)
+		Gui, %GUI_name%: Show, NA x10000 y10000
+		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.iteminfo.main
+		Gui, %GUI_name%: Hide
+		If (w >= 50)
+			Gui, %GUI_name%: Add, Text, % "xs Section Border Right BackgroundTrans cWhite w" UI.wSegment * sFiller, % ""
+		color := InStr(drop_tier, "0") ? "White" : (StrLen(drop_tier) = 2) ? tColors[SubStr(drop_tier, 2, 1)] : tColors[0]
+		If !Blank(drop_tier)
+		{
+			Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans w" wDrop " c" (color = "White" ? "Red" : "Black"), % LLK_StringCase(drop_tier " " LangTrans("items_unique"))
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack c" color, 100
+		}
+		;Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans cWhite w" wPercent, % LangTrans("iteminfo_roll_percent")
+		color := "White"
+		For key, val in roll_colors
+			color := (100 - roll_stats_average > key) ? val : color
+		If (roll_stats.Count() > 1)
+		{
+			Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans w" UI.wSegment " c" (color = "White" && roll_stats.Count() ? "Red" : "Black"), % roll_stats_average
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd_roll_percent_total_back c" (!roll_stats.Count() ? tColors[0] : color), 100
+		}
+	}
+
+	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000 ;show the GUI outside the monitor's area to get dimensions
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.iteminfo.main
 	If (vars.iteminfo.UI.xPos != "") ;if tooltip is being refreshed to apply changes in settings, use previous coordinates
 	{
@@ -1565,6 +1621,9 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 		string := StrReplace(string, "  ", " ")
 	
 	string := StrReplace(string, "; ", ";")
+
+	If (mode = "parse")
+		Return string
 	
 	If !implicit ;if mod is not an implicit, check if global rules/overrides apply
 	{
@@ -1736,6 +1795,25 @@ IteminfoModHighlightString(object) ;dump highlighting info into a string in orde
 	For key in object
 		string .= "|" key "|"
 	Return string
+}
+
+IteminfoModInvert(cHWND)
+{
+	local
+	global vars, settings
+
+	mod := LLK_HasVal(vars.hwnd.iteminfo.inverted_mods, cHWND)
+
+	If InStr(A_ThisHotkey, "RButton") && !vars.iteminfo.inverted_mods[mod] || InStr(A_ThisHotkey, "LButton") && vars.iteminfo.inverted_mods[mod]
+		Return
+
+	If InStr(A_ThisHotkey, "RButton")
+		vars.iteminfo.inverted_mods.Delete(mod)
+	Else vars.iteminfo.inverted_mods[mod] := 1
+	For key, val in vars.iteminfo.inverted_mods
+		string .= "|" key "|"
+	IniWrite, % string, ini\item-checker.ini, inverted mods, invert
+	Iteminfo(1)
 }
 
 IteminfoModRemoveRange(string) ;takes mod-text string and returns it without roll-ranges
@@ -2024,6 +2102,26 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 	KeyWait, % hotkey
 }
 
+IteminfoHighlightApply(cHWND) ;apply (un)desired highlighting to a mod by clicking the rectangles while hovering over them
+{
+	local
+	global vars, settings
+
+	hotkey := A_ThisHotkey, check := LLK_HasVal(vars.hwnd.iteminfo, cHWND), start := A_TickCount, mode := InStr(A_ThisHotkey, "LButton") ? 1 : 2
+	Loop, Parse, % "*^!+"
+		hotkey := StrReplace(hotkey, A_LoopField)
+	While GetKeyState(hotkey, "P") && !InStr(check, "implicit_")
+		If (A_TickCount >= start + 250)
+		{
+			mode := -mode
+			Break
+		}
+	
+	If check && (IteminfoModHighlight(StrReplace(check, "implicit_"), mode, InStr(check, "implicit_")) >= 0)
+		Iteminfo(1)
+	KeyWait, % hotkey
+}
+
 IteminfoMarker() ;placing markers while using the shift-trigger feature
 {
 	local
@@ -2222,11 +2320,6 @@ IteminfoModRollCheck(mod) ;parses a mod's text and returns an array with informa
 		max := InStr(val, "(") ? StrReplace(val, current "(" min "-") : val , max := StrReplace(max, ")") ;declare the max-roll
 		If !IsNumber(min + current + max)
 			Continue
-		
-		If (max < min) ;some mod-ranges are inconsistent and lead to bricked bars if the values are not negated
-			min2 := min, min := max, max := min2
-		If IteminfoModCheckInvert(mod)
-			min2 := min, min := -max, max := -min2, current := -current
 		sum_min += min, sum_current += current, sum_max += max ;if the mod as multiple ranges, sum up the values
 	}
 	Return [sum_min, sum_current, sum_max]
@@ -2237,54 +2330,51 @@ IteminfoOverlays() ;show update buttons for specific gear-slots underneath the c
 	local
 	global vars, settings
 
-	If settings.iteminfo.compare
-	{		
+	If settings.iteminfo.compare	
 		For slot, val in vars.iteminfo.compare.slots
 		{
 			If vars.pixelsearch.inventory.check && LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")
 			&& !WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) && (vars.general.wMouse != vars.hwnd.iteminfo.main) && (vars.general.wMouse != vars.hwnd.omni_context.main) && WinActive("ahk_group poe_window")
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "show",, "iteminfo_button_" slot)
-			Else If !vars.pixelsearch.inventory.check || !(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2))
-			&& WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window")
+			Else If WinExist("ahk_id " vars.hwnd.iteminfo_comparison[slot])
+			&& (!vars.pixelsearch.inventory.check || !(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2)) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window"))
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "hide")
 		}
-	}
 }
 
 IteminfoTrigger(mode := 0) ;handles shift-clicks on items and currency for the shift-trigger feature
 {
 	local
 	global vars, settings
+	static last := 0
 	
 	Clipboard := ""
 	If mode
 	{
+		If (last + 500 > A_TickCount)
+			Return
+		last := A_TickCount
 		Sleep 200
 		If settings.hotkeys.rebound_alt && settings.hotkeys.item_descriptions
 			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
 		Else SendInput, !^{c}
 		ClipWait, 0.1
-		If !Clipboard
-			Return
-		If settings.mapinfo.trigger && (OmniContext(1) = "mapinfo")
-			MapinfoParse(), MapinfoGUI()
-		Else If settings.iteminfo.trigger
-			Iteminfo()
+		If Clipboard
+		{
+			If settings.mapinfo.trigger && (OmniContext(1) = "mapinfo")
+				IteminfoClose(), MapinfoParse(), MapinfoGUI()
+			Else If settings.iteminfo.trigger
+				LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), Iteminfo()
+		}
 		Return
 	}
 	Else
 	{
-		If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
-			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
-		Else SendInput, !^{c}
+		SendInput, ^{c}
 		ClipWait, 0.1
 	}
 
-	Loop, Parse, Clipboard, `n, `r
-		If (A_Index = 3)
-			name := A_LoopField
-
-	If (settings.iteminfo.trigger || settings.mapinfo.trigger) && LLK_PatternMatch(name, "", ["Scroll of Wisdom", "Chaos Orb", "Essence of", "Eldritch Ichor", "Eldritch Ember", "Orb of Alchemy", "Orb of Binding"])
+	If (settings.iteminfo.trigger || settings.mapinfo.trigger) && LLK_PatternMatch(Clipboard, LangTrans("items_rarity") " ", [LangTrans("items_currency")])
 		vars.general.shift_trigger := 1
 	Else Return
 	KeyWait, Shift

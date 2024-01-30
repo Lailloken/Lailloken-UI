@@ -1,4 +1,4 @@
-Init_hotkeys()
+﻿Init_hotkeys()
 {
 	local
 	global vars, settings, db
@@ -57,13 +57,15 @@ HotkeysESC()
 	
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
+	Else If WinExist("LLK-UI: notepad reminder")
+		WinActivate, ahk_group poe_window
 	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
 	{
 		Gui, tooltipgem_notes: Destroy
 		vars.hwnd.Delete("tooltipgem_notes")
 	}
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
-		LLK_Overlay(vars.hwnd.legion.main, "destroy"), vars.hwnd.legion.main := "", LLK_Overlay(vars.hwnd.legion_tree.main, "destroy"), LLK_Overlay(vars.hwnd.legion.tooltip, "destroy")
+		LegionClose()
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
 		Gui, alarm_set: Destroy
 	Else If WinActive("ahk_id "vars.hwnd.maptracker_logs.maptracker_edit)
@@ -112,6 +114,15 @@ HotkeysTab()
 	global vars, settings
 		
 	start := A_TickCount
+
+	While settings.general.hide_toolbar && GetKeyState(settings.hotkeys.tab, "P")
+		If (A_TickCount >= start + 200)
+		{
+			active .= " LLK-panel"
+			LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
+			Break
+		}
+
 	While settings.qol.alarm && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
@@ -194,6 +205,8 @@ HotkeysTab()
 	}
 	Else KeyWait, % settings.hotkeys.tab
 	
+	If InStr(active, "LLK-panel")
+		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")
 	{
 		vars.alarm.toggle := 0
@@ -255,6 +268,11 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 *LButton::Return
 *RButton::Return
+
+#If (vars.system.timeout = 0) && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.LLK_panel.main)
+
+*LButton::GuiToolbarButtons(vars.general.cMouse, 1)
+*RButton::GuiToolbarButtons(vars.general.cMouse, 2)
 
 #If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
 
@@ -326,7 +344,9 @@ WheelDown::StringScroll(A_ThisHotkey)
 *LButton::
 *RButton::
 If vars.general.cMouse && LLK_HasVal(vars.hwnd.iteminfo, vars.general.cMouse) ;this check prevents the tooltip from being clicked/activated (since the L/RButton press is not sent to the client)
-	Iteminfo_apply(vars.general.cMouse)
+	IteminfoHighlightApply(vars.general.cMouse)
+Else If vars.general.cMouse && LLK_HasVal(vars.hwnd.iteminfo.inverted_mods, vars.general.cMouse)
+	IteminfoModInvert(vars.general.cMouse)
 Return
 
 #If (settings.iteminfo.trigger || settings.mapinfo.trigger) && vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-clicking currency onto items and triggering certain features
@@ -334,7 +354,7 @@ Return
 ~+LButton UP::IteminfoTrigger(1)
 +RButton::IteminfoMarker()
 
-#If (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
+#If vars.pixelsearch.inventory.check && (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
 
 ~+RButton UP::IteminfoTrigger()
 

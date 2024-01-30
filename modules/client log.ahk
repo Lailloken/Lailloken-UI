@@ -4,10 +4,7 @@
 	global vars, settings
 
 	If !IsObject(vars.log.file) ;at script-startup
-	{
-		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
-		log_content := vars.log.file.Read(), log_content := SubStr(log_content, StrLen(log_content) * 0.75), log_content := SubStr(log_content, InStr(log_content, "`n") + 1)
-	}
+		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := vars.log.file.Read()
 	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001"), log_content := SubStr(log_content, StrLen(log_content) * 0.5), log_content := SubStr(log_content, InStr(log_content, "`n") + 1) ;when specifying "active character" in the settings menu
 
 	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
@@ -15,11 +12,14 @@
 		vars.log[A_LoopField] := ""
 	
 	If !settings.general.lang_client
-		LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 10)))
+		check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
 	
 	settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
 
-	log_content := SubStr(log_content, check ? check : InStr(log_content, " Generating level ", 1, 0, 1))
+	If check
+		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1), LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
+
+	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
 	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
@@ -109,15 +109,15 @@ LogLoop(mode := 0)
 	MaptrackerTimer()
 	LeveltrackerTimer()
 
-	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && WinExist("ahk_id "vars.hwnd.leveltracker_button.main)
+	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && !vars.leveltracker.button_color
 	{
-		button_color := (button_color = "Lime") ? "Aqua" : "Lime"
-		Gui, leveltracker_button: Color, % button_color
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker1.png
+		vars.leveltracker.button_color := 1
 	}
-	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && (button_color = "Lime")
+	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.button_color
 	{
-		Gui, leveltracker_button: Color, Aqua
-		button_color := "Aqua"
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, % "img\GUI\leveltracker" (vars.hwnd.leveltracker.main ? "" : "0") ".png"
+		vars.leveltracker.button_color := 0
 	}
 }
 

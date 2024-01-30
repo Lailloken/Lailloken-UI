@@ -22,21 +22,7 @@
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
-	{
-		vars.imagesearch[key] := {"check": 0} ;set the result to 0 by default
-		Loop, Parse, % LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), `, ;coordinates are stored in ini-file like this: x,y,w,h
-		{
-			If (A_LoopField = "")
-				continue
-			If (A_Index = 1)
-				vars.imagesearch[key].x1 := A_LoopField
-			Else If (A_Index = 2)
-				vars.imagesearch[key].y1 := A_LoopField
-			Else If (A_Index = 3)
-				vars.imagesearch[key].x2 := A_LoopField ;technically a misnomer but doesn't really matter (it's the width of the reference-image)
-			Else vars.imagesearch[key].y2 := A_LoopField ;same (it's the height)
-		}
-	}
+		parse := StrSplit(LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
 	
 	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
 		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
