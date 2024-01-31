@@ -471,7 +471,8 @@
     ],
 	"update versions": [
 	  "the list below shows the available versions to switch between or reinstall",
-	  "each line represents a major version and has buttons to select the minor version"
+	  "each line represents a major version and has buttons to select the minor version",
+	  "hover over a button to see that version's summarized changelog"
 	],
     "update restart": [
       "hold to update and restart",
