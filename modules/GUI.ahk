@@ -147,7 +147,7 @@ GuiToolbarButtons(cHWND, hotkey)
 		{
 			settings.gui.oToolbar := (settings.gui.oToolbar = "horizontal") ? "vertical" : "horizontal"
 			IniWrite, % settings.gui.oToolbar, ini\config.ini, UI, toolbar-orientation
-			Init_GUI()
+			Init_GUI("refresh")
 		}
 		Else If WinExist("ahk_id "vars.hwnd.settings.main)
 			Settings_menuClose()
