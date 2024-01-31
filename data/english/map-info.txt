@@ -130,7 +130,7 @@ type	=	bosses
 text	=	possessed
 ID	=	009
 
-[players have # reduced effect of noncurse auras from skills]
+[players have # reduced effect of non-curse auras from skills]
 type	=	player
 text	=	aura effect: -%
 ID	=	010

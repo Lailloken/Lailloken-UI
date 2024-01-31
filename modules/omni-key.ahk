@@ -9,8 +9,6 @@
 
 	StringScroll("ESC") ;close searchstring-scrolling
 	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
-	If !IsObject(vars.omnikey)
-		vars.omnikey := {}
 
 	Loop, Parse, % "*,~,!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
@@ -212,16 +210,16 @@ OmniContext(mode := 0)
 		Return "legion"
 	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotepad"
-	If vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
+	If settings.features.leveltracker && vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotes"
-	While GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
+	While settings.features.leveltracker && GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
 	If (item.name = "Orb of Horizons")
 		While GetKeyState(ThisHotkey_copy, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
-	If LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	If !InStr(item.name "`n" item.itembase, "maple round") && LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
 	{
 		While GetKeyState(ThisHotkey_copy, "P") && (LLK_PatternMatch(item.name, "", [" Map"]) || LLK_PatternMatch(item.itembase, "", [" Map"]))
 			If (A_TickCount >= vars.omnikey.start + 200)

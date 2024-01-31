@@ -22,21 +22,7 @@
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
-	{
-		vars.imagesearch[key] := {"check": 0} ;set the result to 0 by default
-		Loop, Parse, % LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), `, ;coordinates are stored in ini-file like this: x,y,w,h
-		{
-			If (A_LoopField = "")
-				continue
-			If (A_Index = 1)
-				vars.imagesearch[key].x1 := A_LoopField
-			Else If (A_Index = 2)
-				vars.imagesearch[key].y1 := A_LoopField
-			Else If (A_Index = 3)
-				vars.imagesearch[key].x2 := A_LoopField ;technically a misnomer but doesn't really matter (it's the width of the reference-image)
-			Else vars.imagesearch[key].y2 := A_LoopField ;same (it's the height)
-		}
-	}
+		parse := StrSplit(LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
 	
 	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
 		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
@@ -90,10 +76,10 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		If name ;if parameter was passed to function, override val
 			val := name
 		
-		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
+		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && !(settings.features.maptracker || settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
-		If (A_Gui = DummyGUI(vars.hwnd.settings.main)) && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)
+		If InStr(A_Gui, "settings_menu") && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)
 			x1 := 0, y1 := 0, x2 := 0, y2 := 0
 		Else If (val = "betrayal") ;scan a specific area for betrayal
 			x1 := settings.general.oGamescreen, y1 := 0, x2 := vars.client.w/2 + settings.general.oGamescreen, y2 := vars.client.h/8

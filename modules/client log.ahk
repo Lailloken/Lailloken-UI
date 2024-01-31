@@ -4,47 +4,26 @@
 	global vars, settings
 
 	If !IsObject(vars.log.file) ;at script-startup
-	{
-		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8")
-		log_content := vars.log.file.Read(), log_content := SubStr(log_content, StrLen(log_content) * 0.75), log_content := SubStr(log_content, InStr(log_content, "`n") + 1)
-	}
+		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := vars.log.file.Read()
 	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001"), log_content := SubStr(log_content, StrLen(log_content) * 0.5), log_content := SubStr(log_content, InStr(log_content, "`n") + 1) ;when specifying "active character" in the settings menu
-
-	Loop, Parse, log_content, `n ;extract relevant lines only
-	{
-		If (A_Index = 1)
-			log_content := ""
-		If LLK_PatternMatch(A_LoopField, "", ["Generating level ", " : ", ".login.", "*****"])
-			log_content .= A_LoopField "`n"
-	}
 
 	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		vars.log[A_LoopField] := ""
 	
-	log_length := StrLen(log_content), settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character")
-	check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " (")
+	If !settings.general.lang_client
+		check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
 	
-	While !vars.log.areaID || !vars.log.level ;parse log until current area and level was found
-	{
-		log_chunk := SubStr(log_content, 1 - 5000*A_Index, 5500), log_chunk := SubStr(log_chunk, InStr(log_chunk, "`n") + 1) ;break up log into smaller chunks of 5000 characters (with 10% buffer to avoid incomplete lines)
-		While (SubStr(log_chunk, 0) != "`r") ;remove incomplete line at the end
-			log_chunk := SubStr(log_chunk, 1, -1)
-		log_chunk := SubStr(log_chunk, 1, -1)
+	settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
 
-		If !settings.general.lang_client ;check if the current client-language is supported, i.e. if any available language-pack matches the client.txt
-			LangClient(log_chunk)
+	If check
+		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1), LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
 
-		If vars.log.areaID && !check || (5000*A_Index >= log_length) ;break if character could not be found
-			Break
-		If vars.log.areaID && !InStr(log_chunk, " " settings.general.character " (") ;skip chunk if it doesn't contain level-up messages
-			Continue
-
-		LogParse(log_chunk, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
-		Loop, Parse, % vars.log.parsing, `,, %A_Space%
-			If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
-				vars.log[A_LoopField] := %A_LoopField% ;store parsed info globally (only once, and as close to the end of the log as possible)
-	}
+	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
+	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
+	Loop, Parse, % vars.log.parsing, `,, %A_Space%
+		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
+			vars.log[A_LoopField] := %A_LoopField%
 	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
 }
 
@@ -130,15 +109,15 @@ LogLoop(mode := 0)
 	MaptrackerTimer()
 	LeveltrackerTimer()
 
-	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && WinExist("ahk_id "vars.hwnd.leveltracker_button.main)
+	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && !vars.leveltracker.button_color
 	{
-		button_color := (button_color = "Lime") ? "Aqua" : "Lime"
-		Gui, leveltracker_button: Color, % button_color
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker1.png
+		vars.leveltracker.button_color := 1
 	}
-	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && (button_color = "Lime")
+	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.button_color
 	{
-		Gui, leveltracker_button: Color, Aqua
-		button_color := "Aqua"
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, % "img\GUI\leveltracker" (vars.hwnd.leveltracker.main ? "" : "0") ".png"
+		vars.leveltracker.button_color := 0
 	}
 }
 
@@ -149,9 +128,6 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 
 	Loop, Parse, content, `n, % "`r" vars.lang.system_fullstop.1
 	{
-		If LLK_PatternMatch(A_LoopField, "", vars.log.skip)
-			Continue
-		
 		If InStr(A_LoopField, "Generating level ", 1)
 		{
 			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var

@@ -72,6 +72,7 @@ MapinfoGUI(mode := 1)
 {
 	local
 	global vars, settings
+	static toggle := 0
 
 	map := vars.mapinfo.active_map ;short-cut variable
 	If map.cancel
@@ -79,10 +80,11 @@ MapinfoGUI(mode := 1)
 		map.cancel := 0
 		Return
 	}
-	Gui, New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
-	Gui, %mapinfo%: Color, Black
-	Gui, %mapinfo%: Margin, % settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
-	Gui, %mapinfo%: Font, % "s"settings.mapinfo.fSize " cWhite", % vars.system.font
+	toggle := !toggle, GUI_name := "mapinfo" toggle
+	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, % settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
+	Gui, %GUI_name%: Font, % "s"settings.mapinfo.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.mapinfo.main, vars.hwnd.mapinfo := {"main": mapinfo}, mod_count := 0
 	summary := map.mods . LangTrans("maps_stats", 1) " | " map.quantity . LangTrans("maps_stats", 2) " |" (!Blank(map.packsize) ? " " map.packsize . LangTrans("maps_stats", 3) : " " map.rarity . LangTrans("maps_stats", 4))
 	If (map.mods + map.quantity > 0)
@@ -117,20 +119,20 @@ MapinfoGUI(mode := 1)
 		If !check
 			Continue
 		
-		Gui, %mapinfo%: Add, Text, % (added ? "xs " : "") "Section c"settings.mapinfo.color.5 " w"width (mode = 2 ? " Right" : ""), % (mode = 2 && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category) ":"
+		Gui, %GUI_name%: Add, Text, % (added ? "xs " : "") "Section c"settings.mapinfo.color.5 " w"width (mode = 2 ? " Right" : ""), % (mode = 2 && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category) ":"
 		added += 1
 		Loop 4
 		{
 			For index, val in map[category][5 - A_Index]
 			{
 				text := InStr(val.1, ":") && (mode = 2) ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1, prefix := ""
-				Gui, %mapinfo%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
+				Gui, %GUI_name%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
 				While vars.hwnd.mapinfo.HasKey(prefix "mod_" val.2)
 					prefix := A_Index
 				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd
 			}
 		}
-		Gui, %mapinfo%: Font, strike
+		Gui, %GUI_name%: Font, strike
 		Loop 4
 		{
 			If (mode = 2)
@@ -138,18 +140,18 @@ MapinfoGUI(mode := 1)
 			For index, val in map[category].0[5 - A_Index]
 			{
 				text := InStr(val.1, ":") && (mode = 2) ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1, prefix := ""
-				Gui, %mapinfo%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
+				Gui, %GUI_name%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
 				While vars.hwnd.mapinfo.HasKey(prefix "mod_" val.2)
 					prefix := A_Index
 				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd
 			}
 		}
-		Gui, %mapinfo%: Font, norm
+		Gui, %GUI_name%: Font, norm
 	}
 
 	If (map.mods + map.quantity > 0)
 	{
-		Gui, %mapinfo%: Add, Text, % "xs y+"settings.mapinfo.fWidth " Section Center HWNDhwnd w"width, % summary
+		Gui, %GUI_name%: Add, Text, % "xs y+"settings.mapinfo.fWidth " Section Center HWNDhwnd w"width, % summary
 		LLK_PanelDimensions([summary], settings.mapinfo.fSize, w, h,,, 0), added := 0, spectrum := [0, 0, 0, 0], spectrum[0] := [0, 0, 0, 0]
 
 		For index0, category in vars.mapinfo.categories
@@ -168,7 +170,7 @@ MapinfoGUI(mode := 1)
 			index0 := A_Index
 			Loop, % spectrum[5 - A_Index]
 			{
-				Gui, %mapinfo%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack c"settings.mapinfo.color[5 - index0] " w"
+				Gui, %GUI_name%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack c"settings.mapinfo.color[5 - index0] " w"
 				. w/mod_count - settings.mapinfo.fWidth//10 " h"settings.mapinfo.fHeight/3, 100
 				added += 1
 			}
@@ -178,7 +180,7 @@ MapinfoGUI(mode := 1)
 			index0 := A_Index
 			Loop, % spectrum.0[5 - A_Index]
 			{
-				Gui, %mapinfo%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack Border c"settings.mapinfo.color[5 - index0] " w"
+				Gui, %GUI_name%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack Border c"settings.mapinfo.color[5 - index0] " w"
 				. w/mod_count - settings.mapinfo.fWidth//10 " h"settings.mapinfo.fHeight/3, 100
 				added += 1
 			}
@@ -187,13 +189,13 @@ MapinfoGUI(mode := 1)
 	Else w := width
 
 	If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (mode = 2) && !InStr(vars.mapinfo.active_map.name, "logbook")
-		Gui, %mapinfo%: Add, Text, % "xs y+0 Center w"w, % LLK_StringCase(StrReplace(StrReplace(vars.mapinfo.active_map.name, "maven's invitation: "), " map"))
+		Gui, %GUI_name%: Add, Text, % "xs y+0 Center w"w, % LLK_StringCase(StrReplace(StrReplace(vars.mapinfo.active_map.name, "maven's invitation: "), " map"))
 
 	If !mode
 		WinGetPos, x, y,,, % "ahk_id "hwnd_old
 	Else
 	{
-		Gui, %mapinfo%: Show, NA x10000 y10000
+		Gui, %GUI_name%: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
 		MouseGetPos, xPos, yPos
 		y := (mode = 2) ? vars.client.yc - h/2 : (yPos - (h + vars.client.h/25) < vars.client.y) ? yPos + vars.client.h/25 : yPos - (h + vars.client.h/25), oob := (y + h > vars.client.y + vars.client.h) ? 1 : 0
@@ -201,14 +203,12 @@ MapinfoGUI(mode := 1)
 			x := (xPos - vars.client.h/25 - w < vars.client.x) ? xPos + vars.client.h/25 : xPos - vars.client.h/25 - w, y := (yPos + h/2 > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : (yPos - h/2 < vars.client.y) ? vars.client.y : yPos - h/2
 		Else x := (mode = 2) ? vars.client.x + vars.client.w - w : (xPos - w/2 < vars.client.x) ? vars.client.x : (xPos + w/2 > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : xPos - w/2
 	}
-	Gui, %mapinfo%: Show, % (mode ? "NA " : "") "x"x " y"y
-	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
+	Gui, %GUI_name%: Show, % (mode ? "NA " : "") "x"x " y"y
+	LLK_Overlay(mapinfo, "show", mode, GUI_name)
+	
+	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.mapinfo.main
 	If (w < 10)
-	{
-		LLK_ToolTip(LangTrans("ms_map-info") ": " LangTrans("global_nothing"), 1.5,,,, "red")
-		LLK_Overlay(mapinfo, "destroy")
-	}
-	Else LLK_Overlay(mapinfo, "show", mode)
+		LLK_ToolTip(LangTrans("ms_map-info") ": " LangTrans("global_nothing"), 1.5,,,, "red"), LLK_Overlay(mapinfo, "destroy"), vars.mapinfo.active_map := ""
 	LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -394,7 +394,7 @@ MapinfoParse(mode := 1)
 		Else map[mods[map_mod].type][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
 	}
 
-	For key, val in {"maven's invitation": "mavenhub", "expedition logbook": "expedition", "contract:": "heist", "blueprint:": "heist", "writing invitation": "primordialboss1", "polaric invitation": "primordialboss2", "incandescent invitation": "primordialboss3", "screaming invitation": "primordialboss4"}
+	For key, val in {"maven's invitation": "mavenhub", "expedition logbook": "expedition", "contract:": "heist", "blueprint:": "heist", "writing invitation": "primordialboss1", "polaric invitation": "primordialboss2", "incandescent invitation": "primordialboss3", "screaming invitation": "primordialboss4", "blighted ": "blight", "blight-ravaged ": "blight"}
 		If InStr(item.name "`n" item.itembase, key)
 		{
 			map.tag := val

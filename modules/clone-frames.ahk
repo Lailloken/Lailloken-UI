@@ -39,7 +39,7 @@
 		If (A_LoopField = "")
 			continue
 		vars.cloneframes.list[A_LoopField] := {"enable": LLK_IniRead("ini\clone frames.ini", A_LoopField, "enable", 1)}
-		Gui, % StrReplace(A_LoopField, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs +E0x00080000 HWNDhwnd
+		Gui, % StrReplace(A_LoopField, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
 		vars.hwnd.cloneframes[A_LoopField] := hwnd
 		If vars.cloneframes.list[A_LoopField].enable
 			vars.cloneframes.enabled += 1
@@ -244,7 +244,7 @@ CloneframesShow()
 				Loop, Parse, remove, `;
 					If IsNumber(A_LoopField)
 						vars.GUI.RemoveAt(A_LoopField)
-				vars.hwnd.cloneframe_borders.main := hwnd, vars.GUI.Push([hwnd, 0]) ;add it to the GUI list so it's hidden when alt-tabbed
+				vars.hwnd.cloneframe_borders.main := hwnd
 				Gui, cloneframe_border: Add, Picture, % "x0 y0 w"val.height/2 " h"val.height/2 " HWNDhwnd", img\GUI\cloneframe_corner1.png
 				vars.hwnd.cloneframe_borders.corner1 := hwnd
 				Gui, cloneframe_border: Add, Picture, % "x"8 + val.width - val.height/2 " y"8 + val.height/2 " w"val.height/2 " h"val.height/2 " HWNDhwnd", img\GUI\cloneframe_corner2.png
@@ -257,7 +257,7 @@ CloneframesShow()
 				Gui, cloneframe_border2: Margin, 4, 4
 				Gui, cloneframe_border2: Color, Black
 				WinSet, TransColor, Black
-				vars.hwnd.cloneframe_borders.second := hwnd, vars.GUI.Push([hwnd, 0]) ;add it to the GUI list so it's hidden when alt-tabbed
+				vars.hwnd.cloneframe_borders.second := hwnd
 				Gui, cloneframe_border2: Add, Progress, % "x0 y0 w12 h12 BackgroundYellow Disabled HWNDhwnd", 0
 				vars.hwnd.cloneframe_borders.corner3 := hwnd
 			}
