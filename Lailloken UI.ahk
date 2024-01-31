@@ -1049,7 +1049,6 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		If (vars.update.1 >= 0)
 		{
 			FileCopyDir, % "update\update_" vars.updater.target_version.2 ".zip", update, 1
-			FileMoveDir, % "update\updater-testing-" vars.updater.target_version.1, % "update\lailloken-ui-" vars.updater.target_version.1, 2
 			If ErrorLevel || !FileExist("update\lailloken-ui-*")
 				vars.update := [-6, vars.updater.target_version.1] ;error-code -6 = zip-file couldn't be extracted
 		}
