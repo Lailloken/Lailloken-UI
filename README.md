@@ -48,6 +48,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | comparison with current gear (optional) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/03ae8243-bdac-4f06-be2f-f3ab43365380) |
 | eldritch implicits, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276010-99ce801f-e2d8-4c99-af37-026a1847abe2.png) |
 | explicits, rolls, (un)desired highlighting | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/e449237e-62ef-4abb-951a-f1b1b3b8631d) |
+| drop-tier and roll-percentages for uniques | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/b44f953e-0b51-4563-b661-a7a94533c881) |
+
 <br>
 
 ### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features) for items: single-hotkey access to features and popular 3rd-party websites  
