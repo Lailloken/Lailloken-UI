@@ -100,18 +100,6 @@ Blank(var)
 		Return 1
 }
 
-ClipRGB()
-{
-	local
-
-	If !(StrLen(Clipboard) = 6 || (StrLen(Clipboard) = 7 && SubStr(Clipboard, 1, 1) = "#"))
-	{
-		LLK_ToolTip(LangTrans("global_rgbinvalid"), 1.5,,,, "red")
-		Return
-	}
-	Return (StrLen(Clipboard) = 7) ? SubStr(Clipboard, 2) : Clipboard
-}
-
 CreateRegex(string, database)
 {
 	local
@@ -351,7 +339,7 @@ Init_client()
 	WinGetPos, xScreenOffset_monitor, yScreenOffSet_monitor, width_native, height_native
 	Gui, Test: Destroy
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
-	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native} ;, "hTask": h, "wTask": w, "xTask": x, "yTask": y}
+	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native, "xc": xScreenOffset_monitor + width_native / 2, "yc": yScreenOffSet_monitor + height_native / 2}
 	
 	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "center"), vars.client.docked2 := LLK_IniRead("ini\config.ini", "Settings", "window-position vertical", "center")
 	vars.client.borderless := (vars.client.fullscreen = "true") ? 1 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
@@ -390,7 +378,7 @@ Init_client()
 	}
 	vars.client.x := vars.client.x0 := x, vars.client.y := vars.client.y0 := y
 	vars.client.w := vars.client.w0 := w, vars.client.h := vars.client.h0 := h
-
+	
 	;apply overlay offsets if client is running in bordered windowed mode
 	If (vars.client.fullscreen = "false") && !vars.client.borderless
 	{
@@ -591,7 +579,7 @@ Loop_main()
 	
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{
-		If vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
+		If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.poe_client) && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
 		Else If !vars.toolbar.drag && !GetKeyState(settings.hotkeys.tab, "P") && WinExist("ahk_id " vars.hwnd.LLK_panel.main) && !(LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2))
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
@@ -599,7 +587,7 @@ Loop_main()
 
 	If vars.general.cMouse
 		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|"), database := IsObject(vars.help[check][control]) ? vars.help : vars.help2
-	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 		HelpTooltip(check_help)
 	Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 		LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
@@ -700,6 +688,74 @@ Resolution_check()
 			Sleep, 100
 		}
 	}
+}
+
+RGB_Picker(current_rgb := "")
+{
+	local
+	global vars, settings
+	static palette
+
+	If !palette
+	{
+		palette := []
+		palette.Push(["330000", "660000", "990000", "CC0000", "FF0000", "FF3333", "FF6666", "FF9999", "FFCCCC"])
+		palette.Push(["331900", "663300", "994C00", "CC6600", "FF8000", "FF9933", "FFB266", "FFCC99", "FFE5CC"])
+		palette.Push(["333300", "666600", "999900", "CCCC00", "FFFF00", "FFFF33", "FFFF66", "FFFF99", "FFFFCC"])
+		palette.Push(["193300", "336600", "4C9900", "66CC00", "80FF00", "99FF33", "B2FF66", "CCFF99", "E5FFCC"])
+		palette.Push(["003300", "006600", "009900", "00CC00", "00FF00", "33FF33", "66FF66", "99FF99", "CCFFCC"])
+		palette.Push(["003319", "006633", "00994C", "00CC66", "00FF80", "33FF99", "66FFB2", "99FFCC", "CCFFE5"])
+		palette.Push(["003333", "006666", "009999", "00CCCC", "00FFFF", "33FFFF", "66FFFF", "99FFFF", "CCFFFF"])
+		palette.Push(["001933", "003366", "004C99", "0066CC", "0080FF", "3399FF", "66B2FF", "99CCFF", "CCE5FF"])
+		palette.Push(["000033", "000066", "000099", "0000CC", "0000FF", "3333FF", "6666FF", "9999FF", "CCCCFF"])
+		palette.Push(["190033", "330066", "4C0099", "6600CC", "7F00FF", "9933FF", "B266FF", "CC99FF", "E5CCFF"])
+		palette.Push(["330033", "660066", "990099", "CC00CC", "FF00FF", "FF33FF", "FF66FF", "FF99FF", "FFCCFF"])
+		palette.Push(["330019", "660033", "99004C", "CC0066", "FF007F", "FF3399", "FF66B2", "FF99CC", "FFCCE5"])
+		palette.Push(["000000", "202020", "404040", "606060", "808080", "A0A0A0", "C0C0C0", "E0E0E0", "FFFFFF"])
+	}
+	hwnd_GUI := {}
+	Gui, RGB_palette: New, -Caption -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Border HWNDhwnd +E0x02000000 +E0x00080000 HWNDhwnd_palette
+	Gui, RGB_palette: Color, Black
+	Gui, RGB_palette: Font, % "s" settings.general.fSize, % vars.system.font
+	Gui, RGB_palette: Margin, % settings.general.fWidth / 2, % settings.general.fWidth / 2
+	For index0, val0 in palette
+		For index, val in val0
+		{
+			style := (A_Index = 1) ? "Section " (index0 != 1 ? "ys x+-1" : "") : "xs y+" (LLK_IsBetween(index, 5, 6) ? settings.general.fWidth / 5 : -1), columns := index0
+			If (current_rgb = val)
+			{
+				Gui, RGB_palette: Add, Text, % style " Center 0x200 BackgroundTrans w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " c" (index >= 5 ? "Black" : "White"), X
+				style := "xp yp"
+			}
+			Gui, RGB_palette: Add, Progress, % style " Disabled BackgroundBlack c" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " HWNDhwnd", 100
+			hwnd_GUI[hwnd] := val
+		}
+	Gui, RGB_palette: Show, % "NA x10000 y10000"
+	WinGetPos,,, w, h, ahk_id %hwnd_palette%
+	xPos := vars.general.xMouse - (vars.general.xMouse - vars.monitor.x + w >= vars.monitor.w ? w - settings.general.fWidth : settings.general.fWidth)
+	yPos := vars.general.yMouse - (vars.general.yMouse - vars.monitor.y + h >= vars.monitor.h ? h - settings.general.fWidth : settings.general.fWidth)
+	KeyWait, LButton
+	Gui, RGB_palette: Show, % "x" xPos " y" yPos
+	While (vars.general.wMouse != hwnd_palette) && !timeout
+	{
+		If !start
+			start := A_TickCount
+		If (A_TickCount >= start + 1000) && (vars.general.wMouse != hwnd_palette)
+			timeout := 1
+		Sleep 10
+	}
+	While Blank(picked_rgb) && (vars.general.wMouse = hwnd_palette)
+	{
+		If hwnd_GUI.HasKey(vars.general.cMouse) && (hover_last != vars.general.cMouse)
+			hover_last := vars.general.cMouse
+		Else hover_last := ""
+		If GetKeyState("LButton", "P")
+			picked_rgb := hwnd_GUI[hover_last]
+		Sleep 10
+	}
+	KeyWait, LButton
+	Gui, RGB_palette: Destroy
+	Return picked_rgb
 }
 
 RightClick()
@@ -1098,7 +1154,7 @@ UpdateDownload(mode := "")
 	If (mode)
 	{
 		HWND_bar := mode
-		SetTimer, UpdateDownload, 50
+		SetTimer, UpdateDownload, 500
 	}
 
 	dl_bar += (dl_bar = 10) ? -10 : 1
@@ -1172,36 +1228,37 @@ LLK_ControlGetPos(cHWND, return_val)
 	}
 }
 
-LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "") ; raw parameter: 1 for GUIs with a static size that require raw coordinates
+LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center := 0) ; raw parameter: 1 for GUIs with a static size that require raw coordinates
 {
 	local
 	global vars, settings
 	
 	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1
 	MouseGetPos, xPos, yPos
+	xMouse := xPos, yMouse := yPos
 	If !gui_name
 		gui_name := A_Gui
 
 	If !gui_name
 	{
 		LLK_ToolTip("missing gui-name",,,,, "red")
-		sleep 100
+		sleep 1000
 		Return
 	}
 
 	xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	xPos -= vars.monitor.x, yPos -= vars.monitor.y
 	If (xPos >= vars.monitor.w)
-		xPos := vars.monitor.w
+		xPos := vars.monitor.w - 1
 
-	If (xPos > vars.monitor.w / 2 - 1) && !raw
+	If (xPos >= vars.monitor.w / 2) && !raw
 		xTarget := xPos - width + 1
 	Else xTarget := xPos
 	
 	If (yPos >= vars.monitor.h)
-		yPos := vars.monitor.h
+		yPos := vars.monitor.h - 1
 	
-	If (yPos > vars.monitor.h / 2 - 1) && !raw
+	If (yPos >= vars.monitor.h / 2) && !raw
 		yTarget := yPos - height + 1
 	Else yTarget := yPos
 	
@@ -1209,6 +1266,9 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "") ; raw 
 		xTarget := vars.monitor.w - width, xPos := xTarget
 	If raw && (yTarget + height > vars.monitor.h)
 		yTarget := vars.monitor.h - height, yPos := yTarget
+
+	If center && LLK_IsBetween(xMouse, vars.client.xc * 0.95, vars.client.xc * 1.05)
+		xPos := "", xTarget := vars.client.xc - width/2 + 1
 
 	Gui, %gui_name%: Show, % "NA x"vars.monitor.x + xTarget " y"vars.monitor.y + yTarget
 }
@@ -1422,6 +1482,13 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
 		If WinExist("ahk_id " guiHWND) || !Blank(x)
 			Gui, %gui_name%: Destroy
 	}
+	Else If (mode = "check")
+	{
+		If vars.GUI[gui_index].dummy
+			ControlGetPos, x,,,,, % "ahk_id " vars.GUI[gui_index].dummy
+		Return x
+	}
+
 	For index, val in vars.GUI ;check for GUIs that have already been destroyed
 	{
 		ControlGetPos, x,,,,, % "ahk_id " val.dummy
@@ -1506,7 +1573,7 @@ LLK_StringRemove(string, characters)
 	Return string
 }
 
-LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "White", size := "", align := "", trans := "", center := 0)
+LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "White", size := "", align := "", trans := "", center := 0, background := "")
 {
 	local
 	global vars, settings
@@ -1519,7 +1586,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	If !size
 		size := settings.general.fSize
 
-	If !trans
+	If Blank(trans)
 		trans := 255
 
 	If align
@@ -1529,7 +1596,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	yPos := InStr(y, "+") || InStr(y, "-") ? vars.general.yMouse + y : (y != "") ? y : vars.general.yMouse
 	
 	Gui, tooltip%name%: New, % "-DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border +E0x02000000 +E0x00080000 HWNDhwnd"
-	Gui, tooltip%name%: Color, Black
+	Gui, tooltip%name%: Color, % Blank(background) ? "Black" : background
 	Gui, tooltip%name%: Margin, % settings.general.fwidth / 2, 0
 	WinSet, Transparent, % trans
 	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
