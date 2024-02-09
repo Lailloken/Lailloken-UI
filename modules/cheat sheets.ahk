@@ -222,7 +222,6 @@ CheatsheetAdvanced(name, hotkey)
 		Gui, cheatsheet: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, cheatsheet: Color, Black
 		Gui, cheatsheet: Margin, 0, 0
-		WinSet, Transparent, 255
 		Gui, cheatsheet: Font, % "s"settings.cheatsheets.fSize " cWhite", % vars.system.font
 		vars.hwnd.cheatsheet := {"main": hwnd}
 		
@@ -923,7 +922,6 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 	Gui, %GUI_name%: New, -DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDcheatsheet_menu, Lailloken UI: cheat-sheet
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
-	;WinSet, Transparent, %trans%
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.cheatsheet_menu.main, vars.hwnd.cheatsheet_menu := {"main": cheatsheet_menu}
 
