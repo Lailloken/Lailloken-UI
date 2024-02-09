@@ -290,7 +290,13 @@
 		lvltracker_multipaste		=	"multi-paste not supported;for ascendancy-trees"
 		lvltracker_multipaste		=	"# entries starting from # will potentially be overwritten.;Continue?"	;## these are placeholders for numbers
 		lvltracker_noimages		=	"couldn't find;image-files"
-
+		lvltracker_timererror		=	"can't resume: run complete"			;## campaign timer can't be resumed because the run has finished
+		lvltracker_timererror		=	"enter <twilight strand> to reset"		;## timer can only be reset with a fresh character
+		lvltracker_timererror		=	"pause the timer first"
+		lvltracker_timererror		=	"blocked by hideout-pause setting"		;## there's a setting "pause timer in hideouts" which blocks manual resuming
+		lvltracker_timermessage		=	"run started"
+		lvltracker_timermessage		=	"timer resumed"
+		lvltracker_timermessage		=	"timer paused"
 
 
 ;#####################################################
