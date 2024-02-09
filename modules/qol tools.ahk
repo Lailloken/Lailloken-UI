@@ -593,7 +593,7 @@ Notepad(cHWND := "", hotkey := "")
 	}
 	Else If (check = "drag")
 	{
-		WinGetPos, x0, y0, w0, h0, % "ahk_id "vars.hwnd.notepad.note
+		WinGetPos, x0, y0, w0, h0, % "ahk_id " vars.hwnd.notepad.note
 		Notepad("save")
 		While GetKeyState("LButton", "P")
 		{
@@ -629,15 +629,15 @@ Notepad(cHWND := "", hotkey := "")
 	vars.hwnd.notepad.add := hwnd
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize
 
-	NotepadReload(), check := 0
+	NotepadReload(), check := 0, entry_count := 0
 	For entry, text in vars.notepad.entries
 	{
 		If (entry = "notepad_reminder_feature")
 			Continue
-		vars.notepad.selected_entry .= (A_Index = 1 && Blank(vars.notepad.selected_entry)) ? entry : ""
+		entry_count += 1, vars.notepad.selected_entry .= (entry_count = 1 && Blank(vars.notepad.selected_entry)) ? entry : ""
 		If (vars.notepad.selected_entry = entry)
 			Gui, %GUI_name%: Font, underline
-		Gui, %GUI_name%: Add, Text, % "xs w" w (A_Index = 1 ? " Section" : " y+-1") " BackgroundTrans Border Center HWNDhwnd gNotepad c" vars.notepad.settings[entry].1, % StrReplace(entry, "&", "&&")
+		Gui, %GUI_name%: Add, Text, % "xs w" w . (entry_count = 1 ? " Section" : " y+-1") " BackgroundTrans Border Center HWNDhwnd gNotepad c" vars.notepad.settings[entry].1, % StrReplace(entry, "&", "&&")
 		ControlGetPos,,,, h,, ahk_id %hwnd%
 		If (vars.notepad.selected_entry = entry)
 			Gui, %GUI_name%: Font, norm
@@ -649,7 +649,6 @@ Notepad(cHWND := "", hotkey := "")
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd11 c" vars.notepad.settings[entry].2, 100
 		vars.hwnd.notepad["textcolor_" entry] := hwnd0, vars.hwnd.notepad["textcolor_" entry "_bar"] := vars.hwnd.help_tooltips["notepad_colors" handle] := hwnd01, check += !Blank(text) ? 1 : 0
 		vars.hwnd.notepad["backcolor_" entry] := hwnd1, vars.hwnd.notepad["backcolor_" entry "_bar"] := vars.hwnd.help_tooltips["notepad_colors1" handle] := hwnd11, handle1 := handle "|", handle .= "|"
-		
 	}
 	If (sum_height)
 	{
@@ -828,8 +827,6 @@ NotepadWidget(tab, mode := 0)
 
 	xPos := Blank(vars.notepad_widgets[tab].x) ? vars.client.xc - w/2 + 1 : vars.notepad_widgets[tab].x, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
 	yPos := Blank(vars.notepad_widgets[tab].y) ? vars.monitor.y : vars.notepad_widgets[tab].y, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
-	;vars.notepad_widgets[tab].x := !Blank(x) ? x : vars.client.xc - w/2, xPos := (vars.notepad_widgets[tab].x > vars.monitor.w / 2 - 1) ? vars.notepad_widgets[tab].x - w + 1 : vars.notepad_widgets[tab].x
-	;vars.notepad_widgets[tab].y := !Blank(y) ? y : vars.notepad_widgets[tab].y, yPos := (vars.notepad_widgets[tab].y > vars.monitor.h / 2 - 1) ? vars.notepad_widgets[tab].y - h + 1 : vars.notepad_widgets[tab].y
 	Gui, %GUI_name%: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(widget, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
