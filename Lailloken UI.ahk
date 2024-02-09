@@ -1602,13 +1602,14 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
 	vars.hwnd["tooltip" name] := hwnd
 	
-	Gui, tooltip%name%: Add, Text, % "c"color align , % message
+	Gui, tooltip%name%: Add, Text, % "c"color align, % message
 	Gui, tooltip%name%: Show, % "NA x10000 y10000"
-	WinGetPos,,, w, h
+	WinGetPos,,, w, h, ahk_id %hwnd%
 	
 	If center
 		xPos -= w//2
-	xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos
+	
+	xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : (xPos < vars.monitor.x ? vars.monitor.x : xPos)
 	If IsNumber(y)
 		yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
 	Else yPos := (yPos - h < vars.monitor.y) ? vars.monitor.y + h : yPos
