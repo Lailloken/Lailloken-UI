@@ -8,8 +8,9 @@
 
 	settings.alarm := {"fSize": LLK_IniRead("ini\qol tools.ini", "alarm", "font-size", settings.general.fSize)}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
-	settings.alarm.color := LLK_IniRead("ini\qol tools.ini", "alarm", "font-color", "White")
-	;settings.alarm.trans := LLK_IniRead("ini\qol tools.ini", "alarm", "transparency", 250)
+	settings.alarm.color := LLK_IniRead("ini\qol tools.ini", "alarm", "font-color", "FFFFFF")
+	settings.alarm.color1 := LLK_IniRead("ini\qol tools.ini", "alarm", "background color", "000000")
+	;settings.alarm.trans := LLK_IniRead("ini\qol tools.ini", "alarm", "transparency", 5), settings.alarm.trans := (settings.alarm.trans > 5) ? 5 : settings.alarm.trans
 	settings.alarm.xPos := LLK_IniRead("ini\qol tools.ini", "alarm", "x-coordinate")
 	settings.alarm.yPos := LLK_IniRead("ini\qol tools.ini", "alarm", "y-coordinate")
 	vars.alarm := {"timestamp": LLK_IniRead("ini\qol tools.ini", "alarm", "timestamp")}, vars.alarm.timestamp := (vars.alarm.timestamp < A_Now) ? "" : vars.alarm.timestamp
@@ -19,14 +20,11 @@
 
 	settings.notepad := {"fSize": LLK_IniRead("ini\qol tools.ini", "notepad", "font-size", settings.general.fSize)}
 	LLK_FontDimensions(settings.notepad.fSize, font_height, font_width), settings.notepad.fHeight := font_height, settings.notepad.fWidth := font_width
-	settings.notepad.color := LLK_IniRead("ini\qol tools.ini", "notepad", "font-color", "White")
-	settings.notepad.trans := LLK_IniRead("ini\qol tools.ini", "notepad", "transparency", 250)
-	settings.notepad.xButton := LLK_IniRead("ini\qol tools.ini", "notepad", "x-coordinate button")
-	settings.notepad.yButton := LLK_IniRead("ini\qol tools.ini", "notepad", "y-coordinate button")
+	settings.notepad.color := LLK_IniRead("ini\qol tools.ini", "notepad", "font-color", "FFFFFF")
+	settings.notepad.color1 := LLK_IniRead("ini\qol tools.ini", "notepad", "background color", "000000")
+	settings.notepad.trans := LLK_IniRead("ini\qol tools.ini", "notepad", "transparency", 5), settings.notepad.trans := (settings.notepad.trans > 5) ? 5 : settings.notepad.trans
 	settings.notepad.xQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "x-coordinate quicknote")
 	settings.notepad.yQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "y-coordinate quicknote")
-	settings.notepad.oButton := LLK_IniRead("ini\qol tools.ini", "notepad", "button-offset", 1)
-	settings.notepad.sButton := vars.monitor.w * 0.03 * settings.notepad.oButton
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
 }
 
@@ -70,13 +68,13 @@ Alarm(click := 0)
 				Gui, % GuiName(vars.hwnd.alarm.main) ": +E0x20"
 				transform := 1
 			}			
-			LLK_Drag(w, h, x, y,, "alarm" toggle)
+			LLK_Drag(w, h, x, y,, "alarm" toggle, 1)
 			Sleep 1
 		}
 	}
 	If WinExist("ahk_id "vars.hwnd.alarm.main)
 		Gui, % GuiName(vars.hwnd.alarm.main) ": -E0x20"
-	If x
+	If !Blank(y)
 	{
 		settings.alarm.xPos := x, settings.alarm.yPos := y
 		IniWrite, % x, ini\qol tools.ini, alarm, x-coordinate
@@ -120,7 +118,7 @@ Alarm(click := 0)
 
 	toggle := !toggle, GUI_name := "alarm" toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDalarm"(vars.alarm.toggle || vars.alarm.timestamp <= A_Now ? "" : " +E0x20")
-	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Color, % settings.alarm.color1
 	Gui, %GUI_name%: Margin, % 0, 0
 	Gui, %GUI_name%: Font, % "s" settings.alarm.fSize " c"settings.alarm.color, % vars.system.font
 	hwnd_old := vars.hwnd.alarm.main, vars.hwnd.alarm := {"main": alarm}
@@ -137,11 +135,9 @@ Alarm(click := 0)
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %alarm%
 	vars.alarm.wPanel := w, vars.alarm.hPanel := h
-	If IsNumber(settings.alarm.xPos)
-		xPos := (settings.alarm.xPos > vars.monitor.w/2 - 1) ? vars.monitor.x + settings.alarm.xPos - (w - 1) : vars.monitor.x + settings.alarm.xPos
-	Else xPos := vars.client.xc - w/2
-	yPos := !IsNumber(settings.alarm.yPos) ? vars.client.y : (settings.alarm.yPos > vars.monitor.h/2 - 1) ? settings.alarm.yPos - (h - 1) : settings.alarm.yPos
-	Gui, %GUI_name%: Show, % "NA x"xPos " y"vars.monitor.y + yPos
+	xPos := Blank(settings.alarm.xPos) ? vars.client.xc - w / 2 + 1 : settings.alarm.xPos, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
+	yPos := Blank(settings.alarm.yPos) ? vars.client.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
 	WinGetPos, x, y,,, ahk_id %alarm%
 	vars.alarm.xPanel := x, vars.alarm.yPanel := y
 	LLK_Overlay(alarm, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.alarm.drag := 0
@@ -410,12 +406,12 @@ Lab(mode := "", override := 0)
 		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_mismatch") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.difficulty "`n" LangTrans("lab_mismatch", 2) " " difficulties[vars.log.arealevel]
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
 		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, img\GUI\square_red_trans.png
-		mismatch := 1
+		vars.lab.mismatch := 1
 	}
 
 	For index, room in vars.lab.compass.rooms
 	{
-		If InStr(vars.log.areaID, "airlock")
+		If InStr(vars.log.areaID, "airlock") || vars.lab.mismatch || vars.lab.outdated
 			Continue
 		If LLK_HasVal(vars.lab.exits.numbers, index) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1) ;&& !(vars.lab.room.1 > index)
 			Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center x"(room.x + 12) * scale - dim/2 " w"dim*2 " y"(room.y + 48) * scale - text_height, % SubStr(room.name, 1, 2) " " SubStr(room.name, InStr(room.name, " ") + 1, 2)
@@ -447,7 +443,7 @@ Lab(mode := "", override := 0)
 	Gui, %GUI_name2%: Margin, 0, 0
 	Gui, %GUI_name2%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
 	
-	Gui, %GUI_name2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
+	Gui, %GUI_name2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || vars.lab.mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
 	vars.hwnd.lab.button := lab2, vars.hwnd.help_tooltips["lab_button"] := hwnd
 	Gui, %GUI_name2%: Show, % "NA x"x " y"y
 	LLK_Overlay(lab, "show",, GUI_name), LLK_Overlay(lab2, "show",, GUI_name2)
@@ -474,29 +470,13 @@ Notepad(cHWND := "", hotkey := "")
 		{
 			IniWrite, % """" check_text """", ini\qol tools.ini, notepad, % vars.notepad.selected_entry
 			vars.notepad.entries[vars.notepad.selected_entry] := StrReplace(check_text, "(n)", "`n")
+			If vars.hwnd.notepad_widgets.HasKey(vars.notepad.selected_entry)
+				NotepadWidget(vars.notepad.selected_entry, 5)
 		}
 		Return
 	}
 
-	start := A_TickCount, check := LLK_HasVal(vars.hwnd.notepad, cHWND), skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget", "x-coordinate quicknote", "y-coordinate quicknote"]
-	control := SubStr(check, InStr(check, "_") + 1), sum_height := 0, max_width := vars.monitor.w*0.9, max_height := vars.monitor.h*0.9
-	/*
-	If (A_Gui = "notepad_button")
-		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.notepad_button.main
-	While (A_Gui = "notepad_button") && GetKeyState("LButton", "P")
-		If (A_TickCount >= start + 200)
-		{
-			LLK_Drag(w, h, x, y,, "notepad_button")
-			Sleep 1
-		}
-	If !Blank(x)
-	{
-		settings.notepad.xButton := x, settings.notepad.yButton := y
-		IniWrite, % settings.notepad.xButton, ini\qol tools.ini, notepad, x-coordinate button
-		IniWrite, % settings.notepad.yButton, ini\qol tools.ini, notepad, y-coordinate button
-		Return
-	}
-	*/
+	start := A_TickCount, check := LLK_HasVal(vars.hwnd.notepad, cHWND), control := SubStr(check, InStr(check, "_") + 1), sum_height := 0, max_width := vars.monitor.w*0.9, max_height := vars.monitor.h*0.9
 
 	If (check = "winbar")
 	{
@@ -505,13 +485,24 @@ Notepad(cHWND := "", hotkey := "")
 		{
 			If (A_TickCount >= start + 200)
 			{
-				LLK_Drag(vars.notepad.w, vars.notepad.h, xPos, yPos, 1, "notepad" toggle)
+				LLK_Drag(vars.notepad.w, vars.notepad.h, xPos, yPos, 1, "notepad" toggle, 1)
 				Sleep 1
 			}
 		}
-		If !Blank(xPos)
+		If !Blank(yPos)
 			vars.notepad.x := xPos, vars.notepad.y := yPos
 		Return
+	}
+	Else If InStr(check, "color_")
+	{
+		index := InStr(check, "textcolor_") ? 1 : 2
+		If (vars.system.click = 1)
+			rgb_picked := RGB_Picker(vars.notepad.settings[control][index])
+		If (vars.system.click = 1) && Blank(rgb_picked)
+			Return
+		Else vars.notepad.settings[control][index] := (vars.system.click = 1) ? rgb_picked : ""
+		IniWrite, % (vars.notepad.settings[control].1 = settings.notepad.color ? "" : vars.notepad.settings[control].1) "|" (vars.notepad.settings[control].2 = settings.notepad.color1 ? "" : vars.notepad.settings[control].2), ini\qol tools.ini, notepad tab settings, % control
+		Notepad("save"), refresh_widget := vars.hwnd.notepad_widgets.HasKey(control) ? 1 : 0
 	}
 	Else If (A_Gui = "notepad_reminder")
 	{
@@ -567,7 +558,7 @@ Notepad(cHWND := "", hotkey := "")
 			LLK_ToolTip(LangTrans("global_errorname", 2) . (error ? ":`n" error : ""), error ? 2 : 1, x, y + h,, "red")
 			Return
 		}
-		Notepad("save")
+		Notepad("save"), vars.notepad.selected_entry := name
 		IniWrite, % "", ini\qol tools.ini, notepad, % name
 	}
 	Else If InStr(check, "select_")
@@ -588,6 +579,7 @@ Notepad(cHWND := "", hotkey := "")
 			If LLK_Progress(vars.hwnd.notepad["delbar_"control], "RButton")
 			{
 				IniDelete, ini\qol tools.ini, notepad, % control
+				IniDelete, ini\qol tools.ini, notepad tab settings, % control
 				vars.notepad.selected_entry := (control = vars.notepad.selected_entry) ? "" : vars.notepad.selected_entry
 				If vars.hwnd.notepad_widgets.HasKey(control)
 					LLK_Overlay(vars.hwnd.notepad_widgets[control], "destroy"), vars.hwnd.notepad_widgets.Delete(control)
@@ -601,7 +593,7 @@ Notepad(cHWND := "", hotkey := "")
 	}
 	Else If (check = "drag")
 	{
-		WinGetPos, x0, y0, w0, h0, % "ahk_id "vars.hwnd.notepad.note
+		WinGetPos, x0, y0, w0, h0, % "ahk_id " vars.hwnd.notepad.note
 		Notepad("save")
 		While GetKeyState("LButton", "P")
 		{
@@ -611,7 +603,7 @@ Notepad(cHWND := "", hotkey := "")
 			Sleep 1
 		}
 	}
-	wBox := !wBox ? settings.general.fWidth*20 : wBox, hBox := !hBox ? settings.general.fWidth*30 : hBox
+	wBox := !wBox ? settings.notepad.fWidth*20 : wBox, hBox := !hBox ? settings.notepad.fWidth*30 : hBox
 	toggle := !toggle, GUI_name := "notepad" toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDnotepad"
 	Gui, %GUI_name%: Color, Black
@@ -625,7 +617,10 @@ Notepad(cHWND := "", hotkey := "")
 	vars.hwnd.notepad.winx := hwnd
 
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize
-	Gui, %GUI_name%: Add, Text, % "xs x"settings.general.fWidth/2 " Section HWNDhwnd", % LangTrans("notepad_add") " "
+	Gui, %GUI_name%: Add, Text, % "xs Section Hidden Border cBlack x"settings.general.fWidth/2, % "  "
+	Gui, %GUI_name%: Add, Text, % "ys x+-1 Hidden Border HWNDhwnd cBlack", % "  "
+	ControlGetPos,,, w2,,, ahk_id %hwnd%
+	Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd", % LangTrans("notepad_add") " "
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 4
 	ControlGetPos,,, w,,, ahk_id %hwnd%
 	Gui, %GUI_name%: Add, Edit, % "ys x+-1 r1 cBlack HWNDhwnd w"wBox
@@ -634,34 +629,43 @@ Notepad(cHWND := "", hotkey := "")
 	vars.hwnd.notepad.add := hwnd
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize
 
-	vars.notepad.entries := {}
-	Iniread, ini, ini\qol tools.ini, notepad
-	Loop, Parse, ini, `n, `r
-	{
-		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), "(n)", "`n"), val := (SubStr(val, 1, 1) = """") ? SubStr(val, 2, -1) : val
-		If LLK_HasVal(skip, key)
-			Continue
-		vars.notepad.entries[key] := val, check := 0
-	}
+	NotepadReload(), check := 0, entry_count := 0
 	For entry, text in vars.notepad.entries
 	{
-		vars.notepad.selected_entry .= (A_Index = 1 && Blank(vars.notepad.selected_entry)) ? entry : ""
-		color := (vars.notepad.selected_entry = entry) ? " cFuchsia" : "" 
-		Gui, %GUI_name%: Add, Text, % "xs" (A_Index = 1 ? " Section w"w " " : " y+-1 wp ") "BackgroundTrans Border Center HWNDhwnd gNotepad"color, % StrReplace(entry, "&", "&&")
+		If (entry = "notepad_reminder_feature")
+			Continue
+		entry_count += 1, vars.notepad.selected_entry .= (entry_count = 1 && Blank(vars.notepad.selected_entry)) ? entry : ""
+		If (vars.notepad.selected_entry = entry)
+			Gui, %GUI_name%: Font, underline
+		Gui, %GUI_name%: Add, Text, % "xs w" w . (entry_count = 1 ? " Section" : " y+-1") " BackgroundTrans Border Center HWNDhwnd gNotepad c" vars.notepad.settings[entry].1, % StrReplace(entry, "&", "&&")
 		ControlGetPos,,,, h,, ahk_id %hwnd%
-		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwndbar BackgroundBlack cRed Range0-500", 0
-		vars.hwnd.notepad["select_"entry] := hwnd, sum_height += h - 1, vars.hwnd.notepad["delbar_"entry] := vars.hwnd.help_tooltips["notepad_widget"handle] := hwndbar, handle .= "|", check += !Blank(text) ? 1 : 0
+		If (vars.notepad.selected_entry = entry)
+			Gui, %GUI_name%: Font, norm
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwndbar Range0-500 Background" vars.notepad.settings[entry].2 " c" vars.notepad.settings[entry].1, 0
+		vars.hwnd.notepad["select_"entry] := hwnd, sum_height += h - 1, vars.hwnd.notepad["delbar_"entry] := vars.hwnd.help_tooltips["notepad_widget"handle] := hwndbar
+		Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd0 gNotepad", % "  "
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd01 c" vars.notepad.settings[entry].1, 100
+		Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd1 gNotepad", % "  "
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd11 c" vars.notepad.settings[entry].2, 100
+		vars.hwnd.notepad["textcolor_" entry] := hwnd0, vars.hwnd.notepad["textcolor_" entry "_bar"] := vars.hwnd.help_tooltips["notepad_colors" handle] := hwnd01, check += !Blank(text) ? 1 : 0
+		vars.hwnd.notepad["backcolor_" entry] := hwnd1, vars.hwnd.notepad["backcolor_" entry "_bar"] := vars.hwnd.help_tooltips["notepad_colors1" handle] := hwnd11, handle1 := handle "|", handle .= "|"
 	}
 	If (sum_height)
 	{
 		If (check > 1)
 		{
-			Gui, %GUI_name%: Add, Text, % "xs y+-1 wp Border Center HWNDhwnd gNotepad", % LangTrans("notepad_group")
+			Gui, %GUI_name%: Add, Text, % "xs y+-1 w" w " Border BackgroundTrans Center HWNDhwnd gNotepad c" vars.notepad.settings["grouped widget"].1, % LangTrans("notepad_group")
 			ControlGetPos,,,, h,, ahk_id %hwnd%
-			vars.hwnd.notepad["select_grouped widget"] := vars.hwnd.help_tooltips["notepad_widget grouped"] := hwnd, sum_height + h - 1
-			
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwndbar Range0-500 Background" vars.notepad.settings["grouped widget"].2 " c" vars.notepad.settings["grouped widget"].1, 0
+			Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd0 gNotepad", % "  "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd01 c" vars.notepad.settings["grouped widget"].1, 100
+			Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd1 gNotepad", % "  "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd11 c" vars.notepad.settings["grouped widget"].2, 100
+			vars.hwnd.notepad["select_grouped widget"] := hwnd, vars.hwnd.help_tooltips["notepad_widget grouped"] := hwndbar, sum_height + h - 1
+			vars.hwnd.notepad["textcolor_grouped widget"] := hwnd0, vars.hwnd.notepad["textcolor_grouped widget_bar"] := vars.hwnd.help_tooltips["notepad_colors" handle1 "|"] := hwnd01
+			vars.hwnd.notepad["backcolor_grouped widget"] := hwnd1, vars.hwnd.notepad["backcolor_grouped widget_bar"] := vars.hwnd.help_tooltips["notepad_colors1" handle1 "|"] := hwnd11
 		}
-		Gui, %GUI_name%: Add, Text, % "xs wp Center BackgroundTrans HWNDhwnd0", % LangTrans("notepad_howto")
+		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %GUI_name%: Font, % "s" settings.notepad.fSize
 		Gui, %GUI_name%: Add, Edit, % "ys x+-1 cBlack -Wrap Multi Hidden HWNDhwnd"(Blank(vars.notepad.entries[vars.notepad.selected_entry]) ? " w"wBox : ""), % vars.notepad.entries[vars.notepad.selected_entry]
@@ -685,16 +689,36 @@ Notepad(cHWND := "", hotkey := "")
 	ControlMove,,,, w - settings.general.fWidth*2 + 1,, % "ahk_id "vars.hwnd.notepad.winbar
 	ControlMove,, w - settings.general.fWidth*2,,,, % "ahk_id "vars.hwnd.notepad.winx
 	Sleep 50
-	If !Blank(vars.notepad.x)
-	{
-		vars.notepad.x := (vars.notepad.x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : vars.notepad.x
-		vars.notepad.y := (vars.notepad.y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : vars.notepad.y
-		Gui, %GUI_name%: Show, % "NA x"vars.monitor.x + vars.notepad.x " y"vars.monitor.y + vars.notepad.y
-	}
-	Else Gui, %GUI_name%: Show, % "NA x"vars.client.xc - w/2 " y"vars.client.yc - h/2
-	WinGetPos, x, y,,, ahk_id %notepad%
-	vars.notepad.x := x - vars.monitor.x, vars.notepad.y := y - vars.monitor.y
+	xPos := Blank(vars.notepad.x) ? vars.client.xc - w/2 : (vars.notepad.x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : vars.notepad.x
+	yPos := Blank(vars.notepad.y) ? vars.client.yc - h/2 : (vars.notepad.y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : vars.notepad.y
+	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(notepad, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+	If refresh_widget
+		NotepadWidget(control)
+}
+
+NotepadReload()
+{
+	local
+	global vars, settings
+	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
+	
+	vars.notepad.entries := {"notepad_reminder_feature": vars.notepad.entries.notepad_reminder_feature}, vars.notepad.settings := {}
+	vars.notepad.settings["grouped widget"] := StrSplit(LLK_IniRead("ini\qol tools.ini", "notepad tab settings", "grouped widget", settings.notepad.color "|" settings.notepad.color1), "|")
+	Loop 2
+		If Blank(vars.notepad.settings["grouped widget"][A_Index])
+			vars.notepad.settings["grouped widget"][A_Index] := settings.notepad["color" (A_Index = 1 ? "" : "1")]
+	Iniread, ini, ini\qol tools.ini, notepad
+	Loop, Parse, ini, `n, `r
+	{
+		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), "(n)", "`n"), val := (SubStr(val, 1, 1) = """") ? SubStr(val, 2, -1) : val
+		If LLK_HasVal(skip, key)
+			Continue
+		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(LLK_IniRead("ini\qol tools.ini", "notepad tab settings", key, settings.notepad.color "|" settings.notepad.color1), "|")
+		Loop 2
+			If Blank(vars.notepad.settings[key][A_Index])
+				vars.notepad.settings[key][A_Index] := settings.notepad["color" (A_Index = 1 ? "" : "1")]
+	}
 }
 
 NotepadWidget(tab, mode := 0)
@@ -711,13 +735,13 @@ NotepadWidget(tab, mode := 0)
 		If !IsObject(vars.notepad.entries)
 			vars.notepad.entries := {}
 		LLK_PanelDimensions([reminder_text], settings.notepad.fSize, width, height)
-		vars.notepad.entries[tab] := reminder_text, vars.notepad_widgets[tab] := {"x": Blank(settings.notepad.xQuickNote) ? vars.client.xc - width//2 : settings.notepad.xQuickNote, "y": Blank(settings.notepad.xQuickNote) ? vars.client.y : settings.notepad.yQuickNote}
+		vars.notepad.entries[tab] := reminder_text, vars.notepad_widgets[tab] := {"x": Blank(settings.notepad.xQuickNote) ? vars.client.xc - width/2 + 1 : settings.notepad.xQuickNote, "y": Blank(settings.notepad.yQuickNote) ? vars.client.y : settings.notepad.yQuickNote}
 	}
 	Else
 	{
 		If (tab != "grouped widget") && Blank(vars.notepad.entries[tab]) && A_Gui
 		{
-			LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [tab]), 2,,,, "Red")
+			LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [StrReplace(tab, "&", "&&")]), 2,,,, "Red")
 			Return
 		}
 		If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
@@ -733,13 +757,16 @@ NotepadWidget(tab, mode := 0)
 			Return
 		}
 
-		longpress := InStr(A_Gui, "notepad") ? 1 : 0
-		While GetKeyState("LButton", "P") && !longpress
-			If (A_TickCount >= start + 200)
-				longpress := 1
+		If (mode != 5)
+		{
+			longpress := InStr(A_Gui, "notepad") ? 1 : 0
+			While GetKeyState("LButton", "P") && !longpress
+				If (A_TickCount >= start + 200)
+					longpress := 1
+		}
 
 		If (tab = "grouped widget" && mode = 4)
-			vars.notepad.active_widget += (vars.notepad.active_widget != vars.notepad.grouped_widget.Count()) ? 1 : 0, mode := 0
+			vars.notepad.active_widget += (vars.notepad.active_widget != vars.notepad["grouped widget"].Count()) ? 1 : 0, mode := 0
 		Else If (tab = "grouped widget" && mode = 3)
 			vars.notepad.active_widget -= (vars.notepad.active_widget > 1) ? 1 : 0, mode := 0
 		Else If !A_Gui && !longpress
@@ -748,24 +775,25 @@ NotepadWidget(tab, mode := 0)
 		If (tab = "grouped widget") && InStr(A_Gui, "notepad")
 		{
 			For key, val in vars.hwnd.notepad_widgets
-				LLK_Overlay(val, "destroy")
-			vars.hwnd.notepad_widgets := {}
-			vars.notepad.grouped_widget := []
+				If (key != "notepad_reminder_feature")
+					LLK_Overlay(val, "destroy"), vars.hwnd.notepad_widgets.Delete(key)
+			vars.notepad["grouped widget"] := []
 			For entry, text in vars.notepad.entries
-				If !Blank(text)
-					vars.notepad.grouped_widget.Push([entry, text])
+				If !Blank(text) && (entry != "notepad_reminder_feature")
+					vars.notepad["grouped widget"].Push([entry, text])
 		}		
 
-		If (tab != "grouped widget")
+		If !InStr("notepad_reminder_feature,grouped widget", tab)
 			LLK_Overlay(vars.hwnd.notepad_widgets["grouped widget"], "destroy"), vars.hwnd.notepad_widgets.Delete("grouped widget")
 	}
 
-	toggle := !toggle, GUI_name := "widget_" StrReplace(tab, " ", "_") . toggle
+	Loop, Parse, tab
+		parse_name .= LLK_IsType(A_LoopField, "alnum") ? A_LoopField : "_"
+	toggle := !toggle, GUI_name := "widget_" StrReplace(parse_name, " ", "_") . toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDwidget"(vars.notepad.toggle ? "" : " +E0x20")
-	Gui, %GUI_name%: Color, % (tab = "notepad_reminder_feature") ? "White" : "Black"
+	Gui, %GUI_name%: Color, % (tab = "notepad_reminder_feature") ? "White" : vars.notepad.settings[tab].2
 	Gui, %GUI_name%: Margin, % settings.notepad.fWidth/2, 0
-	Gui, %GUI_name%: Font, % "s" settings.notepad.fSize " c" (tab = "notepad_reminder_feature" ? "Red" : settings.notepad.color), % vars.system.font
-	;WinSet, Transparent, 255
+	Gui, %GUI_name%: Font, % "s" settings.notepad.fSize " c" (tab = "notepad_reminder_feature" ? "Red" : vars.notepad.settings[tab].1), % vars.system.font
 	hwnd_old := vars.hwnd.notepad_widgets[tab], vars.hwnd.notepad_widgets[tab] := widget
 	If (InStr(A_Gui, "notepad") || mode = 1)
 		LLK_Overlay(hwnd_old, "destroy")
@@ -773,29 +801,32 @@ NotepadWidget(tab, mode := 0)
 	If (tab = "grouped widget")
 	{
 		active := vars.notepad.active_widget := Blank(vars.notepad.active_widget) ? 1 : vars.notepad.active_widget
-		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(vars.notepad.grouped_widget[active].1, "&", "&&") " ("active "/" vars.notepad.grouped_widget.Count() "):`n" StrReplace(vars.notepad.grouped_widget[active].2, "&", "&&")
+		Gui, %GUI_name%: Add, Text, % "Section c" vars.notepad.settings["grouped widget"].1, % StrReplace(vars.notepad["grouped widget"][active].1, "&", "&&") " ("active "/" vars.notepad["grouped widget"].Count() "):`n" StrReplace(vars.notepad["grouped widget"][active].2, "&", "&&")
 	}
 	Else Gui, %GUI_name%: Add, Text, % "Section" (tab = "notepad_reminder_feature" ? " cRed" : ""), % StrReplace(vars.notepad.entries[tab], "&", "&&")
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %widget%
 	While longpress && (InStr(A_Gui, "notepad") || mode = 1) && GetKeyState("LButton", "P")
 	{
-		LLK_Drag(w, h, x, y,, GUI_name)
+		LLK_Drag(w, h, x, y,, GUI_name, 1)
 		Sleep 1
 	}
-	If longpress && (tab = "notepad_reminder_feature") && !Blank(x)
+	If longpress && (tab = "notepad_reminder_feature") && !Blank(y)
 	{
 		settings.notepad.xQuickNote := x, settings.notepad.yQuickNote := y
 		IniWrite, % x, ini\qol tools.ini, notepad, x-coordinate quicknote
 		IniWrite, % y, ini\qol tools.ini, notepad, y-coordinate quicknote
 	}
 
-	If !vars.notepad.toggle
-		WinSet, Transparent, % settings.notepad.trans, % "ahk_id "widget
+	If !vars.notepad.toggle && (tab != "notepad_reminder_feature")
+		WinSet, Transparent, % 50 * settings.notepad.trans, % "ahk_id "widget
 	If !IsObject(vars.notepad_widgets[tab])
 		vars.notepad_widgets[tab] := {}
-	vars.notepad_widgets[tab].x := !Blank(x) ? x : vars.notepad_widgets[tab].x, xPos := (vars.notepad_widgets[tab].x > vars.monitor.w / 2 - 1) ? vars.notepad_widgets[tab].x - w + 1 : vars.notepad_widgets[tab].x
-	vars.notepad_widgets[tab].y := !Blank(y) ? y : vars.notepad_widgets[tab].y, yPos := (vars.notepad_widgets[tab].y > vars.monitor.h / 2 - 1) ? vars.notepad_widgets[tab].y - h + 1 : vars.notepad_widgets[tab].y
+	If !Blank(y)
+		vars.notepad_widgets[tab].x := x, vars.notepad_widgets[tab].y := y
+
+	xPos := Blank(vars.notepad_widgets[tab].x) ? vars.client.xc - w/2 + 1 : vars.notepad_widgets[tab].x, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
+	yPos := Blank(vars.notepad_widgets[tab].y) ? vars.monitor.y : vars.notepad_widgets[tab].y, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
 	Gui, %GUI_name%: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(widget, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }

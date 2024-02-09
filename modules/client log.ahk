@@ -55,8 +55,8 @@ LogLoop(mode := 0)
 			If (A_Index = 1) && !Blank(%A_LoopField%)
 				vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
 		}
-		If (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && WinExist("ahk_id "vars.hwnd.leveltracker.main) ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
-			LeveltrackerProgress(1)
+		If (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
+			LeveltrackerProgress()
 		If settings.qol.alarm && vars.alarm.timestamp && (areaID = "1_1_1") ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
 			vars.alarm.timestamp := A_Now
 
@@ -89,11 +89,7 @@ LogLoop(mode := 0)
 		vars.lab.rooms[vars.lab.room.1].seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
-	{
 		Leveltracker("+")
-		If vars.leveltracker.overlays
-			LeveltrackerOverlays()
-	}
 	
 	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname) && !vars.mapinfo.active_map.expedition_filter
 	{
@@ -109,15 +105,15 @@ LogLoop(mode := 0)
 	MaptrackerTimer()
 	LeveltrackerTimer()
 
-	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && !vars.leveltracker.button_color
+	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && (vars.leveltracker.gear_ready != vars.leveltracker.gear_counter)
 	{
-		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker1.png
-		vars.leveltracker.button_color := 1
+		GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % vars.leveltracker.gear_ready
+		vars.leveltracker.gear_counter := vars.leveltracker.gear_ready
 	}
-	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.button_color
+	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.gear_counter
 	{
-		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, % "img\GUI\leveltracker" (vars.hwnd.leveltracker.main ? "" : "0") ".png"
-		vars.leveltracker.button_color := 0
+		GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % ""
+		vars.leveltracker.gear_counter := 0
 	}
 }
 

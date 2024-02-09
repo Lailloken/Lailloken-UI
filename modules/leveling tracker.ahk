@@ -28,18 +28,15 @@
 	settings.leveltracker.geartracker := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable geartracker", 0)
 	settings.leveltracker.expbar := LLK_IniRead("ini\leveling tracker.ini", "Settings", "exp-bar offset", 0)
 	settings.leveltracker.layouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable zone-layout overlay", 0)
-	settings.leveltracker.hints := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable additional hints", 0)
+	settings.leveltracker.hints := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable additional hints", 1)
 	settings.leveltracker.fSize := LLK_IniRead("ini\leveling tracker.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width)
 	settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
 	settings.leveltracker.pob := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable pob-screencap", 0)
-	settings.leveltracker.trans := LLK_IniRead("ini\leveling tracker.ini", "Settings", "transparency", 250)
-	settings.leveltracker.pos := LLK_IniRead("ini\leveling tracker.ini", "Settings", "overlay-position", "bottom")
-	settings.leveltracker.oButton := LLK_IniRead("ini\leveling tracker.ini", "Settings", "button-offset", 1)
-	settings.leveltracker.sButton := Floor(vars.monitor.w* 0.03* settings.leveltracker.oButton)
-	settings.leveltracker.xButton := LLK_IniRead("ini\leveling tracker.ini", "UI", "button xcoord")
-	settings.leveltracker.yButton := LLK_IniRead("ini\leveling tracker.ini", "UI", "button ycoord")
-	settings.leveltracker.xLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts x", 0)
+	settings.leveltracker.trans := LLK_IniRead("ini\leveling tracker.ini", "Settings", "transparency", 5), settings.leveltracker.trans := (settings.leveltracker.trans > 5) ? 5 : settings.leveltracker.trans
+	settings.leveltracker.xCoord := LLK_IniRead("ini\leveling tracker.ini", "Settings", "x-coordinate")
+	settings.leveltracker.yCoord := LLK_IniRead("ini\leveling tracker.ini", "Settings", "y-coordinate")
+	settings.leveltracker.xLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts x")
 	settings.leveltracker.yLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts y")
 	settings.leveltracker.sLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts size", 8)
 	settings.leveltracker.aLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts arrangement", "vertical")
@@ -222,7 +219,7 @@ GeartrackerGUI(mode := "")
 		}
 		Gui, %GUI_name%: Show, % "NA x10000 y10000"
 		WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.geartracker.main
-		Gui, %GUI_name%: Show, % (mode = "refresh" ? "Hide" : "NA") " x"vars.client.xc - w//2 " y"vars.client.y + vars.client.h - h
+		Gui, %GUI_name%: Show, % (mode = "refresh" ? "Hide" : "NA") " x"vars.client.xc - w//2 " y"vars.client.yc - h / 2
 		LLK_Overlay(vars.hwnd.geartracker.main, (mode = "refresh") ? "hide" : "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	}
 }
@@ -241,12 +238,12 @@ Leveltracker(cHWND := "", hotkey := "")
 	If InStr("+-", cHWND) || check || InStr(A_Gui, "settings_menu")
 	{
 		guide := vars.leveltracker.guide ;short-cut variable
-		If (check = "+" || cHWND = "+") ;clicking the forward button
+		If (hotkey = 1 && check = "+") || (cHWND = "+") ;clicking the forward button
 		{
 			If (guide.group1[guide.group1.Count()] = guide.import[guide.import.Count()]) ;end-of-guide reached, can't go further
 			{
-				Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
+				;Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
+				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.coords.y1 - settings.general.fHeight + 1,, "yellow",,,, 1)
 				KeyWait, LButton
 				Return
 			}
@@ -273,8 +270,8 @@ Leveltracker(cHWND := "", hotkey := "")
 
 			If (loop = 1000) && !area_check
 			{
-				Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip(LangTrans("lvltracker_fastforwarderror"), 3, vars.client.xc , vars.leveltracker.y - settings.general.fHeight + 1,, "red",,,, 1)
+				;Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
+				LLK_ToolTip(LangTrans("lvltracker_fastforwarderror"), 3, vars.client.xc, vars.leveltracker.coords.y1 - settings.general.fHeight + 1,, "red",,,, 1)
 				vars.leveltracker.fast := 0
 				KeyWait, LButton
 				Return
@@ -288,7 +285,7 @@ Leveltracker(cHWND := "", hotkey := "")
 					guide.progress.Push(step)
 					IniWrite, % step, ini\leveling guide.ini, progress, % "step_"guide.progress.MaxIndex()
 				}
-				LeveltrackerProgress()
+				LeveltrackerProgress(1)
 				If LLK_HasVal(guide.group1, "an_end_to_hunger", 1) || (guide.target_area = vars.log.areaID)
 					Break
 			}
@@ -300,12 +297,12 @@ Leveltracker(cHWND := "", hotkey := "")
 			KeyWait, LButton
 			Return
 		}
-		If (check = "-" || cHWND = "-") ;clicking the backward button
+		If (hotkey = 1 && check = "-") || (cHWND = "-") ;clicking the backward button
 		{
 			If !guide.progress.Count() ;guide-start reached, can't to further
 			{
-				Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
-				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, "yellow",,,, 1)
+				;Gui, % GuiName(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
+				LLK_ToolTip(LangTrans("lvltracker_endreached"),, vars.client.xc, vars.leveltracker.coords.y1 - settings.general.fHeight + 1,, "yellow",,,, 1)
 				KeyWait, LButton
 				Return
 			}
@@ -323,7 +320,7 @@ Leveltracker(cHWND := "", hotkey := "")
 			
 			Loop, % vars.leveltracker.guide.group0.Count()
 			{
-				IniDelete, ini\leveling guide.ini, progress, % "step_"guide.progress.MaxIndex()
+				IniDelete, ini\leveling guide.ini, progress, % "step_" guide.progress.MaxIndex()
 				vars.leveltracker.guide.progress.Pop()
 			}
 			LeveltrackerProgress()
@@ -331,10 +328,49 @@ Leveltracker(cHWND := "", hotkey := "")
 			KeyWait, LButton
 			Return
 		}
-		LeveltrackerProgress()
+		If (check = "drag")
+		{
+			If (hotkey = 2)
+				settings.leveltracker.xCoord := "", settings.leveltracker.yCoord := "", write := 1
+			start := A_TickCount
+			While (hotkey = 1) && GetKEyState("LButton", "P")
+				If (A_TickCount >= start + 500)
+				{
+					If !dummy_gui
+					{
+						Gui, dummy_gui: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +E0x20
+						Gui, dummy_gui: Margin, 0, 0
+						Gui, dummy_gui: Color, Black
+						WinSet, Transparent, % 100 + settings.leveltracker.trans * 30
+						Gui, dummy_gui: Add, Text, % "Border w" vars.leveltracker.coords.w + 2 " h" vars.leveltracker.coords.h - 1
+						Gui, dummy_gui: Show, % "NA x10000 y10000"
+						vars.leveltracker.drag := dummy_gui := 1, vars.leveltracker.fade := 0
+					}
+					LLK_Drag(vars.leveltracker.coords.w + 2, vars.leveltracker.coords.h - 1, xDummy, yDummy, 0, "dummy_gui", 1)
+					Sleep 1
+				}
+			vars.leveltracker.drag := 0
+			If !Blank(xDummy) || !Blank(yDummy)
+			{
+				settings.leveltracker.xCoord := xDummy - (xDummy >= vars.monitor.w / 2 ? 1 : 0), settings.leveltracker.yCoord := yDummy + (yDummy >= vars.monitor.h / 2 ? 2 : 0), write := 1
+				Gui, dummy_gui: Destroy
+			}
+			If write
+			{
+				IniWrite, % settings.leveltracker.xCoord, ini\leveling tracker.ini, Settings, x-coordinate
+				IniWrite, % settings.leveltracker.yCoord, ini\leveling tracker.ini, Settings, y-coordinate
+			}
+		}
+		If (check = "reset_bar")
+		{
+			If (hotkey = 1)
+				LeveltrackerTimer("pause")
+			Else LeveltrackerTimer("reset")
+		}
+		Else LeveltrackerProgress(1)
 	}
 
-	If (cHWND != vars.hwnd.LLK_panel.leveltracker)
+	If !InStr(vars.hwnd.LLK_panel.leveltracker ", " vars.hwnd.LLK_panel.leveltracker_text, cHWND) || InStr(A_Gui, "settings_menu")
 		Return
 	
 	If (hotkey = 2)
@@ -345,25 +381,6 @@ Leveltracker(cHWND := "", hotkey := "")
 	}
 	If settings.leveltracker.geartracker && Blank(vars.leveltracker.gear_ready)
 		GeartrackerGUI("refresh")
-	start := A_TickCount
-	While GetKeyState("LButton", "P") && (A_Gui = "leveltracker_button") ;dragging the button
-	{
-		If (A_TickCount >= start + 250)
-		{
-			WinGetPos,,, width, height, % "ahk_id " vars.hwnd.leveltracker_button.main
-			While GetKeyState("LButton", "P")
-			{
-				LLK_Drag(width, height, xPos, yPos)
-				sleep 1
-			}
-			KeyWait, LButton
-			WinActivate, ahk_group poe_window
-			settings.leveltracker.xButton := xPos, settings.leveltracker.yButton := yPos
-			IniWrite, % settings.leveltracker.xButton, ini\leveling tracker.ini, UI, button xcoord
-			IniWrite, % settings.leveltracker.yButton, ini\leveling tracker.ini, UI, button ycoord
-			Return
-		}
-	}
 
 	If !vars.hwnd.leveltracker.main
 	{
@@ -375,18 +392,16 @@ Leveltracker(cHWND := "", hotkey := "")
 			vars.leveltracker.Delete("guide")
 			Return
 		}
-		LeveltrackerProgress()
-		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, % "img\GUI\leveltracker" (vars.leveltracker.button_color ? 1 : "") ".png"
+		LeveltrackerProgress(1)
 	}
-	Else If !WinExist("ahk_id "vars.hwnd.leveltracker.main)
-		LeveltrackerProgress()
+	Else If !WinExist("ahk_id " vars.hwnd.leveltracker.main) && !vars.leveltracker.toggle
+		LeveltrackerProgress(1)
 	Else
 	{
-		LLK_Overlay(vars.hwnd.leveltracker.main, "destroy"), LLK_Overlay(vars.hwnd.leveltracker.background, "destroy")
-		LLK_Overlay(vars.hwnd.leveltracker.controls2, "destroy"), LLK_Overlay(vars.hwnd.leveltracker.controls1, "destroy") ;destroy controls2 first because it's owned by controls1
-		LLK_Overlay(vars.hwnd.leveltracker_timer.main, "destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
+		LeveltrackerToggle("hide"), vars.leveltracker.toggle := 0
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker0.png
 	}
-	WinActivate, ahk_group poe_window
+	;WinActivate, ahk_group poe_window
 }
 
 LeveltrackerExperience(arealevel := "")
@@ -417,28 +432,16 @@ LeveltrackerFade()
 	local
 	global vars, settings
 
-	If settings.leveltracker.fade && (WinGet("transparent", "ahk_id "vars.hwnd.leveltracker.main) != 25) && (vars.leveltracker.last + settings.leveltracker.fadetime <= A_TickCount) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
-	&& (!LLK_IsBetween(vars.general.xMouse, vars.leveltracker.x, vars.leveltracker.x + vars.leveltracker.w) || !LLK_IsBetween(vars.general.yMouse, vars.leveltracker.y, vars.leveltracker.y + vars.leveltracker.h + vars.leveltracker.h2))
+	If !settings.leveltracker.fade || vars.leveltracker.drag || !vars.hwnd.leveltracker.main || (vars.leveltracker.last > A_TickCount) || !LLK_Overlay(vars.hwnd.leveltracker.main, "check") || !vars.leveltracker.toggle
+		Return
+	If (vars.leveltracker.last + settings.leveltracker.fadetime <= A_TickCount) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
+	&& !(settings.leveltracker.fade_hover && LLK_IsBetween(vars.general.xMouse, vars.leveltracker.coords.x1, vars.leveltracker.coords.x2) && LLK_IsBetween(vars.general.yMouse, vars.leveltracker.coords.y1, vars.leveltracker.coords.y2))
 	&& !vars.leveltracker.overlays && !InStr(vars.log.areaID, "_town")
-	{
-		WinSet, Trans, 25, % "ahk_id "vars.hwnd.leveltracker.main
-		WinSet, Trans, 25, % "ahk_id "vars.hwnd.leveltracker.background
-		WinSet, Trans, 25, % "ahk_id "vars.hwnd.leveltracker.controls1
-		WinSet, Trans, 25, % "ahk_id "vars.hwnd.leveltracker.controls2
-		vars.leveltracker.fade := 1
-	}
-	Else If settings.leveltracker.fade && (WinGet("transparent", "ahk_id "vars.hwnd.leveltracker.main) = 25) && WinExist("ahk_id "vars.hwnd.leveltracker.main)
-	&& ((settings.leveltracker.fade_hover && LLK_IsBetween(vars.general.xMouse, vars.leveltracker.x, vars.leveltracker.x + vars.leveltracker.w) && LLK_IsBetween(vars.general.yMouse, vars.leveltracker.y, vars.leveltracker.y + vars.leveltracker.h + vars.leveltracker.h2)
+		vars.leveltracker.fade := 1, LeveltrackerToggle("hide")
+	Else If vars.hwnd.leveltracker.main && !WinExist("ahk_id "vars.hwnd.leveltracker.main)
+	&& ((settings.leveltracker.fade_hover && LLK_IsBetween(vars.general.xMouse, vars.leveltracker.coords.x1, vars.leveltracker.coords.x2) && LLK_IsBetween(vars.general.yMouse, vars.leveltracker.coords.y1, vars.leveltracker.coords.y2)
 	&& !GetKeyState(settings.hotkeys.movekey, "P")) || vars.leveltracker.overlays || InStr(vars.log.areaID, "_town"))
-	{
-		WinSet, Trans, Off, % "ahk_id "vars.hwnd.leveltracker.main
-		WinSet, TransColor, Black, % "ahk_id "vars.hwnd.leveltracker.main
-		WinSet, Trans, % settings.leveltracker.trans, % "ahk_id "vars.hwnd.leveltracker.background
-		WinSet, Trans, % settings.leveltracker.expbar ? settings.leveltracker.trans : 120, % "ahk_id "vars.hwnd.leveltracker.controls1
-		WinSet, Trans, Off, % "ahk_id "vars.hwnd.leveltracker.controls2
-		WinSet, TransColor, Black, % "ahk_id "vars.hwnd.leveltracker.controls2
-		vars.leveltracker.fade := 0
-	}
+		vars.leveltracker.fade := 0, LeveltrackerToggle("show")
 }
 
 LeveltrackerHints()
@@ -446,7 +449,11 @@ LeveltrackerHints()
 	local
 	global vars, settings
 
-	If !settings.leveltracker.hints || !LLK_HasVal(vars.leveltracker.guide.group1, "(hint)", 1)
+	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
+		If LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1)
+			valid := 1
+
+	If !settings.leveltracker.hints || !valid
 		Return
 	Gui, leveltracker_hints: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDleveltracker_hints
 	Gui, leveltracker_hints: Color, Black
@@ -456,13 +463,18 @@ LeveltrackerHints()
 	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
 		If LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1)
 		{
-			Gui, leveltracker_hints: Add, Pic, % "w"vars.leveltracker.w - 2 " h-1", % A_LoopFileLongPath
+			Gui, leveltracker_hints: Add, Pic, % "w"vars.leveltracker.coords.w " h-1", % A_LoopFileLongPath
+			added := 1
 			Break
 		}
-
-	Gui, leveltracker_hints: Show, NA x10000 y10000
-	WinGetPos,,, w, h, ahk_id %leveltracker_hints%
-	Gui, leveltracker_hints: Show, % "NA x"vars.leveltracker.x " y"vars.leveltracker.y - h + 1
+	
+	If added
+	{
+		Gui, leveltracker_hints: Show, NA x10000 y10000
+		WinGetPos,,, w, h, ahk_id %leveltracker_hints%
+		yPos := (Blank(settings.leveltracker.yCoord) || settings.leveltracker.yCoord >= vars.monitor.h / 2) ? vars.leveltracker.coords.y1 - h + 1 : vars.leveltracker.coords.y2 - 1
+		Gui, leveltracker_hints: Show, % "NA x"vars.leveltracker.coords.x1 " y" yPos
+	}
 	KeyWait, % settings.hotkeys.tab
 	Gui, leveltracker_hints: Destroy
 }
@@ -750,16 +762,6 @@ LeveltrackerLoad()
 		MsgBox, % "Old progress-data detected.`n`nThere is a high chance this data is incompatible with the current version of the tracker.`n`nYou should go to the settings-menu and reset your progress."
 }
 
-LeveltrackerOverlays()
-{
-	local
-	global vars, settings
-
-	vars.leveltracker.overlays := 1
-	If settings.leveltracker.timer && !vars.leveltracker.wait
-		LeveltrackerTimerGUI()
-}
-
 LeveltrackerScreencapMenu2(cHWND)
 {
 	local
@@ -842,11 +844,11 @@ LeveltrackerScreencapMenu2(cHWND)
 		start := A_TickCount
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.leveltracker_screencap.main
 		While GetKeyState("LButton", "P")
-		{
 			If (A_TickCount >= start + 100)
-			LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
-			Sleep 1
-		}
+			{
+				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
+				Sleep 1
+			}
 		Return
 	}
 	Else LLK_ToolTip("no action")
@@ -1008,7 +1010,10 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		Return
 
 	vars.leveltracker.guide.text_raw := vars.leveltracker.guide.import.Clone(), in_progress := 1, vars.leveltracker.last := A_TickCount*100 ;dummy-value to prevent Loop_main() from prematurely fading the overlay
-	guide := vars.leveltracker.guide, areas := db.leveltracker.areas ;short-cut variables
+	guide := vars.leveltracker.guide, areas := db.leveltracker.areas, timer := vars.leveltracker.timer ;short-cut variables
+	vars.leveltracker.fade := mode ? 0 : vars.leveltracker.fade, vars.leveltracker.toggle := mode ? 1 : vars.leveltracker.toggle
+	If (mode = 1)
+		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker.png
 	For progress_index, step in guide.progress
 	{
 		If LLK_HasVal(guide.text_raw, step)
@@ -1074,16 +1079,14 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Gui, %GUI_name_back%: New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_back"
 	Gui, %GUI_name_back%: Color, Black
 	Gui, %GUI_name_back%: Margin, % settings.general.fWidth, 0
-	WinSet, Transparent, % mode && vars.leveltracker.fade ? 25 : settings.leveltracker.trans
+	WinSet, Transparent, % 100 + settings.leveltracker.trans * 30
 	hwnd_old := vars.hwnd.leveltracker.main, hwnd_old1 := vars.hwnd.leveltracker.background, hwnd_old2 := vars.hwnd.leveltracker.controls2, hwnd_old3 := vars.hwnd.leveltracker.controls1
 	vars.hwnd.leveltracker := {"background": leveltracker_back}
 
 	Gui, %GUI_name_main%: New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_main +Owner" GUI_name_back
 	Gui, %GUI_name_main%: Color, Black
 	Gui, %GUI_name_main%: Margin, % settings.general.fWidth, 0
-	If mode && vars.leveltracker.fade
-		WinSet, Transparent, 25
-	Else WinSet, TransColor, Black
+	WinSet, TransColor, Black
 	Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.main := leveltracker_main
 	
@@ -1154,31 +1157,39 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 
 	vars.leveltracker.wait := 1 ;this stops the timer-GUI from being created before the main overlay has finished drawing
 	Gui, %GUI_name_main%: Show, NA x10000 y10000
+	Gui, %GUI_name_back%: Show, NA x10000 y10000
 	WinGetPos, x, y, width, height, % "ahk_id "vars.hwnd.leveltracker.main
 	While Mod(width, 2)
 		width += 1
-	height1 := vars.leveltracker.h2 := Floor(vars.client.h*0.022), wButtons := settings.leveltracker.fWidth*2
+	wButtons := Round(settings.leveltracker.fWidth*2)
 	While Mod(wButtons, 2)
 		wButtons += 1
 	wPanels := (width - wButtons*2)/2
-	xPos := vars.client.xc - width/2, yPos := vars.client.y + vars.client.h
 	
-	Gui, %GUI_name_back%: Show, % "NA x"xPos " y"yPos - height - height1*(settings.leveltracker.expbar ? 2 : 1) - 1 " w"width - 2 " h"height
-	Gui, %GUI_name_main%: Show, % "NA x"xPos " y"yPos - height - height1*(settings.leveltracker.expbar ? 2 : 1) - 1 " w"width - 2 " h"height
+	Gui, %GUI_name_back%: Show, % "NA w"width - 2 " h"height
+	Gui, %GUI_name_main%: Show, % "NA w"width - 2 " h"height
 	WinGetPos, x, y, width, height, % "ahk_id " vars.hwnd.leveltracker.main
-	vars.leveltracker.x := x, vars.leveltracker.y := y, vars.leveltracker.w := width, vars.leveltracker.h := height
-	LLK_Overlay(vars.hwnd.leveltracker.background, "show",, GUI_name_back), LLK_Overlay(vars.hwnd.leveltracker.main, "show",, GUI_name_main)
-	LLK_Overlay(hwnd_old, "destroy"), LLK_Overlay(hwnd_old1, "destroy")
 
 	GUI_name_controls1 := "leveltracker_controls1" toggle, GUI_name_controls2 := "leveltracker_controls2" toggle
 	Gui, %GUI_name_controls1%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_controls1"
 	Gui, %GUI_name_controls1%: Color, Black
 	Gui, %GUI_name_controls1%: Margin, 0, 0
-	WinSet, Transparent, % mode && vars.leveltracker.fade ? 25 : settings.leveltracker.expbar ? settings.leveltracker.trans : 120
+	WinSet, Transparent, % (settings.leveltracker.trans = 5) ? "Off" : 100 + settings.leveltracker.trans * 30
 	Gui, %GUI_name_controls1%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.controls1 := leveltracker_controls1
-	Gui, %GUI_name_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"wPanels " h"height1, % ""
-	vars.hwnd.leveltracker.dummy1 := hwnd
+	If settings.leveltracker.timer
+	{
+		Gui, %GUI_name_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"wPanels, % ""
+		vars.hwnd.leveltracker.dummy01 := hwnd
+		Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 BackgroundTrans Border HWNDhwnd Center w"wButtons * 2, % ""
+		Gui, %GUI_name_controls1%: Add, Progress, % "xp yp hp wp Disabled HWNDhwnd BackgroundBlack cRed range0-500", 0
+		vars.hwnd.leveltracker.reset_bar := hwnd
+		Gui, %GUI_name_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"wPanels, % ""
+		vars.hwnd.leveltracker.dummy02 := hwnd
+	}
+	Gui, %GUI_name_controls1%: Add, Progress, % "Section " (settings.leveltracker.timer ? "xs y+-1" : "") " BackgroundWhite HWNDhwnd0 w" settings.leveltracker.fWidth * 0.6 " h" settings.leveltracker.fWidth * 0.6, 0
+	Gui, %GUI_name_controls1%: Add, Text, % "Section xp yp 0x200 Border BackgroundTrans HWNDhwnd Center w" wPanels, % ""
+	vars.hwnd.leveltracker.drag := hwnd0, vars.hwnd.leveltracker.dummy1 := hwnd
 	Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
 	vars.hwnd.leveltracker["-"] := hwnd
 	Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
@@ -1193,27 +1204,47 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	Gui, %GUI_name_controls2%: New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_controls2 +Owner" GUI_name_controls1
 	Gui, %GUI_name_controls2%: Color, Black
 	Gui, %GUI_name_controls2%: Margin, 0, 0
-	If mode && vars.leveltracker.fade
-		WinSet, Transparent, 25
-	Else WinSet, TransColor, Black
-	vars.leveltracker.custom_font := !vars.leveltracker.custom_font ? LLK_FontSizeGet(height1, custom_fontwidth) : vars.leveltracker.custom_font
-	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
-	Gui, %GUI_name_controls2%: Font, % "s"Min(settings.leveltracker.fSize, vars.leveltracker.custom_font) " cWhite", % vars.system.font
+	WinSet, TransColor, Black
+	Gui, %GUI_name_controls2%: Font, % "s" settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.controls2 := leveltracker_controls2
-	Gui, %GUI_name_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " h"height1, % settings.leveltracker.layouts ? check " zl" : ""
+	If settings.leveltracker.timer
+	{
+		Gui, %GUI_name_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w" wPanels (timer.current_act = 11 ? " cLime" : (timer.pause = -1) ? " cGray" : ""), % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
+		vars.hwnd.leveltracker.timer_total := hwnd
+		Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w" wButtons * 2, % "a" (timer.current_act = 11 ? 10 : timer.current_act)
+		vars.hwnd.leveltracker.timer_button := hwnd
+		Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w" wPanels (timer.current_act = 11 ? " cLime" : (timer.pause = -1) ? " cGray" : ""), % FormatSeconds(timer.current_split, 0)
+		vars.hwnd.leveltracker.timer_act := hwnd
+	}
+	Gui, %GUI_name_controls2%: Add, Text, % "Section xs " (settings.leveltracker.timer ? "xs y+-1" : "") " Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % settings.leveltracker.layouts ? check " zl" : ""
 	vars.hwnd.leveltracker.layouts := hwnd
-	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % "<"
-	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w"wButtons, % ">"
+	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % "<"
+	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % ">"
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % LeveltrackerExperience()
 	vars.hwnd.leveltracker.experience := hwnd
 
-	Gui, %GUI_name_controls2%: Show, % "NA x"xPos " y"yPos - height1*(settings.leveltracker.expbar ? 2 : 1)
-	Gui, %GUI_name_controls1%: Show, % "NA x"xPos " y"yPos - height1*(settings.leveltracker.expbar ? 2 : 1)
-	LLK_Overlay(vars.hwnd.leveltracker.controls1, "show",, GUI_name_controls1), LLK_Overlay(vars.hwnd.leveltracker.controls2, "show",, GUI_name_controls2)
+	Gui, %GUI_name_controls2%: Show, % "NA x10000 y10000"
+	Gui, %GUI_name_controls1%: Show, % "NA x10000 y10000"
+	WinGetPos,,, wControls, hControls, % "ahk_id " vars.hwnd.leveltracker.controls1
+
+	width -= 2, height -= 2, height_total := height + hControls + 2
+	xPos := Blank(settings.leveltracker.xCoord) ? vars.client.xc - width / 2 : settings.leveltracker.xCoord, xPos := (xPos >= vars.monitor.w / 2) ? xPos - width : xPos
+	yPos := Blank(settings.leveltracker.yCoord) ? vars.monitor.h + 1 : settings.leveltracker.yCoord, yPos := (yPos >= vars.monitor.h / 2) ? yPos - height_total : yPos
+	;vars.monitor.x + settings.leveltracker.xCoord - (settings.leveltracker.xCoord >= vars.monitor.x + vars.monitor.w / 2 ? width/2 : 0)
+	;yPos := Blank(settings.leveltracker.yCoord) ? vars.client.y + vars.client.h - height - hControls + (settings.leveltracker.timer ? 1 : 0) : vars.monitor.y + settings.leveltracker.yCoord - (settings.leveltracker.yCoord >= vars.monitor.y + vars.monitor.h / 2 ? height : 0)
+
+	Gui, %GUI_name_controls2%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos + height + 1
+	Gui, %GUI_name_controls1%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos + height + 1
+
+	Gui, %GUI_name_back%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
+	Gui, %GUI_name_main%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
+	vars.leveltracker.coords := {"x1": xPos, "x2": xPos + width, "y1": yPos, "y2": yPos + height_total - 1, "w": width, "h": height_total}
+	LLK_Overlay(vars.hwnd.leveltracker.background, vars.leveltracker.fade ? "hide" : "show",, GUI_name_back), LLK_Overlay(vars.hwnd.leveltracker.main, vars.leveltracker.fade ? "hide" : "show",, GUI_name_main)
+	LLK_Overlay(hwnd_old, "destroy"), LLK_Overlay(hwnd_old1, "destroy")
+
+	LLK_Overlay(vars.hwnd.leveltracker.controls1, vars.leveltracker.fade ? "hide" : "show",, GUI_name_controls1), LLK_Overlay(vars.hwnd.leveltracker.controls2, vars.leveltracker.fade ? "hide" : "show",, GUI_name_controls2)
 	LLK_Overlay(hwnd_old2, "destroy"), LLK_Overlay(hwnd_old3, "destroy")
 	vars.leveltracker.last := A_TickCount
-	If settings.leveltracker.timer && (vars.leveltracker.timer.pause != 0)
-		LeveltrackerTimerGUI()
 	vars.leveltracker.wait := 0, in_progress := 0
 }
 
@@ -1224,9 +1255,9 @@ LeveltrackerProgressReset()
 
 	IniDelete, ini\leveling guide.ini, Progress
 	vars.leveltracker.guide.progress := []
-	If WinExist("ahk_id "vars.hwnd.leveltracker.main)
-		LeveltrackerProgress()
-	If WinExist("ahk_id "vars.hwnd.settings.main)
+	If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+		LeveltrackerProgress(1)
+	If WinExist("ahk_id " vars.hwnd.settings.main)
 		Settings_menu("leveling tracker")
 	KeyWait, LButton
 }
@@ -1333,7 +1364,6 @@ LeveltrackerSkilltree(index := 0)
 			Gui, %GUI_name_labs%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDleveltracker_skilltree_labs
 			Gui, %GUI_name_labs%: Margin, 0, 0
 			Gui, %GUI_name_labs%: Color, Black
-			;WinSet, Transparent, 255
 			vars.hwnd.leveltracker_skilltree.labs := leveltracker_skilltree_labs
 			Loop, Files, img\GUI\skill-tree\[lab*]*
 			{
@@ -1499,36 +1529,34 @@ LeveltrackerStrings()
 	}
 }
 
-LeveltrackerTimer(cHWND := "")
+LeveltrackerTimer(mode := "")
 {
 	local
 	global vars, settings, db
 	
 	timer := vars.leveltracker.timer
-	If cHWND
+	If mode && InStr("pause,reset", mode)
 	{
-		check := LLK_HasVal(vars.hwnd.leveltracker_timer, cHWND), control := SubStr(check, InStr(check, "_") + 1)
-		If InStr(check, "dummy")
-			Return
-		If (check = "pause") && (timer.current_act = 11)
-			error := ["can't resume: run complete", 1.5, "yellow"]
-		Else If (check = "resetbar") && (vars.log.areaID != "1_1_1")
-			error := ["enter <twilight strand> to reset", 2, "red"]
-		Else If (check = "resetbar") && !timer.pause
-			error := ["pause timer first", 1, "red"]
-		Else If (check = "pause") && settings.leveltracker.pausetimer && InStr(vars.log.areaID, "hideout")
-			error := ["blocked by hideout-pause option", 2, "red"]
+		If (mode = "pause") && (timer.current_act = 11)
+			error := [LangTrans("lvltracker_timererror", 1), 1.5, "yellow"]
+		Else If (mode = "reset") && (vars.log.areaID != "1_1_1")
+			error := [LangTrans("lvltracker_timererror", 2), 2, "red"]
+		Else If (mode = "reset") && !timer.pause
+			error := [LangTrans("lvltracker_timererror", 3), 1, "red"]
+		Else If (mode = "pause") && settings.leveltracker.pausetimer && InStr(vars.log.areaID, "hideout")
+			error := [LangTrans("lvltracker_timererror", 4), 2, "red"]
 
+		yTooltip := vars.leveltracker.coords.y1 - settings.general.fHeight + 1, yTooltip := (yTooltip < vars.monitor.y) ? vars.leveltracker.coords.y2 - 1 : yTooltip
 		If error
 		{
-			LLK_ToolTip(error.1, error.2, vars.client.xc, vars.leveltracker.y - settings.general.fHeight + 1,, error.3,,,, 1)
+			LLK_ToolTip(error.1, error.2, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, error.3,,,, 1)
 			WinActivate, ahk_group poe_window
 			Return
 		}
 
-		If (check = "resetbar")
+		If (mode = "reset")
 		{
-			If LLK_Progress(vars.hwnd.leveltracker_timer.resetbar, "LButton")
+			If LLK_Progress(vars.hwnd.leveltracker.reset_bar, "RButton")
 			{
 				LeveltrackerProgressReset()
 				IniWrite, % "", ini\leveling tracker.ini, current run, name
@@ -1536,13 +1564,13 @@ LeveltrackerTimer(cHWND := "")
 				Loop 10
 					IniWrite, % "", ini\leveling tracker.ini, current run, act %A_Index%
 				vars.leveltracker.Delete("timer")
-				Init_leveltracker()
-				LeveltrackerTimerGUI()
+				Init_leveltracker(), LeveltrackerProgress(1)
+				KeyWait, RButton
 				Return
 			}
 			Else Return
 		}
-		Else If (check = "pause") && (timer.current_act != 11)
+		Else If (mode = "pause") && (timer.current_act != 11)
 		{
 			If !InStr(timer.name, ",") && (vars.log.areaID = "1_1_1")
 			{
@@ -1552,23 +1580,21 @@ LeveltrackerTimer(cHWND := "")
 				IniWrite, % """"timer.name """", ini\leveling tracker.ini, current run, name
 				new_run := 1
 			}
-			LLK_ToolTip(new_run ? "run started" : (timer.pause != 0) ? "timer resumed" : "timer paused",, "Center", vars.leveltracker.y - settings.general.fHeight + 1,, "lime")
+			LLK_ToolTip(new_run ? LangTrans("lvltracker_timermessage", 1) : (timer.pause != 0) ? LangTrans("lvltracker_timermessage", 2) : LangTrans("lvltracker_timermessage", 3),, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, "lime",,,, 1)
 			timer.pause := !timer.pause ? -1 : 0 ;-1 specifies a manual pause by the user (as opposed to automatic pause after logging in or -- if set up this way -- entering a hideout)
+			GuiControl, % "+c" (timer.pause ? "Gray" : "White"), % vars.hwnd.leveltracker.timer_total
+			GuiControl, movedraw, % vars.hwnd.leveltracker.timer_total
+			GuiControl, % "+c" (timer.pause ? "Gray" : "White"), % vars.hwnd.leveltracker.timer_act
+			GuiControl, movedraw, % vars.hwnd.leveltracker.timer_act
 		}
-		LeveltrackerTimerGUI()
 		Return
 	}
 
 	If !settings.leveltracker.timer
 		Return
-
+	
 	If vars.hwnd.leveltracker.main && (timer.pause = 1) && (db.leveltracker.areas.HasKey(vars.log.areaID) || InStr(vars.log.areaID, "labyrinth")) && (timer.current_act != 11) ;resume the timer after leaving a hideout (if it wasn't paused manually by the user)
 		timer.pause := 0
-
-	If WinExist("ahk_id "vars.hwnd.leveltracker.main) && (timer.pause != 0) && !WinExist("ahk_id "vars.hwnd.leveltracker_timer.main) && !vars.leveltracker.wait ;show the timer whenever it's paused
-		LeveltrackerTimerGUI()
-	Else If vars.hwnd.leveltracker.main && (timer.pause = 0) && WinExist("ahk_id "vars.hwnd.leveltracker_timer.main) && !vars.leveltracker.overlays ;hide it after unpausing
-		LLK_Overlay(vars.hwnd.leveltracker_timer.main, "destroy")
 
 	If vars.hwnd.leveltracker.main && (timer.pause = 0) ;advance the timer
 	{
@@ -1579,12 +1605,18 @@ LeveltrackerTimer(cHWND := "")
 			If InStr(timer.name, ",")
 				LeveltrackerTimerCSV()
 			timer.total_time += timer.current_split, timer.current_act += 1, timer.current_split := (timer.current_act = 11) ? timer.current_split : 0
+			GuiControl, Text, % vars.hwnd.leveltracker.timer_button, % "a" (timer.current_act = 11 ? 10 : timer.current_act)
 			IniWrite, % timer.current_split, ini\leveling tracker.ini, current run, time
+			If (timer.current_act = 11)
+				LeveltrackerProgress(1)
 		}
 		Else If timer.current_split && !Mod(timer.current_split, 60) && (timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0)) ;save current time every minute as backup for potential crashes
 			IniWrite, % timer.current_split, ini\leveling tracker.ini, current run, time
-		If vars.leveltracker.overlays && !vars.leveltracker.wait ;tab-hotkey is being held down: refresh the timer GUI every cycle
-			LeveltrackerTimerGUI()
+		If !vars.leveltracker.wait ;update the timer every cycle
+		{
+			GuiControl, Text, % vars.hwnd.leveltracker.timer_total, % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
+			GuiControl, Text, % vars.hwnd.leveltracker.timer_act, % FormatSeconds(timer.current_split, 0)
+		}
 	}
 }
 
@@ -1613,9 +1645,7 @@ LeveltrackerTimerGUI()
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, 0, 0
 	;WinSet, TransColor, Black
-	vars.leveltracker.custom_font := !vars.leveltracker.custom_font ? LLK_FontSizeGet(height1, custom_fontwidth) : vars.leveltracker.custom_font
-	vars.leveltracker.custom_fontwidth := custom_fontwidth ? custom_fontwidth : vars.leveltracker.custom_fontwidth
-	Gui, %GUI_name%: Font, % "s"vars.leveltracker.custom_font " cWhite", % vars.system.font	
+	Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize " cWhite", % vars.system.font	
 	hwnd_old := vars.hwnd.leveltracker_timer.main, vars.hwnd.leveltracker_timer := {"main": leveltracker_timer}
 
 	Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans Border Center 0x200 HWNDhwnd w"vars.leveltracker.custom_fontwidth*7 " h"vars.leveltracker.h2, total
@@ -1641,6 +1671,14 @@ LeveltrackerTimerGUI()
 	LLK_Overlay(hwnd_old, "destroy")
 }
 
+LeveltrackerToggle(mode)
+{
+	local
+	global vars
+
+	LLK_Overlay(vars.hwnd.leveltracker.main, mode), LLK_Overlay(vars.hwnd.leveltracker.background, mode), LLK_Overlay(vars.hwnd.leveltracker.controls2, mode), LLK_Overlay(vars.hwnd.leveltracker.controls1, mode)
+}
+
 LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 {
 	local
@@ -1657,7 +1695,7 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 		If (A_TickCount >= start + 200)
 		{
 			longpress := 1
-			LLK_Drag(width, height, x, y,, "leveltracker_zones" toggle)
+			LLK_Drag(width, height, x, y,, "leveltracker_zones" toggle, (settings.leveltracker.aLayouts = "horizontal") ? 1 : 0)
 			Sleep 1
 		}
 
@@ -1699,18 +1737,17 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 		If (settings.leveltracker.aLayouts = "vertical")
 			style := (vars.log.areaID = "2_7_4" && A_Index = 4) ? " ys Section" : (A_Index = 1) ? " Section" : " xs"
 		Else style := (vars.log.areaID = "2_7_4" && A_Index = 4) ? " xs Section" : (A_Index = 1) ? " Section" : " ys"
-		Gui, %GUI_name%: Add, Picture, % "Border HWNDhwnd"style " w"vars.monitor.w/settings.leveltracker.sLayouts " h-1", % A_LoopFilePath
+		Gui, %GUI_name%: Add, Picture, % "Border HWNDhwnd" style " w"vars.monitor.w/settings.leveltracker.sLayouts " h-1", % A_LoopFilePath
 		vars.hwnd.leveltracker_zones[vars.log.areaID A_Index] := hwnd
 	}
 	If mode
-		Gui, %GUI_name%: Add, Picture, % "Border ys w"vars.monitor.w/Ceil(settings.leveltracker.sLayouts/2) " h-1", % "img\GUI\leveling tracker\zones\explanation.png"
+		Gui, %GUI_name%: Add, Picture, % "Border " (settings.leveltracker.aLayouts = "horizontal" ? "xs" : "ys") " w"vars.monitor.w/Ceil(settings.leveltracker.sLayouts/2) " h-1", % "img\GUI\leveling tracker\zones\explanation.png"
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.leveltracker_zones.main
-	If IsNumber(settings.leveltracker.xLayouts)
-		x := (settings.leveltracker.xLayouts > vars.monitor.w/2 - 1) ? settings.leveltracker.xLayouts - w + 1 : settings.leveltracker.xLayouts
-	If IsNumber(settings.leveltracker.yLayouts)
-		y := (settings.leveltracker.yLayouts > vars.monitor.h/2 - 1) ? settings.leveltracker.yLayouts - h + 1 : settings.leveltracker.yLayouts
-	Gui, %GUI_name%: Show, % "NA x"(IsNumber(x) ? vars.monitor.x + x : vars.client.xc - w/2) " y"(IsNumber(y) ? vars.monitor.y + y : vars.client.yc - h/2)
+	xPos := Blank(settings.leveltracker.xLayouts) ? (settings.leveltracker.aLayouts = "horizontal" ? vars.client.xc - w/2 : vars.client.x) : settings.leveltracker.xLayouts
+	yPos := Blank(settings.leveltracker.yLayouts) ? (settings.leveltracker.aLayouts = "vertical" ? vars.client.yc - h/2 : vars.client.y) : settings.leveltracker.yLayouts
+	xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
 	LLK_Overlay(leveltracker_zones, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -1727,7 +1764,7 @@ LeveltrackerZoneLayoutsSize(hotkey)
 
 	If (hotkey != "MButton")
 		settings.leveltracker.sLayouts += (hotkey = "WheelUp") ? -1 : 1, resizing := 1
-	LeveltrackerZoneLayouts(hotkey = "MButton" ? 1 : 0)
+	LeveltrackerZoneLayouts((hotkey = "MButton") ? 1 : 0)
 	If (hotkey = "MButton")
 	{
 		KeyWait, MButton

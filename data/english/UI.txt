@@ -96,6 +96,7 @@
 		global_enable			=	"enable"
 		global_reset			=	"reset"
 		global_color			=	"color"
+		global_color			=	"colors"
 		global_opacity			=	"opacity:"
 		global_tier			=	"tier"
 		global_ilvl			=	"ilvl"
@@ -131,7 +132,6 @@
 		global_ascendancy		=	"ascendancy-tree"
 		global_stash			=	"stash"
 		global_nothing			=	"there's;nothing to display"
-		global_rgbinvalid		=	"invalid rgb-code in clipboard"
 		global_imageinvalid		=	"couldn't find image-data;in clipboard"
 		global_releasekey		=	"release key:"
 		global_configwindow		=	"close the configuration;window first"
@@ -251,7 +251,6 @@
 		iteminfo_base			=	"base"				;## as in item-base / crafting-base
 		iteminfo_ruleblock		=	"blocked by global rule"
 		iteminfo_clearfirst		=	"clear class-specific;highlighting first"
-		iteminfo_roll_percent		=	"roll-%"			;## refers to the overall quality/health of rolls on a unique (a perfectly-rolled item being 100%)
 		iteminfo_drop_tier		=	"drop"				;## refers to dropped items, e.g. "boss drop", "uber drop", "T0 drop"
 		iteminfo_drop_league		=	"league"			;## unique is limited to a specific...
 		iteminfo_drop_boss		=	"boss"
@@ -291,7 +290,13 @@
 		lvltracker_multipaste		=	"multi-paste not supported;for ascendancy-trees"
 		lvltracker_multipaste		=	"# entries starting from # will potentially be overwritten.;Continue?"	;## these are placeholders for numbers
 		lvltracker_noimages		=	"couldn't find;image-files"
-
+		lvltracker_timererror		=	"can't resume: run complete"			;## campaign timer can't be resumed because the run has finished
+		lvltracker_timererror		=	"enter <twilight strand> to reset"		;## timer can only be reset with a fresh character
+		lvltracker_timererror		=	"pause the timer first"
+		lvltracker_timererror		=	"blocked by hideout-pause setting"		;## there's a setting "pause timer in hideouts" which blocks manual resuming
+		lvltracker_timermessage		=	"run started"
+		lvltracker_timermessage		=	"timer resumed"
+		lvltracker_timermessage		=	"timer paused"
 
 
 ;#####################################################
@@ -365,7 +370,7 @@
 		omnikey_labimport		=	"select lab difficulty"
 		omnikey_labimport		=	"right-click layout image"
 		omnikey_labimport		=	"click <copy image>;optional:"				;## "copy image" when right-clicking a picture in your browser
-		omnikey_labimport		=	"right-click <lab compass file>"
+		omnikey_labimport		=	"right-click <lab compass file>"			;## there's a link underneath each lab-layout image on poelab.com
 		omnikey_labimport		=	"click <copy link address>"				;## when right-clicking a link in your browser
 		omnikey_poedb			=	"modifiers"						;## it's the name of this section on poeDB, displayed at the top: https://poedb.tw/us/Modifiers
 
@@ -595,7 +600,6 @@
 		m_lvltracker_fade		=	"fade out after x seconds:"
 		m_lvltracker_fade		=	"fade in on mouse-hover"
 		m_lvltracker_gear		=	"enable gear tracker"
-		m_lvltracker_expbar		=	"exp-bar offset"				;## offsets the position of an overlay slightly
 		m_lvltracker_zones		=	"enable zone-layout overlay"
 		m_lvltracker_hints		=	"show additional hints in the guide"
 		m_lvltracker_skilltree		=	"skill-tree overlay settings:"
@@ -614,6 +618,7 @@
 
 ;## these strings are displayed/required in the "mapping tracker" section of the settings menu
 		m_maptracker_enable		=	"enable the mapping tracker"
+		m_maptracker_hide		=	"hide the panel when the tracker is paused"
 		m_maptracker_loot		=	"loot"
 		m_maptracker_kills		=	"kills"
 		m_maptracker_mapinfo		=	"map-info data"
@@ -645,9 +650,10 @@
 ;#####################################################
 
 ;## these strings are displayed/required in the "minor qol tools" section of the settings menu
-		m_qol_alarm			=	"alarm-timer:"
+		m_qol_alarm			=	"alarm/timer widget:"
 		m_qol_notepad			=	"notepad:"
 		m_qol_widget			=	"widget opacity:"
+		m_qol_widgetcolor		=	"default widget colors:"
 		m_qol_lab			=	"lab overlay:"
 
 

@@ -19,7 +19,7 @@
 		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": LLK_IniRead("ini\map info.ini", ID, "rank", 1), "show": LLK_IniRead("ini\map info.ini", ID, "show", 1)}
 	}
 
-	settings.mapinfo.dColor := ["White", "f77e05", "Red", "Fuchsia", "909090"], settings.mapinfo.eColor_default := ["White", "Yellow", "Green", "Lime"]
+	settings.mapinfo.dColor := ["FFFFFF", "f77e05", "Red", "Fuchsia", "909090"], settings.mapinfo.eColor_default := ["FFFFFF", "Yellow", "Green", "Lime"]
 	settings.mapinfo.color := [], settings.mapinfo.eColor := []
 	Loop 5
 		settings.mapinfo.color[A_Index] := LLK_IniRead("ini\map info.ini", "UI", (A_Index = 5) ? "header color" : "difficulty " A_Index " color", settings.mapinfo.dColor[A_Index]), settings.mapinfo.eColor[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "logbook " A_Index " color", settings.mapinfo.eColor_default[A_Index])
