@@ -21,14 +21,17 @@
       "permanently hides the button-toolbar. hold tab or move the cursor to the area to make it appear",
       "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
     ],
-    "button-size": [
-      "size of the movable button that opens this feature"
-    ],
     "font-size": [
       "– and + can be held down, the middle button resets the size"
     ],
     "generic color": [
-      "click to apply an rgb code from clipboard, right click to reset"
+      "click to open the color-palette, right click to reset"
+    ],
+	"generic color double": [
+	  "text color: click to open the color-palette, right click to reset"
+    ],
+	"generic color double1": [
+	  "background color: click to open the color-palette, right click to reset"
     ],
     "active character": [
       "type in your character name and press enter",
@@ -61,9 +64,6 @@
       "when these issues are detected, an error message will appear and ask you to run this test",
       "if the test results show errors, move the script-folder to a different location or restart the script as admin, then re-run the test"
     ],
-    "rgb website": [
-      "3rd-party website to generate rgb codes for color customization"
-    ],
     "betrayal enable": [
       "provides an interactive cheat sheet overlay for the betrayal league mechanic",
       "requires the <betrayal> image-check to be set up correctly in the <screen-checks> section of the settings menu",
@@ -76,7 +76,7 @@
       "folder that contains calibration files"
     ],
     "betrayal color": [
-      "click a button to apply an rgb code from clipboard, right click to reset",
+      "click a button to open the color-palette, right click to reset",
       "hover over a reward and press a number key to apply the corresponding color"
     ],
     "betrayal rewards": [
@@ -93,7 +93,7 @@
       "pick a combination that is not used in game"
     ],
     "cheatsheets color": [
-      "click a button to apply an rgb code from clipboard, right click to reset",
+      "click a button to open the color-palette, right click to reset",
       "hover over a note and press a number key to apply color, or press space to remove it"
     ],
     "cheatsheets types": [
@@ -204,15 +204,15 @@
     "iteminfo modrolls": [
       "hides the min/max range on explicit mods",
       "+89 to maximum life\nvs.\n+89(80-89) to maximum Life"
-	],
+    ],
     "iteminfo shift-click": [
       "automatically refreshes the tooltip when applying currency to items via shift-click",
       "you have to hold shift first, right click currency, and then click items",
-	  "requires the <inventory> pixel-check"
+      "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "iteminfo league-start": [
       "adds a section where the item's stats are compared to your current gear",
-      "this section replaces the base info section and requires the <inventory> pixel check to be set up correctly in the <screen-checks> menu"
+      "this section replaces the base info section and requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "iteminfo base-info": [
       "adds a section that shows how the item's stats compare to the best-in-class stats",
@@ -223,12 +223,12 @@
       "this option caters more to advanced users because it adds even more information"
     ],
     "iteminfo item-tier": [
-      "click a box to apply an rgb code from clipboard, right click to reset",
+      "click a box to open the color-palette, right click to reset",
       "<fr> refers to fractured, <#> to untiered mods",
       "t1 and t6 are also used for desired/undesired"
     ],
     "iteminfo item-level": [
-      "click a box to apply an rgb-code from clipboard, right click to reset"
+      "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo override": [
       "undesired mods will always be marked as t6, except fractured ones"
@@ -248,24 +248,28 @@
       "provides an automated leveling guide overlay and several campaign qol-tools"
     ],
     "leveltracker timer": [
-      "adds a timer that records your act times and stores them in csv-files",
-      "it is placed on the exp bar and only visible while paused or while holding tab"
+      "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
+      "it consists of total time (left), act # (middle), current act time (right)",
+      "click < act # > to pause/resume the timer, hold right-click to reset it for a new run",
+      "how to reset: create a new character, enter twilight strand, hold right-click on < act # >, then click it to start the new run"
     ],
     "leveltracker timer-pause": [
       "automatically pauses the timer in hideouts, and resumes it when you leave"
     ],
     "leveltracker fade-timer": [
-      "overlay becomes almost invisible after a delay (except when in towns)",
+      "automatically hides the overlay after a delay (except when in towns)",
       "delay: x seconds after switching guide pages",
-      "fades back to normal while holding tab"
+      "whenever it switches pages, the overlay will be shown again and the delay will be restarted",
+      "it will also be shown while holding tab",
+      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
     ],
     "leveltracker fade mouse": [
-      "overlay fades back in when hovered over",
-      "has no effect while the move key is pressed"
+      "overlay will be shown while hovering the cursor over its previous area",
+      "has no effect while the move key is pressed (customizable in the hotkeys section)"
     ],
     "leveltracker geartracker": [
-      "notifies you when new gear can be equipped (the guide button will flash green)",
-      "accessed by right-clicking the guide button",
+      "notifies you when new gear can be equipped (the guide button will turn green)",
+      "accessed by right-clicking the guide button in the toolbar",
       "while the panel is open, omni-click items to add them to the list",
       "requires specifying your character name in the <general> settings"
     ],
@@ -304,7 +308,8 @@
     ],
     "leveltracker hints": [
       "inserts additional information underneath specific guide-steps",
-      "this info is displayed in indented lines with smaller text"
+      "this info is displayed in indented lines with smaller text",
+      "if a hint is marked with a book icon, you can hold tab to see an illustration"
     ],
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
@@ -312,11 +317,16 @@
     ],
     "maptracker rename": [
       "tags and renames boss maps for easier filtering",
-	  "example: <boss: elder> instead of <absence of value and meaning>"
+      "example: <boss: elder> instead of <absence of value and meaning>"
     ],
     "maptracker side-content": [
       "side-areas you enter and the time spent inside will be logged",
       "examples: abyssal depths, lab trials, vaal areas"
+    ],
+    "maptracker hide": [
+      "hides the panel instead of just graying it out whenever tracking is paused (by right-clicking the button in the toolbar)",
+      "check the toolbar-button to see the state of the tracker (it's also grayed out when paused)",
+      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
     ],
     "maptracker mechanics": [
       "logs certain mechanics you encounter while mapping"
@@ -363,14 +373,14 @@
     "mapinfo shift-click": [
       "refreshes the tooltip whenever you apply currency to maps via shift-click",
       "you have to hold shift first, right click currency, and then click a map",
-	  "requires the <inventory> pixel-check"
+      "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "mapinfo tab": [
       "hold tab to view a compact version of the panel on the right of the screen",
       "only works in hideouts and the map that was loaded into the panel"
     ],
     "mapinfo colors": [
-      "click a button to apply an rgb code from clipboard, right click to reset",
+      "click a button to open the color-palette, right click to reset",
       "header: color of the headers that divide the panel into sections",
       "while hovering over mods, press 1-4 to apply a color, or space to strike out"
     ],
@@ -380,12 +390,22 @@
     ],
     "alarm enable": [
       "small timer widget with alarm and stopwatch functionality",
-      "hold tab to display the widget, then click it to enter a time",
-      "right-click it to stop a running timer"
+      "hold tab to display the widget, then click it to enter a time, or drag to move it",
+	  "leave the input-field empty to use the timer as a stopwatch",
+      "right-click the widget to stop a running timer, left-click it in stopwatch mode to restart from 0:00"
     ],
     "notepad enable": [
-      "notepad tool with individual tabs and floating widgets"
+      "notepad tool with individual tabs and floating widgets that can be used as sticky-notes"
     ],
+	"notepad default color": [
+	  "specify the colors for new tabs",
+	  "tabs can also be individually customized afterwards"
+    ],
+	"notepad opacity": [
+	  "the opacity of inactive widgets (when tab is not held down)",
+	  "0 = inactive widgets are hidden",
+	  "zero opacity is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+	],
     "lab enable": [
       "simple lab layout overlay and tracker for casual runs",
       "activated by holding tab in lab or the aspirants' plaza"
@@ -469,11 +489,11 @@
       "checks for updates on script launch and in the background while running",
       "if there is an update available, the toolbar will turn green"
     ],
-	"update versions": [
-	  "the list below shows the available versions to switch between or reinstall",
-	  "each line represents a major version and has buttons to select the minor version",
-	  "hover over a button to see that version's summarized changelog"
-	],
+    "update versions": [
+      "the list below shows the available versions to switch between or reinstall",
+      "each line represents a major version and has buttons to select the minor version",
+      "hover over a button to see that version's summarized changelog"
+    ],
     "update restart": [
       "hold to update and restart",
       "active overlays and unsaved data will be lost"
@@ -658,6 +678,12 @@
     ]
   },
   "notepad": {
+	"colors": [
+	  "text color: click to open the color-palette, right-click to reset"
+	],
+	"colors1": [
+	  "background color: click to open the color-palette, right-click to reset"
+	],
     "widget": [
       "click to select tab, drag to create a widget, hold right-click to delete"
     ],
@@ -691,7 +717,7 @@
       "(/bold)(/underline)used for:",
       "-> item-info league-start mode",
       "-> mapping tracker portal reminder",
-	  "-> item/map-info shift-click"
+      "-> item/map-info shift-click"
     ],
     "betrayal": [
       "(/bold)(/underline)instructions:",
@@ -740,13 +766,13 @@
     "trade": [
       "opens the trade-site with a search for this seed"
     ],
-	"download": [
-	  "the required databases have not been downloaded yet",
-	  "click this button to start the download"
-	],
-	"update": [
-	  "click this button to check for database updates"
-	]
+    "download": [
+      "the required databases have not been downloaded yet",
+      "click this button to start the download"
+    ],
+    "update": [
+      "click this button to check for database updates"
+    ]
   },
   "snip": {
     "about": [
