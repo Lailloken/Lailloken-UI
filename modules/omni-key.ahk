@@ -148,7 +148,7 @@ Omnikey2()
 			Return
 		}
 		
-		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1")) && WinExist("ahk_id "vars.hwnd.leveltracker.main) && (guide.gems.Count() || guide.items.Count())
+		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1")) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
 		{
 			start := A_TickCount
 			While GetKeyState(ThisHotkey_copy, "P")
