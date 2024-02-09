@@ -1,5 +1,13 @@
 [
   [
+	["1.52.1", 15201],
+	"certain movable ui elements can now snap to the center of the game client",
+	"added a color palette for easier color customization",
+	"leveling tracker: overlay is now movable, timer attached to main overlay",
+	"mapping tracker: panel is movable",
+	"additional color customization for timer and notepad widgets"
+  ],
+  [
 	["1.52.0", 15200],
 	"combined llk-ui panel and feature-buttons into a toolbar",
 	"updater: faster updates, easier version-switching and roll-backs",
