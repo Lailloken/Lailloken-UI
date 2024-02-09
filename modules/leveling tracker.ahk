@@ -1538,18 +1538,18 @@ LeveltrackerTimer(mode := "")
 	If mode && InStr("pause,reset", mode)
 	{
 		If (mode = "pause") && (timer.current_act = 11)
-			error := ["can't resume: run complete", 1.5, "yellow"]
+			error := [LangTrans("lvltracker_timererror", 1), 1.5, "yellow"]
 		Else If (mode = "reset") && (vars.log.areaID != "1_1_1")
-			error := ["enter <twilight strand> to reset", 2, "red"]
+			error := [LangTrans("lvltracker_timererror", 2), 2, "red"]
 		Else If (mode = "reset") && !timer.pause
-			error := ["pause timer first", 1, "red"]
+			error := [LangTrans("lvltracker_timererror", 3), 1, "red"]
 		Else If (mode = "pause") && settings.leveltracker.pausetimer && InStr(vars.log.areaID, "hideout")
-			error := ["blocked by hideout-pause option", 2, "red"]
+			error := [LangTrans("lvltracker_timererror", 4), 2, "red"]
 
+		yTooltip := vars.leveltracker.coords.y1 - settings.general.fHeight + 1, yTooltip := (yTooltip < vars.monitor.y) ? vars.leveltracker.coords.y2 - 1 : yTooltip
 		If error
 		{
-			yTooltip := vars.leveltracker.coords.y1 - settings.general.fHeight + 1, yTooltip := (yTooltip < vars.monitor.y) ? vars.leveltracker.coords.y2 - 1 : yTooltip
-			LLK_ToolTip(error.1, error.2, vars.client.xc, yTooltip,, error.3,,,, 1)
+			LLK_ToolTip(error.1, error.2, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, error.3,,,, 1)
 			WinActivate, ahk_group poe_window
 			Return
 		}
@@ -1580,7 +1580,7 @@ LeveltrackerTimer(mode := "")
 				IniWrite, % """"timer.name """", ini\leveling tracker.ini, current run, name
 				new_run := 1
 			}
-			LLK_ToolTip(new_run ? "run started" : (timer.pause != 0) ? "timer resumed" : "timer paused",, "Center", vars.leveltracker.coords.y1 - settings.general.fHeight + 1,, "lime")
+			LLK_ToolTip(new_run ? LangTrans("lvltracker_timermessage", 1) : (timer.pause != 0) ? LangTrans("lvltracker_timermessage", 2) : LangTrans("lvltracker_timermessage", 3),, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, "lime",,,, 1)
 			timer.pause := !timer.pause ? -1 : 0 ;-1 specifies a manual pause by the user (as opposed to automatic pause after logging in or -- if set up this way -- entering a hideout)
 			GuiControl, % "+c" (timer.pause ? "Gray" : "White"), % vars.hwnd.leveltracker.timer_total
 			GuiControl, movedraw, % vars.hwnd.leveltracker.timer_total
