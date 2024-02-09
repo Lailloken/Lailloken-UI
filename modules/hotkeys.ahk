@@ -137,15 +137,18 @@ HotkeysTab()
 			For key, val in vars.hwnd.notepad_widgets
 			{
 				Gui, % GuiName(val) ": -E0x20"
-				WinSet, Transparent, 255, % "ahk_id "val
+				WinSet, Transparent, Off, % "ahk_id "val
 			}
 			Break
 		}
 
-	While WinExist("ahk_id " vars.hwnd.leveltracker.main) && GetKeyState(settings.hotkeys.tab, "P")
+	If vars.hwnd.leveltracker.main
+		leveltracker_check := LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+	
+	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
-			active .= " leveltracker", LeveltrackerOverlays(), LeveltrackerZoneLayouts(), LeveltrackerHints()
+			active .= " leveltracker", vars.leveltracker.overlays := 1, LeveltrackerZoneLayouts(), LeveltrackerHints()
 			Break
 		}
 	map := vars.mapinfo.active_map
@@ -219,13 +222,11 @@ HotkeysTab()
 		For key, val in vars.hwnd.notepad_widgets
 		{
 			Gui, % GuiName(val) ": +E0x20"
-			WinSet, Transparent, % settings.notepad.trans, % "ahk_id "val
+			WinSet, Transparent, % (key = "notepad_reminder_feature") ? 250 : 50 * settings.notepad.trans, % "ahk_id "val
 		}
 	}
 	If InStr(active, "leveltracker")
 	{
-		If !vars.leveltracker.timer.pause
-			LLK_Overlay(vars.hwnd.leveltracker_timer.main, "destroy")
 		LLK_Overlay(vars.hwnd.leveltracker_zones.main, "destroy"), vars.leveltracker.overlays := 0
 		If (settings.leveltracker.sLayouts != LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts size"))
 			IniWrite, % settings.leveltracker.sLayouts, ini\leveling tracker.ini, Settings, zone-layouts size
@@ -233,10 +234,7 @@ HotkeysTab()
 	If InStr(active, "mapinfo")
 		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.toggle := 0
 	If InStr(active, "maptracker")
-	{
-		vars.maptracker.toggle := 0
-		Gui, % GuiName(vars.hwnd.maptracker.main) ": -E0x20"
-	}
+		vars.maptracker.toggle := 0, LLK_Overlay(vars.hwnd.maptracker.main, "hide")
 	If InStr(active, " lab") && WinExist("ahk_id "vars.hwnd.lab.main)
 		LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
 	If active
@@ -254,7 +252,7 @@ HotkeysTab()
 
 LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && LLK_HasVal(vars.hwnd.lab, vars.general.cMouse) ;hovering the lab-layout button and clicking it
+#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && LLK_HasVal(vars.hwnd.lab, vars.general.cMouse) ;hovering the lab-layout button and clicking a room
 
 *LButton::Lab("override")
 *RButton::Return
@@ -274,11 +272,6 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::GuiToolbarButtons(vars.general.cMouse, 1)
 *RButton::GuiToolbarButtons(vars.general.cMouse, 2)
 
-#If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
-
-*LButton::LeveltrackerZoneLayouts(0, 1, vars.general.cMouse)
-*RButton::LeveltrackerZoneLayouts(0, 2, vars.general.cMouse)
-
 #If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse) ;hovering a notepad-widget and dragging or deleting it
 
 *LButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 1)
@@ -286,10 +279,15 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *WheelUp::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 3)
 *WheelDown::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 4)
 
+#If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
+
+*LButton::LeveltrackerZoneLayouts(0, 1, vars.general.cMouse)
+*RButton::LeveltrackerZoneLayouts(0, 2, vars.general.cMouse)
+
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) && LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse) ;hovering the maptracker-panel and clicking
 
-*LButton::Maptracker(vars.general.cMouse)
-*RButton::Return
+*LButton::Maptracker(vars.general.cMouse, 1)
+*RButton::Maptracker(vars.general.cMouse, 2)
 
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main)
 *LButton::
@@ -297,13 +295,8 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker.controls1) && LLK_HasVal(vars.hwnd.leveltracker, vars.general.cMouse) ;hovering the leveltracker-controls and clicking
 
-*LButton::Leveltracker(vars.general.cMouse)
-*RButton::Return
-
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker_timer.main) && LLK_HasVal(vars.hwnd.leveltracker_timer, vars.general.cMouse) ;hovering the leveltracker-timer and clicking
-
-*LButton::LeveltrackerTimer(vars.general.cMouse)
-*RButton::Return
+*LButton::Leveltracker(vars.general.cMouse, 1)
+*RButton::Leveltracker(vars.general.cMouse, 2)
 
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.alarm.main) && LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse) ;hovering the alarm-timer and clicking
 
@@ -323,7 +316,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 ~*^LButton::MaptrackerLoot()
 ^RButton::MaptrackerLoot("back")
 
-#If vars.leveltracker.overlays ;resizing zone-layout images
+#If !(vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse)) && vars.leveltracker.overlays ;resizing zone-layout images
 
 MButton::
 WheelUp::
