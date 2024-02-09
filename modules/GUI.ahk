@@ -7,7 +7,7 @@
 	Gui, LLK_panel: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd +E0x02000000 +E0x00080000
 	Gui, LLK_panel: Color, % !IsNumber(update.1) || (update.1 = 0) ? "Black" : (update.1 > 0) ? "Green" : "Maroon"
 	Gui, LLK_panel: Margin, % margin, % margin
-	Gui, LLK_panel: Font, % "s" size " cWhite", % vars.system.font
+	Gui, LLK_panel: Font, % "s" size " cWhite Bold", % vars.system.font
 	vars.hwnd.LLK_panel := {"main": hwnd}, height := 2 * size
 	
 	;Gui, LLK_panel: Add, Text, Center BackgroundTrans Hidden HWNDhwnd, % "LLK`nUI"
@@ -16,7 +16,7 @@
 	;	height += 1
 	
 	Gui, LLK_panel: Add, Pic, % "Section h" height " w-1 Border HWNDhwnd", % "img\GUI\settings.png"
-	vars.hwnd.LLK_panel.settings := hwnd, style := (orientation = "horizontal") ? "ys" : "xs", style .= " " (orientation = "horizontal" ? " h" height " w-1" : " w" height " h-1")
+	vars.hwnd.LLK_panel.settings := hwnd, style := (orientation = "horizontal") ? "ys" : "xs", style .= " " (orientation = "horizontal" ? " h" height " w" height : " w" height " h" height)
 
 	;Gui, LLK_panel: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
 	Gui, LLK_panel: Add, Pic, % style " Section Border BackgroundTrans HWNDhwnd0 " (orientation = "horizontal" ? "h" height/2 - 1 " w-1" : "w" height/2 - 1 " h-1"), % "img\GUI\restart.png"
@@ -31,9 +31,15 @@
 	{
 		If (settings.features[A_LoopField] || settings.qol[A_LoopField])
 		{	
-			file := (A_LoopField = "leveltracker" && vars.leveltracker.gear_ready) ? 1 : (A_LoopField = "leveltracker" && !vars.hwnd.leveltracker.main) ? "0" : ""
+			file := (A_LoopField = "leveltracker" && !(vars.hwnd.leveltracker.main || vars.leveltracker.toggle)) ? "0" : ""
 			file := (A_LoopField = "maptracker" && vars.maptracker.pause) ? 0 : file
-			Gui, LLK_panel: Add, Pic, % style " Border BackgroundTrans HWNDhwnd g" A_LoopField, % "img\GUI\" A_LoopField . file ".png"
+			If (A_LoopField = "leveltracker")
+			{
+				Gui, LLK_panel: Add, Text, % style " BackgroundTrans Center 0x200 HWNDhwnd0 cLime", % ""
+				Gui, LLK_panel: Add, Pic, % "xp yp wp hp Border BackgroundTrans HWNDhwnd", % "img\GUI\" A_LoopField . file ".png"
+				vars.hwnd.LLK_panel.leveltracker_text := hwnd0, vars.leveltracker.gear_counter := 0
+			}
+			Else Gui, LLK_panel: Add, Pic, % style " Border BackgroundTrans HWNDhwnd", % "img\GUI\" A_LoopField . file ".png"
 			added := 1, vars.hwnd.LLK_panel[A_LoopField] := hwnd
 		}
 	}
@@ -46,10 +52,10 @@
 		Return
 	}
 	
-	xPos := (settings.general.xButton > vars.monitor.w / 2 - 1) ? settings.general.xButton - w + 1 : settings.general.xButton ;apply right-alignment if applicable (i.e. if button is on the right half of monitor)
+	xPos := (settings.general.xButton >= vars.monitor.w / 2) ? settings.general.xButton - w + 1 : settings.general.xButton ;apply right-alignment if applicable (i.e. if button is on the right half of monitor)
 	xPos := (xPos + (w - 1) > vars.monitor.w - 1) ? vars.monitor.w - 1 - w : xPos ;correct the coordinates if panel ends up out of monitor-bounds
 	
-	yPos := (settings.general.yButton > vars.monitor.h / 2 - 1) ? settings.general.yButton - h + 1 : settings.general.yButton ;apply top-alignment if applicable (i.e. if button is on the top half of monitor)
+	yPos := (settings.general.yButton >= vars.monitor.h / 2) ? settings.general.yButton - h + 1 : settings.general.yButton ;apply top-alignment if applicable (i.e. if button is on the top half of monitor)
 	yPos := (yPos + (h - 1) > vars.monitor.h - 1) ? vars.monitor.h - 1 - h : yPos ;correct the coordinates if panel ends up out of monitor-bounds
 	
 	Gui, LLK_panel: Show, % (hide ? "hide" : "NA") " x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
@@ -159,7 +165,7 @@ GuiToolbarButtons(cHWND, hotkey)
 		{
 			If GetKeyState(settings.hotkeys.tab, "P")
 			{
-				LLK_ToolTip("release " settings.hotkeys.tab, 10000)
+				LLK_ToolTip(LangTrans("global_releasekey") " " settings.hotkeys.tab, 10000)
 				KeyWait, % settings.hotkeys.tab
 			}
 			Reload
@@ -172,13 +178,13 @@ GuiToolbarButtons(cHWND, hotkey)
 		{
 			If GetKeyState(settings.hotkeys.tab, "P")
 			{
-				LLK_ToolTip("release " settings.hotkeys.tab, 10000)
+				LLK_ToolTip(LangTrans("global_releasekey") " "  settings.hotkeys.tab, 10000)
 				KeyWait, % settings.hotkeys.tab
 			}
 			ExitApp
 		}
 	}
-	Else If (check = "leveltracker")
+	Else If InStr(check, "leveltracker")
 		Leveltracker(cHWND, hotkey)
 	Else If (check = "maptracker")
 		Maptracker(cHWND, hotkey)
