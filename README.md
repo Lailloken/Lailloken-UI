@@ -1,37 +1,53 @@
 ## About:
-A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. `This project is not affiliated with or endorsed by Grinding Gear Games (GGG) in any way`.  
+A light-weight AHK script with UI and QoL features for Path of Exile, emphasizing ease-of-use, minimalist design, low hotkey requirements, and seamless integration into the game-client. **`This project is not affiliated with or endorsed by Grinding Gear Games (GGG) in any way`**.  
 <br>
 
 ## Download & Setup
 [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/autohotkey.png)](https://www.autohotkey.com/download/) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)  
-[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/issues/340) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/tracker.png)](https://github.com/Lailloken/Lailloken-UI/issues/339)  
+[![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/help.png)](https://github.com/Lailloken/Lailloken-UI/issues/340) [![img](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/releases.png)](https://github.com/Lailloken/Lailloken-UI/releases)  
 *requires v1.1.36 or newer, but not v2 (since that's a separate branch)
 <br>
 <br>
 
 ## Contributions
-| accepted | how/where? | `not` accepted | why? |
-|---|---|---|---|
-| community translations / adapting the tool for non-English clients | [discussions section](https://github.com/Lailloken/Lailloken-UI/discussions/326) | direct code-input / pull requests | this is my personal fun-project, and I'd like to find solutions and fix problems myself |
-| constructive feedback & ideas | [ideas & feedback section](https://github.com/Lailloken/Lailloken-UI/discussions/categories/ideas-feedback) | outlandish feature-suggestions disguised as "QoL" | I avoid features that are "OP" or abusable |
-| bug reports | [issues section](https://github.com/Lailloken/Lailloken-UI/issues) | requests to "fix"/improve something that only GGG could | I'm self-taught and lack any dev knowledge outside my niche |
+[![image](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/translations.png)](https://github.com/Lailloken/Lailloken-UI/discussions/326) [![image](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) ![image](https://github.com/Lailloken/Lailloken-UI/blob/main/img/readme/code.png)
 <br>
 
-## Context / Scope: What (not) to expect from this project
-| expectation | reality |
-|---|---|
-| trade/stash/account features | I exclusively play SSF and wouldn't even know how to implement such features either |
-| profit/efficiency-oriented features | I'm a super casual player who plays for fun, without any ambitions or goals |
-| polished, focused product that meets certain standards | I throw in features and do things as I see fit because I don't regard my project as a "product" but instead as a personal collection/toolkit |
-<br>
+## Context: What is this project?
+<details><summary>show</summary>
+
+- this is a fun-project (by a self-taught hobby-coder) that contains various UI/QoL features
+
+  - I implement ideas that I think are fun/interesting to work on and figure out (even if they're not necessarily useful to everyone, or even myself)
+
+  - since some features are user-requested and I don't use every single one myself, some aspects are heavily reliant on user-feedback (use the banners above to contribute)
+ 
+  - my own ideas are always centered around SSF, but I'm open to trade-league-related ideas (if they're interesting enough and not too complex)
+ 
+  - I generally avoid features that are "OP" or abusable because I don't think they're good for the game, regardless of how much QoL they would provide
+
+- I view this as a personal toolkit rather than a product, so certain aspects may seem rough around the edges (or simply unconventional) when compared to other PoE-related projects
+</details>
 
 ## Transparency Notice / Things you should know
-| things this tool does || FAQ: has GGG approved this? / can I be banned? |
-|---|---|---|
-| reads the game's client.txt log-file for certain character stats || to my knowledge, GGG has never approved any 3rd-party tool |
-| sends key-presses to copy item-info or activate chat-commands and in-game searches || I can't make any claims regarding bans, only that I strictly follow [GGG's guidelines](https://www.pathofexile.com/developer/docs/index#policy) |
-| reads the screen for context-sensitivity only (i.e. to adapt **`script-internal`** processes) || (weak) annectodal evidence: I have not been banned, nor have I heard of anyone else being banned |
-<br>
+<details><summary>show</summary>
+
+- **things this tool does**
+
+  - reads the game's client.txt log-file for certain statistics/events: current character level, area & transitions, NPC dialogues, etc.
+ 
+  - sends key-presses to copy item-info, or activate chat-commands and in-game searches
+ 
+  - reads the screen for context-sensitivity to adapt the tool's behavior: it searches for open UIs (e.g. inventory, stash), `but it never reads/checks game-related values or bars`
+ 
+- **FAQ: has GGG approved this / can I be banned?**
+
+  - to my knowledge, GGG has never approved any (local) 3rd-party tool
+ 
+  - I can't make any claims regarding bans, only that I strictly follow [GGG's guidelines](https://www.pathofexile.com/developer/docs/index#policy): creators can be banned for distributing tools that violate the ToS, so it's in my best interest to follow them
+ 
+  - (weak) annecdotal evidence: I have not been banned, nor have I heard of anyone else being banned
+</details>
 
 ## Main Features
 \* = based on a user-request
@@ -43,10 +59,9 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | segments ||
 |---|---|
 | DPS info | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/a1ba26c1-caf3-454f-b0db-a6382fc6fa35) |
-| item-base info (optional) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/64ee0282-1cbd-464f-94d9-9de8d79f1e66) |
-|   | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/ce61b656-474e-4ce3-871c-0124377d64ce) |
+| item-base info (optional) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/64ee0282-1cbd-464f-94d9-9de8d79f1e66)<br>![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/ce61b656-474e-4ce3-871c-0124377d64ce) |
 | comparison with current gear (optional) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/03ae8243-bdac-4f06-be2f-f3ab43365380) |
-| eldritch implicits, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276010-99ce801f-e2d8-4c99-af37-026a1847abe2.png) |
+| implicits, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276010-99ce801f-e2d8-4c99-af37-026a1847abe2.png) |
 | explicits, rolls, (un)desired highlighting | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/e449237e-62ef-4abb-951a-f1b1b3b8631d) |
 | drop-tier and roll-percentages for uniques | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/b44f953e-0b51-4563-b661-a7a94533c881) |
 
