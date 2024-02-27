@@ -16,9 +16,14 @@
 	Clipboard := ""
 	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id "vars.hwnd.poe_client)
 	{
-		WinActivate, ahk_group poe_window
-		WinWaitActive, ahk_group poe_window
-		Sleep 250
+		WinActivate, % "ahk_id " vars.hwnd.poe_client
+		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
+	}
+
+	If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
+	{
+		MaptrackerNoteAdd()
+		Return
 	}
 
 	If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
@@ -272,7 +277,7 @@ OmniContextMenu()
 		If (item.rarity != LangTrans("items_unique"))
 		&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || LLK_HasVal(db.item_bases._classes, item.class) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
 		{
-			If LLK_HasVal(db.item_bases._classes, item.class)
+			If !Blank(LLK_HasVal(db.item_bases._classes, item.class))
 				class := db.item_bases._classes[LLK_HasVal(db.item_bases._classes, item.class)]
 			Else If LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
 				class := LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
@@ -280,12 +285,12 @@ OmniContextMenu()
 				class := item.class
 			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
 			ControlGetPos,,, w2,,, % "ahk_id " hwnd
-			If (class != "cluster jewels") && (LLK_HasVal(db.item_bases._classes, item.class) || InStr(item.class, "heist") && item.itembase)
+			If (class != "cluster jewels") && (!Blank(LLK_HasVal(db.item_bases._classes, item.class)) || InStr(item.class, "heist") && item.itembase)
 			{
 				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "poe.db: " LangTrans("system_poedb_lang", 2)
 				ControlGetPos,,, w3,,, % "ahk_id " hwnd1
 			}
-			If !item.unid && (settings.general.lang_client = "english") && LLK_HasVal(db.item_bases._classes, item.class) && !LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil"])
+			If !item.unid && (settings.general.lang_client = "english") && !Blank(LLK_HasVal(db.item_bases._classes, item.class)) && !LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil"])
 			{
 				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd2" style, % "craft of exile"
 				ControlGetPos,,, w4,,, % "ahk_id " hwnd2
@@ -379,7 +384,7 @@ OmniContextMenuPick(cHWND)
 			page := (InStr(A_GuiControl, "all clusters") ? "" : (InStr(item.itembase, "small") ? "Small_" : InStr(item.itembase, "medium") ? "Medium_" : "Large_")) "Cluster_Jewel"
 		Else If InStr(item.itembase, "Runic ", 1)
 			page := (item.class = "boots") ? "Runic_Sabatons" : (item.class = "helmets") ? "Runic_Crown" : "Runic_Gauntlets"
-		Else If LLK_HasVal(["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask"], item.itembase) || InStr(item.class, "jewels") || InStr(item.class, "heist")
+		Else If !Blank(LLK_HasVal(["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask"], item.itembase)) || InStr(item.class, "jewels") || InStr(item.class, "heist")
 			page := StrReplace(item.itembase, " ", "_")
 		Else page := StrReplace(item.class, " ", "_") . item.attributes
 		Run, % "https://poedb.tw/" . LangTrans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")

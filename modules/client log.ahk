@@ -72,7 +72,7 @@ LogLoop(mode := 0)
 				}
 			If check
 				Lab("backtrack", check)
-			Else If LLK_HasVal(vars.lab.exits.names, areaname) ;check which adjacent room has been entered
+			Else If !Blank(LLK_HasVal(vars.lab.exits.names, areaname)) ;check which adjacent room has been entered
 				For index, room in vars.lab.exits.names
 					If (room = areaname) && Blank(vars.lab.rooms[vars.lab.exits.numbers[index]].seed)
 					{
@@ -91,12 +91,12 @@ LogLoop(mode := 0)
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
 		Leveltracker("+")
 	
-	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname) && !vars.mapinfo.active_map.expedition_filter
+	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
 		Loop, % vars.mapinfo.categories.Count()
 		{
 			parse := InStr(vars.mapinfo.categories[A_Index], "(") ? SubStr(vars.mapinfo.categories[A_Index], 1, InStr(vars.mapinfo.categories[A_Index], "(") - 2) : vars.mapinfo.categories[A_Index]
-			If LLK_HasVal(vars.mapinfo.expedition_areas, parse) && (parse != vars.log.areaname)
+			If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, parse)) && (parse != vars.log.areaname)
 				vars.mapinfo.categories[A_Index] := ""
 		}
 		vars.mapinfo.active_map.name := LangTrans("maps_logbook") ": " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1

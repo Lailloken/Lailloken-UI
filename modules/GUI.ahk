@@ -112,7 +112,7 @@ GuiName(GuiHWND)
 	global vars
 
 	For index, val in vars.GUI
-		If LLK_HasVal(val, GuiHWND)
+		If !Blank(LLK_HasVal(val, GuiHWND))
 			Return val.name
 }
 

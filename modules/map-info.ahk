@@ -156,7 +156,7 @@ MapinfoGUI(mode := 1)
 
 		For index0, category in vars.mapinfo.categories
 		{
-			If LLK_HasVal(vars.mapinfo.expedition_areas, InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category)
+			If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category))
 				Continue
 			Loop 4
 			{
@@ -198,7 +198,7 @@ MapinfoGUI(mode := 1)
 		Gui, %GUI_name%: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.mapinfo.main
 		MouseGetPos, xPos, yPos
-		y := (mode = 2) ? vars.client.yc - h/2 : (yPos - (h + vars.client.h/25) < vars.client.y) ? yPos + vars.client.h/25 : yPos - (h + vars.client.h/25), oob := (y + h > vars.client.y + vars.client.h) ? 1 : 0
+		y := (mode = 2) ? vars.monitor.y + vars.client.yc - h/2 : (yPos - (h + vars.client.h/25) < vars.client.y) ? yPos + vars.client.h/25 : yPos - (h + vars.client.h/25), oob := (y + h > vars.client.y + vars.client.h) ? 1 : 0
 		If oob
 			x := (xPos - vars.client.h/25 - w < vars.client.x) ? xPos + vars.client.h/25 : xPos - vars.client.h/25 - w, y := (yPos + h/2 > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : (yPos - h/2 < vars.client.y) ? vars.client.y : yPos - h/2
 		Else x := (mode = 2) ? vars.client.x + vars.client.w - w : (xPos - w/2 < vars.client.x) ? vars.client.x : (xPos + w/2 > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : xPos - w/2
@@ -304,7 +304,7 @@ MapinfoParse(mode := 1)
 			Loop 5
 				map[key][5 - A_Index] := []
 		}
-		Else If LLK_HasVal(vars.mapinfo.expedition_areas, A_LoopField)
+		Else If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, A_LoopField))
 			expedition_area := LLK_StringCase(A_LoopField)
 		Else If InStr(A_LoopField, " (implicit)")
 		{

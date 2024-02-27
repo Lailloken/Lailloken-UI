@@ -232,7 +232,7 @@ Settings_cheatsheets2(cHWND)
 		}
 		If !FileExist("cheat-sheets\")
 		{
-			LLK_FilePermissionError("create", "cheat-sheets")
+			LLK_FilePermissionError("create", A_ScriptDir "\cheat-sheets")
 			GuiControl,, % cHWND, 0
 			Return
 		}
@@ -425,7 +425,7 @@ Settings_cloneframes()
 
 	Gui, %GUI%: Add, Text, % "xs Section cYellow", % LangTrans("m_clone_targetxy")
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % Format("{:0.0f}", vars.client.xc - 100 - vars.monitor.x)
+	Gui, %GUI%: Add, Edit, % "ys x"x - 1 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % Format("{:0.0f}", vars.client.xc - 100)
 	vars.hwnd.settings.xTarget := vars.cloneframes.scroll.xTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll||||"] := hwnd
 	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 13 - vars.monitor.y
 	vars.hwnd.settings.yTarget := vars.cloneframes.scroll.yTarget := vars.hwnd.help_tooltips["settings_cloneframes scroll|||||"] := hwnd
@@ -736,7 +736,7 @@ Settings_general2(cHWND := "")
 			GuiControl, +disabled, % vars.hwnd.settings.character
 			IniWrite, % settings.general.character, ini\config.ini, Settings, active character
 			Init_log()
-			If LLK_Overlay(vars.hwnd.geartracker.main, "check")
+			If WinExist("ahk_id " vars.hwnd.geartracker.main)
 				GeartrackerGUI()
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
@@ -1664,11 +1664,10 @@ Settings_maptracker()
 	vars.hwnd.settings.loot := hwnd, vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, % LangTrans("m_maptracker_kills")
 	vars.hwnd.settings.kills := vars.hwnd.help_tooltips["settings_maptracker kill-tracker"] := hwnd
-	If settings.features.mapinfo
-	{
-		Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo, % LangTrans("m_maptracker_mapinfo")
-		vars.hwnd.settings.mapinfo := hwnd, vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
-	}
+	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo (!settings.features.mapinfo ? " cGray" : ""), % LangTrans("m_maptracker_mapinfo")
+	vars.hwnd.settings.mapinfo := hwnd, vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.notes, % LangTrans("m_maptracker_notes")
+	vars.hwnd.settings.notes := vars.hwnd.help_tooltips["settings_maptracker notes"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, % LangTrans("m_maptracker_sidearea")
 	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % LangTrans("m_maptracker_rename")
@@ -1747,8 +1746,17 @@ Settings_maptracker2(cHWND)
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
 		Case "mapinfo":
+			If !settings.features.mapinfo
+			{
+				GuiControl,, % cHWND, 0
+				Return
+			}
 			settings.maptracker.mapinfo := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.mapinfo, ini\map tracker.ini, settings, log mods from map-info panel
+		Case "notes":
+			settings.maptracker.notes := LLK_ControlGet(cHWND)
+			IniWrite, % settings.maptracker.notes, ini\map tracker.ini, settings, enable notes
+			MaptrackerGUI()
 		Case "sidecontent":
 			settings.maptracker.sidecontent := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.sidecontent, ini\map tracker.ini, settings, track side-areas
@@ -1790,8 +1798,8 @@ Settings_maptracker2(cHWND)
 					KeyWait, RButton
 					Clipboard := ""
 					SendInput, #+{s}
-					WinWaitActive, ahk_group snipping_tools,, 2
-					WinWaitNotActive, ahk_group snipping_tools
+					WinWaitNotActive, ahk_group poe_ahk_window,, 2
+					WinWaitActive, ahk_group poe_ahk_window
 					pClipboard := Gdip_CreateBitmapFromClipboard()
 					If (0 >= pClipboard)
 					{
@@ -1832,7 +1840,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
 	
-	If LLK_HasVal(vars.hwnd.settings, section) ;instead of using the first parameter for section/cHWND depending on context, get the section name from the control's text
+	If !Blank(LLK_HasVal(vars.hwnd.settings, section)) ;instead of using the first parameter for section/cHWND depending on context, get the section name from the control's text
 		section := LLK_HasVal(vars.hwnd.settings, section) ? LLK_HasVal(vars.hwnd.settings, section) : section
 
 	vars.settings.xMargin := settings.general.fWidth*0.75, vars.settings.yMargin := settings.general.fHeight*0.15, vars.settings.line1 := settings.general.fHeight/4
@@ -1942,7 +1950,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 	}
 	Else
 	{
-		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y"vars.client.yc - h//2 " w"w - 1 " h"h - 2
+		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
 		vars.settings.x := vars.client.x
 	}
 	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h
@@ -2093,12 +2101,11 @@ Settings_qol2(cHWND)
 		If (control = "notepad")
 			Init_GUI()
 		If (control = "notepad") && !settings.qol.notepad
-			LLK_Overlay(vars.hwnd.notepad.main, "destroy")
-		If (control = "notepad") && !settings.qol.notepad && vars.hwnd.notepad_widgets.Count()
 		{
+			LLK_Overlay(vars.hwnd.notepad.main, "destroy")
 			For key, val in vars.hwnd.notepad_widgets
 				LLK_Overlay(val, "destroy")
-			vars.hwnd.Delete("notepad_widgets")
+			vars.hwnd.notepad_widgets := {}, vars.notepad_widgets := {}
 		}
 		Settings_menu("minor qol tools")
 	}

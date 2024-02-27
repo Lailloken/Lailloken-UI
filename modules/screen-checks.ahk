@@ -46,8 +46,8 @@ Screenchecks_ImageRecalibrate()
 	vars.general.gui_hide := 1
 	LLK_Overlay("hide")
 	SendInput, #+{s}
-	WinWaitActive, ahk_group snipping_tools,, 2
-	WinWaitNotActive, ahk_group snipping_tools
+	WinWaitNotActive, ahk_group poe_ahk_window,, 2
+	WinWaitActive, ahk_group poe_ahk_window
 	pClipboard := Gdip_CreateBitmapFromClipboard()
 	If (pClipboard <= 0)
 	{

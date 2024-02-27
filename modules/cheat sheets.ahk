@@ -15,7 +15,7 @@
 	;settings.cheatsheets.quick := LLK_IniRead("ini\cheat-sheets.ini", "settings", "quick access", 0)
 	settings.cheatsheets.modifiers := ["alt", "ctrl", "shift"]
 	settings.cheatsheets.modifier := LLK_IniRead("ini\cheat-sheets.ini", "settings", "modifier-key", "alt")
-	If !LLK_HasVal(settings.cheatsheets.modifiers, settings.cheatsheets.modifier) ;force alt if modifier-key is an unexpected key
+	If Blank(LLK_HasVal(settings.cheatsheets.modifiers, settings.cheatsheets.modifier)) ;force alt if modifier-key is an unexpected key
 		settings.cheatsheets.modifier := "alt"
 	
 	Loop 4
@@ -134,10 +134,10 @@ CheatsheetAdd(name, type)
 	}
 	FileRemoveDir, cheat-sheets\%name%, 1
 	If FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("delete", "cheat-sheets\"name)
+		error := 1, LLK_FilePermissionError("delete", A_ScriptDir "\cheat-sheets\"name)
 	FileCreateDir, cheat-sheets\%name%
 	If !error && !FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("create", "cheat-sheets\"name)
+		error := 1, LLK_FilePermissionError("create", A_ScriptDir "\cheat-sheets\"name)
 	If error
 		Return
 	IniWrite, 1, cheat-sheets\%name%\info.ini, general, enable
@@ -316,7 +316,7 @@ CheatsheetCalibrate()
 			LLK_ToolTip(LangTrans("global_errorname", 1), 1.5,,,, "red")
 			Return
 		}
-		If LLK_HasVal(prohibited, parse) ;entry-name cannot be the same as existing ini-sections (otherwise, they will be deleted when the entry is deleted)
+		If !Blank(LLK_HasVal(prohibited, parse)) ;entry-name cannot be the same as existing ini-sections (otherwise, they will be deleted when the entry is deleted)
 		{
 			LLK_ToolTip(LangTrans("global_errorname", 2),,,,, "red")
 			Return
@@ -344,8 +344,8 @@ CheatsheetCalibrate()
 
 	Clipboard := ""
 	SendInput, #+{s}
-	WinWaitActive, ahk_group snipping_tools,, 2
-	WinWaitNotActive, ahk_group snipping_tools
+	WinWaitNotActive, ahk_group poe_ahk_window,, 2
+	WinWaitActive, ahk_group poe_ahk_window
 	pBitmap := Gdip_CreateBitmapFromClipboard()
 	If (pBitmap <= 0)
 	{
@@ -382,14 +382,14 @@ CheatsheetCalibrate()
 	
 	Gui, cheatsheet_calibration: Show, NA x10000 y10000
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.cheatsheet_calibration.main
-	Gui, cheatsheet_calibration: Show, % "x"vars.client.xc - w/2 " y"vars.client.yc - h/2
+	Gui, cheatsheet_calibration: Show, % "x" vars.monitor.x + vars.client.xc - w/2 " y" vars.monitor.y + vars.client.yc - h/2
 	While !vars.cheatsheets.active.choice && WinActive("ahk_id " vars.hwnd.cheatsheet_calibration.main)
 		sleep 50
 	
 	If vars.cheatsheets.active.choice
 	{
 		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets\" name "\[check] " vars.cheatsheets.active.choice ".bmp", 100)
-		If !LLK_HasVal(vars.cheatsheets.list[name].entries, vars.cheatsheets.active.choice)
+		If Blank(LLK_HasVal(vars.cheatsheets.list[name].entries, vars.cheatsheets.active.choice))
 		{
 			If !IsObject(vars.cheatsheets.list[name].entries[vars.cheatsheets.active.choice])
 				vars.cheatsheets.list[name].entries[vars.cheatsheets.active.choice] := {"panels": [], "ranks": []}
@@ -446,7 +446,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		vars.cheatsheets[name].include := []
 	has_00 := FileExist("cheat-sheets\"name "\[00].*")
 
-	If LLK_HasVal(ignore, hotkey)
+	If !Blank(LLK_HasVal(ignore, hotkey))
 	{
 		If (hotkey = "Space")
 			vars.cheatsheets[name].include := []
@@ -542,7 +542,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		}
 	}
 
-	If hotkey && (LLK_HasVal(vars.cheatsheets[name].include, hotkey) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
+	If hotkey && !Blank((LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
 	&& !FileExist("cheat-sheets\"name "\[0"hotkey "]*.*"))
 		Return
 	Else If LLK_IsType(hotkey, "alnum") && has_00
@@ -641,7 +641,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			Case 1:
 				style .= "x"vars.client.x
 			Case 2:
-				style .= "x"vars.client.xc - width//2
+				style .= "x" vars.monitor.x + vars.client.xc - width//2
 			Case 3:
 				style .= "x"vars.client.x + vars.client.w - width
 		}
@@ -650,7 +650,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			Case 1:
 				style .= " y"vars.client.y
 			Case 2:
-				style .= " y"vars.client.yc - height//2
+				style .= " y" vars.monitor.y + vars.client.yc - height//2
 			Case 3:
 				style .= " y"vars.client.y + vars.client.h - height
 		}
@@ -1108,7 +1108,7 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 	Sleep 50
 	If !Blank(xPos)
 		xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos, yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
-	Gui, %GUI_name%: Show, % "x"(!Blank(xPos) ? xPos " y"yPos : vars.client.x " y"vars.client.yc - h//2)
+	Gui, %GUI_name%: Show, % "x"(!Blank(xPos) ? xPos " y"yPos : vars.client.x " y" vars.monitor.y + vars.client.yc - h//2)
 	LLK_Overlay(cheatsheet_menu, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If !WinExist("ahk_id "vars.hwnd.snip.main)
 		GuiControl, Focus, % vars.hwnd.cheatsheet_menu.name

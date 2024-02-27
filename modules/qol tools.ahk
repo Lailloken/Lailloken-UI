@@ -136,7 +136,7 @@ Alarm(click := 0)
 	WinGetPos,,, w, h, ahk_id %alarm%
 	vars.alarm.wPanel := w, vars.alarm.hPanel := h
 	xPos := Blank(settings.alarm.xPos) ? vars.client.xc - w / 2 + 1 : settings.alarm.xPos, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
-	yPos := Blank(settings.alarm.yPos) ? vars.client.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+	yPos := Blank(settings.alarm.yPos) ? vars.client.y - vars.monitor.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
 	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
 	WinGetPos, x, y,,, ahk_id %alarm%
 	vars.alarm.xPanel := x, vars.alarm.yPanel := y
@@ -182,10 +182,10 @@ EssenceTooltip(cHWND)
 	{
 		Gui, %GUI_name%: Add, Text, % "Center Border 0x200 HWNDhwnd w"widths[type "_"tier].1 (A_Index = 1 ? " Section" : " xs Section"), % LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val) ? val "`n" : val
 		columns[val] := 1
-		If LLK_HasVal(db.essences[type][tier + 1].1, val)
+		If !Blank(LLK_HasVal(db.essences[type][tier + 1].1, val))
 			vars.hwnd.essences[val] := hwnd
 		Gui, %GUI_name%: Add, Text, % "Border BackgroundTrans ys w"widths[type "_"tier].2, % " " db.essences[type][tier].2[index] (LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val) ? "`n " : "")
-		If LLK_HasVal(db.essences[type][tier + 1].1, val) && (check = val)
+		If !Blank(LLK_HasVal(db.essences[type][tier + 1].1, val)) && (check = val)
 			Gui, %GUI_name%: Add, Text, % "Border xp wp wp hp cLime", % " `n " db.essences[type][tier + 1].2[LLK_HasVal(db.essences[type][tier + 1].1, val)]
 	}
 	For index, val in db.essences[type][tier + 1].1
@@ -326,7 +326,7 @@ Lab(mode := "", override := 0)
 		WinWaitActive, ahk_group poe_window
 		If !step
 		{
-			LLK_ToolTip(LangTrans("global_abort"), 1.5, vars.client.xc, vars.client.yc,, "red", settings.general.fSize + 4,,, 1), Gdip_DisposeImage(pBitmap)
+			LLK_ToolTip(LangTrans("global_abort"), 1.5, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "red", settings.general.fSize + 8,,, 1), Gdip_DisposeImage(pBitmap)
 			Return
 		}
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
@@ -413,7 +413,7 @@ Lab(mode := "", override := 0)
 	{
 		If InStr(vars.log.areaID, "airlock") || vars.lab.mismatch || vars.lab.outdated
 			Continue
-		If LLK_HasVal(vars.lab.exits.numbers, index) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1) ;&& !(vars.lab.room.1 > index)
+		If !Blank(LLK_HasVal(vars.lab.exits.numbers, index)) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1) ;&& !(vars.lab.room.1 > index)
 			Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center x"(room.x + 12) * scale - dim/2 " w"dim*2 " y"(room.y + 48) * scale - text_height, % SubStr(room.name, 1, 2) " " SubStr(room.name, InStr(room.name, " ") + 1, 2)
 		If (vars.lab.room.1 = index)
 			Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_purple_trans.png
@@ -434,7 +434,7 @@ Lab(mode := "", override := 0)
 	
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %lab%
-	Gui, %GUI_name%: Show, % "NA x"vars.client.xc - w/2 " y"vars.monitor.y + vars.monitor.h - h
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w/2 " y"vars.monitor.y + vars.monitor.h - h
 	WinGetPos, x, y,,, ahk_id %lab%
 
 	GUI_name2 := "lab_button" toggle
@@ -458,7 +458,7 @@ Notepad(cHWND := "", hotkey := "")
 	
 	If (cHWND = "save") ;save any changes made to a note
 	{
-		If !vars.notepad.selected_entry
+		If Blank(vars.notepad.selected_entry)
 			Return
 		check_text := StrReplace(LLK_ControlGet(vars.hwnd.notepad.note), "&&", "&")
 		While !Blank(check_text) && InStr(" `n", SubStr(check_text, 1, 1))
@@ -523,7 +523,9 @@ Notepad(cHWND := "", hotkey := "")
 			Gui, notepad_reminder: Add, Text, Section, quick-note:
 			Gui, notepad_reminder: Add, Edit, % "xs cBlack r1 HWNDhwnd_reminder_edit w"settings.general.fWidth*25
 			Gui, notepad_reminder: Add, Button, % "Default Hidden xp yp wp hp gNotepad"
-			Gui, notepad_reminder: Show, Center
+			Gui, notepad_reminder: Show, % "NA x10000 y10000"
+			WinGetPos,,, width, height, ahk_id %hwnd_reminder%
+			Gui, notepad_reminder: Show, % "x" vars.monitor.x + vars.client.xc - width/2 " y" vars.monitor.y + vars.client.yc - height/2
 			vars.system.click := 1
 			While WinActive("ahk_id " hwnd_reminder)
 				Sleep 10
@@ -572,8 +574,6 @@ Notepad(cHWND := "", hotkey := "")
 				WinActivate, ahk_group poe_window
 				Return
 			}
-		If (control = "grouped widget")
-			Return
 		If (hotkey = 2 || vars.system.click = 2)
 		{
 			If LLK_Progress(vars.hwnd.notepad["delbar_"control], "RButton")
@@ -652,19 +652,6 @@ Notepad(cHWND := "", hotkey := "")
 	}
 	If (sum_height)
 	{
-		If (check > 1)
-		{
-			Gui, %GUI_name%: Add, Text, % "xs y+-1 w" w " Border BackgroundTrans Center HWNDhwnd gNotepad c" vars.notepad.settings["grouped widget"].1, % LangTrans("notepad_group")
-			ControlGetPos,,,, h,, ahk_id %hwnd%
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwndbar Range0-500 Background" vars.notepad.settings["grouped widget"].2 " c" vars.notepad.settings["grouped widget"].1, 0
-			Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd0 gNotepad", % "  "
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd01 c" vars.notepad.settings["grouped widget"].1, 100
-			Gui, %GUI_name%: Add, Text, % "x+-1 hp Border BackgroundTrans HWNDhwnd1 gNotepad", % "  "
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd11 c" vars.notepad.settings["grouped widget"].2, 100
-			vars.hwnd.notepad["select_grouped widget"] := hwnd, vars.hwnd.help_tooltips["notepad_widget grouped"] := hwndbar, sum_height + h - 1
-			vars.hwnd.notepad["textcolor_grouped widget"] := hwnd0, vars.hwnd.notepad["textcolor_grouped widget_bar"] := vars.hwnd.help_tooltips["notepad_colors" handle1 "|"] := hwnd01
-			vars.hwnd.notepad["backcolor_grouped widget"] := hwnd1, vars.hwnd.notepad["backcolor_grouped widget_bar"] := vars.hwnd.help_tooltips["notepad_colors1" handle1 "|"] := hwnd11
-		}
 		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %GUI_name%: Font, % "s" settings.notepad.fSize
@@ -689,8 +676,8 @@ Notepad(cHWND := "", hotkey := "")
 	ControlMove,,,, w - settings.general.fWidth*2 + 1,, % "ahk_id "vars.hwnd.notepad.winbar
 	ControlMove,, w - settings.general.fWidth*2,,,, % "ahk_id "vars.hwnd.notepad.winx
 	Sleep 50
-	xPos := Blank(vars.notepad.x) ? vars.client.xc - w/2 : (vars.notepad.x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : vars.notepad.x
-	yPos := Blank(vars.notepad.y) ? vars.client.yc - h/2 : (vars.notepad.y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : vars.notepad.y
+	xPos := Blank(vars.notepad.x) ? vars.monitor.x + vars.client.xc - w/2 : (vars.notepad.x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : vars.notepad.x
+	yPos := Blank(vars.notepad.y) ? vars.monitor.y + vars.client.yc - h/2 : (vars.notepad.y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : vars.notepad.y
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(notepad, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If refresh_widget
@@ -701,18 +688,14 @@ NotepadReload()
 {
 	local
 	global vars, settings
-	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "grouped widget", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
+	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
 	
 	vars.notepad.entries := {"notepad_reminder_feature": vars.notepad.entries.notepad_reminder_feature}, vars.notepad.settings := {}
-	vars.notepad.settings["grouped widget"] := StrSplit(LLK_IniRead("ini\qol tools.ini", "notepad tab settings", "grouped widget", settings.notepad.color "|" settings.notepad.color1), "|")
-	Loop 2
-		If Blank(vars.notepad.settings["grouped widget"][A_Index])
-			vars.notepad.settings["grouped widget"][A_Index] := settings.notepad["color" (A_Index = 1 ? "" : "1")]
 	Iniread, ini, ini\qol tools.ini, notepad
 	Loop, Parse, ini, `n, `r
 	{
 		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), "(n)", "`n"), val := (SubStr(val, 1, 1) = """") ? SubStr(val, 2, -1) : val
-		If LLK_HasVal(skip, key)
+		If !Blank(LLK_HasVal(skip, key))
 			Continue
 		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(LLK_IniRead("ini\qol tools.ini", "notepad tab settings", key, settings.notepad.color "|" settings.notepad.color1), "|")
 		Loop 2
@@ -735,11 +718,11 @@ NotepadWidget(tab, mode := 0)
 		If !IsObject(vars.notepad.entries)
 			vars.notepad.entries := {}
 		LLK_PanelDimensions([reminder_text], settings.notepad.fSize, width, height)
-		vars.notepad.entries[tab] := reminder_text, vars.notepad_widgets[tab] := {"x": Blank(settings.notepad.xQuickNote) ? vars.client.xc - width/2 + 1 : settings.notepad.xQuickNote, "y": Blank(settings.notepad.yQuickNote) ? vars.client.y : settings.notepad.yQuickNote}
+		vars.notepad.entries[tab] := reminder_text, vars.notepad_widgets[tab] := {"x": Blank(settings.notepad.xQuickNote) ? vars.client.xc - width/2 + 1 : settings.notepad.xQuickNote, "y": Blank(settings.notepad.yQuickNote) ? vars.client.y - vars.monitor.y : settings.notepad.yQuickNote}
 	}
 	Else
 	{
-		If (tab != "grouped widget") && Blank(vars.notepad.entries[tab]) && A_Gui
+		If Blank(vars.notepad.entries[tab]) && A_Gui
 		{
 			LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [StrReplace(tab, "&", "&&")]), 2,,,, "Red")
 			Return
@@ -749,15 +732,12 @@ NotepadWidget(tab, mode := 0)
 		start := A_TickCount
 		If (mode = 2)
 		{
-			LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy")
-			If (tab = "grouped widget")
-				vars.hwnd.Delete("notepad_widgets")
-			Else vars.hwnd.notepad_widgets.Delete(tab)
+			LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy"), vars.hwnd.notepad_widgets.Delete(tab)
 			KeyWait, RButton
 			Return
 		}
 
-		If (mode != 5)
+		If (mode != 5) ;mode 5 is used to refresh a widget whenever the text in the corresponding tab is changed
 		{
 			longpress := InStr(A_Gui, "notepad") ? 1 : 0
 			While GetKeyState("LButton", "P") && !longpress
@@ -765,26 +745,22 @@ NotepadWidget(tab, mode := 0)
 					longpress := 1
 		}
 
-		If (tab = "grouped widget" && mode = 4)
-			vars.notepad.active_widget += (vars.notepad.active_widget != vars.notepad["grouped widget"].Count()) ? 1 : 0, mode := 0
-		Else If (tab = "grouped widget" && mode = 3)
-			vars.notepad.active_widget -= (vars.notepad.active_widget > 1) ? 1 : 0, mode := 0
+		If InStr(vars.notepad.entries[tab], "`n#`n") && (mode = 4)
+			vars.notepad_widgets[tab].page += (vars.notepad_widgets[tab].page != vars.notepad_widgets[tab].text.Count()) ? 1 : 0, mode := 0
+		Else If InStr(vars.notepad.entries[tab], "`n#`n") && (mode = 3)
+			vars.notepad_widgets[tab].page -= (vars.notepad_widgets[tab].page > 1) ? 1 : 0, mode := 0
 		Else If !A_Gui && !longpress
 			Return
 		
-		If (tab = "grouped widget") && InStr(A_Gui, "notepad")
+		If InStr(vars.notepad.entries[tab], "`n#`n") && InStr(A_Gui, "notepad")
 		{
-			For key, val in vars.hwnd.notepad_widgets
-				If (key != "notepad_reminder_feature")
-					LLK_Overlay(val, "destroy"), vars.hwnd.notepad_widgets.Delete(key)
-			vars.notepad["grouped widget"] := []
-			For entry, text in vars.notepad.entries
-				If !Blank(text) && (entry != "notepad_reminder_feature")
-					vars.notepad["grouped widget"].Push([entry, text])
-		}		
-
-		If !InStr("notepad_reminder_feature,grouped widget", tab)
-			LLK_Overlay(vars.hwnd.notepad_widgets["grouped widget"], "destroy"), vars.hwnd.notepad_widgets.Delete("grouped widget")
+			vars.notepad_widgets[tab] := {"text": [], "page": (vars.notepad_widgets[tab].page ? vars.notepad_widgets[tab].page : "1"), "x": vars.notepad_widgets[tab].x, "y": vars.notepad_widgets[tab].y}
+			Loop, Parse, % StrReplace(vars.notepad.entries[tab], "`n#`n", "¢"), % "¢", % "`r`n"
+				vars.notepad_widgets[tab].text.Push(A_LoopField)
+			vars.notepad_widgets[tab].page := (vars.notepad_widgets[tab].page > vars.notepad_widgets[tab].text.Count()) ? vars.notepad_widgets[tab].text.Count() : vars.notepad_widgets[tab].page
+		}
+		Else If !InStr(vars.notepad.entries[tab], "`n#`n") && InStr(A_Gui, "notepad")
+			vars.notepad_widgets[tab].Delete("text") ;simply delete this key in case a scrollable widget turns into a regular one
 	}
 
 	Loop, Parse, tab
@@ -798,10 +774,10 @@ NotepadWidget(tab, mode := 0)
 	If (InStr(A_Gui, "notepad") || mode = 1)
 		LLK_Overlay(hwnd_old, "destroy")
 	
-	If (tab = "grouped widget")
+	If IsObject(vars.notepad_widgets[tab].text)
 	{
-		active := vars.notepad.active_widget := Blank(vars.notepad.active_widget) ? 1 : vars.notepad.active_widget
-		Gui, %GUI_name%: Add, Text, % "Section c" vars.notepad.settings["grouped widget"].1, % StrReplace(vars.notepad["grouped widget"][active].1, "&", "&&") " ("active "/" vars.notepad["grouped widget"].Count() "):`n" StrReplace(vars.notepad["grouped widget"][active].2, "&", "&&")
+		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count()
+		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):`n" StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
 	}
 	Else Gui, %GUI_name%: Add, Text, % "Section" (tab = "notepad_reminder_feature" ? " cRed" : ""), % StrReplace(vars.notepad.entries[tab], "&", "&&")
 	Gui, %GUI_name%: Show, NA x10000 y10000
@@ -826,7 +802,7 @@ NotepadWidget(tab, mode := 0)
 		vars.notepad_widgets[tab].x := x, vars.notepad_widgets[tab].y := y
 
 	xPos := Blank(vars.notepad_widgets[tab].x) ? vars.client.xc - w/2 + 1 : vars.notepad_widgets[tab].x, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
-	yPos := Blank(vars.notepad_widgets[tab].y) ? vars.monitor.y : vars.notepad_widgets[tab].y, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+	yPos := vars.notepad_widgets[tab].y, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
 	Gui, %GUI_name%: Show, % "NA x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(widget, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
