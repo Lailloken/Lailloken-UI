@@ -231,7 +231,7 @@
       "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo override": [
-      "undesired mods will always be marked as t6, except fractured ones"
+      "undesired mods will always be highlighted like t6, except fractured ones"
     ],
     "iteminfo rules": [
       "single-click solution to mark larger mod groups as un/desired",
@@ -316,7 +316,7 @@
       "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
     ],
     "maptracker rename": [
-      "tags and renames boss maps for easier filtering",
+      "tags and renames boss maps for easier searching",
       "example: <boss: elder> instead of <absence of value and meaning>"
     ],
     "maptracker side-content": [
@@ -363,7 +363,12 @@
       "refreshing kills only has to be done if you have finished the map and won't go back in"
     ],
     "maptracker mapinfo": [
-      "map-mod data loaded into the map-info panel will be logged"
+      "map-mod data loaded into the map-info panel will be logged",
+	  "the map-info panel is a separate feature and has to be enabled"
+    ],
+    "maptracker notes": [
+	  "adds an icon to the tracker panel to log custom notes for individual map runs",
+	  "long-click to view current notes, right-click to edit"
     ],
     "mapinfo enable": [
       "provides a compact and customizable info-panel for map mods",
@@ -635,47 +640,71 @@
   },
   "maptracker": {
     "logviewer day-select": [
-      "list of dates with logged map runs"
+      "click to open the date selection: shows a breakdown of logged map runs",
+	  "the current search-filter will affect the available dates"
+	],
+	"logviewer date help": [
+	  "general: click a button to show runs within that period, hold <DEL> while hovering to delete those runs",
+	  "years: click a year to show its breakdown below, double-click to load the whole year"
+	],
+    "logviewer export": [
+      "long-click to export the list of runs below as a CSV-file, overwriting any existing file with the same date",
+	  "right-click to open the export folder"
     ],
-    "logviewer day-delete": [
-      "hold to delete the logs of the selected date",
-      "hold right-click to clear the entire log collection"
-    ],
-    "logviewer export-day": [
-      "hold to export the logs of the selected date into a separate file, overwriting any existing file with the same date"
-    ],
-    "logviewer export-all": [
-      "hold to export the entire log collection into a single file, overwriting any existing file"
-    ],
-    "logviewer export-folder": [
-      "opens the folder containing the exported csv-files"
-    ],
+	"logviewer filter": [
+	  "type in keywords (separated by commas) and press ENTER to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
+	  "you can search inside columns by using search operators (check the book icon on the far left)"
+	],
+	"logviewer sum avg": [
+	  "click highlighted cells in this row to display the data within a column as totals / percentages / averages"
+	],
+	"logviewer headers": [
+	  "some column headers can be clicked for searching: left = paste search-operator, right = paste !operator",
+	  "double-clicking will immediately start the search with the bare operator: using an operator without any keywords will simply search for runs where corresponding data had any value other than 0 or blank"
+	],
     "logviewer header map": [
-      "click a name to edit it, hold right-click to delete a specific run"
+      "long-click a map name to edit it, hold right-click to delete the run",
+	  "names can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ],
+	"logviewer header run": [
+	  "searching for \"r:XYZ\" will only list runs that took XYZ amount of time and below",
+	  "if XYZ doesn't include any colons, the value is treated as seconds, otherwise it's treated as hh:mm:ss"
+	],
     "logviewer header e-exp": [
       "effective exp gained in a map, based on your level and the monsters'",
-      "requires specifying your character name in the <general> section of the settings menu"
+      "requires your character name in the <general> section of the settings menu"
     ],
     "logviewer header kills": [
-      "number of monsters killed in a map (uses /kills command)",
-      "has to be enabled in the <mapping tracker> section of the menu"
+      "number of monsters killed in a map: uses /kills command (optional setting, has to be enabled first)",
+	  "searching for \"k:X\" will only list runs with at least X kills"
     ],
     "logviewer header loot": [
-      "loot found in a map: long-click green cells in this column",
-      "has to be enabled in the <mapping tracker> section of the menu"
+      "loot found in a map (optional setting, has to be enabled first)",
+	  "click highlighted cells in this column to view the list"
     ],
     "logviewer header mapinfo": [
-      "mods rolled on a map: long-click green cells in this column",
-      "has to be enabled in the <mapping tracker> section of the menu"
+      "mods rolled on a map (optional setting, has to be enabled first): click highlighted cells in this column to view the list",
+	  "the operator also allows searching for general stats (mod-count, quant, etc.), e.g. \"m:100q\" will search for 100% quant and above"
+    ],
+    "logviewer header notes": [
+      "notes can be added to individual map runs by right-clicking cells in this column",
+      "click highlighted cells in this column to view the notes"
     ],
     "logviewer header content": [
-      "side-content you have found in a map",
-      "has to be enabled in the <mapping tracker> section of the menu"
+      "side-content you encountered in a map (optional setting, has to be enabled first)",
+	  "the icons can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ],
     "logviewer header tier": [
-      "the tier (map) or level (e.g. contract) of the run"
+      "the tier (map) or level (e.g. contract) of the run",
+	  "tiers can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ]
+  },
+  "maptrackernotes": {
+	"help": [
+	  "type in custom notes and press ENTER: include \"X#\" before the note to limit it to X runs",
+	  "omni-click voidstones, scarabs, etc.",
+	  "long-click a note to remove it, or the header to clear everything"
+	]
   },
   "notepad": {
 	"colors": [
@@ -689,7 +718,8 @@
     ],
     "widget help": [
       "widgets are inactive (unclickable) unless tab is held down",
-      "left-click to drag widgets, right-click to destroy widgets"
+      "left-click to drag widgets, right-click to destroy widgets",
+	  "you can create scrollable widgets with individual pages by separating the text with lines that only contain a single hash-sign (#)"
     ],
     "widget grouped": [
       "drag to combine every note into a single, scrollable widget"
