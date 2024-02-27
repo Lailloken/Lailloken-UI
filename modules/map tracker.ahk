@@ -1572,6 +1572,7 @@ MaptrackerSave(mode := 0)
 		{
 			For index, note in array
 			{
+				run_count := ""
 				If InStr(note, "#") && IsNumber(SubStr(note, 1, InStr(note, "#") - 1))
 					run_count := SubStr(note, 1, InStr(note, "#") - 1)
 				note_count := Blank(note_count) ? 0 : note_count

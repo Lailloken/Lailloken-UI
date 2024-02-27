@@ -370,7 +370,7 @@ OmniContextMenuPick(cHWND)
 		Run, % "https://www.poelab.com/"
 		If settings.qol.lab && settings.features.browser
 		{
-			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			WinWaitActive, ahk_group snipping_tools,, 2
 			ToolTip_Mouse("lab", 1)
 		}
 		If settings.qol.lab
@@ -391,7 +391,7 @@ OmniContextMenuPick(cHWND)
 		Clipboard := item.ilvl
 		If InStr(page, "cluster_jewel") && settings.features.browser
 		{
-			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			WinWaitActive, ahk_group snipping_tools,, 2
 			ToolTip_Mouse("cluster", 1)
 		}
 	}
@@ -409,7 +409,7 @@ OmniContextMenuPick(cHWND)
 		Run, https://siveran.github.io/calc.html
 		If settings.features.browser
 		{
-			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			WinWaitActive, ahk_group snipping_tools,, 2
 			ToolTip_Mouse("chromatics", 1)
 		}
 	}

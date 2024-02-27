@@ -284,7 +284,7 @@ Lab(mode := "", override := 0)
 		Run, % "https://www.poelab.com/"
 		If settings.features.browser
 		{
-			WinWaitNotActive, ahk_group poe_ahk_window,, 2
+			WinWaitActive, ahk_group snipping_tools,, 2
 			ToolTip_Mouse("lab", 1)
 		}
 	}
