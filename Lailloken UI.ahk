@@ -154,9 +154,13 @@ FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to 
 {
 	local
 
-	time := 19990101  ; *Midnight* of an arbitrary date.
+	days := 0, time := 19990101  ; *Midnight* of an arbitrary date.
+	While (seconds >= 86400)
+		days += 1, seconds -= 86400
 	time += seconds, seconds
 	FormatTime, time, %time%, HH:mm:ss
+	If days
+		time := (days < 10 ? "0" : "") days ":" time
 	While !mode && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
 		time := SubStr(time, 2)
 	return time
@@ -177,21 +181,21 @@ LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
 		}
 	}
 
-	If all_results && parse.Count()
-		Return parse
+	If all_results
+		Return (parse.Count() ? parse : "")
 	Return
 }
 
-LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
+LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
 {
 	local
 
 	If !IsObject(object) || Blank(value)
-		Return 0
+		Return
 	parse := []
 	For key, val in object
 	{
-		If (val = value) || InStr && InStr(val, value, case_sensitive)
+		If (val = value) || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse)
 		{
 			If !all_results
 				Return key
@@ -201,7 +205,7 @@ LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
 
 	If all_results && parse.Count()
 		Return parse
-	Return 0
+	Return
 }
 
 HelpToolTip(HWND_key)
@@ -217,7 +221,7 @@ HelpToolTip(HWND_key)
 		h := settings.general.fHeight
 	}
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
+	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
 	, "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
@@ -262,8 +266,8 @@ HelpToolTip(HWND_key)
 		}
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? vars.client.yc - h/2 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
-	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings", check) ? yWin : yPos)
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? vars.monitor.y + vars.client.yc - h/2 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
+	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (check = "maptracker" ? height - 1 : 0) : yPos)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -340,7 +344,7 @@ Init_client()
 	Gui, Test: Destroy
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native, "xc": xScreenOffset_monitor + width_native / 2, "yc": yScreenOffSet_monitor + height_native / 2}
-	
+
 	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "center"), vars.client.docked2 := LLK_IniRead("ini\config.ini", "Settings", "window-position vertical", "center")
 	vars.client.borderless := (vars.client.fullscreen = "true") ? 1 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
 	vars.client.customres := [LLK_IniRead("ini\config.ini", "Settings", "custom-width"), LLK_IniRead("ini\config.ini", "Settings", "custom-resolution")]
@@ -387,7 +391,7 @@ Init_client()
 		vars.client.x0 := vars.client.x += vars.system.xborder
 		vars.client.y0 := vars.client.y += vars.system.caption + vars.system.yborder
 	}
-	vars.client.xc := vars.client.x + vars.client.w//2 - 1, vars.client.yc := vars.client.y + vars.client.h//2 - 1 ;client's horizontal and vertical centers
+	vars.client.xc := vars.client.x - vars.monitor.x + vars.client.w/2, vars.client.yc := vars.client.y - vars.monitor.y + vars.client.h/2 ;client's horizontal and vertical centers (RELATIVE TO monitor.x and monitor.y)
 
 	IniRead, iniread, data\Resolutions.ini
 	Loop, Parse, iniread, `n
@@ -415,7 +419,7 @@ Init_client()
 		If !FileExist("img\Recognition (" vars.client.h "p)\Mapping Tracker\")
 			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Mapping Tracker\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\")
-			LLK_FilePermissionError("create", "img\Recognition ("vars.client.h "p)")
+			LLK_FilePermissionError("create", A_ScriptDir "\img\Recognition ("vars.client.h "p)")
 	}
 }
 
@@ -544,6 +548,7 @@ Loop_main()
 {
 	local
 	global vars, settings
+	static tick_helptooltips := 0
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
@@ -552,6 +557,12 @@ Loop_main()
 		Init_cloneframes()
 	}
 	
+	If WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip) && !WinActive("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
+		Gui, maptracker_tooltip: Destroy
+
+	If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main) && (WinActive("ahk_id " vars.hwnd.maptracker_logs.main) || WinActive("ahk_id " vars.hwnd.maptracker_dates.main))
+		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy")
+
 	If WinExist("ahk_id "vars.hwnd.searchstrings_context) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.searchstrings_context)
 	{
 		Gui, searchstrings_context: Destroy
@@ -579,7 +590,7 @@ Loop_main()
 	
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{
-		If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.poe_client) && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
+		If vars.general.wMouse && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
 		Else If !vars.toolbar.drag && !GetKeyState(settings.hotkeys.tab, "P") && WinExist("ahk_id " vars.hwnd.LLK_panel.main) && !(LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2))
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
@@ -587,10 +598,17 @@ Loop_main()
 
 	If vars.general.cMouse
 		check_help := LLK_HasVal(vars.hwnd.help_tooltips, vars.general.cMouse), check := (SubStr(check_help, 1, InStr(check_help, "_") - 1)), control := StrReplace(SubStr(check_help, InStr(check_help, "_") + 1), "|"), database := IsObject(vars.help[check][control]) ? vars.help : vars.help2
-	If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
-		HelpTooltip(check_help)
-	Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
-		LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
+
+	tick_helptooltips += 1
+	If !Mod(tick_helptooltips, 3) || check_help
+	{
+		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+			HelpTooltip(check_help)
+		Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
+			LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
+		tick_helptooltips := 0
+	}
+		
 
 	If WinExist("ahk_id "vars.hwnd.legion.main)
 		LegionHover()
@@ -798,8 +816,8 @@ SnippingTool(mode := 0)
 		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
 		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
 		If vars.snip.w
-			Gui, snip: Show, % "x"vars.snip.x " y"vars.snip.y " w"vars.snip.w - vars.system.xBorder*2 " h"vars.snip.h - vars.system.caption - vars.system.yBorder*2
-		Else Gui, snip: Show, % "x"vars.client.xc - settings.general.fWidth * 16 " y"vars.client.yc - settings.general.fwidth * 6 " w"settings.general.fWidth*31 " h"settings.general.fHeight*11
+			Gui, snip: Show, % "x" vars.snip.x " y" vars.snip.y " w" vars.snip.w - vars.system.xBorder*2 " h" vars.snip.h - vars.system.caption - vars.system.yBorder*2
+		Else Gui, snip: Show, % "x" vars.monitor.x + vars.client.xc - settings.general.fWidth * 16 " y" vars.monitor.y + vars.client.yc - settings.general.fHeight * 6 " w"settings.general.fWidth*31 " h"settings.general.fHeight*11
 		Return 0
 	}
 	Else If !mode && WinExist("ahk_id " vars.hwnd.snip.main)
@@ -820,8 +838,8 @@ SnippingTool(mode := 0)
 	{
 		Clipboard := ""
 		SendInput, #+{s}
-		WinWaitActive, ahk_group snipping_tools,, 2
-		WinWaitNotActive, ahk_group snipping_tools
+		WinWaitNotActive, ahk_group poe_ahk_window,, 2
+		WinWaitActive, ahk_group poe_ahk_window
 		pBitmap := Gdip_CreateBitmapFromClipboard()
 	}
 
@@ -892,8 +910,6 @@ Startup()
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_window, ahk_class POEWindowClass
-	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
-	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
@@ -909,7 +925,7 @@ Startup()
 		If !FileExist(A_LoopField "\") ;create folder
 			FileCreateDir, % A_LoopField "\"
 		If !FileExist(A_LoopField "\") && !file_error ;check if the folder was created successfully
-			file_error := 1, LLK_FilePermissionError("create", A_LoopField " folder")
+			file_error := 1, LLK_FilePermissionError("create", A_ScriptDir "\" A_LoopField)
 	}
 	
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
@@ -942,11 +958,11 @@ Startup()
 	Else vars.log.file_location := 0
 }
 
-StrMatch(string, check)
+StrMatch(string, check, match_length := 0)
 {
 	local
 
-	If (SubStr(string, 1, StrLen(check)) = check)
+	If (SubStr(string, 1, StrLen(check)) = check) && (match_length && StrLen(string) = StrLen(check) || !match_length)
 		Return 1
 }
 
@@ -1267,10 +1283,10 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 	If raw && (yTarget + height > vars.monitor.h)
 		yTarget := vars.monitor.h - height, yPos := yTarget
 
-	If center && LLK_IsBetween(xMouse, vars.client.xc * 0.95, vars.client.xc * 1.05)
+	If center && LLK_IsBetween(xMouse, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
 		xPos := "", xTarget := vars.client.xc - width/2 + 1
 
-	Gui, %gui_name%: Show, % "NA x"vars.monitor.x + xTarget " y"vars.monitor.y + yTarget
+	Gui, %gui_name%: Show, % "NA x" vars.monitor.x + xTarget " y"vars.monitor.y + yTarget
 }
 
 LLK_Error(ErrorMessage, restart := 0)
@@ -1377,9 +1393,9 @@ LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the 
 
 LLK_IniRead(file, section := "", key := "", default := "")
 {
-	IniRead, iniread, % file, % section, % key, % !default ? A_Space : default
-	iniread := (iniread = " ") ? "" : iniread
-	If (default != "") && (iniread = "") ;IniRead's 'default' is only read if the key cannot be found in the ini-file
+	IniRead, iniread, % file, % section, % key, % Blank(default) ? A_Space : default
+	iniread := (iniread = " ") ? "" : iniread ;work-around for situations where A_Space is taken literally instead of "blank" (blank return is hard-coded as %A_Space%, % "" doesn't work)
+	If !Blank(default) && Blank(iniread) ;IniRead's 'default' is only read if the key cannot be found in the ini-file
 		Return default ;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
 	Else Return iniread
 }
@@ -1404,6 +1420,10 @@ LLK_InStrCount(string, character, delimiter := "")
 
 LLK_IsBetween(var, x, y)
 {
+	If Blank(x) || Blank(y)
+		Return
+	If (x > y)
+		z := x, x := y, y := z
 	If var between %x% and %y%
 		Return 1
 	Else Return 0
@@ -1431,7 +1451,7 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
 		vars.GUI.Push({"name": gui_name0, "hwnd": guiHWND, "show": 0, "dummy": ""})
 
 	For index, val in vars.GUI
-		If LLK_HasVal(val, guiHWND)
+		If !Blank(LLK_HasVal(val, guiHWND))
 		{
 			gui_name := val.name, gui_index := index
 			Break
@@ -1511,12 +1531,12 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", % vars.system.font
 	width := 0, height := 0
 	
-	For key, val in array
+	For index, val in array
 	{
 		font := InStr(val, "(/bold)") ? "bold" : "", font .= InStr(val, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 		Gui, panel_dimensions: Font, % font
 		val := StrReplace(StrReplace(val, "(/bold)"), "(/underline)")
-		Gui, panel_dimensions: Add, Text, % align " HWNDhwnd Border", % header_offset && (A_Index = 1) ? " " val : margins ? " " val " " : val
+		Gui, panel_dimensions: Add, Text, % align " HWNDhwnd Border", % header_offset && (index = 1) ? " " val : margins ? " " StrReplace(val, "`n", " `n ") " " : val
 		Gui, panel_dimensions: Font, % "norm s"fSize
 		WinGetPos,,, w, h, ahk_id %hwnd%
 		height := (h > height) ? h : height
@@ -1546,7 +1566,7 @@ LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress
 				GuiControl, movedraw, %HWND_control% ;redraw the button that was held down (otherwise the progress bar will remain on top of it)
 			Return 1
 		}
-		Sleep 5
+		Sleep 20
 	}
 	GuiControl,, %HWND_bar%, 0
 	If HWND_control
@@ -1587,13 +1607,13 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 		size := settings.general.fSize
 
 	If Blank(trans)
-		trans := 255
+		trans := "off"
 
 	If align
 		align := " " align
 	
-	xPos := InStr(x, "+") || InStr(x, "-") ? vars.general.xMouse + x : (x != "") ? x : vars.general.xMouse
-	yPos := InStr(y, "+") || InStr(y, "-") ? vars.general.yMouse + y : (y != "") ? y : vars.general.yMouse
+	xPos := InStr(x, "+") || InStr(x, "+-") ? vars.general.xMouse + StrReplace(x, "+") : (x != "") ? x : vars.general.xMouse
+	yPos := InStr(y, "+") || InStr(y, "+-") ? vars.general.yMouse + StrReplace(y, "+") : (y != "") ? y : vars.general.yMouse
 	
 	Gui, tooltip%name%: New, % "-DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border +E0x02000000 +E0x00080000 HWNDhwnd"
 	Gui, tooltip%name%: Color, % Blank(background) ? "Black" : background
