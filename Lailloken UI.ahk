@@ -838,7 +838,7 @@ SnippingTool(mode := 0)
 	{
 		Clipboard := ""
 		SendInput, #+{s}
-		WinWaitNotActive, ahk_group poe_ahk_window,, 2
+		WinWaitActive, ahk_group snipping_tools,, 2
 		WinWaitActive, ahk_group poe_ahk_window
 		pBitmap := Gdip_CreateBitmapFromClipboard()
 	}
@@ -907,6 +907,9 @@ Startup()
 	settings.general.dev := LLK_IniRead("ini\config.ini", "Settings", "dev", 0)
 
 	;create window-groups for easier window detection
+	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
+	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
+	GroupAdd, snipping_tools, ahk_exe SnippingTool.exe
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_window, ahk_class POEWindowClass
@@ -1607,7 +1610,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 		size := settings.general.fSize
 
 	If Blank(trans)
-		trans := "off"
+		trans := 255
 
 	If align
 		align := " " align
