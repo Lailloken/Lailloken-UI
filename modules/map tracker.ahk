@@ -19,13 +19,17 @@
 	settings.maptracker.portal_reminder := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll reminder", 0)
 	settings.maptracker.xCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "x-coordinate")
 	settings.maptracker.yCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "y-coordinate")
-	settings.maptracker.colors := {"date_unselected": "303030", "date_selected": "505050", "affliction": "330000", "ancestor": "001933", "crucible": "003300"}
+	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300"}
+	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
 		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}, vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401]], vars.maptracker.notes := LLK_IniRead("ini\map tracker.ini", "UI", "notes")
 	For mechanic in vars.maptracker.mechanics
 		settings.maptracker[mechanic] := LLK_IniRead("ini\map tracker.ini", "mechanics", mechanic, 0)
+
+	settings.maptracker.colors.date_unselected := LLK_IniRead("ini\map tracker.ini", "UI", "date_unselected color", settings.maptracker.dColors.date_unselected)
+	settings.maptracker.colors.date_selected := LLK_IniRead("ini\map tracker.ini", "UI", "date_selected color", settings.maptracker.dColors.date_selected)
 	For index, array in vars.maptracker.leagues
-		settings.maptracker.colors[array.1] := LLK_IniRead("ini\map tracker.ini", "UI", array.1 " color", settings.maptracker.colors[array.1])
+		settings.maptracker.colors["league " index] := LLK_IniRead("ini\map tracker.ini", "UI", "league " index " color", settings.maptracker.dColors["league " index])
 	vars.maptracker.dialog := InStr(LLK_FileRead(vars.system.config), "output_all_dialogue_to_chat=true")
 }
 
@@ -193,7 +197,7 @@ MaptrackerDateSelect()
 					Continue
 	
 				Gui, %GUI_name%: Add, Text, % "xs" (!league_count ? " Section" (allButton ? " y+-1" : "") : " y+-1") " Border BackgroundTrans" (active_date = array.1 ? " cLime" : "") . " w" wColumn, % " " array.1 " (" run_count_league ")"
-				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Border Range0-500 cRed Background" settings.maptracker.colors[array.1], 0
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Border Range0-500 cRed Background" settings.maptracker.colors["league " index], 0
 				vars.hwnd.maptracker_dates[array.1] := hwnd, league_count .= "|"
 				ControlGetPos,,,, hRow,, ahk_id %hwnd%
 			}
@@ -242,7 +246,7 @@ MaptrackerDateSelect()
 						For index, array0 in leagues
 							If LLK_IsBetween(StrReplace(date, "/"), array0.2, array0.3)
 							{
-								color := settings.maptracker.colors[array0.1]
+								color := settings.maptracker.colors["league " index]
 								Break
 							}
 							Else color := settings.maptracker.colors.date_unselected
@@ -572,7 +576,7 @@ MaptrackerLogs(mode := "")
 		}
 		vars.maptracker.keywords_lastworking := vars.maptracker.keywords.Clone(), vars.maptracker.entries_lastworking := vars.maptracker.entries.Clone()
 	}
-	Else vars.maptracker.active_date := LangTrans("global_fail"), entries := {"1970/01/01": []}
+	Else vars.maptracker.active_date := LangTrans("global_none"), entries := {"1970/01/01": []}
 	
 	;If vars.maptracker.active_date && InStr(ddl, vars.maptracker.active_date)
 	;	ddl := StrReplace(ddl, ddl_replace, ddl_replace . (InStr(ddl, ddl_replace "|") ? "|" : "||")) ;pre-select a previously-selected date

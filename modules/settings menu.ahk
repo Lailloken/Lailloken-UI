@@ -1717,6 +1717,21 @@ Settings_maptracker()
 	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys Center gSettings_maptracker2 Border HWNDhwnd x+"settings.general.fWidth/4 " w"settings.general.fWidth * 2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
+
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_color", 2) ": "
+	Loop 2
+	{
+		Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans HWNDhwnd0 gSettings_maptracker2 x+" settings.general.fWidth * (A_Index = 1 ? 0 : 0.25) " w" settings.general.fHeight, % ""
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd BackgroundBlack c" settings.maptracker.colors["date_" (A_Index = 1 ? "un" : "") "selected"], % 100
+		vars.hwnd.settings["color_date_" (A_Index = 1 ? "un" : "") "selected"] := hwnd0, vars.hwnd.settings["color_date_" (A_Index = 1 ? "un" : "") "selected_bar"] := vars.hwnd.help_tooltips["settings_maptracker color " (A_Index = 1 ? "un" : "") "selected"] := hwnd, handle := ""
+	}
+
+	For index, league in vars.maptracker.leagues
+	{
+		Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans HWNDhwnd0 gSettings_maptracker2 x+" settings.general.fWidth / 4 " w" settings.general.fHeight, % ""
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd BackgroundBlack c" settings.maptracker.colors["league " index], % 100
+		vars.hwnd.settings["color_league " index] := hwnd0, vars.hwnd.settings["color_league " index "_bar"] := vars.hwnd.help_tooltips["settings_maptracker color leagues" handle] := hwnd, handle .= "|"
+	}
 }
 
 Settings_maptracker2(cHWND)
@@ -1822,6 +1837,20 @@ Settings_maptracker2(cHWND)
 				IniWrite, % settings.maptracker[control], ini\map tracker.ini, mechanics, % control
 				GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % cHWND
 				GuiControl, movedraw, % cHWND
+			}
+			Else If InStr(check, "color_")
+			{
+				If (vars.system.click = 1)
+				{
+					picked_rgb := RGB_Picker(settings.maptracker.colors[control])
+					If Blank(picked_rgb)
+						Return
+				}
+				settings.maptracker.colors[control] := (vars.system.click = 1) ? picked_rgb : settings.maptracker.dColors[control]
+				IniWrite, % settings.maptracker.colors[control], ini\map tracker.ini, UI, % control " color"
+				GuiControl, % "+c" settings.maptracker.colors[control], % vars.hwnd.settings[check "_bar"]
+				If InStr(check, "selected") && WinExist("ahk_id " vars.hwnd.maptracker_logs.main)
+					MaptrackerLogs()
 			}
 			Else LLK_ToolTip("no action")
 	}

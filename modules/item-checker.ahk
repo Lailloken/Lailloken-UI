@@ -1562,7 +1562,6 @@ LLK_PatternMatch(text, string, object, swap := 0, value := 1, case := 0) ;swap p
 			Return InStr(val, " ") ? SubStr(val, 1, InStr(val, " ") - 1) : val
 		}
 	}
-		
 }
 
 IteminfoModgroupCheck(name, mode := 0) ;check the affix-name to determine if the mods belongs to a certain mod-group
