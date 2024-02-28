@@ -199,6 +199,11 @@
 ;## NOTE: the following sections are divided into groups depending on where to find the required patterns (to make it simpler), but the script itself always checks the text copied from the game via ALT + CTRL + C
 ;## NOTE: it's possible that there's a difference in the ALT-CTRL-C text and the easier-to-find text (e.g. German tooltips display "ss" whenever the ALT-CTRL-C text contains "ß"), so be aware of that if the target language has such variations
 
+
+;## these are some item-names the tool requires to identify what kind of item was clicked
+		items_voidstone			=	"Voidstone"
+
+
 ;## these strings are displayed in the in-game tooltip when hovering over an item
 		items_unidentified		=	"Unidentified"
 		items_unmodifiable		=	"Unmodifiable"						;## example: memories (atlas item), sanctum relics

@@ -88,7 +88,7 @@ BetrayalCalibrate(cHWND := "")
 		Clipboard := ""
 		SendInput, +#{s}
 		WinWaitActive, ahk_group snipping_tools,, 2
-		WinWaitNotActive, ahk_group snipping_tools
+		WinWaitActive, ahk_group poe_ahk_window
 		pBetrayal := Gdip_CreateBitmapFromClipboard()
 		If (pBetrayal < 0)
 		{
@@ -120,7 +120,7 @@ BetrayalCalibrate(cHWND := "")
 		Gui, betrayal_setup: Add, Text, xs Section wp, % LangTrans("betrayal_abort")
 		Gui, betrayal_setup: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.betrayal_setup.main
-		Gui, betrayal_setup: Show, % "x"vars.client.xc - w//2 " y"vars.client.yc - h//2
+		Gui, betrayal_setup: Show, % "x" vars.monitor.x + vars.client.xc - w//2 " y" vars.monitor.y + vars.client.yc - h//2
 		Loop ;use this kind of loop instead of a hard-coded hotkey to close this setup-window
 		{
 			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || GetKeyState("ESC", "P")
@@ -250,7 +250,7 @@ BetrayalPrioview()
 			For member in vars.betrayal.divisions[div_check[A_LoopField]] ;check if division has the BIS constellation
 			{
 				;if a given member is not in this division, check if they are in a secondary T1 position
-				If (vars.betrayal.board[member] != div_check[A_LoopField]) && !LLK_HasVal(vars.betrayal.members[member].first, vars.betrayal.board[member]) ;cont
+				If (vars.betrayal.board[member] != div_check[A_LoopField]) && Blank(LLK_HasVal(vars.betrayal.members[member].first, vars.betrayal.board[member])) ;cont
 				|| (vars.betrayal.divisions[div_check[A_LoopField]].Count() = 1) && (vars.betrayal.board[member] != division) ;don't highlight a division if it only has one T1 spot and that member is in a different T1 spot
 					color := "Gray"
 			}
@@ -265,12 +265,12 @@ BetrayalPrioview()
 		{
 			If (division = vars.betrayal.board[member])
 			{
-				If IsObject(vars.betrayal.members[member].first) && !LLK_HasVal(vars.betrayal.members[member].first, division) ;cont
+				If IsObject(vars.betrayal.members[member].first) && Blank(LLK_HasVal(vars.betrayal.members[member].first, division)) ;cont
 				|| !IsObject(vars.betrayal.members[member].first) && IsObject(vars.betrayal.members[member].second) && !LLK_HasVal(vars.betrayal.members[member].second, division)
 					color := settings.betrayal.colors.3
-				Else If !IsObject(vars.betrayal.members[member].first) && IsObject(vars.betrayal.members[member].second) && LLK_HasVal(vars.betrayal.members[member].second, division)
+				Else If !IsObject(vars.betrayal.members[member].first) && IsObject(vars.betrayal.members[member].second) && !Blank(LLK_HasVal(vars.betrayal.members[member].second, division))
 					color := settings.betrayal.colors.1
-				Else If LLK_HasVal(vars.betrayal.members[member].first, division)
+				Else If !Blank(LLK_HasVal(vars.betrayal.members[member].first, division))
 					color := settings.betrayal.colors.1
 				Else color := "White"
 
@@ -285,7 +285,7 @@ BetrayalPrioview()
 	}
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.betrayal_prioview.main
-	Gui, %GUI_name%: Show, % "NA x"vars.client.xc - w//2 " y"vars.client.y
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w//2 " y" vars.client.y
 	vars.betrayal.hPrioview := h, LLK_Overlay(betrayal_prioview, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -347,9 +347,9 @@ BetrayalSearch(hotkey)
 	
 	While GetKeyState(hotkey, "P")
 	{
-		If vars.general.cMouse && LLK_HasVal(vars.hwnd.betrayal_prioview, vars.general.cMouse)
+		If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.betrayal_prioview, vars.general.cMouse))
 			hover := [LLK_HasVal(vars.hwnd.betrayal_prioview, vars.general.cMouse), "betrayal_prioview"]
-		Else If vars.general.cMouse && LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse)
+		Else If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse))
 			hover := [LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse), "betrayal_info"]
 		Else hover := ""
 		
@@ -409,7 +409,7 @@ BetrayalSearch(hotkey)
 		Loop, Files, % "img\Recognition ("vars.client.h "p)\Betrayal\*.bmp"
 		{
 			parse := SubStr(A_LoopFileName, 1, InStr(A_LoopFileName, ".") - 1)
-			If vars.betrayal.divisions.HasKey(parse) ;|| LLK_HasVal(removed, parse) ;skip divisions and recently unassigned members
+			If vars.betrayal.divisions.HasKey(parse) ;skip divisions and recently unassigned members
 				continue
 			pNeedle := Gdip_CreateBitmapFromFile(A_LoopFilePath)
 			width := Gdip_GetImageWidth(pNeedle)

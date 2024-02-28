@@ -94,7 +94,7 @@ Legion(cHWND := "")
 			Else
 			{
 				For index, val in LLK_HasVal(vars.legion.data.3, vars.legion.decoder_invert[control],,, 1)
-					If LLK_HasVal(db.legion.sockets[vars.legion.socket].nodes, vars.legion.nodes_invert[val])
+					If !Blank(LLK_HasVal(db.legion.sockets[vars.legion.socket].nodes, vars.legion.nodes_invert[val]))
 					{
 						db_clone := db.legion.notables.Clone()
 						Loop, Parse, % "mine", `;

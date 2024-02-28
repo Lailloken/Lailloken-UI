@@ -44,12 +44,12 @@
 		If vars.cloneframes.list[A_LoopField].enable
 			vars.cloneframes.enabled += 1
 		
-		vars.cloneframes.list[A_LoopField].xSource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x + 4 - vars.monitor.x)) ;coordinates refer to monitor's coordinates (without offsets)
-		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y + 4 - vars.monitor.y))
+		vars.cloneframes.list[A_LoopField].xSource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x - vars.monitor.x + 4)) ;coordinates refer to monitor's coordinates (without offsets)
+		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y - vars.monitor.y + 4))
 		vars.cloneframes.list[A_LoopField].width := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200))
 		vars.cloneframes.list[A_LoopField].height := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200))
-		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.client.xc - 100 - vars.monitor.x))
-		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", vars.client.y + 13 - vars.monitor.y))
+		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.client.xc - 100))
+		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", vars.client.y - vars.monitor.y + 13))
 		vars.cloneframes.list[A_LoopField].xScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling x-axis", 100)
 		vars.cloneframes.list[A_LoopField].yScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling y-axis", 100)
 		vars.cloneframes.list[A_LoopField].opacity := LLK_IniRead("ini\clone frames.ini", A_LoopField, "opacity", 5)
@@ -239,7 +239,7 @@ CloneframesShow()
 				Gui, cloneframe_border: Color, Silver
 				WinSet, TransColor, Black
 				For index, array in vars.GUI
-					If LLK_HasVal(array, vars.hwnd.cloneframe_borders.main) || LLK_HasVal(array, vars.hwnd.cloneframe_borders.second)
+					If !Blank(LLK_HasVal(array, vars.hwnd.cloneframe_borders.main)) || !Blank(LLK_HasVal(array, vars.hwnd.cloneframe_borders.second))
 						remove .= index ";"
 				Loop, Parse, remove, `;
 					If IsNumber(A_LoopField)

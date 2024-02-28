@@ -139,6 +139,7 @@
 		global_ultrawide		=	"Unless you're using a mod, the client will display black bars on the sides."
 		global_ultrawide		=	"Are there black bars on the sides of the client?"
 		global_credits			=	"credits"
+		global_none			=	"none"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -312,10 +313,7 @@
 		maptracker_loot			=	"item logged"
 		maptracker_loot			=	"item removed"
 		maptracker_loot			=	"error"
-		maptracker_export		=	"export:"
-		maptracker_export		=	"day"
-		maptracker_export		=	"all"
-		maptracker_export		=	"folder"
+		maptracker_export		=	"export"
 		maptracker_logs			=	"logs:"
 		maptracker_logs			=	"couldn't find any map-logs"
 		maptracker_page			=	"page:"
@@ -323,20 +321,30 @@
 		maptracker_dialogue		=	"<output dialogue to chat> has to;be enabled in the game's <ui> settings"
 
 ;## these strings are displayed/required at the top of the map-log viewer, using the shortest length possible in order to be more compact
-;## "time" refers to time of day (e.g. 13:37), "t/l" stands for tier/level (as in map tier / area level), "run" refers to run-time (as in how long it took to finish a map)
-;## "e-exp" stands for effective exp (i.e. exp gained after penalties), "content" refers to map-content (i.e. mechanics, side-areas, etc.)
-		maptracker_time			=	"time"		;## time of day (e.g. 14:20)
+		maptracker_time			=	"time"			;## time of day (e.g. 14:20)
 		maptracker_time			=	"date, time"
 		maptracker_map			=	"map"
-		maptracker_tier			=	"t/l"
-		maptracker_tier			=	"tier/level"	;## as in map-tier / area-level
-		maptracker_run			=	"run"		;## refers to run-time (how long it took to finish the map)
-		maptracker_e-exp		=	"e-exp"		;## effective exp (after penalties)
+		maptracker_tier			=	"t/l"			;## (map) tier / (area) level
+		maptracker_tier			=	"tier/level"		;## as in map-tier / area-level
+		maptracker_run			=	"run"			;## refers to run-time (how long it took to finish the map)
+		maptracker_e-exp		=	"e-exp"			;## effective exp (after penalties)
 		maptracker_deaths		=	"deaths"
 		maptracker_portals		=	"portals"
 		maptracker_kills1		=	"kills"
 		maptracker_loot1		=	"loot"
-		maptracker_content		=	"content"	;## refers to map-content (league-mechanics, side-areas, etc.)
+		maptracker_content		=	"content"		;## refers to map-content (league-mechanics, side-areas, etc.)
+		maptracker_search		=	"search:"
+
+;## these strings are displayed in the sum/average tooltips (while long-clicking colored cells in the Σ row)
+		maptracker_sum			=	"sum"
+		maptracker_average		=	"avg"
+
+;## these strings are displayed in the date selection
+		maptracker_all			=	"select all"
+		maptracker_periods		=	"years:"
+		maptracker_periods		=	"leagues:"
+		maptracker_periods		=	"months:"
+		maptracker_periods		=	"days:"
 
 
 
@@ -411,7 +419,6 @@
 
 ;## these strings are displayed/required when using the minor QoL features
 		notepad_add			=	"add a new tab:"
-		notepad_group			=	"grouped widget"
 		notepad_howto			=	"how to use widgets"
 
 
@@ -621,7 +628,8 @@
 		m_maptracker_hide		=	"hide the panel when the tracker is paused"
 		m_maptracker_loot		=	"loot"
 		m_maptracker_kills		=	"kills"
-		m_maptracker_mapinfo		=	"map-info data"
+		m_maptracker_mapinfo		=	"map-info data"					;## option to include data from the map-info feature
+		m_maptracker_notes		=	"notes"						;## option to add notes to map runs
 		m_maptracker_sidearea		=	"side-areas"
 		m_maptracker_rename		=	"tag && rename boss maps"			;## adds a "boss:"-tag to logged map-runs
 		m_maptracker_content		=	"track atlas mechanics"

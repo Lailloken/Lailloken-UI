@@ -1,5 +1,13 @@
 [
   [
+	["1.52.2", 15202],
+	"fixed: centered overlays were misplaced on multi-monitor setups",
+	"fixed: there's a new windows snipping tool the script didn't recognize",
+	"notepad: any tab can be turned into a grouped widget, and more than one can exist",
+	"maptracker: added new date selection, and column summaries",
+	"maptracker: added notes for individual map runs, and a search-filter"
+  ],
+  [
 	["1.52.1", 15201],
 	"certain movable ui elements can now snap to the center of the game client",
 	"added a color palette for easier color customization",

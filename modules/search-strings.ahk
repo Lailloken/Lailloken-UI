@@ -193,7 +193,7 @@ StringMenu(name)
 	Sleep, 50
 	If !Blank(x)
 		x := (x + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : x, y := (y + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : y
-	Gui, %GUI_name%: Show, % Blank(x) ? "x"vars.client.x " y"vars.client.yc - h//2 : "x"x " y"y
+	Gui, %GUI_name%: Show, % Blank(x) ? "x"vars.client.x " y" vars.monitor.y +vars.client.yc - h//2 : "x"x " y"y
 	LLK_Overlay(searchstrings_menu, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 

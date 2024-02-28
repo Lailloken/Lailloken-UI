@@ -33,9 +33,8 @@
 	
 	settings.iteminfo.dColors_tier := ["00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "00eeee"]
 	settings.iteminfo.dColors_tier[0] := "3399ff"
-	settings.iteminfo.colors_tier := []
+	settings.iteminfo.colors_tier := [], settings.iteminfo.colors_ilvl := []
 	settings.iteminfo.dColors_ilvl := ["ffffff", "00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "ff00ff"]
-	settings.iteminfo.colors_ilvl := []
 	settings.iteminfo.ilevels := ["83", "78", "73", "68", "64", "60", "56", "52"]
 	
 	Loop 8 ;load custom colors
@@ -261,7 +260,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 		item.class := db.item_bases._classes[db.item_bases._bases[item.itembase]]
 
 	For key, val in vars.lang ;get the English item-class for certain items that are not included in the database, e.g. heist items (via lang_XYZ)
-		If LLK_PatternMatch(key, "items_", ["heist"]) && LLK_HasVal(val, item.class_copy)
+		If LLK_PatternMatch(key, "items_", ["heist"]) && !Blank(LLK_HasVal(val, item.class_copy))
 			item.class := LLK_StringCase(StrReplace(key, "items_"),, 1)
 
 	If InStr(item.name, "cluster jewel") || InStr(item.itembase, "cluster jewel")
@@ -1204,7 +1203,7 @@ Iteminfo4_GUI()
 					tags := db.item_bases.jewels[item.itembase].tags ;tags also need to be checked because those influence the weights in some cases
 					For index, tag in tags
 					{
-						If LLK_HasVal(val.tags, tag)
+						If !Blank(LLK_HasVal(val.tags, tag))
 						{
 							tier := Format("{:0.0f}", val.weights[LLK_HasVal(val.tags, tag)]/10)
 							Break
@@ -1548,17 +1547,21 @@ IteminfoCompare(string, item_type := "") ;takes a string with item-stats and ret
 	Return string
 }
 
-LLK_PatternMatch(text, string, array)
+LLK_PatternMatch(text, string, object, swap := 0, value := 1, case := 0) ;swap param switches the order around, val param determines if values or keys of the object are used
 {
 	local
 
-	For index, val in array
-		If InStr(text, string . val, 1)
+	For index, val in object
+	{
+		val := value ? val : index
+		check := swap ? val . string : string . val
+		If InStr(text, check, case)
 		{
 			While (SubStr(val, 1, 1) = " ")
 				val := SubStr(val, 2)
 			Return InStr(val, " ") ? SubStr(val, 1, InStr(val, " ") - 1) : val
 		}
+	}
 }
 
 IteminfoModgroupCheck(name, mode := 0) ;check the affix-name to determine if the mods belongs to a certain mod-group

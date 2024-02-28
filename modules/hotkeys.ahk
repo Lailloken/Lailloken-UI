@@ -64,12 +64,18 @@ HotkeysESC()
 		Gui, tooltipgem_notes: Destroy
 		vars.hwnd.Delete("tooltipgem_notes")
 	}
+	Else If WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
+		Gui, maptracker_tooltip: Destroy
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
 		LegionClose()
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
 		Gui, alarm_set: Destroy
-	Else If WinActive("ahk_id "vars.hwnd.maptracker_logs.maptracker_edit)
+	Else If WinExist("ahk_id " vars.hwnd.maptracker_dates.main)
+		LLK_Overlay(vars.hwnd.maptracker_dates.main, "destroy")
+	Else If WinExist("ahk_id " vars.hwnd.maptracker_logs.maptracker_edit)
 		Gui, maptracker_edit: Destroy
+	Else If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
+		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy")
 	Else If WinExist("ahk_id "vars.hwnd.mapinfo.main)
 		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 	Else If vars.maptracker.loot
@@ -176,30 +182,6 @@ HotkeysTab()
 			Break
 		}
 	
-	/*
-	If settings.features.cheatsheets && vars.hwnd.cheatsheet.main && settings.cheatsheets.quick
-	{
-		start := A_TickCount
-		While GetKeyState(settings.hotkeys.tab, "P")
-		{
-			If (A_TickCount >= start + 200)
-			{
-				If (vars.cheatsheets.active.type = "advanced")
-				{
-					Gui, cheatsheet: Show, NA x10000 y10000
-					WinGetPos,,, w, h, % "ahk_id "vars.hwnd.cheatsheet.main
-				}
-				Gui, cheatsheet: Show, % (vars.cheatsheets.active.type = "advanced") ? "NA x"vars.client.xc - w//2 " y"vars.client.y : "NA"
-				vars.cheatsheets.tab := 1
-				KeyWait, % settings.hotkeys.tab
-				vars.cheatsheets.tab := 0
-				Gui, cheatsheet: Hide
-				Return
-			}
-		}
-	}
-	*/
-	
 	If !settings.hotkeys.tabblock && !active
 	{
 		SendInput, % "{" settings.hotkeys.tab " DOWN}"
@@ -244,7 +226,7 @@ HotkeysTab()
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
 
-#If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse > vars.client.xc)
+#If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse > vars.monitor.x + vars.client.xc)
 
 ~RButton UP::MaptrackerReminder()
 
@@ -252,7 +234,7 @@ HotkeysTab()
 
 LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && LLK_HasVal(vars.hwnd.lab, vars.general.cMouse) ;hovering the lab-layout button and clicking a room
+#If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.lab, vars.general.wMouse)) && vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.lab, vars.general.cMouse)) ;hovering the lab-layout button and clicking a room
 
 *LButton::Lab("override")
 *RButton::Return
@@ -262,7 +244,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::Lab("link")
 *RButton::Return
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.lab, vars.general.wMouse) && vars.general.cMouse && !LLK_HasVal(vars.hwnd.lab, vars.general.cMouse)
+#If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.lab, vars.general.wMouse)) && vars.general.cMouse && Blank(LLK_HasVal(vars.hwnd.lab, vars.general.cMouse))
 
 *LButton::Return
 *RButton::Return
@@ -272,38 +254,38 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::GuiToolbarButtons(vars.general.cMouse, 1)
 *RButton::GuiToolbarButtons(vars.general.cMouse, 2)
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse) ;hovering a notepad-widget and dragging or deleting it
+#If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse)) ;hovering a notepad-widget and dragging or deleting it
 
 *LButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 1)
 *RButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 2)
 *WheelUp::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 3)
 *WheelDown::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 4)
 
-#If (vars.system.timeout = 0) && vars.general.cMouse && LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse) ;hovering the leveling-guide layouts and dragging them
+#If (vars.system.timeout = 0) && vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse)) ;hovering the leveling-guide layouts and dragging them
 
 *LButton::LeveltrackerZoneLayouts(0, 1, vars.general.cMouse)
 *RButton::LeveltrackerZoneLayouts(0, 2, vars.general.cMouse)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) && LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse) ;hovering the maptracker-panel and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) && !Blank(LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse)) ;hovering the maptracker-panel and clicking valid elements
 
 *LButton::Maptracker(vars.general.cMouse, 1)
 *RButton::Maptracker(vars.general.cMouse, 2)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main)
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) ;prevent clicking the maptracker-panel (and losing focus of the game-client) if not hovering valid elements
 *LButton::
 *RButton::Return
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker.controls1) && LLK_HasVal(vars.hwnd.leveltracker, vars.general.cMouse) ;hovering the leveltracker-controls and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.leveltracker.controls1) && !Blank(LLK_HasVal(vars.hwnd.leveltracker, vars.general.cMouse)) ;hovering the leveltracker-controls and clicking
 
 *LButton::Leveltracker(vars.general.cMouse, 1)
 *RButton::Leveltracker(vars.general.cMouse, 2)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.alarm.main) && LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse) ;hovering the alarm-timer and clicking
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.alarm.main) && !Blank(LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse)) ;hovering the alarm-timer and clicking
 
 *LButton::Alarm(1)
 *RButton::Alarm(2)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.mapinfo.main) && LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse) ;ranking map-mods
+#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) ;ranking map-mods
 
 *1::
 *2::
@@ -316,7 +298,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 ~*^LButton::MaptrackerLoot()
 ^RButton::MaptrackerLoot("back")
 
-#If !(vars.general.wMouse && LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse)) && vars.leveltracker.overlays ;resizing zone-layout images
+#If !(vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse))) && vars.leveltracker.overlays ;resizing zone-layout images
 
 MButton::
 WheelUp::
@@ -336,9 +318,9 @@ WheelDown::StringScroll(A_ThisHotkey)
 
 *LButton::
 *RButton::
-If vars.general.cMouse && LLK_HasVal(vars.hwnd.iteminfo, vars.general.cMouse) ;this check prevents the tooltip from being clicked/activated (since the L/RButton press is not sent to the client)
+If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo, vars.general.cMouse)) ;this check prevents the tooltip from being clicked/activated (since the L/RButton press is not sent to the client)
 	IteminfoHighlightApply(vars.general.cMouse)
-Else If vars.general.cMouse && LLK_HasVal(vars.hwnd.iteminfo.inverted_mods, vars.general.cMouse)
+Else If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo.inverted_mods, vars.general.cMouse))
 	IteminfoModInvert(vars.general.cMouse)
 Return
 
@@ -369,12 +351,12 @@ Return
 ;closing the item-info tooltip and its markers when clicking into the client
 ~LButton::IteminfoClose(1)
 
-#If (vars.system.timeout = 0) && vars.general.wMouse && LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse) ;long-clicking the gear-update buttons on gear-slots in the inventory to update/remove selected gear
+#If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse)) ;long-clicking the gear-update buttons on gear-slots in the inventory to update/remove selected gear
 
 LButton::
 RButton::IteminfoGearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse))
 
-#If vars.cloneframes.editing && vars.general.cMouse && LLK_HasVal(vars.cloneframes.scroll, vars.general.cMouse)
+#If vars.cloneframes.editing && vars.general.cMouse && !Blank(LLK_HasVal(vars.cloneframes.scroll, vars.general.cMouse))
 
 WheelUp::
 WheelDown::CloneframesSettingsApply(vars.general.cMouse, A_ThisHotkey)
