@@ -370,6 +370,18 @@
 	  "adds an icon to the tracker panel to log custom notes for individual map runs",
 	  "long-click to view current notes, right-click to edit"
     ],
+    "maptracker color unselected": [
+	  "used for highlighted cells in the log-viewer, and for non-league dates in the date selection",
+	  "click to open the color-palette, right-click to reset to default"
+    ],
+    "maptracker color selected": [
+	  "used for the currently-selected year and its months in the date selection",
+	  "click to open the color-palette, right-click to reset to default"
+    ],
+    "maptracker color leagues": [
+	  "used to highlight dates that correspond with a league",
+	  "click to open the color-palette, right-click to reset to default"
+    ],
     "mapinfo enable": [
       "provides a compact and customizable info-panel for map mods",
       "omni-clicking a map opens the panel, and pressing 1-4 while hovering over mods applies highlight colors",
@@ -673,6 +685,12 @@
     "logviewer header e-exp": [
       "effective exp gained in a map, based on your level and the monsters'",
       "requires your character name in the <general> section of the settings menu"
+    ],
+    "logviewer header deaths": [
+      "searching for \"d:X\" will only list runs with at least X deaths"
+    ],
+    "logviewer header portals": [
+      "searching for \"p:X\" will only list runs with at least X portals used"
     ],
     "logviewer header kills": [
       "number of monsters killed in a map: uses /kills command (optional setting, has to be enabled first)",
