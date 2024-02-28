@@ -599,7 +599,7 @@ MaptrackerLogs(mode := "")
 	;LLK_PanelDimensions(["7777/77/77 (777)7777"], settings.maptracker.fSize - 4, wDDL, hDDL,,, 0)
 	;Gui, %GUI_name%: Add, DDL, % "ys x+" settings.general.fWidth/2 " w" wDDL " hp gMaptrackerLogs2 HWNDhwnd r"LLK_InStrCount(ddl, "|") + 1 . (choice ? " Choose"choice : ""), % StrReplace(ddl, "/", "–")
 	;vars.hwnd.maptracker_logs.ddl := vars.hwnd.help_tooltips["maptracker_logviewer day-select"] := hwnd
-	Gui, %GUI_name%: Add, Text, % "ys Center yp-1 Border HWNDhwnd gMaptrackerDateSelect x+" settings.general.fWidth/2 . (vars.maptracker.active_date = LangTrans("global_fail") ? " cRed" : ""), % " " StrReplace(vars.maptracker.active_date, "/", "-") " "
+	Gui, %GUI_name%: Add, Text, % "ys Center yp-1 Border HWNDhwnd gMaptrackerDateSelect x+" settings.general.fWidth/2 . (vars.maptracker.active_date = LangTrans("global_none") ? " cRed" : ""), % " " StrReplace(vars.maptracker.active_date, "/", "-") " "
 	vars.hwnd.maptracker_logs.date_selected := vars.hwnd.help_tooltips["maptracker_logviewer day-select"] := hwnd
 	;Gui, %GUI_name%: Font, % "s"settings.maptracker.fSize
 	;vars.maptracker.active_date := !vars.maptracker.active_date ? SubStr(StrReplace(LLK_ControlGet(hwnd), "–", "/"), 1, 10) : vars.maptracker.active_date
@@ -657,7 +657,7 @@ MaptrackerLogs(mode := "")
 	For index, val in table
 	{
 		header := val.1, icon := InStr(" deaths, portals, kills, loot, mapinfo, notes,", " " val.1 ",") ? 1 : 0, index_sum := 0
-		If !date_check && (header = "time") && (vars.maptracker.active_date != LangTrans("global_fail"))
+		If !date_check && (header = "time") && (vars.maptracker.active_date != LangTrans("global_none"))
 			date_check := IsNumber(StrReplace(vars.maptracker.active_date, "/")) && (StrLen(StrReplace(vars.maptracker.active_date, "/")) < 7) || !IsNumber(StrReplace(vars.maptracker.active_date, "/")) ? 1 : 0
 
 		Loop, Parse, reverse_object, `,, %A_Space% ;create arrays for each column that contain the text-values for each line: these are used in a dummy-GUI to check if the width of any line exceeds the minimum width
