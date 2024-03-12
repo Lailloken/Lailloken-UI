@@ -2,14 +2,14 @@
 {
 	local
 	global vars, settings, db, Json
-	
+
 	If !FileExist("ini\item-checker.ini")
 		IniWrite, % "", ini\item-checker.ini, settings
-	
+
 	lang := settings.general.lang_client
 	db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
 	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
-	
+
 	settings.iteminfo := {}
 	settings.iteminfo.profile := LLK_IniRead("ini\item-checker.ini", "settings", "current profile", 1)
 	settings.iteminfo.modrolls := LLK_IniRead("ini\item-checker.ini", "settings", "hide roll-ranges", 1)
@@ -18,7 +18,7 @@
 	settings.iteminfo.itembase := LLK_IniRead("ini\item-checker.ini", "Settings", "enable base-info", 1)
 	settings.iteminfo.override := LLK_IniRead("ini\item-checker.ini", "Settings", "enable blacklist-override", 0)
 	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "enable gear-tracking", 0)
-	
+
 	settings.iteminfo.rules := {}
 	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "weapon res override", 0)
 	settings.iteminfo.rules.res := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "res override", 0)
@@ -26,36 +26,36 @@
 	settings.iteminfo.rules.attacks := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "attacks override", 0)
 	settings.iteminfo.rules.hitgain := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "lifemana gain override", 0)
 	settings.iteminfo.rules.crit := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "crit override", 0)
-	
+
 	settings.iteminfo.fSize := LLK_IniRead("ini\item-checker.ini", "settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.iteminfo.fSize, height, width)
 	settings.iteminfo.fWidth := width, settings.iteminfo.fHeight := height
-	
+
 	settings.iteminfo.dColors_tier := ["00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "00eeee"]
 	settings.iteminfo.dColors_tier[0] := "3399ff"
 	settings.iteminfo.colors_tier := [], settings.iteminfo.colors_ilvl := []
 	settings.iteminfo.dColors_ilvl := ["ffffff", "00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "ff00ff"]
 	settings.iteminfo.ilevels := ["83", "78", "73", "68", "64", "60", "56", "52"]
-	
+
 	Loop 8 ;load custom colors
 	{
 		settings.iteminfo.colors_tier[A_Index - 1] := LLK_IniRead("ini\item-checker.ini", "UI", (A_Index = 8) ? "fractured" : "tier " A_Index - 1, settings.iteminfo.dColors_tier[A_Index - 1])
 		settings.iteminfo.colors_ilvl[A_Index] := LLK_IniRead("ini\item-checker.ini", "UI", "ilvl tier " A_Index, settings.iteminfo.dColors_ilvl[A_Index])
 	}
-	
+
 	If !IsObject(vars.iteminfo) ;only do this when the function is called for the very first time (i.e. at startup) ;this function is used whenever major features are toggled on/off
 	{
 		vars.iteminfo := {"UI": {}, "compare": {}}
 		vars.iteminfo.compare.slots := {"mainhand": {}, "offhand": {}, "helmet": {}, "body": {}, "amulet": {}, "ring1": {}, "ring2": {}, "belt": {}, "gloves": {}, "boots": {}}
 		vars.hwnd.iteminfo := {}
-		
+
 		For key in vars.iteminfo.compare.slots ;load gear from ini
 			vars.iteminfo.compare.slots[key].equipped := LLK_IniRead("ini\item-checker gear.ini", key,, "empty")
 	}
-	
+
 	vars.iteminfo.highlight := {"global": {}}, vars.iteminfo.blacklist := {"global": {}}
 	iniread := LLK_IniRead("ini\item-checker.ini", "highlighting " settings.iteminfo.profile)
-	
+
 	Loop, Parse, iniread, `n ;load global and slot-specific (un)desired highlighting
 	{
 		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
@@ -64,7 +64,7 @@
 			IniDelete, ini\item-checker.ini, % "highlighting " settings.iteminfo.profile, % key ;delete buggy key in ini-file
 			continue
 		}
-		
+
 		category := InStr(key, "highlight") ? "highlight" : "blacklist"
 		class := InStr(key, " ") ? SubStr(key, InStr(key, " ") + 1) : "global"
 		val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
@@ -85,11 +85,11 @@
 			Continue
 		vars.iteminfo.inverted_mods[A_LoopField] := 1
 	}
-	
+
 	If settings.iteminfo.compare
 		settings.iteminfo.itembase := 0 ;, settings.iteminfo.dps := 0
 	Else Return
-	
+
 	vars.iteminfo.compare.xBase := vars.client.h* (443/720) - 1 ;x-coordinate in client that approximates the left edge of the inventory
 	vars.iteminfo.compare.dButton := vars.client.h*(1/18)/3, vars.hwnd.iteminfo_comparison := {}
 	For key in vars.iteminfo.compare.slots ;load/update gear-update buttons used for tracking equipped items
@@ -161,7 +161,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 		Gui, itemchecker_width: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 		Gui, itemchecker_width: Add, Text, % "Border HWNDhwnd", % "77777"
 		GuiControlGet, text_, Pos, % hwnd
-		
+
 		While Mod(text_h, 4) ;increase the height until it's divisible by 4
 			text_h += 1
 		UI.wSegment := text_h*2 ;one width-unit is height*2
@@ -175,7 +175,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	{
 		If !vars.iteminfo.clipboard
 			Return
-		
+
 		If WinExist("ahk_id " vars.hwnd.iteminfo.main)
 		{
 			WinGetPos, xPos, yPos,,, % "ahk_id " vars.hwnd.iteminfo.main
@@ -228,7 +228,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 			item[A_LoopField] := SubStr(item[A_LoopField], 2)
 		While ((SubStr(item[A_LoopField], 0) = " "))
 			item[A_LoopField] := SubStr(item[A_LoopField], 1, -1)
-	}	
+	}
 
 	If InStr(clip, LangTrans("items_quality") . " +")
 		item.quality := SubStr(clip, InStr(clip, LangTrans("items_quality") . " +") + StrLen(LangTrans("items_quality") . " +")), item.quality := SubStr(item.quality, 1, InStr(item.quality, "%") - 1)
@@ -255,7 +255,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 				If InStr(item.name, " " key, 1) || InStr(item.name, key " ", 1)
 					item.itembase := (StrLen(key) > StrLen(item.itembase)) ? key : item.itembase
 	}
-	
+
 	If (settings.general.lang_client != "english") && item.itembase ;try to get the English item-class on non-English clients (via base-item database)
 		item.class := db.item_bases._classes[db.item_bases._bases[item.itembase]]
 
@@ -285,7 +285,7 @@ Iteminfo2_stats()
 	local
 	global vars, settings, db
 
-	clip := vars.iteminfo.clipboard, item := vars.iteminfo.item ;short-cut variables	
+	clip := vars.iteminfo.clipboard, item := vars.iteminfo.item ;short-cut variables
 	vars.iteminfo.item.defenses := {} ;store item's defensive stats for item-comparison feature
 	defenses := vars.iteminfo.item.defenses ;short-cut variable
 	Loop, Parse, clip, `n, `r ;get the raw defense values and store them
@@ -309,9 +309,9 @@ Iteminfo2_stats()
 	Else If InStr("rings,belts,amulets,", item.class) || InStr(item.class, "jewels")
 		item.type := "jewelry"
 	Else item.type := ""
-	
+
 	item.ilvl_max := "86", item.stats := {} ;list of stats that will later be listed in the optional base-info area of the tooltip
-	
+
 	For class, class_val in db.item_bases ;parse through the item-databases to get relevant information
 	{
 		If !item.itembase && !InStr(item.class, "heist") || !(settings.iteminfo.itembase || settings.iteminfo.ilvl)
@@ -323,7 +323,7 @@ Iteminfo2_stats()
 				Loop, Parse, % "armor,evasion,energy", `,
 					If defenses[A_LoopField]
 						variation .= (variation ? "/" : "") . StrReplace(A_LoopField, "armor", "armour")
-			
+
 			For subtype, subtype_val in class_val ;parse through the sub-types within the class, e.g. armour/evasion
 			{
 				If (item.itembase = "two-toned boots") && (subtype != variation)
@@ -408,7 +408,7 @@ Iteminfo2_stats()
 					text := SubStr(text, 2)
 				While (SubStr(text, 0) = " ")
 					text := SubStr(text, 1, -1)
-				
+
 				For key, val in vars.lang
 				{
 					If !InStr(key, "mods_" natural_defense_stat)
@@ -430,7 +430,7 @@ Iteminfo2_stats()
 			stat_value -= defense_flat ;subtract flat increases to get base value
 		}
 		defense_roll := stat_value/base_best_%natural_defense_stat%*100 ;how close is the given base-percentile to the perfect roll (e.g. 69%), in terms of absolute values
-		
+
 		For key, val in item.stats
 		{
 			If (key = "block") || (key = "combined")
@@ -523,7 +523,7 @@ Iteminfo3_mods()
 	clip2 := LLK_StringCase(StrReplace(clip2, "`r`n", "|")) ;group lines that belong to a mod together
 	itemcheck_parse := "(-.)|[]%" ;characters that indicate numerical values/strings
 	loop := 0 ;count affixes
-	
+
 	If item.itembase && InStr("crimson jewel, viridian jewel, cobalt jewel", item.itembase)
 		item.class := "base jewels"
 
@@ -531,7 +531,7 @@ Iteminfo3_mods()
 	{
 		If (A_Index = 1)
 			clip2 := ""
-		
+
 		If LangMatch(SubStr(A_LoopField, 1, InStr(A_LoopField, "`n") - 1), vars.lang.mods_cluster_enchant, 0) ;is the item a cluster jewel?
 		{
 			target := InStr(item.name, "cluster jewel") ? "name" : "itembase"
@@ -579,7 +579,7 @@ Iteminfo3_mods()
 			Continue
 		clip2 .= A_LoopField "`n" ;rebuild the copied item-info without unnecessary lines
 	}
-	
+
 	For key, val in item.implicits ;create list of implicits relevant for the item-comparison feature, and store it in a separate array
 	{
 		If InStr(val, LangTrans("items_implicit_vaal")) || InStr(val, LangTrans("items_implicit_eater")) || InStr(val, LangTrans("items_implicit_exarch"))
@@ -595,7 +595,7 @@ Iteminfo3_mods()
 		{
 			If (SubStr(A_LoopField, 1, 1) = "{")
 				continue
-			
+
 			parse := (SubStr(A_LoopField, 1, 1) = " ") ? SubStr(A_LoopField, 2) : A_LoopField
 			While InStr(parse, "  ")
 				parse := StrReplace(parse, "  ", " ")
@@ -604,7 +604,7 @@ Iteminfo3_mods()
 		}
 	}
 	item.implicits2 := item.implicits3.Clone(), item.implicits3 := ""
-	
+
 	If item.cluster.enchant ;parse cluster info, and trim certain phrases for space-efficiency
 	{
 		Loop, Parse, % item.cluster.enchant
@@ -629,7 +629,7 @@ Iteminfo3_mods()
 		While (SubStr(item.cluster.enchant, 1, 1) = " ")
 			item.cluster.enchant := SubStr(item.cluster.enchant, 2)
 	}
-	
+
 	Loop, Parse, clip2, `n ;remove tooltips from item-info
 	{
 		If (A_Index = 1)
@@ -638,7 +638,7 @@ Iteminfo3_mods()
 			continue
 		clip2 .= A_LoopField "`n"
 	}
-	
+
 	While (SubStr(clip2, 0) = "`n") ;remove white-space at the end
 		clip2 := SubStr(clip2, 1, -1)
 
@@ -661,7 +661,7 @@ Iteminfo3_mods()
 			implicits .= val "`n"
 		;this variable stores a list with dps and defense stats which has a fixed structure for easy comparison
 		parse_comparison := (item.type != "attack") ? IteminfoCompare(implicits defenses StrReplace(StrReplace(clip2, " (fractured"), " (crafted)"), item.type) : IteminfoCompare(offenses StrReplace(clip2, " (fractured)"))
-		
+
 		compare := vars.iteminfo.compare ;short-cut variable
 		compare.items := [], compare.items.0 := {}, compare.items.1 := {} ;store up to 3 items here (index 0 = looted item, index 1 = inventory-slot 1, index 2 = inventory-slot 2)
 		If InStr(item_slot, ",")
@@ -679,7 +679,7 @@ Iteminfo3_mods()
 			stats_item .= parse "," ;list stats that are present on the item
 		}
 		compare.items.0.stats := stats_item, compare.items.slots := item_slot
-	
+
 		Loop, Parse, item_slot, `, ;read individual stats for all currently equipped items in the target slots
 		{
 			loop := A_Index
@@ -697,7 +697,7 @@ Iteminfo3_mods()
 			}
 			compare.items[loop].stats := stats_equipped_%loop%
 		}
-		
+
 		compare.losses := [] ;store comparisons between item and equipped items
 		Loop, % loop ;loop n times (n = number of target slots)
 		{
@@ -723,18 +723,18 @@ Iteminfo4_GUI()
 	local
 	global vars, settings, db
 	static toggle := 0
-	
+
 	toggle := !toggle, GUI_name := "iteminfo" toggle, clip := vars.iteminfo.clipboard, clip2 := vars.iteminfo.clipboard2, item := vars.iteminfo.item, UI := vars.iteminfo.UI ;short-cut variables
 	Gui, %GUI_name%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDiteminfo +E0x02000000 +E0x00080000 ;the last two styles reduce flashing by using double-buffering and bottom-to-top rendering
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo, "inverted_mods": {}}
-	
+
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// DPS area
-	
+
 	If (item.type = "attack") && !settings.iteminfo.compare ;create top-area with DPS values if item is weapon
 	{
 		all_dps := item.dps.phys "," item.dps.ele "," item.dps.chaos
@@ -761,7 +761,7 @@ Iteminfo4_GUI()
 		Gui, %GUI_name%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", % "img\GUI\item info\damage.png" ;total-dps icon
 		Gui, %GUI_name%: Add, Text, % "ys Center Border w"UI.wSegment " h"UI.hSegment, % (item.dps.total < 1000) ? Format("{:0.1f}", item.dps.total) : Format("{:0.0f}", item.dps.total) ;total-dps text
 	}
-	
+
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// base-info / league-start area
@@ -801,7 +801,7 @@ Iteminfo4_GUI()
 			If (item.rarity = LangTrans("items_unique")) && !item.anoint
 				stats_present := ""
 		}
-		
+
 		If (item.class != "base jewels") ;exclude base/generic jewels
 		{
 			Loop, % settings.iteminfo.compare ? losses.Count() : 1 ;if league-start mode is enabled, create up to two tooltip areas (one per potential comarison, e.g. ring 1 & 2, mainhand & offhand)
@@ -866,7 +866,7 @@ Iteminfo4_GUI()
 								Else If (InStr(compare.items.0.stats, "to_maximum_" A_LoopField) && !InStr(compare.items.0.stats, "to_maximum_" A_LoopField "_")) || (InStr(compare.items[loop].stats, "to_maximum_" A_LoopField) && !InStr(compare.items[loop].stats, "to_maximum_" A_LoopField "_"))
 									stats_present .= A_LoopField ","
 							}
-							
+
 							Loop, Parse, stats_present, `,
 							{
 								%A_LoopField%_difference := ""
@@ -899,14 +899,14 @@ Iteminfo4_GUI()
 							}
 					}
 				}
-				
+
 				loop_count := !settings.iteminfo.compare ? LLK_InStrCount(stats_present, ",") + 1 : LLK_InStrCount(stats_present, ",")
 				stats_present := "filler," stats_present ;add a filler cell
-				
+
 				If InStr(stats_present, "life") ;if flat life is part of the comparison, determine if its cell needs more space (2- vs 3-digit value)
 					life_width := (life_difference > 99 || life_difference < -99) ? 0.25 : 0
 				Else life_width := 0
-				
+
 				;determine cell-widths for different scenarios
 				If settings.iteminfo.compare ;for league-start mode
 				{
@@ -923,7 +923,7 @@ Iteminfo4_GUI()
 					width := UI.wSegment
 					filler_width := (UI.segments - loop_count*1.5) * UI.wSegment
 				}
-				
+
 				filler := ""
 				Loop, Parse, stats_present, `,, %A_Space% ;go through every stat and create the necessary cells
 				{
@@ -949,11 +949,11 @@ Iteminfo4_GUI()
 					Else width_override := (A_LoopField = "life") ? width + UI.wSegment*life_width : width
 					style := (filler = 1) ? "ys h"UI.hSegment " w"width_override : "xs Section h"UI.hSegment " w"width_override
 					filler := 1
-					
+
 					If (item.anoint != "") ;add oil-name to cell and determine highlight-color
 						%A_LoopField%_text := db.anoints._oils[A_LoopField], color := (14 - A_LoopField >= 6) ? settings.iteminfo.colors_tier.6 : settings.iteminfo.colors_tier[14 - A_LoopField]
 					Else color := (item.stats[A_LoopField].base_best = item.stats[A_LoopField].class_best) ? settings.iteminfo.colors_tier.1 : "404040"
-					
+
 					If (%A_LoopField%_difference != "")
 					{
 						If (%A_LoopField%_difference >= 1)
@@ -967,7 +967,7 @@ Iteminfo4_GUI()
 						If (%A_LoopField%_difference <= -11)
 							color := settings.iteminfo.colors_tier.6
 					}
-					
+
 					If settings.iteminfo.compare
 					{
 						If (item.type = "attack")
@@ -979,7 +979,7 @@ Iteminfo4_GUI()
 						If (item.type = "attack")
 							label := A_LoopField
 						Else label := (A_LoopField = "armour") ? "armor" : (A_LoopField = "energy") ? "energy" : A_LoopField
-						
+
 						If (A_LoopField = "combined")
 							label := InStr(stats_present, "armour,evasion") ? "armor_evasion" : InStr(stats_present, "armour,energy") ? "armor_energy" : "evasion_energy"
 					}
@@ -994,7 +994,7 @@ Iteminfo4_GUI()
 					Gui, %GUI_name%: Add, Text, % style " Border Center BackgroundTrans c"color1 " h"UI.hSegment, % %A_LoopField%_text
 					Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % !settings.iteminfo.compare && (item.anoint = "") ? item.stats[A_LoopField].relative : 100
 				}
-				
+
 				If settings.iteminfo.compare ;for league-start mode, add an additional area with losses/wins, e.g. suppression, flat dmg on armour, etc.
 				{
 					For key, value in losses[loop]
@@ -1022,7 +1022,7 @@ Iteminfo4_GUI()
 						Gui, %GUI_name%: Add, Text, % "ys h"UI.hSegment " w"UI.wSegment " Border Center BackgroundTrans c"color1, % item.base_percent "%"
 						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % item.base_percent
 					}
-					
+
 					If (item.rarity != LangTrans("items_unique"))
 					{
 						Gui, %GUI_name%: Add, Picture, % "ys Border Center BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\ilvl.png
@@ -1035,7 +1035,7 @@ Iteminfo4_GUI()
 			}
 		}
 	}
-	
+
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// implicit area
@@ -1048,42 +1048,42 @@ Iteminfo4_GUI()
 			type := InStr(implicit, LangTrans("items_implicit_vaal")) ? "vaal" : InStr(clip, "`r`nSynthesised ", 1) ? "synthesis" : ""
 		Else type := InStr(implicit, LangTrans("items_implicit_exarch")) ? "exarch" : "eater"
 		type := InStr(implicit, LangTrans("mods_implicit_vendor")) ? "delve" : InStr(implicit, LangTrans("mods_blight_enchant", 1)) || db.anoints.rings.HasKey(implicit) ? "blight" : InStr(clip, " Talisman`r`n", 1) ? "talisman" : type
-		
+
 		tCheck := ["lesser", "greater", "grand", "exceptional", "exquisite", "perfect"]
 		If InStr("exarch, eater", type)
 			For index0, tier0 in vars.lang.items_implicit_tiers
 				If InStr(implicit, tier0)
 					tier := tCheck[index0]
-			
+
 		implicit := LangTrim(implicit, vars.lang.mods_blight_enchant), implicit := SubStr(implicit, InStr(implicit, "`n") + 1)
 		While InStr(implicit, "`n(") ;remove info-text
 			parse := SubStr(implicit, InStr(implicit, "`n(")), parse := SubStr(parse, 1, InStr(parse, ")")), implicit := StrReplace(implicit, parse)
-		
+
 		If LangMatch(implicit, vars.lang.mods_eldritch_interval, 0) ;trim mods with intervals
 			implicit := StrReplace(implicit, vars.lang.mods_eldritch_interval.1, " ("), implicit := StrReplace(implicit, vars.lang.mods_eldritch_interval.2, " sec)")
-		
+
 		While InStr(implicit, "  ")
 			implicit := StrReplace(implicit, "  ", " ")
 
 		If LangMatch(implicit, vars.lang.mods_eldritch_condition, 0)
 			boss_type := copy := SubStr(implicit, InStr(implicit, vars.lang.mods_eldritch_condition.2) + StrLen(vars.lang.mods_eldritch_condition.2) + 1), boss_type := LangTrim(StrReplace(implicit, boss_type), vars.lang.mods_eldritch_condition) . ": ", implicit := boss_type . copy
-		
+
 		highlight := IteminfoModHighlight(implicit, 0, 1)
 		If !highlight ;mod is neither desired nor undesired
 			color := "Black"
 		Else color := (highlight = 1) ? tColors.1 : tColors.6
-		
+
 		color1 := (color = "Black") ? "White" : "Black"
 		Gui, %GUI_name%: Add, Text, % "xs Center Hidden Border w"UI.wSegment*(UI.segments - 1.25) " HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add hidden text label as dummy to get the correct height
 		GuiControlGet, text_, Pos, %hwnd%
 		height := (text_h <= UI.hSegment) ? UI.hSegment : text_h ;if mod-text consists of two lines, use that height, otherwise force standardized height
 		Gui, %GUI_name%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd c"color1, % IteminfoModRemoveRange(implicit) ;add actual text label on top
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled Section HWNDhwnd BackgroundBlack c"color, 100 ;place progress bar on top of text label (reversed stack-order)
-		
+
 		Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment/4 " Border 0x200 Center BackgroundTrans", % ""
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;small rectangle that displays neutral/(un)desired
 		vars.hwnd.iteminfo["implicit_"implicit] := hwnd
-		
+
 		Switch tier ;translate eldritch tiers and set colors
 		{
 			Case "lesser":
@@ -1101,7 +1101,7 @@ Iteminfo4_GUI()
 			Default:
 				color := tColors.0, tier := "#"
 		}
-		
+
 		width := (type = "") ? UI.wSegment : UI.wSegment/2, color1 := (tier = 1 || tier = 2) ? "Red" : "Black" ;cell-width and text-color
 		Gui, %GUI_name%: Add, Text, % "ys hp w"width " 0x200 Border Center BackgroundTrans c"color1, % tier ;text-cell
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd c"color, 100 ;cell coloring
@@ -1121,24 +1121,24 @@ Iteminfo4_GUI()
 	}
 	If item.implicits.Count()
 		Gui, %GUI_name%: Add, Progress, % "xs w"UI.wSegment*UI.segments " Disabled h"UI.hDivider " Background"UI.cDivider, ;add divider-line to visually separate implicits
-	
+
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// cluster-enchant area
-	
+
 	If item.cluster ;if item is a cluster jewel, add passive-skills and enchant info
-	{		
+	{
 		highlight := IteminfoModHighlight(StrReplace(item.cluster.enchant, "`n", ";"), 0, 1)
 		If (highlight = 0) ;mod is neither desired nor undesired
 			color := "Black"
 		Else color := (highlight = 1) ? tColors.1 : tColors.6 ;determine which is the case
-		
+
 		Gui, %GUI_name%: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"UI.wSegment*(UI.segments - 1.25) " cWhite HWNDmain_text", % item.cluster.enchant ;dummy panel to get the correct height
 		GuiControlGet, check_, Pos, %main_text%
 		height := (check_h <= UI.hSegment) ? UI.hSegment : check_h, color1 := (color = "Black") ? "White" : "Black" ;get correct height, determine text-color
 		Gui, %GUI_name%: Add, Text, % "xp yp wp h"height " Border Center BackgroundTrans HWNDhwnd_itemchecker_cluster_text c"color1, % item.cluster.enchant ;add actual text label
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100 ;add background color
-	
+
 		Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment*0.25 " Border Center BackgroundTrans cBlack", % " " ;small rectangle to set the mod to (un)desired
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd BackgroundBlack c"color, 100
 		vars.hwnd.iteminfo["implicit_"item.cluster.enchant] := hwnd
@@ -1161,15 +1161,15 @@ Iteminfo4_GUI()
 		If (item.class != "base jewels")
 			tier := unique ? "u" : InStr(A_LoopField, LangTrans("items_tier")) ? SubStr(A_LoopField, InStr(A_LoopField, LangTrans("items_tier")) + StrLen(LangTrans("items_tier")) + 1, 2) : InStr(A_LoopField, "(crafted)") ? "c" : "#", tier := InStr(tier, ")") ? StrReplace(tier, ")") : tier ;determine affix tier for non-jewel items
 		Else tier := "?"
-		
+
 		mod := SubStr(A_LoopField, InStr(A_LoopField, "`n") + 1) ;text of the mod
 		While InStr(mod, "`n(") ;remove info-text
 			parse := SubStr(mod, InStr(mod, "`n(")), parse := SubStr(parse, 1, InStr(parse, ")")), mod := StrReplace(mod, parse)
-		
+
 		height := 0, name := unique ? "" : SubStr(A_LoopField, InStr(A_LoopField, """",,, 1) + 1, InStr(A_LoopField, """",,, 2) - InStr(A_LoopField, """",,, 1) - 1) ;height and name for the mod
 		affix_type := InStr(A_LoopField, " Prefix Modifier ") ? "prefix" : "?", affix_type := InStr(A_LoopField, " Suffix Modifier ") ? "suffix" : affix_type
 		search_class := InStr(item.class, " Flasks") ? "flasks" : IsObject(item.cluster) ? "cluster jewels" : item.class ;flasks and cluster-jewels need to be handled differently when looked up in the databases
-		
+
 		If settings.iteminfo.ilvl && (item.class != "base jewels") ;if item-levels are enabled, look them up in the databases
 		{
 			ilvl := "??" ;set placeholder ilvl
@@ -1292,7 +1292,7 @@ Iteminfo4_GUI()
 			label := IteminfoModgroupCheck(name, 1) ? IteminfoModgroupCheck(name, 1) : IteminfoModCheck(mod, item.type), label := InStr(A_LoopField, " (crafted)") ? "mastercraft" : label ;check for suitable icon
 			width := (label || settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") ? UI.wSegment/2 : UI.wSegment ;determine the width of the cell, and whether it needs to be divided into two parts
 			width := (settings.iteminfo.override && InStr(highlights, "-",,, LLK_InStrCount(A_LoopField, "`n")) && !InStr(A_LoopField, " (fractured)")) ? UI.wSegment : width
-			
+
 			Gui, %GUI_name%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center cBlack c"color_t, % tier ;add tier-cell
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100
 			Gui, %GUI_name%: Font, norm
@@ -1305,7 +1305,7 @@ Iteminfo4_GUI()
 						Gui, %GUI_name%: Add, Text, % "ys h"UI.hSegment " wp Border Center BackgroundTrans HWNDhwnd c" ;cont
 						. (ilvl >= settings.iteminfo.ilevels.1 && (settings.iteminfo.colors_ilvl.1 = "ffffff") ? "Red" : "Black"), % ilvl ;add ilvl-cell
 					Else Gui, %GUI_name%: Add, Picture, % "ys h"UI.hSegment-2 " w-1 Border BackgroundTrans HWNDhwnd", img\GUI\item info\%label%.png ;add icon-cell
-				}	
+				}
 				Else ;if the mod is multi-line, add a taller cell
 				{
 					If (settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??")
@@ -1351,7 +1351,7 @@ Iteminfo4_GUI()
 		While (wDrop >= UI.wSegment * segments)
 			segments += 0.25
 		wDrop := UI.wSegment * segments, sFiller -= segments, roll_stats_val := roll_stats_max := 0
-		
+
 		For index, roll in roll_stats
 			roll_stats_val += roll.1, roll_stats_max += roll.2
 		roll_stats_average := Format("{:0.0f}", (roll_stats_val / roll_stats_max) * 100)
@@ -1420,13 +1420,13 @@ IteminfoCompare(string, item_type := "") ;takes a string with item-stats and ret
 	resists := "cold,lightning,fire,chaos"
 	attributes := "strength,dexterity,intelligence"
 	result := {}
-	
+
 	Loop, Parse, resists, `,
 		result["to_"A_LoopField "_resistance"] := 0 ;set stats to 0 as a baseline
-	
+
 	Loop, Parse, attributes, `,
 		result["to_"A_LoopField] := 0 ;set stats to 0 as a baseline
-	
+
 	Loop, Parse, string, `n, `r ;remove roll-ranges from the item-data
 	{
 		If InStr(A_LoopField, "{") || (A_LoopField = "")
@@ -1445,13 +1445,13 @@ IteminfoCompare(string, item_type := "") ;takes a string with item-stats and ret
 		}
 		gear_clip .= parse "`n" ;create new string without roll-ranges
 	}
-	
+
 	Loop, Parse, gear_clip, `n ;parse the new string
 	{
 		If (A_LoopField = "") || ((item_type = "attack") && InStr(A_LoopField, "adds ") && InStr(A_LoopField, "damage") && !InStr(A_LoopField, "spell"))
 		|| ((item_type = "attack") && InStr(A_LoopField, "increased physical damage")) ;skip flat and % dmg mods since dps comparison already covers potential losses of desired mods
 			continue
-		
+
 		loopfield_original := A_LoopField
 		If (InStr(A_LoopField, "adds") || InStr(A_LoopField, "added")) && InStr(A_LoopField, "to") ;mods with 'x to y' need a backup string to save their text (because of reasons I can't fully remember)
 		{
@@ -1468,7 +1468,7 @@ IteminfoCompare(string, item_type := "") ;takes a string with item-stats and ret
 			loopfield_copy := StrReplace(loopfield_copy, "__", "_")
 		While (SubStr(loopfield_copy, 1, 1) = "_")
 			loopfield_copy := SubStr(loopfield_copy, 2)
-		
+
 		Loop, Parse, % (InStr(A_LoopField, "adds") || InStr(A_LoopField, "added")) && InStr(A_LoopField, "to") ? StrReplace(A_LoopField, " to ", "|",, 1) : A_LoopField
 		{
 			If (A_Index = 1)
@@ -1589,7 +1589,7 @@ IteminfoModgroupCheck(name, mode := 0) ;check the affix-name to determine if the
 	hunter := ["hunter's", " hunt"]
 	warlord := ["warlord", "conquest"]
 	essence := ["essences", " essence"]
-	
+
 	Loop, Parse, parse, `,
 		For key, val in %A_LoopField%
 			If InStr(name, val) && !InStr(name, "flame shaper's")
@@ -1600,13 +1600,13 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 {
 	local
 	global vars, settings
-	
+
 	item := vars.iteminfo.item, highlight := vars.iteminfo.highlight, blacklist := vars.iteminfo.blacklist ;short-cut variables
 	itemchecker_highlight_parse := "+-.()%", itemchecker_rule_applies := ""
 	implicit_check := !implicit ? "global" : "implicits" ;simple flag to facilitate handling objects
 	string := InStr(string, ":") ? SubStr(string, InStr(string, ":") + 2) : string, string := StrReplace(string, "`n", ";")
 	string := StrReplace(string, " (fractured)"), string := StrReplace(string, " (crafted)")
-	
+
 	If LangMatch(string, vars.lang.mods_eldritch_targets, 0) ;remove singular/plural distinction from this mod so they don't have to be highlighted as (un)desired separately
 		For index, val in vars.lang.mods_eldritch_targets
 			string := (A_Index = 1) ? "" : string, string .= val
@@ -1619,19 +1619,19 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 		If !IsNumber(A_LoopField) && !InStr(itemchecker_highlight_parse, A_LoopField) ;remove numbers and numerical signs
 			string .= A_LoopField
 	}
-	
+
 	While (SubStr(string, 1, 1) = " ")
 		string := SubStr(string, 2)
 	While (SubStr(string, 0, 1) = " ")
 		string := SubStr(string, 1, -1)
 	While InStr(string, "  ")
 		string := StrReplace(string, "  ", " ")
-	
+
 	string := StrReplace(string, "; ", ";")
 
 	If (mode = "parse")
 		Return string
-	
+
 	If !implicit ;if mod is not an implicit, check if global rules/overrides apply
 	{
 		If settings.iteminfo.rules.hitgain && (InStr(string, "life per enemy") || InStr(string, "mana per enemy"))
@@ -1644,7 +1644,7 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 			itemchecker_rule_applies := -1
 		If settings.iteminfo.rules.crit && (InStr(string, "critical strike"))
 			itemchecker_rule_applies := -1
-		
+
 		If (item.type = "attack") || (itemchecker_rule_applies != "")
 		{
 			If (itemchecker_rule_applies = "") && settings.iteminfo.rules.res_weapons && (InStr(string, "resistance") && !InStr(string, "penetrate"))
@@ -1659,7 +1659,7 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 				Return itemchecker_rule_applies
 			}
 		}
-		
+
 		If (item.type = "defense") || (item.type = "jewelry")
 		{
 			If settings.iteminfo.rules.res && InStr(string, "to ") && InStr(string, " resistance") && !InStr(string, "minion")
@@ -1675,7 +1675,7 @@ IteminfoModHighlight(string, mode := 0, implicit := 0) ;check if mod is highligh
 			}
 		}
 	}
-	
+
 	If (mode = 0) ;check if mod is highlighted/blacklisted in order to determine color
 	{
 		If !implicit && (item.class != "") && (item.class_copy != "")
@@ -1863,7 +1863,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 			hotkey .= A_LoopField
 	}
 
-	start := A_TickCount	
+	start := A_TickCount
 	While GetKeyState(hotkey, "P")
 	{
 		If (A_TickCount >= start + 250)
@@ -1875,7 +1875,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 
 	If !pass
 		Return
-	
+
 	If !WinActive("ahk_id "vars.hwnd.poe_client) ;activate the game-client in case it's not active (item-info cannot be copied from an inactive client)
 	{
 		WinActivate, % "ahk_id "vars.hwnd.poe_client
@@ -1907,7 +1907,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 
 	snip := SubStr(Clipboard, InStr(Clipboard, "item level: ")) ;lower part of the item's information
 	item_type := InStr(Clipboard, "attacks per second: ") ? "attack" : ""
-	
+
 	Loop, Parse, Clipboard, `n, `r ;parse the item's defenses (not actually used at the moment)
 	{
 		If InStr(A_LoopField, "armour: ")
@@ -1937,7 +1937,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 		If InStr(A_LoopField, "requirements: ")
 			break
 	}
-	
+
 	Loop, Parse, defenses, `,
 	{
 		If (A_Index = 1)
@@ -1946,7 +1946,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 			continue
 		defenses .= A_LoopField "=" %A_LoopField% "`n"
 	}
-	
+
 	If InStr(Clipboard, "attacks per second: ") ;get the item's DPS
 	{
 		item_type := "attack"
@@ -2037,7 +2037,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 		edps := edps0
 		dps := tdps
 	}
-	
+
 	itemcheck_clip := SubStr(StrReplace(Clipboard, " — " LangTrans("items_unscalable")), InStr(Clipboard, "item level:"))
 	item_lvl := SubStr(itemcheck_clip, 1, InStr(itemcheck_clip, "`r`n",,, 1) - 1)
 	item_lvl := StrReplace(item_lvl, "item level: ")
@@ -2047,7 +2047,7 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 	itemcheck_parse := "(-.)|[]%" ;characters that indicate numerical values/strings
 	loop := 0 ;count affixes
 	unique := InStr(Clipboard, LangTrans("items_rarity") " " LangTrans("items_unique")) ? 1 : 0 ;is item unique?
-	
+
 	Loop, Parse, itemcheck_clip, | ;remove unnecessary item-info: implicits, crafted mods, etc.
 	{
 		If (A_Index = 1)
@@ -2059,12 +2059,12 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 		}
 		;If InStr(A_LoopField, "crafted")
 		;	crafted_mods .= StrReplace(A_LoopField, " (crafted)") "`n"
-		
+
 		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "implicit") || InStr(A_LoopField, "{ Allocated Crucible") ;|| InStr(A_LoopField, "crafted")
 			continue
 		itemcheck_clip .= A_LoopField "`n"
 	}
-	
+
 	Loop, Parse, implicits, `n
 	{
 		If (A_Index = 1)
@@ -2073,10 +2073,10 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 			continue
 		implicits .= A_LoopField "`n"
 	}
-	
+
 	While (SubStr(implicits, 0) = "`n")
 		implicits := SubStr(implicits, 1, -1)
-	
+
 	Loop, Parse, itemcheck_clip, `n ;remove tooltips from item-info
 	{
 		If (A_Index = 1)
@@ -2085,10 +2085,10 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 			continue
 		itemcheck_clip .= A_LoopField "`n"
 	}
-	
+
 	itemcheck_clip := StrReplace(itemcheck_clip, " (fractured)")
 	itemcheck_clip := StrReplace(itemcheck_clip, " (crafted)")
-	
+
 	Loop, Parse, itemcheck_clip, `n
 	{
 		If (A_Index = 1)
@@ -2097,10 +2097,10 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 			continue
 		itemcheck_clip .= A_LoopField "`n"
 	}
-	
+
 	While (SubStr(itemcheck_clip, 0) = "`n")
 		itemcheck_clip := SubStr(itemcheck_clip, 1, -1)
-	
+
 	vars.iteminfo.compare.slots[slot].equipped := (item_type = "attack") ? "dps="tdps "`npdps="pdps "`nedps="edps0 "`ncdps="cdps "`nspeed=" speed "`n" IteminfoCompare(implicits "`n" itemcheck_clip, item_type) : defenses IteminfoCompare(implicits "`n" itemcheck_clip, item_type)
 	IniWrite, % vars.iteminfo.compare.slots[slot].equipped, ini\item-checker gear.ini, % slot
 	LLK_ToolTip(slot " updated")
@@ -2123,7 +2123,7 @@ IteminfoHighlightApply(cHWND) ;apply (un)desired highlighting to a mod by clicki
 			mode := -mode
 			Break
 		}
-	
+
 	If check && (IteminfoModHighlight(StrReplace(check, "implicit_"), mode, InStr(check, "implicit_")) >= 0)
 		Iteminfo(1)
 	KeyWait, % hotkey
@@ -2141,7 +2141,7 @@ IteminfoMarker() ;placing markers while using the shift-trigger feature
 
 	MouseGetPos, x, y
 	dimensions := vars.client.h*0.047/2, count := vars.hwnd.iteminfo_markers.Count() + 1
-	
+
 	Gui, iteminfo_marker%count%: New, -DPIScale +E0x20 -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 	Gui, iteminfo_marker%count%: Margin, 0, 0
 	Gui, iteminfo_marker%count%: Color, Red
@@ -2164,7 +2164,7 @@ IteminfoModCheck(string, item_type := "") ;checks a mod's text to determine if t
 	{
 		If (A_LoopField = "")
 			continue
-		
+
 		If (item_type = "attack")
 		{
 			Loop, Parse, resists, `,
@@ -2175,7 +2175,7 @@ IteminfoModCheck(string, item_type := "") ;checks a mod's text to determine if t
 			If (InStr(string, "adds ") && InStr(string, "physical") && InStr(string, "damage") && !InStr(string, "spells")) || InStr(string, "increased physical damage")
 				Return "phys"
 		}
-		
+
 		If InStr(string, "minion")
 			Return "minion"
 		Else If InStr(string, "totem")
@@ -2222,7 +2222,7 @@ IteminfoModCheck(string, item_type := "") ;checks a mod's text to determine if t
 			Return "allstats"
 		Else if InStr(string, "to maximum life") || InStr(string, "increased maximum life")
 			Return "life"
-		
+
 		Loop, Parse, % resists "," stats, `,
 		{
 			If InStr(string, A_LoopField) && !InStr(string, " and ") && ((InStr(resists, A_LoopField) && InStr(string, "resistance") && !InStr(string, " enem") && !InStr(string, "penetrate")) || InStr(stats, A_LoopField))
@@ -2230,21 +2230,21 @@ IteminfoModCheck(string, item_type := "") ;checks a mod's text to determine if t
 			Else If InStr(string, A_LoopField) && InStr(stats, A_LoopField) && InStr(string, " and ")
 				Return "allstats"
 		}
-		
+
 		If InStr(string, "armour and evasion")
 			Return "armor_evasion"
 		If InStr(string, "armour and energy")
 			Return "armor_energy"
 		If InStr(string, "evasion and energy")
 			Return "evasion_energy"
-		
+
 		If InStr(string, "+") && InStr(string, "to armour") && InStr(string, "to evasion rating")
 			Return "armor_evasion"
 		If InStr(string, "+") && InStr(string, "to armour") && InStr(string, "to maximum energy shield")
 			Return "armor_energy"
 		If InStr(string, "+") && InStr(string, "to evasion rating") && InStr(string, "to maximum energy shield")
 			Return "evasion_energy"
-		
+
 		If (InStr(string, "increased ") && (InStr(string, "armour"))) || (InStr(string, "+") && InStr(string, " to ") && (InStr(string, "armour")))
 			Return "armor"
 		If (InStr(string, "increased ") && InStr(string, "evasion")) || (InStr(string, "+") && InStr(string, " to ") && InStr(string, "evasion"))
@@ -2253,22 +2253,22 @@ IteminfoModCheck(string, item_type := "") ;checks a mod's text to determine if t
 			Return "energy"
 		If InStr(string, "+") && InStr(string, "to ward") || (InStr(string, "increased ward"))
 			Return "ward"
-		
+
 		If InStr(string, " block") && !InStr(string, "block recovery")
 			Return "block"
-		
+
 		If InStr(string, "to maximum mana") || InStr(string, "increased maximum mana")
 			Return "mana"
-		
+
 		If InStr(string, "regenerate") && InStr(string, "mana per second") || InStr(string, "increased mana regeneration rate")
 			Return "mana_regen"
-		
+
 		If InStr(string, "flask")
 			Return "flasks"
-		
+
 		If InStr(string, "regenerate") && InStr(string, "life per second") || InStr(string, "increased life regeneration rate")
 			Return "life_regen"
-		
+
 		If InStr(string, "to level of ") && InStr(string, " gem")
 			Return "gem_level"
 	}
@@ -2297,7 +2297,7 @@ IteminfoModRollCheck(mod) ;parses a mod's text and returns an array with informa
 
 	mod := StrReplace(StrReplace(mod, " (crafted)"), " (fractured)")
 	rolls := [], sum_min := 0, sum_current := 0, sum_max := 0
-	
+
 	If !InStr(mod, "(")
 		Return [0, 1, 1]
 
@@ -2316,7 +2316,7 @@ IteminfoModRollCheck(mod) ;parses a mod's text and returns an array with informa
 		}
 		parse .= A_LoopField ;collect numbers in string
 	}
-	
+
 	For key, val in rolls ;parse through the collected numbers
 	{
 		min := InStr(val, "(") ? SubStr(val, InStr(val, "(") + 1) : val ;declare the min-roll (either within potential brackets, or the number itself)
@@ -2337,7 +2337,7 @@ IteminfoOverlays() ;show update buttons for specific gear-slots underneath the c
 	local
 	global vars, settings
 
-	If settings.iteminfo.compare	
+	If settings.iteminfo.compare
 		For slot, val in vars.iteminfo.compare.slots
 		{
 			If vars.pixelsearch.inventory.check && LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")
@@ -2354,7 +2354,7 @@ IteminfoTrigger(mode := 0) ;handles shift-clicks on items and currency for the s
 	local
 	global vars, settings
 	static last := 0
-	
+
 	Clipboard := ""
 	If mode
 	{

@@ -2,9 +2,9 @@
 {
 	local
 	global vars, settings, db, Json
-	
+
 	settings.features.leveltracker := LLK_IniRead("ini\config.ini", "Features", "enable leveling guide", 0)
-	
+
 	If !FileExist("ini\leveling tracker.ini")
 	{
 		IniWrite, % "", ini\leveling tracker.ini, settings
@@ -52,10 +52,10 @@
 			Continue
 		vars.leveltracker.gear.Push(SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1))
 	}
-		
+
 	;settings.leveltracker.gear.x := LLK_IniRead("ini\leveling tracker.ini", "UI", "indicator xcoord", 0.3* vars.client.w)
 	;settings.leveltracker.gear.y := LLK_IniRead("ini\leveling tracker.ini", "UI", "indicator ycoord", 0.91* vars.client.h)
-	
+
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
 	Loop, Parse, % LLK_IniRead("ini\leveling tracker.ini", "gem notes"), `n
@@ -90,7 +90,7 @@ Geartracker(mode := "")
 		Return
 	}
 	check := LLK_HasVal(vars.hwnd.geartracker, mode), control := SubStr(check, InStr(check, "_") + 1)
-	
+
 	If (check = "filter")
 		vars.leveltracker.gearfilter := LLK_ControlGet(mode)
 	Else If (check = "clear")
@@ -228,7 +228,7 @@ Leveltracker(cHWND := "", hotkey := "")
 {
 	local
 	global vars, settings, Json, db
-	
+
 	If vars.leveltracker.fast ;block any input during fast-forwarding
 		Return
 	check := LLK_HasVal(vars.hwnd.leveltracker, cHWND)
@@ -252,7 +252,7 @@ Leveltracker(cHWND := "", hotkey := "")
 			While GetKeyState("LButton", "P") && (cHWND = vars.hwnd.leveltracker["+"]) && (loop = 1)
 				If (A_TickCount >= start + 1000)
 					loop := 1000, vars.leveltracker.fast := 1, area_check := !db.leveltracker.areas.HasKey(vars.log.areaID) || InStr(vars.log.areaID, "labyrinth") ? 0 : 1
-			
+
 			If (loop = 1000) && area_check ;check the remainder of the guide to see if there's a step involving the current location
 			{
 				area_check := 0
@@ -318,7 +318,7 @@ Leveltracker(cHWND := "", hotkey := "")
 				KeyWait, LButton
 				Return
 			}
-			
+
 			Loop, % vars.leveltracker.guide.group0.Count()
 			{
 				IniDelete, ini\leveling guide.ini, progress, % "step_" guide.progress.MaxIndex()
@@ -373,7 +373,7 @@ Leveltracker(cHWND := "", hotkey := "")
 
 	If !InStr(vars.hwnd.LLK_panel.leveltracker ", " vars.hwnd.LLK_panel.leveltracker_text, cHWND) || InStr(A_Gui, "settings_menu")
 		Return
-	
+
 	If (hotkey = 2)
 	{
 		If settings.leveltracker.geartracker
@@ -409,7 +409,7 @@ LeveltrackerExperience(arealevel := "")
 {
 	local
 	global vars, settings
-	
+
 	If (vars.log.level = 0)
 		Return ""
 
@@ -468,7 +468,7 @@ LeveltrackerHints()
 			added := 1
 			Break
 		}
-	
+
 	If added
 	{
 		Gui, leveltracker_hints: Show, NA x10000 y10000
@@ -583,7 +583,7 @@ LeveltrackerImport()
 
 				color := (attr = "str") ? "D81C1C" : (attr = "dex") ? "00BF40" : (attr = "int") ? "0077FF" : "White"
 				step_text .= (step.rewardType = "vendor" ? "buy gem: " : "take reward: ") . (color ? "(color:"color ")" : "") StrReplace(gems[gemID].name, " ", "_")
-				
+
 				If step.requiredGem.note
 					gem_notes .= gems[gemID].name "=" step.requiredGem.note "`n"
 			}
@@ -638,12 +638,12 @@ LeveltrackerImport()
 		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes
 	}
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
-	
+
 	IniDelete, ini\leveling tracker.ini, Gems
 	IniDelete, ini\search-strings.ini, 00-exile leveling gems
 	IniDelete, ini\search-strings.ini, searches, hideout lilly
 	vars.searchstrings["hideout lilly"].enable := 0
-	
+
 	If build_gems_all
 	{
 		Sort, build_gems_all, D`, P2 N
@@ -654,13 +654,13 @@ LeveltrackerImport()
 		Sort, build_gems_skill_int, D`, P2 N
 		Sort, build_gems_supp_int, D`, P2 N
 		Sort, build_gems_none, D`, P2 N
-		
+
 		build_gems_all := StrReplace(build_gems_all, ")", ") gem: "), build_gems_all := StrReplace(build_gems_all, " support", ""), build_gems_all := StrReplace(build_gems_all, ",", "=1`n")
 		IniWrite, % SubStr(build_gems_all, 1, -1), ini\leveling tracker.ini, Gems ;save gems for gear tracker feature
 	}
-	
+
 	parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int,none"
-	
+
 	search_string_skill_str := ""
 	search_string_supp_str := ""
 	search_string_skill_dex := ""
@@ -669,7 +669,7 @@ LeveltrackerImport()
 	search_string_supp_int := ""
 	search_string_none := ""
 	search_string_all := ""
-	
+
 	Loop, Parse, parse, `,, `, ;create advanced search-string
 	{
 		loop := A_Loopfield
@@ -684,7 +684,7 @@ LeveltrackerImport()
 			If !gem_regex
 				gem_regex := parse_gem
 			gem_regex := StrReplace(gem_regex, " ", "\s")
-			
+
 			If (StrLen(parse_string . gem_regex) <= 48)
 				parse_string .= gem_regex "|"
 			Else
@@ -695,13 +695,13 @@ LeveltrackerImport()
 		}
 		search_string_%loop% .= "(" SubStr(parse_string, 1, -1) ")"
 	}
-	
+
 	Loop, Parse, parse, `,, `,
 	{
 		If (search_string_%A_Loopfield% != "")
 			search_string_all .= search_string_%A_Loopfield% ";"
 	}
-	
+
 	If search_string_all
 	{
 		search_string_all := SubStr(search_string_all, 1, -1)
@@ -709,7 +709,7 @@ LeveltrackerImport()
 		IniWrite, % """" StrReplace(search_string_all, ";", " " ";`;`;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems ;escaped semi-colons to prevent VScode from list this line as a module
 	}
 	Init_searchstrings()
-	
+
 	guide_text := StrReplace(guide_text, "&", "&&"), guide_text := StrReplace(guide_text, "`nenter areaid1_3_1 `n", ", enter areaid1_3_1 `n")
 	guide_text := StrReplace(guide_text, "remaining floors will have the exit diagonally across from the entrance", "remaining exits are diagonally opposite to the entrances")
 	guide_text := StrReplace(guide_text, "follow the trail in the direction of the torch", "follow the path under the torch")
@@ -729,7 +729,7 @@ LeveltrackerImport()
 	StringLower, guide_text, guide_text
 	IniDelete, ini\leveling guide.ini, Steps
 	IniWrite, % guide_text, ini\leveling guide.ini, Steps
-	
+
 	Settings_menu("leveling tracker")
 	LLK_ToolTip(LangTrans("global_success"),,,,, "Lime")
 	Init_leveltracker()
@@ -860,7 +860,7 @@ LeveltrackerScreencapMenuClose()
 {
 	local
 	global vars, settings
-	
+
 	LLK_Overlay(vars.hwnd.leveltracker_screencap.main, "destroy"), vars.leveltracker.Delete("screencap_active")
 	If !Blank(vars.hwnd.settings.main)
 		LLK_Overlay(vars.hwnd.settings.main, "show")
@@ -873,7 +873,7 @@ LeveltrackerScreencapMenu()
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	active := vars.leveltracker.screencap_active
 	If WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main)
 		WinGetPos, xPos, yPos, Width, Height, % "ahk_id "vars.hwnd.leveltracker_screencap.main
@@ -898,7 +898,7 @@ LeveltrackerScreencapMenu()
 		If FileExist("img\GUI\skill-tree\[0" A_Index "]*") || FileExist("img\GUI\skill-tree\["A_Index "]*")
 			files := (A_Index < 10 ? "0" : "") A_Index
 	}
-	
+
 	Gui, %GUI_name%: Font, % "bold underline s"settings.general.fSize
 	Gui, %GUI_name%: Add, Text, % "xs Section HWNDanchor x"settings.general.fWidth/2, % LangTrans("global_skilltree")
 	Gui, %GUI_name%: Font, norm
@@ -1006,7 +1006,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	local
 	global vars, settings, db
 	static in_progress, toggle := 0
-	
+
 	If in_progress
 		Return
 
@@ -1051,7 +1051,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		If !guide.group0.Count() && InStr(step, "(hint)")
 			Continue
 		guide.group0.Push(step)
-		
+
 		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to"))
 		&& !InStr(step, "arena:") ;&& !InStr(step, "the warden's_chambers") && !InStr(step, "sewer_outlet") && !InStr(step, "resurrection site") && !InStr(step, "the black core")
 		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the")
@@ -1069,7 +1069,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			guide.group0 := []
 		}
 	}
-	
+
 	If vars.leveltracker.fast ;skip redrawing the GUIs during fast-forwarding
 	{
 		in_progress := 0
@@ -1090,13 +1090,13 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	WinSet, TransColor, Black
 	Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 	vars.hwnd.leveltracker.main := leveltracker_main
-	
+
 	guide.gems := [], guide.items := []
 	For index_raw, step in guide.group1
 	{
 		If InStr(step, "(hint)") && !settings.leveltracker.hints
 			Continue
-		
+
 		style := "Section xs", line := step, kill := 0, text_parts := []
 		Loop, Parse, step, %A_Space%
 		{
@@ -1104,7 +1104,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 				Continue
 			text_parts.Push(A_LoopField) ;push parts into an array so the next and previous parts can be checked/predicted
 		}
-		
+
 		If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gems.Count() && !guide.items.Count()
 		{
 			add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
@@ -1166,7 +1166,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	While Mod(wButtons, 2)
 		wButtons += 1
 	wPanels := (width - wButtons*2)/2
-	
+
 	Gui, %GUI_name_back%: Show, % "NA w"width - 2 " h"height
 	Gui, %GUI_name_main%: Show, % "NA w"width - 2 " h"height
 	WinGetPos, x, y, width, height, % "ahk_id " vars.hwnd.leveltracker.main
@@ -1310,12 +1310,12 @@ LeveltrackerSkilltree(index := 0)
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	skilltree := vars.leveltracker.skilltree ;short-cut variable
 	If !IsNumber(skilltree.active) || !FileExist("img\GUI\skill-tree\["skilltree.active "]*")
 		skilltree.active := "00"
 	index := index ? index : skilltree.active, skilltree.files := [], skilltree.files_lab := []
-	
+
 	Loop, Files, img\GUI\skill-tree\[*]*
 	{
 		If (SubStr(A_LoopFileName, 1, 4) = "[lab")
@@ -1325,7 +1325,7 @@ LeveltrackerSkilltree(index := 0)
 		If !InStr("jpg,bmp,png", A_LoopFileExt) || (A_LoopFileExt = "")
 			continue
 	}
-	
+
 	If skilltree.files.Count() || skilltree.files_lab.Count()
 	{
 		toggle := !toggle, GUI_name_skilltree := "leveltracker_skilltree" toggle
@@ -1359,7 +1359,7 @@ LeveltrackerSkilltree(index := 0)
 		Gui, %GUI_name_skilltree%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2
           skilltree.x := x, skilltree.y := y, skilltree.w := w, skilltree.h := h
 		LLK_Overlay(leveltracker_skilltree, "show",, GUI_name_skilltree), LLK_Overlay(hwnd_old, "destroy")
-		
+
 		If Blank(A_Gui) && skilltree.files_lab.Count()
 		{
 			GUI_name_labs := "leveltracker_skilltree_labs" toggle
@@ -1397,7 +1397,7 @@ LeveltrackerSkilltreeHover()
 {
 	local
 	global vars, settings
-	
+
 	skilltree := vars.leveltracker.skilltree
 	KeyWait, RButton
 	While GetKeyState(vars.omnikey.hotkey, "P")
@@ -1535,7 +1535,7 @@ LeveltrackerTimer(mode := "")
 {
 	local
 	global vars, settings, db
-	
+
 	timer := vars.leveltracker.timer
 	If mode && InStr("pause,reset", mode)
 	{
@@ -1594,7 +1594,7 @@ LeveltrackerTimer(mode := "")
 
 	If !settings.leveltracker.timer
 		Return
-	
+
 	If vars.hwnd.leveltracker.main && (timer.pause = 1) && (db.leveltracker.areas.HasKey(vars.log.areaID) || InStr(vars.log.areaID, "labyrinth")) && (timer.current_act != 11) ;resume the timer after leaving a hideout (if it wasn't paused manually by the user)
 		timer.pause := 0
 
@@ -1649,7 +1649,7 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	If !settings.leveltracker.layouts
 		Return
 
@@ -1671,7 +1671,7 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 	}
 	Else If cHWND && !longpress && (drag = 2)
 		x := (settings.leveltracker.aLayouts = "vertical") ? vars.client.x - vars.monitor.x : "", y := (settings.leveltracker.aLayouts = "vertical") ? "" : vars.client.y - vars.monitor.y
-	
+
 	If !Blank(x) || !Blank(y)
 	{
 		settings.leveltracker.xLayouts := x, settings.leveltracker.yLayouts := y
@@ -1683,9 +1683,9 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 
 	Loop, Files, % "img\GUI\leveling tracker\zones\" vars.log.areaID " *"
 		check += 1
-	
+
 	If !check
-	{	
+	{
 		LLK_Overlay(vars.hwnd.leveltracker_zones.main, "destroy")
 		Return
 	}

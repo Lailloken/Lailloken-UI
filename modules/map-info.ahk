@@ -2,13 +2,13 @@
 {
 	local
 	global vars, settings, db, Json
-	
+
 	If !FileExist("ini\map info.ini")
 	{
 		IniWrite, % "", ini\map info.ini, Settings
 		IniWrite, % "", ini\map info.ini, UI
 	}
-	
+
 	settings.features.mapinfo := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map-info panel", 0)
 	settings.mapinfo := {"IDs": {}}
 
@@ -90,7 +90,7 @@ MapinfoGUI(mode := 1)
 	If (map.mods + map.quantity > 0)
 		dimensions := [summary]
 	Else dimensions := []
-	
+
 	For index0, category in vars.mapinfo.categories
 	{
 		If Blank(category)
@@ -110,7 +110,7 @@ MapinfoGUI(mode := 1)
 		}
 	}
 	LLK_PanelDimensions(dimensions, settings.mapinfo.fSize, width, height,,, 0)
-		
+
 	For index0, category in vars.mapinfo.categories
 	{
 		check := 0
@@ -118,7 +118,7 @@ MapinfoGUI(mode := 1)
 			check += map[category][5 - A_Index].Count() ? 1 : 0
 		If !check
 			Continue
-		
+
 		Gui, %GUI_name%: Add, Text, % (added ? "xs " : "") "Section c"settings.mapinfo.color.5 " w"width (mode = 2 ? " Right" : ""), % (mode = 2 && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category) ":"
 		added += 1
 		Loop 4
@@ -164,7 +164,7 @@ MapinfoGUI(mode := 1)
 				spectrum.0[A_Index] += map[category].0[A_Index].Count() ? map[category].0[A_Index].Count() : 0
 			}
 		}
-		
+
 		Loop 4
 		{
 			index0 := A_Index
@@ -205,7 +205,7 @@ MapinfoGUI(mode := 1)
 	}
 	Gui, %GUI_name%: Show, % (mode ? "NA " : "") "x"x " y"y
 	LLK_Overlay(mapinfo, "show", mode, GUI_name)
-	
+
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.mapinfo.main
 	If (w < 10)
 		LLK_ToolTip(LangTrans("ms_map-info") ": " LangTrans("global_nothing"), 1.5,,,, "red"), LLK_Overlay(mapinfo, "destroy"), vars.mapinfo.active_map := ""
@@ -241,7 +241,7 @@ MapinfoParse(mode := 1)
 	local
 	global vars, settings, db
 	static clip
-	
+
 	item := vars.omnikey.item
 	If mode
 		clip := StrReplace(StrReplace(StrReplace(Clipboard, "`r`n", ";"), " — " LangTrans("items_unscalable")), " (augmented)")
@@ -337,7 +337,7 @@ MapinfoParse(mode := 1)
 	}
 	Else name := db.mapinfo.localization[LLK_StringRemove(item.itembase, " Map,Maven's ")], name_copy := LLK_StringRemove(item.itembase, " Map,Maven's ")
 	*/
-	
+
 	If !item.itembase_copy
 	{
 		name := item.name_copy, passes := 0
@@ -408,7 +408,7 @@ MapinfoRank(hotkey)
 {
 	local
 	global vars, settings
-	
+
 	check := LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
 	Loop, Parse, hotkey
 		If IsNumber(A_LoopField)
@@ -416,7 +416,7 @@ MapinfoRank(hotkey)
 			hotkey := A_LoopField
 			Break
 		}
-	
+
 	If !check
 		Return
 	If IsNumber(hotkey)

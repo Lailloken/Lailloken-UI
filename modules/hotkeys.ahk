@@ -2,7 +2,7 @@
 {
 	local
 	global vars, settings, db
-	
+
 	settings.hotkeys := {}
 	settings.hotkeys.rebound_alt := LLK_IniRead("ini\hotkeys.ini", "Settings", "advanced item-info rebound", 0)
 	settings.hotkeys.item_descriptions := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "item-descriptions key")
@@ -13,7 +13,7 @@
 	settings.hotkeys.omniblock := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block omnikey's native function", 0)
 	settings.hotkeys.omnikey := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey", "MButton")
 	settings.hotkeys.omnikey2 := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
-	
+
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
 	settings.hotkeys.tab := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
@@ -21,7 +21,7 @@
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
 	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
-	
+
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	If !settings.hotkeys.rebound_c
 	{
@@ -38,7 +38,7 @@
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
 	Hotkey, % settings.hotkeys.tab, CheatsheetTAB, On
-		
+
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
 
@@ -54,7 +54,7 @@ HotkeysESC()
 {
 	local
 	global vars, settings
-	
+
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
 	Else If WinExist("LLK-UI: notepad reminder")
@@ -118,7 +118,7 @@ HotkeysTab()
 {
 	local
 	global vars, settings
-		
+
 	start := A_TickCount
 
 	While settings.general.hide_toolbar && GetKeyState(settings.hotkeys.tab, "P")
@@ -150,7 +150,7 @@ HotkeysTab()
 
 	If vars.hwnd.leveltracker.main
 		leveltracker_check := LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-	
+
 	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
@@ -181,7 +181,7 @@ HotkeysTab()
 			active .= " lab", vars.lab.toggle := 1, Lab()
 			Break
 		}
-	
+
 	If !settings.hotkeys.tabblock && !active
 	{
 		SendInput, % "{" settings.hotkeys.tab " DOWN}"
@@ -189,7 +189,7 @@ HotkeysTab()
 		SendInput, % "{" settings.hotkeys.tab " UP}"
 	}
 	Else KeyWait, % settings.hotkeys.tab
-	
+
 	If InStr(active, "LLK-panel")
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")

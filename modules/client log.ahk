@@ -10,10 +10,10 @@
 	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		vars.log[A_LoopField] := ""
-	
+
 	If !settings.general.lang_client
 		check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-	
+
 	settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
 
 	If check
@@ -32,7 +32,7 @@ LogLoop(mode := 0)
 	local
 	global vars, settings
 	static button_color
-	
+
 	Critical
 	If settings.qol.alarm && !vars.alarm.drag && vars.alarm.timestamp && (vars.alarm.timestamp <= A_Now || vars.alarm.toggle)
 		Alarm()
@@ -81,7 +81,7 @@ LogLoop(mode := 0)
 					}
 		}
 	}
-	
+
 	If mode
 		Return
 
@@ -90,7 +90,7 @@ LogLoop(mode := 0)
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
 		Leveltracker("+")
-	
+
 	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
 		Loop, % vars.mapinfo.categories.Count()

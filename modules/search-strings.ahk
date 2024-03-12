@@ -2,7 +2,7 @@
 {
 	local
 	global vars, settings
-	
+
 	If !FileExist("ini\search-strings.ini")
 	{
 		IniWrite, 1, ini\search-strings.ini, searches, beast crafting
@@ -14,7 +14,7 @@
 		IniWrite, "damping|urchin", ini\search-strings.ini, beast crafting, 00-flasks: ignite
 		IniWrite, "antitoxin|skunk", ini\search-strings.ini, beast crafting, 00-flasks: poison
 	}
-	
+
 	If !IsObject(vars.searchstrings)
 		vars.searchstrings := {}
 	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0
@@ -40,7 +40,7 @@
 				vars.searchstrings.list[key].x2 := A_LoopField + vars.searchstrings.list[key].x1
 			Else vars.searchstrings.list[key].y2 := A_LoopField + vars.searchstrings.list[key].y1
 		}
-		
+
 		Loop, Parse, % LLK_IniRead("ini\search-strings.ini", key), `n
 		{
 			If !A_LoopField || InStr(A_LoopField, "last coordinates")
@@ -69,7 +69,7 @@ StringContextMenu(name := "")
 	strings := vars.searchstrings.list[name].strings ;short-cut
 	If (name = "exile-leveling")
 		vars.searchstrings.active := ["exile-leveling", "vendor"], string := "vendor"
-	
+
 	If (A_Gui = "searchstrings_context") || (name = "exile-leveling") || (strings.Count() = 1)
 	{
 		KeyWait, LButton
@@ -135,7 +135,7 @@ StringMenu(name)
 	Gui, %GUI_name%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/4
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.searchstrings_menu.main, vars.hwnd.searchstrings_menu := {"main": searchstrings_menu}
-	
+
 	Gui, %GUI_name%: Add, Text, % "x-1 y-1 Section Border Center gStringMenu2 HWNDhwnd", % LangTrans("search_header") " " name
 	vars.hwnd.searchstrings_menu.winbar := hwnd
 	Gui, %GUI_name%: Add, Text, % "ys x+-1 Border gStringMenuClose Center HWNDhwnd w"settings.general.fWidth*2, % "x"
@@ -150,7 +150,7 @@ StringMenu(name)
 	vars.hwnd.help_tooltips["searchstrings_config entry-about"] := hwnd0, vars.hwnd.searchstrings_menu.name := hwnd
 	WinGetPos, xPos,, width,, ahk_id %hwnd%
 	xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
-	
+
 	For key, value in vars.searchstrings.list[name].strings
 	{
 		If InStr(key, "00-")
@@ -164,7 +164,7 @@ StringMenu(name)
 			WinGetPos, xPos,, width, height, ahk_id %hwnd%
 			vars.hwnd.help_tooltips["searchstrings_config entry-list"] := hwnd, xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max, added := 0, header := 1
 		}
-		
+
 		If !vars.searchstrings.menu.active.2
 			vars.searchstrings.menu.active.2 := key
 		style := !added ? "y+0" : "y+"settings.general.fHeight/6, added += 1
@@ -179,7 +179,7 @@ StringMenu(name)
 		WinGetPos, xPos,, width,, ahk_id %hwnd%
 		xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
 	}
-	
+
 	;Gui, %GUI_name%: Font, % "s"settings.general.fSize
 	Gui, %GUI_name%: Add, Button, hidden x0 y0 default gStringMenu2 HWNDhwnd, ok
 	vars.hwnd.searchstrings_menu.add := hwnd
@@ -206,7 +206,7 @@ StringMenu2(cHWND)
 	StringMenuSave()
 	If InStr(check, "del_")
 	{
-		
+
 		If LLK_Progress(vars.hwnd.searchstrings_menu["delbar_"control], "LButton")
 		{
 			IniDelete, ini\search-strings.ini, % active.1, % control
@@ -324,7 +324,7 @@ StringScroll(hotkey)
 			active.3 += 1
 		Else Return
 	}
-	
+
 	If !InStr(clip, ";")
 		GuiControl, text, % vars.hwnd.tooltip_mouse.text, % LangTrans("omnikey_scroll") " " vars.searchstrings.active.3 "/" vars.searchstrings.active.4 "`n" LangTrans("omnikey_escape")
 	If index
@@ -339,7 +339,7 @@ StringSearch(name)
 {
 	local
 	global vars, settings
-	
+
 	var := vars.searchstrings.list[name]
 	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing
 	{
@@ -347,22 +347,22 @@ StringSearch(name)
 			LLK_ToolTip(LangTrans("global_calibrate", 2),,,,, "yellow")
 		Return 0
 	}
-	
+
 	If !var.x1 && !InStr(A_Gui, "settings_menu") ;return 0 if search doesn't have coordinates or strings
 		Return 0
-	
+
 	pHaystack_searchstrings := InStr(A_Gui, "settings_menu") ? Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1) : vars.searchstrings.pHaystack
 	If InStr(A_Gui, "settings_menu") ;search whole client-area if search was initiated from settings menu, or if this specific search doesn't have last-known coordinates
 		x1 := 0, y1 := 0, x2 := 0, y2 := 0
 	Else	x1 := var.x1, y1 := var.y1, x2 := var.x2, y2 := var.y2
-	
+
 	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
 	If InStr(A_Gui, "settings_menu") && (pNeedle_searchstrings <= 0)
 	{
 		MsgBox, % LangTrans("cheat_loaderror") " " name
 		Return 0
 	}
-	
+
 	If (Gdip_ImageSearch(pHaystack_searchstrings, pNeedle_searchstrings, LIST, x1, y1, x2, y2, vars.imagesearch.variation,, 1, 1) > 0) ;reference img-file was found in the screenshot
 	{
 		If InStr(A_Gui, "settings_menu") ;if search was initiated from settings menu, save positive coordinates

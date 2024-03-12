@@ -2,9 +2,9 @@
 {
 	local
 	global vars, settings
-	
+
 	settings.features.maptracker := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
-	
+
 	settings.maptracker := {"loot": LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
 	settings.maptracker.hide := LLK_IniRead("ini\map tracker.ini", "Settings", "hide panel when paused", 0)
 	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
@@ -107,7 +107,7 @@ MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content
 {
 	local
 	global vars, settings
-	
+
 	mode_check := ["abyssleague", "endgame_labyrinth_trials", "mapsidearea"]
 	For key, val in {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "synthesis": 0, "abyssleague": 0, "labyrinth_trials": 0, "mapsidearea": 0}
 	{
@@ -130,7 +130,7 @@ MaptrackerDateSelect()
 		leagues := vars.maptracker.leagues
 	If !IsObject(vars.hwnd.maptracker_dates)
 		vars.hwnd.maptracker_dates := {}
-	
+
 	runs := {}, years := {}, months := {}, lMonth := 0, month_names := []
 	Loop 12
 	{
@@ -159,7 +159,7 @@ MaptrackerDateSelect()
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Font, % "s"settings.maptracker.fSize + 2 " cWhite", % vars.system.font
 	;Gui, %GUI_name%: Add, Pic, % "BackgroundTrans w" wLogs " h" hLogs, % "img\GUI\square_black.png"
-	
+
 	hwnd_old := vars.hwnd.maptracker_dates.main, vars.hwnd.maptracker_dates := {"main": maptracker_dates, "toggle": toggle}, column := []
 
 	If Blank(LLK_HasKey(runs, SubStr(pick, 1, 4), 1))
@@ -185,7 +185,7 @@ MaptrackerDateSelect()
 			Gui, %GUI_name%: Add, Text, % "Section Hidden Center Border BackgroundTrans", % ""
 			allButton := 1
 		}
-		
+
 		If !league_count
 			For index, array in leagues
 			{
@@ -195,7 +195,7 @@ MaptrackerDateSelect()
 						run_count_league += 1
 				If !run_count_league
 					Continue
-	
+
 				Gui, %GUI_name%: Add, Text, % "xs" (!league_count ? " Section" (allButton ? " y+-1" : "") : " y+-1") " Border BackgroundTrans" (active_date = array.1 ? " cLime" : "") . " w" wColumn, % " " array.1 " (" run_count_league ")"
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Border Range0-500 cRed Background" settings.maptracker.colors["league " index], 0
 				vars.hwnd.maptracker_dates[array.1] := hwnd, league_count .= "|"
@@ -435,7 +435,7 @@ MaptrackerGUI(mode := 0)
 
 	For index, content in vars.maptracker.map.content
 		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans", % "img\GUI\mapping tracker\" content ".png"
-	
+
 	If mode
 	{
 		vars.maptracker.loot := vars.maptracker.map.loot.Count() ? 1 : 0 ;flag to determine if the loot-list is on display
@@ -524,7 +524,7 @@ MaptrackerLogs(mode := "")
 	}
 	If object.Count()
 		entries[date].InsertAt(1, object)
-	
+
 	If entries.Count()
 	{
 		date_isLeague := LLK_HasVal(vars.maptracker.leagues, vars.maptracker.active_date,,,, 1)
@@ -559,7 +559,7 @@ MaptrackerLogs(mode := "")
 			active_date := vars.maptracker.active_date := "all" ;SubStr(ddl[ddl.Count()], 1, InStr(ddl[ddl.Count()], " ") - 1)
 		Else If (mode = "refresh")
 			Return
-		
+
 		If !ddl.Count() && vars.maptracker.keywords.Count()
 		{
 			WinGetPos, x, y,,, % "ahk_id " vars.hwnd.maptracker_logs.filter
@@ -577,11 +577,11 @@ MaptrackerLogs(mode := "")
 		vars.maptracker.keywords_lastworking := vars.maptracker.keywords.Clone(), vars.maptracker.entries_lastworking := vars.maptracker.entries.Clone()
 	}
 	Else vars.maptracker.active_date := LangTrans("global_none"), entries := {"1970/01/01": []}
-	
+
 	;If vars.maptracker.active_date && InStr(ddl, vars.maptracker.active_date)
 	;	ddl := StrReplace(ddl, ddl_replace, ddl_replace . (InStr(ddl, ddl_replace "|") ? "|" : "||")) ;pre-select a previously-selected date
 	;Else vars.maptracker.active_date := "", choice := LLK_InStrCount(ddl, "|") + 1 ;else pre-select the last entry
-	
+
 	toggle := !toggle, GUI_name := "maptracker_logs" toggle
 	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmaptracker_logs"
 	Gui, %GUI_name%: Color, Black
@@ -1134,7 +1134,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 				If !Blank(A_LoopField)
 					boxes.Push(StrReplace(A_LoopField, "`n", " `n "))
 		}
-		
+
 		Gui, maptracker_tooltip: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDmaptracker_tooltip"
 		Gui, maptracker_tooltip: Color, % settings.maptracker.colors.date_unselected
 		Gui, maptracker_tooltip: Margin, 0, 0
@@ -1147,7 +1147,6 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			If (column = "notes") && (ini_section = "avgsum")
 				LLK_PanelDimensions([boxes2[index]], settings.maptracker.fSize, wRow, hRow)
 			style := (ini_section = "avgsum") ? " 0x200" (index = 1 ? " Center" : " Right") : (ini_key = "mapinfo" && index = 1) ? " Center" : ""
-			;Gui, maptracker_tooltip: Add, Text, % "Section" (index = 1 ? "" : " xs y+-1") . (ini_key = "mapinfo" ? " Center" : (index = 1 && ini_section = "avgsum" ? " Center" : (ini_section = "avgsum") ? " Right" : "")) . (ini_section = "avgsum" ? " 0x200" : "") " Border w" width . (hRow ? " h" hRow : ""), % " " text " "
 			Gui, maptracker_tooltip: Add, Text, % "Section HWNDhwnd" (index = 1 ? "" : " xs y+-1") . style " Border w" width . (hRow ? " h" hRow : ""), % " " text " "
 			If (ini_section = "avgsum")
 			{
@@ -1159,19 +1158,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			If (yControl + hControl >= vars.monitor.h * 0.69)
 				Break
 		}
-		/*
-		If (ini_section = "avgsum")
-		{
-			For index, text in boxes1
-			{
-				If (column = "notes")
-					LLK_PanelDimensions([boxes2[index]], settings.maptracker.fSize, wRow, hRow)
-				Gui, maptracker_tooltip: Add, Text, % (index = 1 ? "Section ys x+-1" : "xs y+-1") " 0x200 Border w" width1 . (hRow ? " h" hRow : "") . (index = 1 ? " Center" : " Right"), % " " text " "
-			}
-			For index, text in boxes2
-				Gui, maptracker_tooltip: Add, Text, % (index = 1 ? "Section ys x+-1" : "xs y+-1") " Border w" width2 . (index = 1 ? " Center" : (column = "tier") ? " Right" : ""), % " " text " "
-		}
-		*/
+
 		Gui, maptracker_tooltip: Show, NA x10000 y10000
 		WinGetPos, x, y, w, h, % "ahk_id " cHWND
 		If (ini_section = "avgsum")
@@ -1192,7 +1179,7 @@ MaptrackerLoot(mode := "")
 
 	If (mode = "clear")
 		last := [], vars.maptracker.loot := 0 
-	
+
 	If !vars.maptracker.map.date_time || (mode = "clear") || !Screenchecks_ImageSearch("stash") || vars.maptracker.pause
 		Return
 	Else If (mode = "back")
@@ -1207,7 +1194,7 @@ MaptrackerLoot(mode := "")
 		LLK_ToolTip(LangTrans("maptracker_loot", 2), 0.5,,,, "Lime")
 		Return
 	}
-	
+
 	Clipboard := ""
 	;If settings.hotkeys.rebound_alt && settings.hotkeys.item_descriptions
 	;	SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
@@ -1240,7 +1227,7 @@ MaptrackerLoot(mode := "")
 		base := name
 	Else If (rarity = LangTrans("items_unique"))
 		base := ""
-	
+
 	If !name && !base
 	{
 		LLK_ToolTip(LangTrans("global_error", 3), 0.5,,,, "Red")
@@ -1494,7 +1481,7 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 
 	xPos := (xPos + w >= vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos
 	yPos := (yPos + h >= vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : (yPos < vars.monitor.y) ? vars.monitor.y : yPos
-	
+
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(maptracker_edit, "show", 1, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	KeyWait, % settings.hotkeys.tab
@@ -1532,7 +1519,7 @@ MaptrackerReminder()
 {
 	local
 	global vars, settings
-	
+
 	ignore := ["vaal area", "abyssal depths", "lab trial", "maven", "delirium"]
 	Clipboard := ""
 	Sleep, 100
@@ -1548,7 +1535,7 @@ MaptrackerReminder()
 				Continue 2
 		mechanics += 1
 	}
-	
+
 	If InStr(Clipboard, "`r`nPortal Scroll`r`n", 1) && mechanics
 		LLK_ToolTip(LangTrans("maptracker_check"), 3,,,, "aqua", settings.general.fSize + 4,,, 1)
 }
@@ -1562,7 +1549,7 @@ MaptrackerSave(mode := 0)
 	If settings.maptracker.kills
 		vars.maptracker.map.kills := (vars.maptracker.map.kills.Count() = 2) ? vars.maptracker.map.kills.2 - vars.maptracker.map.kills.1 : 0
 	Else vars.maptracker.map.kills := 0
-	
+
 	For key, val in vars.maptracker.map.content
 		content .= !content ? val : "; " val
 
@@ -1598,7 +1585,7 @@ MaptrackerSave(mode := 0)
 			}
 			notes .= "¢"
 		}
-	
+
 		If !Blank(note_count) ;non-blank var implies that notes were present prior to saving, so check whether notes need to be removed after a map-run
 		{
 			Loop, % vars.maptracker.notes.Count()
@@ -1625,7 +1612,7 @@ MaptrackerTimer()
 	local
 	global vars, settings
 	static inactive, mapname_replace, mapname_add
-	
+
 	If !settings.features.maptracker || vars.maptracker.drag
 		Return
 
@@ -1634,7 +1621,7 @@ MaptrackerTimer()
 		mapname_replace := {"mavenboss": LangTrans("maps_maven"), "mavenhub": LangTrans("maps_maven_invitation"), "MapWorldsPrimordialBoss1": LangTrans("maps_hunger"), "MapWorldsPrimordialBoss2": LangTrans("maps_blackstar"), "MapWorldsPrimordialBoss3": LangTrans("maps_exarch"), "MapWorldsPrimordialBoss4": LangTrans("maps_eater"), "MapWorldsShapersRealm": LangTrans("maps_shaper"), "MapWorldsElderArena": LangTrans("maps_elder"), "MapWorldsElderArenaUber": LangTrans("maps_elder", 2), "harvestleagueboss": LangTrans("maps_oshabi"), "mapatziri1": LangTrans("maps_atziri"), "mapatziri2": LangTrans("maps_atziri", 2), "atlasexilesboss5": LangTrans("maps_sirus")}
 		mapname_add := {"heist": LangTrans("maps_heist"), "expedition": LangTrans("maps_logbook"), "affliction": LangTrans("maps_delirium")}
 	}
-	
+
 	If !(settings.maptracker.hide && vars.maptracker.pause) && !MaptrackerCheck(2) && !WinExist("ahk_id "vars.hwnd.maptracker.main) && (WinActive("ahk_group poe_window") || WinActive("ahk_id "vars.hwnd.maptracker_logs.main) || vars.settings.active = "mapping tracker") || vars.maptracker.toggle ;when in hideout or holding down TAB, show tracker GUI
 		MaptrackerGUI(), inactive := 0
 	Else If WinExist("ahk_id "vars.hwnd.maptracker.main) && (MaptrackerCheck(2) && !vars.maptracker.toggle && !vars.maptracker.pause || settings.maptracker.hide && vars.maptracker.pause) ;else hide it
@@ -1645,7 +1632,7 @@ MaptrackerTimer()
 
 	If MaptrackerCheck() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
 		vars.maptracker.refresh_kills := 2
-	
+
 	If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
 	{
 		Gui, % GuiName(vars.hwnd.maptracker.main) ": Color", % (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"

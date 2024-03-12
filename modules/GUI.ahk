@@ -9,12 +9,12 @@
 	Gui, LLK_panel: Margin, % margin, % margin
 	Gui, LLK_panel: Font, % "s" size " cWhite Bold", % vars.system.font
 	vars.hwnd.LLK_panel := {"main": hwnd}, height := 2 * size
-	
+
 	;Gui, LLK_panel: Add, Text, Center BackgroundTrans Hidden HWNDhwnd, % "LLK`nUI"
 	;ControlGetPos,,,, height,, ahk_id %hwnd%
 	;While Mod(height, 2)
 	;	height += 1
-	
+
 	Gui, LLK_panel: Add, Pic, % "Section h" height " w-1 Border HWNDhwnd", % "img\GUI\settings.png"
 	vars.hwnd.LLK_panel.settings := hwnd, style := (orientation = "horizontal") ? "ys" : "xs", style .= " " (orientation = "horizontal" ? " h" height " w" height : " w" height " h" height)
 
@@ -30,7 +30,7 @@
 	Loop, Parse, % "leveltracker, maptracker, notepad", `,, %A_Space%
 	{
 		If (settings.features[A_LoopField] || settings.qol[A_LoopField])
-		{	
+		{
 			file := (A_LoopField = "leveltracker" && !(vars.hwnd.leveltracker.main || vars.leveltracker.toggle)) ? "0" : ""
 			file := (A_LoopField = "maptracker" && vars.maptracker.pause) ? 0 : file
 			If (A_LoopField = "leveltracker")
@@ -51,13 +51,13 @@
 		Init_GUI(mode)
 		Return
 	}
-	
+
 	xPos := (settings.general.xButton >= vars.monitor.w / 2) ? settings.general.xButton - w + 1 : settings.general.xButton ;apply right-alignment if applicable (i.e. if button is on the right half of monitor)
 	xPos := (xPos + (w - 1) > vars.monitor.w - 1) ? vars.monitor.w - 1 - w : xPos ;correct the coordinates if panel ends up out of monitor-bounds
-	
+
 	yPos := (settings.general.yButton >= vars.monitor.h / 2) ? settings.general.yButton - h + 1 : settings.general.yButton ;apply top-alignment if applicable (i.e. if button is on the top half of monitor)
 	yPos := (yPos + (h - 1) > vars.monitor.h - 1) ? vars.monitor.h - 1 - h : yPos ;correct the coordinates if panel ends up out of monitor-bounds
-	
+
 	Gui, LLK_panel: Show, % (hide ? "hide" : "NA") " x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(vars.hwnd.LLK_panel.main, hide ? "hide" : "show",, "LLK_panel"), vars.toolbar := {"x": vars.monitor.x + xPos, "y": vars.monitor.y + yPos, "x2": vars.monitor.x + xPos + w, "y2": vars.monitor.y + yPos + h}
 
@@ -86,7 +86,7 @@ GuiButton(name := "", x := "", y := "")
 		WinSet, TransColor, Aqua
 	Else WinSet, Trans, 255
 	vars.hwnd[name "_button"] := {"main": hwnd}
-	
+
 	Gui, %name%_button: Add, Picture, % "BackgroundTrans Border HWNDhwnd g"name " w"settings[name].sButton " h-1", % "img\GUI\"name (name = "leveltracker" && !vars.hwnd.leveltracker.main ? "0" : "") ".jpg"
 	vars.hwnd[name "_button"].img := hwnd
 	Gui, %name%_button: Show, NA x10000 y10000
@@ -168,7 +168,7 @@ GuiToolbarButtons(cHWND, hotkey)
 			}
 		}
 		vars.toolbar.drag := 0
-	
+
 		If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main) || WinExist("ahk_id " vars.hwnd.searchstrings_menu.main) || WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main)
 			LLK_ToolTip(LangTrans("global_configwindow"), 2,,,, "yellow")
 		Else If (hotkey = 2)

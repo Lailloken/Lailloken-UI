@@ -59,7 +59,7 @@ LangClient(log_chunk) ;finds out which language the client is running
 				If LangMatch(A_LoopField, val)
 					lang_client := key, lang_reset := 0
 		}
-			
+
 	}
 	settings.general.lang_client := lang_client
 
@@ -133,7 +133,7 @@ LangLoad(file)
 		While (SubStr(val, 0) = " ")
 			val := SubStr(val, 1, -1)
 		val := StrReplace(SubStr(val, 2, -1), ";", "`n")
-		
+
 		If !val
 			Continue
 		If !IsObject(array[key])
