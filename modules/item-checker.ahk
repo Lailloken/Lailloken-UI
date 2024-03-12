@@ -1273,8 +1273,11 @@ Iteminfo4_GUI()
 			If InStr(A_LoopField, " (fractured)")
 			{
 				color := tColors.7 ;fractured mods have a specific color
-				If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && ((tier = 1) || item.class = "base jewels") ;if the fractured mod is also desired, add red highlighting to the text
+				If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && ((tier = 1) || item.class = "base jewels") ;if the fractured mod is also desired, add red highlighting to the text and make it bold
+				{
 					color_t := "Red"
+					Gui, %GUI_name%: Font, bold
+				}
 			}
 			Else If InStr(highlights, "-",,, LLK_InStrCount(A_LoopField, "`n")) && settings.iteminfo.override ;if the override-option is enabled and the mod is undesired, apply t6 color
 				color := tColors.6
@@ -1292,6 +1295,7 @@ Iteminfo4_GUI()
 			
 			Gui, %GUI_name%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center cBlack c"color_t, % tier ;add tier-cell
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100
+			Gui, %GUI_name%: Font, norm
 
 			If (width < UI.wSegment) && (label || settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") ;divide tier-cell if necessary (to add icon/ilvl)
 			{
@@ -1547,7 +1551,7 @@ IteminfoCompare(string, item_type := "") ;takes a string with item-stats and ret
 	Return string
 }
 
-LLK_PatternMatch(text, string, object, swap := 0, value := 1, case := 0) ;swap param switches the order around, val param determines if values or keys of the object are used
+LLK_PatternMatch(text, string, object, swap := 0, value := 1, case := 1) ;swap param switches the order around, val param determines if values or keys of the object are used
 {
 	local
 

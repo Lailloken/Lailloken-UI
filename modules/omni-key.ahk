@@ -263,7 +263,7 @@ OmniContextMenu()
 		Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd0
 		Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/8
 		Gui, omni_context: Color, Black
-		WinSet, Transparent, % settings.general.trans
+		;WinSet, Transparent, % settings.general.trans
 		Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.omni_context := {"main": hwnd0}, vars.omni_context := {}, item := vars.omnikey.item, style := (A_Index = 2) ? " w" width : "", hwnd := ""
 

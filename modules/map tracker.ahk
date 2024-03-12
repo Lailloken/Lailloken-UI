@@ -999,7 +999,7 @@ MaptrackerLogsFilter(cHWND) ;adds operators/keywords to the search-bar when icon
 	last_keyword := InStr(current_input, ",") ? InStr(current_input, ",",, 0) + 1 : current_input
 	While (SubStr(last_keyword, 1, 1) = " ")
 		last_keyword := SubStr(last_keyword, 2)
-	If !Blank(last_keyword) && !(LLK_PatternMatch(last_keyword, ":", vars.maptracker.category_check, 1, 0) || LLK_PatternMatch(last_keyword, ":", vars.maptracker.category_check, 1, 1)) && !IsNumber(last_keyword) && (SubStr(current_input, 0) != "!")
+	If !Blank(last_keyword) && !(LLK_PatternMatch(last_keyword, ":", vars.maptracker.category_check, 1, 0, 0) || LLK_PatternMatch(last_keyword, ":", vars.maptracker.category_check, 1, 1, 0)) && !IsNumber(last_keyword) && (SubStr(current_input, 0) != "!")
 		current_input .= "|", override := 1
 	GuiControl,, % vars.hwnd.maptracker_logs.filter, % current_input . (Blank(current_input) || override || (SubStr(current_input, 0) = "!") ? "" : ", ") . SubStr(A_GuiControl, 2)
 	ControlFocus,, % "ahk_id " vars.hwnd.maptracker_logs.filter
@@ -1108,8 +1108,6 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			{
 				count := SubStr(A_LoopField, 1, InStr(A_LoopField, "x") - 1)
 				percent := Format("{:0.2f}", count/runs * (column = "loot" ? 1 : 100)), text := A_Index, key := SubStr(A_LoopField, InStr(A_LoopField, " ") + 1)
-				If InStr(percent, "100")
-					percent := "100"
 				boxes.Push(count), boxes1.Push(percent), boxes2.Push(StrReplace(key, "`n", " `n "))
 				;If (boxes.Count() = vars.maptracker.max_lines)
 				;	Break

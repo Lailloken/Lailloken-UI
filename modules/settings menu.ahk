@@ -520,6 +520,12 @@ Settings_general()
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_general_settings")
 	Gui, %GUI%: Font, norm
 	
+	If settings.general.dev
+	{
+		Gui, %GUI%: Add, Checkbox, % "ys hp gSettings_general2 HWNDhwnd Checked" settings.general.dev_env, % "dev environment"
+		vars.hwnd.settings.dev_env := hwnd
+	}
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section hp gSettings_general2 HWNDhwnd Checked" settings.general.kill[1], % LangTrans("m_general_kill")
 	vars.hwnd.settings.kill_timer := hwnd, vars.hwnd.help_tooltips["settings_kill timer"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fsize - 4 "norm"
@@ -635,7 +641,7 @@ Settings_general()
 	Gui, %GUI%: Add, DDL, % "ys hp BackgroundTrans HWNDhwnd gSettings_general2 r10 x+0 w"5* settings.general.fwidth, % StrReplace(vars.general.available_resolutions, vars.client.h "|", vars.client.h "||")
 	vars.hwnd.settings.custom_resolution := hwnd, vars.hwnd.help_tooltips["settings_force resolution|||"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fsize
-	
+
 	WinGetPos,,, wCheck, hCheck, ahk_group poe_window
 	If !vars.general.safe_mode && (wCheck < vars.monitor.w || hCheck < vars.monitor.h)
 	{
@@ -658,6 +664,12 @@ Settings_general()
 			Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", % LangTrans("m_general_borderless")
 			vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
 		}
+	}
+
+	If settings.general.FillerAvailable
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_general2 HWNDhwnd Checked" settings.general.ClientFiller, % LangTrans("m_general_filler")
+		vars.hwnd.settings.ClientFiller := vars.hwnd.help_tooltips["settings_client filler"] := hwnd
 	}
 	
 	If (vars.client.h0 / vars.client.w0 < (5/12))
@@ -706,6 +718,9 @@ Settings_general2(cHWND := "")
 					Return
 				}
 			}
+		Case "dev_env":
+			settings.general.dev_env := LLK_ControlGet(cHWND)
+			IniWrite, % settings.general.dev_env, ini\config.ini, Settings, dev env
 		Case "kill_timer":
 			settings.general.kill.1 := LLK_ControlGet(cHWND)
 			IniWrite, % settings.general.kill.1, ini\config.ini, Settings, kill script
@@ -774,11 +789,16 @@ Settings_general2(cHWND := "")
 			IniWrite, % height, ini\config.ini, Settings, custom-resolution
 			IniWrite, % width, ini\config.ini, Settings, custom-width
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.remove_borders), ini\config.ini, settings, remove window-borders
+			If vars.hwnd.settings.ClientFiller
+				IniWrite, % LLK_ControlGet(vars.hwnd.settings.ClientFiller), ini\config.ini, Settings, client background filler
 			If vars.hwnd.settings.blackbars
 				IniWrite, % LLK_ControlGet(vars.hwnd.settings.blackbars), ini\config.ini, Settings, black-bar compensation
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings
 			Reload
 			ExitApp
+		Case "ClientFiller":
+			GuiControl, +cRed, % vars.hwnd.settings.apply
+			GuiControl, movedraw, % vars.hwnd.settings.apply
 		Case "dock":
 			GuiControl, +cRed, % vars.hwnd.settings.apply
 			GuiControl, movedraw, % vars.hwnd.settings.apply
@@ -1982,8 +2002,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
 		vars.settings.x := vars.client.x
 	}
-	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h
-	vars.settings.restart := ""
+	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h, vars.settings.restart := ""
 }
 
 Settings_menu2(section, mode := 0) ;mode parameter used when manually calling this function to refresh the window
@@ -2527,14 +2546,16 @@ Settings_updater()
 	Gui, %GUI%: Add, Text, % "Section xs y+"vars.settings.spacing, % LangTrans("m_updater_version")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % "img\GUI\restart.png"
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border HWNDhwnd0 BackgroundBlack cGreen Range0-10", 0
-	vars.hwnd.settings.update_refresh := hwnd, vars.hwnd.settings.update_refresh_bar := hwnd0
+	vars.hwnd.settings.update_refresh := hwnd, LLK_PanelDimensions([LangTrans("m_updater_version", 2), LangTrans("m_updater_version", 3)], settings.general.fSize, width, height)
 
-	Gui, %GUI%: Add, Text, % "Section xs", % LangTrans("m_updater_version", 2)  " " vars.updater.version.2
+	Gui, %GUI%: Add, Text, % "Section xs w" width, % LangTrans("m_updater_version", 2)
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd x+0", % vars.updater.version.2
+	ControlGetPos, x,,,,, ahk_id %hwnd%
 	color := vars.updater.skip && (vars.updater.latest.1 = vars.updater.skip) ? " cYellow" : (IsNumber(vars.updater.latest.1) && vars.updater.latest.1 > vars.updater.version.1) ? " cLime" : ""
-	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth*2 color, % LangTrans("m_updater_version", 3) " " vars.updater.latest.2
+	Gui, %GUI%: Add, Text, % "Section xs w" width . color, % LangTrans("m_updater_version", 3) " "
+	Gui, %GUI%: Add, Text, % "ys x" x . color, % vars.updater.latest.2
 	
-	If IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
+	If !InStr(vars.updater.latest.1, ".") && IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
 	{
 		Gui, %GUI%: Add, Text, % "ys Border Center BackgroundTrans gSettings_updater2 HWNDhwnd", % " " LangTrans("m_updater_skip") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
@@ -2543,21 +2564,24 @@ Settings_updater()
 
 	If IsNumber(vars.updater.latest.1) && IsObject(vars.updater.changelog)
 	{
-		Gui, %GUI%: Add, Text, % "Section xs", % LangTrans("m_updater_versions")
+		Gui, %GUI%: Font, underline bold
+		Gui, %GUI%: Add, Text, % "Section xs y+" vars.settings.spacing, % LangTrans("m_updater_versions")
 		added := {}, selected := vars.updater.selected, selected_sub := SubStr(selected, InStr(selected, ".",, 0) + 1)
+		Gui, %GUI%: Font, norm
 		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
 		vars.hwnd.help_tooltips["settings_update versions"] := hwnd
+
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
 			If (val.1.2 < 15200) || added[major]
 				Continue
 			added[major] := 1, version_match := InStr(selected, major) ? 1 : 0
-			Gui, %GUI%: Add, Text, % "Section xs", % " -> " major
+			Gui, %GUI%: Add, Text, % "Section xs", % major
 			Loop, % SubStr(val.1.2, -1) + 1
 			{
-				minor := SubStr(val.1.2, -1) + 1 - A_Index
-				Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_updater2 Center w" settings.general.fWidth * 2 (A_Index = 1 ? " x+0" : " x+" settings.general.fWidth/2) (version_match && selected_sub = minor ? " cFuchsia" : ""), % minor
+				minor := SubStr(val.1.2, -1) + 1 - A_Index, color := (version_match && selected_sub = minor) ? " cFuchsia" : ""
+				Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_updater2 Center w" settings.general.fWidth * 2 . color . (A_Index = 1 ? " x+0" : " x+" settings.general.fWidth/2), % minor
 				vars.hwnd.settings["versionselect_" major . minor] := vars.hwnd.help_tooltips["settings_update changelog " major . minor] := hwnd
 			}
 		}
@@ -2565,9 +2589,11 @@ Settings_updater()
 
 	If vars.updater.selected
 	{
-		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd cFuchsia", % " " LangTrans("global_restart") " "
+		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd00", % " " LangTrans("m_updater_changelog") " "
+		Gui, %GUI%: Add, Text, % "ys Border Center BackgroundTrans gSettings_updater2 HWNDhwnd cFuchsia", % " " LangTrans("global_restart") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
 		ControlGetPos,,, wButton,,, ahk_id %hwnd%
+		vars.hwnd.settings["fullchangelog_" vars.updater.selected] := vars.hwnd.help_tooltips["settings_update full changelog"] := hwnd00
 		vars.hwnd.settings.restart_install := hwnd, vars.hwnd.settings.restart_bar := vars.hwnd.help_tooltips["settings_update restart"] := hwnd0
 	}
 	
@@ -2576,10 +2602,7 @@ Settings_updater()
 		Gui, %GUI%: Font, bold underline
 		Gui, %GUI%: Add, Text, % "Section xs cRed y+"vars.settings.spacing, % LangTrans("m_updater_failed")
 		Gui, %GUI%: Font, norm
-	}
-	
-	If IsNumber(vars.update.1) && (vars.update.1 < 0)
-	{
+
 		If InStr("126", StrReplace(vars.update.1, "-"))
 			Gui, %GUI%: Add, Text, % "Section xs w" wCheckbox, % LangTrans("m_updater_error1") "`n`n" LangTrans("m_updater_error1", 2)
 		Else If (vars.update.1 = -4)
@@ -2628,20 +2651,15 @@ Settings_updater2(cHWND := "")
 	{
 		If vars.updater.latest.2 && (A_TickCount < refresh_tick + 10000)
 			Return
-		in_progress := 1, UpdateCheck(1)
-		Loop 10
-		{
-			GuiControl,, % vars.hwnd.settings.update_refresh_bar, % A_Index
-			Sleep 25
-		}
-		in_progress := 0
-		refresh_tick := A_TickCount, Settings_menu("updater")
+		in_progress := 1, UpdateCheck(1), in_progress := 0, refresh_tick := A_TickCount, Settings_menu("updater")
 	}
 	Else If InStr(check, "versionselect_")
 	{
 		vars.updater.selected := SubStr(check, InStr(check, "_") + 1)
 		Settings_menu("updater")
 	}
+	Else If InStr(check, "fullchangelog_")
+		Run, % "https://github.com/Lailloken/Lailloken-UI/releases/tag/v" control
 	Else If (check = "restart_install")
 	{
 		If LLK_Progress(vars.hwnd.settings.restart_bar, "LButton")

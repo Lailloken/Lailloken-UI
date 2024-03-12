@@ -106,6 +106,28 @@ GuiButton(name := "", x := "", y := "")
 	LLK_Overlay(vars.hwnd[name "_button"].main, "show",, name "_button")
 }
 
+GuiClientFiller(mode := "") ;creates a black full-screen GUI to fill blank space between the client and monitor edges when using custom resolutions
+{
+	local
+	global vars, settings
+
+	If Blank(mode)
+	{
+		Gui, ClientFiller: New, -Caption +ToolWindow +LastFound HWNDhwnd
+		Gui, ClientFiller: Color, Black
+		WinSet, TransColor, Fuchsia
+		Gui, ClientFiller: Add, Progress, % "Disabled BackgroundFuchsia x" vars.client.x - vars.monitor.x " y" vars.client.y - vars.monitor.y " w" vars.client.w " h" vars.client.h, 0
+		vars.hwnd.ClientFiller := hwnd
+	}
+	Else If (mode = "show")
+	{
+		WinSet, AlwaysOnTop, On, % "ahk_id " vars.hwnd.poe_client
+		Gui, ClientFiller: Show, % "NA x" vars.monitor.x " y" vars.monitor.y " Maximize"
+		WinWait, % "ahk_id " vars.hwnd.ClientFiller
+		WinSet, AlwaysOnTop, Off, % "ahk_id " vars.hwnd.poe_client
+	}
+}
+
 GuiName(GuiHWND)
 {
 	local
