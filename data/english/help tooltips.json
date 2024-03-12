@@ -47,6 +47,10 @@
       "it will be applied on every script start, or when starting the client while the script is running",
       "vertical resolutions (second value) are limited to specific ones for compatibility reasons"
     ],
+    "client filler": [
+      "blacks out the empty screen area around the client window and makes it unclickable",
+	  "this black area can be used to place overlays outside the client area and also prevents misclicks on background windows"
+    ],
     "window position": [
       "the client has to be docked to a specific spot to ensure that overlays are positioned correctly",
       "pick a preferred position, the client will be placed there automatically every time"
@@ -510,6 +514,9 @@
       "the list below shows the available versions to switch between or reinstall",
       "each line represents a major version and has buttons to select the minor version",
       "hover over a button to see that version's summarized changelog"
+    ],
+    "update full changelog": [
+      "opens the github page with the detailed changelog of the selected version"
     ],
     "update restart": [
       "hold to update and restart",
