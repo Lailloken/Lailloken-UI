@@ -247,13 +247,12 @@ HelpToolTip(HWND_key)
 			If !InStr(control, val.1.1)
 				Continue
 			For index, text in val
-				log := (A_Index = 1) ? "" : log, log .= (A_Index = 1) ? text.1 ":" : "`n–> " text
-			Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % log
-			Gui, %GUI_name%: Add, Text, % "x0 y0 Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % log
-			ControlGetPos,, y0,, h0,, ahk_id %hwnd%
-			If (y0 + h0 >= vars.monitor.h * 0.85)
-				Break
+				If (index > 1)
+				{
+					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % text
+					Gui, %GUI_name%: Add, Text, % (index = 2 ? "x0 y0" : "xs") " Section Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
+					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % text
+				}
 		}
 	Else
 		For index, text in database[check][control]
@@ -266,7 +265,7 @@ HelpToolTip(HWND_key)
 		}
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? vars.monitor.y + vars.client.yc - h/2 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
 	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (check = "maptracker" ? height - 1 : 0) : yPos)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
@@ -336,6 +335,9 @@ Init_client()
 	Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution ;disable custom resolutions for streaming clients
 	
 	;determine native resolution of the active monitor
+	WinGet, minmax, MinMax, ahk_group poe_window
+	If (minmax = -1)
+		WinRestore, ahk_group poe_window
 	WinGetPos, x, y, w, h, ahk_group poe_window
 	Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 	WinSet, Trans, 0
@@ -392,6 +394,7 @@ Init_client()
 		vars.client.y0 := vars.client.y += vars.system.caption + vars.system.yborder
 	}
 	vars.client.xc := vars.client.x - vars.monitor.x + vars.client.w/2, vars.client.yc := vars.client.y - vars.monitor.y + vars.client.h/2 ;client's horizontal and vertical centers (RELATIVE TO monitor.x and monitor.y)
+	settings.general.FillerAvailable := (vars.client.fullscreen = "false" && vars.client.borderless || vars.client.fullscreen = "true" && vars.client.h < vars.monitor.h) ? 1 : 0
 
 	IniRead, iniread, data\Resolutions.ini
 	Loop, Parse, iniread, `n
@@ -412,12 +415,9 @@ Init_client()
 
 	If vars.general.supported_resolutions.HasKey(vars.client.h)
 	{
-		If !FileExist("img\Recognition (" vars.client.h "p)\GUI\")
-			FileCreateDir, % "img\Recognition (" vars.client.h "p)\GUI\"
-		If !FileExist("img\Recognition (" vars.client.h "p)\Betrayal\")
-			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Betrayal\"
-		If !FileExist("img\Recognition (" vars.client.h "p)\Mapping Tracker\")
-			FileCreateDir, % "img\Recognition (" vars.client.h "p)\Mapping Tracker\"
+		Loop, Parse, % "GUI, Betrayal, Mapping Tracker", `,, %A_Space%
+			If !FileExist("img\Recognition (" vars.client.h "p)\" A_LoopField "\")
+				FileCreateDir, % "img\Recognition (" vars.client.h "p)\" A_LoopField "\"
 		If !FileExist("img\Recognition (" vars.client.h "p)\")
 			LLK_FilePermissionError("create", A_ScriptDir "\img\Recognition ("vars.client.h "p)")
 	}
@@ -451,12 +451,14 @@ Init_general()
 	settings.general.trans := 230
 	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
 	settings.general.character := LLK_IniRead("ini\config.ini", "Settings", "active character")
-	settings.general.dev := LLK_IniRead("ini\config.ini", "Settings", "dev", 0), settings.general.dev_env := InStr(A_ScriptDir, "[dev]")
+	settings.general.dev := LLK_IniRead("ini\config.ini", "Settings", "dev", 0)
+	settings.general.dev_env := settings.general.dev * LLK_IniRead("ini\config.ini", "Settings", "dev env", 0)
 	settings.general.xButton := LLK_IniRead("ini\config.ini", "UI", "button xcoord", 0)
 	settings.general.yButton := LLK_IniRead("ini\config.ini", "UI", "button ycoord", 0)
 	;settings.general.hide_button := LLK_IniRead("ini\config.ini", "UI", "hide panel", 0)
 	settings.general.warning_ultrawide := LLK_IniRead("ini\config.ini", "Versions", "ultrawide warning", 0)
 	settings.general.hide_toolbar := LLK_IniRead("ini\config.ini", "UI", "hide toolbar", 0)
+	settings.general.ClientFiller := settings.general.FillerAvailable ? LLK_IniRead("ini\config.ini", "Settings", "client background filler", 0) : 0
 	
 	settings.general.fSize := LLK_IniRead("ini\config.ini", "settings", "font-size", LLK_FontDefault())
 	If (settings.general.fSize < 6)
@@ -502,8 +504,8 @@ Init_vars()
 	vars.general := {"buggy_resolutions": {768: 1, 1024: 1, 1050: 1}, "inactive": 0, "startup": A_TickCount, "updatetick": 0}
 	If !IsObject(vars.updater)
 	{
-		version := Json.Load(LLK_FileRead("data\versions.json")), version := version._release.1
-		vars.updater := {"version": [version]}, vars.updater.version.2 := UpdateParseVersion(version)
+		version := Json.Load(LLK_FileRead("data\versions.json")), version := version._release.1 . (version.hotfix ? "." (version.hotfix < 10 ? "0" : "") version.hotfix : "")
+		vars.updater := {"version": [version, UpdateParseVersion(version)]}
 	}
 }
 
@@ -511,7 +513,7 @@ Loop()
 {
 	local
 	global vars, settings
-	
+
 	If !WinExist("ahk_group poe_window")
 		vars.client.closed := 1, vars.hwnd.poe_client := ""
 
@@ -548,7 +550,7 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0
+	static tick_helptooltips := 0, ClientFiller_count := 0
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
@@ -556,19 +558,36 @@ Loop_main()
 		vars.cloneframes.editing := ""
 		Init_cloneframes()
 	}
-	
-	If WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip) && !WinActive("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
+
+	If settings.general.ClientFiller
+	{
+		If vars.hwnd.ClientFiller && !WinExist("ahk_id " vars.hwnd.ClientFiller) && !WinActive("ahk_exe code.exe") && WinActive("ahk_group poe_ahk_window")
+			GuiClientFiller("show"), ClientFiller_count := 0
+		Else If (ClientFiller_count = 3)
+			Gui, ClientFiller: Hide
+		Else If vars.hwnd.ClientFiller && WinExist("ahk_id " vars.hwnd.ClientFiller) && (!WinActive("ahk_group poe_ahk_window") || !WinExist("ahk_group poe_window")) && !WinActive("ahk_group snipping_tools")
+			ClientFiller_count += 1
+		Else ClientFiller_count := 0
+
+		If vars.hwnd.poe_client && WinExist("ahk_id " vars.hwnd.poe_client) && WinActive("ahk_id " vars.hwnd.ClientFiller)
+			WinActivate, % "ahk_id " vars.hwnd.poe_client
+	}
+
+	If vars.hwnd.maptracker_logs.sum_tooltip && WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip) && !WinActive("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
+	{
 		Gui, maptracker_tooltip: Destroy
+		vars.hwnd.maptracker_logs.sum_tooltip := ""
+	}
 
-	If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main) && (WinActive("ahk_id " vars.hwnd.maptracker_logs.main) || WinActive("ahk_id " vars.hwnd.maptracker_dates.main))
-		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy")
+	If vars.hwnd.maptrackernotes_edit.main && WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main) && (WinActive("ahk_id " vars.hwnd.maptracker_logs.main) || WinActive("ahk_id " vars.hwnd.maptracker_dates.main))
+		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy"), vars.hwnd.maptrackernotes_edit.main := ""
 
-	If WinExist("ahk_id "vars.hwnd.searchstrings_context) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.searchstrings_context)
+	If vars.hwnd.searchstrings_context && WinExist("ahk_id " vars.hwnd.searchstrings_context) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.searchstrings_context)
 	{
 		Gui, searchstrings_context: Destroy
 		vars.hwnd.Delete("searchstrings_context")
 	}
-	If WinExist("ahk_id "vars.hwnd.omni_context.main) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.omni_context.main)
+	If vars.hwnd.omni_context.main && WinExist("ahk_id "vars.hwnd.omni_context.main) && !WinActive("ahk_group poe_window") && !WinActive("ahk_id "vars.hwnd.omni_context.main)
 	{
 		Gui, omni_context: destroy
 		vars.hwnd.Delete("omni_context")
@@ -580,9 +599,7 @@ Loop_main()
 		If (vars.general.inactive = 3)
 		{
 			Gui, omni_context: Destroy
-			vars.hwnd.Delete("omni_context")
-			LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
-			CloneframesHide()
+			vars.hwnd.Delete("omni_context"), LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy"), CloneframesHide()
 		}
 	}
 	MouseHover()
@@ -959,6 +976,8 @@ Startup()
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info
 		vars.log.file_location := poe_log_file, Init_log()
 	Else vars.log.file_location := 0
+
+	GuiClientFiller()
 }
 
 StrMatch(string, check, match_length := 0)
@@ -1069,6 +1088,8 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		Return
 	}
 	versions_local := Json.Load(LLK_FileRead("data\versions.json")) ;load local versions
+	If versions_local.HasKey("hotfix")
+		versions_local._release.1 .= "." . (versions_local.hotfix < 10 ? "0" : "") . versions_local.hotfix
 	Loop, Files, % "update\update_*.zip"
 	{
 		version := SubStr(A_LoopFileName, InStr(A_LoopFileName, "_") + 1), version := StrReplace(version, ".zip")
@@ -1086,14 +1107,13 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		Return
 	}
 	versions_live := Json.Load(LLK_FileRead("data\version_check.json")) ;load version-list into object
+	If versions_live.HasKey("hotfix")
+		versions_live._release.1 .= "." . (versions_live.hotfix < 10 ? "0" : "") . versions_live.hotfix
 	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
 	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
 	
-	If !InStr(LLK_FileRead("data\changelog.json"), vars.updater.latest.1)
-	{
-		FileDelete, data\changelog.json
-		UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json", data\changelog.json
-	}
+	FileDelete, data\changelog.json
+	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json", data\changelog.json
 	If FileExist("data\changelog.json")
 		vars.updater.changelog := Json.Load(LLK_FileRead("data\changelog.json"))
 	Else vars.updater.changelog := [[[vars.updater.version.2, vars.updater.version.1], "couldn't load changelog"]]
@@ -1188,8 +1208,9 @@ UpdateParseVersion(string)
 	{
 		If (A_Index = 1)
 			string := ""
-		string .= (A_Index = 1) ? "1." : (A_Index = 3) ? A_LoopField "." : (InStr("47", A_Index) && A_LoopField = "0") ? "" : A_LoopField
+		string .= (A_Index = 1) ? "1." : (A_Index = 3) ? A_LoopField "." : (InStr("47", A_Index) && A_LoopField = "0") ? "" : (A_LoopField = ".") ? " (hotfix " : A_LoopField
 	}
+	string .= InStr(string, "(hotfix") ? ")" : ""
 	Return string
 }
 
@@ -1397,9 +1418,9 @@ LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the 
 LLK_IniRead(file, section := "", key := "", default := "")
 {
 	IniRead, iniread, % file, % section, % key, % Blank(default) ? A_Space : default
-	iniread := (iniread = " ") ? "" : iniread ;work-around for situations where A_Space is taken literally instead of "blank" (blank return is hard-coded as %A_Space%, % "" doesn't work)
-	If !Blank(default) && Blank(iniread) ;IniRead's 'default' is only read if the key cannot be found in the ini-file
-		Return default ;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
+	iniread := (iniread = " ") ? "" : iniread ;work-around for situations where A_Space is taken literally instead of "blank" (blank return is hard-coded as %A_Space%, so % "" doesn't work)
+	If !Blank(default) && Blank(iniread)	;IniRead's 'default' is only used if the key cannot be found in the ini-file
+		Return default 				;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
 	Else Return iniread
 }
 
@@ -1414,10 +1435,8 @@ LLK_InStrCount(string, character, delimiter := "")
 {
 	count := 0
 	Loop, Parse, string, % delimiter
-	{
 		If (A_Loopfield = character)
 			count += 1
-	}
 	Return count
 }
 
