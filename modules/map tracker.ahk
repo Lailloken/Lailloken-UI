@@ -1058,7 +1058,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 		Loop, Parse, list, `n
 		{
 			count := SubStr(A_LoopField, 1, InStr(A_LoopField, "x") - 1)
-			percent := Format("{:0.2f}", count/runs*100), text := A_Index
+			percent := Format("{:0.2f}", count/runs*100), text := A_Index, percent := (InStr(percent, ".") >= 4) ? SubStr(percent, 1, InStr(percent, ".") - 1) : percent
 			key := SubStr(A_LoopField, InStr(A_LoopField, " ") + 1)
 			If !key && (column != "content")
 				Continue
@@ -1108,6 +1108,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			{
 				count := SubStr(A_LoopField, 1, InStr(A_LoopField, "x") - 1)
 				percent := Format("{:0.2f}", count/runs * (column = "loot" ? 1 : 100)), text := A_Index, key := SubStr(A_LoopField, InStr(A_LoopField, " ") + 1)
+				percent := (InStr(percent, ".") >= 4) ? SubStr(percent, 1, InStr(percent, ".") - 1) : percent
 				boxes.Push(count), boxes1.Push(percent), boxes2.Push(StrReplace(key, "`n", " `n "))
 				;If (boxes.Count() = vars.maptracker.max_lines)
 				;	Break
