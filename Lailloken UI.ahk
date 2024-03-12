@@ -133,7 +133,7 @@ Exit()
 
 	Gdip_Shutdown(pToken)
 	vars.log.file.Close()
-	
+
 	If (vars.system.timeout != 0) ;script exited before completing startup routines: return here to prevent storing corrupt/incomplete data in ini-files
 		Return
 	If (Json.Dump(vars.betrayal.board) != "{}")
@@ -142,7 +142,7 @@ Exit()
 		If (ini != Json.Dump(vars.betrayal.board))
 			IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	}
-	
+
 	If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0))
 		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
 
@@ -213,7 +213,7 @@ HelpToolTip(HWND_key)
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	WinGetPos,, y,, h, % "ahk_id "vars.hwnd.help_tooltips[HWND_key]
 	If Blank(y) || Blank(h)
 	{
@@ -228,18 +228,18 @@ HelpToolTip(HWND_key)
 	If (check = "lab" && InStr(control, "square"))
 		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name], vars.help.lab[control].1 .= (vars.help.lab[control].1 = vars.lab.room.2) ? " (" LangTrans("lab_movemarker") ")" : ""
 	database := !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
-	
+
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
 	If !tooltip_width
 		Return
-	
+
 	toggle := !toggle, GUI_name := "help_tooltip" toggle
 	Gui, %GUI_name%: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
 	Gui, %GUI_name%: Color, 202020
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
-	
+
 	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
 	If InStr(control, "update changelog")
 		For index0, val in vars.updater.changelog
@@ -274,7 +274,7 @@ Init_client()
 {
 	local
 	global vars, settings
-	
+
 	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
 	{
 		;load client-config location and double-check
@@ -296,14 +296,14 @@ Init_client()
 			IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 		}
 		Else IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
-		
+
 		vars.system.config := poe_config_file
-		
+
 		;check the contents of the client-config
 		FileRead, poe_config_check, % poe_config_file
 		If (poe_config_check = "")
 			LLK_Error("Cannot read the PoE config-file. Please restart the game-client and then the script. If you get this error repeatedly, please report the issue.`n`nError-message (for reporting): PoE-config returns empty")
-		
+
 		;check if the client is currently running in exclusive-fullscreen mode
 		exclusive_fullscreen := InStr(poe_config_check, "`nfullscreen=true") ? "true" : InStr(poe_config_check, "fullscreen=false") ? "false" : ""
 		If (exclusive_fullscreen = "")
@@ -321,7 +321,7 @@ Init_client()
 			IniDelete, ini\config.ini, Settings, PoE config-file
 			LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of borderless fullscreen", 1)
 		}
-		
+
 		;check if client's window settings have changed since the previous session
 		IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
 		If (fullscreen_last != vars.client.fullscreen)
@@ -333,7 +333,7 @@ Init_client()
 		}
 	}
 	Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution ;disable custom resolutions for streaming clients
-	
+
 	;determine native resolution of the active monitor
 	WinGet, minmax, MinMax, ahk_group poe_window
 	If (minmax = -1)
@@ -360,7 +360,7 @@ Init_client()
 			Reload
 			ExitApp
 		}
-		
+
 		If (vars.client.fullscreen = "true")
 			WinMove, ahk_group poe_window,, % vars.monitor.x, % vars.monitor.y, % vars.client.customres.1, % vars.client.customres.2
 		Else
@@ -384,7 +384,7 @@ Init_client()
 	}
 	vars.client.x := vars.client.x0 := x, vars.client.y := vars.client.y0 := y
 	vars.client.w := vars.client.w0 := w, vars.client.h := vars.client.h0 := h
-	
+
 	;apply overlay offsets if client is running in bordered windowed mode
 	If (vars.client.fullscreen = "false") && !vars.client.borderless
 	{
@@ -427,7 +427,7 @@ Init_geforce()
 {
 	local
 	global vars, settings
-	
+
 	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 0)
 	vars.imagesearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "image-check variation", 25)
 }
@@ -436,7 +436,7 @@ Init_general()
 {
 	local
 	global vars, settings
-	
+
 	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version")
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
@@ -459,7 +459,7 @@ Init_general()
 	settings.general.warning_ultrawide := LLK_IniRead("ini\config.ini", "Versions", "ultrawide warning", 0)
 	settings.general.hide_toolbar := LLK_IniRead("ini\config.ini", "UI", "hide toolbar", 0)
 	settings.general.ClientFiller := settings.general.FillerAvailable ? LLK_IniRead("ini\config.ini", "Settings", "client background filler", 0) : 0
-	
+
 	settings.general.fSize := LLK_IniRead("ini\config.ini", "settings", "font-size", LLK_FontDefault())
 	If (settings.general.fSize < 6)
 		settings.general.fSize := 6
@@ -474,7 +474,7 @@ Init_vars()
 {
 	local
 	global vars, settings, CustomFont, db, Json
-	
+
 	db := {}
 	;read databases for item-info tooltip
 	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
@@ -604,7 +604,7 @@ Loop_main()
 	}
 	MouseHover()
 	IteminfoOverlays()
-	
+
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{
 		If vars.general.wMouse && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
@@ -625,7 +625,7 @@ Loop_main()
 			LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
 		tick_helptooltips := 0
 	}
-		
+
 
 	If WinExist("ahk_id "vars.hwnd.legion.main)
 		LegionHover()
@@ -637,7 +637,7 @@ Loop_main()
 		For key, val in vars.tooltip ;timed tooltips are stored in this object and destroyed via this loop
 			If val && (val <= A_TickCount)
 				LLK_Overlay(key, "destroy"), remove_tooltips .= !remove_tooltips ? key : ";" key
-	
+
 		Loop, Parse, remove_tooltips, `; ;separate loop to delete entries from the vars.tooltip object without interfering with the for-loop above
 			vars.tooltip.Delete(A_LoopField)
 		remove_tooltips := ""
@@ -650,7 +650,7 @@ Loop_main()
 			vars.general.inactive := 0
 			LLK_Overlay("show")
 		}
-		
+
 		If settings.features.pixelchecks
 		{
 			For key in vars.pixelsearch.list
@@ -683,7 +683,7 @@ Resolution_check()
 	local
 	global vars, settings
 	poe_height := vars.client.h
-	
+
 	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h) ;&& !vars.general.supported_resolutions.HasKey(vars.client.h + vars.system.caption + vars.system.yborder* 2)
 	{
 		If vars.general.buggy_resolutions.HasKey(poe_height)
@@ -691,9 +691,9 @@ Resolution_check()
 			text =
 			(LTrim
 			Unsupported resolution detected!
-			
+
 			The script has detected a vertical screen-resolution of %poe_height% pixels which has caused issues with the game-client and the script in the past.
-			
+
 			I have decided to end support for this resolution.
 			You have to run the client with a custom resolution, which you can set up in the following window.
 			)
@@ -703,9 +703,9 @@ Resolution_check()
 			text =
 			(LTrim
 			Unsupported resolution detected!
-			
+
 			The script has detected a vertical screen-resolution of %poe_height% pixels which is not supported.
-			
+
 			You have to run the client with a custom resolution, which you can set up in the following window.
 			)
 		}
@@ -797,7 +797,7 @@ RightClick()
 {
 	local
 	global vars, settings
-	
+
 	If GetKeyState("LButton", "P")
 		Return
 	vars.system.click := 2
@@ -829,7 +829,7 @@ SnippingTool(mode := 0)
 		Gui, snip: Color, Aqua
 		WinSet, trans, 100
 		vars.hwnd.snip := {"main": hwnd}
-		
+
 		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
 		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
 		If vars.snip.w
@@ -839,7 +839,7 @@ SnippingTool(mode := 0)
 	}
 	Else If !mode && WinExist("ahk_id " vars.hwnd.snip.main)
 		SnipGuiClose()
-	
+
 	vars.general.gui_hide := 1, LLK_Overlay("hide")
 	Gui, %A_Gui%: Hide
 
@@ -905,9 +905,8 @@ Startup()
 {
 	local
 	global vars, settings
-	
+
 	SetStoreCapsLockMode, % LLK_IniRead("ini\config.ini", "Settings", "enable CapsLock-toggling", 1) ;for people who have something bound to CapsLock
-	
 	If !pToken := Gdip_Startup()
 	{
 		MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
@@ -947,7 +946,7 @@ Startup()
 		If !FileExist(A_LoopField "\") && !file_error ;check if the folder was created successfully
 			file_error := 1, LLK_FilePermissionError("create", A_ScriptDir "\" A_LoopField)
 	}
-	
+
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
 	While !WinExist("ahk_group poe_window") ;wait for game-client window
 	{
@@ -960,19 +959,19 @@ Startup()
 	;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
 	If WinExist("ahk_group poe_window") && win_not_exist
 		sleep 4000
-	
+
 	Init_client()
 	Init_lang()
-	
+
 	vars.hwnd.poe_client := WinExist("ahk_group poe_window") ;save the client's handle
-	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)	
-	
+	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
+
 	;get the location of the client.txt file
 	WinGet, poe_log_file, ProcessPath, ahk_group poe_window
 	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt")
 		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
 	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\kakaoclient.txt"
-	
+
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info
 		vars.log.file_location := poe_log_file, Init_log()
 	Else vars.log.file_location := 0
@@ -1045,7 +1044,7 @@ ToolTip_Mouse(mode := "", timeout := 0)
 		SetTimer, ToolTip_Mouse, Delete
 		Return
 	}
-	
+
 	If vars.hwnd.tooltip_mouse.main && !WinExist("ahk_id " vars.hwnd.tooltip_mouse.main) || (name != vars.tooltip_mouse.name)
 	{
 		start := A_TickCount
@@ -1067,7 +1066,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 {
 	local
 	global vars, settings, Json
-	
+
 	vars.update := [0], update := vars.update
 	If !FileExist("update\")
 		FileCreateDir, update\
@@ -1096,7 +1095,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		If Blank(version) || (version <= versions_local["_release"].1)
 			FileDelete, % A_LoopFileLongPath
 	}
-	
+
 	FileDelete, data\version_check.json
 	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/versions.json", data\version_check.json
 	update.1 := ErrorLevel || !InStr(LLK_FileRead("data\version_check.json"), """_release""") ? -4 : update.1 ;error-code -4 = version-list download failed
@@ -1111,13 +1110,13 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		versions_live._release.1 .= "." . (versions_live.hotfix < 10 ? "0" : "") . versions_live.hotfix
 	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
 	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
-	
+
 	FileDelete, data\changelog.json
 	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json", data\changelog.json
 	If FileExist("data\changelog.json")
 		vars.updater.changelog := Json.Load(LLK_FileRead("data\changelog.json"))
 	Else vars.updater.changelog := [[[vars.updater.version.2, vars.updater.version.1], "couldn't load changelog"]]
-	
+
 	If (timer != 2) && (vars.updater.skip = vars.updater.latest.1)
 		Return
 
@@ -1160,7 +1159,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 						vars.update := [-6, vars.updater.target_version.1]
 				}
 		}
-		
+
 		If (vars.update.1 >= 0)
 		{
 			FileDelete, data\version_check.json
@@ -1203,7 +1202,7 @@ UpdateDownload(mode := "")
 UpdateParseVersion(string)
 {
 	local
-	
+
 	Loop, Parse, string
 	{
 		If (A_Index = 1)
@@ -1243,7 +1242,7 @@ LLK_CheckClipImages()
 LLK_ControlGet(cHWND, GUI_name := "", subcommand := "")
 {
 	local
-	
+
 	If GUI_name
 		GUI_name := GUI_name ": "
 	GuiControlGet, parse, % GUI_name subcommand, % cHWND
@@ -1272,7 +1271,7 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 {
 	local
 	global vars, settings
-	
+
 	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1
 	MouseGetPos, xPos, yPos
 	xMouse := xPos, yMouse := yPos
@@ -1294,14 +1293,14 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 	If (xPos >= vars.monitor.w / 2) && !raw
 		xTarget := xPos - width + 1
 	Else xTarget := xPos
-	
+
 	If (yPos >= vars.monitor.h)
 		yPos := vars.monitor.h - 1
-	
+
 	If (yPos >= vars.monitor.h / 2) && !raw
 		yTarget := yPos - height + 1
 	Else yTarget := yPos
-	
+
 	If raw && (xTarget + width > vars.monitor.w)
 		xTarget := vars.monitor.w - width, xPos := xTarget
 	If raw && (yTarget + height > vars.monitor.h)
@@ -1465,7 +1464,7 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
 {
 	local
 	global vars, settings
-	
+
 	If Blank(guiHWND)
 		Return
 
@@ -1546,13 +1545,13 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 {
 	local
 	global vars
-	
+
 	Gui, panel_dimensions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
 	Gui, panel_dimensions: Margin, 0, 0
 	Gui, panel_dimensions: Color, Black
 	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", % vars.system.font
 	width := 0, height := 0
-	
+
 	For index, val in array
 	{
 		font := InStr(val, "(/bold)") ? "bold" : "", font .= InStr(val, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
@@ -1564,7 +1563,7 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 		height := (h > height) ? h : height
 		width := (w > width) ? w : width
 	}
-	
+
 	Gui, panel_dimensions: Destroy
 	;width := Format("{:0.0f}", width* 1.25)
 	While Mod(width, 2)
@@ -1576,7 +1575,7 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress bar, key = key that is held down to fill the progress bar, HWND_control = HWND of the button (to undo clipping)
 {
 	local
-	
+
 	start := A_TickCount
 	While GetKeyState(key, "P")
 	{
@@ -1633,24 +1632,24 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 
 	If align
 		align := " " align
-	
+
 	xPos := InStr(x, "+") || InStr(x, "+-") ? vars.general.xMouse + StrReplace(x, "+") : (x != "") ? x : vars.general.xMouse
 	yPos := InStr(y, "+") || InStr(y, "+-") ? vars.general.yMouse + StrReplace(y, "+") : (y != "") ? y : vars.general.yMouse
-	
+
 	Gui, tooltip%name%: New, % "-DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border +E0x02000000 +E0x00080000 HWNDhwnd"
 	Gui, tooltip%name%: Color, % Blank(background) ? "Black" : background
 	Gui, tooltip%name%: Margin, % settings.general.fwidth / 2, 0
 	WinSet, Transparent, % trans
 	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
 	vars.hwnd["tooltip" name] := hwnd
-	
+
 	Gui, tooltip%name%: Add, Text, % "c"color align, % message
 	Gui, tooltip%name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %hwnd%
-	
+
 	If center
 		xPos -= w//2
-	
+
 	xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : (xPos < vars.monitor.x ? vars.monitor.x : xPos)
 	If IsNumber(y)
 		yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
