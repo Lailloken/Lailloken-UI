@@ -1206,7 +1206,7 @@ Settings_iteminfo2(cHWND)
 	}
 	Else If (check = "trigger")
 	{
-		settings.iteminfo.trigger := LLK_ControlGet(cHWND)
+		settings.iteminfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 		IniWrite, % settings.iteminfo.trigger, ini\item-checker.ini, settings, enable wisdom-scroll trigger
 	}
 	Else If (check = "modrolls")
@@ -1617,7 +1617,7 @@ Settings_mapinfo2(cHWND)
 			Settings_menu("map-info")
 			LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 		Case "shiftclick":
-			settings.mapinfo.trigger := LLK_ControlGet(cHWND)
+			settings.mapinfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 			IniWrite, % settings.mapinfo.trigger, ini\map info.ini, settings, enable shift-clicking
 		Case "tabtoggle":
 			settings.mapinfo.tabtoggle := LLK_ControlGet(cHWND)
@@ -1774,9 +1774,8 @@ Settings_maptracker2(cHWND)
 			If LLK_Overlay(vars.hwnd.maptracker.main, "check")
 				MaptrackerGUI()
 		Case "loot":
-			settings.maptracker.loot := LLK_ControlGet(cHWND)
+			settings.maptracker.loot := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
-			Settings_ScreenChecksValid()
 		Case "kills":
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
@@ -2316,10 +2315,9 @@ Settings_screenchecks2(cHWND := "")
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
 						Screenchecks_PixelRecalibrate(control)
-						LLK_ToolTip(LangTrans("global_success"),,,,, "lime")
+						LLK_ToolTip(LangTrans("global_success"),,,,, "lime"), Settings_ScreenChecksValid()
 						GuiControl, +cWhite, % cHWND
 						GuiControl, movedraw, % cHWND
-						Settings_ScreenChecksValid()
 				}
 			}
 			Else If InStr(check, "Image")
@@ -2329,10 +2327,9 @@ Settings_screenchecks2(cHWND := "")
 					Case "t":
 						If (Screenchecks_ImageSearch(control) > 0)
 						{
-							LLK_ToolTip(LangTrans("global_positive"),,,,, "lime")
+							LLK_ToolTip(LangTrans("global_positive"),,,,, "lime"), Settings_ScreenChecksValid()
 							GuiControl, +cWhite, % cHWND
 							GuiControl, movedraw, % cHWND
-							Settings_ScreenChecksValid()
 						}
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
@@ -2354,12 +2351,11 @@ Settings_screenchecks2(cHWND := "")
 									vars.imagesearch[control][key] := ""
 							}
 							IniWrite, % "", % "ini\screen checks ("vars.client.h "p).ini", % control, last coordinates
-							Gdip_DisposeImage(pClipboard)
+							Gdip_DisposeImage(pClipboard), Settings_ScreenChecksValid()
 							GuiControl, +cWhite, % vars.hwnd.settings["cImage_"control]
 							GuiControl, movedraw, % vars.hwnd.settings["cImage_"control]
 							GuiControl, +cRed, % vars.hwnd.settings["tImage_"control]
 							GuiControl, movedraw, % vars.hwnd.settings["tImage_"control]
-							Settings_ScreenChecksValid()
 						}
 				}
 			}
@@ -2377,7 +2373,7 @@ Settings_ScreenChecksValid()
 	valid := 1
 	For key, val in vars.pixelsearch.list
 	{
-		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder))
+		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder || settings.iteminfo.trigger || settings.mapinfo.trigger))
 			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
 	}
