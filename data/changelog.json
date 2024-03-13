@@ -1,5 +1,10 @@
 [
   [
+	["1.52.3", 15203],
+	"general: added an option to black out the screen area between game client and screen edges",
+	"updater: improved version handling for potential hotfixes"
+  ],
+	[
 	["1.52.2", 15202],
 	"fix: centered overlays were misplaced on multi-monitor setups",
 	"fix: the script didn't recognize a certain version of the windows snipping tool",
