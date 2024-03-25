@@ -1883,7 +1883,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients", "updater"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -2019,6 +2019,8 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 			Settings_cheatsheets()
 		Case "clone-frames":
 			Settings_cloneframes()
+		Case "tldr-tooltips":
+			Settings_OCR()
 		Case "hotkeys":
 			If !mode
 				Init_hotkeys() ;reload settings from ini when accessing this section (makes it easier to discard unsaved settings if apply-button wasn't clicked)
@@ -2052,6 +2054,224 @@ Settings_menuClose()
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
 	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings")
 	WinActivate, ahk_group poe_window
+}
+
+Settings_OCR()
+{
+	local
+	global vars, settings
+
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/TLDR‐Tooltips">wiki page</a>
+	Gui, %GUI%: Add, Link, % "ys x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
+	Gui, %GUI%: Add, Link, % "ys HWNDhwnd x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
+
+	If (vars.client.h <= 720) ;&& !settings.general.dev
+	{
+		ControlGetPos, x,, w,,, ahk_id %hwnd%
+		Gui, %GUI%: Add, Text, % "xs Section cRed w" x + w - x_anchor " y+" vars.settings.spacing, % LangTrans("m_ocr_unsupported")
+		Return
+	}
+
+	If (settings.general.lang_client != "english")
+	{
+		Settings_unsupported()
+		Return
+	}
+
+	If settings.OCR.allow
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing, % LangTrans("m_ocr_enable")
+		vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr enable"] := hwnd
+	}
+	Else
+	{
+		Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd gSettings_OCR2 y+"vars.settings.spacing, % " " LangTrans("m_ocr_compatibility") " "
+		vars.hwnd.settings.compatibility := vars.hwnd.help_tooltips["settings_ocr compatibility"] := hwnd
+	}
+
+	If !settings.features.ocr
+		Return
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_general")
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd1 gSettings_OCR2 cRed Hidden", % " " LangTrans("global_restart") " "
+
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey", 2)
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd0 cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.z_hotkey
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey")
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.hotkey
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+
+	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd3 gSettings_OCR2 Checked" settings.OCR.hotkey_block, % LangTrans("m_hotkeys_keyblock")
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd2 gSettings_OCR2 Checked" settings.OCR.debug, % LangTrans("m_ocr_debug")
+	vars.hwnd.settings.z_hotkey := vars.hwnd.help_tooltips["settings_ocr z hotkey"] := hwnd0
+	vars.hwnd.settings.hotkey := vars.hwnd.help_tooltips["settings_ocr hotkey"] := hwnd
+	vars.hwnd.settings.hotkey_set := hwnd1, vars.hwnd.settings.debug := vars.hwnd.help_tooltips["settings_ocr debug"] := hwnd2
+	vars.hwnd.settings.hotkey_block := vars.hwnd.help_tooltips["settings_hotkeys omniblock"] := hwnd3
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_ui")
+	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("global_font")
+	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*2, % "–"
+	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*3, % settings.OCR.fSize
+	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*2, % "+"
+	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_iteminfo_highlight")
+	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+	vars.hwnd.help_tooltips["settings_ocr colors"] := hwnd
+
+	LLK_PanelDimensions(["pattern 7"], settings.general.fSize, width, height)
+	For index, array in settings.OCR.colors
+	{
+		Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section" : "ys x+" settings.general.fWidth / 2) " Border Center HWNDhwndtext BackgroundTrans c" array.1 " w" width, % (index = 0 ? "regular" : "pattern " index)
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" array.2, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_OCR2 HWNDhwnd00", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" array.1, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_OCR2 HWNDhwnd10", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" array.2, 100
+		vars.hwnd.settings["color_" index "1"] := hwnd00, vars.hwnd.settings["color_" index "_panel1"] := hwnd01, vars.hwnd.settings["color_" index "_text1"] := hwndtext
+		vars.hwnd.settings["color_" index "2"] := hwnd10, vars.hwnd.settings["color_" index "_panel2"] := hwnd11, vars.hwnd.settings["color_" index "_text2"] := hwndback
+	}
+}
+
+Settings_OCR2(cHWND)
+{
+	local
+	global vars, settings
+	static compat_text
+
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	Switch check
+	{
+		Case "enable":
+		settings.features.ocr := LLK_ControlGet(cHWND)
+		IniWrite, % settings.features.ocr, ini\config.ini, Features, enable ocr
+		If !Blank(settings.OCR.hotkey)
+		{
+			Hotkey, IfWinActive, ahk_group poe_window
+			Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR_, % settings.features.OCR ? "On" : "Off"
+		}
+		If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+			OCR_Close()
+		Settings_menu("tldr-tooltips")
+
+		Case "compatibility":
+		compat_text := OCR_("compat")
+
+		Case "compat_edit":
+		If settings.OCR.allow
+			Return
+		compat_edit := LLK_ControlGet(vars.hwnd.settings.compat_edit), correct := ""
+		input := [], count := 0
+		Loop, Parse, compat_edit, % A_Space
+			If (StrLen(A_LoopField) > 1) && !LLK_HasVal(input, A_LoopField)
+				input.Push(A_LoopField)
+		For index, word in input
+			If vars.OCR.text_check.HasKey(word)
+				count += 1, correct .= (Blank(correct) ? "" : ", ") word
+		GuiControl, text, % vars.hwnd.settings.compat_correct, % (count >= 8 ? "" : "(" count "/8) ") . LangTrans("global_success") ": " (count >= 8 ? LangTrans("m_ocr_finish") : correct)
+		If (count < 8)
+			Return
+		Else
+		{
+			settings.OCR.allow := 1
+			IniWrite, 1, ini\ocr.ini, Settings, allow ocr
+		}
+
+		Case "debug":
+		settings.OCR.debug := LLK_ControlGet(cHWND)
+		IniWrite, % settings.OCR.debug, ini\ocr.ini, settings, enable debug
+
+		Case "z_hotkey":
+		input := LLK_ControlGet(cHWND)
+		If (StrLen(input) != 1)
+			Loop, Parse, % "+!^#"
+				input := StrReplace(input, A_LoopField)
+
+		If !Blank(input) && GetKeyVK(input)
+		{
+			settings.OCR.z_hotkey := input
+			IniWrite, % input, ini\ocr.ini, settings, toggle highlighting hotkey
+			GuiControl, +cBlack, % cHWND
+		}
+		Else GuiControl, +cRed, % cHWND
+
+		Case "hotkey_set":
+		input := LLK_ControlGet(vars.hwnd.settings.hotkey)
+		If (StrLen(input) != 1)
+			Loop, Parse, % "+!^#"
+				input := StrReplace(input, A_LoopField)
+
+		If LLK_ControlGet(vars.hwnd.settings.hotkey) && (!GetKeyVK(input) || (input = ""))
+		{
+			WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.settings.hotkey
+			LLK_ToolTip(LangTrans("m_hotkeys_error"),, x, y + h,, "red")
+			Return
+		}
+		IniWrite, % LLK_ControlGet(vars.hwnd.settings.hotkey_block), ini\ocr.ini, settings, block native key-function
+		IniWrite, % input, ini\ocr.ini, settings, hotkey
+		IniWrite, % "tldr-tooltips", ini\config.ini, versions, reload settings
+		Reload
+		ExitApp
+
+		Default:
+		If InStr(check, "font")
+		{
+			While GetKeyState("LButton", "P")
+			{
+				If (control = "reset")
+					settings.OCR.fSize := settings.general.fSize
+				Else settings.OCR.fSize += (control = "minus") ? -1 : 1, settings.OCR.fSize := (settings.OCR.fSize < 6) ? 6 : settings.OCR.fSize
+				GuiControl, text, % vars.hwnd.settings.font_reset, % settings.OCR.fSize
+				Sleep 150
+			}
+			IniWrite, % settings.OCR.fSize, ini\ocr.ini, settings, font-size
+			LLK_FontDimensions(settings.OCR.fSize, height, width), settings.OCR.fWidth := width, settings.OCR.fHeight := height
+		}
+		Else If InStr(check, "color_")
+		{
+			pattern := SubStr(control, 1, 1), type := SubStr(control, 2, 1)
+			color := (vars.system.click = 1) ? RGB_Picker(settings.OCR.colors[pattern][type]) : settings.OCR.dColors[pattern][type]
+			If !Blank(color)
+			{
+				settings.OCR.colors[pattern][type] := color
+				IniWrite, % settings.OCR.colors[pattern].1 "," settings.OCR.colors[pattern].2, ini\ocr.ini, UI, % "pattern " pattern
+				Loop, 2
+				{
+					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_text" A_Index]
+					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_text" A_Index]
+					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+				}
+			}
+		}
+		Else If (check = "hotkey" || check = "hotkey_block")
+		{
+			setting := LLK_ControlGet(cHWND)
+			If (check = "hotkey")
+			{
+				If (StrLen(setting) > 1)
+					Loop, Parse, % "+!^#"
+						setting := StrReplace(setting, A_LoopField)
+				GuiControl, % "+c" (!GetKeyVK(setting) ? "Red" : "Black"), % cHWND
+				GuiControl, movedraw, % cHWND
+			}
+			GuiControl, % (setting != settings.OCR[check] ? "-Hidden" : "+Hidden"), % vars.hwnd.settings.hotkey_set
+		}
+		Else LLK_ToolTip("no action: " check)
+
+		If (InStr(check, "color_") || InStr(check, "font")) && vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+			mode := vars.OCR.last, OCR_%mode%()
+	}
 }
 
 Settings_qol()
@@ -2550,6 +2770,12 @@ Settings_updater()
 	color := vars.updater.skip && (vars.updater.latest.1 = vars.updater.skip) ? " cYellow" : (IsNumber(vars.updater.latest.1) && vars.updater.latest.1 > vars.updater.version.1) ? " cLime" : ""
 	Gui, %GUI%: Add, Text, % "Section xs w" width . color, % LangTrans("m_updater_version", 3) " "
 	Gui, %GUI%: Add, Text, % "ys x" x . color, % vars.updater.latest.2
+
+	If InStr(vars.updater.latest.1, ".")
+	{
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_update hotfix"] := hwnd
+	}
 
 	If !InStr(vars.updater.latest.1, ".") && IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
 	{
