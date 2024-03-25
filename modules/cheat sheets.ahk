@@ -350,21 +350,15 @@ CheatsheetCalibrate()
 		Return
 	}
 
-	Gdip_GetImageDimensions(pBitmap, width, height)
 	Gui, cheatsheet_calibration: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
 	Gui, cheatsheet_calibration: Margin, % settings.general.fWidth//2, % settings.general.fHeight//4
 	Gui, cheatsheet_calibration: Color, Black
 	Gui, cheatsheet_calibration: Font, % "cWhite s"settings.general.fSize " underline", % vars.system.font
 	vars.hwnd.cheatsheet_calibration := {"main": hwnd}
 
-	hbmBitmap := CreateDIBSection(width, height), hdcBitmap := CreateCompatibleDC(), obmBitmap := SelectObject(hdcBitmap, hbmBitmap), gBitmap := Gdip_GraphicsFromHDC(hdcBitmap)
-	Gdip_SetInterpolationMode(gBitmap, 0)
-	Gdip_DrawImage(gBitmap, pBitmap, 0, 0, width, height, 0, 0, width, height, 1)
+	hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 	Gui, cheatsheet_calibration: Add, Picture, % "Section Border BackgroundTrans", HBitmap:*%hbmBitmap%
-	SelectObject(hdcBitmap, obmBitmap)
 	DeleteObject(hbmBitmap)
-	DeleteDC(hdcBitmap)
-	Gdip_DeleteGraphics(gBitmap)
 
 	For entry in vars.cheatsheets.list[name].entries
 		ddl .= entry "|"
@@ -611,21 +605,14 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			pBitmap_copy := pBitmap
 			pBitmap := Gdip_ResizeBitmap(pBitmap_copy, width* vars.cheatsheets.list[name].scale, 10000, 1, 7)
 			Gdip_DisposeImage(pBitmap_copy)
-			Gdip_GetImageDimensions(pBitmap, width, height)
 		}
 
-		hbmBitmap := CreateDIBSection(width, height), hdcBitmap := CreateCompatibleDC(), obmBitmap := SelectObject(hdcBitmap, hbmBitmap), gBitmap := Gdip_GraphicsFromHDC(hdcBitmap)
-		Gdip_SetInterpolationMode(gBitmap, 0)
-		Gdip_DrawImage(gBitmap, pBitmap, 0, 0, width, height, 0, 0, width, height, 1)
+		hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 		If (index = "00")
 			Gui, cheatsheet: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBitmap%
 		Else Gui, cheatsheet: Add, Picture, % style " Section BackgroundTrans", HBitmap:*%hbmBitmap%
 		added += 1
-		SelectObject(hdcBitmap, obmBitmap)
-		DeleteObject(hbmBitmap)
-		DeleteDC(hdcBitmap)
-		Gdip_DeleteGraphics(gBitmap)
-		Gdip_DisposeImage(pBitmap)
+		DeleteObject(hbmBitmap), Gdip_DisposeImage(pBitmap)
 	}
 
 	If added
@@ -690,21 +677,11 @@ CheatsheetInfo(name)
 		{
 			pBitmap_copy := pBitmap
 			pBitmap := Gdip_ResizeBitmap(pBitmap_copy, settings.general.fWidth*35, 10000, 1, 7)
-			Gdip_GetImageDimensions(pBitmap, width, height)
 			Gdip_DisposeImage(pBitmap_copy)
 		}
-		hbmBitmap := CreateDIBSection(width, height)
-		hdcBitmap := CreateCompatibleDC()
-		obmBitmap := SelectObject(hdcBitmap, hbmBitmap)
-		gBitmap := Gdip_GraphicsFromHDC(hdcBitmap)
-		Gdip_SetInterpolationMode(gBitmap, 0)
-		Gdip_DrawImage(gBitmap, pBitmap, 0, 0, width, height, 0, 0, width, height, 1)
+		hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitMap)
 		Gui, cheatsheet_info: Add, Picture, % "Section Border BackgroundTrans", HBitmap:*%hbmBitmap%
-		SelectObject(hdcBitmap, obmBitmap)
-		DeleteObject(hbmBitmap)
-		DeleteDC(hdcBitmap)
-		Gdip_DeleteGraphics(gBitmap)
-		Gdip_DisposeImage(pBitmap)
+		DeleteObject(hbmBitmap), Gdip_DisposeImage(pBitmap)
 	}
 	Else Gui, cheatsheet_info: Add, Text, % "Border 0x200 Center w"settings.general.fWidth*35 " h"settings.general.fWidth*16, no image available
 
@@ -1284,7 +1261,6 @@ CheatsheetMenuPreview(name, filename)
 	Else
 	{
 		Gdip_GetImageDimensions(pBitmap, width, height)
-
 		If (height > vars.monitor.h*0.9)
 		{
 			ratio := (vars.monitor.h * 0.9) / height
@@ -1299,20 +1275,9 @@ CheatsheetMenuPreview(name, filename)
 			Gdip_DisposeImage(pBitmap_copy)
 		}
 
-		Gdip_GetImageDimensions(pBitmap, width, height)
-
-		hbmBitmap := CreateDIBSection(width, height)
-		hdcBitmap := CreateCompatibleDC()
-		obmBitmap := SelectObject(hdcBitmap, hbmBitmap)
-		gBitmap := Gdip_GraphicsFromHDC(hdcBitmap)
-		Gdip_SetInterpolationMode(gBitmap, 0)
-		Gdip_DrawImage(gBitmap, pBitmap, 0, 0, width, height, 0, 0, width, height, 1)
+		hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 		Gui, cheatsheet_tooltip: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBitmap%
-		SelectObject(hdcBitmap, obmBitmap)
-		DeleteObject(hbmBitmap)
-		DeleteDC(hdcBitmap)
-		Gdip_DeleteGraphics(gBitmap)
-		Gdip_DisposeImage(pBitmap)
+		DeleteObject(hbmBitmap), Gdip_DisposeImage(pBitmap)
 
 		Gui, cheatsheet_tooltip: Show, NA x10000 y10000
 		WinGetPos,,, width, height, % "ahk_id " vars.hwnd.cheatsheet_tooltip

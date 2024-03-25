@@ -405,7 +405,7 @@ Leveltracker(cHWND := "", hotkey := "")
 	;WinActivate, ahk_group poe_window
 }
 
-LeveltrackerExperience(arealevel := "")
+LeveltrackerExperience(arealevel := "", safe := 0)
 {
 	local
 	global vars, settings
@@ -422,10 +422,11 @@ LeveltrackerExperience(arealevel := "")
 		arealevel := (-0.03) * (arealevel**2) + (5.17 * arealevel) - 144.9
 
 	safezone := Floor(3 + (vars.log.level/16))
+	safezone_diff := LLK_IsBetween(arealevel, vars.log.level - safezone, vars.log.level + safezone) ? 0 : (arealevel > vars.log.level ? "-" : "+") . Abs(arealevel - vars.log.level) - safezone
 	effective_difference := Max(Abs(vars.log.level - arealevel) - safezone, 0), effective_difference := effective_difference**2.5
 	exp_multi := (vars.log.level + 5) / (vars.log.level + 5 + effective_difference), exp_multi := exp_multi**1.5
 	exp_multi := Max(exp_multi * exp_penalty, 0.01)
-	Return Format("{:0." . (exp_multi = 1 ? "0" : "1") . "f}", exp_multi*100) "%"
+	Return Format("{:0." . (exp_multi = 1 ? "0" : "1") . "f}", exp_multi*100) "%" . (safe && safezone_diff ? " (" safezone_diff ")" : "")
 }
 
 LeveltrackerFade()
@@ -1218,10 +1219,10 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		vars.hwnd.leveltracker.timer_act := hwnd
 	}
 	Gui, %GUI_name_controls2%: Add, Text, % "Section xs " (settings.leveltracker.timer ? "xs y+-1" : "") " Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % settings.leveltracker.layouts ? check " zl" : ""
-	vars.hwnd.leveltracker.layouts := hwnd
+	vars.hwnd.leveltracker.layouts := hwnd, exp_info := LeveltrackerExperience("", 1)
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % "<"
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % ">"
-	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % LeveltrackerExperience()
+	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " c" (exp_info != "100%" ? "Red" : "Lime"), % exp_info
 	vars.hwnd.leveltracker.experience := hwnd
 
 	Gui, %GUI_name_controls2%: Show, % "NA x10000 y10000"

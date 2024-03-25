@@ -74,7 +74,7 @@ BetrayalCalibrate(cHWND := "")
 {
 	local
 	global vars, settings
-	static pBetrayal, wBetrayal, hBetrayal, hbmBetrayal, hdcBetrayal, obmBetrayal, gBetrayal
+	static pBetrayal, hbmBetrayal
 
 	If cHWND && (cHWND = vars.hwnd.betrayal_setup.ddl) ;function is called by interacting with the screen-cap window
 	{
@@ -95,23 +95,14 @@ BetrayalCalibrate(cHWND := "")
 			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 			Return
 		}
-		Else
-		{
-			Gdip_GetImageDimensions(pBetrayal, wBetrayal, hBetrayal)
-			hbmBetrayal := CreateDIBSection(wBetrayal, hBetrayal)
-			hdcBetrayal := CreateCompatibleDC()
-			obmBetrayal := SelectObject(hdcBetrayal, hbmBetrayal)
-			gBetrayal := Gdip_GraphicsFromHDC(hdcBetrayal)
-			Gdip_SetInterpolationMode(gBetrayal, 0)
-			Gdip_DrawImage(gBetrayal, pBetrayal, 0, 0, wBetrayal, hBetrayal, 0, 0, wBetrayal, hBetrayal, 1)
-		}
+		Else hbmBetrayal := Gdip_CreateHBITMAPFromBitmap(pBetrayal)
 		Gui, betrayal_setup: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, betrayal_setup: Margin, 12, 4
 		Gui, betrayal_setup: Color, Black
 		Gui, betrayal_setup: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.betrayal_setup := {"main": hwnd}
 
-		Gui, betrayal_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBetrayal%
+		Gui, betrayal_setup: Add, Picture, % "Section Border BackgroundTrans", HBitmap:*%hbmBetrayal%
 		ddl := LangTrans("betrayal_transportation", 2) "||" LangTrans("betrayal_fortification", 2) "|" LangTrans("betrayal_research", 2) "|" LangTrans("betrayal_intervention", 2) "|----------|"
 		For member in vars.betrayal.members_localized
 			ddl .= member "|"
@@ -132,11 +123,7 @@ BetrayalCalibrate(cHWND := "")
 			}
 		}
 	}
-	SelectObject(hdcBetrayal, obmBetrayal)
-	DeleteObject(hbmBetrayal)
-	DeleteDC(hdcBetrayal)
-	Gdip_DeleteGraphics(gBetrayal)
-	Gdip_DisposeImage(pBetrayal)
+	DeleteObject(hbmBetrayal), Gdip_DisposeImage(pBetrayal)
 	vars.hwnd.Delete("betrayal_setup")
 	Gui, betrayal_setup: Destroy
 }
