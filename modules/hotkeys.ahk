@@ -57,6 +57,22 @@ HotkeysESC()
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
+	Else If WinExist("ahk_id " vars.hwnd.compat_test)
+	{
+		Gui, compat_test: Destroy
+		If vars.OCR.debug
+		{
+			vars.OCR.debug := 0
+			SendInput, % "{" settings.OCR.z_hotkey "}"
+		}
+		Else If settings.OCR.allow
+			Settings_menu("tldr-tooltips")
+		Else LLK_Overlay(vars.hwnd.settings.main, "show", 0)
+	}
+	Else If vars.OCR.GUI
+		vars.OCR.exit := 1
+	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
 		WinActivate, ahk_group poe_window
 	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
@@ -230,6 +246,25 @@ HotkeysTab()
 *MButton::
 *LButton::
 *RButton::Return
+
+#If vars.OCR.GUI ;sending inputs for screen-reading
+*WheelUp::vars.OCR.wGUI += ((vars.OCR.wGUI + 30) * 2 >= vars.client.w || (vars.OCR.hGUI + 15) * 2 >= vars.client.h) ? 0 : 30, vars.OCR.hGUI += ((vars.OCR.wGUI + 30) * 2 >= vars.client.w || (vars.OCR.hGUI + 15) * 2 >= vars.client.h) ? 0 : 15
+*WheelDown::vars.OCR.wGUI -= (vars.OCR.wGUI - 30 >= vars.client.h / 10 + 30 && vars.OCR.hGUI - 15 >= vars.client.h / 10 + 15) ? 30 : 0, vars.OCR.hGUI -= (vars.OCR.wGUI - 30 >= vars.client.h / 10 + 30 && vars.OCR.hGUI - 15 >= vars.client.h / 10 + 15) ? 15 : 0
+
+#If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ocr_tooltip.main) ;hovering over the ocr tooltip
+*LButton::OCR_Close()
+*Space::
+*1::
+*2::
+*3::
+*4::
+*5::OCR_Highlight(A_ThisHotkey)
+
+#If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+~Shift::
+~Shift UP::
+WinSet, TransColor, % "Purple " (InStr(A_ThisHotkey, "UP") ? "255" : 0), % "ahk_id " vars.hwnd.ocr_tooltip.main
+Return
 
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse > vars.monitor.x + vars.client.xc)
 
