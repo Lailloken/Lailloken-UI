@@ -69,8 +69,6 @@ HotkeysESC()
 			Settings_menu("tldr-tooltips")
 		Else LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 	}
-	Else If vars.OCR.GUI
-		vars.OCR.exit := 1
 	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
