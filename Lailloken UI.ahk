@@ -45,6 +45,7 @@ If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
+Init_OCR()
 Init_searchstrings()
 Init_leveltracker()
 Init_maptracker()
@@ -86,6 +87,7 @@ Return
 #Include modules\leveling tracker.ahk
 #Include modules\map-info.ahk
 #Include modules\map tracker.ahk
+#Include modules\ocr.ahk
 #Include modules\omni-key.ahk
 #Include modules\qol tools.ahk
 #Include modules\search-strings.ahk
@@ -186,6 +188,25 @@ LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
 	Return
 }
 
+LLK_HasRegex(object, regex, all_results := 0)
+{
+	local
+
+	If !IsObject(object)
+		Return
+	parse := []
+	For key, val in object
+		If RegExMatch(val, regex)
+		{
+			If !all_results
+				Return key
+			Else parse.Push(key)
+		}
+
+	If all_results && parse.Count()
+		Return parse
+}
+
 LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
 {
 	local
@@ -194,14 +215,12 @@ LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, rec
 		Return
 	parse := []
 	For key, val in object
-	{
 		If (val = value) || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse)
 		{
 			If !all_results
 				Return key
 			Else parse.Push(key)
 		}
-	}
 
 	If all_results && parse.Count()
 		Return parse
@@ -249,9 +268,9 @@ HelpToolTip(HWND_key)
 			For index, text in val
 				If (index > 1)
 				{
-					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % text
+					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "&", "&&")
 					Gui, %GUI_name%: Add, Text, % (index = 2 ? "x0 y0" : "xs") " Section Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % text
+					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % StrReplace(text, "&", "&&")
 				}
 		}
 	Else
@@ -259,9 +278,9 @@ HelpToolTip(HWND_key)
 		{
 			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 			Gui, %GUI_name%: Font, % font
-			Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(text, "(/underline)"), "(/bold)")
+			Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
 			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %GUI_name%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % StrReplace(StrReplace(text, "(/underline)"), "(/bold)")
+			Gui, %GUI_name%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
 		}
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
@@ -480,6 +499,26 @@ Init_vars()
 	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
 	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases.json", 1))
 	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers.json"))
+	db.altars := json.Load(LLK_FileRead("data\english\eldritch altars.json"))
+	db.altar_dictionary := []
+	For outer in ["", ""]
+		For index1, key in ["boss", "minions", "player"]
+		{
+			If (outer = 1)
+			{
+				If !IsObject(db.altars[key "_check"])
+					db.altars[key "_check"] := []
+				For index, array in db.altars[key]
+					db.altars[key "_check"].Push(array.1)
+			}
+			Else
+			{
+				For iDB, kDB in db.altars[key "_check"]
+					Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
+						If !LLK_HasVal(db.altar_dictionary, A_LoopField)
+							db.altar_dictionary.Push(A_LoopField)
+			}
+		}
 
 	settings := {}
 	settings.features := {}
@@ -550,7 +589,7 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0
+	static tick_helptooltips := 0, ClientFiller_count := 0, MouseHover_count := 0
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
@@ -1556,7 +1595,7 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 	{
 		font := InStr(val, "(/bold)") ? "bold" : "", font .= InStr(val, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 		Gui, panel_dimensions: Font, % font
-		val := StrReplace(StrReplace(val, "(/bold)"), "(/underline)")
+		val := StrReplace(StrReplace(StrReplace(val, "&&", "&"), "(/bold)"), "(/underline)"), val := StrReplace(val, "&", "&&")
 		Gui, panel_dimensions: Add, Text, % align " HWNDhwnd Border", % header_offset && (index = 1) ? " " val : margins ? " " StrReplace(val, "`n", " `n ") " " : val
 		Gui, panel_dimensions: Font, % "norm s"fSize
 		WinGetPos,,, w, h, ahk_id %hwnd%
