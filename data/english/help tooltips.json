@@ -196,7 +196,7 @@
       "tooltips will refer to it as tab, even when rebound"
     ],
     "hotkeys restart": [
-      "if the script crashes and stops responding, use this combination to restart"
+      "if the script crashes and stops responding, use this combination to restart it"
     ],
     "iteminfo profiles": [
       "customized highlighting can be saved in individual profiles",
@@ -431,6 +431,32 @@
       "simple lab layout overlay and tracker for casual runs",
       "activated by holding tab in lab or the aspirants' plaza"
     ],
+    "ocr enable": [
+      "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",
+      "currently supported: eldritch altars"
+    ],
+    "ocr compatibility": [
+      "a compatibility test has to be done before this feature can be enabled",
+      "open the character-stats screen, then click this button to open the windows snipping tool",
+	  "use it to snip 4 to 5 lines of text from the character-stats"
+    ],
+    "ocr colors": [
+      "customize the color patterns used to highlight specific mods/rewards",
+	  "each pattern has two buttons: font | background",
+	  "click the buttons to open the color palette, or right-click to reset to default"
+    ],
+    "ocr debug": [
+      "holding the right crtl-key while scanning the screen will open a window that displays the screen-cap as well as the text the script was able to read from it"
+    ],
+    "ocr z hotkey": [
+      "type in the in-game hotkey for <toggle highlighting>",
+	  "check the links above if it uses special keys/combinations"
+    ],
+    "ocr hotkey": [
+      "type in the hotkey you want to use to activate this feature",
+	  "do not choose keys used for chatting in order to prevent accidentally activating the feature",
+	  "check the links above if you want to use special keys/combinations"
+    ],
     "screenchecks pixel-about": [
       "the script continually checks the screen for certain ui elements",
       "this enables context sensitivity and automatic overlay toggling",
@@ -509,6 +535,10 @@
     "update check": [
       "checks for updates on script launch and in the background while running",
       "if there is an update available, the toolbar will turn green"
+    ],
+    "update hotfix": [
+      "a hotfix release is available, you can download it below",
+	  "the versions listed below always include the newest hotfixes, even if the number is not specifically marked"
     ],
     "update versions": [
       "the list below shows the available versions to switch between or reinstall",
