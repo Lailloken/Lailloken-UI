@@ -9793,9 +9793,9 @@ HBitmapToRandomAccessStream(hBitmap)
 		, IID_IPicture            := "{7BF80980-BF32-101A-8BBB-00AA00300CAB}"
 		, PICTYPE_BITMAP := 1
 		, BSOS_DEFAULT   := 0
-		
+
 	DllCall("Ole32\CreateStreamOnHGlobal", "Ptr", 0, "UInt", true, "PtrP", pIStream, "UInt")
-	
+
 	VarSetCapacity(PICTDESC, sz := 8 + A_PtrSize*2, 0)
 	NumPut(sz, PICTDESC)
 	NumPut(PICTYPE_BITMAP, PICTDESC, 4)
