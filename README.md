@@ -88,6 +88,12 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/1c13825c-becc-45a8-b6c7-ef5e0d205846) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
 <br>
 
+### [TLDR-Tooltips (experimental)](https://github.com/Lailloken/Lailloken-UI/wiki/TLDR%E2%80%90Tooltips): customizable tooltips that summarize certain on-screen information
+| on-screen information | default presentation | TLDR-version |
+|---|---|---|
+| eldritch altars | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/fe980bdd-7a3b-4b51-87e5-80416120f083) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/536c4e57-ad0d-4ef0-bb47-5c5528d77948) |
+<br>
+
 ### [Cheat-sheet Overlay Toolkit](https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit): create customizable, context-sensitive overlays
 | types | example 1 | example 2 |
 |---|---|---|
