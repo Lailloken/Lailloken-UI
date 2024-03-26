@@ -70,6 +70,7 @@
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
 		ms_stream-clients		=	"stream-clients"
+		ms_tldr-tooltips		=	"tldr-tooltips"
 		ms_updater			=	"updater"
 
 
@@ -365,6 +366,19 @@
 
 
 ;#####################################################
+;## OCR / screen-reading
+;#####################################################
+
+;## these strings are displayed/required when using OCR features
+		ocr_notext			=	"couldn't find any text"
+		ocr_nousecase			=	"use-case unclear"		;## scanned text doesn't fit any use-case
+		ocr_nocoords			=	"couldn't get coordinates"
+		ocr_erroraltar			=	"couldn't reliably read mods, retry"
+
+
+
+
+;#####################################################
 ;## omni-key
 ;#####################################################
 
@@ -445,6 +459,7 @@
 		m_general_display		=	"windowed"
 		m_general_display		=	"borderless windowed"
 		m_general_resolution		=	"custom resolution:"
+		m_general_filler		=	"black out screen area around the client"
 		m_general_position		=	"window-position:"
 		m_general_posleft		=	"left"
 		m_general_poscenter		=	"center"
@@ -557,7 +572,7 @@
 		m_hotkeys_omnikey		=	"omni-key settings:"
 		m_hotkeys_omnikey		=	"replace m-mouse with:"
 		m_hotkeys_omnikey		=	"omni-key 2 (for items):"
-		m_hotkeys_keyblock		=	"block native key-functions"						;## native as in what it usually does: CapsLock-key toggles capslock-state, windows-key opens start-menu
+		m_hotkeys_keyblock		=	"block native functions"							;## native as in what it usually does: CapsLock-key toggles capslock-state, windows-key opens start-menu
 		m_hotkeys_misc			=	"miscellaneous keys:"
 		m_hotkeys_tab			=	"replace tab-key with:"
 		m_hotkeys_emergency		=	"emergency restart:"							;## there's a hotkey to force-restart the script in case of crash/hang
@@ -690,6 +705,24 @@
 
 
 ;#####################################################
+;## settings menu: tldr-tooltips
+;#####################################################
+
+;## these strings are displayed/required in the "tldr-tooltips" section of the settings menu
+		m_ocr_enable			=	"enable tldr-tooltips (experimental)"
+		m_ocr_compatibility		=	"test compatibility"
+		m_ocr_compatibility		=	"transcribe at least 8 unique words from the image above (esc to exit):"
+		m_ocr_error			=	"test requires at least 8 unique words"
+		m_ocr_error			=	"screen-cap too large"
+		m_ocr_finish			=	"press esc to finish setup"
+		m_ocr_hotkey			=	"hotkey:"
+		m_ocr_hotkey			=	"<toggle highlighting> (in game):"
+		m_ocr_debug			=	"enable debug features"
+		m_ocr_unsupported		=	"720p and lower resolutions are not supported because screen-reading has a very high failure rate at low resolutions, making this feature almost unusable"
+
+
+
+;#####################################################
 ;## settings menu: updater
 ;#####################################################
 
@@ -698,12 +731,12 @@
 		m_updater_version		=	"version information:"
 		m_updater_version		=	"current:"
 		m_updater_version		=	"latest:"
-		m_updater_versions		=	"available versions:"
+		m_updater_versions		=	"available downloads:"
 		m_updater_github		=	"github links:"
 		m_updater_github		=	"main page"
 		m_updater_github		=	"releases"
 		m_updater_refresh		=	"refresh"
-		m_updater_changelog		=	"changelog"
+		m_updater_changelog		=	"full changelog"
 		m_updater_skip			=	"skip"
 		m_updater_failed		=	"update failed:"
 		m_updater_error1		=	"the last update attempt failed because of write-permission errors. please open the <general> section of the settings and run the test at the bottom."

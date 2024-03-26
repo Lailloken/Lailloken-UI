@@ -2,8 +2,8 @@
 {
 	local
 	global vars, settings, Json
-	
-	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)	
+
+	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)
 	settings.betrayal := {}, file := FileExist("data\" settings.general.lang_client "\Betrayal.json") ? settings.general.lang_client : "english"
 	settings.betrayal.fSize := LLK_IniRead("ini\betrayal info.ini", "Settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.betrayal.fSize, font_height, font_width)
@@ -14,10 +14,10 @@
 	settings.betrayal.colors[0] := "White"
 	settings.betrayal.sPrio := vars.client.h * (2/15)
 	settings.betrayal.ruthless := LLK_IniRead("ini\betrayal info.ini", "settings", "ruthless", 0)
-	
+
 	Loop 3
 		settings.betrayal.colors[A_Index] := LLK_IniRead("ini\betrayal info.ini", "settings", "rank "A_Index " color", settings.betrayal.dColors[A_Index])
-	
+
 	ini := LLK_IniRead("ini\betrayal info.ini", "settings", "board")
 	If !IsObject(vars.betrayal.board) && ini
 		vars.betrayal.board := Json.Load(ini)
@@ -29,7 +29,7 @@
 	For key in vars.betrayal.divisions ;create an object with localized names (solely for alphabetical ordering)
 		vars.betrayal.divisions_localized[LangTrans("betrayal_" key, 2)] := key
 	vars.betrayal.divisions.list := ["transportation", "fortification", "research", "intervention"]
-	
+
 	If !FileExist("ini\betrayal info.ini")
 	{
 		IniWrite, % settings.general.fSize, ini\betrayal info.ini, Settings, font-size
@@ -40,7 +40,7 @@
 	If !InStr(LLK_FileRead("ini\betrayal info.ini"), " - ruthless")
 		For member in vars.betrayal.members
 			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member " - ruthless"
-	
+
 	For member in vars.betrayal.members
 	{
 		vars.betrayal.members[member].ranks := {}
@@ -54,14 +54,14 @@ Betrayal()
 {
 	local
 	global vars, settings
-	
+
 	ThisHotkey_copy := A_ThisHotkey, start := A_TickCount
 	If !IsObject(vars.betrayal.board)
 		vars.betrayal.board := {}
 
 	Loop, Parse, % "*~!+#^"
 		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
-	
+
 	If GetKeyState("RButton", "P")
 	{
 		BetrayalCalibrate()
@@ -74,7 +74,7 @@ BetrayalCalibrate(cHWND := "")
 {
 	local
 	global vars, settings
-	static pBetrayal, wBetrayal, hBetrayal, hbmBetrayal, hdcBetrayal, obmBetrayal, gBetrayal
+	static pBetrayal, hbmBetrayal
 
 	If cHWND && (cHWND = vars.hwnd.betrayal_setup.ddl) ;function is called by interacting with the screen-cap window
 	{
@@ -95,23 +95,14 @@ BetrayalCalibrate(cHWND := "")
 			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 			Return
 		}
-		Else
-		{
-			Gdip_GetImageDimensions(pBetrayal, wBetrayal, hBetrayal)
-			hbmBetrayal := CreateDIBSection(wBetrayal, hBetrayal)
-			hdcBetrayal := CreateCompatibleDC()
-			obmBetrayal := SelectObject(hdcBetrayal, hbmBetrayal)
-			gBetrayal := Gdip_GraphicsFromHDC(hdcBetrayal)
-			Gdip_SetInterpolationMode(gBetrayal, 0)
-			Gdip_DrawImage(gBetrayal, pBetrayal, 0, 0, wBetrayal, hBetrayal, 0, 0, wBetrayal, hBetrayal, 1)
-		}
+		Else hbmBetrayal := Gdip_CreateHBITMAPFromBitmap(pBetrayal)
 		Gui, betrayal_setup: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, betrayal_setup: Margin, 12, 4
 		Gui, betrayal_setup: Color, Black
 		Gui, betrayal_setup: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.betrayal_setup := {"main": hwnd}
 
-		Gui, betrayal_setup: Add, Picture, % "Section BackgroundTrans", HBitmap:*%hbmBetrayal%
+		Gui, betrayal_setup: Add, Picture, % "Section Border BackgroundTrans", HBitmap:*%hbmBetrayal%
 		ddl := LangTrans("betrayal_transportation", 2) "||" LangTrans("betrayal_fortification", 2) "|" LangTrans("betrayal_research", 2) "|" LangTrans("betrayal_intervention", 2) "|----------|"
 		For member in vars.betrayal.members_localized
 			ddl .= member "|"
@@ -132,11 +123,7 @@ BetrayalCalibrate(cHWND := "")
 			}
 		}
 	}
-	SelectObject(hdcBetrayal, obmBetrayal)
-	DeleteObject(hbmBetrayal)
-	DeleteDC(hdcBetrayal)
-	Gdip_DeleteGraphics(gBetrayal)
-	Gdip_DisposeImage(pBetrayal)
+	DeleteObject(hbmBetrayal), Gdip_DisposeImage(pBetrayal)
 	vars.hwnd.Delete("betrayal_setup")
 	Gui, betrayal_setup: Destroy
 }
@@ -163,7 +150,7 @@ BetrayalInfo(member, div := "", x := "", y := "")
 	Loop, Parse, % member ", 1, transportation, t, fortification, f, research, r, intervention, i", `,, % A_Space ;create the GUI: header with name, left-side column with TFRI, right-side column with rewards
 	{
 		division := (StrLen(A_LoopField) = 1) ? div_check[A_LoopField] : A_LoopField, color := settings.betrayal.colors[vars.betrayal.members[member].ranks[division]]
-		
+
 		If (A_LoopField = member)
 			pos := " x"settings.betrayal.fWidth*2 " y0 Section w"width
 		Else If (A_LoopField = "transportation")
@@ -171,7 +158,7 @@ BetrayalInfo(member, div := "", x := "", y := "")
 		Else If (StrLen(A_LoopField) = 1)
 			pos := " xp-"settings.betrayal.fWidth*2 " yp"
 		Else pos := " xs"
-		
+
 		If (A_LoopField = member)
 		{
 			Gui, %GUI_name%: Add, Text, % "Center BackgroundTrans Border HWNDhwnd" pos, % LangTrans("betrayal_" member)
@@ -194,7 +181,7 @@ BetrayalInfo(member, div := "", x := "", y := "")
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, % "ahk_id "vars.hwnd.betrayal_info.main
 	vars.betrayal.wInfo := w
-	
+
 	If x && y ;coordinates passed through function-parameters (when mouse is hovering over the prio-view on the top-edge of the screen)
 		xPos := x - w/2, yPos := y
 	Else
@@ -215,7 +202,7 @@ BetrayalPrioview()
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	unspec := 0, added := 0, toggle := !toggle, GUI_name := "betrayal_prioview" toggle
 	div_check := {"trans": "transportation", "fort": "fortification", "research": "research", "inter": "intervention"}
 	Gui, %GUI_name%: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDbetrayal_prioview ;the 'E0x' styles improve UI rendering and reduce flicker but require inverted control stacking
@@ -334,7 +321,7 @@ BetrayalSearch(hotkey)
 {
 	local
 	global vars, settings
-	
+
 	prioview := 1, removed := [], delay := ["", 0]
 	Loop, Files, % "img\Recognition ("vars.client.h "p)\Betrayal\*.bmp" ;delete any non-Betrayal or unintentionally saved files to prevent unnecessary scanning
 	{
@@ -344,7 +331,7 @@ BetrayalSearch(hotkey)
 	}
 
 	BetrayalPrioview()
-	
+
 	While GetKeyState(hotkey, "P")
 	{
 		If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.betrayal_prioview, vars.general.cMouse))
@@ -352,7 +339,7 @@ BetrayalSearch(hotkey)
 		Else If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse))
 			hover := [LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse), "betrayal_info"]
 		Else hover := ""
-		
+
 		If (SubStr(hover.1, 0, 1) = "_") ;exclusion-rule to avoid interaction with division text-panels (the ones which display the rewards)
 			hover := ""
 
@@ -401,11 +388,11 @@ BetrayalSearch(hotkey)
 		If xPrev && LLK_InRange(xPrev, vars.general.xMouse, settings.betrayal.sPrio/8) && LLK_InRange(yPrev, vars.general.yMouse, settings.betrayal.sPrio/8) ;only scan the screen if mouse has moved a bit
 		|| (vars.general.wMouse = vars.hwnd.betrayal_info.main) || !GetKeyState(hotkey, "P")
 			continue
-		
+
 		member1 := "", division1 := "", LIST0 := ""
 		xPrev := vars.general.xMouse, yPrev := vars.general.yMouse ;mouse-position at the start of this loop
 		pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
-		
+
 		Loop, Files, % "img\Recognition ("vars.client.h "p)\Betrayal\*.bmp"
 		{
 			parse := SubStr(A_LoopFileName, 1, InStr(A_LoopFileName, ".") - 1)
@@ -437,13 +424,13 @@ BetrayalSearch(hotkey)
 		{
 			Gdip_DisposeImage(pHaystack)
 			continue
-		}	
+		}
 
 		For key, division in vars.betrayal.divisions.list ;scan the division
 		{
 			If !FileExist("img\Recognition ("vars.client.h "p)\Betrayal\"division ".bmp")
 				continue
-	
+
 			pNeedle := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\Betrayal\"division ".bmp")
 			width := Gdip_GetImageWidth(pNeedle), result := Gdip_ImageSearch(pHaystack, pNeedle, LIST, x1, y1, x2, y2, vars.imagesearch.variation + 20,, 1, 1)
 			Gdip_DisposeImage(pNeedle)
@@ -464,7 +451,7 @@ BetrayalSearch(hotkey)
 		{
 			If member1
 				vars.betrayal.board[member1] := division1
-			
+
 			If member1 && (member1 != vars.hwnd.betrayal_info.active)
 				BetrayalInfo(member1, division1)
 			BetrayalPrioview()

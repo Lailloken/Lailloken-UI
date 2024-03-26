@@ -2,9 +2,9 @@
 {
 	local
 	global vars, settings, db
-	
-	If vars.omnikey.last ;when the omni-key was last pressed ;for certain hotkeys, AHK keeps firing whatever is bound to it while holding down the key
-		Return ;there is a separate function activated when releasing the omni-key that clears this variable again
+
+	If vars.omnikey.last	;when the omni-key was last pressed ;for certain hotkeys, AHK keeps firing whatever is bound to it while holding down the key
+		Return			;there is a separate function activated when releasing the omni-key that clears this variable again
 	vars.omnikey.last := A_TickCount
 
 	StringScroll("ESC") ;close searchstring-scrolling
@@ -39,7 +39,7 @@
 			LLK_ToolTip(LangTrans("omnikey_language"), 3,,,, "red")
 			Return
 		}
-		
+
 		vars.omnikey.start := A_TickCount, vars.omnikey.item := {} ;store data about the clicked item here
 		OmniItemInfo()
 
@@ -116,7 +116,7 @@ Omnikey2()
 	guide := vars.leveltracker.guide, ThisHotkey_copy := A_ThisHotkey
 	Loop, Parse, % "*,~,!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
-	
+
 	If settings.features.cheatsheets && GetKeyState(settings.cheatsheets.modifier, "P")
 	{
 		vars.cheatsheets.pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
@@ -134,12 +134,12 @@ Omnikey2()
 		OmniRelease()
 		Return
 	}
-	
+
 	If !settings.features.pixelchecks
 		Screenchecks_PixelSearch("gamescreen")
-	
+
 	If !vars.pixelsearch.gamescreen.check
-	{		
+	{
 		Screenchecks_ImageSearch()
 		If settings.features.betrayal && vars.imagesearch.betrayal.check
 		{
@@ -152,7 +152,7 @@ Omnikey2()
 			LeveltrackerSkilltree()
 			Return
 		}
-		
+
 		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1")) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
 		{
 			start := A_TickCount
@@ -191,7 +191,7 @@ OmniRelease()
 {
 	local
 	global vars, settings
-	
+
 	If IsObject(vars.omnikey)
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
 }
@@ -200,7 +200,7 @@ OmniContext(mode := 0)
 {
 	local
 	global vars, settings
-	
+
 	If mode
 		Iteminfo(2)
 	ThisHotkey_copy := A_ThisHotkey, clip := !mode ? vars.omnikey.clipboard : Clipboard, item := vars.omnikey.item
@@ -263,7 +263,7 @@ OmniContextMenu()
 		Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd0
 		Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/8
 		Gui, omni_context: Color, Black
-		WinSet, Transparent, % settings.general.trans
+		;WinSet, Transparent, % settings.general.trans
 		Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.omni_context := {"main": hwnd0}, vars.omni_context := {}, item := vars.omnikey.item, style := (A_Index = 2) ? " w" width : "", hwnd := ""
 
@@ -341,7 +341,7 @@ OmniContextMenu()
 			w%A_Index% := !w%A_Index% ? 0 : w%A_Index%
 		width := Max(w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11)
 	}
-	
+
 	MouseGetPos, mouseX, mouseY
 	Gui, omni_context: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.omni_context.main
@@ -422,8 +422,8 @@ OmniItemInfo()
 	global vars, settings, db
 
 	Iteminfo(2)
-	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables	
-	
+	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables
+
 	If item.itembase
 	{
 		item.attributes := ""
@@ -435,7 +435,7 @@ OmniItemInfo()
 	}
 
 	Loop, Parse, clip, `n, % "`r " ;store the item's class, rarity, and miscellaneous info
-	{	
+	{
 		loopfield := A_LoopField
 		If InStr(A_LoopField, LangTrans("items_level"), 1) && !InStr(A_LoopField, LangTrans("items_ilevel"))
 			item.lvl_req := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), " (unmet)"), item.lvl_req := (item.lvl_req < 10) ? 0 . item.lvl_req : item.lvl_req
@@ -443,7 +443,7 @@ OmniItemInfo()
 		Loop, Parse, % "str,dex,int", `,
 			If LLK_PatternMatch(loopfield, "", vars.lang["items_" A_LoopField])
 				item[A_LoopField] := StrReplace(StrReplace(SubStr(loopfield, InStr(loopfield, ":") + 2), " (augmented)"), " (unmet)")
-		
+
 		If InStr(A_LoopField, LangTrans("items_ilevel"))
 			item.ilvl := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 

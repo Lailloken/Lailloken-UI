@@ -7,14 +7,14 @@
 	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates")
 	If InStr(parse, ",")
 		vars.pixelsearch.gamescreen := {"x1": SubStr(parse, 1, InStr(parse, ",") - 1), "y1": SubStr(parse, InStr(parse, ",") + 1)}
-	
+
 	vars.pixelsearch.gamescreen.color1 := LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", "gamescreen", "color 1")
 	vars.pixelsearch.gamescreen.check := 0
-	
+
 	vars.pixelsearch.inventory := {"x1": 0, "x2": 0, "x3": 6, "y1": 0, "y2": 6, "y3": 0, "check": 0}
 	Loop 3
 		vars.pixelsearch.inventory["color" A_Index] := LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", "inventory", "color " A_Index)
-	
+
 	vars.pixelsearch.variation := 0, vars.pixelsearch.list := {"gamescreen": 1, "inventory": 1}
 	vars.imagesearch := {}
 	vars.imagesearch.search := ["skilltree", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
@@ -23,11 +23,11 @@
 
 	For key in vars.imagesearch.list
 		parse := StrSplit(LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
-	
+
 	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
 		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
 	Else settings.general.blackbars := 0
-	
+
 	If settings.general.blackbars ;apply offsets if black-bar compensation is enabled
 	{
 		settings.general.oGamescreen := Format("{:0.0f}", (vars.client.w0 - (vars.client.h0 / (5/12))) / 2) ;get the width of the black bars (as an offset for pixel-checks)
@@ -75,7 +75,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 	{
 		If name ;if parameter was passed to function, override val
 			val := name
-		
+
 		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && !(settings.features.maptracker || settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
@@ -86,7 +86,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
 		Else x1 := vars.imagesearch[val].x1, y1 := vars.imagesearch[val].y1, x2 := vars.imagesearch[val].x2, y2 := vars.imagesearch[val].y2
-		
+
 		pNeedle := Gdip_CreateBitmapFromFile("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;load the reference image
 		If (Gdip_ImageSearch(pHaystack, pNeedle, LIST, x1, y1, x2, y2, vars.imagesearch.variation,, 1, 1) > 0) ;search within the screenshot
 		{
@@ -132,7 +132,7 @@ Screenchecks_Info(name) ;holding the <info> button to view instructions
 	Gui, screencheck_info: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
 	Gui, screencheck_info: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	vars.hwnd.screencheck_info := {"main": screencheck_info}
-	
+
 	If FileExist("img\GUI\screen-checks\"name ".jpg")
 	{
 		img := 1
@@ -188,7 +188,7 @@ Screenchecks_PixelSearch(name) ;performing pixel-checks
 		Case "inventory":
 			loopcount := 3
 	}
-	
+
 	Loop %loopcount%
 	{
 		If (vars.pixelsearch[name]["color" A_Index] = "ERROR") || Blank(vars.pixelsearch[name]["color" A_Index])
@@ -196,7 +196,7 @@ Screenchecks_PixelSearch(name) ;performing pixel-checks
 			pixel_check := 0
 			break
 		}
-		
+
 		PixelSearch, x, y, vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index], vars.client.y + vars.pixelsearch[name]["y" A_Index], vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index]
 		, vars.client.y + vars.pixelsearch[name]["y" A_Index], % vars.pixelsearch[name]["color" A_Index], % vars.pixelsearch.variation, Fast RGB
 		pixel_check -= ErrorLevel

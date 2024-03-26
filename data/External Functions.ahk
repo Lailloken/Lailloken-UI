@@ -9780,3 +9780,170 @@ Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight,
     , "int",sd, "cdecl int")
     Return ( E == "" ? -3007 : E )
 }
+
+;##########################################################################################################################################################################
+;#### "Optical character recognition (OCR) with UWP API" by AHK-forum users 'malcev' and 'teadrinker' (forum-post: https://www.autohotkey.com/boards/viewtopic.php?t=72674)
+;#### contains minor modifications for Lailloken UI
+;##########################################################################################################################################################################
+
+HBitmapToRandomAccessStream(hBitmap)
+{
+	local
+	static IID_IRandomAccessStream := "{905A0FE1-BC53-11DF-8C49-001E4FC686DA}"
+		, IID_IPicture            := "{7BF80980-BF32-101A-8BBB-00AA00300CAB}"
+		, PICTYPE_BITMAP := 1
+		, BSOS_DEFAULT   := 0
+
+	DllCall("Ole32\CreateStreamOnHGlobal", "Ptr", 0, "UInt", true, "PtrP", pIStream, "UInt")
+
+	VarSetCapacity(PICTDESC, sz := 8 + A_PtrSize*2, 0)
+	NumPut(sz, PICTDESC)
+	NumPut(PICTYPE_BITMAP, PICTDESC, 4)
+	NumPut(hBitmap, PICTDESC, 8)
+	riid := CLSIDFromString(IID_IPicture, GUID1)
+	DllCall("OleAut32\OleCreatePictureIndirect", "Ptr", &PICTDESC, "Ptr", riid, "UInt", false, "PtrP", pIPicture, "UInt")
+	; IPicture::SaveAsFile
+	DllCall(NumGet(NumGet(pIPicture+0) + A_PtrSize*15), "Ptr", pIPicture, "Ptr", pIStream, "UInt", true, "UIntP", size, "UInt")
+	riid := CLSIDFromString(IID_IRandomAccessStream, GUID2)
+	DllCall("ShCore\CreateRandomAccessStreamOverStream", "Ptr", pIStream, "UInt", BSOS_DEFAULT, "Ptr", riid, "PtrP", pIRandomAccessStream, "UInt")
+	ObjRelease(pIPicture)
+	ObjRelease(pIStream)
+	Return pIRandomAccessStream
+}
+
+CLSIDFromString(IID, ByRef CLSID)
+{
+	local
+
+	VarSetCapacity(CLSID, 16, 0)
+	if res := DllCall("ole32\CLSIDFromString", "WStr", IID, "Ptr", &CLSID, "UInt")
+		throw Exception("CLSIDFromString failed. Error: " . Format("{:#x}", res))
+	Return &CLSID
+}
+
+ocr(IRandomAccessStream, language := "FirstAvailable")
+{
+	local
+
+	static OcrEngineClass, OcrEngineObject, MaxDimension, LanguageClass, LanguageObject, CurrentLanguage, StorageFileClass, BitmapDecoderClass
+	if (OcrEngineClass = "")
+	{
+		CreateClass("Windows.Globalization.Language", ILanguageFactory := "{9B0252AC-0C27-44F8-B792-9793FB66C63E}", LanguageClass)
+		CreateClass("Windows.Graphics.Imaging.BitmapDecoder", IStorageFileStatics := "{438CCB26-BCEF-4E95-BAD6-23A822E58D01}", BitmapDecoderClass)
+		CreateClass("Windows.Media.Ocr.OcrEngine", IOcrEngineStatics := "{5BFFA85A-3384-3540-9940-699120D428A8}", OcrEngineClass)
+		DllCall(NumGet(NumGet(OcrEngineClass+0)+6*A_PtrSize), "ptr", OcrEngineClass, "uint*", MaxDimension)   ; MaxImageDimension
+	}
+	if (CurrentLanguage != language)
+	{
+		if (LanguageObject != "")
+		{
+			ObjRelease(LanguageObject)
+			ObjRelease(OcrEngineObject)
+			LanguageObject := OcrEngineObject := ""
+		}
+		/*
+		CreateHString(language, hString)
+		DllCall(NumGet(NumGet(LanguageClass+0)+6*A_PtrSize), "ptr", LanguageClass, "ptr", hString, "ptr*", LanguageObject)   ; CreateLanguage
+		DeleteHString(hString)
+		DllCall(NumGet(NumGet(OcrEngineClass+0)+9*A_PtrSize), "ptr", OcrEngineClass, ptr, LanguageObject, "ptr*", OcrEngineObject)   ; TryCreateFromLanguage
+		*/
+		DllCall(NumGet(NumGet(OcrEngineClass+0)+10*A_PtrSize), "ptr", OcrEngineClass, "ptr*", OcrEngineObject)   ; TryCreateFromUserProfileLanguages
+		if (OcrEngineObject = 0)
+		{
+			MsgBox, Can not use language "%language%" for OCR, please install language pack.`nThe script will restart.
+         Reload
+			ExitApp
+		}
+		CurrentLanguage := language
+	}
+	DllCall(NumGet(NumGet(BitmapDecoderClass+0)+14*A_PtrSize), "ptr", BitmapDecoderClass, "ptr", IRandomAccessStream, "ptr*", BitmapDecoderObject) ; CreateAsync
+	WaitForAsync(BitmapDecoderObject, BitmapDecoderObject1)
+	BitmapFrame := ComObjQuery(BitmapDecoderObject1, IBitmapFrame := "{72A49A1C-8081-438D-91BC-94ECFC8185C6}")
+	DllCall(NumGet(NumGet(BitmapFrame+0)+12*A_PtrSize), "ptr", BitmapFrame, "uint*", width) ; get_PixelWidth
+	DllCall(NumGet(NumGet(BitmapFrame+0)+13*A_PtrSize), "ptr", BitmapFrame, "uint*", height) ; get_PixelHeight
+	if (width > MaxDimension) or (height > MaxDimension)
+	{
+		MsgBox, Image is too big: %width%x%height%.`nIt should be no larger than %MaxDimension% pixels.
+      ObjRelease(BitmapDecoderObject)
+      ObjRelease(BitmapDecoderObject1)
+      ObjRelease(BitmapFrame)
+      Return
+	}
+	SoftwareBitmap := ComObjQuery(BitmapDecoderObject1, IBitmapFrameWithSoftwareBitmap := "{FE287C9A-420C-4963-87AD-691436E08383}")
+	DllCall(NumGet(NumGet(SoftwareBitmap+0)+6*A_PtrSize), "ptr", SoftwareBitmap, "ptr*", BitmapFrame1)   ; GetSoftwareBitmapAsync
+	WaitForAsync(BitmapFrame1, BitmapFrame2)
+	DllCall(NumGet(NumGet(OcrEngineObject+0)+6*A_PtrSize), "ptr", OcrEngineObject, ptr, BitmapFrame2, "ptr*", OcrResult)   ; RecognizeAsync
+	WaitForAsync(OcrResult, OcrResult1)
+	DllCall(NumGet(NumGet(OcrResult1+0)+6*A_PtrSize), "ptr", OcrResult1, "ptr*", lines)   ; get_Lines
+	DllCall(NumGet(NumGet(lines+0)+7*A_PtrSize), "ptr", lines, "int*", count)   ; count
+	loop % count
+	{
+		DllCall(NumGet(NumGet(lines+0)+6*A_PtrSize), "ptr", lines, "int", A_Index-1, "ptr*", OcrLine)
+		DllCall(NumGet(NumGet(OcrLine+0)+7*A_PtrSize), "ptr", OcrLine, "ptr*", hText) 
+		buffer := DllCall("Combase.dll\WindowsGetStringRawBuffer", "ptr", hText, "uint*", length, "ptr")
+		text .= StrGet(buffer, "UTF-16") "`n"
+		ObjRelease(OcrLine)
+		OcrLine := ""
+	}
+	ObjRelease(BitmapDecoderObject)
+	ObjRelease(BitmapDecoderObject1)
+	ObjRelease(SoftwareBitmap)
+	ObjRelease(BitmapFrame)
+	ObjRelease(BitmapFrame1)
+	ObjRelease(BitmapFrame2)
+	ObjRelease(OcrResult)
+	ObjRelease(OcrResult1)
+	ObjRelease(lines)
+	BitmapDecoderObject := BitmapDecoderObject1 := SoftwareBitmap := BitmapFrame := BitmapFrame1 := BitmapFrame2 := OcrResult := OcrResult1 := lines := ""
+	return text
+}
+
+CreateClass(string, interface, ByRef Class)
+{
+	local
+
+	CreateHString(string, hString)
+	VarSetCapacity(GUID, 16)
+	DllCall("ole32\CLSIDFromString", "wstr", interface, "ptr", &GUID)
+	DllCall("Combase.dll\RoGetActivationFactory", "ptr", hString, "ptr", &GUID, "ptr*", Class)
+	DeleteHString(hString)
+}
+
+CreateHString(string, ByRef hString)
+{
+	local
+
+	DllCall("Combase.dll\WindowsCreateString", "wstr", string, "uint", StrLen(string), "ptr*", hString)
+}
+
+DeleteHString(hString)
+{
+	local
+
+	DllCall("Combase.dll\WindowsDeleteString", "ptr", hString)
+}
+
+WaitForAsync(Object, ByRef ObjectResult)
+{
+	local
+
+	AsyncInfo := ComObjQuery(Object, IAsyncInfo := "{00000036-0000-0000-C000-000000000046}")
+	loop
+	{
+		DllCall(NumGet(NumGet(AsyncInfo+0)+7*A_PtrSize), "ptr", AsyncInfo, "uint*", status)   ; IAsyncInfo.Status
+		if (status != 0)
+		{
+			if (status != 1)
+			{
+				MsgBox, AsyncInfo status error. The script will restart.
+            Reload
+				ExitApp
+			}
+			ObjRelease(AsyncInfo)
+			AsyncInfo := ""
+			break
+		}
+		sleep 10
+	}
+	DllCall(NumGet(NumGet(Object+0)+8*A_PtrSize), "ptr", Object, "ptr*", ObjectResult)   ; GetResults
+}

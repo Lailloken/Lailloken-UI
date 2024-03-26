@@ -5,13 +5,13 @@
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
-	
+
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_betrayal2 HWNDhwnd Checked"settings.features.betrayal, % LangTrans("m_betrayal_enable")
 	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_betrayal enable"] := hwnd
-	
+
 	If !settings.features.betrayal
 		Return
-	
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_betrayal2 HWNDhwnd Checked"settings.betrayal.ruthless, % LangTrans("m_betrayal_ruthless")
 	vars.hwnd.settings.ruthless := vars.hwnd.help_tooltips["settings_betrayal ruthless"] := hwnd
 
@@ -33,7 +33,7 @@
 	vars.hwnd.settings.rFont := hwnd, vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center HWNDhwnd gSettings_betrayal2 Border w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.pFont := hwnd, vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-	
+
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_betrayal_colors")
 	Loop 3
 	{
@@ -132,7 +132,7 @@ Settings_cheatsheets()
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, Init_cheatsheets()
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit">wiki page</a>
-	
+
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_cheatsheets2 HWNDhwnd Checked"settings.features.cheatsheets, % LangTrans("m_cheat_enable")
 	vars.hwnd.settings.feature := hwnd, vars.hwnd.help_tooltips["settings_cheatsheets enable"] := hwnd
 	If !settings.features.cheatsheets
@@ -141,7 +141,7 @@ Settings_cheatsheets()
 	Gui, %GUI%: Font, % "underline bold"
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_cheat_hotkeys")
 	Gui, %GUI%: Font, % "norm"
-	
+
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_cheat_modifier")
 	Loop, Parse, % "alt, ctrl, shift", `,, %A_Space%
 	{
@@ -195,7 +195,7 @@ Settings_cheatsheets()
 			Gui, %GUI%: Add, Text, % "xs Section BackgroundTrans y+"vars.settings.spacing, % LangTrans("m_cheat_list")
 			Gui, %GUI%: Font, norm
 		}
-		
+
 		If !IsNumber(vars.cheatsheets.list[cheatsheet].enable)
 			vars.cheatsheets.list[cheatsheet].enable := LLK_IniRead("cheat-sheets\"cheatsheet "\info.ini", "general", "enable", 1)
 		color := !vars.cheatsheets.list[cheatsheet].enable ? " cGray" : !FileExist("cheat-sheets\"cheatsheet "\[check].*") ? " cRed" : "", handle .= "|"
@@ -222,7 +222,7 @@ Settings_cheatsheets2(cHWND)
 	global vars, settings
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
-	
+
 	If (check = "feature") ;toggling the feature on/off
 	{
 		If !FileExist("cheat-sheets\")
@@ -339,7 +339,7 @@ Settings_cloneframes()
 	Init_cloneframes()
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
-	
+
 	If (vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") || vars.log.file_location) && settings.features.pixelchecks
 	{
 		Gui, %GUI%: Font, underline bold
@@ -414,7 +414,7 @@ Settings_cloneframes()
 	Gui, %GUI%: Add, Edit, % "ys x+"settings.general.fWidth/4 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % vars.client.y + 4 - vars.monitor.y
 	vars.hwnd.settings.ySource := vars.cloneframes.scroll.ySource := vars.hwnd.help_tooltips["settings_cloneframes scroll|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
-	
+
 	Gui, %GUI%: Add, Text, % "ys cDC3220", % LangTrans("m_clone_widthheight")
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
 	Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp Disabled Number cBlack Right gCloneframesSettingsApply HWNDhwnd w"settings.general.fWidth*4, % 200
@@ -442,7 +442,7 @@ Settings_cloneframes()
 	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " 0x200 hp Border Center HWNDhwnd w"settings.general.fWidth*2, 5
 	;Gui, %GUI%: Add, UpDown, % "ys hp Disabled range0-5 gSettings_cloneframes2 HWNDhwnd", 5
 	vars.hwnd.settings.opacity := vars.cloneframes.scroll.opacity := vars.hwnd.help_tooltips["settings_cloneframes scroll||||||||"] := hwnd
-	
+
 	Gui, %GUI%: Add, Text, % "ys cGray Border HWNDhwnd", % " " LangTrans("global_save") " "
 	vars.hwnd.settings.save := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " cGray Border HWNDhwnd", % " " LangTrans("global_discard") " "
@@ -453,7 +453,7 @@ Settings_cloneframes2(cHWND)
 {
 	local
 	global vars, settings
-	
+
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), name := vars.cloneframes.editing
 
 	If (check = "hide_menu")
@@ -515,11 +515,17 @@ Settings_general()
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki">llk-ui wiki && setup guide</a>
-	
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_general_settings")
 	Gui, %GUI%: Font, norm
-	
+
+	If settings.general.dev
+	{
+		Gui, %GUI%: Add, Checkbox, % "ys hp gSettings_general2 HWNDhwnd Checked" settings.general.dev_env, % "dev environment"
+		vars.hwnd.settings.dev_env := hwnd
+	}
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section hp gSettings_general2 HWNDhwnd Checked" settings.general.kill[1], % LangTrans("m_general_kill")
 	vars.hwnd.settings.kill_timer := hwnd, vars.hwnd.help_tooltips["settings_kill timer"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fsize - 4 "norm"
@@ -530,7 +536,7 @@ Settings_general()
 	vars.hwnd.settings.browser := hwnd, vars.hwnd.help_tooltips["settings_browser features"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_general2 Checked"LLK_IniRead("ini\config.ini", "Settings", "enable CapsLock-toggling", 1), % LangTrans("m_general_capslock")
 	vars.hwnd.settings.capslock := hwnd, vars.hwnd.help_tooltips["settings_capslock toggling"] := hwnd, check := ""
-	
+
 	Loop, Files, data\*, R
 		If (A_LoopFileName = "client.txt")
 			parse := StrReplace(StrReplace(A_LoopFilePath, "data\"), "\client.txt"), check .= parse "|"
@@ -567,7 +573,7 @@ Settings_general()
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_general2 Checked" settings.general.hide_toolbar, % LangTrans("m_general_hidetoolbar")
 	vars.hwnd.settings.toolbar_hide := vars.hwnd.help_tooltips["settings_toolbar hide"] := hwnd
-	
+
 	If vars.log.file_location
 	{
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c"(settings.general.lang_client = "unknown" ? "Gray" : vars.log.level ? "Lime" : settings.general.character ? "Yellow" : "Red"), % LangTrans("m_general_character") " "
@@ -575,7 +581,7 @@ Settings_general()
 		If (settings.general.lang_client != "unknown")
 			vars.hwnd.help_tooltips["settings_active character status"] := hwnd
 		Else vars.hwnd.help_tooltips["settings_lang incompatible"] := hwnd
-		
+
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack wp r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : ""), % LLK_StringCase(settings.general.character)
 		If vars.log.level
@@ -612,7 +618,7 @@ Settings_general()
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_general_display", 1) " "
 	Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % (vars.client.fullscreen = "true") ? LangTrans("m_general_display", 2) : !vars.client.borderless ? LangTrans("m_general_display", 3) : LangTrans("m_general_display", 4)
 	vars.hwnd.settings.window_mode := hwnd
-	
+
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_general_resolution")
 	vars.hwnd.help_tooltips["settings_force resolution"] := hwnd
 	If (vars.client.fullscreen = "true")
@@ -628,14 +634,14 @@ Settings_general()
 		Gui, %GUI%: Font, % "s"settings.general.fsize
 	}
 	Gui, %GUI%: Add, Text, % "ys hp BackgroundTrans x+0", % " x "
-	
+
 	Gui, %GUI%: Font, % "s"settings.general.fsize - 4
 	If vars.general.safe_mode
 		vars.general.available_resolutions := StrReplace(vars.general.available_resolutions, vars.monitor.h "|")
 	Gui, %GUI%: Add, DDL, % "ys hp BackgroundTrans HWNDhwnd gSettings_general2 r10 x+0 w"5* settings.general.fwidth, % StrReplace(vars.general.available_resolutions, vars.client.h "|", vars.client.h "||")
 	vars.hwnd.settings.custom_resolution := hwnd, vars.hwnd.help_tooltips["settings_force resolution|||"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fsize
-	
+
 	WinGetPos,,, wCheck, hCheck, ahk_group poe_window
 	If !vars.general.safe_mode && (wCheck < vars.monitor.w || hCheck < vars.monitor.h)
 	{
@@ -659,7 +665,13 @@ Settings_general()
 			vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
 		}
 	}
-	
+
+	If settings.general.FillerAvailable
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_general2 HWNDhwnd Checked" settings.general.ClientFiller, % LangTrans("m_general_filler")
+		vars.hwnd.settings.ClientFiller := vars.hwnd.help_tooltips["settings_client filler"] := hwnd
+	}
+
 	If (vars.client.h0 / vars.client.w0 < (5/12))
 	{
 		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0)
@@ -685,7 +697,7 @@ Settings_general2(cHWND := "")
 	static char_wait
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), update := vars.update
-	
+
 	Switch check
 	{
 		Case "winbar":
@@ -706,6 +718,9 @@ Settings_general2(cHWND := "")
 					Return
 				}
 			}
+		Case "dev_env":
+			settings.general.dev_env := LLK_ControlGet(cHWND)
+			IniWrite, % settings.general.dev_env, ini\config.ini, Settings, dev env
 		Case "kill_timer":
 			settings.general.kill.1 := LLK_ControlGet(cHWND)
 			IniWrite, % settings.general.kill.1, ini\config.ini, Settings, kill script
@@ -774,11 +789,16 @@ Settings_general2(cHWND := "")
 			IniWrite, % height, ini\config.ini, Settings, custom-resolution
 			IniWrite, % width, ini\config.ini, Settings, custom-width
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.remove_borders), ini\config.ini, settings, remove window-borders
+			If vars.hwnd.settings.ClientFiller
+				IniWrite, % LLK_ControlGet(vars.hwnd.settings.ClientFiller), ini\config.ini, Settings, client background filler
 			If vars.hwnd.settings.blackbars
 				IniWrite, % LLK_ControlGet(vars.hwnd.settings.blackbars), ini\config.ini, Settings, black-bar compensation
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings
 			Reload
 			ExitApp
+		Case "ClientFiller":
+			GuiControl, +cRed, % vars.hwnd.settings.apply
+			GuiControl, movedraw, % vars.hwnd.settings.apply
 		Case "dock":
 			GuiControl, +cRed, % vars.hwnd.settings.apply
 			GuiControl, movedraw, % vars.hwnd.settings.apply
@@ -850,7 +870,7 @@ Settings_hotkeys()
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
 	Gui, %GUI%: Add, Link, % "ys x+"settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
-	
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_hotkeys_settings")
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
@@ -928,7 +948,7 @@ Settings_hotkeys2(cHWND)
 {
 	local
 	global vars, settings
-	
+
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), keycheck := {}
 	If (check = 0)
 		check := A_GuiControl
@@ -954,7 +974,7 @@ Settings_hotkeys2(cHWND)
 					If (StrLen(hotkey) != 1)
 						Loop, Parse, % "+!^#"
 							hotkey := StrReplace(hotkey, A_LoopField)
-					
+
 					If LLK_ControlGet(vars.hwnd.settings[A_LoopField]) && (!GetKeyVK(hotkey) || (hotkey = ""))
 					{
 						WinGetPos, x, y, w,, % "ahk_id "vars.hwnd.settings[A_LoopField]
@@ -962,7 +982,7 @@ Settings_hotkeys2(cHWND)
 						Return
 					}
 				}
-				
+
 				If keycheck.HasKey(hotkey)
 				{
 					LLK_ToolTip(LangTrans("m_hotkeys_error", 2), 1.5,,,, "red")
@@ -1004,7 +1024,7 @@ Settings_iteminfo()
 {
 	local
 	global vars, settings
-	
+
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
 
@@ -1046,7 +1066,7 @@ Settings_iteminfo()
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.modrolls, % LangTrans("m_iteminfo_modrolls")
 	vars.hwnd.settings.modrolls := hwnd, vars.hwnd.help_tooltips["settings_iteminfo modrolls"] := hwnd
-	
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.trigger, % LangTrans("m_iteminfo_shift")
 	vars.hwnd.settings.trigger := hwnd, vars.hwnd.help_tooltips["settings_iteminfo shift-click"] := hwnd
 
@@ -1124,7 +1144,7 @@ Settings_iteminfo2(cHWND)
 {
 	local
 	global vars, settings
-	
+
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 
 	If InStr(check, "profile_")
@@ -1186,7 +1206,7 @@ Settings_iteminfo2(cHWND)
 	}
 	Else If (check = "trigger")
 	{
-		settings.iteminfo.trigger := LLK_ControlGet(cHWND)
+		settings.iteminfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 		IniWrite, % settings.iteminfo.trigger, ini\item-checker.ini, settings, enable wisdom-scroll trigger
 	}
 	Else If (check = "modrolls")
@@ -1367,12 +1387,12 @@ Settings_leveltracker()
 	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
 	Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
 	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
-	
+
 
 	Gui, %GUI%: Font, underline bold
 	Gui, %GUI%: Add, Text, % "xs Section BackgroundTrans y+"vars.settings.spacing, % LangTrans("global_ui")
 	Gui, %GUI%: Font, norm
-	
+
 	Gui, %GUI%: Add, Text, % "xs Section Center HWNDhwnd0", % LangTrans("global_font")
 	Gui, %GUI%: Add, Text, % "ys Center gSettings_leveltracker2 Border HWNDhwnd w"settings.general.fWidth*2, % "–"
 	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
@@ -1380,7 +1400,7 @@ Settings_leveltracker()
 	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center gSettings_leveltracker2 Border HWNDhwnd w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-	
+
 	Gui, %GUI%: Add, Text, % "ys Center", % LangTrans("global_opacity")
 	Loop 5
 	{
@@ -1597,7 +1617,7 @@ Settings_mapinfo2(cHWND)
 			Settings_menu("map-info")
 			LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 		Case "shiftclick":
-			settings.mapinfo.trigger := LLK_ControlGet(cHWND)
+			settings.mapinfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 			IniWrite, % settings.mapinfo.trigger, ini\map info.ini, settings, enable shift-clicking
 		Case "tabtoggle":
 			settings.mapinfo.tabtoggle := LLK_ControlGet(cHWND)
@@ -1642,7 +1662,7 @@ Settings_maptracker()
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker">wiki page</a>
-	
+
 	If (settings.general.lang_client = "unknown")
 	{
 		Settings_unsupported()
@@ -1689,7 +1709,7 @@ Settings_maptracker()
 			vars.hwnd.settings["mechanic_"mechanic] := vars.hwnd.help_tooltips["settings_maptracker dialoguemechanic"handle] := hwnd, handle .= "|"
 		}
 		Gui, %GUI%: Font, cWhite
-		
+
 		Gui, %GUI%: Add, Text, % "xs Section Center", % LangTrans("m_maptracker_screen")
 		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
 		vars.hwnd.help_tooltips["settings_maptracker screen tracking"] := hwnd, handle := "", added := 0
@@ -1706,7 +1726,7 @@ Settings_maptracker()
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.portal_reminder, % LangTrans("m_maptracker_portal")
 		vars.hwnd.settings.portal_reminder := vars.hwnd.help_tooltips["settings_maptracker portal reminder"] := hwnd, handle := ""
 	}
-	
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing " x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2, % LangTrans("global_ui")
 	Gui, %GUI%: Font, norm
@@ -1754,9 +1774,8 @@ Settings_maptracker2(cHWND)
 			If LLK_Overlay(vars.hwnd.maptracker.main, "check")
 				MaptrackerGUI()
 		Case "loot":
-			settings.maptracker.loot := LLK_ControlGet(cHWND)
+			settings.maptracker.loot := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
 			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
-			Settings_ScreenChecksValid()
 		Case "kills":
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
 			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
@@ -1861,14 +1880,14 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 	local
 	global vars, settings
 	static toggle := 0
-	
+
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients", "updater"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "screen-checks", "search-strings", "stream-clients", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
-	
+
 	If !Blank(LLK_HasVal(vars.hwnd.settings, section)) ;instead of using the first parameter for section/cHWND depending on context, get the section name from the control's text
 		section := LLK_HasVal(vars.hwnd.settings, section) ? LLK_HasVal(vars.hwnd.settings, section) : section
 
@@ -1892,13 +1911,13 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.settings.main ;backup of the old GUI's HWND with which to destroy it after drawing the new one
 	vars.hwnd.settings := {"main": settings_menu} ;settings-menu HWNDs are stored here
-	
+
 	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Border Center BackgroundTrans gSettings_general2 HWNDhwnd", % "lailloken ui: " LangTrans("global_window")
 	vars.hwnd.settings.winbar := hwnd
 	ControlGetPos,,,, hWinbar,, ahk_id %hwnd%
 	Gui, %GUI_name%: Add, Text, % "ys w"settings.general.fWidth*2 " Border Center gSettings_menuClose HWNDhwnd", % "x"
 	vars.hwnd.settings.winx := hwnd
-	
+
 	LLK_PanelDimensions(vars.settings.sections2, settings.general.fSize, section_width, height)
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize
 	Gui, %GUI_name%: Add, Text, % "xs x-1 y+-1 Section BackgroundTrans Border gSettings_menu HWNDhwnd 0x200 h"settings.general.fHeight*1.5 " w"section_width, % " " LangTrans("ms_general") " "
@@ -1907,7 +1926,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 	vars.hwnd.settings.general := hwnd, vars.settings.xSelection := x, vars.settings.ySelection := y + vars.settings.line1, vars.settings.wSelection := section_width, vars.hwnd.settings["background_general"] := hwnd1
 	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo"}
 	feature_check2 := {"item-info": 1, "mapping tracker": 1, "map-info": 1}
-	
+
 	If !vars.general.buggy_resolutions.HasKey(vars.client.h) && !vars.general.safe_mode
 	{
 		For key, val in vars.settings.sections
@@ -1938,23 +1957,23 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 			ExitApp
 		}
 	}
-	
+
 	If vars.settings.restart
 		section := vars.settings.restart
-	
+
 	;highlight selected section
 	GuiControl, %GUI_name%: +c303030, % vars.hwnd.settings["background_"vars.settings.active]
 	GuiControl, %GUI_name%: movedraw, % vars.hwnd.settings["background_"vars.settings.active]
-	
+
 	If vars.settings.active0 && (vars.settings.active0 != vars.settings.active) ;remove highlight from previously-selected section
 	{
 		GuiControl, %GUI_name%: +cBlack, % vars.hwnd.settings["background_"vars.settings.active0]
 		GuiControl, %GUI_name%: movedraw, % vars.hwnd.settings["background_"vars.settings.active0]
 	}
-	
+
 	vars.settings.active0 := section
 	Settings_ScreenChecksValid() ;check if 'screen-checks' section needs to be highlighted red
-	
+
 	Settings_menu2(section, mode)
 	Gui, %GUI_name%: Margin, % vars.settings.xMargin, -1
 	Gui, %GUI_name%: Show, % "NA AutoSize x10000 y10000"
@@ -1966,7 +1985,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		Gui, %GUI_name%: Add, Text, % "x-1 Border BackgroundTrans y"vars.settings.ySelection - 1 - vars.settings.line1 " w"section_width " h"h - hWinbar + vars.settings.line1
 		h := h + vars.settings.line1 - 1
 	}
-	
+
 	GuiControl, Move, % vars.hwnd.settings.winbar, % "w"w - settings.general.fWidth*2 + 2
 	GuiControl, Move, % vars.hwnd.settings.winx, % "x"w - settings.general.fWidth*2 " y-1"
 	sleep 50
@@ -1982,15 +2001,14 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
 		vars.settings.x := vars.client.x
 	}
-	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h
-	vars.settings.restart := ""
+	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h, vars.settings.restart := ""
 }
 
 Settings_menu2(section, mode := 0) ;mode parameter used when manually calling this function to refresh the window
 {
 	local
 	global vars, settings
-	
+
 	Switch section
 	{
 		Case "general":
@@ -2001,6 +2019,8 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 			Settings_cheatsheets()
 		Case "clone-frames":
 			Settings_cloneframes()
+		Case "tldr-tooltips":
+			Settings_OCR()
 		Case "hotkeys":
 			If !mode
 				Init_hotkeys() ;reload settings from ini when accessing this section (makes it easier to discard unsaved settings if apply-button wasn't clicked)
@@ -2029,11 +2049,225 @@ Settings_menuClose()
 {
 	local
 	global vars, settings
-	
+
 	KeyWait, LButton
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
 	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings")
 	WinActivate, ahk_group poe_window
+}
+
+Settings_OCR()
+{
+	local
+	global vars, settings
+
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/TLDR‐Tooltips">wiki page</a>
+	Gui, %GUI%: Add, Link, % "ys x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
+	Gui, %GUI%: Add, Link, % "ys HWNDhwnd x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
+
+	If (vars.client.h <= 720) ;&& !settings.general.dev
+	{
+		ControlGetPos, x,, w,,, ahk_id %hwnd%
+		Gui, %GUI%: Add, Text, % "xs Section cRed w" x + w - x_anchor " y+" vars.settings.spacing, % LangTrans("m_ocr_unsupported")
+		Return
+	}
+
+	If (settings.general.lang_client != "english")
+	{
+		Settings_unsupported()
+		Return
+	}
+	
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing . (!settings.OCR.allow ? " cRed" : ""), % LangTrans("m_ocr_enable")
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr " (settings.OCR.allow ? "enable" : "compatibility")] := hwnd
+
+	If !settings.features.ocr
+		Return
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_general")
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd1 gSettings_OCR2 cRed Hidden", % " " LangTrans("global_restart") " "
+
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey", 2)
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd0 cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.z_hotkey
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey")
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.hotkey
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+
+	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd3 gSettings_OCR2 Checked" settings.OCR.hotkey_block, % LangTrans("m_hotkeys_keyblock")
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd2 gSettings_OCR2 Checked" settings.OCR.debug, % LangTrans("m_ocr_debug")
+	vars.hwnd.settings.z_hotkey := vars.hwnd.help_tooltips["settings_ocr z hotkey"] := hwnd0
+	vars.hwnd.settings.hotkey := vars.hwnd.help_tooltips["settings_ocr hotkey"] := hwnd
+	vars.hwnd.settings.hotkey_set := hwnd1, vars.hwnd.settings.debug := vars.hwnd.help_tooltips["settings_ocr debug"] := hwnd2
+	vars.hwnd.settings.hotkey_block := vars.hwnd.help_tooltips["settings_hotkeys omniblock"] := hwnd3
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_ui")
+	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("global_font")
+	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*2, % "–"
+	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*3, % settings.OCR.fSize
+	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_OCR2 HWNDhwnd w"settings.general.fWidth*2, % "+"
+	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_iteminfo_highlight")
+	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+	vars.hwnd.help_tooltips["settings_ocr colors"] := hwnd
+
+	LLK_PanelDimensions(["pattern 7"], settings.general.fSize, width, height)
+	For index, array in settings.OCR.colors
+	{
+		Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section" : "ys x+" settings.general.fWidth / 2) " Border Center HWNDhwndtext BackgroundTrans c" array.1 " w" width, % (index = 0 ? "regular" : "pattern " index)
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" array.2, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_OCR2 HWNDhwnd00", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" array.1, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_OCR2 HWNDhwnd10", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" array.2, 100
+		vars.hwnd.settings["color_" index "1"] := hwnd00, vars.hwnd.settings["color_" index "_panel1"] := hwnd01, vars.hwnd.settings["color_" index "_text1"] := hwndtext
+		vars.hwnd.settings["color_" index "2"] := hwnd10, vars.hwnd.settings["color_" index "_panel2"] := hwnd11, vars.hwnd.settings["color_" index "_text2"] := hwndback
+	}
+}
+
+Settings_OCR2(cHWND)
+{
+	local
+	global vars, settings
+	static compat_text
+
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	Switch check
+	{
+		Case "enable":
+		If !settings.OCR.allow
+		{
+			GuiControl,, % cHWND, 0
+			compat_text := OCR_("compat")
+			Return
+		}
+
+		settings.features.ocr := LLK_ControlGet(cHWND)
+		IniWrite, % settings.features.ocr, ini\config.ini, Features, enable ocr
+		If !Blank(settings.OCR.hotkey)
+		{
+			Hotkey, IfWinActive, ahk_group poe_window
+			Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR_, % settings.features.OCR ? "On" : "Off"
+		}
+		If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+			OCR_Close()
+		Settings_menu("tldr-tooltips")
+
+		Case "compat_edit":
+		If settings.OCR.allow
+			Return
+		compat_edit := LLK_ControlGet(vars.hwnd.settings.compat_edit), correct := ""
+		input := [], count := 0
+		Loop, Parse, compat_edit, % A_Space
+			If (StrLen(A_LoopField) > 1) && !LLK_HasVal(input, A_LoopField)
+				input.Push(A_LoopField)
+		For index, word in input
+			If vars.OCR.text_check.HasKey(word)
+				count += 1, correct .= (Blank(correct) ? "" : ", ") word
+		GuiControl, text, % vars.hwnd.settings.compat_correct, % (count >= 8 ? "" : "(" count "/8) ") . LangTrans("global_success") ": " (count >= 8 ? LangTrans("m_ocr_finish") : correct)
+		If (count < 8)
+			Return
+		Else
+		{
+			settings.OCR.allow := 1
+			IniWrite, 1, ini\ocr.ini, Settings, allow ocr
+		}
+
+		Case "debug":
+		settings.OCR.debug := LLK_ControlGet(cHWND)
+		IniWrite, % settings.OCR.debug, ini\ocr.ini, settings, enable debug
+
+		Case "z_hotkey":
+		input := LLK_ControlGet(cHWND)
+		If (StrLen(input) != 1)
+			Loop, Parse, % "+!^#"
+				input := StrReplace(input, A_LoopField)
+
+		If !Blank(input) && GetKeyVK(input)
+		{
+			settings.OCR.z_hotkey := input
+			IniWrite, % input, ini\ocr.ini, settings, toggle highlighting hotkey
+			GuiControl, +cBlack, % cHWND
+		}
+		Else GuiControl, +cRed, % cHWND
+
+		Case "hotkey_set":
+		input := LLK_ControlGet(vars.hwnd.settings.hotkey)
+		If (StrLen(input) != 1)
+			Loop, Parse, % "+!^#"
+				input := StrReplace(input, A_LoopField)
+
+		If LLK_ControlGet(vars.hwnd.settings.hotkey) && (!GetKeyVK(input) || (input = ""))
+		{
+			WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.settings.hotkey
+			LLK_ToolTip(LangTrans("m_hotkeys_error"),, x, y + h,, "red")
+			Return
+		}
+		IniWrite, % LLK_ControlGet(vars.hwnd.settings.hotkey_block), ini\ocr.ini, settings, block native key-function
+		IniWrite, % input, ini\ocr.ini, settings, hotkey
+		IniWrite, % "tldr-tooltips", ini\config.ini, versions, reload settings
+		Reload
+		ExitApp
+
+		Default:
+		If InStr(check, "font")
+		{
+			While GetKeyState("LButton", "P")
+			{
+				If (control = "reset")
+					settings.OCR.fSize := settings.general.fSize
+				Else settings.OCR.fSize += (control = "minus") ? -1 : 1, settings.OCR.fSize := (settings.OCR.fSize < 6) ? 6 : settings.OCR.fSize
+				GuiControl, text, % vars.hwnd.settings.font_reset, % settings.OCR.fSize
+				Sleep 150
+			}
+			IniWrite, % settings.OCR.fSize, ini\ocr.ini, settings, font-size
+			LLK_FontDimensions(settings.OCR.fSize, height, width), settings.OCR.fWidth := width, settings.OCR.fHeight := height
+		}
+		Else If InStr(check, "color_")
+		{
+			pattern := SubStr(control, 1, 1), type := SubStr(control, 2, 1)
+			color := (vars.system.click = 1) ? RGB_Picker(settings.OCR.colors[pattern][type]) : settings.OCR.dColors[pattern][type]
+			If !Blank(color)
+			{
+				settings.OCR.colors[pattern][type] := color
+				IniWrite, % settings.OCR.colors[pattern].1 "," settings.OCR.colors[pattern].2, ini\ocr.ini, UI, % "pattern " pattern
+				Loop, 2
+				{
+					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_text" A_Index]
+					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_text" A_Index]
+					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+				}
+			}
+		}
+		Else If (check = "hotkey" || check = "hotkey_block")
+		{
+			setting := LLK_ControlGet(cHWND)
+			If (check = "hotkey")
+			{
+				If (StrLen(setting) > 1)
+					Loop, Parse, % "+!^#"
+						setting := StrReplace(setting, A_LoopField)
+				GuiControl, % "+c" (!GetKeyVK(setting) ? "Red" : "Black"), % cHWND
+				GuiControl, movedraw, % cHWND
+			}
+			GuiControl, % (setting != settings.OCR[check] ? "-Hidden" : "+Hidden"), % vars.hwnd.settings.hotkey_set
+		}
+		Else LLK_ToolTip("no action: " check)
+
+		If (InStr(check, "color_") || InStr(check, "font")) && vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+			mode := vars.OCR.last, OCR_%mode%()
+	}
 }
 
 Settings_qol()
@@ -2297,10 +2531,9 @@ Settings_screenchecks2(cHWND := "")
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
 						Screenchecks_PixelRecalibrate(control)
-						LLK_ToolTip(LangTrans("global_success"),,,,, "lime")
+						LLK_ToolTip(LangTrans("global_success"),,,,, "lime"), Settings_ScreenChecksValid()
 						GuiControl, +cWhite, % cHWND
 						GuiControl, movedraw, % cHWND
-						Settings_ScreenChecksValid()
 				}
 			}
 			Else If InStr(check, "Image")
@@ -2310,10 +2543,9 @@ Settings_screenchecks2(cHWND := "")
 					Case "t":
 						If (Screenchecks_ImageSearch(control) > 0)
 						{
-							LLK_ToolTip(LangTrans("global_positive"),,,,, "lime")
+							LLK_ToolTip(LangTrans("global_positive"),,,,, "lime"), Settings_ScreenChecksValid()
 							GuiControl, +cWhite, % cHWND
 							GuiControl, movedraw, % cHWND
-							Settings_ScreenChecksValid()
 						}
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
@@ -2335,12 +2567,11 @@ Settings_screenchecks2(cHWND := "")
 									vars.imagesearch[control][key] := ""
 							}
 							IniWrite, % "", % "ini\screen checks ("vars.client.h "p).ini", % control, last coordinates
-							Gdip_DisposeImage(pClipboard)
+							Gdip_DisposeImage(pClipboard), Settings_ScreenChecksValid()
 							GuiControl, +cWhite, % vars.hwnd.settings["cImage_"control]
 							GuiControl, movedraw, % vars.hwnd.settings["cImage_"control]
 							GuiControl, +cRed, % vars.hwnd.settings["tImage_"control]
 							GuiControl, movedraw, % vars.hwnd.settings["tImage_"control]
-							Settings_ScreenChecksValid()
 						}
 				}
 			}
@@ -2354,11 +2585,11 @@ Settings_ScreenChecksValid()
 {
 	local
 	global vars, settings
-	
+
 	valid := 1
 	For key, val in vars.pixelsearch.list
 	{
-		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder))
+		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder || settings.iteminfo.trigger || settings.mapinfo.trigger))
 			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
 	}
@@ -2369,7 +2600,7 @@ Settings_ScreenChecksValid()
 			continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && (vars.imagesearch[key].x1) ? 1 : 0
 	}
-	
+
 	If valid
 		GuiControl, % vars.hwnd.settings.main ": +cWhite", % vars.hwnd.settings["screen-checks"]
 	Else GuiControl, % vars.hwnd.settings.main ": +cRed", % vars.hwnd.settings["screen-checks"]
@@ -2527,14 +2758,22 @@ Settings_updater()
 	Gui, %GUI%: Add, Text, % "Section xs y+"vars.settings.spacing, % LangTrans("m_updater_version")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % "img\GUI\restart.png"
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border HWNDhwnd0 BackgroundBlack cGreen Range0-10", 0
-	vars.hwnd.settings.update_refresh := hwnd, vars.hwnd.settings.update_refresh_bar := hwnd0
+	vars.hwnd.settings.update_refresh := hwnd, LLK_PanelDimensions([LangTrans("m_updater_version", 2), LangTrans("m_updater_version", 3)], settings.general.fSize, width, height)
 
-	Gui, %GUI%: Add, Text, % "Section xs", % LangTrans("m_updater_version", 2)  " " vars.updater.version.2
+	Gui, %GUI%: Add, Text, % "Section xs w" width, % LangTrans("m_updater_version", 2)
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd x+0", % vars.updater.version.2
+	ControlGetPos, x,,,,, ahk_id %hwnd%
 	color := vars.updater.skip && (vars.updater.latest.1 = vars.updater.skip) ? " cYellow" : (IsNumber(vars.updater.latest.1) && vars.updater.latest.1 > vars.updater.version.1) ? " cLime" : ""
-	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth*2 color, % LangTrans("m_updater_version", 3) " " vars.updater.latest.2
-	
-	If IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
+	Gui, %GUI%: Add, Text, % "Section xs w" width . color, % LangTrans("m_updater_version", 3) " "
+	Gui, %GUI%: Add, Text, % "ys x" x . color, % vars.updater.latest.2
+
+	If InStr(vars.updater.latest.1, ".")
+	{
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_update hotfix"] := hwnd
+	}
+
+	If !InStr(vars.updater.latest.1, ".") && IsNumber(vars.updater.latest.1) && (vars.updater.latest.1 > vars.updater.version.1) && (vars.updater.latest.1 != vars.updater.skip)
 	{
 		Gui, %GUI%: Add, Text, % "ys Border Center BackgroundTrans gSettings_updater2 HWNDhwnd", % " " LangTrans("m_updater_skip") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
@@ -2543,21 +2782,24 @@ Settings_updater()
 
 	If IsNumber(vars.updater.latest.1) && IsObject(vars.updater.changelog)
 	{
-		Gui, %GUI%: Add, Text, % "Section xs", % LangTrans("m_updater_versions")
+		Gui, %GUI%: Font, underline bold
+		Gui, %GUI%: Add, Text, % "Section xs y+" vars.settings.spacing, % LangTrans("m_updater_versions")
 		added := {}, selected := vars.updater.selected, selected_sub := SubStr(selected, InStr(selected, ".",, 0) + 1)
+		Gui, %GUI%: Font, norm
 		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
 		vars.hwnd.help_tooltips["settings_update versions"] := hwnd
+
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
 			If (val.1.2 < 15200) || added[major]
 				Continue
 			added[major] := 1, version_match := InStr(selected, major) ? 1 : 0
-			Gui, %GUI%: Add, Text, % "Section xs", % " -> " major
+			Gui, %GUI%: Add, Text, % "Section xs", % major
 			Loop, % SubStr(val.1.2, -1) + 1
 			{
-				minor := SubStr(val.1.2, -1) + 1 - A_Index
-				Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_updater2 Center w" settings.general.fWidth * 2 (A_Index = 1 ? " x+0" : " x+" settings.general.fWidth/2) (version_match && selected_sub = minor ? " cFuchsia" : ""), % minor
+				minor := SubStr(val.1.2, -1) + 1 - A_Index, color := (version_match && selected_sub = minor) ? " cFuchsia" : ""
+				Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_updater2 Center w" settings.general.fWidth * 2 . color . (A_Index = 1 ? " x+0" : " x+" settings.general.fWidth/2), % minor
 				vars.hwnd.settings["versionselect_" major . minor] := vars.hwnd.help_tooltips["settings_update changelog " major . minor] := hwnd
 			}
 		}
@@ -2565,21 +2807,20 @@ Settings_updater()
 
 	If vars.updater.selected
 	{
-		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd cFuchsia", % " " LangTrans("global_restart") " "
+		Gui, %GUI%: Add, Text, % "Section xs Border Center BackgroundTrans gSettings_updater2 HWNDhwnd00", % " " LangTrans("m_updater_changelog") " "
+		Gui, %GUI%: Add, Text, % "ys Border Center BackgroundTrans gSettings_updater2 HWNDhwnd cFuchsia", % " " LangTrans("global_restart") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack cRed range0-500 HWNDhwnd0", 0
 		ControlGetPos,,, wButton,,, ahk_id %hwnd%
+		vars.hwnd.settings["fullchangelog_" vars.updater.selected] := vars.hwnd.help_tooltips["settings_update full changelog"] := hwnd00
 		vars.hwnd.settings.restart_install := hwnd, vars.hwnd.settings.restart_bar := vars.hwnd.help_tooltips["settings_update restart"] := hwnd0
 	}
-	
+
 	If IsNumber(vars.update.1) && (vars.update.1 < 0)
 	{
 		Gui, %GUI%: Font, bold underline
 		Gui, %GUI%: Add, Text, % "Section xs cRed y+"vars.settings.spacing, % LangTrans("m_updater_failed")
 		Gui, %GUI%: Font, norm
-	}
-	
-	If IsNumber(vars.update.1) && (vars.update.1 < 0)
-	{
+
 		If InStr("126", StrReplace(vars.update.1, "-"))
 			Gui, %GUI%: Add, Text, % "Section xs w" wCheckbox, % LangTrans("m_updater_error1") "`n`n" LangTrans("m_updater_error1", 2)
 		Else If (vars.update.1 = -4)
@@ -2628,20 +2869,15 @@ Settings_updater2(cHWND := "")
 	{
 		If vars.updater.latest.2 && (A_TickCount < refresh_tick + 10000)
 			Return
-		in_progress := 1, UpdateCheck(1)
-		Loop 10
-		{
-			GuiControl,, % vars.hwnd.settings.update_refresh_bar, % A_Index
-			Sleep 25
-		}
-		in_progress := 0
-		refresh_tick := A_TickCount, Settings_menu("updater")
+		in_progress := 1, UpdateCheck(1), in_progress := 0, refresh_tick := A_TickCount, Settings_menu("updater")
 	}
 	Else If InStr(check, "versionselect_")
 	{
 		vars.updater.selected := SubStr(check, InStr(check, "_") + 1)
 		Settings_menu("updater")
 	}
+	Else If InStr(check, "fullchangelog_")
+		Run, % "https://github.com/Lailloken/Lailloken-UI/releases/tag/v" control
 	Else If (check = "restart_install")
 	{
 		If LLK_Progress(vars.hwnd.settings.restart_bar, "LButton")
@@ -2701,7 +2937,7 @@ Settings_WriteTest(cHWND := "")
 		Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
 		ExitApp
 	}
-	
+
 	If running
 		Return
 	running := 1, HWND_bar := vars.hwnd.settings.bar_writetest, yes := LangTrans("m_permission_yes"), no := LangTrans("m_permission_no"), unknown := LangTrans("m_permission_unknown")
@@ -2718,23 +2954,23 @@ Settings_WriteTest(cHWND := "")
 	GuiControl,, % HWND_bar, 100
 	sleep, 250
 	status .= LangTrans("m_permission_folder", 1) " " (FileExist("data\write-test\") ? yes : no) "`n`n", folder_creation := FileExist("data\write-test\") ? 1 : 0
-		
+
 	FileAppend,, data\write-test.ini
 	GuiControl,, % HWND_bar, 200
 	sleep, 250
 	status .= LangTrans("m_permission_ini", 1) " " (FileExist("data\write-test.ini") ? yes : no) "`n`n", ini_creation := FileExist("data\write-test.ini") ? 1 : 0
-	
+
 	IniWrite, 1, data\write-test.ini, write-test, test
 	GuiControl,, % HWND_bar, 300
 	sleep, 250
 	IniRead, ini_test, data\write-test.ini, write-test, test, 0
 	status .= LangTrans("m_permission_ini", 2) " " (ini_test ? yes : no) "`n`n"
-	
+
 	pWriteTest := Gdip_BitmapFromScreen("0|0|100|100"), Gdip_SaveBitmapToFile(pWriteTest, "data\write-test.bmp", 100), Gdip_DisposeImage(pWriteTest)
 	GuiControl,, % HWND_bar, 400
 	sleep, 250
 	status .= LangTrans("m_permission_image", 1) " " (FileExist("data\write-test.bmp") ? yes : no) "`n`n", img_creation := FileExist("data\write-test.bmp") ? 1 : 0
-	
+
 	If folder_creation
 	{
 		FileRemoveDir, data\write-test\
@@ -2743,7 +2979,7 @@ Settings_WriteTest(cHWND := "")
 	}
 	Else status .= LangTrans("m_permission_folder", 2) " " unknown "`n`n"
 	GuiControl,, % HWND_bar, 500
-	
+
 	If ini_creation
 	{
 		FileDelete, data\write-test.ini
@@ -2752,7 +2988,7 @@ Settings_WriteTest(cHWND := "")
 	}
 	Else status .= LangTrans("m_permission_ini", 3) " " unknown "`n`n"
 	GuiControl,, % HWND_bar, 600
-	
+
 	If img_creation
 	{
 		FileDelete, data\write-test.bmp
@@ -2761,7 +2997,7 @@ Settings_WriteTest(cHWND := "")
 	}
 	Else status .= LangTrans("m_permission_image", 2) " " unknown "`n`n"
 	GuiControl,, % HWND_bar, 700
-	
+
 	MsgBox, 4096, % LangTrans("m_permission_header"), % status
 	GuiControl,, % HWND_bar, 0
 	running := 0

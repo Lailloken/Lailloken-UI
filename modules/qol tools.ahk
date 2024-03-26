@@ -67,7 +67,7 @@ Alarm(click := 0)
 			{
 				Gui, % GuiName(vars.hwnd.alarm.main) ": +E0x20"
 				transform := 1
-			}			
+			}
 			LLK_Drag(w, h, x, y,, "alarm" toggle, 1)
 			Sleep 1
 		}
@@ -104,7 +104,7 @@ Alarm(click := 0)
 			Gui, alarm_set: Margin, 0, 0
 			Gui, alarm_set: Font, % "s" settings.alarm.fSize//2 " cWhite", % vars.system.font
 			vars.hwnd.alarm.alarm_set := alarm_set
-			
+
 			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd r1 w"vars.alarm.wPanel - 2,
 			vars.hwnd.alarm.edit := hwnd
 			Gui, alarm_set: Add, Button, % "xp yp hp wp Hidden Default gAlarm cBlack HWNDhwnd", OK
@@ -128,7 +128,7 @@ Alarm(click := 0)
 		timer := vars.alarm.timestamp
 		EnvSub, timer, A_Now, seconds
 	}
-	
+
 	Gui, %GUI_name%: Add, Text, % "Center HWNDhwnd", % (IsNumber(vars.alarm.timestamp) && (vars.alarm.timestamp < A_Now) ? " +" : " ") FormatSeconds(Abs(timer), 0) " "
 	vars.hwnd.alarm.timer := hwnd
 
@@ -153,7 +153,7 @@ EssenceTooltip(cHWND)
 	If WinExist("ahk_id "vars.hwnd.essences.main) && (control = check)
 		Return
 	control := check
-	
+
 	name := vars.omnikey.item.name, tier := SubStr(name, 1, InStr(name, " ") - 1), tier := LLK_HasVal(db.essences._tiers, tier), left_column := [], right_column := [], columns := {}
 	For type0 in db.essences
 		If InStr(vars.omnikey.item.name, type0)
@@ -263,15 +263,15 @@ Lab(mode := "", override := 0)
 	local
 	global vars, settings, Json
 	static toggle := 0
-	
+
 	start := A_TickCount, check := LLK_HasVal(vars.hwnd.lab, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
 	While (mode = "override") && GetKeyState("LButton", "P") && (vars.lab.compass.rooms[control].name = vars.log.areaname)
 		If (A_TickCount >= start + 250)
 			vars.lab.rooms[vars.lab.room.1] := "", mode := "progress", override := control
-	
+
 	If (mode = "override")
 		Return
-	
+
 	If !IsObject(vars.lab) || (mode = "init")
 		vars.lab := {"rooms": []}
 
@@ -334,7 +334,7 @@ Lab(mode := "", override := 0)
 		Gdip_SaveBitmapToFile(pBitmap, "img\lab.jpg", 100), Gdip_DisposeImage(pBitmap_copy), Gdip_DisposeImage(pBitmap)
 		Return
 	}
-	
+
 	If !FileExist("img\lab.jpg")
 		FileDelete, img\lab compass.json
 
@@ -342,7 +342,7 @@ Lab(mode := "", override := 0)
 		vars.lab.compass := LLK_FileRead("img\lab compass.json"), vars.lab.compass := Json.Load(vars.lab.compass)
 	If !vars.lab.scale
 		pBitmap := Gdip_LoadImageFromFile("img\lab.jpg"), Gdip_GetImageDimensions(pBitmap, w, h), vars.lab.width := !w ? vars.client.w * 53/128 : w, vars.lab.height := !h ? (vars.client.w * 53/128)/2.112 : h, vars.lab.scale := vars.lab.width/1175, Gdip_DisposeImage(pBitmap)
-	
+
 	scale := vars.lab.scale, dim := 50 * scale, difficulties := {33: "normal", 55: "cruel", 68: "merciless", 75: "uber", 83: "uber"}, text_height := dim/2
 	If !vars.lab.custom_font
 		vars.lab.custom_font := LLK_FontSizeGet(text_height, width)
@@ -361,7 +361,7 @@ Lab(mode := "", override := 0)
 		Else vars.lab.room := [1, vars.lab.compass.rooms.1.name], vars.lab.rooms.1 := {"name": vars.lab.compass.rooms.1.name, "seed": ""}
 		started := 1, vars.lab.outdated := !Blank(vars.lab.compass.date) && (StrReplace(vars.lab.compass.date, "-") != SubStr(A_NowUTC, 1, 8)) ? 1 : 0
 	}
-	
+
 	If (mode = "progress") && !started
 	{
 		vars.lab.room := [override ? override : vars.lab.exits.numbers[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], override ? vars.lab.compass.rooms[override].name : vars.lab.exits.names[LLK_HasVal(vars.lab.exits.names, vars.log.areaname)], vars.log.areaID]
@@ -431,7 +431,7 @@ Lab(mode := "", override := 0)
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
 		file_missing := 1
 	}
-	
+
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %lab%
 	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w/2 " y"vars.monitor.y + vars.monitor.h - h
@@ -442,7 +442,7 @@ Lab(mode := "", override := 0)
 	Gui, %GUI_name2%: Color, Black
 	Gui, %GUI_name2%: Margin, 0, 0
 	Gui, %GUI_name2%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
-	
+
 	Gui, %GUI_name2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || vars.lab.mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
 	vars.hwnd.lab.button := lab2, vars.hwnd.help_tooltips["lab_button"] := hwnd
 	Gui, %GUI_name2%: Show, % "NA x"x " y"y
@@ -455,7 +455,7 @@ Notepad(cHWND := "", hotkey := "")
 	local
 	global vars, settings
 	static toggle := 0, hwnd_reminder, hwnd_reminder_edit
-	
+
 	If (cHWND = "save") ;save any changes made to a note
 	{
 		If Blank(vars.notepad.selected_entry)
@@ -689,7 +689,7 @@ NotepadReload()
 	local
 	global vars, settings
 	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
-	
+
 	vars.notepad.entries := {"notepad_reminder_feature": vars.notepad.entries.notepad_reminder_feature}, vars.notepad.settings := {}
 	Iniread, ini, ini\qol tools.ini, notepad
 	Loop, Parse, ini, `n, `r
@@ -751,7 +751,7 @@ NotepadWidget(tab, mode := 0)
 			vars.notepad_widgets[tab].page -= (vars.notepad_widgets[tab].page > 1) ? 1 : 0, mode := 0
 		Else If !A_Gui && !longpress
 			Return
-		
+
 		If InStr(vars.notepad.entries[tab], "`n#`n") && InStr(A_Gui, "notepad")
 		{
 			vars.notepad_widgets[tab] := {"text": [], "page": (vars.notepad_widgets[tab].page ? vars.notepad_widgets[tab].page : "1"), "x": vars.notepad_widgets[tab].x, "y": vars.notepad_widgets[tab].y}
@@ -773,7 +773,7 @@ NotepadWidget(tab, mode := 0)
 	hwnd_old := vars.hwnd.notepad_widgets[tab], vars.hwnd.notepad_widgets[tab] := widget
 	If (InStr(A_Gui, "notepad") || mode = 1)
 		LLK_Overlay(hwnd_old, "destroy")
-	
+
 	If IsObject(vars.notepad_widgets[tab].text)
 	{
 		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count()

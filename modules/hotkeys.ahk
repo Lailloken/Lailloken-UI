@@ -2,7 +2,7 @@
 {
 	local
 	global vars, settings, db
-	
+
 	settings.hotkeys := {}
 	settings.hotkeys.rebound_alt := LLK_IniRead("ini\hotkeys.ini", "Settings", "advanced item-info rebound", 0)
 	settings.hotkeys.item_descriptions := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "item-descriptions key")
@@ -13,7 +13,7 @@
 	settings.hotkeys.omniblock := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block omnikey's native function", 0)
 	settings.hotkeys.omnikey := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey", "MButton")
 	settings.hotkeys.omnikey2 := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
-	
+
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
 	settings.hotkeys.tab := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
@@ -21,7 +21,7 @@
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
 	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
-	
+
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	If !settings.hotkeys.rebound_c
 	{
@@ -38,7 +38,7 @@
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
 	Hotkey, % settings.hotkeys.tab, CheatsheetTAB, On
-		
+
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
 
@@ -54,9 +54,23 @@ HotkeysESC()
 {
 	local
 	global vars, settings
-	
+
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
+	Else If WinExist("ahk_id " vars.hwnd.compat_test)
+	{
+		Gui, compat_test: Destroy
+		If vars.OCR.debug
+		{
+			vars.OCR.debug := 0
+			SendInput, % "{" settings.OCR.z_hotkey "}"
+		}
+		Else If settings.OCR.allow
+			Settings_menu("tldr-tooltips")
+		Else LLK_Overlay(vars.hwnd.settings.main, "show", 0)
+	}
+	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
 		WinActivate, ahk_group poe_window
 	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
@@ -118,7 +132,7 @@ HotkeysTab()
 {
 	local
 	global vars, settings
-		
+
 	start := A_TickCount
 
 	While settings.general.hide_toolbar && GetKeyState(settings.hotkeys.tab, "P")
@@ -150,7 +164,7 @@ HotkeysTab()
 
 	If vars.hwnd.leveltracker.main
 		leveltracker_check := LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-	
+
 	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
@@ -181,7 +195,7 @@ HotkeysTab()
 			active .= " lab", vars.lab.toggle := 1, Lab()
 			Break
 		}
-	
+
 	If !settings.hotkeys.tabblock && !active
 	{
 		SendInput, % "{" settings.hotkeys.tab " DOWN}"
@@ -189,7 +203,7 @@ HotkeysTab()
 		SendInput, % "{" settings.hotkeys.tab " UP}"
 	}
 	Else KeyWait, % settings.hotkeys.tab
-	
+
 	If InStr(active, "LLK-panel")
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")
@@ -225,6 +239,30 @@ HotkeysTab()
 
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
+
+#If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ClientFiller) ;prevent clicking and activating the filler GUI
+*MButton::
+*LButton::
+*RButton::Return
+
+#If vars.OCR.GUI ;sending inputs for screen-reading
+*WheelUp::vars.OCR.wGUI += ((vars.OCR.wGUI + 30) * 2 >= vars.client.w || (vars.OCR.hGUI + 15) * 2 >= vars.client.h) ? 0 : 30, vars.OCR.hGUI += ((vars.OCR.wGUI + 30) * 2 >= vars.client.w || (vars.OCR.hGUI + 15) * 2 >= vars.client.h) ? 0 : 15
+*WheelDown::vars.OCR.wGUI -= (vars.OCR.wGUI - 30 >= vars.client.h / 10 + 30 && vars.OCR.hGUI - 15 >= vars.client.h / 10 + 15) ? 30 : 0, vars.OCR.hGUI -= (vars.OCR.wGUI - 30 >= vars.client.h / 10 + 30 && vars.OCR.hGUI - 15 >= vars.client.h / 10 + 15) ? 15 : 0
+
+#If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ocr_tooltip.main) ;hovering over the ocr tooltip
+*LButton::OCR_Close()
+*Space::
+*1::
+*2::
+*3::
+*4::
+*5::OCR_Highlight(A_ThisHotkey)
+
+#If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+~Shift::
+~Shift UP::
+WinSet, TransColor, % "Purple " (InStr(A_ThisHotkey, "UP") ? "255" : 0), % "ahk_id " vars.hwnd.ocr_tooltip.main
+Return
 
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.pixelsearch.inventory.check && vars.maptracker.map.content.Count() && (vars.general.xMouse > vars.monitor.x + vars.client.xc)
 

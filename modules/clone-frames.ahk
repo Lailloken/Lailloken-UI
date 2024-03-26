@@ -2,14 +2,14 @@
 {
 	local
 	global vars, settings
-	
+
 	If !FileExist("ini\clone frames.ini")
 		IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
-	
+
 	settings.cloneframes := {}
 	settings.cloneframes.pixelchecks := LLK_IniRead("ini\clone frames.ini", "Settings", "enable pixel-check", 1)
 	settings.cloneframes.hide := LLK_IniRead("ini\clone frames.ini", "Settings", "hide in hideout", 0)
-	
+
 	If !IsObject(vars.cloneframes)
 		vars.cloneframes := {"enabled": 0, "scroll": {}}
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
@@ -21,7 +21,7 @@
 		}
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
-	
+
 	iniread := StrReplace(LLK_IniRead("ini\clone frames.ini"), "settings`n")
 	Loop, Parse, iniread, `n ;remove underscores from old name-formatting
 	{
@@ -43,7 +43,7 @@
 		vars.hwnd.cloneframes[A_LoopField] := hwnd
 		If vars.cloneframes.list[A_LoopField].enable
 			vars.cloneframes.enabled += 1
-		
+
 		vars.cloneframes.list[A_LoopField].xSource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x - vars.monitor.x + 4)) ;coordinates refer to monitor's coordinates (without offsets)
 		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y - vars.monitor.y + 4))
 		vars.cloneframes.list[A_LoopField].width := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200))
@@ -61,7 +61,7 @@ CloneframesHide()
 {
 	local
 	global vars, settings
-	
+
 	For cloneframe in vars.cloneframes.list
 	{
 		If vars.hwnd.cloneframes[cloneframe] && WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
@@ -77,7 +77,7 @@ CloneframesSettingsAdd()
 {
 	local
 	global vars, settings
-	
+
 	name := LLK_ControlGet(vars.hwnd.settings.name)
 	While (SubStr(name, 1, 1) = " ")
 		name := SubStr(name, 2)
@@ -118,8 +118,8 @@ CloneframesSettingsRefresh(name := "")
 {
 	local
 	global vars, settings
-	
-	style := (name != "") ? "-" : "+"	
+
+	style := (name != "") ? "-" : "+"
 	If (vars.cloneframes.editing != "")
 	{
 		GuiControl, % "+c"(vars.cloneframes.list[vars.cloneframes.editing].enable ? "White" : "Gray"), % vars.hwnd.settings["enable_"vars.cloneframes.editing]
@@ -187,7 +187,7 @@ CloneframesSettingsApply(cHWND, hotkey := "")
 {
 	local
 	global vars, settings
-	
+
 	If Blank(vars.cloneframes.editing)
 		Return
 	check := LLK_HasVal(vars.cloneframes.scroll, cHWND), editing := vars.cloneframes.editing
@@ -208,7 +208,7 @@ CloneframesShow()
 {
 	local
 	global vars, settings
-	
+
 	For cloneframe, val in vars.cloneframes.list
 	{
 		If !val.enable && !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) || (cloneframe = "settings_cloneframe")
@@ -284,11 +284,11 @@ CloneframesSnap(hotkey)
 {
 	local
 	global vars, settings
-	
+
 	If vars.cloneframes.last
 		Return
 	name := vars.cloneframes.editing, vars.cloneframes.last := A_TickCount
-	
+
 	Switch hotkey
 	{
 		Case "F1":

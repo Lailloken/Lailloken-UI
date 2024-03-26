@@ -2,13 +2,13 @@
 {
 	local
 	global vars, settings, db, Json
-	
+
 	If !mode
 	{
 		If !FileExist("data\" settings.general.lang_client "\timeless jewels.json")
 			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
 		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
-		
+
 		settings.legion := {"fSize": LLK_IniRead("ini\seed-explorer.ini", "settings", "font-size", settings.general.fSize)}
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height
 		settings.legion.profile := LLK_IniRead("ini\seed-explorer.ini", "settings", "profile", 1)
@@ -146,7 +146,7 @@ LegionGUI()
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.legion.main, vars.hwnd.legion := {"main": legion, "tooltips": {}, "tooltips2": {}}
-	
+
 	Gui, %GUI_name%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % LangTrans("seed_profile")
 	ControlGetPos, xAnchor, yAnchor, wAnchor, hAnchor,, ahk_id %hwnd%
 	Loop 5
@@ -235,7 +235,7 @@ LegionGUI()
 				mod .= "_"
 			vars.hwnd.legion["mod_"node] := hwnd, vars.hwnd.legion.tooltips2[mod] := hwnd
 		}
-		
+
 	Gui, %GUI_name%: Add, Text, % "x"vars.legion.width - 1 " y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h
 
 	Gui, %GUI_name%: Show, % "NA x10000 y10000 h"vars.monitor.h
@@ -292,7 +292,7 @@ LegionParse()
 
 	leaders := vars.lang.seed_conquerors, item := vars.omnikey.item
 	jewels := ["glorious vanity", "lethal pride", "brutal restraint", "militant faith", "elegant hubris"], vars.legion.selection := ""
-	
+
 	For index, val in jewels
 		For index1, val1 in vars.lang["seed_" val]
 			If InStr(Clipboard, val1 "(")
@@ -315,7 +315,7 @@ LegionParse()
 				Break 2
 		}
 	}
-	
+
 	vars.legion.seed := seed, vars.legion.jewel_number := LLK_HasVal(jewels, vars.legion.jewel) ;the url for vilsol's calculator uses numbers to specify the jewel-type
 	If (vars.legion.data.1 != vars.legion.jewel || vars.legion.data.2 != vars.legion.seed)
 	{
@@ -331,7 +331,7 @@ LegionParse()
 						vars.legion.data.3.Push(A_LoopField)
 				Break
 			}
-		}	
+		}
 	}
 	vars.legion.jewel_mods := [], vars.legion.decoder_invert := {}
 	For index, mod in db.legion.jewels[vars.legion.jewel]["_decoder"]
