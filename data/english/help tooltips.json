@@ -436,6 +436,7 @@
       "currently supported: eldritch altars"
     ],
     "ocr compatibility": [
+	  "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",
       "a compatibility test has to be done before this feature can be enabled",
       "open the character-stats screen, then click this button to open the windows snipping tool",
 	  "use it to snip 4 to 5 lines of text from the character-stats"
