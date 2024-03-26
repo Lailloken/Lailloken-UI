@@ -27,11 +27,11 @@
     "generic color": [
       "click to open the color-palette, right click to reset"
     ],
-	"generic color double": [
-	  "text color: click to open the color-palette, right click to reset"
+    "generic color double": [
+      "text color: click to open the color-palette, right click to reset"
     ],
-	"generic color double1": [
-	  "background color: click to open the color-palette, right click to reset"
+    "generic color double1": [
+      "background color: click to open the color-palette, right click to reset"
     ],
     "active character": [
       "type in your character name and press enter",
@@ -49,7 +49,7 @@
     ],
     "client filler": [
       "blacks out the empty screen area around the client window and makes it unclickable",
-	  "this black area can be used to place overlays outside the client area and also prevents misclicks on background windows"
+      "this black area can be used to place overlays outside the client area and also prevents misclicks on background windows"
     ],
     "window position": [
       "the client has to be docked to a specific spot to ensure that overlays are positioned correctly",
@@ -368,23 +368,23 @@
     ],
     "maptracker mapinfo": [
       "map-mod data loaded into the map-info panel will be logged",
-	  "the map-info panel is a separate feature and has to be enabled"
+      "the map-info panel is a separate feature and has to be enabled"
     ],
     "maptracker notes": [
-	  "adds an icon to the tracker panel to log custom notes for individual map runs",
-	  "long-click to view current notes, right-click to edit"
+      "adds an icon to the tracker panel to log custom notes for individual map runs",
+      "long-click to view current notes, right-click to edit"
     ],
     "maptracker color unselected": [
-	  "used for highlighted cells in the log-viewer, and for non-league dates in the date selection",
-	  "click to open the color-palette, right-click to reset to default"
+      "used for highlighted cells in the log-viewer, and for non-league dates in the date selection",
+      "click to open the color-palette, right-click to reset to default"
     ],
     "maptracker color selected": [
-	  "used for the currently-selected year and its months in the date selection",
-	  "click to open the color-palette, right-click to reset to default"
+      "used for the currently-selected year and its months in the date selection",
+      "click to open the color-palette, right-click to reset to default"
     ],
     "maptracker color leagues": [
-	  "used to highlight dates that correspond with a league",
-	  "click to open the color-palette, right-click to reset to default"
+      "used to highlight dates that correspond with a league",
+      "click to open the color-palette, right-click to reset to default"
     ],
     "mapinfo enable": [
       "provides a compact and customizable info-panel for map mods",
@@ -412,21 +412,21 @@
     "alarm enable": [
       "small timer widget with alarm and stopwatch functionality",
       "hold tab to display the widget, then click it to enter a time, or drag to move it",
-	  "leave the input-field empty to use the timer as a stopwatch",
+      "leave the input-field empty to use the timer as a stopwatch",
       "right-click the widget to stop a running timer, left-click it in stopwatch mode to restart from 0:00"
     ],
     "notepad enable": [
       "notepad tool with individual tabs and floating widgets that can be used as sticky-notes"
     ],
-	"notepad default color": [
-	  "specify the colors for new tabs",
-	  "tabs can also be individually customized afterwards"
+    "notepad default color": [
+      "specify the colors for new tabs",
+      "tabs can also be individually customized afterwards"
     ],
-	"notepad opacity": [
-	  "the opacity of inactive widgets (when tab is not held down)",
-	  "0 = inactive widgets are hidden",
-	  "zero opacity is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
-	],
+    "notepad opacity": [
+      "the opacity of inactive widgets (when tab is not held down)",
+      "0 = inactive widgets are hidden",
+      "zero opacity is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+    ],
     "lab enable": [
       "simple lab layout overlay and tracker for casual runs",
       "activated by holding tab in lab or the aspirants' plaza"
@@ -436,27 +436,27 @@
       "currently supported: eldritch altars"
     ],
     "ocr compatibility": [
-	  "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",
+      "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",
       "a compatibility test has to be done before this feature can be enabled",
-      "open the character-stats screen, then click this button to open the windows snipping tool",
-	  "use it to snip 4 to 5 lines of text from the character-stats"
+      "open the character-stats screen, then click this checkbox to open the windows snipping tool",
+      "use it to snip 4 to 5 lines of text from the character-stats"
     ],
     "ocr colors": [
       "customize the color patterns used to highlight specific mods/rewards",
-	  "each pattern has two buttons: font | background",
-	  "click the buttons to open the color palette, or right-click to reset to default"
+      "each pattern has two buttons: font | background",
+      "click the buttons to open the color palette, or right-click to reset to default"
     ],
     "ocr debug": [
       "holding the right crtl-key while scanning the screen will open a window that displays the screen-cap as well as the text the script was able to read from it"
     ],
     "ocr z hotkey": [
       "type in the in-game hotkey for <toggle highlighting>",
-	  "check the links above if it uses special keys/combinations"
+      "check the links above if it uses special keys/combinations"
     ],
     "ocr hotkey": [
       "type in the hotkey you want to use to activate this feature",
-	  "do not choose keys used for chatting in order to prevent accidentally activating the feature",
-	  "check the links above if you want to use special keys/combinations"
+      "do not choose keys used for chatting in order to prevent accidentally activating the feature",
+      "check the links above if you want to use special keys/combinations"
     ],
     "screenchecks pixel-about": [
       "the script continually checks the screen for certain ui elements",
@@ -539,7 +539,7 @@
     ],
     "update hotfix": [
       "a hotfix release is available, you can download it below",
-	  "the versions listed below always include the newest hotfixes, even if the number is not specifically marked"
+      "the versions listed below always include the newest hotfixes, even if the number is not specifically marked"
     ],
     "update versions": [
       "the list below shows the available versions to switch between or reinstall",
@@ -691,35 +691,35 @@
   "maptracker": {
     "logviewer day-select": [
       "click to open the date selection: shows a breakdown of logged map runs",
-	  "the current search-filter will affect the available dates"
-	],
-	"logviewer date help": [
-	  "general: click a button to show runs within that period, hold <DEL> while hovering to delete those runs",
-	  "years: click a year to show its breakdown below, double-click to load the whole year"
-	],
+      "the current search-filter will affect the available dates"
+    ],
+    "logviewer date help": [
+      "general: click a button to show runs within that period, hold <DEL> while hovering to delete those runs",
+      "years: click a year to show its breakdown below, double-click to load the whole year"
+    ],
     "logviewer export": [
       "long-click to export the list of runs below as a CSV-file, overwriting any existing file with the same date",
-	  "right-click to open the export folder"
+      "right-click to open the export folder"
     ],
-	"logviewer filter": [
-	  "type in keywords (separated by commas) and press ENTER to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
-	  "you can search inside columns by using search operators (check the book icon on the far left)"
-	],
-	"logviewer sum avg": [
-	  "click highlighted cells in this row to display the data within a column as totals / percentages / averages"
-	],
-	"logviewer headers": [
-	  "some column headers can be clicked for searching: left = paste search-operator, right = paste !operator",
-	  "double-clicking will immediately start the search with the bare operator: using an operator without any keywords will simply search for runs where corresponding data had any value other than 0 or blank"
-	],
+    "logviewer filter": [
+      "type in keywords (separated by commas) and press ENTER to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
+      "you can search inside columns by using search operators (check the book icon on the far left)"
+    ],
+    "logviewer sum avg": [
+      "click highlighted cells in this row to display the data within a column as totals / percentages / averages"
+    ],
+    "logviewer headers": [
+      "some column headers can be clicked for searching: left = paste search-operator, right = paste !operator",
+      "double-clicking will immediately start the search with the bare operator: using an operator without any keywords will simply search for runs where corresponding data had any value other than 0 or blank"
+    ],
     "logviewer header map": [
       "long-click a map name to edit it, hold right-click to delete the run",
-	  "names can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+      "names can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ],
-	"logviewer header run": [
-	  "searching for \"r:XYZ\" will only list runs that took XYZ amount of time and below",
-	  "if XYZ doesn't include any colons, the value is treated as seconds, otherwise it's treated as hh:mm:ss"
-	],
+    "logviewer header run": [
+      "searching for \"r:XYZ\" will only list runs that took XYZ amount of time and below",
+      "if XYZ doesn't include any colons, the value is treated as seconds, otherwise it's treated as hh:mm:ss"
+    ],
     "logviewer header e-exp": [
       "effective exp gained in a map, based on your level and the monsters'",
       "requires your character name in the <general> section of the settings menu"
@@ -732,15 +732,15 @@
     ],
     "logviewer header kills": [
       "number of monsters killed in a map: uses /kills command (optional setting, has to be enabled first)",
-	  "searching for \"k:X\" will only list runs with at least X kills"
+      "searching for \"k:X\" will only list runs with at least X kills"
     ],
     "logviewer header loot": [
       "loot found in a map (optional setting, has to be enabled first)",
-	  "click highlighted cells in this column to view the list"
+      "click highlighted cells in this column to view the list"
     ],
     "logviewer header mapinfo": [
       "mods rolled on a map (optional setting, has to be enabled first): click highlighted cells in this column to view the list",
-	  "the operator also allows searching for general stats (mod-count, quant, etc.), e.g. \"m:100q\" will search for 100% quant and above"
+      "the operator also allows searching for general stats (mod-count, quant, etc.), e.g. \"m:100q\" will search for 100% quant and above"
     ],
     "logviewer header notes": [
       "notes can be added to individual map runs by right-clicking cells in this column",
@@ -748,34 +748,34 @@
     ],
     "logviewer header content": [
       "side-content you encountered in a map (optional setting, has to be enabled first)",
-	  "the icons can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+      "the icons can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ],
     "logviewer header tier": [
       "the tier (map) or level (e.g. contract) of the run",
-	  "tiers can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+      "tiers can be clicked for searching, just like some of the headers (check the book icon in the top left)"
     ]
   },
   "maptrackernotes": {
-	"help": [
-	  "type in custom notes and press ENTER: include \"X#\" before the note to limit it to X runs",
-	  "omni-click voidstones, scarabs, etc.",
-	  "long-click a note to remove it, or the header to clear everything"
-	]
+    "help": [
+      "type in custom notes and press ENTER: include \"X#\" before the note to limit it to X runs",
+      "omni-click voidstones, scarabs, etc.",
+      "long-click a note to remove it, or the header to clear everything"
+    ]
   },
   "notepad": {
-	"colors": [
-	  "text color: click to open the color-palette, right-click to reset"
-	],
-	"colors1": [
-	  "background color: click to open the color-palette, right-click to reset"
-	],
+    "colors": [
+      "text color: click to open the color-palette, right-click to reset"
+    ],
+    "colors1": [
+      "background color: click to open the color-palette, right-click to reset"
+    ],
     "widget": [
       "click to select tab, drag to create a widget, hold right-click to delete"
     ],
     "widget help": [
       "widgets are inactive (unclickable) unless tab is held down",
       "left-click to drag widgets, right-click to destroy widgets",
-	  "you can create scrollable widgets with individual pages by separating the text with lines that only contain a single hash-sign (#)"
+      "you can create scrollable widgets with individual pages by separating the text with lines that only contain a single hash-sign (#)"
     ],
     "widget grouped": [
       "drag to combine every note into a single, scrollable widget"
