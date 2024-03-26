@@ -2078,15 +2078,9 @@ Settings_OCR()
 		Settings_unsupported()
 		Return
 	}
-
-	If !settings.OCR.allow
-	{
-		Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd gSettings_OCR2 cRed y+"vars.settings.spacing, % " " LangTrans("m_ocr_compatibility") " "
-		vars.hwnd.settings.compatibility := vars.hwnd.help_tooltips["settings_ocr compatibility"] := hwnd
-	}
 	
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing . (!settings.OCR.allow ? " cGray" : ""), % LangTrans("m_ocr_enable")
-	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr enable"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing . (!settings.OCR.allow ? " cRed" : ""), % LangTrans("m_ocr_enable")
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr " (settings.OCR.allow ? "enable" : "compatibility")] := hwnd
 
 	If !settings.features.ocr
 		Return
@@ -2154,6 +2148,7 @@ Settings_OCR2(cHWND)
 		If !settings.OCR.allow
 		{
 			GuiControl,, % cHWND, 0
+			compat_text := OCR_("compat")
 			Return
 		}
 
@@ -2167,9 +2162,6 @@ Settings_OCR2(cHWND)
 		If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 			OCR_Close()
 		Settings_menu("tldr-tooltips")
-
-		Case "compatibility":
-		compat_text := OCR_("compat")
 
 		Case "compat_edit":
 		If settings.OCR.allow
