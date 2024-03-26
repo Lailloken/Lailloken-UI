@@ -2079,16 +2079,14 @@ Settings_OCR()
 		Return
 	}
 
-	If settings.OCR.allow
+	If !settings.OCR.allow
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing, % LangTrans("m_ocr_enable")
-		vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr enable"] := hwnd
-	}
-	Else
-	{
-		Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd gSettings_OCR2 y+"vars.settings.spacing, % " " LangTrans("m_ocr_compatibility") " "
+		Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd gSettings_OCR2 cRed y+"vars.settings.spacing, % " " LangTrans("m_ocr_compatibility") " "
 		vars.hwnd.settings.compatibility := vars.hwnd.help_tooltips["settings_ocr compatibility"] := hwnd
 	}
+	
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing . (!settings.OCR.allow ? " cGray" : ""), % LangTrans("m_ocr_enable")
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr enable"] := hwnd
 
 	If !settings.features.ocr
 		Return
@@ -2153,6 +2151,12 @@ Settings_OCR2(cHWND)
 	Switch check
 	{
 		Case "enable":
+		If !settings.OCR.allow
+		{
+			GuiControl,, % cHWND, 0
+			Return
+		}
+
 		settings.features.ocr := LLK_ControlGet(cHWND)
 		IniWrite, % settings.features.ocr, ini\config.ini, Features, enable ocr
 		If !Blank(settings.OCR.hotkey)

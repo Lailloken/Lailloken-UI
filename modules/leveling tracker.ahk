@@ -423,6 +423,7 @@ LeveltrackerExperience(arealevel := "", safe := 0)
 
 	safezone := Floor(3 + (vars.log.level/16))
 	safezone_diff := LLK_IsBetween(arealevel, vars.log.level - safezone, vars.log.level + safezone) ? 0 : (arealevel > vars.log.level ? "-" : "+") . Abs(arealevel - vars.log.level) - safezone
+	safezone_diff := (Abs(safezone_diff) > 9) ? 0 : safezone_diff
 	effective_difference := Max(Abs(vars.log.level - arealevel) - safezone, 0), effective_difference := effective_difference**2.5
 	exp_multi := (vars.log.level + 5) / (vars.log.level + 5 + effective_difference), exp_multi := exp_multi**1.5
 	exp_multi := Max(exp_multi * exp_penalty, 0.01)

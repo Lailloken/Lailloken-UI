@@ -161,7 +161,7 @@ OCR_(mode := "GUI")
 		Gui, compat_test: Font, % "s" settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.compat_test := hwnd_compat
 
-		Gui, compat_test: Add, Pic, % "Section Border w" width " h-1", HBitmap:*%hBitmap%
+		Gui, compat_test: Add, Pic, % "Section Border w" width * (mode = "compat" ? 2 : 1) " h-1", HBitmap:*%hBitmap%
 		If debug
 		{
 			vars.OCR.debug := 1
