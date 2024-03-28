@@ -756,7 +756,11 @@ Settings_general2(cHWND := "")
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-				GuiControl, text, % vars.hwnd.leveltracker.experience, % LeveltrackerExperience()
+			{
+				exp := LeveltrackerExperience("", 1)
+				GuiControl, text, % vars.hwnd.leveltracker.experience, % StrReplace(exp, (exp = "100%") ? "" : "100%")
+				GuiControl, % "+c" (InStr(exp, "100%") ? "Lime" : "Red"), % vars.hwnd.leveltracker.experience
+			}
 			Settings_menu("general"), char_wait := 0
 		Case "language":
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.language), ini\config.ini, settings, language

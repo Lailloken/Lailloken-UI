@@ -121,11 +121,11 @@ OCR_(mode := "GUI")
 				vars.OCR.coords := {"xMouse": xMouse, "yMouse": yMouse, "hPanel": 0}
 				If Blank(xWin) || Blank(yWin)
 					Continue
-				vars.OCR.GUI := 0
 				Gui, ocr_GUI: Destroy
 				While WinExist("ahk_id " ocr_GUI)
 					Sleep 100
-				pBitmap := Gdip_BitmapFromScreen(xWin "|" yWin "|" wGUI * 2 "|" hGUI * 2)
+				pBitmap0 := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), pBitmap := Gdip_CloneBitmapArea(pBitmap0, xWin - vars.client.x, yWin - vars.client.y, wGUI * 2, hGUI * 2,, 1), Gdip_DisposeImage(pBitmap0)
+				vars.OCR.GUI := 0
 				Break
 			}
 			Sleep 10
