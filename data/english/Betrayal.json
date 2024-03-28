@@ -10,7 +10,7 @@
         "torment scarab"
       ],
       "research": [
-        "veiled chaos orbs\nt4: annul + veil slam",
+        "beyond scarabs",
         "timed crafting:\nboots"
       ],
       "transportation": [
@@ -27,7 +27,7 @@
       ],
       "intervention": [
         "sulphite scarabs",
-        "rare items"
+        "sulphite scarabs"
       ],
       "research": [
         "orbs of unmaking",
@@ -67,7 +67,7 @@
       ],
       "intervention": [
         "divination scarabs",
-        "6-socket items"
+        "ritual scarabs"
       ],
       "research": [
         "trade 1 div card\nfor a random one",
@@ -86,7 +86,7 @@
         "trapped chest:\ngloves"
       ],
       "intervention": [
-        "alteration craft",
+        "incursion scarabs",
         "timed crafting:\nweapons"
       ],
       "research": [
@@ -111,18 +111,18 @@
       ],
       "research": [
         "quality rares",
-        "quality items"
+        "anarchy scarabs"
       ],
       "transportation": [
         "rare items",
-        "rare item"
+        "higher-rarity items"
       ]
     }
   },
   "hillock": {
     "rewards": {
       "fortification": [
-        "armor quality:\n24 / 26 / 28 / 30",
+        "trapped chest: scarab",
         "trapped chest:\nbelts"
       ],
       "intervention": [
@@ -130,11 +130,11 @@
         "abyss scarab"
       ],
       "research": [
-        "flask quality:\n22 / 24 / 26 / 28",
+        "anarchy scarabs",
         "timed crafting:\nbelts"
       ],
       "transportation": [
-        "weapon quality:\n24 / 26 / 28 / 30",
+        "essence scarabs",
         "belt"
       ]
     }
@@ -171,7 +171,7 @@
       ],
       "research": [
         "expedition currency",
-        "white-socket item"
+        "essence scarabs"
       ],
       "transportation": [
         "quality currency",
@@ -187,11 +187,11 @@
       ],
       "intervention": [
         "bestiary scarabs",
-        "timed crafting:\namulets"
+        "bestiary scarabs"
       ],
       "research": [
-        "conversion: amulet\ninto talisman",
-        "conversion: amulet\ninto talisman"
+        "ritual scarabs",
+        "timed crafting:\namulet"
       ],
       "transportation": [
         "random talismans",
@@ -206,7 +206,7 @@
         "trapped chest:\nhelmets"
       ],
       "intervention": [
-        "elder scarabs",
+        "influencing scarabs",
         "elder scarab"
       ],
       "research": [
@@ -227,11 +227,11 @@
       ],
       "intervention": [
         "ultimatum scrabs",
-        "ultimatum scarab"
+        "ultimatum scarabs"
       ],
       "research": [
-        "take one: item",
-        "flask quality:\n22 / 24 / 26 / 28"
+        "trapped chest: item",
+        "harvest scarabs"
       ],
       "transportation": [
         "catalysts",
@@ -242,7 +242,7 @@
   "riker": {
     "rewards": {
       "fortification": [
-        "take one: unique",
+        "trapped chest: unique",
         "trapped chest:\nquivers"
       ],
       "intervention": [
@@ -250,11 +250,11 @@
         "blight scarab"
       ],
       "research": [
-        "take one: oil, catalyst,\nsplinter, essence, fossil",
+        "trapped chest: oil, catalyst,\nsplinter, essence, fossil",
         "fractured item"
       ],
       "transportation": [
-        "take one: currency",
+        "trapped chest: currency",
         "quiver"
       ]
     }
@@ -267,11 +267,11 @@
       ],
       "intervention": [
         "cartography\nscarabs",
-        "fully-linked\nitems"
+        "cartography\nscarabs"
       ],
       "research": [
         "unique maps",
-        "map quality:\n22 / 24 / 26 / 28"
+        "beyond scarabs"
       ],
       "transportation": [
         "normal maps",
@@ -294,7 +294,7 @@
         "support gems"
       ],
       "transportation": [
-        "take one: gem",
+        "trapped chest: gem",
         "skill gems"
       ]
     }
@@ -311,7 +311,7 @@
       ],
       "research": [
         "incubators",
-        "weapon quality:\n22 / 24 / 26 / 28"
+        "timed crafting:\nweapon"
       ],
       "transportation": [
         "legion splinters",
@@ -326,11 +326,11 @@
         "apply jeweller's:\n10 / 15 / 20 / 30"
       ],
       "intervention": [
-        "shaper scarabs",
+        "delirium scarabs",
         "shaper scarab"
       ],
       "research": [
-        "white sockets:\n1 / 1-2 / 1-3 / 1-6",
+        "harvest scarabs",
         "apply fusings:\n10 / 15 / 20 / 30"
       ],
       "transportation": [
