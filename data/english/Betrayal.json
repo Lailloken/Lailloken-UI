@@ -122,7 +122,7 @@
   "hillock": {
     "rewards": {
       "fortification": [
-        "trapped chest: scarab",
+        "trapped chest:\nscarabs",
         "trapped chest:\nbelts"
       ],
       "intervention": [
