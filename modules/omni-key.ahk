@@ -217,7 +217,7 @@ OmniContext(mode := 0)
 		Return "gemnotepad"
 	If settings.features.leveltracker && vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotes"
-	While settings.features.leveltracker && GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
+	While settings.features.leveltracker && vars.hwnd.leveltracker.main && GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
 	If (item.name = "Orb of Horizons")

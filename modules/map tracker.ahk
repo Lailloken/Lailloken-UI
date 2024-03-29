@@ -5,7 +5,9 @@
 
 	settings.features.maptracker := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 
-	settings.maptracker := {"loot": LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)}
+	If !IsObject(settings.maptracker)
+		settings.maptracker := {}
+	settings.maptracker.loot := LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)
 	settings.maptracker.hide := LLK_IniRead("ini\map tracker.ini", "Settings", "hide panel when paused", 0)
 	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
 	settings.maptracker.mapinfo := LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
@@ -17,9 +19,22 @@
 	settings.maptracker.sidecontent := LLK_IniRead("ini\map tracker.ini", "Settings", "track side-areas", 0)
 	settings.maptracker.mechanics := LLK_IniRead("ini\map tracker.ini", "Settings", "track league mechanics", 0)
 	settings.maptracker.portal_reminder := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll reminder", 0)
+	settings.maptracker.portal_hotkey := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll hotkey", "b")
+	If !Blank(settings.maptracker.portal_hotkey)
+	{
+		Hotkey, If, (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client)
+		If settings.maptracker.portal_hotkey_old
+			Hotkey, % "~" settings.maptracker.portal_hotkey_old, MaptrackerReminder, Off
+		Hotkey, % "~" settings.maptracker.portal_hotkey, MaptrackerReminder, On
+		settings.maptracker.portal_hotkey_old := settings.maptracker.portal_hotkey_single := settings.maptracker.portal_hotkey
+		Loop, Parse, % "+!^#"
+			settings.maptracker.portal_hotkey_single := StrReplace(settings.maptracker.portal_hotkey_single, A_LoopField)
+		If Blank(settings.maptracker.portal_hotkey_single)
+			settings.maptracker.portal_hotkey_single := settings.maptracker.portal_hotkey
+	}
 	settings.maptracker.xCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "x-coordinate")
 	settings.maptracker.yCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "y-coordinate")
-	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300"}
+	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300", "league 4": "330066"}
 	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
 		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}, vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20250101]], vars.maptracker.notes := LLK_IniRead("ini\map tracker.ini", "UI", "notes")
@@ -1521,13 +1536,6 @@ MaptrackerReminder()
 	global vars, settings
 
 	ignore := ["vaal area", "abyssal depths", "lab trial", "maven", "delirium"]
-	Clipboard := ""
-	Sleep, 100
-
-	If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
-		SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
-	Else SendInput, !^{c}
-	ClipWait, 0.1
 	For index, mechanic in vars.maptracker.map.content
 	{
 		For index0, mechanic0 in ignore
@@ -1536,8 +1544,9 @@ MaptrackerReminder()
 		mechanics += 1
 	}
 
-	If InStr(Clipboard, "`r`nPortal Scroll`r`n", 1) && mechanics
-		LLK_ToolTip(LangTrans("maptracker_check"), 3,,,, "aqua", settings.general.fSize + 4,,, 1)
+	If mechanics
+		LLK_ToolTip(LangTrans("maptracker_check"), 3, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "aqua", settings.general.fSize + 4,,, 1)
+	KeyWait, % settings.maptracker.portal_hotkey_single
 }
 
 MaptrackerSave(mode := 0)

@@ -1728,7 +1728,17 @@ Settings_maptracker()
 		}
 		Gui, %GUI%: Font, cWhite
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.portal_reminder, % LangTrans("m_maptracker_portal")
+		ControlGetPos,,, wControl,,, ahk_id %hwnd%
 		vars.hwnd.settings.portal_reminder := vars.hwnd.help_tooltips["settings_maptracker portal reminder"] := hwnd, handle := ""
+		If settings.maptracker.portal_reminder
+		{
+			Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_maptracker_portal", 2)
+			ControlGetPos,,, wControl2,,, ahk_id %hwnd0%
+			Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+			Gui, %GUI%: Add, Edit, % "ys cBlack gSettings_maptracker2 HWNDhwnd w" wControl - wControl2 - settings.general.fWidth, % settings.maptracker.portal_hotkey
+			Gui, %GUI%: Font, % "s" settings.general.fSize
+			vars.hwnd.settings.portal_hotkey := vars.hwnd.help_tooltips["settings_maptracker portal hotkey"] := hwnd
+		}
 	}
 
 	Gui, %GUI%: Font, bold underline
@@ -1808,6 +1818,20 @@ Settings_maptracker2(cHWND)
 		Case "portal_reminder":
 			settings.maptracker.portal_reminder := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.portal_reminder, ini\map tracker.ini, settings, portal-scroll reminder
+			Settings_menu("mapping tracker")
+		Case "portal_hotkey":
+			input := LLK_ControlGet(cHWND)
+			If (StrLen(input) != 1)
+				Loop, Parse, % "#!^+"
+					input := StrReplace(input, A_LoopField)
+			If !Blank(input) && GetKeyVK(input)
+			{
+				settings.maptracker.portal_hotkey := LLK_ControlGet(cHWND)
+				IniWrite, % settings.maptracker.portal_hotkey, ini\map tracker.ini, settings, portal-scroll hotkey
+				GuiControl, +cBlack, % cHWND
+				Init_maptracker()
+			}
+			Else GuiControl, +cRed, % cHWND
 		Default:
 			If InStr(check, "font_")
 			{
@@ -2593,7 +2617,7 @@ Settings_ScreenChecksValid()
 	valid := 1
 	For key, val in vars.pixelsearch.list
 	{
-		If (key = "inventory" && !(settings.iteminfo.compare || settings.maptracker.mechanics && settings.maptracker.portal_reminder || settings.iteminfo.trigger || settings.mapinfo.trigger))
+		If (key = "inventory" && !(settings.iteminfo.compare || settings.iteminfo.trigger || settings.mapinfo.trigger))
 			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
 	}
