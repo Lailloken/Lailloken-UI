@@ -1,5 +1,13 @@
 [
   [
+	["1.52.4", 15204],
+	"necropolis (3.24) updates: betrayal-info, horizon-tooltips, item-info",
+	"GENERAL REMINDER: SCREEN-CHECKS MAY NEED RECALIBRATION AFTER MAJOR GAME PATCHES. IF THE OMNI-KEY DOESN'T WORK ANYMORE, TEST THE CHECKS AND RECALIBRATE IF NECESSARY",
+	"leveling tracker: changed effective exp panel, improved gem-regex",
+	"fix: leveling tracker doesn't stay hidden after campaign completion",
+	"fix: tldr-tooltips would also screen-cap overlays that potentially cover text"
+  ],
+  [
 	["1.52.3", 15203],
 	"general: added an option to black out the screen area between game client and screen edges",
 	"updater: improved version handling for potential hotfixes",
