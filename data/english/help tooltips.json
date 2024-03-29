@@ -354,7 +354,11 @@
     ],
     "maptracker portal reminder": [
       "when using a portal scroll, a tooltip will remind you to double-check if map content has been completed",
-      "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> section of the menu"
+      "requires you to specify the correct in-game hotkey below"
+    ],
+    "maptracker portal hotkey": [
+      "type in the in-game hotkey for <use portal scroll>",
+      "check the links above if it uses special keys/combinations"
     ],
     "maptracker loot-tracker": [
       "items you ctrl-click into the stash will be logged",

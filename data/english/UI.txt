@@ -651,6 +651,7 @@
 		m_maptracker_dialogue		=	"–> dialogue tracking:"				;## tracking is done via in-game dialogue in the chat-box
 		m_maptracker_screen		=	"–> screen tracking:"				;## tracking is done via screen-reading
 		m_maptracker_portal		=	"reminder when using portal scrolls"		;## shows a reminder-tooltip when activating a portal scroll
+		m_maptracker_portal		=	"portal scroll hotkey:"
 
 
 
