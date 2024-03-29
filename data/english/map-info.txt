@@ -100,7 +100,7 @@ type	=	player
 text	=	no regen
 ID	=	003
 
-[cannot leech # from monsters]
+[Monsters cannot be Leeched from]
 type	=	player
 text	=	no leech
 ID	=	004
@@ -110,9 +110,9 @@ type	=	player
 text	=	temp chains
 ID	=	005
 
-[# maximum player resistances]
+[players have # to all maximum resistances]
 type	=	player
-text	=	max res: -%
+text	=	all max res: -%
 ID	=	006
 
 [players have # less recovery rate of life and energy shield]
@@ -200,12 +200,12 @@ type	=	monsters
 text	=	poison on hit
 ID	=	023
 
-[monsters cannot be taunted|monsters' action speed cannot be modified to below base value]
+[monsters cannot be taunted|monsters' action speed cannot be modified to below base value|monsters' movement speed cannot be modified to below base value]
 type	=	monsters
 text	=	slow/taunt immune
 ID	=	024
 
-[monsters have # chance to impale with attacks]
+[monsters' attacks have # chance to impale on hit]
 type	=	monsters
 text	=	impale chance: %
 ID	=	025
@@ -490,7 +490,7 @@ type	=	monsters
 text	=	rare mobs: +%
 ID	=	081
 
-[monsters deal # extra physical damage as chaos]
+[Monsters gain # of their Physical Damage as Extra Chaos Damage]
 type	=	monsters
 text	=	phys as chaos: %
 ID	=	082
@@ -509,6 +509,16 @@ ID	=	084
 type	=	bosses
 text	=	all at once
 ID	=	085
+
+[Monsters have a # chance Ignite, Freeze and Shock on Hit]
+type	=	monsters
+text	=	ignite, freeze, shock: %
+ID	=	086
+
+[Monsters have a # chance to Ignite, Freeze and Shock on Hit]
+type	=	monsters
+text	=	ignite, freeze, shock: %
+ID	=	086
 
 [monsters have # chance to gain a frenzy charge on hit]
 type	=	monsters
