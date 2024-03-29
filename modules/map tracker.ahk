@@ -19,7 +19,7 @@
 	settings.maptracker.sidecontent := LLK_IniRead("ini\map tracker.ini", "Settings", "track side-areas", 0)
 	settings.maptracker.mechanics := LLK_IniRead("ini\map tracker.ini", "Settings", "track league mechanics", 0)
 	settings.maptracker.portal_reminder := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll reminder", 0)
-	settings.maptracker.portal_hotkey := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll hotkey", "b")
+	settings.maptracker.portal_hotkey := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll hotkey")
 	If !Blank(settings.maptracker.portal_hotkey)
 	{
 		Hotkey, If, (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client)
