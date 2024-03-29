@@ -272,7 +272,7 @@
       "has no effect while the move key is pressed (customizable in the hotkeys section)"
     ],
     "leveltracker geartracker": [
-      "notifies you when new gear can be equipped (the guide button will turn green)",
+      "notifies you when new gear can be equipped (the guide button will show a green number)",
       "accessed by right-clicking the guide button in the toolbar",
       "while the panel is open, omni-click items to add them to the list",
       "requires specifying your character name in the <general> settings"
