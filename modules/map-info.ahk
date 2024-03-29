@@ -284,6 +284,11 @@ MapinfoParse(mode := 1)
 			}
 			If check && mods.HasKey(check)
 				map_mods[check] := value
+			Else If check && settings.general.dev
+			{
+				Clipboard := check
+				MsgBox, % check
+			}
 		}
 		Else If InStr(A_LoopField, " (enchant)")
 		{
