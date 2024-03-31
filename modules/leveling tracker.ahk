@@ -481,7 +481,7 @@ LeveltrackerHints()
 		Gui, leveltracker_hints: Show, NA x10000 y10000
 		WinGetPos,,, w, h, ahk_id %leveltracker_hints%
 		yPos := (Blank(settings.leveltracker.yCoord) || settings.leveltracker.yCoord >= vars.monitor.h / 2) ? vars.leveltracker.coords.y1 - h + 1 : vars.leveltracker.coords.y2 - 1
-		Gui, leveltracker_hints: Show, % "NA x"vars.leveltracker.coords.x1 " y" yPos
+		Gui, leveltracker_hints: Show, % "NA x" vars.monitor.x + vars.leveltracker.coords.x1 " y" yPos
 	}
 	KeyWait, % settings.hotkeys.tab
 	Gui, leveltracker_hints: Destroy
