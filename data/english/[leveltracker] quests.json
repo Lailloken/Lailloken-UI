@@ -2969,6 +2969,15 @@
             "classes": [],
             "npc": "Yeena"
           },
+          "Metadata/Items/Gems/SkillGemPoachersMark": {
+            "classes": [
+              "Shadow",
+              "Duelist",
+              "Ranger",
+              "Scion"
+            ],
+            "npc": "Yeena"
+          },
           "Metadata/Items/Gems/SkillGemRighteousFire": {
             "classes": [
               "Marauder",
@@ -3007,30 +3016,21 @@
             ],
             "npc": "Yeena"
           },
-          "Metadata/Items/Gems/SkillGemPurge": {
-            "classes": [
-              "Scion",
-              "Shadow",
-              "Templar",
-              "Witch"
-            ],
-            "npc": "Yeena"
-          },
-          "Metadata/Items/Gems/SkillGemPoachersMark": {
-            "classes": [
-              "Shadow",
-              "Duelist",
-              "Ranger",
-              "Scion"
-            ],
-            "npc": "Yeena"
-          },
           "Metadata/Items/Gems/SkillGemWarlordsMark": {
             "classes": [
               "Marauder",
               "Duelist",
               "Ranger",
               "Scion"
+            ],
+            "npc": "Yeena"
+          },
+          "Metadata/Items/Gems/SkillGemPurge": {
+            "classes": [
+              "Scion",
+              "Shadow",
+              "Templar",
+              "Witch"
             ],
             "npc": "Yeena"
           }
@@ -3143,6 +3143,11 @@
             ]
           },
           "Metadata/Items/Gems/SupportGemFreshMeat": {
+            "classes": [
+              "Witch"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemSacredWisps": {
             "classes": [
               "Witch"
             ]
@@ -3474,6 +3479,15 @@
             ],
             "npc": "Yeena"
           },
+          "Metadata/Items/Gems/SupportGemSacredWisps": {
+            "classes": [
+              "Ranger",
+              "Scion",
+              "Templar",
+              "Witch"
+            ],
+            "npc": "Yeena"
+          },
           "Metadata/Items/Gems/SupportGemSadism": {
             "classes": [],
             "npc": "Yeena"
@@ -3727,11 +3741,6 @@
               "Witch"
             ]
           },
-          "Metadata/Items/Gems/SkillGemConvocation": {
-            "classes": [
-              "Witch"
-            ]
-          },
           "Metadata/Items/Gems/SkillGemDamageOverTimeAura": {
             "classes": [
               "Witch",
@@ -3876,6 +3885,10 @@
             ],
             "npc": "Clarissa"
           },
+          "Metadata/Items/Gems/SkillGemAutomation": {
+            "classes": [],
+            "npc": "Clarissa"
+          },
           "Metadata/Items/Gems/SkillGemDarkRitual": {
             "classes": [
               "Scion",
@@ -3886,6 +3899,15 @@
             "npc": "Clarissa"
           },
           "Metadata/Items/Gems/SkillGemBattlemagesCry": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Scion",
+              "Templar"
+            ],
+            "npc": "Clarissa"
+          },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
             "classes": [
               "Duelist",
               "Marauder",
@@ -3905,8 +3927,6 @@
           },
           "Metadata/Items/Gems/SkillGemConvocation": {
             "classes": [
-              "Scion",
-              "Templar",
               "Witch"
             ],
             "npc": "Clarissa"
@@ -5335,6 +5355,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemAutomation": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SkillGemBallLightning": {
             "classes": [],
             "npc": "Siosa"
@@ -5448,6 +5472,10 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SupportGemIncreasedBurningDamage": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -6368,6 +6396,10 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SupportGemRuthless": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SupportGemSacredWisps": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -8161,6 +8193,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SkillGemAutomation": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SkillGemBallLightning": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8294,6 +8330,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SupportGemIncreasedBurningDamage": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -9117,10 +9157,6 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SupportGemOnslaught": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
           "Metadata/Items/Gems/SupportGemMultiTotem": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -9290,6 +9326,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemMagmaOrb": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SupportGemSacredWisps": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -10623,12 +10663,6 @@
     "act": "12",
     "reward_offers": {}
   },
-  "heist_intro": {
-    "id": "heist_intro",
-    "name": "The Rogue Harbour",
-    "act": "6",
-    "reward_offers": {}
-  },
   "maven_atlas": {
     "id": "maven_atlas",
     "name": "The Maven",
@@ -10717,70 +10751,6 @@
       }
     }
   },
-  "ritual_tutorial": {
-    "id": "ritual_tutorial",
-    "name": "Paying Tribute",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "trialmaster_tutorial": {
-    "id": "trialmaster_tutorial",
-    "name": "A Choice of Futures",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "expedition_tutorial": {
-    "id": "expedition_tutorial",
-    "name": "Unearthing the Past",
-    "act": "6",
-    "reward_offers": {}
-  },
-  "expedition_tutorial2": {
-    "id": "expedition_tutorial2",
-    "name": "Explosive Archaeology",
-    "act": "6",
-    "reward_offers": {}
-  },
-  "expedition_mainquest": {
-    "id": "expedition_mainquest",
-    "name": "The Lost Expedition",
-    "act": "6",
-    "reward_offers": {}
-  },
-  "hellscape_tutorial1": {
-    "id": "hellscape_tutorial1",
-    "name": "A Glimpse Beyond",
-    "act": "1",
-    "reward_offers": {
-      "hellscape_tutorial1": {
-        "quest_npc": "The Last to Die",
-        "quest": {
-          "Metadata/Items/QuestItems/Hellscape/BloodCrucible": {
-            "classes": []
-          }
-        },
-        "vendor": {}
-      }
-    }
-  },
-  "hellscape_tutorial2": {
-    "id": "hellscape_tutorial2",
-    "name": "Thirst for Blood",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "hellscape_tutorial3": {
-    "id": "hellscape_tutorial3",
-    "name": "Twisted Dreams",
-    "act": "11",
-    "reward_offers": {}
-  },
-  "hellscape_tutorial4": {
-    "id": "hellscape_tutorial4",
-    "name": "Altered Flesh",
-    "act": "11",
-    "reward_offers": {}
-  },
   "kirac_atlas": {
     "id": "kirac_atlas",
     "name": "The Atlas of Worlds",
@@ -10789,45 +10759,21 @@
       "atlas": {
         "quest_npc": "Commander Kirac",
         "quest": {
-          "Metadata/Items/Maps/MapWorldsArena": {
+          "Metadata/Items/Maps/MapWorldsCrimsonTownship": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsBarrows": {
+          "Metadata/Items/Maps/MapWorldsShipyard": {
             "classes": []
           },
           "Metadata/Items/Maps/MapWorldsBoneCrypt": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsPlateau": {
+          "Metadata/Items/Maps/MapWorldsDesertSpring": {
             "classes": []
           }
         },
         "vendor": {}
       }
     }
-  },
-  "archnemesis_tutorial": {
-    "id": "archnemesis_tutorial",
-    "name": "Archnemesis",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "sentinel_tutorial": {
-    "id": "sentinel_tutorial",
-    "name": "Sentinel",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "lake_tutorial": {
-    "id": "lake_tutorial",
-    "name": "Lake of Kalandra",
-    "act": "1",
-    "reward_offers": {}
-  },
-  "ancestral_tutorial": {
-    "id": "ancestral_tutorial",
-    "name": "Dying for a Fight",
-    "act": "1",
-    "reward_offers": {}
   }
 }
