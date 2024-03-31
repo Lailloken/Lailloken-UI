@@ -26,14 +26,14 @@
 	If !settings.hotkeys.rebound_c
 	{
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey, On
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
+		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 	Else
 	{
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2, Omnikey, On
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2 " UP", OmniRelease, On
+		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2 " UP", OmniRelease, On
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey2, On
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
+		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
@@ -66,9 +66,11 @@ HotkeysESC()
 			SendInput, % "{" settings.OCR.z_hotkey "}"
 		}
 		Else If settings.OCR.allow
-			Settings_menu("tldr-tooltips")
+			Settings_menu(vars.settings.active)
 		Else LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 	}
+	Else If WinExist("ahk_id " vars.hwnd.necropolis.main)
+		Necropolis_Close()
 	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
@@ -258,6 +260,19 @@ HotkeysTab()
 *3::
 *4::
 *5::OCR_Highlight(A_ThisHotkey)
+
+#If !vars.necropolis.debug && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.necropolis.main) ;hovering over the necropolis overlay
+*Space::
+*1::
+*2::
+*3::
+*4::
+*5::Necropolis_Highlight(vars.general.cMouse, A_ThisHotkey)
+*MButton::
+*RButton::Return
+
+#If !vars.necropolis.debug && vars.necropolis.GUI && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
+*LButton::Necropolis_Click()
 
 #If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 ~Shift::

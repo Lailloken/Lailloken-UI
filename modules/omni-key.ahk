@@ -6,7 +6,6 @@
 	If vars.omnikey.last	;when the omni-key was last pressed ;for certain hotkeys, AHK keeps firing whatever is bound to it while holding down the key
 		Return			;there is a separate function activated when releasing the omni-key that clears this variable again
 	vars.omnikey.last := A_TickCount
-
 	StringScroll("ESC") ;close searchstring-scrolling
 	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
 
@@ -14,7 +13,7 @@
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
 
 	Clipboard := ""
-	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id "vars.hwnd.poe_client)
+	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id " vars.hwnd.poe_client)
 	{
 		WinActivate, % "ahk_id " vars.hwnd.poe_client
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
@@ -22,7 +21,7 @@
 
 	If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 	{
-		MaptrackerNoteAdd()
+		MaptrackerNoteAdd(), OmniRelease()
 		Return
 	}
 
@@ -36,7 +35,7 @@
 	{
 		If (settings.general.lang_client = "unknown")
 		{
-			LLK_ToolTip(LangTrans("omnikey_language"), 3,,,, "red")
+			LLK_ToolTip(LangTrans("omnikey_language"), 3,,,, "red"), OmniRelease()
 			Return
 		}
 
@@ -98,6 +97,7 @@
 	}
 	Else If (ThisHotkey_copy != settings.hotkeys.omnikey2) ;prevent item-only omni-key from executing non-item features
 		Omnikey2()
+	OmniRelease()
 }
 
 Omnikey2()
@@ -130,8 +130,7 @@ Omnikey2()
 				Break
 			}
 		}
-		Gdip_DisposeImage(vars.cheatsheets.pHaystack)
-		OmniRelease()
+		Gdip_DisposeImage(vars.cheatsheets.pHaystack), OmniRelease()
 		Return
 	}
 
@@ -143,13 +142,19 @@ Omnikey2()
 		Screenchecks_ImageSearch()
 		If settings.features.betrayal && vars.imagesearch.betrayal.check
 		{
-			Betrayal()
+			Betrayal(), OmniRelease()
 			Return
 		}
 
 		If settings.features.leveltracker && vars.imagesearch.skilltree.check
 		{
-			LeveltrackerSkilltree()
+			LeveltrackerSkilltree(), OmniRelease()
+			Return
+		}
+
+		If vars.imagesearch.necro_lantern.check
+		{
+			Necropolis_(), OmniRelease()
 			Return
 		}
 
@@ -185,13 +190,15 @@ Omnikey2()
 			Gdip_DisposeImage(vars.searchstrings.pHaystack)
 		}
 	}
+	OmniRelease()
 }
 
 OmniRelease()
 {
 	local
 	global vars, settings
-
+	
+	KeyWait, % vars.omnikey.hotkey
 	If IsObject(vars.omnikey)
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
 }
