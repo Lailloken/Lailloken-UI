@@ -261,7 +261,7 @@ HotkeysTab()
 *4::
 *5::OCR_Highlight(A_ThisHotkey)
 
-#If !vars.necropolis.debug && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.necropolis.main) ;hovering over the necropolis overlay
+#If !vars.necropolis.debug && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.necropolis.main) && WinActive("ahk_group poe_ahk_window") ;hovering over the necropolis overlay
 *Space::
 *1::
 *2::
@@ -271,7 +271,7 @@ HotkeysTab()
 *MButton::
 *RButton::Return
 
-#If !vars.necropolis.debug && vars.necropolis.GUI && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
+#If !vars.necropolis.debug && vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
 *LButton::Necropolis_Click()
 
 #If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
