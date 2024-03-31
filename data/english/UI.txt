@@ -67,6 +67,7 @@
 		ms_mapping tracker		=	"mapping tracker"
 		ms_map-info			=	"map-info"
 		ms_minor qol tools		=	"minor qol tools"
+		ms_necropolis			=	"necropolis"
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
 		ms_stream-clients		=	"stream-clients"
@@ -141,6 +142,13 @@
 		global_ultrawide		=	"Are there black bars on the sides of the client?"
 		global_credits			=	"credits"
 		global_none			=	"none"
+		global_necro_lantern		=	"necro: lantern"
+		global_necro_enter		=	"necro: enter"
+		global_axis			=	"x-axis"
+		global_axis			=	"y-axis"
+		global_width			=	"width"
+		global_height			=	"height"
+		global_gap			=	"gap"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -667,6 +675,17 @@
 		m_mapinfo_header		=	"header"					;## as in line at the top of a section/paragraph
 		m_mapinfo_logbook		=	"logbook-colors:"
 
+
+
+;#####################################################
+;## settings menu: necropolis
+;#####################################################
+
+;## these strings are displayed/required in the "necropolis" section of the settings menu
+		m_necro_enable			=	"enable lantern highlighting (experimental)"
+		m_necro_offset			=	"overlay offsets:"
+		m_necro_nowindow		=	"open the overlay;before changing settings"
+		m_necro_entercheck		=	"couldn't find the;<enter> button on screen"
 
 
 ;#####################################################
