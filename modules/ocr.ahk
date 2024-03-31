@@ -476,7 +476,7 @@ OCR_RegexCheck(array, insert_index, insert_val, newline := 0) ;takes an array wi
 {
 	local
 
-	If !IsObject(array) || Blank(insert_index) || Blank(insert_val)
+	If !IsObject(array) || Blank(insert_index) || Blank(insert_val) && insert_index
 		Return 0
 	array[insert_index] := insert_val
 	For index, val in array

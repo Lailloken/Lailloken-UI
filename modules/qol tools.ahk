@@ -244,7 +244,7 @@ HorizonsTooltip(mode := "")
 			Gui, %GUI_name%: Font, underline bold
 			Gui, %GUI_name%: Add, Text, Section xs, e-exp:
 			Gui, %GUI_name%: Font, norm
-			Gui, %GUI_name%: Add, Text, ys, % LeveltrackerExperience(67 + vars.omnikey.item.tier)
+			Gui, %GUI_name%: Add, Text, ys, % LeveltrackerExperience(67 + vars.omnikey.item.tier,, "horizon")
 		}
 	}
 

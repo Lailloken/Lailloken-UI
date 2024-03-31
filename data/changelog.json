@@ -1,5 +1,11 @@
 [
   [
+	["1.52.5", 15205],
+	"fix: horizons-tooltips always showed 100% e-exp when used in town/hideout",
+	"item-info: updated unique drop-tiers",
+	"new experimental feature: necropolis lantern highlighting"
+  ],
+  [
 	["1.52.4", 15204],
 	"hotfix 1: regex fix for sacrifice and sacred wisps (leveltracker)",
 	"hotfix 1: add missing necropolis league color, and support for portal scroll hotkey (maptracker)",

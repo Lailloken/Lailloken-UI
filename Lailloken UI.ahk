@@ -45,6 +45,7 @@ If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
+Init_necropolis()
 Init_OCR()
 Init_searchstrings()
 Init_leveltracker()
@@ -87,6 +88,7 @@ Return
 #Include modules\leveling tracker.ahk
 #Include modules\map-info.ahk
 #Include modules\map tracker.ahk
+#Include modules\necropolis.ahk
 #Include modules\ocr.ahk
 #Include modules\omni-key.ahk
 #Include modules\qol tools.ahk

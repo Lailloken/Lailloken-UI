@@ -405,7 +405,7 @@ Leveltracker(cHWND := "", hotkey := "")
 	;WinActivate, ahk_group poe_window
 }
 
-LeveltrackerExperience(arealevel := "", safe := 0)
+LeveltrackerExperience(arealevel := "", safe := 0, feature := "")
 {
 	local
 	global vars, settings
@@ -420,7 +420,7 @@ LeveltrackerExperience(arealevel := "", safe := 0)
 
 	If (arealevel > 70)
 		arealevel := (-0.03) * (arealevel**2) + (5.17 * arealevel) - 144.9
-	If InStr(vars.log.areaID, "_town") || (SubStr(vars.log.areaID, 1, 7) = "hideout")
+	If (feature != "horizon") && (InStr(vars.log.areaID, "_town") || (SubStr(vars.log.areaID, 1, 7) = "hideout"))
 		arealevel := vars.log.level, hideout := 1
 
 	safezone := Floor(3 + (vars.log.level/16)), safezone_min := vars.log.level - safezone, safezone_max := vars.log.level + safezone

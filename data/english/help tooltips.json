@@ -413,6 +413,24 @@
       "logbook mods use positive rankings, with 4 being the best value",
       "while hovering over mods, press 1-4 to apply a color, or space to strike out"
     ],
+    "necro enable": [
+      "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"
+    ],
+    "necro compatibility": [
+      "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting",
+      "a compatibility test has to be done before this feature can be enabled",
+      "open the character-stats screen, then click this checkbox to open the windows snipping tool",
+      "use it to snip 4 to 5 lines of text from the character-stats"
+    ],
+    "necro offsets": [
+      "the overlay's position aligns with the <necro: lantern> screen-check, and its size scales with the game's resolution",
+      "adjust the offsets below to fine-tune its position and size (center buttons = reset)",
+	  "adjust the opacity first if you're having issues with finding the right offsets"
+    ],
+    "necro colors": [
+      "customize the colors used to highlight different mods: the text panels show the corresponding hotkey (s = space)",
+      "click the colored panels to open the palette, right-click to reset to the default color"
+    ],
     "alarm enable": [
       "small timer widget with alarm and stopwatch functionality",
       "hold tab to display the widget, then click it to enter a time, or drag to move it",
@@ -818,6 +836,24 @@
       "",
       "(/bold)(/underline)used for:",
       "-> betrayal-info overlay"
+    ],
+    "necro_enter": [
+      "(/bold)(/underline)instructions:",
+      "-> open the lantern ui for a zone",
+      "-> click <cal> and clip the marked area (img)",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> necropolis: lantern highlighting"
+    ],
+    "necro_lantern": [
+      "(/bold)(/underline)instructions:",
+      "-> open the lantern ui for a zone",
+      "-> click <cal> and clip the marked area (img): start slightly above the top-left corner of the first lantern mod",
+      "-> follow the instructions in <test>",
+      "",
+      "(/bold)(/underline)used for:",
+      "-> necropolis: lantern highlighting"
     ],
     "skilltree": [
       "(/bold)(/underline)instructions:",
