@@ -1,6 +1,8 @@
 [
   [
 	["1.52.5", 15205],
+	"hotfix 1: fixed bug with hint-images on multi-monitors (leveling tracker)",
+	"hotfix 1: added support for 3.24 exile-leveling guides",
 	"fix: horizons-tooltips always showed 100% e-exp when used in town/hideout",
 	"item-info: updated unique drop-tiers",
 	"new experimental feature: necropolis lantern highlighting"

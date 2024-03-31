@@ -111,6 +111,10 @@
     "ass.*ark",
     "3"
   ],
+  "Automation": [
+    "aut.*ion",
+    "3"
+  ],
   "Ball Lightning": [
     "bal.*ing",
     "3"
@@ -245,6 +249,10 @@
   ],
   "Burning Damage Support": [
     "bur.*rt",
+    "1"
+  ],
+  "Call to Arms": [
+    "cal.*rms",
     "1"
   ],
   "Cast On Critical Strike Support": [
@@ -1314,6 +1322,10 @@
   "Ruthless Support": [
     "rut.*rt",
     "1"
+  ],
+  "Sacred Wisps Support": [
+    "sacre.*rt",
+    "3"
   ],
   "Sacrifice Support": [
     "sacri.*rt",

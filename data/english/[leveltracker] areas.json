@@ -506,7 +506,7 @@
       "1_2_14_3"
     ],
     "crafting_recipes": [
-      "Movement Speed - Rank 1"
+      "Vaal Skill Damage - Rank 1"
     ]
   },
   "1_2_5_1": {
@@ -577,7 +577,9 @@
       "1_2_14_3",
       "1_3_town"
     ],
-    "crafting_recipes": []
+    "crafting_recipes": [
+      "Movement Speed - Rank 1"
+    ]
   },
   "1_3_town": {
     "id": "1_3_town",
@@ -984,7 +986,9 @@
     "connection_ids": [
       "1_3_17_1"
     ],
-    "crafting_recipes": []
+    "crafting_recipes": [
+      "Life and Mana Regeneration - Rank 1"
+    ]
   },
   "1_3_18_2": {
     "id": "1_3_18_2",
