@@ -274,14 +274,19 @@ MapinfoParse(mode := 1)
 				If (A_Index = 1) || (SubStr(A_LoopField, 1, 1) = "(")
 					Continue
 				MapinfoLineparse(IteminfoModRemoveRange(A_LoopField), text, value)
-				texts.Push(text), values.Push(Format("{:0." (InStr(value, ".") ? 1 : 0) "f}", (mod_multi != 1) ? Floor(value * mod_multi) : value)), check := "", value := ""
+				texts.Push(text)
+				If IsNumber(value)
+					values.Push(Format("{:0." (InStr(value, ".") ? 1 : 0) "f}", (mod_multi != 1) ? Floor(value * mod_multi) : value))
+				Else values.Push("")
+				check := "", value := ""
 			}
 			For index, text in texts
 			{
 				If mods.HasKey(text)
 					map_mods[text] := map_mods.HasKey(text) ? map_mods[text] + values[index] : values[index]
-				Else check .= !check ? text : "|" text, value .= !value ? values[index] : "/" values[index]
+				Else check .= !check ? text : "|" text, value .= !value ? values[index] : (InStr(check, " fewer trap") || SubStr(value, 0 - StrLen(values[index])) = values[index] ? "" : "/" values[index])
 			}
+
 			If check && mods.HasKey(check)
 				map_mods[check] := value
 			Else If check && settings.general.dev
@@ -389,7 +394,8 @@ MapinfoParse(mode := 1)
 
 	For map_mod, value in map_mods
 	{
-		pushtext := InStr(mods[map_mod].text, ": +") ? StrReplace(mods[map_mod].text, ": +", ": +" value,, 1) : InStr(mods[map_mod].text, "%") ? StrReplace(mods[map_mod].text, "%", value "%",, 1) : mods[map_mod].text
+		pushtext := InStr(mods[map_mod].text, ": +") || InStr(mods[map_mod].text, ": -") ? StrReplace(StrReplace(mods[map_mod].text, ": -", ": -" value), ": +", ": +" value,, 1) : InStr(mods[map_mod].text, "%") ? StrReplace(mods[map_mod].text, "%", value "%",, 1) : mods[map_mod].text
+		pushtext := StrReplace(pushtext, "(n)", "`n")
 		If !settings.mapinfo.IDs[mods[map_mod].id].show
 		{
 			If !IsObject(map[mods[map_mod].type].0[settings.mapinfo.IDs[mods[map_mod].id].rank])
