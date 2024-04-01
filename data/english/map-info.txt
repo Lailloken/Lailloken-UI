@@ -627,7 +627,7 @@ ID	=	178
 
 [All Monster Damage can Ignite, Freeze and Shock|Monsters Ignite, Freeze and Shock on Hit]
 type	=	monsters
-text	=	ele conflux
+text	=	triple conflux
 ID	=	179
 
 [Players cannot Block|Players cannot Suppress Spell Damage]
