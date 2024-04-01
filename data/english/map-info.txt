@@ -177,7 +177,7 @@ ID	=	018
 
 [all monster damage from hits always ignites]
 type	=	monsters
-text	=	hits ignite
+text	=	ignite conflux
 ID	=	019
 
 [monsters cannot be stunned]
@@ -200,9 +200,9 @@ type	=	monsters
 text	=	poison on hit
 ID	=	023
 
-[monsters cannot be taunted|monsters' action speed cannot be modified to below base value|monsters' movement speed cannot be modified to below base value]
+[monsters cannot be taunted]
 type	=	monsters
-text	=	slow/taunt immune
+text	=	taunt immune
 ID	=	024
 
 [monsters' attacks have # chance to impale on hit]
@@ -252,7 +252,7 @@ ID	=	033
 
 [# less effect of curses on monsters]
 type	=	monsters
-text	=	curse resist: %
+text	=	less curse eff: %
 ID	=	034
 
 [monsters have # chance to suppress spell damage]
@@ -477,7 +477,7 @@ ID	=	078
 
 [# more magic monsters]
 type	=	monsters
-text	=	more magic mobs: %
+text	=	more magic: %
 ID	=	079
 
 [area contains two unique bosses]
@@ -519,6 +519,221 @@ ID	=	086
 type	=	monsters
 text	=	ignite, freeze, shock: %
 ID	=	086
+
+[monsters' action speed cannot be modified to below base value|monsters' movement speed cannot be modified to below base value]
+type	=	monsters
+text	=	slow immune
+ID	=	087
+
+[Rare Monsters each have # additional Modifiers]
+type	=	monsters
+text	=	mods on rares: +
+ID	=	159
+
+[Area contains Drowning Orbs]
+type	=	area
+text	=	drowning orbs
+ID	=	160
+
+[The Maven interferes with Players]
+type	=	player
+text	=	maven interferes
+ID	=	161
+
+[Area contains Runes of the Searing Exarch]
+type	=	area
+text	=	exarch runes
+ID	=	162
+
+[Debuffs on Monsters expire # faster]
+type	=	monsters
+text	=	debuff expiration: +%
+ID	=	163
+
+[Map Boss is accompanied by a Synthesis Boss]
+type	=	boss
+text	=	added synthesis boss
+ID	=	164
+
+[Players' Minions have # less Attack Speed|Players' Minions have # less Cast Speed|Players' Minions have # less Movement Speed]
+type	=	player
+text	=	less minion m/a/c spd: %
+ID	=	165
+
+[Players in Area take # increased Damage per nearby Ally]
+type	=	player
+text	=	dmg taken per ally: +%
+ID	=	166
+
+[Rare and Unique monsters spawn a Tormented Spirit on reaching Low Life]
+type	=	monsters
+text	=	ll rare/uni spawn spirits
+ID	=	167
+
+[# of Damage Players' Totems take from Hits is taken from their Summoner's Life instead]
+type	=	player
+text	=	tank totem dmg: %
+ID	=	168
+
+[Area has patches of Awakeners' Desolation]
+type	=	area
+text	=	awakener's desolation
+ID	=	169
+
+[Player Skills which Throw Mines throw # fewer Mine|Player Skills which Throw Traps throw # fewer Trap]
+type	=	player
+text	=	mines/traps: -
+ID	=	170
+
+[Area contains Unstable Tentacle Fiends]
+type	=	area
+text	=	tentacle fiends
+ID	=	171
+
+[Players have # to maximum number of Summoned Totems]
+type	=	player
+text	=	max totems: -
+ID	=	172
+
+[Players have # reduced Action Speed for each time they've used a Skill Recently]
+type	=	player
+text	=	act-spd per skill: -%
+ID	=	173
+
+[Rare monsters in area are Shaper-Touched]
+type	=	monsters
+text	=	shapered rares
+ID	=	174
+
+[Monster Damage Penetrates # Elemental Resistances]
+type	=	monsters
+text	=	ele pen: %
+ID	=	175
+
+[Monsters' Attacks Impale on Hit|When a fifth Impale is inflicted on a Player, Impales are removed to Reflect thier Physical Damage multiplied by their remaining Hits to that Player and their Allies within # metres]
+type	=	monsters
+text	=	impale | 5 stacks pop
+ID	=	176
+
+[Rare and Unique Monsters remove # of Life, Mana and Energy Shield on hit]
+type	=	monsters
+text	=	rare/uni remove l/m/es: %
+ID	=	177
+
+[Players are Marked for Death for # seconds|after killing a Rare or Unique monster]
+type	=	player
+text	=	marked for death
+ID	=	178
+
+[All Monster Damage can Ignite, Freeze and Shock|Monsters Ignite, Freeze and Shock on Hit]
+type	=	monsters
+text	=	ele conflux
+ID	=	179
+
+[Players cannot Block|Players cannot Suppress Spell Damage]
+type	=	players
+text	=	can't block/suppress
+ID	=	180
+
+[Players cannot Recharge Energy Shield]
+type	=	players
+text	=	can't recharge es
+ID	=	181
+
+[Players have # less Defences]
+type	=	players
+text	=	less defences: %
+ID	=	182
+
+[# reduced Effect of Curses on Monsters]
+type	=	monsters
+text	=	red. curse eff: %
+ID	=	183
+
+[Players are targeted by a Meteor when they use a Flask]
+type	=	player
+text	=	meteor on flask
+ID	=	184
+
+[Players are assaulted by Bloodstained Sawblades]
+type	=	player
+text	=	sawblade assault
+ID	=	185
+
+[Players cannot gain Endurance Charges|Players cannot gain Frenzy Charges|Players cannot gain Power Charges]
+type	=	player
+text	=	can't gain charges
+ID	=	186
+
+[Area contains # additional Clusters of Highly Volatile Barrels]
+type	=	area
+text	=	volatile barrels: +
+ID	=	187
+
+[Monsters gain # of their Physical Damage as Extra Damage of a random Element]
+type	=	monsters
+text	=	phys as ele: %
+ID	=	188
+
+[Area contains Petrification Statues]
+type	=	area
+text	=	petri statues
+ID	=	189
+
+[Rare Monsters have Volatile Cores]
+type	=	monsters
+text	=	volatile rares
+ID	=	190
+
+[Unique Monsters have a random Shrine Buff]
+type	=	monsters
+text	=	shrined uniques
+ID	=	191
+
+[Monsters inflict # Grasping Vines on Hit]
+type	=	monsters
+text	=	grasping vines
+ID	=	192
+
+[Monsters have # Chance to Block Attack Damage]
+type	=	monsters
+text	=	attack-block: +%
+ID	=	193
+
+[All Damage from Monsters' Hits can Poison|Monsters have # increased Poison Duration]
+type	=	monsters
+text	=	psn conflux && dura: +%
+ID	=	194
+
+[Monsters have # to Maximum Endurance Charges]
+type	=	monsters
+text	=	max e-charges: +
+ID	=	195
+
+[Monsters have # to Maximum Frenzy Charges]
+type	=	monsters
+text	=	max f-charges: +
+ID	=	196
+
+[Monsters have # to Maximum Power Charges]
+type	=	monsters
+text	=	max p-charges: +
+ID	=	197
+
+[Players and their Minions deal no damage for # out of every # seconds]
+type	=	player
+text	=	zdps intervals
+ID	=	198
+
+[All Magic and Normal Monsters in Area are in a Union of Souls]
+type	=	monsters
+text	=	union of souls
+ID	=	199
+
+[Monsters' Projectiles can Chain when colliding with Terrain]
+type	=	monsters
+text	=	terrain chain
+ID	=	200
 
 [monsters have # chance to gain a frenzy charge on hit]
 type	=	monsters
