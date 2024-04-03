@@ -750,7 +750,7 @@ Settings_general2(cHWND := "")
 			GuiControl, text, % vars.hwnd.settings.character, % parse
 			GuiControl, +disabled, % vars.hwnd.settings.character
 			IniWrite, % settings.general.character, ini\config.ini, Settings, active character
-			Init_log()
+			Init_log("refresh")
 			If WinExist("ahk_id " vars.hwnd.geartracker.main)
 				GeartrackerGUI()
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
@@ -2722,12 +2722,12 @@ Settings_screenchecks2(cHWND := "")
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
 						pClipboard := Screenchecks_ImageRecalibrate()
-						If (pClipboard < 0)
+						If (pClipboard <= 0)
 						{
 							vars.general.gui_hide := 0
 							While !WinExist("ahk_id " vars.hwnd.settings.main)
 								sleep, 10
-							LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
+							LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red", settings.general.fSize * 2,,, 1)
 							Return
 						}
 						Else

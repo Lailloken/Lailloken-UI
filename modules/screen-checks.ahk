@@ -71,7 +71,7 @@ Screenchecks_ImageRecalibrate()
 		vars.general.gui_hide := 0
 		LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 		WinWait, % "ahk_id " vars.hwnd.settings.main
-		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
+		;LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 		Return 0
 	}
 	vars.general.gui_hide := 0
