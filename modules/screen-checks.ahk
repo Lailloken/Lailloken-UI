@@ -47,19 +47,36 @@ Screenchecks_ImageRecalibrate()
 	LLK_Overlay("hide")
 	SendInput, #+{s}
 	WinWaitActive, ahk_group snipping_tools,, 2
+	While WinActive("ahk_group snipping_tools")
+	{
+		KeyWait, LButton, D T0.1
+		If !ErrorLevel
+		{
+			MouseGetPos, x1, y1
+			KeyWait, LButton
+			MouseGetPos, x2, y2
+			Break
+		}
+	}
 	WinWaitActive, ahk_group poe_ahk_window
-	pClipboard := Gdip_CreateBitmapFromClipboard()
-	If (pClipboard <= 0)
+	x := Min(x1, x2) - vars.client.x + settings.general.oGamescreen, y := Min(y1, y2) - vars.client.y, w := Abs(x1 - x2), h := Abs(y1 - y2)
+	;MsgBox, % x ", " y ", " w ", " h "`n" vars.client.x - vars.monitor.x ", " vars.client.x - vars.monitor.x + vars.client.w ", " vars.client.x - vars.monitor.x ", " vars.client.x - vars.monitor.x + vars.client.w
+	If Blank(x1) || Blank(x2) || (w < 10 && h < 10)
+	|| !(LLK_IsBetween(x1, vars.client.x, vars.client.x + vars.client.w) && LLK_IsBetween(x2, vars.client.x, vars.client.x + vars.client.w))
+	|| !(LLK_IsBetween(y1, vars.client.y, vars.client.y + vars.client.h) && LLK_IsBetween(y2, vars.client.y, vars.client.y + vars.client.h))
+		Return 0
+	pScreencap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), pClip := Gdip_CloneBitmapArea(pScreencap, x, y, w, h,, 1), Gdip_DisposeImage(pScreencap)
+	If (pClip <= 0)
 	{
 		vars.general.gui_hide := 0
 		LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 		WinWait, % "ahk_id " vars.hwnd.settings.main
 		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
-		Return
+		Return 0
 	}
 	vars.general.gui_hide := 0
 	WinWait, % "ahk_id " vars.hwnd.settings.main
-	Return pClipboard
+	Return pClip
 }
 
 Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parameter to perform a specific check, leave blank to go through every check
