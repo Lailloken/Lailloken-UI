@@ -431,7 +431,7 @@ LeveltrackerExperience(arealevel := "", safe := 0, feature := "")
 	exp_multi := Max(exp_multi * exp_penalty, 0.01)
 	text := (safe || exp_multi = 1 ? Round(exp_multi*100) : Format("{:0.1f}", exp_multi * 100)) "%", text := hideout ? "100%" : text
 	If safe
-		text .= safezone_diff ? " (" (safezone_diff > 0 ? "+" : "") safezone_diff ")" : !safezone_diff ? safezone_min " | " arealevel " | " safezone_max : ""
+		text .= safezone_diff ? " (" (safezone_diff > 0 ? "+" : "") safezone_diff ")" : !safezone_diff ? Max(safezone_min, 1) " | " arealevel " | " safezone_max : ""
 	Return text
 }
 
