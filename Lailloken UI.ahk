@@ -147,8 +147,8 @@ Exit()
 			IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	}
 
-	If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0))
-		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
+	If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
+		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 
 	If vars.maptracker.map.date_time
 		MaptrackerSave()
@@ -793,7 +793,7 @@ RGB_Picker(current_rgb := "")
 	Gui, RGB_palette: New, -Caption -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Border HWNDhwnd +E0x02000000 +E0x00080000 HWNDhwnd_palette
 	Gui, RGB_palette: Color, Black
 	Gui, RGB_palette: Font, % "s" settings.general.fSize, % vars.system.font
-	Gui, RGB_palette: Margin, % settings.general.fWidth / 2, % settings.general.fWidth / 2
+	Gui, RGB_palette: Margin, % settings.general.fWidth, % settings.general.fWidth
 	For index0, val0 in palette
 		For index, val in val0
 		{
@@ -892,20 +892,13 @@ SnippingTool(mode := 0)
 		pBitmap := Gdip_BitmapFromScreen(x + vars.system.xborder "|" y + vars.system.yborder + vars.system.caption "|" w - vars.system.xborder*2 "|" h - vars.system.yborder*2 - vars.system.caption)
 		Gui, snip: Show
 	}
-	Else
-	{
-		Clipboard := ""
-		SendInput, #+{s}
-		WinWaitActive, ahk_group snipping_tools,, 2
-		WinWaitActive, ahk_group poe_ahk_window
-		pBitmap := Gdip_CreateBitmapFromClipboard()
-	}
+	Else pBitmap := Screenchecks_ImageRecalibrate()
 
-	vars.general.gui_hide := 0
+	vars.general.gui_hide := 0, LLK_Overlay("show")
 	Gui, %A_Gui%: Show, NA
 	If (pBitmap <= 0)
 	{
-		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
+		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red")
 		Return 0
 	}
 	If WinExist("ahk_id "vars.hwnd.snip.main)
