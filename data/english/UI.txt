@@ -407,6 +407,18 @@
 
 
 ;#####################################################
+;## screen-checks
+;#####################################################
+
+;## these strings are displayed/required when using the screen-checks feature
+		screen_snipinstructions		=	"l-click drag: normal snip"
+		screen_snipinstructions		=	"r-click drag: adjustable snip"
+		screen_snipinstructions		=	"wasd: move adj. snip"
+		screen_snipinstructions		=	"shift + wasd: resize adj. snip"
+		screen_snipinstructions		=	"space: confirm adj. snip"
+		screen_snipinstructions		=	"esc: exit"
+
+;#####################################################
 ;## search-strings
 ;#####################################################
 
@@ -635,9 +647,9 @@
 		m_lvltracker_skilltree		=	"skill-tree overlay settings:"
 		m_lvltracker_pob		=	"pob: middle-click opens screen-cap menu"
 		m_lvltracker_screencap		=	"screen-cap menu"
-		m_lvltracker_guide		=	"guide settings:"
-		m_lvltracker_generate		=	"generate"					;## as in generate a guide
-		m_lvltracker_reset		=	"reset progress:"
+		m_lvltracker_guide		=	"guides:"
+		m_lvltracker_generate		=	"open exile-leveling"
+		m_lvltracker_reset		=	"reset"
 		m_lvltracker_incompatible	=	"incompatible guide-data,;update required"
 
 

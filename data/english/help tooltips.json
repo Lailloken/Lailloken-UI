@@ -297,13 +297,19 @@
       "if you want to edit the images yourself, you can move them to this folder manually"
     ],
     "leveltracker generate": [
-      "opens exile-leveling to generate a guide"
+      "exile-leveling is used to generate and export the guide data"
+    ],
+    "leveltracker profile select": [
+      "click to select this guide slot"
     ],
     "leveltracker import": [
       "imports guide data from clipboard"
     ],
     "leveltracker reset": [
       "hold to reset your progress and start over"
+    ],
+    "leveltracker profile name": [
+      "type in a description/name for the guide in this slot"
     ],
     "leveltracker layouts": [
       "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
@@ -499,6 +505,9 @@
     "screenchecks pixel-background": [
       "important background process that enables context-sensitivity",
       "in case of performance issues, disable temporarily to check if it's the cause"
+    ],
+    "screenchecks pixel-checks alt": [
+      "this mode might improve compatibility on certain systems, e.g. when using hdr"
     ],
     "screenchecks image-about": [
       "same principle as pixel-checks (see above) but more precise",
@@ -849,7 +858,7 @@
     "necro_lantern": [
       "(/bold)(/underline)instructions:",
       "-> open the lantern ui for a zone",
-      "-> click <cal> and clip the marked area (img): start slightly above the top-left corner of the first lantern mod",
+      "-> click <cal> and clip the marked area (img)",
       "-> follow the instructions in <test>",
       "",
       "(/bold)(/underline)used for:",
