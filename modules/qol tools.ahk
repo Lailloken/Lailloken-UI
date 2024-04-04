@@ -450,7 +450,7 @@ Lab(mode := "", override := 0)
 	LLK_Overlay(hwnd_old, "destroy"), LLK_Overlay(hwnd_old2, "destroy")
 }
 
-Notepad(cHWND := "", hotkey := "")
+Notepad(cHWND := "", hotkey := "", color := 0)
 {
 	local
 	global vars, settings
@@ -471,7 +471,40 @@ Notepad(cHWND := "", hotkey := "")
 			IniWrite, % """" check_text """", ini\qol tools.ini, notepad, % vars.notepad.selected_entry
 			vars.notepad.entries[vars.notepad.selected_entry] := StrReplace(check_text, "(n)", "`n")
 			If vars.hwnd.notepad_widgets.HasKey(vars.notepad.selected_entry)
-				NotepadWidget(vars.notepad.selected_entry, 5)
+				NotepadWidget(vars.notepad.selected_entry, 5, color)
+		}
+		Return
+	}
+	Else If (cHWND = "color")
+	{
+		Clipboard := ""
+		SendInput, ^{c}
+		ClipWait, 0.1
+		If !Blank(Clipboard)
+		{
+			check := LLK_InStrCount(Clipboard, "§")
+			If check && ((check != 2) || SubStr(Clipboard, 1, 1) != "§")
+			{
+				LLK_ToolTip(LangTrans("global_error") ": §",,,,, "red"), Clipboard := ""
+				Return
+			}
+			prev_color := InStr(Clipboard, "§") && InStr(Clipboard, ": ") ? SubStr(Clipboard, InStr(Clipboard, "§") + 1, 6): "", color := LLK_StringCase(RGB_Picker(prev_color))
+			If !Blank(color)
+			{
+				Sleep, 100
+				parse := Clipboard
+				While (SubStr(parse, 1, 1) = " ")
+					parse := SubStr(parse, 2)
+				While (SubStr(parse, 0) = " ")
+					parse := SubStr(parse, 1, -1)
+				If (SubStr(parse, 1, 1) = "§")
+					Clipboard := StrReplace(Clipboard, SubStr(parse, 1, 9)), Clipboard := StrReplace(Clipboard, "§"), parse := SubStr(parse, 10, -1)
+				If (color != prev_color)
+					Clipboard := StrReplace(Clipboard, parse, "§" color ": " StrReplace(parse, "`r`n", "§`r`n§" color ": ") "§")
+				SendInput, ^{v}
+				Sleep 100
+				Notepad("save",, 1)
+			}
 		}
 		Return
 	}
@@ -491,6 +524,12 @@ Notepad(cHWND := "", hotkey := "")
 		}
 		If !Blank(yPos)
 			vars.notepad.x := xPos, vars.notepad.y := yPos
+		Return
+	}
+	Else If (check = "color_code")
+	{
+		SendInput, ^{c}
+		Msgbox, % clipboard
 		Return
 	}
 	Else If InStr(check, "color_")
@@ -539,8 +578,7 @@ Notepad(cHWND := "", hotkey := "")
 	Else If (check = "winx") || (cHWND = vars.hwnd.LLK_panel.notepad) && WinExist("ahk_id " vars.hwnd.notepad.main)
 	{
 		KeyWait, LButton
-		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy")
-		WinActivate, ahk_group poe_window
+		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 		Return
 	}
 	Else If (check = "add")
@@ -652,7 +690,7 @@ Notepad(cHWND := "", hotkey := "")
 	}
 	If (sum_height)
 	{
-		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
+		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans gNotepad HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %GUI_name%: Font, % "s" settings.notepad.fSize
 		Gui, %GUI_name%: Add, Edit, % "ys x+-1 cBlack -Wrap Multi Hidden HWNDhwnd"(Blank(vars.notepad.entries[vars.notepad.selected_entry]) ? " w"wBox : ""), % vars.notepad.entries[vars.notepad.selected_entry]
@@ -704,7 +742,7 @@ NotepadReload()
 	}
 }
 
-NotepadWidget(tab, mode := 0)
+NotepadWidget(tab, mode := 0, color := 0)
 {
 	local
 	global vars, settings
@@ -749,7 +787,7 @@ NotepadWidget(tab, mode := 0)
 			vars.notepad_widgets[tab].page += (vars.notepad_widgets[tab].page != vars.notepad_widgets[tab].text.Count()) ? 1 : 0, mode := 0
 		Else If InStr(vars.notepad.entries[tab], "`n#`n") && (mode = 3)
 			vars.notepad_widgets[tab].page -= (vars.notepad_widgets[tab].page > 1) ? 1 : 0, mode := 0
-		Else If !A_Gui && !longpress
+		Else If !A_Gui && !longpress && !color
 			Return
 
 		If InStr(vars.notepad.entries[tab], "`n#`n") && InStr(A_Gui, "notepad")
@@ -774,12 +812,59 @@ NotepadWidget(tab, mode := 0)
 	If (InStr(A_Gui, "notepad") || mode = 1)
 		LLK_Overlay(hwnd_old, "destroy")
 
+	/*
 	If IsObject(vars.notepad_widgets[tab].text)
 	{
 		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count()
 		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):`n" StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
 	}
 	Else Gui, %GUI_name%: Add, Text, % "Section" (tab = "notepad_reminder_feature" ? " cRed" : ""), % StrReplace(vars.notepad.entries[tab], "&", "&&")
+	*/
+
+	If IsObject(vars.notepad_widgets[tab].text)
+	{
+		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count(), multi := 1
+		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):`n" StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
+	}
+
+	If (tab = "notepad_reminder_feature")
+		Gui, %GUI_name%: Add, Text, % "Section cRed", % StrReplace(vars.notepad.entries[tab], "&", "&&")
+	Else
+	{
+		Loop, Parse, % multi ? StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&") : StrReplace(vars.notepad.entries[tab], "&", "&&"), `n
+		{
+			segment := "", style := "xs Section y+0", color := "", colon := ""
+			If InStr(A_LoopField, "§",, 2) && (SubStr(A_LoopField, InStr(A_LoopField, "§") + 7, 2) = ": ")
+				Loop, Parse, A_LoopField
+				{
+					continue := 0
+					If (A_LoopField = "§") && Blank(color)
+					{
+						If !Blank(segment)
+						{
+							Gui, %GUI_name%: Add, Text, % style, % segment
+							style := "ys x+0"
+						}
+						color := "start", segment := "", continue := 1
+					}
+					Else If (A_LoopField = "§")
+					{
+						Gui, %GUI_name%: Add, Text, % style " c" color, % segment
+						style := "ys x+0", color := "", segment := "", colon := "", continue := 1
+					}
+					Else If (color = "start") || !Blank(color) && (StrLen(color) < 6)
+						color := (color = "start") ? A_LoopField : color . A_LoopField, continue := 1
+					Else If !colon && (A_LoopField = ":")
+						colon := A_Index
+					If continue || colon && LLK_IsBetween(A_Index, colon, colon + 1)
+						Continue
+					segment .= A_LoopField
+				}
+			Else segment := A_LoopField
+			If !Blank(segment)
+				Gui, %GUI_name%: Add, Text, % style, % segment
+		}
+	}
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %widget%
 	While longpress && (InStr(A_Gui, "notepad") || mode = 1) && GetKeyState("LButton", "P")

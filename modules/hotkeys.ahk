@@ -69,12 +69,16 @@ HotkeysESC()
 			Settings_menu(vars.settings.active)
 		Else LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 	}
+	Else If vars.snipping_tool.GUI
+		vars.snipping_tool := {"GUI": 0}
 	Else If WinExist("ahk_id " vars.hwnd.necropolis.main)
 		Necropolis_Close()
 	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
 		WinActivate, ahk_group poe_window
+	Else If WinActive("ahk_id " vars.hwnd.notepad.main)
+		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
 	{
 		Gui, tooltipgem_notes: Destroy
@@ -274,6 +278,15 @@ HotkeysTab()
 #If !vars.necropolis.debug && vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
 *LButton::Necropolis_Click()
 
+#If vars.snipping_tool.GUI && WinActive("ahk_id " vars.hwnd.snipping_tool.main)
+*W::
+*A::
+*S::
+*D::
+Space::
+LButton::
+RButton::Screenchecks_ImageRecalibrate(A_ThisHotkey)
+
 #If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 ~Shift::
 ~Shift UP::
@@ -298,6 +311,9 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 *LButton::Return
 *RButton::Return
+
+#If vars.hwnd.notepad.main && (vars.general.cMouse = vars.hwnd.notepad.note) && WinActive("ahk_id " vars.hwnd.notepad.main)
+*RButton::Notepad("color")
 
 #If (vars.system.timeout = 0) && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.LLK_panel.main)
 

@@ -46,7 +46,7 @@ Necropolis_(mode := "")
 	If !IsObject(vars.necropolis)
 		vars.necropolis := {}
 	necro := settings.necropolis
-	hBox := Round(vars.client.h * (4/45)) + necro.oHeight, wBox := Round(3.22 * hBox) + necro.oWidth, xUI := vars.imagesearch.necro_lantern.found.1 + necro.oXpos, yUI := vars.imagesearch.necro_lantern.found.2 + vars.imagesearch.necro_lantern.found.4 + necro.oYpos
+	hBox := Round(vars.client.h * (4/45)) + necro.oHeight, wBox := Round(3.22 * hBox) + necro.oWidth, xUI := vars.imagesearch.necro_lantern.found.1 - hBox + necro.oXpos, yUI := vars.imagesearch.necro_lantern.found.2 + vars.imagesearch.necro_lantern.found.4 + hBox//2 + necro.oYpos
 	If (mode != "refresh") && !Screenchecks_ImageSearch("necro_enter")
 	{
 		Gdip_DisposeImage(vars.imagesearch.necro_lantern.pHaystack)
@@ -196,7 +196,7 @@ Necropolis_Parse(text)
 	Loop, Parse, text
 		text := (A_Index = 1) ? "" : text, text .= LLK_IsType(A_LoopField, "alpha") || (A_LoopField = ":") ? A_LoopField : ""
 	If InStr(text, ":")
-		text := SubStr(text, InStr(text, ":"))
+		text := SubStr(text, InStr(text, ":") + 1)
 	While InStr(text, "  ")
 		text := StrReplace(text, "  ", " ")
 	While (SubStr(text, 1, 1) = " ")

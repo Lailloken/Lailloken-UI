@@ -11,15 +11,17 @@
 		IniWrite, % "", ini\leveling tracker.ini, UI
 	}
 
-	If !InStr(LLK_IniRead("ini\leveling tracker.ini"), "current run")
+	settings.leveltracker := {}
+	settings.leveltracker.profile := LLK_IniRead("ini\leveling tracker.ini", "Settings", "profile")
+
+	If !InStr(LLK_IniRead("ini\leveling tracker.ini"), "current run" settings.leveltracker.profile)
 	{
-		IniWrite, % "", ini\leveling tracker.ini, current run, name
-		IniWrite, 0, ini\leveling tracker.ini, current run, time
+		IniWrite, % "", ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, name
+		IniWrite, 0, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		Loop 10
-			IniWrite, % "", ini\leveling tracker.ini, current run, act %A_Index%
+			IniWrite, % "", ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, act %A_Index%
 	}
 
-	settings.leveltracker := {}
 	settings.leveltracker.timer := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable timer", 0)
 	settings.leveltracker.pausetimer := LLK_IniRead("ini\leveling tracker.ini", "Settings", "hideout pause", 0)
 	settings.leveltracker.fade := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable fading", 0)
@@ -43,7 +45,7 @@
 
 	vars.leveltracker.gearfilter := 1, vars.leveltracker.gear := []
 	vars.leveltracker.character := LLK_IniRead("ini\leveling tracker.ini", "Settings", "character")
-	iniread := LLK_IniRead("ini\leveling tracker.ini", "gear") "`n" LLK_IniRead("ini\leveling tracker.ini", "gems")
+	iniread := LLK_IniRead("ini\leveling tracker.ini", "gear" settings.leveltracker.profile) "`n" LLK_IniRead("ini\leveling tracker.ini", "gems" settings.leveltracker.profile)
 	StringLower, iniread, iniread
 	Sort, iniread, D`n N P2
 	Loop, Parse, iniread, `n
@@ -58,22 +60,17 @@
 
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
-	Loop, Parse, % LLK_IniRead("ini\leveling tracker.ini", "gem notes"), `n
-		vars.leveltracker.guide.gem_notes[SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)] := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
 
-	If !IsObject(vars.leveltracker.timer)
+	vars.leveltracker.timer := {"name": LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "name"), "current_split": LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0), "current_act": 1, "total_time": 0, "pause": -1}
+	Loop 11
 	{
-		vars.leveltracker.timer := {"name": LLK_IniRead("ini\leveling tracker.ini", "current run", "name"), "current_split": LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0), "current_act": 1, "total_time": 0, "pause": -1}
-		Loop 11
-		{
-			iniread := LLK_IniRead("ini\leveling tracker.ini", "current run", "act " A_Index)
-			vars.leveltracker.timer.current_act := A_Index
-			If !iniread
-				Break
-			vars.leveltracker.timer.total_time += iniread
-		}
+		iniread := LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "act " A_Index)
+		vars.leveltracker.timer.current_act := A_Index
+		If !iniread
+			Break
+		vars.leveltracker.timer.total_time += iniread
 	}
-	vars.leveltracker.skilltree := {"active": LLK_IniRead("ini\leveling tracker.ini", "Settings", "last skilltree-image", "00")}
+	vars.leveltracker.skilltree := {"active": LLK_IniRead("ini\leveling tracker.ini", "Settings", "last skilltree-image" settings.leveltracker.profile, "00")}
 
 	lang := settings.general.lang_client, db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json")), "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] gems.json")), "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json")), "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))}
 }
@@ -284,7 +281,7 @@ Leveltracker(cHWND := "", hotkey := "")
 				For step_index, step in guide.group1
 				{
 					guide.progress.Push(step)
-					IniWrite, % step, ini\leveling guide.ini, progress, % "step_"guide.progress.MaxIndex()
+					IniWrite, % step, % "ini\leveling guide" settings.leveltracker.profile ".ini", progress, % "step_" guide.progress.MaxIndex()
 				}
 				LeveltrackerProgress(1)
 				If !Blank(LLK_HasVal(guide.group1, "an_end_to_hunger", 1)) || (guide.target_area = vars.log.areaID)
@@ -293,8 +290,6 @@ Leveltracker(cHWND := "", hotkey := "")
 			vars.leveltracker.fast := 0, vars.leveltracker.last_manual := A_TickCount
 			If (loop = 1000) ;band-aid fix to override the grace-period from manually switching guide pages
 				vars.leveltracker.last_manual := A_TickCount - 30000
-			If WinExist("ahk_id "vars.hwnd.settings.main) && (vars.settings.active = "leveling tracker")
-				Settings_menu("leveling tracker")
 			KeyWait, LButton
 			Return
 		}
@@ -321,7 +316,7 @@ Leveltracker(cHWND := "", hotkey := "")
 
 			Loop, % vars.leveltracker.guide.group0.Count()
 			{
-				IniDelete, ini\leveling guide.ini, progress, % "step_" guide.progress.MaxIndex()
+				IniDelete, % "ini\leveling guide" settings.leveltracker.profile ".ini", progress, % "step_" guide.progress.MaxIndex()
 				vars.leveltracker.guide.progress.Pop()
 			}
 			LeveltrackerProgress()
@@ -487,7 +482,7 @@ LeveltrackerHints()
 	Gui, leveltracker_hints: Destroy
 }
 
-LeveltrackerImport()
+LeveltrackerImport(profile := "")
 {
 	local
 	global vars, settings, Json, db
@@ -637,17 +632,17 @@ LeveltrackerImport()
 
 	While (SubStr(gem_notes, 0) = "`n")
 		gem_notes := SubStr(gem_notes, 1, -1)
-	IniDelete, ini\leveling tracker.ini, Gem notes
+	IniDelete, ini\leveling tracker.ini, Gem notes%profile%
 	If gem_notes
 	{
 		StringLower, gem_notes, gem_notes
 		gem_notes := StrReplace(gem_notes, "&", "&&")
-		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes
+		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes%profile%
 	}
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 
-	IniDelete, ini\leveling tracker.ini, Gems
-	IniDelete, ini\search-strings.ini, 00-exile leveling gems
+	IniDelete, ini\leveling tracker.ini, Gems%profile%
+	IniDelete, ini\search-strings.ini, 00-exile leveling gems%profile%
 	IniDelete, ini\search-strings.ini, searches, hideout lilly
 	vars.searchstrings["hideout lilly"].enable := 0
 
@@ -663,7 +658,7 @@ LeveltrackerImport()
 		Sort, build_gems_none, D`, P2 N
 
 		build_gems_all := StrReplace(build_gems_all, ")", ") gem: "), build_gems_all := StrReplace(build_gems_all, " support", ""), build_gems_all := StrReplace(build_gems_all, ",", "=1`n")
-		IniWrite, % SubStr(build_gems_all, 1, -1), ini\leveling tracker.ini, Gems ;save gems for gear tracker feature
+		IniWrite, % SubStr(build_gems_all, 1, -1), ini\leveling tracker.ini, Gems%profile% ;save gems for gear tracker feature
 	}
 
 	parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int,none"
@@ -713,7 +708,7 @@ LeveltrackerImport()
 	{
 		search_string_all := SubStr(search_string_all, 1, -1)
 		IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
-		IniWrite, % """" StrReplace(search_string_all, ";", " " ";`;`;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems ;escaped semi-colons to prevent VScode from list this line as a module
+		IniWrite, % """" StrReplace(search_string_all, ";", " " ";`;`;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems%profile% ;escaped semi-colons to prevent VScode from list this line as a module
 	}
 	Init_searchstrings()
 
@@ -734,15 +729,17 @@ LeveltrackerImport()
 	guide_text := StrReplace(guide_text, "enter (img:arena) arena:shavronne's_sorrow , kill shavronne `n", "kill doedre , (color:FF8111)maligaro , (color:FF8111)shavronne`n")
 	guide_text := StrReplace(guide_text, "talk to sin, enter (img:arena)", "enter (img:arena)"), guide_text := StrReplace(guide_text, "activate the (img:craft) `ntalk", "activate the (img:craft) , talk")
 	StringLower, guide_text, guide_text
-	IniDelete, ini\leveling guide.ini, Steps
-	IniWrite, % guide_text, ini\leveling guide.ini, Steps
+	IniDelete, ini\leveling guide%profile%.ini, Steps
+	IniDelete, ini\leveling guide%profile%.ini, Info
+	IniWrite, % guide_text, ini\leveling guide%profile%.ini, Steps
 
 	Settings_menu("leveling tracker")
 	LLK_ToolTip(LangTrans("global_success"),,,,, "Lime")
 	Init_leveltracker()
 	If settings.leveltracker.geartracker
 		GeartrackerGUI("refresh")
-	LeveltrackerLoad()
+	If (settings.leveltracker.profile = profile)
+		LeveltrackerLoad()
 	Return 1
 }
 
@@ -754,16 +751,16 @@ LeveltrackerLoad()
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
 	vars.leveltracker.guide.import := [], vars.leveltracker.guide.progress := [], vars.leveltracker.guide.gem_notes := {}
-	Loop, Parse, % LLK_IniRead("ini\leveling guide.ini", "steps"), `n
+	Loop, Parse, % LLK_IniRead("ini\leveling guide" settings.leveltracker.profile ".ini", "steps"), `n
 		vars.leveltracker.guide.import.Push(A_LoopField)
 
-	Loop, Parse, % LLK_IniRead("ini\leveling guide.ini", "progress"), `n
+	Loop, Parse, % LLK_IniRead("ini\leveling guide" settings.leveltracker.profile ".ini", "progress"), `n
 	{
 		vars.leveltracker.guide.progress.Push(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1))
 		check += !InStr(A_LoopField, "=") ? 1 : 0
 	}
 
-	Loop, Parse, % LLK_IniRead("ini\leveling tracker.ini", "gem notes"), `n
+	Loop, Parse, % LLK_IniRead("ini\leveling tracker.ini", "gem notes" settings.leveltracker.profile), `n
 		vars.leveltracker.guide.gem_notes[SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)] := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
 
 	If check
@@ -1261,12 +1258,12 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	vars.leveltracker.wait := 0, in_progress := 0
 }
 
-LeveltrackerProgressReset()
+LeveltrackerProgressReset(profile := "")
 {
 	local
 	global vars, settings
 
-	IniDelete, ini\leveling guide.ini, Progress
+	IniDelete, ini\leveling guide%profile%.ini, Progress
 	vars.leveltracker.guide.progress := []
 	If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 		LeveltrackerProgress(1)
