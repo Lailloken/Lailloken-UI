@@ -1,5 +1,13 @@
 [
   [
+	["1.52.6", 15206],
+	"fixes: specifying <active character> would sometimes not work immediately, minimum area-level for 100% exp could be negative",
+	"leveling tracker: added guide management to add multiple guides and switch between them",
+	"necropolis: screen-check has to be updated, fixed some mods, added support for recently-added mods",
+	"notepad: added support for color-coding individual strings in widgets",
+	"screen-checks: replaced windows snipping tool with custom tool"
+  ],
+  [
 	["1.52.5", 15205],
 	"hotfix 1: fixed bug with hint-images on multi-monitors (leveling tracker)",
 	"hotfix 1: added support for 3.24 exile-leveling guides",
