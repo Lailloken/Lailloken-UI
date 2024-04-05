@@ -297,13 +297,20 @@
       "if you want to edit the images yourself, you can move them to this folder manually"
     ],
     "leveltracker generate": [
-      "opens exile-leveling to generate a guide"
+      "exile-leveling is used to generate and export the guide data"
+    ],
+    "leveltracker profile select": [
+      "click to activate this guide slot",
+      "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
     "leveltracker import": [
-      "imports guide data from clipboard"
+      "imports guide data from clipboard into this guide slot"
     ],
     "leveltracker reset": [
-      "hold to reset your progress and start over"
+      "hold to reset the progress in this guide slot and start over"
+    ],
+    "leveltracker profile name": [
+      "optional: type in a description/name for the guide in this slot (so guides don't get mixed up)"
     ],
     "leveltracker layouts": [
       "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
@@ -425,7 +432,7 @@
     "necro offsets": [
       "the overlay's position aligns with the <necro: lantern> screen-check, and its size scales with the game's resolution",
       "adjust the offsets below to fine-tune its position and size (center buttons = reset)",
-	  "adjust the opacity first if you're having issues with finding the right offsets"
+      "adjust the opacity first if you're having issues with finding the right offsets"
     ],
     "necro colors": [
       "customize the colors used to highlight different mods: the text panels show the corresponding hotkey (s = space)",
@@ -849,7 +856,7 @@
     "necro_lantern": [
       "(/bold)(/underline)instructions:",
       "-> open the lantern ui for a zone",
-      "-> click <cal> and clip the marked area (img): start slightly above the top-left corner of the first lantern mod",
+      "-> click <cal> and clip the marked area (img)",
       "-> follow the instructions in <test>",
       "",
       "(/bold)(/underline)used for:",

@@ -85,16 +85,9 @@ BetrayalCalibrate(cHWND := "")
 	}
 	Else
 	{
-		Clipboard := ""
-		SendInput, +#{s}
-		WinWaitActive, ahk_group snipping_tools,, 2
-		WinWaitActive, ahk_group poe_ahk_window
-		pBetrayal := Gdip_CreateBitmapFromClipboard()
-		If (pBetrayal < 0)
-		{
-			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
+		pBetrayal := Screenchecks_ImageRecalibrate()
+		If (pBetrayal <= 0)
 			Return
-		}
 		Else hbmBetrayal := Gdip_CreateHBITMAPFromBitmap(pBetrayal)
 		Gui, betrayal_setup: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 		Gui, betrayal_setup: Margin, 12, 4

@@ -67,14 +67,9 @@ OCR_(mode := "GUI")
 
 	If InStr("snip,compat", mode)
 	{
-		Clipboard := ""
-		SendInput, #+{s}
-		WinWaitActive, ahk_group snipping_tools,, 2
-		WinWaitActive, ahk_group poe_ahk_window
-		pBitmap := Gdip_CreateBitmapFromClipboard()
-		If (pBitmap < 0)
+		pBitmap := Screenchecks_ImageRecalibrate()
+		If (pBitmap <= 0)
 		{
-			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
 			vars.OCR.in_progress := 0
 			Return
 		}

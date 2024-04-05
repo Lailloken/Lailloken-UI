@@ -36,30 +36,103 @@
 	Else settings.general.oGamescreen := 0
 }
 
-Screenchecks_ImageRecalibrate()
+Screenchecks_ImageRecalibrate(mode := "")
 {
 	local
 	global vars, settings
+	static hwnd_gui2
 
-	Clipboard := ""
-	KeyWait, LButton
-	vars.general.gui_hide := 1
-	LLK_Overlay("hide")
-	SendInput, #+{s}
-	WinWaitActive, ahk_group snipping_tools,, 2
-	WinWaitActive, ahk_group poe_ahk_window
-	pClipboard := Gdip_CreateBitmapFromClipboard()
-	If (pClipboard <= 0)
+	If InStr(mode, "button")
 	{
-		vars.general.gui_hide := 0
-		LLK_Overlay(vars.hwnd.settings.main, "show", 0)
-		WinWait, % "ahk_id " vars.hwnd.settings.main
-		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
-		Return
+		KeyWait, % mode, D
+		MouseGetPos, x1, y1
+		Gui, LLK_snip_area: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow HWNDhwnd_gui2"
+		Gui, LLK_snip_area: Margin, 0, 0
+		Gui, LLK_snip_area: Color, Aqua
+		WinSet, Trans, 75
+		While GetKeyState(mode, "P")
+		{
+			MouseGetPos, x2, y2
+			xPos := Min(x1, x2), yPos := Min(y1, y2), w := Abs(x1 - x2), h := Abs(y1 - y2)
+			If w && h
+				Gui, LLK_snip_area: Show, % "NA x" xPos " y" yPos " w" w " h" h
+			Sleep 10
+		}
+		If WinExist("ahk_id " hwnd_gui2)
+		{
+			WinGetPos, x, y, w, h, ahk_id %hwnd_gui2%
+			vars.snipping_tool.coords_area := {"x": x, "y": y, "w": w, "h": h}
+			If InStr(mode, "LButton")
+				vars.snipping_tool.GUI := 0
+		}
 	}
-	vars.general.gui_hide := 0
-	WinWait, % "ahk_id " vars.hwnd.settings.main
-	Return pClipboard
+	Else If mode && IsObject(vars.snipping_tool.coords_area)
+	{
+		Switch StrReplace(mode, "*")
+		{
+			Case "w":
+				vars.snipping_tool.coords_area[GetKeyState("Shift", "P") ? "h" : "y"] -= 1
+			Case "a":
+				vars.snipping_tool.coords_area[GetKeyState("Shift", "P") ? "w" : "x"] -= 1
+			Case "s":
+				vars.snipping_tool.coords_area[GetKeyState("Shift", "P") ? "h" : "y"] += 1
+			Case "d":
+				vars.snipping_tool.coords_area[GetKeyState("Shift", "P") ? "w" : "x"] += 1
+			Case "space":
+				vars.snipping_tool.GUI := 0
+		}
+		Gui, LLK_snip_area: Show, % "NA x" vars.snipping_tool.coords_area.x " y" vars.snipping_tool.coords_area.y " w" vars.snipping_tool.coords_area.w " h" vars.snipping_tool.coords_area.h
+	}	
+	If mode
+		Return
+
+	KeyWait, LButton
+	KeyWait, RButton
+	Clipboard := "", vars.general.gui_hide := 1, LLK_Overlay("hide"), vars.snipping_tool := {"GUI": 1}
+	pBitmap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), Gdip_GetImageDimensions(pBitmap, width, height), hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+
+	Gui, LLK_snip: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_gui"
+	Gui, LLK_snip: Font, % "s" Round(settings.general.fSize * 1.5) " cAqua", % vars.system.font
+	Gui, LLK_snip: Margin, 0, 0
+	Loop 6
+		text .= (!text ? " " : "`n ") LangTrans("screen_snipinstructions", A_Index) " "
+	vars.hwnd.snipping_tool := {"main": hwnd_gui}, align := "left", LLK_PanelDimensions([text], settings.general.fSize * 2, wText, hText)
+	Gui, LLK_snip: Add, Text, % "x0 y" height//2 - hText//2 " w" width " h" hText " BackgroundTrans Left HWNDhwnd_text", % text
+	Gui, LLK_snip: Add, Pic, % "x0 y0 wp h" height " BackgroundTrans", img\GUI\square_black_trans.png
+	Gui, LLK_snip: Add, Pic, % "xp yp wp hp", HBitmap:*%hBitmap%*
+	Gui, LLK_snip: Show, NA x10000 y10000 w%width% h%height%
+	WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
+	Gui, LLK_snip: Show, % "x" vars.monitor.x + vars.monitor.w / 2 - width//2 " y" vars.monitor.y + vars.monitor.h / 2 - height//2
+	WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
+	vars.snipping_tool.coords := {"x": xPos, "y": yPos, "w": width, "h": height}, coords := vars.snipping_tool.coords
+
+	While vars.snipping_tool.GUI && WinActive("ahk_id " hwnd_gui)
+	{
+		If (align = "left") && (vars.general.xMouse <= coords.x + coords.w // 2)
+		{
+			GuiControl, +Right, % hwnd_text
+			GuiControl, movedraw, % hwnd_text
+			align := "right"
+		}
+		Else If (align = "right") && (vars.general.xMouse >= coords.x + coords.w // 2)
+		{
+			GuiControl, +Left, % hwnd_text
+			GuiControl, movedraw, % hwnd_text
+			align := "left"
+		}
+		Sleep 100
+	}
+
+	Gui, LLK_snip: Destroy
+	Gui, LLK_snip_area: Destroy
+	vars.general.gui_hide := 0, LLK_Overlay("show")
+	If IsObject(area := vars.snipping_tool.coords_area)
+	&& LLK_IsBetween(area.x, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y, coords.y, coords.y + coords.h)
+	&& LLK_IsBetween(area.x + area.w, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y + area.h, coords.y, coords.y + coords.h)
+		pClip := Gdip_CloneBitmapArea(pBitmap, area.x - coords.x, area.y - coords.y, area.w, area.h,, 1)
+	Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red", settings.general.fSize,,, 1)
+	Gdip_DisposeImage(pBitmap), DeleteObject(hBitmap), vars.snipping_tool.GUI := 0
+	Return pClip
 }
 
 Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parameter to perform a specific check, leave blank to go through every check

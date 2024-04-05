@@ -1,24 +1,43 @@
-﻿Init_log()
+﻿Init_log(mode := "")
 {
 	local
 	global vars, settings
 
 	If !IsObject(vars.log.file) ;at script-startup
 		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := vars.log.file.Read()
-	Else log_content := LLK_FileRead(vars.log.file_location, 1, "65001"), log_content := SubStr(log_content, StrLen(log_content) * 0.5), log_content := SubStr(log_content, InStr(log_content, "`n") + 1) ;when specifying "active character" in the settings menu
+	Else ;when specifying "active character" in the settings menu
+	{
+		If !Blank(settings.general.character)
+			log_file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := log_file.Read(), log_file.Close()
+		If Blank(settings.general.character) || !(check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1))
+		{
+			vars.log.level := 0
+			Return
+		}
+	}
+	
+	If mode
+		vars.log.level := ""
+	Else
+	{
+		vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
+		Loop, Parse, % vars.log.parsing, `,, %A_Space%
+			vars.log[A_LoopField] := ""
 
-	vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
-	Loop, Parse, % vars.log.parsing, `,, %A_Space%
-		vars.log[A_LoopField] := ""
-
-	If !settings.general.lang_client
-		check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-
-	settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
+		If !settings.general.lang_client
+			check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
+	
+		settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
+	}
 
 	If check
 		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1), LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
 
+	If mode
+	{
+		vars.log.level := level ? level : 0
+		Return
+	}
 	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
 	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%

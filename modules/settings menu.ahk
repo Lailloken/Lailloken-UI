@@ -750,7 +750,7 @@ Settings_general2(cHWND := "")
 			GuiControl, text, % vars.hwnd.settings.character, % parse
 			GuiControl, +disabled, % vars.hwnd.settings.character
 			IniWrite, % settings.general.character, ini\config.ini, Settings, active character
-			Init_log()
+			Init_log("refresh")
 			If WinExist("ahk_id " vars.hwnd.geartracker.main)
 				GeartrackerGUI()
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
@@ -1361,6 +1361,34 @@ Settings_leveltracker()
 	vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
 
 	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section", % LangTrans("m_lvltracker_guide")
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "ys Border Center gSettings_leveltracker2 HWNDhwnd", % " " LangTrans("m_lvltracker_generate") " "
+	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd, handle := ""
+	Loop 3
+	{
+		file := !FileExist("ini\leveling guide" (A_Index = 1 ? "" : A_Index) ".ini") ? " cGray" : "", profile := (A_Index = 1) ? "" : A_Index
+		Gui, %GUI%: Add, Text, % "xs Section Border Center " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd0 w" settings.general.fWidth * 2 . (settings.leveltracker.profile = profile ? " cFuchsia" : ""), % A_Index
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1", % " " LangTrans("global_import") " "
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2" color, % " " LangTrans("m_lvltracker_reset") " "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd3 range0-500", 0
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 w" settings.general.fWidth*20 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		
+		vars.hwnd.settings["profile" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
+		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" handle] := hwnd1
+		vars.hwnd.settings["reset" profile] := hwnd2, vars.hwnd.settings["resetbar" profile] := vars.hwnd.help_tooltips["settings_leveltracker reset" handle] := hwnd3
+		vars.hwnd.settings["name" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile name" handle] := hwnd4, handle .= "|"
+	}
+
+	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans", % LangTrans("global_credits") ":"
+	Gui, %GUI%: Add, Link, % "ys hp x+" settings.general.fWidth/2, <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
+	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
+	Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
+	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
+
+	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_lvltracker_skilltree")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Picture, % "ys BackgroundTrans hp HWNDhwnd0 w-1", img\gui\help.png
@@ -1370,28 +1398,6 @@ Settings_leveltracker()
 	vars.hwnd.settings.screencap := vars.hwnd.help_tooltips["settings_leveltracker screen-cap menu"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " gSettings_leveltracker2 Border HWNDhwnd", % " " LangTrans("global_imgfolder") " "
 	vars.hwnd.settings.folder := vars.hwnd.help_tooltips["settings_leveltracker folder"] := hwnd
-
-	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section", % LangTrans("m_lvltracker_guide")
-	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Text, % "xs Section Border Center gSettings_leveltracker2 HWNDhwnd", % " " LangTrans("m_lvltracker_generate") " "
-	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd
-	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd", % " " LangTrans("global_import") " "
-	vars.hwnd.settings.import := vars.hwnd.help_tooltips["settings_leveltracker import"] := hwnd
-	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd0", % " " LangTrans("m_lvltracker_reset") " "
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd range0-500", 0
-	vars.hwnd.settings.reset := hwnd0, vars.hwnd.settings.resetbar := vars.hwnd.help_tooltips["settings_leveltracker reset"] := hwnd
-
-	If !vars.leveltracker.guide.progress.Count()
-		LeveltrackerLoad()
-	guide := vars.leveltracker.guide, guide_progress := guide.import.Count() && guide.progress.Count() ? Format("{:0.1f}", guide.progress.Count() / (guide.import.Count() - 2) *100) : 0
-	Gui, %GUI%: Add, Text, % "ys BackgroundTrans", % (guide_progress = 100 ? 100 : guide_progress) "%"
-	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans", % LangTrans("global_credits") ":"
-	Gui, %GUI%: Add, Link, % "ys hp x+" settings.general.fWidth/2, <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
-	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
-	Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
-	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
-
 
 	Gui, %GUI%: Font, underline bold
 	Gui, %GUI%: Add, Text, % "xs Section BackgroundTrans y+"vars.settings.spacing, % LangTrans("global_ui")
@@ -1422,8 +1428,8 @@ Settings_leveltracker2(cHWND := "")
 	If (check = "enable")
 	{
 		settings.features.leveltracker := LLK_ControlGet(cHWND)
-		If !settings.features.leveltracker && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0)) ;save current timer state
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
+		If !settings.features.leveltracker && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0)) ;save current timer state
+			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		IniWrite, % settings.features.leveltracker, ini\config.ini, features, enable leveling guide
 		LeveltrackerToggle("destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
 		vars.leveltracker := {}, vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
@@ -1435,8 +1441,8 @@ Settings_leveltracker2(cHWND := "")
 	{
 		settings.leveltracker.timer := LLK_ControlGet(cHWND)
 		IniWrite, % settings.leveltracker.timer, ini\leveling tracker.ini, settings, enable timer
-		If !settings.leveltracker.timer && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0))
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
+		If !settings.leveltracker.timer && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
+			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			LeveltrackerProgress(1)
 		vars.leveltracker.timer.pause := -1
@@ -1499,24 +1505,47 @@ Settings_leveltracker2(cHWND := "")
 	Else If (check = "folder")
 	{
 		KeyWait, LButton
-		Run, explore img\GUI\skill-tree\
+		Run, % "explore img\GUI\skill-tree" settings.leveltracker.profile "\"
 	}
 	Else If (check = "generate")
 	{
 		KeyWait, LButton
 		Run, https://heartofphos.github.io/exile-leveling/
 	}
-	Else If (check = "import")
+	Else If InStr(check, "profile")
 	{
-		KeyWait, LButton
-		If LeveltrackerImport() && LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+		GuiControl, +cWhite, % vars.hwnd.settings["profile" settings.leveltracker.profile]
+		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
+		If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
+			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+		settings.leveltracker.profile := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "", vars.leveltracker.timer.pause := -1
+		IniWrite, % settings.leveltracker.profile, ini\leveling tracker.ini, Settings, profile
+		GuiControl, +cFuchsia, % vars.hwnd.settings["profile" settings.leveltracker.profile]
+		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
+		LeveltrackerLoad(), Init_leveltracker()
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			LeveltrackerProgress(1)
 	}
-	Else If (check = "reset")
+	Else If InStr(check, "import")
 	{
-		If LLK_Progress(vars.hwnd.settings.resetbar, "LButton")
-			LeveltrackerProgressReset()
+		KeyWait, LButton
+		If LeveltrackerImport(IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")
+		{
+			Settings_menu("leveling tracker")
+			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+				LeveltrackerProgress(1)
+		}
+	}
+	Else If InStr(check, "reset")
+	{
+		If LLK_Progress(vars.hwnd.settings["resetbar" (IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")], "LButton")
+			LeveltrackerProgressReset(IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")
 		Else Return
+	}
+	Else If InStr(check, "name")
+	{
+		name := LLK_ControlGet(cHWND), number := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : ""
+		IniWrite, % name, % "ini\leveling guide" number ".ini", info, name
 	}
 	Else If InStr(check, "font_")
 	{
@@ -1857,18 +1886,10 @@ Settings_maptracker2(cHWND)
 			{
 				If InStr(check, "screen") && (vars.system.click = 2)
 				{
-					KeyWait, RButton
-					Clipboard := ""
-					SendInput, #+{s}
-					WinWaitActive, ahk_group snipping_tools,, 2
-					WinWaitActive, ahk_group poe_ahk_window
-					pClipboard := Gdip_CreateBitmapFromClipboard()
-					If (0 >= pClipboard)
-					{
-						LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 1.5,,,, "red")
+					pClipboard := Screenchecks_ImageRecalibrate()
+					If (pClipboard <= 0)
 						Return
-					}
-					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp"), Gdip_DisposeImage(pClipboard)
+					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp", 100), Gdip_DisposeImage(pClipboard)
 					GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % vars.hwnd.settings["screenmechanic_"control]
 					GuiControl, movedraw, % vars.hwnd.settings["screenmechanic_"control]
 					Return
@@ -2537,7 +2558,7 @@ Settings_qol2(cHWND)
 			Init_GUI()
 		If (control = "notepad") && !settings.qol.notepad
 		{
-			LLK_Overlay(vars.hwnd.notepad.main, "destroy")
+			LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 			For key, val in vars.hwnd.notepad_widgets
 				LLK_Overlay(val, "destroy")
 			vars.hwnd.notepad_widgets := {}, vars.notepad_widgets := {}
@@ -2636,7 +2657,7 @@ Settings_screenchecks()
 		Gui, %GUI%: Add, Text, % "ys", % LangTrans((key = "inventory" ? "global_" : "m_screen_") key)
 	}
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "hp xs Section gSettings_screenchecks2 HWNDhwnd Checked"settings.features.pixelchecks, % LangTrans("m_screen_pixel", 2)
+	Gui, %GUI%: Add, Checkbox, % "hp xs Section gSettings_screenchecks2 HWNDhwnd Checked" settings.features.pixelchecks, % LangTrans("m_screen_pixel", 2)
 	vars.hwnd.settings.pixelchecks := vars.hwnd.help_tooltips["settings_screenchecks pixel-background"] := hwnd
 
 	count := 0
@@ -2686,12 +2707,10 @@ Settings_screenchecks2(cHWND := "")
 		Case "pixelchecks":
 			IniWrite, % LLK_ControlGet(cHWND), ini\config.ini, settings, background pixel-checks
 			settings.features.pixelchecks := LLK_ControlGet(cHWND)
-			Return
 		Case "folder":
 			If FileExist("img\Recognition ("vars.client.h "p)\GUI")
 				Run, % "explore img\Recognition ("vars.client.h "p)\GUI\"
 			Else LLK_ToolTip(LangTrans("cheat_filemissing"),,,,, "red")
-			Return
 		Default:
 			If InStr(check, "Pixel")
 			{
@@ -2722,24 +2741,18 @@ Settings_screenchecks2(cHWND := "")
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
 						pClipboard := Screenchecks_ImageRecalibrate()
-						If (pClipboard < 0)
-						{
-							vars.general.gui_hide := 0
-							While !WinExist("ahk_id " vars.hwnd.settings.main)
-								sleep, 10
-							LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"),,,,, "red")
+						If (pClipboard <= 0)
 							Return
-						}
 						Else
 						{
-							Gdip_SaveBitmapToFile(pClipboard, "img\Recognition (" vars.client.h "p)\GUI\" control ".bmp", 100)
+							Gdip_SaveBitmapToFile(pClipboard, "img\Recognition (" vars.client.h "p)\GUI\" control ".bmp", 100), Gdip_DisposeImage(pClipboard)
 							For key in vars.imagesearch[control]
 							{
 								If (SubStr(key, 1, 1) = "x" || SubStr(key, 1, 1) = "y") && IsNumber(SubStr(key, 2, 1))
 									vars.imagesearch[control][key] := ""
 							}
 							IniWrite, % "", % "ini\screen checks ("vars.client.h "p).ini", % control, last coordinates
-							Gdip_DisposeImage(pClipboard), Settings_ScreenChecksValid()
+							Settings_ScreenChecksValid()
 							GuiControl, +cWhite, % vars.hwnd.settings["cImage_"control]
 							GuiControl, movedraw, % vars.hwnd.settings["cImage_"control]
 							GuiControl, +cRed, % vars.hwnd.settings["tImage_"control]

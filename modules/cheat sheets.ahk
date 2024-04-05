@@ -339,16 +339,9 @@ CheatsheetCalibrate()
 		Return
 	}
 
-	Clipboard := ""
-	SendInput, #+{s}
-	WinWaitActive, ahk_group snipping_tools,, 2
-	WinWaitActive, ahk_group poe_ahk_window
-	pBitmap := Gdip_CreateBitmapFromClipboard()
+	pBitmap := Screenchecks_ImageRecalibrate()
 	If (pBitmap <= 0)
-	{
-		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_abort"),,,,, "red")
 		Return
-	}
 
 	Gui, cheatsheet_calibration: New, -Caption +Border +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
 	Gui, cheatsheet_calibration: Margin, % settings.general.fWidth//2, % settings.general.fHeight//4
