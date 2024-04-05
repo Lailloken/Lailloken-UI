@@ -301,7 +301,7 @@
     ],
     "leveltracker profile select": [
       "click to activate this guide slot",
-	  "each slot has its own data for: guide & progress, gear, skill-tree, timer"
+      "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
     "leveltracker import": [
       "imports guide data from clipboard into this guide slot"
@@ -432,7 +432,7 @@
     "necro offsets": [
       "the overlay's position aligns with the <necro: lantern> screen-check, and its size scales with the game's resolution",
       "adjust the offsets below to fine-tune its position and size (center buttons = reset)",
-	  "adjust the opacity first if you're having issues with finding the right offsets"
+      "adjust the opacity first if you're having issues with finding the right offsets"
     ],
     "necro colors": [
       "customize the colors used to highlight different mods: the text panels show the corresponding hotkey (s = space)",
@@ -506,9 +506,6 @@
     "screenchecks pixel-background": [
       "important background process that enables context-sensitivity",
       "in case of performance issues, disable temporarily to check if it's the cause"
-    ],
-    "screenchecks pixel-checks alt": [
-      "this mode might improve compatibility on certain systems, e.g. when using hdr"
     ],
     "screenchecks image-about": [
       "same principle as pixel-checks (see above) but more precise",
