@@ -1428,8 +1428,8 @@ Settings_leveltracker2(cHWND := "")
 	If (check = "enable")
 	{
 		settings.features.leveltracker := LLK_ControlGet(cHWND)
-		If !settings.features.leveltracker && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0)) ;save current timer state
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
+		If !settings.features.leveltracker && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0)) ;save current timer state
+			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		IniWrite, % settings.features.leveltracker, ini\config.ini, features, enable leveling guide
 		LeveltrackerToggle("destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
 		vars.leveltracker := {}, vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
@@ -1441,8 +1441,8 @@ Settings_leveltracker2(cHWND := "")
 	{
 		settings.leveltracker.timer := LLK_ControlGet(cHWND)
 		IniWrite, % settings.leveltracker.timer, ini\leveling tracker.ini, settings, enable timer
-		If !settings.leveltracker.timer && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run", "time", 0))
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, current run, time
+		If !settings.leveltracker.timer && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
+			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			LeveltrackerProgress(1)
 		vars.leveltracker.timer.pause := -1
@@ -1505,7 +1505,7 @@ Settings_leveltracker2(cHWND := "")
 	Else If (check = "folder")
 	{
 		KeyWait, LButton
-		Run, explore img\GUI\skill-tree\
+		Run, % "explore img\GUI\skill-tree" settings.leveltracker.profile "\"
 	}
 	Else If (check = "generate")
 	{

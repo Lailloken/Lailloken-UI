@@ -526,12 +526,6 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 			vars.notepad.x := xPos, vars.notepad.y := yPos
 		Return
 	}
-	Else If (check = "color_code")
-	{
-		SendInput, ^{c}
-		Msgbox, % clipboard
-		Return
-	}
 	Else If InStr(check, "color_")
 	{
 		index := InStr(check, "textcolor_") ? 1 : 2
