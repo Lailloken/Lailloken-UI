@@ -1,6 +1,7 @@
 [
   [
 	["1.52.6", 15206],
+	"hotfix 1: updated lantern mod-list was missing",
 	"fixes: specifying <active character> would sometimes not work immediately, minimum area-level for 100% exp could be negative",
 	"leveling tracker: added guide management to add multiple guides and switch between them",
 	"necropolis: screen-check has to be updated, fixed some mods, added support for recently-added mods",
