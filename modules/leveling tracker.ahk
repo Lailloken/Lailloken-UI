@@ -1273,9 +1273,12 @@ LeveltrackerProgressReset(profile := "")
 	global vars, settings
 
 	IniDelete, ini\leveling guide%profile%.ini, Progress
-	vars.leveltracker.guide.progress := []
-	If (settings.leveltracker.profile = profile) && LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-		LeveltrackerProgress(1)
+	If (settings.leveltracker.profile = profile)
+	{
+		vars.leveltracker.guide.progress := []
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			LeveltrackerProgress(1)
+	}
 	KeyWait, LButton
 }
 
