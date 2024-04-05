@@ -300,16 +300,17 @@
       "exile-leveling is used to generate and export the guide data"
     ],
     "leveltracker profile select": [
-      "click to select this guide slot"
+      "click to activate this guide slot",
+	  "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
     "leveltracker import": [
-      "imports guide data from clipboard"
+      "imports guide data from clipboard into this guide slot"
     ],
     "leveltracker reset": [
-      "hold to reset your progress and start over"
+      "hold to reset the progress in this guide slot and start over"
     ],
     "leveltracker profile name": [
-      "type in a description/name for the guide in this slot"
+      "optional: type in a description/name for the guide in this slot (so guides don't get mixed up)"
     ],
     "leveltracker layouts": [
       "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
