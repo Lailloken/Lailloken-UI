@@ -1274,10 +1274,8 @@ LeveltrackerProgressReset(profile := "")
 
 	IniDelete, ini\leveling guide%profile%.ini, Progress
 	vars.leveltracker.guide.progress := []
-	If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+	If (settings.leveltracker.profile = profile) && LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 		LeveltrackerProgress(1)
-	If WinExist("ahk_id " vars.hwnd.settings.main)
-		Settings_menu("leveling tracker")
 	KeyWait, LButton
 }
 
