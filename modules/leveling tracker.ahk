@@ -744,7 +744,11 @@ LeveltrackerImport(profile := "")
 	If settings.leveltracker.geartracker
 		GeartrackerGUI("refresh")
 	If (settings.leveltracker.profile = profile)
+	{
 		LeveltrackerLoad()
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			LeveltrackerProgress(1)
+	}
 	Return 1
 }
 

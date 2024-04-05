@@ -1889,7 +1889,7 @@ Settings_maptracker2(cHWND)
 					pClipboard := Screenchecks_ImageRecalibrate()
 					If (pClipboard <= 0)
 						Return
-					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp"), Gdip_DisposeImage(pClipboard)
+					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp", 100), Gdip_DisposeImage(pClipboard)
 					GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % vars.hwnd.settings["screenmechanic_"control]
 					GuiControl, movedraw, % vars.hwnd.settings["screenmechanic_"control]
 					Return
@@ -2558,7 +2558,7 @@ Settings_qol2(cHWND)
 			Init_GUI()
 		If (control = "notepad") && !settings.qol.notepad
 		{
-			LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main
+			LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 			For key, val in vars.hwnd.notepad_widgets
 				LLK_Overlay(val, "destroy")
 			vars.hwnd.notepad_widgets := {}, vars.notepad_widgets := {}

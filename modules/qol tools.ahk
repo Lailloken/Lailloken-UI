@@ -684,7 +684,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	}
 	If (sum_height)
 	{
-		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans gNotepad HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
+		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %GUI_name%: Font, % "s" settings.notepad.fSize
 		Gui, %GUI_name%: Add, Edit, % "ys x+-1 cBlack -Wrap Multi Hidden HWNDhwnd"(Blank(vars.notepad.entries[vars.notepad.selected_entry]) ? " w"wBox : ""), % vars.notepad.entries[vars.notepad.selected_entry]
