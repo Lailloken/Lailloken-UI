@@ -84,15 +84,7 @@ Necropolis_(mode := "")
 				}
 				pHaystack := Gdip_CloneBitmapArea(pBitmap, xLast, yLast, wBox * 2, hBox * 2,, 1), hHaystack := Gdip_CreateHBITMAPFromBitmap(pHaystack), Gdip_DisposeImage(pHaystack)
 				pStream := HBitmapToRandomAccessStream(hHaystack), DeleteObject(hHaystack), text0 := ""
-				text0 := ocr(pStream), ObjRelease(pStream)
-				If (yLast + hBox*2 - 1 + necro.oGap >= hHalf*3.5)
-				{
-					vars.necropolis.x1_enter := vars.client.x + xUI, vars.necropolis.y1_enter := vars.client.y + yLast//2 + yUI
-					vars.necropolis.x2_enter := vars.client.x + xUI + wBox, vars.necropolis.y2_enter := vars.client.y + yLast//2 + hBox + yUI
-					;MsgBox, % vars.necropolis.x1_enter ", " vars.necropolis.y1_enter ", " vars.necropolis.x2_enter ", " vars.necropolis.y2_enter
-					;Break
-				}
-				text := Necropolis_Parse(text0), vars.necropolis.texts.Push(text), yLast += hBox*2 - 1 + necro.oGap
+				text0 := ocr(pStream), ObjRelease(pStream), text := Necropolis_Parse(text0), vars.necropolis.texts.Push(text), yLast += hBox*2 - 1 + necro.oGap
 			}
 			Gdip_DisposeImage(pBitmap)
 		}
