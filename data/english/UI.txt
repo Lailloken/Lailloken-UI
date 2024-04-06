@@ -143,7 +143,6 @@
 		global_credits			=	"credits"
 		global_none			=	"none"
 		global_necro_lantern		=	"necro: lantern"
-		global_necro_enter		=	"necro: enter"
 		global_axis			=	"x-axis"
 		global_axis			=	"y-axis"
 		global_width			=	"width"
@@ -271,6 +270,7 @@
 		iteminfo_drop_vaal		=	"vaal"				;## exclusive to corruption
 		iteminfo_drop_retired		=	"retired"			;## item is currently not obtainable
 		iteminfo_drop_unknown		=	"unknown"			;## no database-entry for this unique (e.g. new league)
+		iteminfo_drop_global		=	"global"
 
 
 
@@ -697,7 +697,6 @@
 		m_necro_enable			=	"enable lantern highlighting (experimental)"
 		m_necro_offset			=	"overlay offsets:"
 		m_necro_nowindow		=	"open the overlay;before changing settings"
-		m_necro_entercheck		=	"couldn't find the;<enter> button on screen"
 
 
 ;#####################################################
