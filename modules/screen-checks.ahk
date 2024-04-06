@@ -18,7 +18,7 @@
 	vars.pixelsearch.variation := 0, vars.pixelsearch.list := {"gamescreen": 1, "inventory": 1}
 	vars.imagesearch := {}
 	vars.imagesearch.search := ["skilltree", "necro_lantern", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
-	vars.imagesearch.list := {"betrayal": 1, "necro_lantern": 1, "necro_enter": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
+	vars.imagesearch.list := {"betrayal": 1, "necro_lantern": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
@@ -158,8 +158,6 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 			x1 := settings.general.oGamescreen, y1 := 0, x2 := vars.client.w/2 + settings.general.oGamescreen, y2 := vars.client.h/8
 		Else If (val = "necro_lantern")
 			x1 := settings.general.oGamescreen + vars.client.w // 2 - Round(vars.client.h * 0.215), y1 := 0, x2 := settings.general.oGamescreen + vars.client.w//2 + Round(vars.client.h * 0.215), y2 := vars.client.h // 2
-		Else If (val = "necro_enter")
-			x1 := settings.general.oGamescreen + vars.client.w // 2 - Round(vars.client.h * 0.215), y1 := vars.client.h // 2, x2 := settings.general.oGamescreen + vars.client.w//2 + Round(vars.client.h * 0.215), y2 := vars.client.h - 1
 		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
 		Else x1 := vars.imagesearch[val].x1, y1 := vars.imagesearch[val].y1, x2 := vars.imagesearch[val].x2, y2 := vars.imagesearch[val].y2

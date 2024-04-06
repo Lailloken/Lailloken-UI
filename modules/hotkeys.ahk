@@ -275,6 +275,9 @@ HotkeysTab()
 *MButton::
 *RButton::Return
 
+#If vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1_enter, vars.necropolis.x2_enter) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1_enter, vars.necropolis.y2_enter)
+*~LButton::Necropolis_Close()
+
 #If !vars.necropolis.debug && vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
 *LButton::Necropolis_Click()
 

@@ -45,17 +45,11 @@ Necropolis_(mode := "")
 
 	If !IsObject(vars.necropolis)
 		vars.necropolis := {}
-	necro := settings.necropolis
-	hBox := Round(vars.client.h * (4/45)) + necro.oHeight, wBox := Round(3.22 * hBox) + necro.oWidth, xUI := vars.imagesearch.necro_lantern.found.1 - hBox + necro.oXpos, yUI := vars.imagesearch.necro_lantern.found.2 + vars.imagesearch.necro_lantern.found.4 + hBox//2 + necro.oYpos
-	If (mode != "refresh") && !Screenchecks_ImageSearch("necro_enter")
-	{
-		Gdip_DisposeImage(vars.imagesearch.necro_lantern.pHaystack)
-		LLK_ToolTip(LangTrans("m_necro_entercheck"), 2,,,, "red")
-		Return
-	}
-	toggle := !toggle, GUI_name := "necropolis" toggle, vars.necropolis.buttons := [], necro_enter := vars.imagesearch.necro_enter.found
+	necro := settings.necropolis, lantern := vars.imagesearch.necro_lantern.found.2 + vars.imagesearch.necro_lantern.found.4
+	hBox := Round(vars.client.h * (4/45)) + necro.oHeight, wBox := Round(3.22 * hBox) + necro.oWidth, xUI := vars.imagesearch.necro_lantern.found.1 - hBox + necro.oXpos, yUI := lantern + hBox//2 + necro.oYpos
+	toggle := !toggle, GUI_name := "necropolis" toggle, vars.necropolis.buttons := [], height := (vars.client.h//2 - yUI) * 2.2
 	If (mode != "refresh")
-		yEnter := necro_enter.2, pBitmap0 := Gdip_CloneBitmapArea(vars.imagesearch.necro_lantern.pHaystack, xUI + settings.general.oGamescreen, yUI, wBox, yEnter - yUI,, 1), Gdip_DisposeImage(vars.imagesearch.necro_lantern.pHaystack), vars.necropolis.texts := [], Gdip_GetImageDimensions(pBitmap0, wBitmap, hBitmap), pBitmap := Gdip_ResizeBitmap(pBitmap0, wBitmap * 2, hBitmap * 2, 1, 7, 1), Gdip_DisposeImage(pBitmap0)
+		pBitmap0 := Gdip_CloneBitmapArea(vars.imagesearch.necro_lantern.pHaystack, xUI + settings.general.oGamescreen, yUI, wBox, height,, 1), Gdip_DisposeImage(vars.imagesearch.necro_lantern.pHaystack), vars.necropolis.texts := [], Gdip_GetImageDimensions(pBitmap0, wBitmap, hBitmap), pBitmap := Gdip_ResizeBitmap(pBitmap0, wBitmap * 2, hBitmap * 2, 1, 7, 1), Gdip_DisposeImage(pBitmap0)
 	vars.necropolis.debug := debug := (settings.necropolis.debug && GetKeyState("RControl", "P"))
 	Gui, %GUI_name%: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_necropolis" (debug ? " +Border" : "")
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize " cWhite", % vars.system.font
@@ -66,29 +60,35 @@ Necropolis_(mode := "")
 
 	If debug
 	{
-		hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap), Gdip_DisposeImage(pBitmap), pStream := HBitmapToRandomAccessStream(hBitmap), text := ocr(pStream), ObjRelease(pStream)
-		Gui, %GUI_name%: Add, Pic, % "Section Border w" wBitmap " h-1", HBitmap:*%hBitmap%
+		hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap), Gdip_DisposeImage(pBitmap), pStream := HBitmapToRandomAccessStream(hbmBitmap), text := ocr(pStream), ObjRelease(pStream)
+		Gui, %GUI_name%: Add, Pic, % "Section Border w" wBitmap " h-1", HBitmap:*%hbmBitmap%
 		Gui, %GUI_name%: Add, Text, % "ys Section HWNDhwnd", % "client-res: " vars.client.w "x" vars.client.h " " LangTrans("omnikey_escape")
 		Gui, %GUI_name%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI_name%: Add, Edit, % "xs Section cBlack", % LLK_StringCase(text)
 		Gui, %GUI_name%: Font, % "s" settings.general.fSize
 		ControlFocus,, ahk_id %hwnd%
-		DeleteObject(hBitmap)
+		DeleteObject(hbmBitmap)
 	}
 	Else
 	{
 		If (mode != "refresh")
+		{
 			Loop
 			{
-				If (yLast + hBox*2 >= (necro_enter.2 - yUI) * 2)
+				If (yLast + hBox*2 - 1 + necro.oGap >= hBitmap*2)
 				{
-					Gdip_DisposeImage(pBitmap)
+					vars.necropolis.x1_enter := vars.client.x + xUI, vars.necropolis.y1_enter := vars.client.y + yLast//2 + yUI
+					vars.necropolis.x2_enter := vars.client.x + xUI + wBox, vars.necropolis.y2_enter := vars.client.y + yLast//2 + hBox + yUI
+					;MsgBox, % vars.necropolis.x1_enter ", " vars.necropolis.y1_enter ", " vars.necropolis.x2_enter ", " vars.necropolis.y2_enter
 					Break
 				}
 				pHaystack := Gdip_CloneBitmapArea(pBitmap, xLast, yLast, wBox * 2, hBox * 2,, 1), hHaystack := Gdip_CreateHBITMAPFromBitmap(pHaystack), Gdip_DisposeImage(pHaystack)
-				pStream := HBitmapToRandomAccessStream(hHaystack), DeleteObject(hHaystack), yLast += hBox*2 - 1 + necro.oGap
-				text0 := ocr(pStream), ObjRelease(pStream), text := Necropolis_Parse(text0), vars.necropolis.texts.Push(text)
+				pStream := HBitmapToRandomAccessStream(hHaystack), DeleteObject(hHaystack), text0 := ""
+				text0 := ocr(pStream), ObjRelease(pStream), text := Necropolis_Parse(text0), vars.necropolis.texts.Push(text), yLast += hBox*2 - 1 + necro.oGap
 			}
+			Gdip_DisposeImage(pBitmap)
+		}
+			
 		yLast := 0
 		For index, mod in vars.necropolis.texts
 		{
@@ -100,8 +100,6 @@ Necropolis_(mode := "")
 				handle .= "|"
 			vars.hwnd.necropolis[mod . handle] := hwnd, vars.necropolis.buttons.Push(hwnd)
 		}
-		Gui, %GUI_name%: Add, Progress, % "Section xs BackgroundBlack cYellow Border HWNDhwnd w" necro_enter.3 " h" necro_enter.4 " x" necro_enter.1 - xUI " y" necro_enter.2 - yUI, 100
-		vars.hwnd.necropolis.enter_button := hwnd
 	}
 	
 	If debug
@@ -129,25 +127,18 @@ Necropolis_Click()
 	MouseGetPos, xMouse, yMouse, wMouse, cMouse, 2
 	If (wMouse != vars.hwnd.necropolis.main)
 		Return
-	If (cMouse = vars.hwnd.necropolis.enter_button)
-	{
-		LLK_Overlay(vars.hwnd.necropolis.main, "destroy"), vars.necropolis.GUI := 0
-		SendInput, {LButton}
-		Return
-	}
 	button := LLK_HasVal(vars.necropolis.buttons, cMouse), text := vars.necropolis.texts[button]
 	Sleep, 100
-	Gui, % vars.hwnd.necropolis.GUI_name ": +E0x20"
 	If GetKeyState("LButton", "P")
 	{
+		Gui, % vars.hwnd.necropolis.GUI_name ": +E0x20"
 		SendInput, {LButton Down}
 		KeyWait, LButton
 		SendInput, {LButton Up}
+		Gui, % vars.hwnd.necropolis.GUI_name ": -E0x20"
 	}
-	Else click := 0
-	Gui, % vars.hwnd.necropolis.GUI_name ": -E0x20"
-	If (click = 0)
-		Return
+	Else Return
+
 	Sleep 50
 	MouseGetPos, xMouse, yMouse, wMouse, cMouse, 2
 	button1 := LLK_HasVal(vars.necropolis.buttons, cMouse)

@@ -844,15 +844,6 @@
       "(/bold)(/underline)used for:",
       "-> betrayal-info overlay"
     ],
-    "necro_enter": [
-      "(/bold)(/underline)instructions:",
-      "-> open the lantern ui for a zone",
-      "-> click <cal> and clip the marked area (img)",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> necropolis: lantern highlighting"
-    ],
     "necro_lantern": [
       "(/bold)(/underline)instructions:",
       "-> open the lantern ui for a zone",

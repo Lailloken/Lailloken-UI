@@ -1033,7 +1033,6 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		If !Blank(LLK_HasVal(guide.text_raw, step))
 			guide.text_raw.Delete(LLK_HasVal(guide.text_raw, step))
 	}
-
 	guide.group1 := []
 	For raw_index, step in guide.text_raw
 	{

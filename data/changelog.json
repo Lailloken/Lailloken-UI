@@ -2,6 +2,9 @@
   [
 	["1.52.6", 15206],
 	"hotfix 1: updated lantern mod-list was missing",
+	"hotfix 2: lantern highlighting improved, no need for 2nd screen-check",
+	"hotfix 2: item-info fix for <global unique> being displayed as <0000 unique>",
+	"hotfix 2: guide overlay will no longer un-hide when moving through lab",
 	"fixes: specifying <active character> would sometimes not work immediately, minimum area-level for 100% exp could be negative",
 	"leveling tracker: added guide management to add multiple guides and switch between them",
 	"necropolis: screen-check has to be updated, fixed some mods, added support for recently-added mods",
