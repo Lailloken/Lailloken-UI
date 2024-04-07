@@ -64,7 +64,6 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | implicits, (un)desired highlighting | ![image](https://user-images.githubusercontent.com/61888437/224276010-99ce801f-e2d8-4c99-af37-026a1847abe2.png) |
 | explicits, rolls, (un)desired highlighting | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/e449237e-62ef-4abb-951a-f1b1b3b8631d) |
 | drop-tier and roll-percentages for uniques | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/b44f953e-0b51-4563-b661-a7a94533c881) |
-
 <br>
 
 ### [Context-menu](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features) for items: single-hotkey access to features and popular 3rd-party websites  
@@ -86,6 +85,10 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | single-hotkey skilltree overlays | search-strings to bulk-buy every gem in a build |
 |---|---|
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/1c13825c-becc-45a8-b6c7-ef5e0d205846) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
+<br>
+
+### [Necropolis Lantern Highlighting (experimental)](https://github.com/Lailloken/Lailloken-UI/wiki/Necropolis): customizable highlighting for necropolis lantern mods
+![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/4a0a5533-b12d-4d64-a796-135ee4960845)
 <br>
 
 ### [TLDR-Tooltips (experimental)](https://github.com/Lailloken/Lailloken-UI/wiki/TLDR%E2%80%90Tooltips): customizable tooltips that summarize certain on-screen information
@@ -123,16 +126,6 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 ![Untitled 17](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d96916c5-37b4-4b2c-9067-2db25a28c2ac)  
 <br>
 
-### \*Support for [community translations](https://github.com/Lailloken/Lailloken-UI/discussions/categories/translations-localization):
-| item-info tooltip in German | item-info tooltip in Japanese |
-|---|---|
-|![item info](https://github.com/Lailloken/Lailloken-UI/assets/61888437/bd523165-5118-41e3-8c6d-aab3e90e178f)|![japanese](https://github.com/Lailloken/Lailloken-UI/assets/61888437/315041a6-8c82-4a22-b472-7a2a64857b72)|
-
-| map-info tooltip in German |
-|---|
-|![mapinfo](https://github.com/Lailloken/Lailloken-UI/assets/61888437/93ab45e0-821d-4222-a3ca-1a2f97e50f3c)|
-<br>
-
 ### Several minor [QoL features](https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features):  
 | essence tooltip to check the next tier's stats | orb of horizons tooltips |
 | --- | --- |
@@ -145,6 +138,16 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | quick-access overlay and tracker for casual lab-runs |
 | --- |
 | ![image](https://user-images.githubusercontent.com/61888437/219877353-6b8a56b9-ae3c-4470-98c6-05f298d0ace3.png) |
+<br>
+
+### \*Support for [community translations](https://github.com/Lailloken/Lailloken-UI/discussions/categories/translations-localization):
+| item-info tooltip in German | item-info tooltip in Japanese |
+|---|---|
+|![item info](https://github.com/Lailloken/Lailloken-UI/assets/61888437/bd523165-5118-41e3-8c6d-aab3e90e178f)|![japanese](https://github.com/Lailloken/Lailloken-UI/assets/61888437/315041a6-8c82-4a22-b472-7a2a64857b72)|
+
+| map-info tooltip in German |
+|---|
+|![mapinfo](https://github.com/Lailloken/Lailloken-UI/assets/61888437/93ab45e0-821d-4222-a3ca-1a2f97e50f3c)|
 <br>
 <br>
 
