@@ -38,7 +38,9 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
  
   - sends key-presses to copy item-info, or activate chat-commands and in-game searches
  
-  - reads the screen for context-sensitivity to adapt the tool's behavior: it searches for open UIs (e.g. inventory, stash), `but it never reads/checks game-related values or bars`
+  - checks screen-content for context-sensitivity to adapt the tool's behavior: it searches for open UIs (e.g. inventory, stash), `but it never reads/checks game-related values or bars`
+ 
+  - reads on-screen text `on key-press` to summarize the information and display it in customizable tooltips
  
 - **FAQ: has GGG approved this / can I be banned?**
 
@@ -95,6 +97,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | on-screen information | default presentation | TLDR-version |
 |---|---|---|
 | eldritch altars | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/fe980bdd-7a3b-4b51-87e5-80416120f083) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/536c4e57-ad0d-4ef0-bb47-5c5528d77948) |
+| vaal side areas | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/4c38c805-57ee-4f29-9064-bfc68aaee044) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/5caa1ed1-9af1-4839-bb53-2278fdc962a0) |
 <br>
 
 ### [Cheat-sheet Overlay Toolkit](https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit): create customizable, context-sensitive overlays
