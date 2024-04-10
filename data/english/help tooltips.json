@@ -462,7 +462,7 @@
     ],
     "ocr enable": [
       "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",
-      "currently supported: eldritch altars"
+      "currently supported: eldritch altars, vaal side areas"
     ],
     "ocr compatibility": [
       "screen-reading feature that scans the screen and displays certain information/text in customizable & compact tooltips",

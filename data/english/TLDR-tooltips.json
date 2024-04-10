@@ -1,0 +1,1200 @@
+{
+  "eldritch altars": {
+    "boss": [
+      [
+        "to maximum cold resistance\r\nto cold resistance\r\nto maximum lightning resistance\r\nto lightning resistance",
+        "(max) cold & lightning res"
+      ],
+      [
+        "additional physical damage reduction",
+        "additional pdr"
+      ],
+      [
+        "prevent of suppressed spell damage\r\nchance to suppress spell damage",
+        "spell suppression"
+      ],
+      [
+        "gain of physical damage as extra damage of a random element\r\ndamage penetrates of enemy elemental resistances",
+        "phys as extra ele dmg | ele pen"
+      ],
+      [
+        "gain of physical damage as extra cold damage\r\ncover enemies in frost on hit",
+        "phys as extra cold | cover in frost"
+      ],
+      [
+        "global chance to blind enemies on hit\r\nincreased blind effect",
+        "blind on hit | inc blind effect"
+      ],
+      [
+        "gain of maximum life as extra maximum energy shield",
+        "max life as extra max energy shield"
+      ],
+      [
+        "gain of physical damage as extra cold damage\r\nall damage with hits can chill",
+        "phys as extra cold | chill conflux"
+      ],
+      [
+        "hits always shock\r\ngain of physical damage as extra lightning damage\r\nall damage can shock",
+        "phys as extra light | shock conflux"
+      ],
+      [
+        "create consecrated ground on hit, lasting seconds",
+        "consecrated ground on hit"
+      ],
+      [
+        "to maximum fire resistance\r\nto fire resistance\r\nto maximum chaos resistance\r\nto chaos resistance",
+        "(max) fire & chaos res"
+      ],
+      [
+        "to armour",
+        "+50k armour"
+      ],
+      [
+        "gain of physical damage as extra fire damage\r\ncover enemies in ash on hit",
+        "phys as extra fire | cover in ash"
+      ],
+      [
+        "enemies lose flask charges every seconds and cannot gain flask charges for seconds after being hit",
+        "on hit: enemies lose & cannot gain flask charges"
+      ],
+      [
+        "hits always ignite\r\ngain of physical damage as extra fire damage\r\nall damage can ignite",
+        "phys as extra fire | ignite conflux"
+      ],
+      [
+        "gain of physical damage as extra chaos damage\r\npoison on hit\r\nall damage from hits can poison",
+        "phys as extra chaos | poison on hit | poison conflux"
+      ],
+      [
+        "increased armour\r\nincreased evasion rating",
+        "inc armour & evasion"
+      ],
+      [
+        "nearby enemies are hindered, with reduced movement speed",
+        "nearby enemies are hindered"
+      ],
+      [
+        "final boss drops additional divine orbs",
+        "divine orbs"
+      ],
+      [
+        "final boss drops additional exalted orbs",
+        "exalted orbs"
+      ],
+      [
+        "final boss drops additional regal orbs",
+        "regal orbs"
+      ],
+      [
+        "final boss drops additional lesser eldritch ichors",
+        "t1 eldritch ichors"
+      ],
+      [
+        "final boss drops additional greater eldritch ichors",
+        "t2 eldritch ichors"
+      ],
+      [
+        "final boss drops additional grand eldritch ichors",
+        "t3 eldritch ichors"
+      ],
+      [
+        "final boss drops additional orbs of alteration",
+        "orbs of alteration"
+      ],
+      [
+        "final boss drops additional blessed orbs",
+        "blessed orbs"
+      ],
+      [
+        "final boss drops additional orbs of scouring",
+        "orbs of scouring"
+      ],
+      [
+        "final boss drops additional chromatic orbs",
+        "chromatic orbs"
+      ],
+      [
+        "final boss drops additional orbs of fusing",
+        "orbs of fusing"
+      ],
+      [
+        "final boss drops additional jeweller's orbs",
+        "jeweller's orbs"
+      ],
+      [
+        "final boss drops additional divination cards which reward basic currency",
+        "div cards: basic currency"
+      ],
+      [
+        "final boss drops additional divination cards which reward league currency",
+        "div cards: league currency"
+      ],
+      [
+        "final boss drops additional divination cards which reward other divination cards",
+        "div cards: other div cards"
+      ],
+      [
+        "final boss drops additional divination cards which reward gems",
+        "div cards: gems"
+      ],
+      [
+        "final boss drops additional divination cards which reward levelled gems",
+        "div cards: levelled gems"
+      ],
+      [
+        "final boss drops additional divination cards which reward quality gems",
+        "div cards: quality gems"
+      ],
+      [
+        "final boss drops additional orbs of binding",
+        "orbs of binding"
+      ],
+      [
+        "final boss drops additional orbs of horizons",
+        "orbs of horizons"
+      ],
+      [
+        "final boss drops additional orbs of unmaking",
+        "orbs of unmaking"
+      ],
+      [
+        "final boss drops additional cartographer's chisels",
+        "cartographer's chisels"
+      ],
+      [
+        "final boss drops additional lesser eldritch embers",
+        "t1 eldritch embers"
+      ],
+      [
+        "final boss drops additional greater eldritch embers",
+        "t2 eldritch embers"
+      ],
+      [
+        "final boss drops additional grand eldritch embers",
+        "t3 eldritch embers"
+      ],
+      [
+        "final boss drops additional orbs of annulment",
+        "orbs of annulment"
+      ],
+      [
+        "final boss drops additional vaal orbs",
+        "vaal orbs"
+      ],
+      [
+        "final boss drops additional enkindling orbs",
+        "enkindling orbs"
+      ],
+      [
+        "final boss drops additional instilling orbs",
+        "instilling orbs"
+      ],
+      [
+        "final boss drops additional orbs of regret",
+        "orbs of regret"
+      ],
+      [
+        "final boss drops additional glassblower's baubles",
+        "glassblower's baubles"
+      ],
+      [
+        "final boss drops additional gemcutter's prisms",
+        "gemcutter's prisms"
+      ],
+      [
+        "final boss drops additional chaos orbs",
+        "chaos orbs"
+      ],
+      [
+        "final boss drops additional divination cards which reward a unique weapon",
+        "div cards: unique weapon"
+      ],
+      [
+        "final boss drops additional divination cards which reward a unique armour",
+        "div cards: unique armour"
+      ],
+      [
+        "final boss drops additional divination cards which reward unique jewellery",
+        "div cards: unique jewellery"
+      ],
+      [
+        "final boss drops additional divination cards which reward a corrupted unique item",
+        "div cards: corrupted unique item"
+      ],
+      [
+        "final boss drops additional divination cards which reward a map",
+        "div cards: map"
+      ],
+      [
+        "final boss drops additional divination cards which reward a unique map",
+        "div cards: unique map"
+      ],
+      [
+        "final boss drops additional divination cards which reward a corrupted item",
+        "div cards: corrupted item"
+      ],
+      [
+        "final boss drops additional lesser eldritch ichor",
+        "t1 eldritch ichor"
+      ],
+      [
+        "final boss drops additional greater eldritch ichor",
+        "t2 eldritch ichor"
+      ],
+      [
+        "final boss drops additional grand eldritch ichor",
+        "t3 eldritch ichor"
+      ],
+      [
+        "final boss drops additional lesser eldritch ember",
+        "t1 eldritch ember"
+      ],
+      [
+        "final boss drops additional greater eldritch ember",
+        "t2 eldritch ember"
+      ],
+      [
+        "final boss drops additional grand eldritch ember",
+        "t3 eldritch ember"
+      ],
+      [
+        "final boss drops additional breach scarabs",
+        "breach scarabs"
+      ],
+      [
+        "final boss drops additional delirium scarabs",
+        "delirium scarabs"
+      ],
+      [
+        "final boss drops additional legion scarabs",
+        "legion scarabs"
+      ],
+      [
+        "final boss drops additional blight scarabs",
+        "blight scarabs"
+      ],
+      [
+        "final boss drops additional ritual scarabs",
+        "ritual scarabs"
+      ],
+      [
+        "final boss drops additional harvest scarabs",
+        "harvest scarabs"
+      ],
+      [
+        "final boss drops additional ultimatum scarabs",
+        "ultimatum scarabs"
+      ],
+      [
+        "final boss drops additional abyss scarabs",
+        "abyss scarabs"
+      ],
+      [
+        "final boss drops additional expedition scarabs",
+        "expedition scarabs"
+      ],
+      [
+        "final boss drops additional betrayal scarabs",
+        "betrayal scarabs"
+      ],
+      [
+        "final boss drops additional bestiary scarabs",
+        "bestiary scarabs"
+      ],
+      [
+        "final boss drops additional incursion scarabs",
+        "incursion scarabs"
+      ],
+      [
+        "final boss drops additional sulphite scarabs",
+        "sulphite scarabs"
+      ],
+      [
+        "final boss drops additional influence scarabs",
+        "influence scarabs"
+      ],
+      [
+        "final boss drops additional cartography scarabs",
+        "cartography scarabs"
+      ],
+      [
+        "final boss drops additional divination scarabs",
+        "divination scarabs"
+      ],
+      [
+        "final boss drops additional anarchy scarabs",
+        "anarchy scarabs"
+      ],
+      [
+        "final boss drops additional harbinger scarabs",
+        "harbinger scarabs"
+      ],
+      [
+        "final boss drops additional miscellaneous scarabs",
+        "miscellaneous scarabs"
+      ],
+      [
+        "final boss drops additional beyond scarabs",
+        "beyond scarabs"
+      ],
+      [
+        "final boss drops additional torment scarabs",
+        "torment scarabs"
+      ],
+      [
+        "final boss drops additional ambush scarabs",
+        "ambush scarabs"
+      ],
+      [
+        "final boss drops additional domination scarabs",
+        "domination scarabs"
+      ],
+      [
+        "final boss drops additional essence scarabs",
+        "essence scarabs"
+      ],
+      [
+        "final boss drops additional reliquary scarabs",
+        "reliquary scarabs"
+      ]
+    ],
+    "minions": [
+      [
+        "overwhelm physical damage reduction",
+        "overwhelm pdr"
+      ],
+      [
+        "skills fire additional projectiles",
+        "+projectiles"
+      ],
+      [
+        "increased attack speed\r\nincreased cast speed\r\nincreased movement speed",
+        "inc m/a/c speed"
+      ],
+      [
+        "to maximum cold resistance\r\nto cold resistance\r\nto maximum lightning resistance\r\nto lightning resistance",
+        "(max) cold & lightning res"
+      ],
+      [
+        "additional physical damage reduction",
+        "additional pdr"
+      ],
+      [
+        "prevent of suppressed spell damage\r\nchance to suppress spell damage",
+        "spell suppression"
+      ],
+      [
+        "chance to remove a random charge from enemy on hit",
+        "remove random charge on hit"
+      ],
+      [
+        "drops chilled ground on death, lasting seconds",
+        "chilled ground on death"
+      ],
+      [
+        "chance to create shocked ground on death, lasting seconds",
+        "shocked ground on death"
+      ],
+      [
+        "inflict grasping vine on hit",
+        "grasping vine on hit"
+      ],
+      [
+        "gain of physical damage as extra lightning damage",
+        "phys as extra light"
+      ],
+      [
+        "gain of physical damage as extra cold damage",
+        "phys as extra cold"
+      ],
+      [
+        "drops burning ground on death, lasting seconds",
+        "burning ground on death"
+      ],
+      [
+        "create consecrated ground on death, lasting seconds",
+        "consecrated ground on death"
+      ],
+      [
+        "gain of physical damage as extra damage of a random element\r\ninflict fire, cold, and lightning exposure on hit",
+        "phys as extra ele dmg | tri-exposure on hit"
+      ],
+      [
+        "enemies lose flask charges every seconds and cannot gain flask charges for seconds after being hit",
+        "on hit: enemies lose & cannot gain flask charges"
+      ],
+      [
+        "to maximum fire resistance\r\nto fire resistance\r\nto maximum chaos resistance\r\nto chaos resistance",
+        "(max) fire & chaos res"
+      ],
+      [
+        "to armour",
+        "+50k armour"
+      ],
+      [
+        "increased area of effect",
+        "inc area of effect"
+      ],
+      [
+        "increased evasion rating",
+        "inc evasion"
+      ],
+      [
+        "gain of physical damage as extra chaos damage",
+        "phys as extra chaos"
+      ],
+      [
+        "gain of physical damage as extra fire damage",
+        "phys as extra fire"
+      ],
+      [
+        "chance to drop an additional divine orb",
+        "divine orb"
+      ],
+      [
+        "chance to drop an additional exalted orb",
+        "exalted orb"
+      ],
+      [
+        "chance to drop an additional regal orb",
+        "regal orb"
+      ],
+      [
+        "chance to drop an additional lesser eldritch ichor",
+        "t1 eldritch ichor"
+      ],
+      [
+        "chance to drop an additional greater eldritch ichor",
+        "t2 eldritch ichor"
+      ],
+      [
+        "chance to drop an additional grand eldritch ichor",
+        "t3 eldritch ichor"
+      ],
+      [
+        "chance to drop an additional orb of alteration",
+        "orb of alteration"
+      ],
+      [
+        "chance to drop an additional blessed orb",
+        "blessed orb"
+      ],
+      [
+        "chance to drop an additional orb of scouring",
+        "orb of scouring"
+      ],
+      [
+        "chance to drop an additional chromatic orb",
+        "chromatic orb"
+      ],
+      [
+        "chance to drop an additional orb of fusing",
+        "orb of fusing"
+      ],
+      [
+        "chance to drop an additional jeweller's orb",
+        "jeweller's orb"
+      ],
+      [
+        "chance to drop an additional divination card which rewards basic currency",
+        "div card: basic currency"
+      ],
+      [
+        "chance to drop an additional divination card which rewards league currency",
+        "div card: league currency"
+      ],
+      [
+        "chance to drop an additional divination card which rewards other divination cards",
+        "div card: other div cards"
+      ],
+      [
+        "chance to drop an additional divination card which rewards gems",
+        "div card: gems"
+      ],
+      [
+        "chance to drop an additional divination card which rewards levelled gems",
+        "div card: levelled gems"
+      ],
+      [
+        "chance to drop an additional divination card which rewards quality gems",
+        "div card: quality gems"
+      ],
+      [
+        "chance to drop an additional orb of binding",
+        "orb of binding"
+      ],
+      [
+        "chance to drop an additional orb of horizons",
+        "orb of horizons"
+      ],
+      [
+        "chance to drop an additional orb of unmaking",
+        "orb of unmaking"
+      ],
+      [
+        "chance to drop an additional cartographer's chisel",
+        "cartographer's chisel"
+      ],
+      [
+        "chance to drop an additional lesser eldritch ember",
+        "t1 eldritch ember"
+      ],
+      [
+        "chance to drop an additional greater eldritch ember",
+        "t2 eldritch ember"
+      ],
+      [
+        "chance to drop an additional grand eldritch ember",
+        "t3 eldritch ember"
+      ],
+      [
+        "chance to drop an additional orb of annulment",
+        "orb of annulment"
+      ],
+      [
+        "chance to drop an additional vaal orb",
+        "vaal orb"
+      ],
+      [
+        "chance to drop an additional enkindling orb",
+        "enkindling orb"
+      ],
+      [
+        "chance to drop an additional instilling orb",
+        "instilling orb"
+      ],
+      [
+        "chance to drop an additional orb of regret",
+        "orb of regret"
+      ],
+      [
+        "chance to drop an additional glassblower's bauble",
+        "glassblower's bauble"
+      ],
+      [
+        "chance to drop an additional gemcutter's prism",
+        "gemcutter's prism"
+      ],
+      [
+        "chance to drop an additional chaos orb",
+        "chaos orb"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a unique weapon",
+        "div card: unique weapon"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a unique armour",
+        "div card: unique armour"
+      ],
+      [
+        "chance to drop an additional divination card which rewards unique jewellery",
+        "div card: unique jewellery"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a corrupted unique item",
+        "div card: corrupted unique item"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a map",
+        "div card: map"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a unique map",
+        "div card: unique map"
+      ],
+      [
+        "chance to drop an additional divination card which rewards a corrupted item",
+        "div card: corrupted item"
+      ],
+      [
+        "chance to drop an additional breach scarab",
+        "breach scarab"
+      ],
+      [
+        "chance to drop an additional delirium scarab",
+        "delirium scarab"
+      ],
+      [
+        "chance to drop an additional legion scarab",
+        "legion scarab"
+      ],
+      [
+        "chance to drop an additional blight scarab",
+        "blight scarab"
+      ],
+      [
+        "chance to drop an additional ritual scarab",
+        "ritual scarab"
+      ],
+      [
+        "chance to drop an additional harvest scarab",
+        "harvest scarab"
+      ],
+      [
+        "chance to drop an additional ultimatum scarab",
+        "ultimatum scarab"
+      ],
+      [
+        "chance to drop an additional abyss scarab",
+        "abyss scarab"
+      ],
+      [
+        "chance to drop an additional expedition scarab",
+        "expedition scarab"
+      ],
+      [
+        "chance to drop an additional betrayal scarab",
+        "betrayal scarab"
+      ],
+      [
+        "chance to drop an additional bestiary scarab",
+        "bestiary scarab"
+      ],
+      [
+        "chance to drop an additional incursion scarab",
+        "incursion scarab"
+      ],
+      [
+        "chance to drop an additional sulphite scarab",
+        "sulphite scarab"
+      ],
+      [
+        "chance to drop an additional influence scarab",
+        "influence scarab"
+      ],
+      [
+        "chance to drop an additional cartography scarab",
+        "cartography scarab"
+      ],
+      [
+        "chance to drop an additional divination scarab",
+        "divination scarab"
+      ],
+      [
+        "chance to drop an additional anarchy scarab",
+        "anarchy scarab"
+      ],
+      [
+        "chance to drop an additional harbinger scarab",
+        "harbinger scarab"
+      ],
+      [
+        "[dnt] chance to drop an additional miscellaneous scarab",
+        "miscellaneous scarab"
+      ],
+      [
+        "chance to drop an additional beyond scarab",
+        "beyond scarab"
+      ],
+      [
+        "chance to drop an additional torment scarab",
+        "torment scarab"
+      ],
+      [
+        "chance to drop an additional ambush scarab",
+        "ambush scarab"
+      ],
+      [
+        "chance to drop an additional domination scarab",
+        "domination scarab"
+      ],
+      [
+        "chance to drop an additional essence scarab",
+        "essence scarab"
+      ],
+      [
+        "chance to drop an additional reliquary scarab",
+        "reliquary scarab"
+      ]
+    ],
+    "player": [
+      [
+        "- to cold resistance\r\n- to lightning resistance",
+        "–cold & –lightning res"
+      ],
+      [
+        "- additional physical damage reduction",
+        "–additional pdr"
+      ],
+      [
+        "reduced defences per frenzy charge",
+        "–defences per f-charge"
+      ],
+      [
+        "reduced recovery rate of life, mana and energy shield per endurance charge",
+        "–life/mana/es recovery per e-charge"
+      ],
+      [
+        "- to critical strike multiplier per power charge",
+        "–crit multi per p-charge"
+      ],
+      [
+        "chance for enemies to drop chilled ground when hitting you, no more than once every seconds",
+        "chance: chilled ground when hit"
+      ],
+      [
+        "chance for enemies to drop shocked ground when hitting you, no more than once every seconds",
+        "chance: shocked ground when hit"
+      ],
+      [
+        "all damage taken from hits can sap you\r\nchance to be sapped when hit",
+        "chance to be sapped when hit"
+      ],
+      [
+        "nearby enemies gain of their physical damage as extra cold damage",
+        "nearby enemies: phys as extra cold"
+      ],
+      [
+        "nearby enemies gain of their physical damage as extra lightning damage",
+        "nearby enemies: phys as extra light"
+      ],
+      [
+        "projectiles are fired in random directions",
+        "random projectiles"
+      ],
+      [
+        "non-damaging ailments you inflict are reflected back to you",
+        "non-dmg ailments are reflected"
+      ],
+      [
+        "- to fire resistance\r\n- to chaos resistance",
+        "–fire & –chaos res"
+      ],
+      [
+        "- to armour\r\n- to evasion rating",
+        "–armour/evasion"
+      ],
+      [
+        "increased flask charges used\r\nreduced flask effect duration",
+        "flasks: +cost/–duration"
+      ],
+      [
+        "take chaos damage per second during any flask effect",
+        "chaos dot during any flask effect"
+      ],
+      [
+        "all damage taken from hits can scorch you\r\nchance to be scorched when hit",
+        "chance to be scorched when hit"
+      ],
+      [
+        "curses you inflict are reflected back to you",
+        "curses are reflected"
+      ],
+      [
+        "chance for enemies to drop burning ground when hitting you, no more than once every seconds",
+        "chance: burning ground when hit"
+      ],
+      [
+        "chance to be targeted by a meteor when you use a flask",
+        "chance: meteor on flask"
+      ],
+      [
+        "nearby enemies gain of their physical damage as extra fire damage",
+        "nearby enemies: phys as extra fire"
+      ],
+      [
+        "nearby enemies gain of their physical damage as extra chaos damage",
+        "nearby enemies: phys as extra chaos"
+      ],
+      [
+        "basic currency items dropped by slain enemies have chance to be duplicated",
+        "dupe chance: basic currency"
+      ],
+      [
+        "unique items dropped by slain enemies have chance to be duplicated",
+        "dupe chance: unique"
+      ],
+      [
+        "scarabs dropped by slain enemies have chance to be duplicated",
+        "dupe chance: scarabs"
+      ],
+      [
+        "maps dropped by slain enemies have chance to be duplicated",
+        "dupe chance: maps"
+      ],
+      [
+        "divination cards dropped by slain enemies have chance to be duplicated",
+        "dupe chance: div cards"
+      ],
+      [
+        "increased quantity of items found in this area\r\nincreased rarity of items found in this area",
+        "inc quantity & rarity"
+      ],
+      [
+        "gems dropped by slain enemies have chance to be duplicated",
+        "dupe chance: gems"
+      ],
+      [
+        "increased quantity of items found in this area",
+        "inc quantity"
+      ],
+      [
+        "increased rarity of items found in this area",
+        "inc rarity"
+      ],
+      [
+        "increased experience gain",
+        "inc experience gain"
+      ]
+    ]
+  },
+  "vaal side areas": {
+    "all monster damage from hits always ignites": [
+      "ignite conflux",
+      "monsters"
+    ],
+    "area contains additional packs of corrupted vaal monsters": [
+      "corr. packs",
+      "monsters"
+    ],
+    "area contains many totems": [
+      "many totems",
+      "area"
+    ],
+    "area contains two unique bosses": [
+      "twinned",
+      "boss"
+    ],
+    "area has patches of desecrated ground": [
+      "desecrated",
+      "area"
+    ],
+    "area is affected by a corrupting tempest": [
+      "corr. tempest",
+      "area"
+    ],
+    "found items have chance to drop corrupted in area": [
+      "corr. drop-chance",
+      "area"
+    ],
+    "increased experience gain": [
+      "exp gain",
+      "player"
+    ],
+    "increased monster attack speed": [
+      "m/a/c speed",
+      "monsters"
+    ],
+    "increased monster cast speed": [
+      "m/a/c speed",
+      "monsters"
+    ],
+    "increased monster damage": [
+      "damage",
+      "monsters"
+    ],
+    "increased monster movement speed": [
+      "m/a/c speed",
+      "monsters"
+    ],
+    "increased number of rare monsters": [
+      "extra rares",
+      "monsters"
+    ],
+    "increased pack size": [
+      "pack size",
+      "monsters"
+    ],
+    "monster chaos resistance": [
+      "ele/chaos res",
+      "monsters"
+    ],
+    "monster cold resistance": [
+      "cold res",
+      "monsters"
+    ],
+    "monster elemental resistances": [
+      "ele/chaos res",
+      "monsters"
+    ],
+    "monster fire resistance": [
+      "fire res",
+      "monsters"
+    ],
+    "monster lightning resistance": [
+      "light res",
+      "monsters"
+    ],
+    "monster physical damage reduction": [
+      "phys reduction",
+      "monsters"
+    ],
+    "monsters are hexproof": [
+      "hexproof",
+      "monsters"
+    ],
+    "monsters are unaffected by curses": [
+      "curse immune\nhex reflect",
+      "monsters"
+    ],
+    "monsters cannot be leeched from": [
+      "no leech",
+      "player"
+    ],
+    "monsters cannot be stunned": [
+      "stun immune",
+      "monsters"
+    ],
+    "monsters deal extra physical damage as cold": [
+      "phys as extra cold",
+      "monsters"
+    ],
+    "monsters deal extra physical damage as fire": [
+      "phys as extra fire",
+      "monsters"
+    ],
+    "monsters deal extra physical damage as lightning": [
+      "phys as extra light",
+      "monsters"
+    ],
+    "monsters fire additional projectiles": [
+      "extra proj",
+      "monsters"
+    ],
+    "monsters gain of maximum life as extra maximum energy shield": [
+      "max life as es",
+      "monsters"
+    ],
+    "monsters gain of their physical damage as extra chaos damage": [
+      "phys as extra chaos",
+      "monsters"
+    ],
+    "monsters have chance to avoid ailments": [
+      "avoid ailments",
+      "monsters"
+    ],
+    "monsters have chance to block attack damage": [
+      "attk/spell block",
+      "monsters"
+    ],
+    "monsters have chance to block spell damage": [
+      "attk/spell block",
+      "monsters"
+    ],
+    "monsters have chance to suppress spell damage": [
+      "suppression",
+      "monsters"
+    ],
+    "monsters have increased area of effect": [
+      "area of effect",
+      "monsters"
+    ],
+    "monsters have increased critical strike chance": [
+      "crit/multi",
+      "monsters"
+    ],
+    "monsters in area are at least magic": [
+      "alluring (uber)",
+      "area"
+    ],
+    "monsters overwhelm physical damage reduction": [
+      "overwhelm pdr",
+      "monsters"
+    ],
+    "monsters poison on hit": [
+      "hits poison",
+      "monsters"
+    ],
+    "monsters prevent of suppressed spell damage": [
+      "suppression",
+      "monsters"
+    ],
+    "monsters reflect hexes": [
+      "curse immune\nhex reflect",
+      "monsters"
+    ],
+    "monsters reflect of elemental damage": [
+      "ele reflect",
+      "monsters"
+    ],
+    "monsters reflect of physical damage": [
+      "phys reflect",
+      "monsters"
+    ],
+    "more magic monsters": [
+      "extra magic",
+      "monsters"
+    ],
+    "more monster damage": [
+      "alluring (uber)",
+      "area"
+    ],
+    "more monster life": [
+      "more life",
+      "monsters"
+    ],
+    "players are cursed with elemental weakness": [
+      "ele weakness",
+      "player"
+    ],
+    "players are cursed with enfeeble": [
+      "enfeeble",
+      "player"
+    ],
+    "players are cursed with temporal chains": [
+      "temp chains",
+      "player"
+    ],
+    "players are cursed with vulnerability": [
+      "vulnerability",
+      "player"
+    ],
+    "players cannot block attack damage": [
+      "can't block",
+      "player"
+    ],
+    "players cannot block spell damage": [
+      "can't block",
+      "player"
+    ],
+    "players cannot gain flask charges": [
+      "no flask charges",
+      "player"
+    ],
+    "players cannot inflict exposure": [
+      "no exposure",
+      "player"
+    ],
+    "players cannot regenerate life mana or energy shield": [
+      "no regen",
+      "player"
+    ],
+    "players cannot suppress spell damage": [
+      "can't suppress",
+      "player"
+    ],
+    "players have less recovery rate of life and energy shield": [
+      "less recovery",
+      "player"
+    ],
+    "players have reduced effect of noncurse auras from skills": [
+      "–aura effect",
+      "player"
+    ],
+    "players have to all maximum resistances": [
+      "–all max res",
+      "player"
+    ],
+    "rare monsters each have additional modifiers": [
+      "mods on rares",
+      "monsters"
+    ],
+    "slaying enemies close together can attract monsters from beyond this realm": [
+      "beyond",
+      "monsters"
+    ],
+    "slaying enemies has a increased chance to spawn a beyond portal": [
+      "beyond",
+      "monsters"
+    ],
+    "to monster critical strike multiplier": [
+      "crit/multi",
+      "monsters"
+    ],
+    "unique boss deals increased damage": [
+      "dmg & a/c speed",
+      "boss"
+    ],
+    "unique boss has increased attack and cast speed": [
+      "dmg & a/c speed",
+      "boss"
+    ],
+    "unique bosses are possessed": [
+      "possessed",
+      "boss"
+    ],
+    "vaal vessel contains additional corrupted rare items with an incursion modifier": [
+      "incursion rares",
+      "vessel"
+    ],
+    "vaal vessel contains additional corrupted unique items with an implicit modifier": [
+      "vaal-implicit uniques",
+      "vessel"
+    ],
+    "vaal vessel contains additional divination cards that give corrupted items": [
+      "corr. div-cards",
+      "vessel"
+    ],
+    "vaal vessel contains additional fossils": [
+      "fossils",
+      "vessel"
+    ],
+    "vaal vessel contains additional maps that are inhabited by the vaal": [
+      "vaal-inhabited maps",
+      "vessel"
+    ],
+    "vaal vessel contains additional sacrifice fragments": [
+      "sacr. frags",
+      "vessel"
+    ],
+    "vaal vessel contains additional vaal gems": [
+      "vaal gems",
+      "vessel"
+    ],
+    "vaal vessel contains additional vaal orbs": [
+      "vaal orbs",
+      "vessel"
+    ],
+    "vaal vessel contains an additional corrupted gem with quality": [
+      "23 qual gem",
+      "vessel"
+    ],
+    "vaal vessel contains an additional corrupted rare item with an incursion modifier": [
+      "incursion rares",
+      "vessel"
+    ],
+    "vaal vessel contains an additional corrupted unique item with an implicit modifier": [
+      "vaal-implicit uniques",
+      "vessel"
+    ],
+    "vaal vessel contains an additional corrupted unique item with two implicit modifiers": [
+      "2-implicit unique",
+      "vessel"
+    ],
+    "vaal vessel contains an additional divination card that gives corrupted items": [
+      "corr. div-cards",
+      "vessel"
+    ],
+    "vaal vessel contains an additional fossil": [
+      "fossils",
+      "vessel"
+    ],
+    "vaal vessel contains an additional level corrupted gem": [
+      "lvl 21 gem",
+      "vessel"
+    ],
+    "vaal vessel contains an additional level vaal gem": [
+      "lvl 20 vaal gem",
+      "vessel"
+    ],
+    "vaal vessel contains an additional map that is inhabited by the vaal": [
+      "vaal-inhabited maps",
+      "vessel"
+    ],
+    "vaal vessel contains an additional sacrifice fragment": [
+      "sacr. frags",
+      "vessel"
+    ],
+    "vaal vessel contains an additional ultimatum aspect": [
+      "ultimatum aspect",
+      "vessel"
+    ],
+    "vaal vessel contains an additional vaal gem": [
+      "vaal gems",
+      "vessel"
+    ],
+    "vaal vessel contains an additional vaal orb": [
+      "vaal orbs",
+      "vessel"
+    ],
+    "vaal vessel contains an additional vaal temple map": [
+      "vaal temple map",
+      "vessel"
+    ],
+    "vaal vessel contains mortal fragments": [
+      "alluring (uber)",
+      "area"
+    ]
+  }
+}
