@@ -190,7 +190,7 @@ LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
 	Return
 }
 
-LLK_HasRegex(object, regex, all_results := 0)
+LLK_HasRegex(object, regex, all_results := 0, check_key := 0)
 {
 	local
 
@@ -198,7 +198,7 @@ LLK_HasRegex(object, regex, all_results := 0)
 		Return
 	parse := []
 	For key, val in object
-		If RegExMatch(val, regex)
+		If RegExMatch(!check_key ? val : key, regex)
 		{
 			If !all_results
 				Return key
@@ -501,7 +501,8 @@ Init_vars()
 	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
 	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases.json", 1))
 	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers.json"))
-	db.altars := json.Load(LLK_FileRead("data\english\eldritch altars.json"))
+	tldr := json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
+	db.altars := tldr["eldritch altars"].Clone()
 	db.altar_dictionary := []
 	For outer in ["", ""]
 		For index1, key in ["boss", "minions", "player"]
@@ -521,6 +522,13 @@ Init_vars()
 							db.altar_dictionary.Push(A_LoopField)
 			}
 		}
+
+	db.vaalareas := tldr["vaal side areas"].Clone()
+	db.vaalareas_dictionary := []
+	For key in db.vaalareas
+		Loop, Parse, key, % A_Space
+			If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
+				db.vaalareas_dictionary.Push(A_LoopField)
 
 	settings := {}
 	settings.features := {}
@@ -1356,12 +1364,14 @@ LLK_Error(ErrorMessage, restart := 0)
 
 LLK_FileCheck()
 {
-	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\"]
+	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
 		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
 		{
 			FileDelete, data\%val%
 			FileRemoveDir, data\%val%, 1
 		}
+	If FileExist("ini\altars.ini")
+		FileMove, ini\altars.ini, ini\ocr - altars.ini, 1
 	If !FileExist("data\") || !FileExist("data\global\") || !FileExist("data\english\") || !FileExist("data\english\UI.txt") || !FileExist("data\english\client.txt")
 		Return 0
 	Else Return 1

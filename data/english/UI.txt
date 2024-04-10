@@ -382,7 +382,12 @@
 		ocr_nousecase			=	"use-case unclear"		;## scanned text doesn't fit any use-case
 		ocr_nocoords			=	"couldn't get coordinates"
 		ocr_erroraltar			=	"couldn't reliably read mods, retry"
-
+		ocr_vaalarea			=	"area"
+		ocr_vaalboss			=	"boss"
+		ocr_vaalmonsters		=	"monsters"
+		ocr_vaalplayer			=	"player"
+		ocr_vaalvessel			=	"vessel"
+		ocr_vaalunclear			=	"unclear"
 
 
 

@@ -1,5 +1,12 @@
 [
   [
+	["1.52.7", 15207],
+	"item-info: exclude non-numeric mod-rolls (e.g. forbidden shako, dragonfang's flight)",
+	"leveling tracker: fix certain progress resets affecting the wrong guide slot",
+	"necropolis lantern: fix certain mods, improve dragging",
+	"tldr-tooltips: support for vaal side areas, fix exarch armor mod"
+  ],
+  [
 	["1.52.6", 15206],
 	"hotfix 1: updated lantern mod-list was missing",
 	"hotfix 2: lantern highlighting improved, no need for 2nd screen-check",

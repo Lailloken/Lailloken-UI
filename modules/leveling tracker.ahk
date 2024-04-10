@@ -314,7 +314,7 @@ Leveltracker(cHWND := "", hotkey := "")
 
 			If loop
 			{
-				LeveltrackerProgressReset()
+				LeveltrackerProgressReset(settings.leveltracker.profile)
 				KeyWait, LButton
 				Return
 			}
@@ -1577,7 +1577,7 @@ LeveltrackerTimer(mode := "")
 		{
 			If LLK_Progress(vars.hwnd.leveltracker.reset_bar, "RButton")
 			{
-				LeveltrackerProgressReset()
+				LeveltrackerProgressReset(settings.leveltracker.profile)
 				IniWrite, % "", ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, name
 				IniWrite, 0, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 				Loop 10

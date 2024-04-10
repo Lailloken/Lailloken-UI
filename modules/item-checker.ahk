@@ -1228,7 +1228,7 @@ Iteminfo4_GUI()
 			rolls := IteminfoModRollCheck(A_LoopField)
 			If invert_check
 				rolls[4] := rolls[1], rolls[1] := rolls[3], rolls [3] := rolls[4]
-			rolls_val := Abs(rolls.2 - rolls.1), rolls_max := Abs(rolls.3 - rolls.1), valid_rolls := (rolls.1 + rolls.2 + rolls.3 = 0 || !InStr(text_check, "(")) ? 0 : 1
+			rolls_val := Abs(rolls.2 - rolls.1), rolls_max := Abs(rolls.3 - rolls.1), valid_rolls := (!IsNumber(rolls.1 + rolls.2 + rolls.3) || !InStr(text_check, "(")) ? 0 : 1
 			If unique && !valid_rolls ;for uniques, skip mod-parts that don't have a roll
 				Continue
 			mod_text := settings.iteminfo.modrolls ? IteminfoModRemoveRange(text_check) : text_check
@@ -2326,10 +2326,10 @@ IteminfoModRollCheck(mod) ;parses a mod's text and returns an array with informa
 		current := InStr(val, "(") ? SubStr(val, 1, InStr(val, "(") - 1) : val ;declare the current roll
 		max := InStr(val, "(") ? StrReplace(val, current "(" min "-") : val , max := StrReplace(max, ")") ;declare the max-roll
 		If !IsNumber(min + current + max)
-			Continue
+			Return ["", "", ""]
 		sum_min += min, sum_current += current, sum_max += max ;if the mod as multiple ranges, sum up the values
 	}
-	Return [sum_min, sum_current, sum_max]
+	Return [sum_min, sum_current, sum_max] 
 }
 
 IteminfoOverlays() ;show update buttons for specific gear-slots underneath the cursor
