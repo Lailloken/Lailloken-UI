@@ -378,7 +378,7 @@ OCR_Altars()
 			}
 			extra := 0
 		}
-	global json
+
 	If (panels.1.Count() < 3) || (panels.2.Count() < 3) || !LLK_HasVal(panels, ":", 1,,, 1)
 		OCR_Error(LangTrans("ocr_erroraltar"))
 	Else
