@@ -127,7 +127,7 @@ Necropolis_Click()
 	MouseGetPos, xMouse, yMouse, wMouse, cMouse, 2
 	If (wMouse != vars.hwnd.necropolis.main)
 		Return
-	button := LLK_HasVal(vars.necropolis.buttons, cMouse), text := vars.necropolis.texts[button]
+	button := LLK_HasVal(vars.necropolis.buttons, cMouse), text := vars.necropolis.texts[button], hwnd := LLK_HasVal(vars.hwnd.necropolis, cMouse)
 	Sleep, 100
 	If GetKeyState("LButton", "P")
 	{
@@ -140,12 +140,15 @@ Necropolis_Click()
 	Else Return
 
 	Sleep 50
-	MouseGetPos, xMouse, yMouse, wMouse, cMouse, 2
-	button1 := LLK_HasVal(vars.necropolis.buttons, cMouse)
+	MouseGetPos, xMouse, yMouse, wMouse, cMouse1, 2
+	button1 := LLK_HasVal(vars.necropolis.buttons, cMouse1), hwnd1 := LLK_HasVal(vars.hwnd.necropolis, cMouse1)
 	If !Blank(text) && button && button1 && (button != button1)
 	{
 		copy := vars.necropolis.texts[button], vars.necropolis.texts[button] := vars.necropolis.texts[button1], vars.necropolis.texts[button1] := copy
-		Necropolis_("refresh")
+		copy := vars.hwnd.necropolis[hwnd], vars.hwnd.necropolis[hwnd] := vars.hwnd.necropolis[hwnd1], vars.hwnd.necropolis[hwnd1] := copy
+		color := settings.necropolis.colors[settings.necropolis.mods[vars.necropolis.texts[button]]], color1 := settings.necropolis.colors[settings.necropolis.mods[vars.necropolis.texts[button1]]]
+		GuiControl, % "+c" (!color ? "Black" : color), % cMouse
+		GuiControl, % "+c" (!color1 ? "Black" : color1), % cMouse1
 	}
 }
 
@@ -204,7 +207,8 @@ Necropolis_Parse(text)
 			If !LLK_HasVal(db.necropolis.dictionary, word)
 				regex_array_copy[index] := ""
 		regex_check := LLK_HasRegex(db.necropolis.mods, OCR_RegexCheck(regex_array_copy, 0, ""), 1)
-		If (regex_check.Count() = 1)
+		regex_check1 := LLK_HasRegex(db.necropolis.mods, StrReplace((OCR_RegexCheck(regex_array_copy, 0, "")), "im)", "im)^") "$", 1)
+		If (regex_check.Count() = 1 || regex_check1.Count() = 1)
 			Return db.necropolis.mods[regex_check.1]
 		Else If !regex_check.Count()
 			Return
