@@ -52,6 +52,8 @@
 			If !IsObject(db.mapinfo.mods[section])
 				db.mapinfo.mods[section] := {}
 			db.mapinfo.mods[section][key] := val
+			If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
+				MsgBox, % "invalid mod-type for:`n" section
 		}
 	}
 
@@ -282,9 +284,9 @@ MapinfoParse(mode := 1)
 			}
 			For index, text in texts
 			{
-				If mods.HasKey(text)
+				If mods.HasKey(text) && !LLK_HasKey(mods, text "|" texts[index + 1], 1)
 					map_mods[text] := map_mods.HasKey(text) ? map_mods[text] + values[index] : values[index]
-				Else check .= !check ? text : "|" text, value .= !value ? values[index] : (InStr(check, " fewer trap") || SubStr(value, 0 - StrLen(values[index])) = values[index] ? "" : "/" values[index])
+				Else check .= !check ? text : "|" text, value .= !value ? values[index] : (InStr(check, " fewer trap") || SubStr(value, 0 - StrLen(values[index])) = values[index] ? "" : IsNumber(values[index]) ? "/" values[index] : "")
 			}
 
 			If check && mods.HasKey(check)

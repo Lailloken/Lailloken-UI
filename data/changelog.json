@@ -1,6 +1,7 @@
 [
   [
 	["1.52.7", 15207],
+	"hotfix 1: fixed missing t17 mods, added support for t17 changes in 3.24.1",
 	"item-info: exclude non-numeric mod-rolls (e.g. forbidden shako, dragonfang's flight)",
 	"leveling tracker: fix certain progress resets affecting the wrong guide slot",
 	"necropolis lantern: fix certain mods, improve dragging",
