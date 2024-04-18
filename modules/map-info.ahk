@@ -122,7 +122,7 @@ MapinfoGUI(mode := 1)
 	}
 	LLK_PanelDimensions(dimensions, settings.mapinfo.fSize, wPanels, hPanels), added := 0, yControl := hControl := 0, count := {}, wPic := settings.mapinfo.fHeight*2 - 1
 	divisor := (wPanels + wPic - 1 > wSummary * summary_array0.Count()) ? 4 : summary_array0.Count()
-	wPanels := wGUI := Max(wPanels + wPic - 1, wSummary * summary_array0.Count()), wSpectrum := wSummary * summary_array0.Count(), wSpectrum1 := wSpectrum // mod_count
+	wPanels := wGUI := Max(wPanels + wPic - 1, wSummary * summary_array0.Count()), wSpectrum := wSummary * summary_array0.Count() - 2, wSpectrum1 := wSpectrum // mod_count
 	While Mod(wGui, divisor)
 		wGui += 1, wPanels += 1
 	wPanels := wPanels - wPic + 1
