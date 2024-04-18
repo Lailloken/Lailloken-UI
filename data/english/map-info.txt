@@ -147,7 +147,7 @@ ID	=	012
 
 [unique boss deals # increased damage|unique boss has # increased attack and cast speed]
 type	=	bosses
-text	=	dmg & speed: +%
+text	=	dmg/speed: +%
 ID	=	013
 
 [# increased monster damage]
