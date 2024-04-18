@@ -424,13 +424,13 @@
       "map rolls (quant, rarity, etc.) will be highlighted if they meet certain requirements"
     ],
     "mapinfo roll colors": [
-      "this is the current highlighting",
+      "this is a preview of the current highlighting settings",
       "click the colored buttons on the right to open the palette, right-click to reset the color to default",
-	  "first button: text color\nsecond button: background color"
+      "first button: text color\nsecond button: background color"
     ],
     "mapinfo requirements": [
       "specify required/desired minimum values for each roll",
-	  "quantity, rarity, pack size\nmaps, scarabs, currency"
+      "quantity, rarity, pack size\nmaps, scarabs, currency"
     ],
     "necro enable": [
       "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"
