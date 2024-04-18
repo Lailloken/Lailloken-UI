@@ -28,6 +28,10 @@
 	settings.mapinfo.fHeight := font_height, settings.mapinfo.fWidth := font_width
 	settings.mapinfo.trigger := LLK_IniRead("ini\map info.ini", "Settings", "enable shift-clicking", 0)
 	settings.mapinfo.tabtoggle := LLK_IniRead("ini\map info.ini", "Settings", "show panel while holding tab", 0)
+	settings.mapinfo.roll_highlight := LLK_IniRead("ini\map info.ini", "Settings", "highlight map rolls", 0), settings.mapinfo.roll_requirements := {}
+	settings.mapinfo.roll_colors := [LLK_IniRead("ini\map info.ini", "UI", "map rolls text color", "00FF00"), LLK_IniRead("ini\map info.ini", "UI", "map rolls back color", "000000")]
+	Loop 6
+		settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)] := LLK_IniRead("ini\map info.ini", "UI", LangTrans("maps_stats_full", A_Index + 1) " requirement")
 
 	lang := settings.general.lang_client, db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
 	Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" lang "\map-info.txt") ? lang : "english") "\map-info.txt", 1), "`t"), `n, `r
@@ -51,7 +55,7 @@
 		{
 			If !IsObject(db.mapinfo.mods[section])
 				db.mapinfo.mods[section] := {}
-			db.mapinfo.mods[section][key] := val
+			db.mapinfo.mods[section][key] := StrReplace(val, "&", "&&")
 			If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
 				MsgBox, % "invalid mod-type for:`n" section
 		}
@@ -83,22 +87,27 @@ MapinfoGUI(mode := 1)
 		Return
 	}
 	toggle := !toggle, GUI_name := "mapinfo" toggle
-	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
+	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
 	Gui, %GUI_name%: Color, Black
-	Gui, %GUI_name%: Margin, % settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
+	Gui, %GUI_name%: Margin, 0, 0 ;% settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
 	Gui, %GUI_name%: Font, % "s"settings.mapinfo.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.mapinfo.main, vars.hwnd.mapinfo := {"main": mapinfo}, mod_count := 0
-	summary := map.mods . LangTrans("maps_stats", 1) " | " map.quantity . LangTrans("maps_stats", 2) " |" (!Blank(map.packsize) ? " " map.packsize . LangTrans("maps_stats", 3) : " " map.rarity . LangTrans("maps_stats", 4))
-	If (map.mods + map.quantity > 0)
-		dimensions := [summary]
-	Else dimensions := []
-
+	summary := summary0 := map.mods . LangTrans("maps_stats", 1) " | " map.quantity . LangTrans("maps_stats", 2) " | " map.rarity . LangTrans("maps_stats", 3) . (!Blank(map.packsize) ? " | " map.packsize . LangTrans("maps_stats", 4) : "")
+	If StrLen(map.maps . map.scarabs . map.currency)
+	{
+		Loop, Parse, % "maps,scarabs,currency", `,
+			If !Blank(map[A_LoopField])
+				add := " | " map[A_LoopField] . LangTrans("maps_stats", 4 + A_Index), summary .= add, summary1 .= StrReplace(add, !summary1 ? " | " : "")
+	}
+	dimensions := [], summary_array := StrSplit(summary, "|", A_Space), summary_array0 := StrSplit(summary0, "|", A_Space), summary_array1 := StrSplit(summary1, "|", A_Space)
+	LLK_PanelDimensions(summary_array, settings.mapinfo.fSize, wSummary, hSummary)
+	
 	For index0, category in vars.mapinfo.categories
 	{
 		If Blank(category)
 			Continue
-		category_copy := (mode = 2) && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category
-		dimensions.Push((mode = 2 && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category) ":")
+		If InStr(category, "(")
+			dimensions.Push(SubStr(category, 1, InStr(category, "(") - 2))
 		Loop 4
 		{
 			For index, val in map[category][A_Index]
@@ -111,27 +120,66 @@ MapinfoGUI(mode := 1)
 			}
 		}
 	}
-	LLK_PanelDimensions(dimensions, settings.mapinfo.fSize, width, height,,, 0)
+	LLK_PanelDimensions(dimensions, settings.mapinfo.fSize, wPanels, hPanels), added := 0, yControl := hControl := 0, count := {}, wPic := settings.mapinfo.fHeight*2 - 1
+	divisor := (wPanels + wPic - 1 > wSummary * summary_array0.Count()) ? 4 : summary_array0.Count()
+	wPanels := wGUI := Max(wPanels + wPic - 1, wSummary * summary_array0.Count()), wSpectrum := wSummary * summary_array0.Count(), wSpectrum1 := wSpectrum // mod_count
+	While Mod(wGui, divisor)
+		wGui += 1, wPanels += 1
+	wPanels := wPanels - wPic + 1
 
 	For index0, category in vars.mapinfo.categories
 	{
 		check := 0
-		Loop, % (mode = 2) ? 4 : 5
-			check += map[category][5 - A_Index].Count() ? 1 : 0
+		Loop, 4
+			check += map[category][A_Index].Count() ? map[category][A_Index].Count() : 0
+		If (mode < 2)
+			For index, array in map[category].0
+				check += array.Count() ? array.Count() : 0
 		If !check
 			Continue
+		count[category] := 0
 
-		Gui, %GUI_name%: Add, Text, % (added ? "xs " : "") "Section c"settings.mapinfo.color.5 " w"width (mode = 2 ? " Right" : ""), % (mode = 2 && InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category) ":"
-		added += 1
+		If (mode < 2)
+		{
+			pic := (InStr(category, "(") ? SubStr(category, InStr(category, "(") + 1, InStr(category, ")") - InStr(category, "(") - 1) : category), check += InStr(category, "(") ? 1 : 0
+			hPic := Max(check*settings.mapinfo.fHeight - check + 1, settings.mapinfo.fHeight*2 - 1)
+			GUI, %GUI_name%: Add, Text, % "xs x0 " (!added ? " y0" : " y" yControl + hControl - 1) " Section HWNDhwnd Border BackgroundTrans w" wPic " h" hPic, % " "
+			ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%
+			pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic ".png")
+			If InStr("area,heist", category)
+				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(pBitmap0,, 200 - hResize/2, 64, hResize,, 1)
+			Else pBitmap := Gdip_CloneBitmapArea(pBitmap0,,, 64, Round(64 * (hPic/wPic)),, 1)
+			hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+			GUI, %GUI_name%: Add, Pic, % "xp yp h" hPic " w-1", HBitmap:*%hbmBitmap%
+			Gdip_DisposeImage(pBitmap0), Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
+		}
+
+		If InStr(category, "(")
+		{
+			Gui, %GUI_name%: Font, underline
+			style := (mode < 2) ? "ys Section x+-1 y" yControl : "xs Section" . (added ? " y" yControl + hControl - 1 : "")
+			Gui, %GUI_name%: Add, Text, % style . (mode = 2 ? " Right" : " Center") " HWNDhwnd Border w" wPanels . (mode = 2 ? " Right" : ""), % " " SubStr(category, 1, Instr(category, "(") - 2) " "
+			Gui, %GUI_name%: Font, norm
+			ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%	
+			added += 1, count[category] += 1, yControl1 := yControl
+		}
+
 		Loop 4
 		{
-			For index, val in map[category][5 - A_Index]
+			outer := A_Index
+			For index, val in map[category][5 - outer]
 			{
 				text := InStr(val.1, ":") && (mode = 2) ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1, prefix := ""
-				Gui, %GUI_name%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
+				If (mode < 2)
+					style := !count[category] ? "ys x+-1 y" yControl : "xs y+-1"
+				Else style := added ? "xs y" yControl + hControl - 1 : "xs"
+				Gui, %GUI_name%: Add, Text, % style . (!count[category] ? " Section" : "") " Border HWNDhwnd w" wPanels " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : "") . (check < 2 ? " 0x200 h" settings.mapinfo.fHeight*2 - 1 : ""), % " " text " "
 				While vars.hwnd.mapinfo.HasKey(prefix "mod_" val.2)
 					prefix := A_Index
-				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd
+				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd, count[category] += 1, added += 1
+				ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%
+				If (count[category] = 1)
+					yControl1 := yControl
 			}
 		}
 		Gui, %GUI_name%: Font, strike
@@ -142,19 +190,50 @@ MapinfoGUI(mode := 1)
 			For index, val in map[category].0[5 - A_Index]
 			{
 				text := InStr(val.1, ":") && (mode = 2) ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1, prefix := ""
-				Gui, %GUI_name%: Add, Text, % "xs y+-"settings.mapinfo.fHeight/6 " Section HWNDhwnd w"width " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : ""), % text
+				If (mode < 2)
+					style := !count[category] ? "ys x+-1 y" yControl : "xs y+-1"
+				Else style := added ? "xs y" yControl + hControl - 1 : "xs"
+				Gui, %GUI_name%: Add, Text, % style . (!count[category] ? " Section" : "") " Border HWNDhwnd w" wPanels " c"settings.mapinfo[(SubStr(val.2, 1, 1) = 3) ? "eColor" : "color"][settings.mapinfo.IDs[val.2].rank] (mode = 2 ? " Right" : "") . (check < 2 ? " 0x200 h" settings.mapinfo.fHeight*2 - 1 : ""), % " " text " "
 				While vars.hwnd.mapinfo.HasKey(prefix "mod_" val.2)
 					prefix := A_Index
-				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd
+				vars.hwnd.mapinfo[prefix "mod_" val.2] := hwnd, count[category] += 1, added += 1
+				ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%
+				If (count[category] = 1)
+					yControl1 := yControl
 			}
 		}
 		Gui, %GUI_name%: Font, norm
+		If (mode = 2)
+		{			
+			pic := (InStr(category, "(") ? SubStr(category, InStr(category, "(") + 1, InStr(category, ")") - InStr(category, "(") - 1) : category), check += InStr(category, "(") ? 1 : 0
+			wPic := settings.mapinfo.fHeight*2 - 1, hPic := Max(check*settings.mapinfo.fHeight - check + 1, settings.mapinfo.fHeight*2 - 1)
+			GUI, %GUI_name%: Add, Text, % "ys x+-1 Border BackgroundTrans y" yControl1 " h" yControl + hControl - yControl1 " w" wPic, % " "
+			pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic ".png")
+			If InStr("area,heist", category)
+				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(pBitmap0,, 200 - hResize/2, 64, hResize,, 1)
+			Else pBitmap := Gdip_CloneBitmapArea(pBitmap0,,, 64, Round(64 * (hPic/wPic)),, 1)
+			hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+			GUI, %GUI_name%: Add, Pic, % "xp yp h" hPic " w-1", HBitmap:*%hbmBitmap%
+			Gdip_DisposeImage(pBitmap0), Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
+		}
 	}
 
+	rolls := ["mods", "quantity", "pack size", "rarity", "maps", "scarabs", "currency"]
 	If (map.mods + map.quantity > 0)
 	{
-		Gui, %GUI_name%: Add, Text, % "xs y+"settings.mapinfo.fWidth " Section Center HWNDhwnd w"width, % summary
-		LLK_PanelDimensions([summary], settings.mapinfo.fSize, w, h,,, 0), added := 0, spectrum := [0, 0, 0, 0], spectrum[0] := [0, 0, 0, 0]
+		;Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans x1 y" yControl + hControl " Section HWNDhwnd Center w" width + settings.mapinfo.fHeight*2 - 3, % summary
+		For index, vSum in summary_array0
+		{
+			style := (index = 1 ? "xs Section y+" (yControl + hControl ? -1 : 0) " x" wGUI//2 - (wSummary * summary_array0.Count())//2 : "ys x+0"), roll := settings.mapinfo.roll_requirements[rolls[index]]
+			color := settings.mapinfo.roll_highlight && !Blank(roll) && (SubStr(vSum, 1, -1) >= roll) ? " c" settings.mapinfo.roll_colors.1 : ""
+			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd Border Center w" wSummary . color, % vSum
+		}
+		For index, vSum in summary_array1
+		{
+			style := (index = 1 ? "xs Section y+" (yControl + hControl ? -1 : 0) " x" wGUI//2 - (wSummary * summary_array1.Count())//2 : "ys x+0")
+			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd Border Center w" wSummary, % vSum
+		}
+		added := 0, spectrum := [0, 0, 0, 0], spectrum[0] := [0, 0, 0, 0]
 
 		For index0, category in vars.mapinfo.categories
 		{
@@ -172,8 +251,8 @@ MapinfoGUI(mode := 1)
 			index0 := A_Index
 			Loop, % spectrum[5 - A_Index]
 			{
-				Gui, %GUI_name%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack c"settings.mapinfo.color[5 - index0] " w"
-				. w/mod_count - settings.mapinfo.fWidth//10 " h"settings.mapinfo.fHeight/3, 100
+				style := !added ? "xs Section HWNDhwnd y+" settings.mapinfo.fHeight//5 " x" wGui/2 - (wSpectrum1 * mod_count)/2 : "ys x+0" ;(Mod(wSpectrum, mod_count) && LLK_IsBetween(added, Floor(mod_count/2), Ceil(mod_count/2)) ? (mod_count > 3 ? 2 : 1) : 0)
+				Gui, %GUI_name%: Add, Progress, % style " BackgroundBlack c"settings.mapinfo.color[5 - index0] " w" wSpectrum1 " h"settings.mapinfo.fHeight/3, 100
 				added += 1
 			}
 		}
@@ -182,16 +261,14 @@ MapinfoGUI(mode := 1)
 			index0 := A_Index
 			Loop, % spectrum.0[5 - A_Index]
 			{
-				Gui, %GUI_name%: Add, Progress, % (!added ? "xs Section y+0 xp+"(width - w)/2 : "ys x+"settings.mapinfo.fWidth//10) " BackgroundBlack Border c"settings.mapinfo.color[5 - index0] " w"
-				. w/mod_count - settings.mapinfo.fWidth//10 " h"settings.mapinfo.fHeight/3, 100
+				style := !added ? "xs Section HWNDhwnd y+" settings.mapinfo.fHeight//5 " x" wGui/2 - (wSpectrum1 * mod_count)/2 : "ys x+0" ;(Mod(wSpectrum, mod_count) && LLK_IsBetween(added, Floor(mod_count/2), Ceil(mod_count/2)) ? (mod_count > 3 ? 2 : 1) : 0)
+				Gui, %GUI_name%: Add, Progress, % style " BackgroundBlack Border c"settings.mapinfo.color[5 - index0] " w" wSpectrum1 " h"settings.mapinfo.fHeight/3, 100
 				added += 1
 			}
 		}
+		ControlGetPos, xPos, yPos, w_, h_,, ahk_id %hwnd%
+		Gui, %GUI_name%: Add, Text, % "Border BackgroundTrans x0 y" yControl + hControl - 1 " w" wGUI " h" yPos + h_ - (yControl + hControl) + settings.mapinfo.fHeight//4, % " "
 	}
-	Else w := width
-
-	If (InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub")) && (mode = 2) && !InStr(vars.mapinfo.active_map.name, "logbook")
-		Gui, %GUI_name%: Add, Text, % "xs y+0 Center w"w, % LLK_StringCase(StrReplace(StrReplace(vars.mapinfo.active_map.name, "maven's invitation: "), " map"))
 
 	If !mode
 		WinGetPos, x, y,,, % "ahk_id "hwnd_old
@@ -211,7 +288,7 @@ MapinfoGUI(mode := 1)
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.mapinfo.main
 	If (w < 10)
 		LLK_ToolTip(LangTrans("ms_map-info") ": " LangTrans("global_nothing"), 1.5,,,, "red"), LLK_Overlay(mapinfo, "destroy"), vars.mapinfo.active_map := ""
-	LLK_Overlay(hwnd_old, "destroy")
+	LLK_Overlay(hwnd_old, "destroy"), vars.mapinfo.active_map.summary := summary
 }
 
 MapinfoLineparse(line, ByRef text, ByRef value)
@@ -236,6 +313,49 @@ MapinfoLineparse(line, ByRef text, ByRef value)
 		text := SubStr(text, 2)
 	While (SubStr(text, 0) = " ")
 		text := SubStr(text, 1, -1)
+}
+
+MapinfoModsearch(input0 := "", cHWND0 := "")
+{
+	local
+	global vars, settings, db
+	static toggle := 0, input, cHWND
+	
+	If !Blank(input0)
+		input := input0, cHWND := cHWND0
+	mods := LLK_HasKey(db.mapinfo.mods, input, 1,, 1)
+	If !mods.Count()
+	{
+		GuiControl, +cRed, % cHWND
+		GuiControl, movedraw, % cHWND
+		Return
+	}
+	Else GuiControl, +cBlack, % cHWND
+	WinGetPos, x, y, w, h, ahk_id %cHWND%
+
+	toggle := !toggle, GUI_name := "mapinfo_modsearch" toggle, added_mods := {}
+	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDmapinfo_modsearch"
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, 0, 0 ;% settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
+	Gui, %GUI_name%: Font, % "s"settings.mapinfo.fSize " cWhite", % vars.system.font
+	hwnd_old := vars.hwnd.mapinfo_modsearch.main, vars.hwnd.mapinfo_modsearch := {"main": mapinfo_modsearch}
+
+	For index, mod in mods
+		If !added_mods.HasKey(db.mapinfo.mods[mod].id)
+			text := db.mapinfo.mods[mod].text, added_mods[db.mapinfo.mods[mod].id] := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text
+
+	LLK_PanelDimensions(added_mods, settings.mapinfo.fSize, width, height)
+	For ID, text in added_mods
+	{
+		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", ID, "rank", 1)]
+		If !LLK_IniRead("ini\map info.ini", ID, "show", 1)
+			Gui, %GUI_name%: Font, strike
+		Gui, %GUI_name%: Add, Text, % "xs Section Border HWNDhwnd w" width " c" color . (A_Index = 1 ? "" : " y+-1"), % " " text " "
+		vars.hwnd.mapinfo_modsearch["_" ID] := hwnd
+		Gui, %GUI_name%: Font, norm
+	}
+	Gui, %GUI_name%: Show, % "x" x " y" y + h - 1
+	LLK_Overlay(mapinfo_modsearch, "show", 0, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
 MapinfoParse(mode := 1)
@@ -284,14 +404,14 @@ MapinfoParse(mode := 1)
 			}
 			For index, text in texts
 			{
-				If mods.HasKey(text) && !LLK_HasKey(mods, text "|" texts[index + 1], 1)
+				If mods.HasKey(text) && !LLK_HasKey(mods, text "|" texts[index + 1], 1) && !LLK_HasKey(mods, texts[index -1] "|" text, 1)
 					map_mods[text] := map_mods.HasKey(text) ? map_mods[text] + values[index] : values[index]
-				Else check .= !check ? text : "|" text, value .= !value ? values[index] : (InStr(check, " fewer trap") || SubStr(value, 0 - StrLen(values[index])) = values[index] ? "" : IsNumber(values[index]) ? "/" values[index] : "")
+				Else check .= !check ? text : "|" text, value .= !value ? values[index] : (InStr(check, " fewer trap") || SubStr(value, 0 - StrLen(values[index])) = values[index] || InStr(check, "inflict withered") ? "" : IsNumber(values[index]) ? "/" values[index] : "")
 			}
 
 			If check && mods.HasKey(check)
 				map_mods[check] := value
-			Else If check && settings.general.dev
+			Else If check && settings.general.dev && !InStr(check, "also apply to rarity")
 			{
 				Clipboard := check
 				MsgBox, % check
@@ -336,9 +456,13 @@ MapinfoParse(mode := 1)
 			}
 		}
 		Else
-			For index, val in ["quantity", "rarity", "packsize"]
+			For index, val in ["quantity", "rarity", "packsize", "maps", "scarabs", "currency"]
+			{
 				If StrMatch(A_LoopField, LangTrans("items_map" val))
 					%val% := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), %val% := StrReplace(StrReplace(%val%, "%"), "+")
+				Else If (item.tier = 17) && (index > 3) && Blank(%val%)
+					%val% := 0
+			}
 	}
 	/*
 	If !item.itembase
@@ -413,7 +537,7 @@ MapinfoParse(mode := 1)
 			map.tag := val
 			Break
 		}
-	map.quantity := quantity, map.rarity := rarity, map.packsize := packsize, map.name := name, map.name_copy := name_copy, map.mods := mod_count, map.english := item.name "`n" item.itembase
+	map.quantity := quantity, map.rarity := rarity, map.packsize := packsize, map.maps := maps, map.scarabs := scarabs, map.currency := currency, map.name := name, map.name_copy := name_copy, map.mods := mod_count, map.english := item.name "`n" item.itembase
 	Return 1
 }
 
@@ -422,7 +546,8 @@ MapinfoRank(hotkey)
 	local
 	global vars, settings
 
-	check := LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
+	search := (vars.general.wMouse = vars.hwnd.mapinfo_modsearch.main) ? 1 : 0
+	check := LLK_HasVal(!search ? vars.hwnd.mapinfo : vars.hwnd.mapinfo_modsearch, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
 	Loop, Parse, hotkey
 		If IsNumber(A_LoopField)
 		{
@@ -432,6 +557,7 @@ MapinfoRank(hotkey)
 
 	If !check
 		Return
+
 	If IsNumber(hotkey)
 	{
 		settings.mapinfo.IDs[control].rank := hotkey
@@ -442,6 +568,8 @@ MapinfoRank(hotkey)
 		settings.mapinfo.IDs[control].show := !settings.mapinfo.IDs[control].show
 		IniWrite, % settings.mapinfo.IDs[control].show, ini\map info.ini, % control, show
 	}
-	MapinfoParse(0), MapinfoGUI(0)
+	If !search
+		MapinfoParse(0), MapinfoGUI(0)
+	Else MapinfoModsearch()
 	KeyWait, % hotkey
 }

@@ -776,7 +776,7 @@ MaptrackerLogs(mode := "")
 	ControlFocus,, % "ahk_id " vars.hwnd.maptracker_logs.filter
 	If (mode = "filter")
 		SendInput, ^{a}{Right}
-	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w/2 " y" (h < vars.client.h * 0.9 ? vars.client.y + vars.client.h/10 : vars.monitor.y + vars.monitor.yc - h/2)
+	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w/2 " y" vars.monitor.y + vars.monitor.h/10
 	LLK_Overlay(vars.hwnd.maptracker_logs.main, "show", 0, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -1264,7 +1264,7 @@ MaptrackerMapinfo()
 	global vars, settings
 
 	map := vars.mapinfo.active_map ;short-cut variable
-	parse := map.mods . LangTrans("maps_stats", 1) " | " map.quantity . LangTrans("maps_stats", 2) " | " map.rarity . LangTrans("maps_stats", 4) . (map.packsize ? " | " map.packsize . LangTrans("maps_stats", 3) : "") "; "
+	parse := map.summary "; "
 	For index0, category in vars.mapinfo.categories
 	{
 		check := 0

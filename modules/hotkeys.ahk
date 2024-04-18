@@ -354,7 +354,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::Alarm(1)
 *RButton::Alarm(2)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) ;ranking map-mods
+#If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.mapinfo_modsearch.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo_modsearch, vars.general.cMouse))) ;ranking map-mods
 
 *1::
 *2::
