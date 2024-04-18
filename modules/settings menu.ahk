@@ -1730,7 +1730,7 @@ Settings_mapinfo2(cHWND)
 				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" control "1"]
 				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
 				GuiControl, % "movedraw", % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
-				IniWrite, % color, ini\map info.ini, UI, % "map rolls " (control = 1 ? "text" : "back") " color"
+				IniWrite, % (settings.mapinfo.roll_colors[control] := color), ini\map info.ini, UI, % "map rolls " (control = 1 ? "text" : "back") " color"
 			}
 			Else If InStr(check, "color")
 			{

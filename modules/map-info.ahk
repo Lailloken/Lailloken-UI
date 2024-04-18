@@ -226,13 +226,17 @@ MapinfoGUI(mode := 1)
 		{
 			style := (index = 1 ? "xs Section y+" (yControl + hControl ? -1 : 0) " x" wGUI//2 - (wSummary * summary_array0.Count())//2 : "ys x+0"), roll := settings.mapinfo.roll_requirements[rolls[index]]
 			color := settings.mapinfo.roll_highlight && !Blank(roll) && (SubStr(vSum, 1, -1) >= roll) ? " c" settings.mapinfo.roll_colors.1 : ""
-			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd Border Center w" wSummary . color, % vSum
+			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd BackgroundTrans Border Center w" wSummary . color, % vSum
+			If color
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
 		}
 		For index, vSum in summary_array1
 		{
 			style := (index = 1 ? "xs Section y+" (yControl + hControl ? -1 : 0) " x" wGUI//2 - (wSummary * summary_array1.Count())//2 : "ys x+0"), roll := settings.mapinfo.roll_requirements[rolls[index + 4]]
 			color := settings.mapinfo.roll_highlight && !Blank(roll) && (SubStr(vSum, 1, -1) >= roll) ? " c" settings.mapinfo.roll_colors.1 : ""
-			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd Border Center w" wSummary . color, % vSum
+			Gui, %GUI_name%: Add, Text, % style " HWNDhwnd BackgroundTrans Border Center w" wSummary . color, % vSum
+			If color
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
 		}
 		added := 0, spectrum := [0, 0, 0, 0], spectrum[0] := [0, 0, 0, 0]
 
