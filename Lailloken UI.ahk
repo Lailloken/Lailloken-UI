@@ -609,7 +609,7 @@ Loop_main()
 	}
 
 	If vars.hwnd.mapinfo_modsearch.main && WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main) && !WinActive("ahk_id " vars.hwnd.mapinfo_modsearch.main)
-		LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy")
+		LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy"), vars.hwnd.mapinfo_modsearch.main := ""
 
 	If settings.general.ClientFiller
 	{
