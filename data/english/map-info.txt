@@ -197,7 +197,7 @@ ID	=	022
 
 [monsters poison on hit]
 type	=	monsters
-text	=	poison
+text	=	hits poison
 ID	=	023
 
 [monsters cannot be taunted]
@@ -662,7 +662,7 @@ ID	=	182
 
 [# reduced effect of curses on monsters]
 type	=	monsters
-text	=	red. curse eff: -%
+text	=	red. curse eff: %
 ID	=	183
 
 [players are targeted by a meteor when they use a flask]
@@ -717,7 +717,7 @@ ID	=	193
 
 [monsters poison on hit|all damage from monsters' hits can poison|monsters have # increased poison duration]
 type	=	monsters
-text	=	psn conflux & duration
+text	=	psn conflux/duration
 ID	=	194
 
 [monsters have # to maximum endurance charges|monsters gain an endurance charge when hit]
