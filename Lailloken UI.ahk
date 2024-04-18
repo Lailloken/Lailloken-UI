@@ -608,6 +608,9 @@ Loop_main()
 		Init_cloneframes()
 	}
 
+	If vars.hwnd.mapinfo_modsearch.main && WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main) && !WinActive("ahk_id " vars.hwnd.mapinfo_modsearch.main)
+		LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy")
+
 	If settings.general.ClientFiller
 	{
 		If vars.hwnd.ClientFiller && !WinExist("ahk_id " vars.hwnd.ClientFiller) && !WinActive("ahk_exe code.exe") && WinActive("ahk_group poe_window")
