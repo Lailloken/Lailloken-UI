@@ -150,7 +150,6 @@
 		global_gap			=	"gap"
 		global_pattern			=	"pattern"	;## as in color pattern
 		global_regular			=	"regular"	;## as in default
-		global_requirements		=	"requirements"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
