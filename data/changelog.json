@@ -1,5 +1,13 @@
 [
   [
+	["1.53.0", 15300],
+	"item-info: updated unique drop-tier data (poeladder.com)",
+	"map-info: partially redesigned",
+	"map-info: added support for t17 drop-multipliers",
+	"map-info: mod highlighting now customizable in settings menu",
+	"map-info: re-worded/consolidated certain map mods"
+  ],
+  [
 	["1.52.7", 15207],
 	"hotfix 1: fixed missing t17 mods, added support for t17 changes in 3.24.1",
 	"item-info: exclude non-numeric mod-rolls (e.g. forbidden shako, dragonfang's flight)",

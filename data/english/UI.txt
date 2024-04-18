@@ -148,6 +148,8 @@
 		global_width			=	"width"
 		global_height			=	"height"
 		global_gap			=	"gap"
+		global_pattern			=	"pattern"	;## as in color pattern
+		global_regular			=	"regular"	;## as in default
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -691,6 +693,8 @@
 		m_mapinfo_textcolors		=	"text-colors:"
 		m_mapinfo_header		=	"header"					;## as in line at the top of a section/paragraph
 		m_mapinfo_logbook		=	"logbook-colors:"
+		m_mapinfo_modsearch		=	"mod search:"
+		m_mapinfo_roll_highlight	=	"highlight map rolls"
 
 
 

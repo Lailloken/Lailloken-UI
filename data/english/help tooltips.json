@@ -412,13 +412,25 @@
       "only works in hideouts and the map that was loaded into the panel"
     ],
     "mapinfo colors": [
-      "click a button to open the color-palette, right click to reset",
-      "header: color of the headers that divide the panel into sections",
-      "while hovering over mods, press 1-4 to apply a color, or space to strike out"
+      "click a button to open the color-palette, right click to reset"
     ],
     "mapinfo logbooks": [
-      "logbook mods use positive rankings, with 4 being the best value",
-      "while hovering over mods, press 1-4 to apply a color, or space to strike out"
+      "logbook mods use positive rankings, with 4 being the best value"
+    ],
+    "mapinfo modsearch": [
+      "type in map-mods (in-game wording) and press enter to list them and customize their highlighting"
+    ],
+    "mapinfo roll highlight": [
+      "map rolls (quant, rarity, etc.) will be highlighted if they meet certain requirements"
+    ],
+    "mapinfo roll colors": [
+      "this is a preview of the current highlighting settings",
+      "click the colored buttons on the right to open the palette, right-click to reset the color to default",
+      "first button: text color\nsecond button: background color"
+    ],
+    "mapinfo requirements": [
+      "specify required/desired minimum values for each roll",
+      "quantity, rarity, pack size\nmaps, scarabs, currency"
     ],
     "necro enable": [
       "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"

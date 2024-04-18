@@ -96,8 +96,8 @@ HotkeysESC()
 		Gui, maptracker_edit: Destroy
 	Else If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy")
-	Else If WinExist("ahk_id "vars.hwnd.mapinfo.main)
-		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
+	Else If WinExist("ahk_id "vars.hwnd.mapinfo.main) || WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main)
+		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy"), vars.hwnd.mapinfo_modsearch.main := ""
 	Else If vars.maptracker.loot
 		MaptrackerGUI()
 	Else If WinExist("ahk_id "vars.hwnd.maptracker_logs.main)
@@ -354,7 +354,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::Alarm(1)
 *RButton::Alarm(2)
 
-#If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) ;ranking map-mods
+#If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.mapinfo_modsearch.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo_modsearch, vars.general.cMouse))) ;ranking map-mods
 
 *1::
 *2::

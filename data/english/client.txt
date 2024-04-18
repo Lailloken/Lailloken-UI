@@ -97,7 +97,8 @@
 		maps_sirus			=	"sirus"
 
 ;## these strings are shown in the map-info panel
-		maps_stats			=	"m#q#p#r"		;## these stand for modifiers, quantity, pack-size, rarity
+		maps_stats_full			=	"mods#quantity#rarity#pack size#maps#scarabs#currency"		;## map rolls/multipliers
+		maps_stats			=	"x#q#r#p#m#s#c"							;## x = multiplication-sign, see above for the rest
 
 
 
@@ -223,6 +224,9 @@
 		items_mapquantity		=	"Item Quantity:"
 		items_maprarity			=	"Item Rarity:"
 		items_mappacksize		=	"Monster Pack Size:"
+		items_mapmaps			=	"More Maps:"						;## T17 maps received various multipliers in 3.24.1
+		items_mapscarabs		=	"More Scarabs:"
+		items_mapcurrency		=	"More Currency:"
 		items_stack			=	"Stack Size:"
 		items_mapname			=	"# Map"							;## the format of map-items, e.g. Frozen River Map (German, for example, uses 'Frozen River'-Map)
 

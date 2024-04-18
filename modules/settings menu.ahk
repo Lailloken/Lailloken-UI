@@ -1606,8 +1606,16 @@ Settings_mapinfo()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked"settings.mapinfo.trigger, % LangTrans("m_mapinfo_shift")
 	vars.hwnd.settings.shiftclick := vars.hwnd.help_tooltips["settings_mapinfo shift-click"] := hwnd
+	ControlGetPos, x, y, w, h,, ahk_id %hwnd%
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked"settings.mapinfo.tabtoggle, % LangTrans("m_mapinfo_tab")
 	vars.hwnd.settings.tabtoggle := vars.hwnd.help_tooltips["settings_mapinfo tab"] := hwnd
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_mapinfo_modsearch")
+	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default HWNDhwnd1 gSettings_mapinfo2", OK
+	ControlGetPos, x1, y1, w1, h1,, ahk_id %hwnd%
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys cBlack HWNDhwnd2 gSettings_mapinfo2 w" w - w1 - settings.general.fWidth, % ""
+	vars.hwnd.settings.modsearch := vars.hwnd.help_tooltips["settings_mapinfo modsearch"] := hwnd2, vars.hwnd.settings.modsearch_ok := hwnd1
+	Gui, %GUI%: Font, % "s" settings.general.fSize
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_ui")
@@ -1619,20 +1627,45 @@ Settings_mapinfo()
 	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_mapinfo2 HWNDhwnd w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_mapinfo_textcolors")
-	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.color.5, % " " LangTrans("m_mapinfo_header") " "
-	vars.hwnd.help_tooltips["settings_mapinfo colors"] := hwnd0, vars.hwnd.settings.color_5 := vars.hwnd.help_tooltips["settings_mapinfo colors|"] := hwnd, handle := "|"
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_textcolors")
+	handle := ""
 	Loop 4
 	{
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.color[A_Index], % " " A_Index " "
-		handle .= "|", vars.hwnd.settings["color_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo colors"handle] := hwnd
+		vars.hwnd.settings["color_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo colors"handle] := hwnd, handle .= "|"
 	}
 
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_mapinfo_logbook")
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_logbook")
 	Loop 4
 	{
 		Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/(A_Index = 1 ? 2 : 4) " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.eColor[A_Index], % " " A_Index " "
-		vars.hwnd.help_tooltips["settings_mapinfo logbooks"] := hwnd0, handle1 .= "|", vars.hwnd.settings["colorlogbook_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo logbooks"handle1] := hwnd
+		vars.hwnd.settings["colorlogbook_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo logbooks"handle1] := hwnd, handle1 .= "|"
+	}
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked" settings.mapinfo.roll_highlight, % LangTrans("m_mapinfo_roll_highlight")
+	vars.hwnd.settings.roll_highlight := vars.hwnd.help_tooltips["settings_mapinfo roll highlight"] := hwnd, handle := ""
+	ControlGetPos, xControl,,,,, ahk_id %hwnd%
+	If settings.mapinfo.roll_highlight
+	{
+		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans HWNDhwnd1 Border c" settings.mapinfo.roll_colors.1 " x+" settings.general.fWidth / 4, % " 117" LangTrans("maps_stats", 2) " "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd11 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd2 Border w" settings.general.fWidth, % " "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd21 Border BackgroundBlack c" settings.mapinfo.roll_colors.1, % 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd3 Border w" settings.general.fWidth, % " "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd31 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, % 100
+		Loop 3
+			vars.hwnd.help_tooltips["settings_mapinfo roll colors" handle] := hwnd%A_Index%1, handle .= "|"
+		vars.hwnd.settings.rollcolor_text := hwnd1, vars.hwnd.settings.rollcolor_back := hwnd11
+		vars.hwnd.settings.rollcolor_1 := hwnd2, vars.hwnd.settings.rollcolor_11 := hwnd21
+		vars.hwnd.settings.rollcolor_2 := hwnd3, vars.hwnd.settings.rollcolor_21 := hwnd31, dimensions := [], handle := ""
+		Loop 6
+		{
+			Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section x" xControl + settings.general.fWidth * 1.5 : "ys") " Center HWNDhwnd Border w" settings.general.fWidth * 3, % LangTrans("maps_stats", A_Index + 1)
+			Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+			Gui, %GUI%: Add, Edit, % "ys x+-1 wp hp Right cBlack Number HWNDhwnd1 Limit3 gSettings_mapinfo2", % settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)]
+			Gui, %GUI%: Font, % "s" settings.general.fSize
+			vars.hwnd.help_tooltips["settings_mapinfo requirements" handle] := hwnd, vars.hwnd.help_tooltips["settings_mapinfo requirements|" handle] := vars.hwnd.settings["thresh_" LangTrans("maps_stats_full", A_Index + 1)] := hwnd1, handle .= "||"
+		}
 	}
 }
 
@@ -1655,6 +1688,19 @@ Settings_mapinfo2(cHWND)
 		Case "tabtoggle":
 			settings.mapinfo.tabtoggle := LLK_ControlGet(cHWND)
 			IniWrite, % settings.mapinfo.tabtoggle, ini\map info.ini, settings, show panel while holding tab
+		Case "modsearch":
+			GuiControl, +cBlack, % cHWND
+		Case "modsearch_ok":
+			input := LLK_ControlGet(cHWND := vars.hwnd.settings.modsearch)
+			If (StrLen(input) < 3)
+			{
+				GuiControl, +cRed, % cHWND
+				Return
+			}
+			MapinfoModsearch(input, cHWND)
+		Case "roll_highlight":
+			IniWrite, % (settings.mapinfo.roll_highlight := LLK_ControlGet(cHWND)), ini\map info.ini, settings, highlight map rolls
+			Settings_menu("map-info")
 		Default:
 			If InStr(check, "font_")
 			{
@@ -1668,6 +1714,23 @@ Settings_mapinfo2(cHWND)
 				}
 				IniWrite, % settings.mapinfo.fSize, ini\map info.ini, settings, font-size
 				LLK_FontDimensions(settings.mapinfo.fSize, height, width), settings.mapinfo.fWidth := width, settings.mapinfo.fHeight := height
+			}
+			Else If InStr(check, "thresh_")
+			{
+				IniWrite, % (settings.mapinfo.roll_requirements[control] := LLK_ControlGet(cHWND)), ini\map info.ini, UI, % control " requirement"
+				Return
+			}
+			Else If InStr(check, "rollcolor")
+			{
+				KeyWait, LButton
+				KeyWait, RButton
+				color := (vars.system.click = 1) ? RGB_Picker(settings.mapinfo.roll_colors[control]) : (control = 1 ? "00FF00" : "000000")
+				If Blank(color)
+					Return
+				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" control "1"]
+				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
+				GuiControl, % "movedraw", % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
+				IniWrite, % (settings.mapinfo.roll_colors[control] := color), ini\map info.ini, UI, % "map rolls " (control = 1 ? "text" : "back") " color"
 			}
 			Else If InStr(check, "color")
 			{
@@ -2314,10 +2377,10 @@ Settings_OCR()
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
 	vars.hwnd.help_tooltips["settings_ocr colors"] := hwnd
 
-	LLK_PanelDimensions(["pattern 7"], settings.general.fSize, width, height)
+	LLK_PanelDimensions([LangTrans("global_pattern") " 7"], settings.general.fSize, width, height)
 	For index, array in settings.OCR.colors
 	{
-		Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section" : "ys x+" settings.general.fWidth / 2) " Border Center HWNDhwndtext BackgroundTrans c" array.1 " w" width, % (index = 0 ? "regular" : "pattern " index)
+		Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section" : "ys x+" settings.general.fWidth / 2) " Border Center HWNDhwndtext BackgroundTrans c" array.1 " w" width, % (index = 0 ? LangTrans("global_regular") : LangTrans("global_pattern") " " index)
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" array.2, 100
 		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_OCR2 HWNDhwnd00", % "  "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" array.1, 100
