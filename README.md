@@ -116,7 +116,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 ### Overhauled [map-info panel](https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel): streamlined & customizable map-mod tooltip and panel
 | tooltip for rolling maps | on-demand panel to quickly re-check mods while mapping |
 |---|---|
-| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d59f8c12-45df-4ac7-a1ab-1035020e9f89) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/0205cd5c-6891-4905-ae9b-7acdbf34ace0) |
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/efe5c7b8-0d26-46f1-93fe-1d2d26624fe3) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/d6b2f08f-53e4-41a4-bfc1-07f77fa35ff9) |
 <br>
 
 ### [Betrayal-info](https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info): streamlined & customizable info-sheet (with optional image recognition)  
