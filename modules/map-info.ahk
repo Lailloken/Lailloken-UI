@@ -101,7 +101,7 @@ MapinfoGUI(mode := 1)
 	}
 	dimensions := [], summary_array := StrSplit(summary, "|", A_Space), summary_array0 := StrSplit(summary0, "|", A_Space), summary_array1 := StrSplit(summary1, "|", A_Space)
 	LLK_PanelDimensions(summary_array, settings.mapinfo.fSize, wSummary, hSummary)
-	
+
 	For index0, category in vars.mapinfo.categories
 	{
 		If Blank(category)
@@ -160,7 +160,7 @@ MapinfoGUI(mode := 1)
 			style := (mode < 2) ? "ys Section x+-1 y" yControl : "xs Section" . (added ? " y" yControl + hControl - 1 : "")
 			Gui, %GUI_name%: Add, Text, % style . (mode = 2 ? " Right" : " Center") " HWNDhwnd Border w" wPanels . (mode = 2 ? " Right" : ""), % " " SubStr(category, 1, Instr(category, "(") - 2) " "
 			Gui, %GUI_name%: Font, norm
-			ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%	
+			ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%
 			added += 1, count[category] += 1, yControl1 := yControl
 		}
 
@@ -204,7 +204,7 @@ MapinfoGUI(mode := 1)
 		}
 		Gui, %GUI_name%: Font, norm
 		If (mode = 2)
-		{			
+		{
 			pic := (InStr(category, "(") ? SubStr(category, InStr(category, "(") + 1, InStr(category, ")") - InStr(category, "(") - 1) : category), check += InStr(category, "(") ? 1 : 0
 			wPic := settings.mapinfo.fHeight*2 - 1, hPic := Max(check*settings.mapinfo.fHeight - check + 1, settings.mapinfo.fHeight*2 - 1)
 			GUI, %GUI_name%: Add, Text, % "ys x+-1 Border BackgroundTrans y" yControl1 " h" yControl + hControl - yControl1 " w" wPic, % " "
@@ -325,7 +325,7 @@ MapinfoModsearch(input0 := "", cHWND0 := "")
 	local
 	global vars, settings, db
 	static toggle := 0, input, cHWND
-	
+
 	If !Blank(input0)
 		input := input0, cHWND := cHWND0
 	mods := LLK_HasKey(db.mapinfo.mods, input, 1,, 1)
@@ -460,15 +460,18 @@ MapinfoParse(mode := 1)
 				Else map[key][settings.mapinfo.IDs[mods[implicit_text].id].rank].Push([pushtext, mods[implicit_text].id])
 			}
 		}
+		Else If InStr(A_LoopField, LangTrans("items_maptier"))
+			tier := SubStr(A_LoopField, -1), tier += 0
 		Else
 			For index, val in ["quantity", "rarity", "packsize", "maps", "scarabs", "currency"]
 			{
 				If StrMatch(A_LoopField, LangTrans("items_map" val))
 					%val% := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), %val% := StrReplace(StrReplace(%val%, "%"), "+")
-				Else If (item.tier = 17) && (index > 3) && Blank(%val%)
+				Else If (tier = 17) && (index > 3) && Blank(%val%)
 					%val% := 0
 			}
 	}
+
 	/*
 	If !item.itembase
 	{
