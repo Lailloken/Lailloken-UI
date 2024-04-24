@@ -784,7 +784,7 @@ NotepadWidget(tab, mode := 0, color := 0)
 		Else If !A_Gui && !longpress && !color
 			Return
 
-		If InStr(vars.notepad.entries[tab], "`n#`n") && InStr(A_Gui, "notepad")
+		If InStr(vars.notepad.entries[tab], "`n#`n") && (InStr(A_Gui, "notepad") || color)
 		{
 			vars.notepad_widgets[tab] := {"text": [], "page": (vars.notepad_widgets[tab].page ? vars.notepad_widgets[tab].page : "1"), "x": vars.notepad_widgets[tab].x, "y": vars.notepad_widgets[tab].y}
 			Loop, Parse, % StrReplace(vars.notepad.entries[tab], "`n#`n", "¢"), % "¢", % "`r`n"
@@ -818,7 +818,7 @@ NotepadWidget(tab, mode := 0, color := 0)
 	If IsObject(vars.notepad_widgets[tab].text)
 	{
 		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count(), multi := 1
-		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):`n" StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
+		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):" ;StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
 	}
 
 	If (tab = "notepad_reminder_feature")
@@ -827,8 +827,9 @@ NotepadWidget(tab, mode := 0, color := 0)
 	{
 		Loop, Parse, % multi ? StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&") : StrReplace(vars.notepad.entries[tab], "&", "&&"), `n
 		{
-			segment := "", style := "xs Section y+0", color := "", colon := ""
+			style := "xs Section y+0", segment := color := colon := rgb := ""
 			If InStr(A_LoopField, "§",, 2) && (SubStr(A_LoopField, InStr(A_LoopField, "§") + 7, 2) = ": ")
+			{
 				Loop, Parse, A_LoopField
 				{
 					continue := 0
@@ -839,26 +840,28 @@ NotepadWidget(tab, mode := 0, color := 0)
 							Gui, %GUI_name%: Add, Text, % style, % segment
 							style := "ys x+0"
 						}
-						color := "start", segment := "", continue := 1
+						color := "start", segment := "", continue := rgb := 1
 					}
 					Else If (A_LoopField = "§")
 					{
 						Gui, %GUI_name%: Add, Text, % style " c" color, % segment
-						style := "ys x+0", color := "", segment := "", colon := "", continue := 1
+						style := "ys x+0", color := segment := colon := rgb := "", continue := 1
 					}
 					Else If (color = "start") || !Blank(color) && (StrLen(color) < 6)
 						color := (color = "start") ? A_LoopField : color . A_LoopField, continue := 1
-					Else If !colon && (A_LoopField = ":")
+					Else If !colon && rgb && (A_LoopField = ":")
 						colon := A_Index
 					If continue || colon && LLK_IsBetween(A_Index, colon, colon + 1)
 						Continue
 					segment .= A_LoopField
 				}
+			}
 			Else segment := A_LoopField
 			If !Blank(segment)
 				Gui, %GUI_name%: Add, Text, % style, % segment
 		}
 	}
+
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %widget%
 	While longpress && (InStr(A_Gui, "notepad") || mode = 1) && GetKeyState("LButton", "P")
