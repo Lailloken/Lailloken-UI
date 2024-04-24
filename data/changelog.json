@@ -2,6 +2,7 @@
   [
 	["1.53.0", 15300],
 	"hotfix 1: t17 drop-multipliers showed blank instead of 0 when shift-clicking currency",
+	"hotfix 2: fixed doubled text in segmented notepad widgets",
 	"item-info: updated unique drop-tier data (poeladder.com)",
 	"map-info: partially redesigned",
 	"map-info: added support for t17 drop-multipliers",
