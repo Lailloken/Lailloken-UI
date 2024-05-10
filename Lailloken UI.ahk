@@ -51,6 +51,7 @@ Init_searchstrings()
 Init_leveltracker()
 Init_maptracker()
 Init_qol()
+Init_stash()
 Init_hotkeys()
 Resolution_check()
 
@@ -92,10 +93,11 @@ Return
 #Include modules\ocr.ahk
 #Include modules\omni-key.ahk
 #Include modules\qol tools.ahk
+#Include modules\screen-checks.ahk
 #Include modules\search-strings.ahk
 #Include modules\seed-explorer.ahk
 #Include modules\settings menu.ahk
-#Include modules\screen-checks.ahk
+#Include modules\stash-ninja.ahk
 
 
 Blank(var)
@@ -501,34 +503,6 @@ Init_vars()
 	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
 	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases.json", 1))
 	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers.json"))
-	tldr := json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
-	db.altars := tldr["eldritch altars"].Clone()
-	db.altar_dictionary := []
-	For outer in ["", ""]
-		For index1, key in ["boss", "minions", "player"]
-		{
-			If (outer = 1)
-			{
-				If !IsObject(db.altars[key "_check"])
-					db.altars[key "_check"] := []
-				For index, array in db.altars[key]
-					db.altars[key "_check"].Push(array.1)
-			}
-			Else
-			{
-				For iDB, kDB in db.altars[key "_check"]
-					Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
-						If !LLK_HasVal(db.altar_dictionary, A_LoopField)
-							db.altar_dictionary.Push(A_LoopField)
-			}
-		}
-
-	db.vaalareas := tldr["vaal side areas"].Clone()
-	db.vaalareas_dictionary := []
-	For key in db.vaalareas
-		Loop, Parse, key, % A_Space
-			If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
-				db.vaalareas_dictionary.Push(A_LoopField)
 
 	settings := {}
 	settings.features := {}
@@ -599,7 +573,7 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0, MouseHover_count := 0
+	static tick_helptooltips := 0, ClientFiller_count := 0, stashhover := {}
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
@@ -656,6 +630,47 @@ Loop_main()
 	}
 	MouseHover()
 	IteminfoOverlays()
+
+	If WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
+	{
+		tab := vars.stash.active
+		If !stashhover.exact || (vars.general.xMouse "," vars.general.yMouse != stashhover.exact)
+		&& !(LLK_IsBetween(vars.general.xMouse, stashhover.x1, stashhover.x2) && LLK_IsBetween(vars.general.yMouse, stashhover.y1, stashhover.y2))
+		{
+			stashhover := {}
+			For item, val in vars.stash[tab]
+			{
+				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + vars.stash.box, y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + vars.stash.box
+				If LLK_IsBetween(vars.general.xMouse, x1, x2) && LLK_IsBetween(vars.general.yMouse, y1, y2)
+				{
+					stashhover := {"x1": x1, "x2": x2, "y1": y1, "y2": y2}
+					vars.stash.hover := item, Stash_("refresh")
+					Break
+				}
+			}
+			If Blank(stashhover.x1) && vars.stash.hover
+					vars.stash.hover := "", Stash_("refresh")
+			stashhover.exact := vars.general.xMouse "," vars.general.yMouse
+		}
+	}
+	Else If IsObject(stashhover) && !vars.hwnd.stash.main
+		stashhover := ""
+	Else If WinActive("ahk_group poe_ahk_window") && vars.stash.hover && !vars.stash.enter && !LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width)
+		vars.stash.hover := "", Stash_("refresh")
+
+	/*
+		If !vars.stash.wait && WinExist("ahk_id " vars.hwnd.stash.main)
+		{
+			If (vars.general.wMouse = vars.hwnd.stash.main) && (stashhoverHWND != vars.general.cMouse) && (check := LLK_HasVal(vars.hwnd.stash, vars.general.cMouse))
+			{
+				If (check != vars.stash.hover)
+					vars.stash.hover := check, Stash_("refresh")
+			}
+			Else If (vars.general.wMouse != vars.hwnd.stash.main) && vars.stash.hover
+				vars.stash.hover := "", Stash_("refresh")
+			stashhoverHWND := vars.general.cMouse
+		}
+	*/
 
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{
