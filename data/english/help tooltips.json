@@ -580,16 +580,16 @@
     "stash calibrate": [
       "move the settings window to the right side of the screen",
       "open the specific stash tab in game (it CANNOT be in a tab-folder), then click this button",
-	  "this calibration enables the omni-key to activate the overlay"
+      "this calibration enables the omni-key to activate the overlay"
     ],
     "stash gap": [
-	  "refers to the horizontal gap between item boxes/slots in the stash tab",
-	  "fine-tune this value to make the overlay scale correctly on your screen"
+      "refers to the horizontal gap between item boxes/slots in the stash tab",
+      "fine-tune this value to make the overlay scale correctly on your screen"
     ],
     "stash limits": [
-	  "you can set up 5 price-range profiles",
-	  "profile-# (left), max price (top), min price (bot), currency-type (right)",
-	  "leaving min/max price blank will treat them as unlimited, leaving the currency-type blank will disable the profile entirely",
+      "you can configure up to 5 price-range profiles",
+      "profile-# (left), max price (top), min price (bot), currency-type (right)",
+      "leaving min/max price blank will treat them as unlimited, leaving the currency-type blank will disable the profile entirely",
       "while the overlay is on screen, press number-keys 1 to 5 to switch between profiles"
     ],
     "stash test": [
