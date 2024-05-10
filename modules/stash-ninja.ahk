@@ -107,7 +107,7 @@ Stash_(mode, test := 0)
 	{
 		check := Stash_PriceFetch()
 		vars.tooltip[vars.hwnd["tooltipstashprices"]] := A_TickCount
-		If !check && !(InStr(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab), "`n",,, 3) || league = settings.stash.league)
+		If !check && (!InStr(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab), "`n",,, 3) || league != settings.stash.league)
 		{
 			MsgBox, % LangTrans("stash_updateerror")
 			Return -1
