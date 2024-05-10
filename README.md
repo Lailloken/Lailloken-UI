@@ -89,6 +89,12 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/1c13825c-becc-45a8-b6c7-ef5e0d205846) | ![image](https://user-images.githubusercontent.com/61888437/215315302-43ffc89f-6aeb-403e-adf3-cac45928137d.png) |
 <br>
 
+### [Stash-Ninja](https://github.com/Lailloken/Lailloken-UI/wiki/Stash%E2%80%90Ninja): interactive overlay that shows poe.ninja prices inside stash tabs
+| main overlay with customizable price-tags and profiles | conversion rates |
+|---|---|
+| ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/c2499da9-06a7-466f-8a4b-0b4cede3c6b2) | ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/80c38c69-9aae-4641-bba7-aeb830820781) |
+<br>
+
 ### [Necropolis Lantern Highlighting (experimental)](https://github.com/Lailloken/Lailloken-UI/wiki/Necropolis): customizable highlighting for necropolis lantern mods
 ![image](https://github.com/Lailloken/Lailloken-UI/assets/61888437/4a0a5533-b12d-4d64-a796-135ee4960845)
 <br>
