@@ -70,6 +70,7 @@
 		ms_necropolis			=	"necropolis"
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
+		ms_stash-ninja			=	"stash-ninja"
 		ms_stream-clients		=	"stream-clients"
 		ms_tldr-tooltips		=	"tldr-tooltips"
 		ms_updater			=	"updater"
@@ -106,6 +107,7 @@
 		global_type			=	"type:"
 		global_add			=	"add"
 		global_calibrate		=	"cal"
+		global_calibrate		=	"calibrate"
 		global_calibrate		=	"calibration required"
 		global_import			=	"import"
 		global_test			=	"test"
@@ -150,6 +152,7 @@
 		global_gap			=	"gap"
 		global_pattern			=	"pattern"	;## as in color pattern
 		global_regular			=	"regular"	;## as in default
+		global_setup			=	"setup"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -455,6 +458,17 @@
 
 
 ;#####################################################
+;## stash-ninja
+;#####################################################
+
+;## these strings are displayed/required when using the stash-ninja feature
+		stash_checkerror		=	"couldn't find supported;stash on screen"
+		stash_update			=	"updating prices..."
+		stash_updateerror		=	"update failed, and there is no fallback data from previous successful attempts.;this might be a connection issue that fixes itself, so try again later."
+		stash_updateerror		=	"update failed"
+
+
+;#####################################################
 ;## minor QoL features
 ;#####################################################
 
@@ -741,6 +755,24 @@
 		m_search_usecases		=	"use-cases currently set up:"
 		m_search_hideout lilly		=	"hideout lilly"					;## as in the Lilly who is in your hideout (she has a different vendor window)
 		m_search_add			=	"add use-case:"
+
+
+
+;#####################################################
+;## settings menu: stash-ninja
+;#####################################################
+
+;## these strings are displayed/required in the "stash-ninja" section of the settings menu
+		m_stash_enable			=	"enable the stash-ninja feature"
+		m_stash_breach			=	"breach"
+		m_stash_currency1		=	"currency"
+		m_stash_currency2		=	"currency ii"
+		m_stash_delve			=	"delve"
+		m_stash_fragments		=	"fragment"
+		m_stash_scarabs			=	"scarab"
+		m_stash_leagues			=	"league:"
+		m_stash_tabs			=	"stash tab configuration:"
+		m_stash_limits			=	"price-range profiles:"
 
 
 

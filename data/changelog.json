@@ -1,5 +1,11 @@
 [
   [
+	["1.53.1", 15301],
+	"stash-ninja: new feature that overlays poe.ninja prices onto stash tabs",
+	"item-info: fix for doryani's invitation",
+	"tldr-tooltips: improved altar scanning and recognition"
+  ],
+  [
 	["1.53.0", 15300],
 	"hotfix 1: t17 drop-multipliers showed blank instead of 0 when shift-clicking currency",
 	"hotfix 2: fixed doubled text in segmented notepad widgets",
