@@ -3178,7 +3178,6 @@ Settings_stash2(cHWND)
 		Else
 		{
 			lTop := settings.stash[tab].limits[lIndex].2, lBot := settings.stash[tab].limits[lIndex].1
-			;MsgBox, % lType ", " lBot ", " lTop
 			If (lType < 3) && !IsNumber(input) || (lType = 1 && !Blank(lTop) && input > lTop) || (lType = 2 && !Blank(lBot) && input < lBot)
 			|| (lType = 3) && !InStr("ced", input)
 				valid := 0
