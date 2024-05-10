@@ -127,8 +127,13 @@ Stash_(mode, test := 0)
 	Gui, %GUI_name%: Margin, 0, 0
 	If test
 		settings.stash[tab].profile := 0
-	Else If !settings.stash[tab].profile
-		settings.stash[tab].profile := 1
+	Else If !settings.stash[tab].profile || Blank(settings.stash[tab].limits[settings.stash[tab].profile].3)
+		Loop 5
+			If !Blank(settings.stash[tab].limits[A_Index].3)
+			{
+				settings.stash[tab].profile := A_Index
+				Break
+			}
 	hwnd_old := vars.hwnd.stash.main, vars.hwnd.stash := {"main": hwnd_stash, "GUI_name": GUI_name}, vars.stash.box := dBox := vars.client.h//30, profile := settings.stash[tab].profile
 	lBot := settings.stash[tab].limits[profile].1, lTop := settings.stash[tab].limits[profile].2, lType := settings.stash[tab].limits[profile].3
 	lBot := Blank(lBot) ? 0 : lBot, lTop := Blank(lTop) ? 999999 : lTop
@@ -248,7 +253,7 @@ Stash_Hotkeys()
 	Loop, Parse, % "~+!#*^"
 		hotkey := StrReplace(hotkey, A_LoopField)
 
-	If IsNumber(hotkey) && (hotkey < 6) && !Blank(settings.stash[tab].limits[hotkey]) && (hotkey != settings.stash[tab].profile)
+	If IsNumber(hotkey) && !Blank(settings.stash[tab].limits[hotkey].3) && (hotkey != settings.stash[tab].profile)
 		settings.stash[tab].profile := hotkey, Stash_("refresh")
 	Else If !IsNumber(hotkey) && vars.stash.hover
 	{
