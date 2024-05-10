@@ -190,6 +190,7 @@ GuiToolbarButtons(cHWND, hotkey)
 				LLK_ToolTip(LangTrans("global_releasekey") " " settings.hotkeys.tab, 10000)
 				KeyWait, % settings.hotkeys.tab
 			}
+			KeyWait, LButton
 			Reload
 			ExitApp
 		}

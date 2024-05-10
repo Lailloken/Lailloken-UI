@@ -82,7 +82,7 @@ Screenchecks_ImageRecalibrate(mode := "")
 				vars.snipping_tool.GUI := 0
 		}
 		Gui, LLK_snip_area: Show, % "NA x" vars.snipping_tool.coords_area.x " y" vars.snipping_tool.coords_area.y " w" vars.snipping_tool.coords_area.w " h" vars.snipping_tool.coords_area.h
-	}	
+	}
 	If mode
 		Return
 
@@ -149,7 +149,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		If name ;if parameter was passed to function, override val
 			val := name
 
-		If (val != name) && ((settings.features[val] = 0) || InStr(val, "necro_") && !settings.features.necropolis || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && !(settings.features.maptracker || settings.maptracker.loot)))
+		If (val != name) && ((settings.features[val] = 0) || InStr(val, "necro_") && !settings.features.necropolis || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
 		If InStr(A_Gui, "settings_menu") && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)

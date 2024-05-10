@@ -241,7 +241,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 		{
 			Loop, Parse, % vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard, `n, `r
 			{
-				If !LLK_PatternMatch(A_LoopField, "{ ", ["Prefix ", "Suffix "])
+				If !LLK_PatternMatch(A_LoopField, "{ ", ["Master Crafted Prefix ", "Prefix ", "Master Crafted Suffix ", "Suffix "])
 					Continue
 				If InStr(A_LoopField, "Prefix")
 					prefix := SubStr(A_LoopField, InStr(A_LoopField, """") + 1), prefix := SubStr(prefix, 1, InStr(prefix, """") - 1) . " "

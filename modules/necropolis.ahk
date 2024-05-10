@@ -88,7 +88,7 @@ Necropolis_(mode := "")
 			}
 			Gdip_DisposeImage(pBitmap)
 		}
-			
+
 		yLast := 0
 		For index, mod in vars.necropolis.texts
 		{
@@ -101,7 +101,7 @@ Necropolis_(mode := "")
 			vars.hwnd.necropolis[mod . handle] := hwnd, vars.necropolis.buttons.Push(hwnd)
 		}
 	}
-	
+
 	If debug
 	{
 		Gui, %GUI_name%: Show, NA x10000 y10000
@@ -184,13 +184,12 @@ Necropolis_Parse(text)
 	local
 	global vars, settings, db
 
-	;text := "strongest monster in pack gets: dropped jewellery has chance to be converted to a divine orb"
 	Loop, Parse, % LLK_StringCase(text), `n, % "`r`t" A_Space
 		text := (A_Index = 1) ? "" : text, text .= Blank(A_LoopField) || (StrLen(A_LoopField) < 3) ? "" : (!text ? "" : " ") A_LoopField
 	Loop, Parse, text
-		text := (A_Index = 1) ? "" : text, text .= LLK_IsType(A_LoopField, "alpha") || (A_LoopField = ":") ? A_LoopField : ""
-	If InStr(text, ":")
-		text := SubStr(text, InStr(text, ":") + 1)
+		text := (A_Index = 1) || (A_LoopField = ":") ? "" : text, text .= LLK_IsType(A_LoopField, "alpha") ? A_LoopField : ""
+	;If InStr(text, ":")
+	;	text := SubStr(text, InStr(text, ":") + 1)
 	While InStr(text, "  ")
 		text := StrReplace(text, "  ", " ")
 	While (SubStr(text, 1, 1) = " ")
@@ -207,7 +206,7 @@ Necropolis_Parse(text)
 			If !LLK_HasVal(db.necropolis.dictionary, word)
 				regex_array_copy[index] := ""
 		regex_check := LLK_HasRegex(db.necropolis.mods, OCR_RegexCheck(regex_array_copy, 0, ""), 1)
-		regex_check1 := LLK_HasRegex(db.necropolis.mods, StrReplace((OCR_RegexCheck(regex_array_copy, 0, "")), "im)", "im)^") "$", 1)
+		regex_check1 := LLK_HasRegex(db.necropolis.mods, StrReplace((OCR_RegexCheck(regex_array_copy, 0, "")), "im)", "i)^") "$", 1)
 		If (regex_check.Count() = 1 || regex_check1.Count() = 1)
 			Return db.necropolis.mods[regex_check.1]
 		Else If !regex_check.Count()

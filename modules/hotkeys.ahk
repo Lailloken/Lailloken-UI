@@ -57,6 +57,13 @@ HotkeysESC()
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
+	Else If WinExist("ahk_id " vars.hwnd.stash.main)
+		Stash_Close()
+	Else If vars.stash.enter
+	{
+		vars.stash.enter := 0
+		SendInput, {ESC}
+	}
 	Else If WinExist("ahk_id " vars.hwnd.compat_test)
 	{
 		Gui, compat_test: Destroy
@@ -138,8 +145,30 @@ HotkeysTab()
 {
 	local
 	global vars, settings
+	static stash_toggle := 0
 
 	start := A_TickCount
+
+	If WinExist("ahk_id " vars.hwnd.stash.main) && !WinActive("ahk_id " vars.hwnd.settings.main)
+	{
+		WinActivate, % "ahk_id " vars.hwnd.poe_client
+		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
+		If !stash_toggle
+		{
+			Clipboard := """note:""" 
+			SendInput, ^{f}
+			Sleep 100
+			SendInput, ^{v}{ENTER}
+		}
+		Else
+		{
+			SendInput, ^{f}
+			Sleep 100
+			SendInput, {DEL}{ENTER}
+		}
+		stash_toggle := !stash_toggle
+		Return
+	}
 
 	While settings.general.hide_toolbar && GetKeyState(settings.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
@@ -246,6 +275,18 @@ HotkeysTab()
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
+
+#If !WinActive("ahk_id " vars.hwnd.settings.main) && WinExist("ahk_id " vars.hwnd.stash.main)
+*1::
+*2::
+*3::
+*4::
+*5::
+~+LButton::
+~*RButton::Stash_Hotkeys()
+
+#If vars.stash.enter
+~*Enter::vars.stash.enter := 0
 
 #If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ClientFiller) ;prevent clicking and activating the filler GUI
 *MButton::

@@ -1,7 +1,7 @@
 ﻿Init_OCR()
 {
 	local
-	global vars, settings
+	global vars, settings, db, Json
 
 	settings.OCR := {"profile": 1} ;in case profiles are desired in the future
 	settings.OCR.allow := LLK_IniRead("ini\ocr.ini", "Settings", "allow ocr", 0) * (vars.client.h > 720 ? 1 : 0)
@@ -31,6 +31,40 @@
 		Hotkey, IfWinActive, ahk_group poe_ahk_window
 		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR_
 	}
+
+	If IsObject(db.altars)
+		Return
+
+	tldr := Json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
+	db.altars := tldr["eldritch altars"].Clone()
+	db.altar_dictionary := []
+	For outer in ["", ""]
+		For index1, key in ["boss", "minions", "player"]
+		{
+			If (outer = 1)
+			{
+				If !IsObject(db.altars[key "_check"])
+					db.altars[key "_check"] := []
+				For index, array in db.altars[key]
+					Loop, Parse, % array.1, `n, `r
+						If !LLK_HasVal(db.altars[key "_check"], A_LoopField)
+							db.altars[key "_check"].Push(A_LoopField)
+			}
+			Else
+			{
+				For iDB, kDB in db.altars[key "_check"]
+					Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
+						If !LLK_HasVal(db.altar_dictionary, A_LoopField)
+							db.altar_dictionary.Push(A_LoopField)
+			}
+		}
+
+	db.vaalareas := tldr["vaal side areas"].Clone()
+	db.vaalareas_dictionary := []
+	For key in db.vaalareas
+		Loop, Parse, key, % A_Space
+			If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
+				db.vaalareas_dictionary.Push(A_LoopField)
 }
 
 OCR_(mode := "GUI")
@@ -240,7 +274,7 @@ OCR_Altars()
 		While (SubStr(loopfield_copy, 0) = " ")
 			loopfield_copy := SubStr(loopfield_copy, 1, -1)
 
-		If InStr(A_LoopField, ":")
+		If (SubStr(A_LoopField, 0) = ":")
 		{
 			regex := regex_all := "", regex_array := StrSplit(loopfield_copy, A_Space), regex_array_copy := regex_array.Clone()
 			For index, val in regex_array
@@ -288,8 +322,9 @@ OCR_Altars()
 		}
 	}
 
-	skip := extra := 0
 	For index0, array in parsed_text
+	{
+		parsed_mods := []
 		For index, line in array
 		{
 			If (index = 1)
@@ -297,87 +332,76 @@ OCR_Altars()
 				key := StrReplace(line, ":"), panels[index0].Push(line), mod_lookup := db.altars[key "_check"]
 				Continue
 			}
-			If skip || (LLK_InStrCount(line, " ") < 2) && !InStr(line, "armour")
-			{
-				skip -= 1
+			If (LLK_InStrCount(line, " ") < 2) && !InStr(line, "armour")
 				Continue
-			}
-			check := "", line2 := parsed_text[index0][index + 1]
-			For iKey, vKey in mod_lookup
-				If !check && (InStr(vKey, line "`r`n" line2) || vKey = line)
-					check := iKey, skip += (vKey = line) ? 0 : LLK_InStrCount(vKey, "`n") - extra
+			check := LLK_HasVal(mod_lookup, line)
 			If check
 			{
-				If !LLK_HasVal(panels[index0], db.altars[key][check].2)
-					panels[index0].Push(db.altars[key][check].2)
+				If !LLK_HasVal(parsed_mods, line)
+					parsed_mods.Push(line)
 				Continue
 			}
 
-			regex := extra ? regex ".*\r\n.*" : "", regex1 := ""
-			Loop 2
+			regex := "i)", regex_array := StrSplit(line, A_Space), regex_array_copy := regex_array.Clone(), regex_all := "i)"
+			For iRegex, vRegex in regex_array
 			{
-				tag := (A_Index = 1) ? 1 : ""
-				regex_array%tag% := StrSplit(tag ? line2 : line, A_Space), regex_array%tag%_copy := regex_array%tag%.Clone()
-				For iRegex, vRegex in regex_array%tag%
-				{
-					If !LLK_HasVal(db.altar_dictionary, vRegex)
-						regex_array%tag%_copy[iRegex] := ""
-					Else regex%tag% := !regex%tag% ? (tag ? "" : !extra ? "i)" : "") vRegex : regex%tag% ".*" vRegex
-				}
+				If !LLK_HasVal(db.altar_dictionary, vRegex)
+					regex_array_copy[iRegex] := 0
+				Else regex .= (regex = "i)") ? vRegex : ".*" vRegex
 			}
 
 			If (LLK_HasRegex(mod_lookup, regex, 1).Count() = 1)
 				regex_all := regex
-			Else If LLK_HasRegex(mod_lookup, regex ".*\r\n.*" regex1)
+			Else If (LLK_HasVal(regex_array_copy, 0,,, 1).Count() < regex_array_copy.Count()//2)
 			{
-				regex_all := regex, extra += 1
-				Continue
-			}
-			Else
-			{
-				Loop 2
+				For iRegex, vRegex in regex_array_copy
 				{
-					tag := (A_Index = 1) ? 1 : ""
-					For iRegex, vRegex in regex_array%tag%_copy
+					If !vRegex
 					{
-						If Blank(vRegex)
+						blank_regex := ""
+						Loop, Parse, % regex_array[iRegex]
 						{
-							blank_regex%tag% := ""
-							Loop, Parse, % regex_array%tag%[iRegex]
-							{
-								If LLK_HasRegex(mod_lookup, OCR_RegexCheck(regex_array%tag%_copy, iRegex, blank_regex%tag% . A_LoopField, extra), 1)
-									blank_regex%tag% .= A_LoopField
-								Else blank_regex%tag% .= (SubStr(blank_regex%tag%, -1) = ".*") ? "" : ".*"
-							}
-							regex_array%tag%_copy[iRegex] := (blank_regex%tag% = ".*") ? "" : blank_regex%tag%
+							If LLK_HasRegex(mod_lookup, OCR_RegexCheck(regex_array_copy, iRegex, blank_regex . A_LoopField), 1)
+								blank_regex .= A_LoopField
+							Else blank_regex .= (SubStr(blank_regex, -1) = ".*") ? "" : ".*"
 						}
+						regex_array_copy[iRegex] := (blank_regex = ".*") ? "" : blank_regex
 					}
 				}
 
-				regex_all := extra ? regex_all ".*\r\n.*" : "", regex_all1 := ""
-				Loop 2
-				{
-					tag := (A_Index = 1) ? 1 : ""
-					For iRegex, vRegex in regex_array%tag%_copy
-						If vRegex
-							regex_all%tag% .= (!regex_all%tag% ? !tag && !extra ? "i)" : "" : ".*") vRegex
-				}
-
-				If LLK_HasRegex(mod_lookup, regex_all ".*\r\n.*" regex_all1)
-				{
-					extra += 1
-					Continue
-				}
+				For iRegex, vRegex in regex_array_copy
+					If vRegex
+						regex_all .= (regex_all = "i)" ? "" : ".*") vRegex
 			}
-			regex_result := LLK_HasRegex(mod_lookup, regex_all, 1)
-			For iRegex, vRegex in regex_result
-			{
-				If !LLK_HasVal(panels[index0], db.altars[key][vRegex].2)
-					panels[index0].Push(db.altars[key][vRegex].2 . (regex_result.Count() > 1 ? " (?)" : ""))
-				skip += (regex_result.Count() = 1) ? LLK_InStrCount(db.altars[key][vRegex].1, "`n") - extra : 0
-			}
-			extra := 0
+			If (regex_all != "i)") && (regex_result := LLK_HasRegex(mod_lookup, regex_all, 1))
+				parsed_mods.Push(regex_result.Count() > 1 ? "???" : mod_lookup[regex_result.1])
 		}
+
+		skip := 0
+		For index, mod in parsed_mods
+		{
+			If skip
+			{
+				skip := 0
+				Continue
+			}
+			prev_line := parsed_mods[index - 1], next_line := parsed_mods[index + 1], push := ""
+			If next_line && (check := LLK_HasVal(db.altars[key], mod "`r`n" next_line, 1,, 1, 1)) && (check.Count() = 1)
+			|| prev_line && (check := LLK_HasVal(db.altars[key], prev_line "`r`n" mod, 1,, 1, 1)) && (check.Count() = 1)
+			|| (check := LLK_HasVal(db.altars[key], mod "`r`n", 1,, 1, 1)) && (check.Count() = 1) || (check := LLK_HasVal(db.altars[key], "`r`n" mod, 1,, 1, 1)) && (check.Count() = 1)
+				push := db.altars[key][check.1].2
+			Else If (check := LLK_HasVal(db.altars[key], mod "`r`n", 1,, 1, 1)) && InStr(next_line, "?")
+				push := mod " | ???", skip := 1
+			Else If (check := LLK_HasVal(db.altars[key], mod,,,, 1))
+				push := db.altars[key][check].2
+			Else If InStr(mod, "?") && next_line && (check := LLK_HasVal(db.altars[key], "`r`n" next_line, 1,, 1, 1))
+				push := (check.Count() != 1) ? "??? | " next_line : db.altars[key][check.1].2, skip := 1
+			Else push := "???"
+
+			If push && (!LLK_HasVal(panels[index0], push) || InStr(push, "?"))
+				panels[index0].Push(push)
+		}
+	}
 
 	If (panels.1.Count() < 3) || (panels.2.Count() < 3) || !LLK_HasVal(panels, ":", 1,,, 1)
 		OCR_Error(LangTrans("ocr_erroraltar"))
@@ -397,7 +421,7 @@ OCR_Altars()
 				Gui, %GUI_name%: Add, Text, % (index = 2 && index1 = 1 ? "y+" vars.client.h / 10 : (index = 1 && index1 = 1) ? "" : "y+-1") " xs Section Center Border BackgroundTrans HWNDhwnd0 w" width " c" colors.1, % StrReplace(panel_text, "&", "&&")
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border HWNDhwnd BackgroundBlack c" colors.2, 100
 				ControlGetPos,, yControl, wControl, hControl,, ahk_id %hwnd%
-				If (index1 != 1)
+				If (index1 != 1) && !InStr(panel_text, "?")
 					vars.hwnd.ocr_tooltip[key "_" panel_text] := hwnd, vars.hwnd.ocr_tooltip[key "_" panel_text "_text"] := hwnd0
 			}
 
@@ -444,6 +468,53 @@ OCR_Error(error)
 	yPos := (yPos < vars.client.y) ? vars.client.y : (yPos + hWin >= vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - hWin : yPos
 	Gui, ocr_tooltip: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(hwnd_altars, "show",, "ocr_tooltip")
+}
+
+OCR_FilterInput(text) ;WIP, currently not in use
+{
+	local
+	global vars, settings, db
+
+	parsed := []
+	Loop, Parse, text, `n, "`r`t" A_Space
+	{
+		loopfield_copy := ""
+		Loop, Parse, A_LoopField
+			If LLK_IsType(A_LoopField, "alnum")
+				loopfield_copy .= A_LoopField
+		loopfield_copy := InStr(loopfield_copy, ":") ? SubStr(loopfield_copy, 1, InStr(loopfield_copy, ":") - 1) : loopfield_copy
+		If !InStr(loopfield_copy, ":") && !InStr(loopfield_copy, " ",,, 2)
+			Continue
+		parsed.Push(loopfield_copy)
+	}
+	
+	lookup := {"altars": ["map boss gains:", "eldritch minions gain:", "player gains:"], "vaalareas": [LangTrans("items_mapquantity")]}
+	dictionary := {"altars": ["map", "boss", "gains", "eldritch", "minions", "gain", "player"], "vaalareas": []}
+	Loop, Parse, % LangTrans("items_mapquantity"), % A_Space, % ":"
+		dictionary.vaalareas.Push(A_LoopField)
+	For index, text in parsed
+	{
+		text := "mep boss gains:"
+		If (SubStr(text, 0) != ":") || usecase || (usecase := LLK_HasVal(lookup, text,,,, 1))
+			Continue
+		Else
+		{
+			regex := "i)", results := 0, regex_array := StrSplit(text, A_Space, ":"), regex_array_copy := regex_array.Clone()
+			For index, word in regex_array
+				If !LLK_HasVal(dictionary, word,,,, 1)
+					regex_array_copy[index] := 0
+				Else regex .= (InStr(".*i)", SubStr(regex, -1)) ? "" : ".*") word
+
+			For k, array in lookup
+				results += (check := LLK_HasRegex(array, regex, 1).Count()) ? check : 0, usecase0 := check ? k : usecase0
+			If (results = 1)
+			{
+				usecase := usecase0
+				Break
+			}
+		}
+	}
+	MsgBox, % usecase
 }
 
 OCR_Highlight(hotkey)

@@ -167,12 +167,24 @@ Omnikey2()
 				{
 					StringContextMenu("exile-leveling")
 					KeyWait, % ThisHotkey_copy
+					OmniRelease()
 					Return
 				}
 			}
 		}
-
-		If vars.searchstrings.enabled
+		/*
+		start := A_TickCount
+		While vars.imagesearch.stash.check && GetKeyState(ThisHotkey_copy, "P")
+			If (start + 100 >= A_TickCount)
+			{
+				If !Stash_()
+					LLK_ToolTip(LangTrans("ms_stash-ninja") ":`n" LangTrans("stash_checkerror"), 2,,,, "red")
+				KeyWait, % ThisHotkey_copy
+				LLK_Overlay(vars.hwnd.stash.main, "destroy")
+				vars.stash.GUI := vars.stash.hover := 0, stash := 1
+			}
+		*/
+		If !stash && vars.searchstrings.enabled
 		{
 			If WinExist("ahk_id "vars.hwnd.searchstrings_menu.main)
 				StringMenuSave()
@@ -197,7 +209,7 @@ OmniRelease()
 {
 	local
 	global vars, settings
-	
+
 	KeyWait, % vars.omnikey.hotkey
 	If IsObject(vars.omnikey)
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
@@ -231,9 +243,10 @@ OmniContext(mode := 0)
 		While GetKeyState(ThisHotkey_copy, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
-	If !InStr(item.name "`n" item.itembase, "maple round") && LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	&& (item.rarity != LangTrans("items_unique"))
 	{
-		While GetKeyState(ThisHotkey_copy, "P") && (LLK_PatternMatch(item.name, "", [" Map"]) || LLK_PatternMatch(item.itembase, "", [" Map"]))
+		While GetKeyState(ThisHotkey_copy, "P") && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
 			If (A_TickCount >= vars.omnikey.start + 200)
 			{
 				If LLK_PatternMatch(vars.omnikey.clipboard, "", ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"])
@@ -244,6 +257,20 @@ OmniContext(mode := 0)
 			}
 		If settings.features.mapinfo
 			Return "mapinfo"
+	}
+	If settings.features.stash && InStr(item.name, "scarab")
+	{
+		start := A_TickCount
+		While GetKeyState(ThisHotkey_copy, "P")
+			If (A_TickCount >= start + 150)
+			{
+				Stash_("scarabs")
+				;SendInput, % "{" ThisHotkey_copy " UP}"
+				;KeyWait, % ThisHotkey_copy
+				;LLK_Overlay(vars.hwnd.stash.main, "destroy")
+				;vars.stash.GUI := vars.stash.hover := 0
+				Return
+			}
 	}
 	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
 		Return "iteminfo"
@@ -256,7 +283,8 @@ OmniContext(mode := 0)
 		Return "recombinators_blank"
 	If WinExist("ahk_id " hwnd_recombinator_window)
 		Return "recombinators_add"
-	If !LLK_PatternMatch(item.name "`n" item.itembase, "", [" Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"]) || LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"])
+	|| (item.rarity = LangTrans("items_unique"))
 		Return "context_menu"
 }
 

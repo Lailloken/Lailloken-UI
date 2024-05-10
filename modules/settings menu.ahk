@@ -733,6 +733,7 @@ Settings_general2(cHWND := "")
 		Case "capslock":
 			IniWrite, % LLK_ControlGet(cHWND), ini\config.ini, settings, enable capslock-toggling
 			IniWrite, general, ini\config.ini, versions, reload settings
+			KeyWait, LButton
 			Reload
 			ExitApp
 		Case "character":
@@ -765,6 +766,7 @@ Settings_general2(cHWND := "")
 		Case "language":
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.language), ini\config.ini, settings, language
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings
+			KeyWait, LButton
 			Reload
 			ExitApp
 		Case "custom_width":
@@ -798,6 +800,7 @@ Settings_general2(cHWND := "")
 			If vars.hwnd.settings.blackbars
 				IniWrite, % LLK_ControlGet(vars.hwnd.settings.blackbars), ini\config.ini, Settings, black-bar compensation
 			IniWrite, % vars.settings.active, ini\config.ini, Versions, reload settings
+			KeyWait, LButton
 			Reload
 			ExitApp
 		Case "ClientFiller":
@@ -1017,6 +1020,7 @@ Settings_hotkeys2(cHWND)
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.tabblock), ini\hotkeys.ini, hotkeys, block tab-key's native function
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.movekey), ini\hotkeys.ini, hotkeys, move-key
 			IniWrite, hotkeys, ini\config.ini, versions, reload settings
+			KeyWait, LButton
 			Reload
 			ExitApp
 	}
@@ -1375,7 +1379,7 @@ Settings_leveltracker()
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 w" settings.general.fWidth*20 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
 		Gui, %GUI%: Font, % "s" settings.general.fSize
-		
+
 		vars.hwnd.settings["profile" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
 		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" handle] := hwnd1
 		vars.hwnd.settings["reset" profile] := hwnd2, vars.hwnd.settings["resetbar" profile] := vars.hwnd.help_tooltips["settings_leveltracker reset" handle] := hwnd3
@@ -1995,7 +1999,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stream-clients", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stash-ninja", "stream-clients", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -2065,6 +2069,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		IfMsgBox, Yes
 		{
 			IniWrite, 1, ini\config.ini, Settings, black-bar compensation
+			KeyWait, LButton
 			Reload
 			ExitApp
 		}
@@ -2154,6 +2159,8 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 		Case "search-strings":
 			Init_searchstrings()
 			Settings_searchstrings()
+		Case "stash-ninja":
+			Settings_stash()
 		Case "updater":
 			Settings_updater()
 	}
@@ -2334,7 +2341,7 @@ Settings_OCR()
 		Settings_unsupported()
 		Return
 	}
-	
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_OCR2 HWNDhwnd Checked" settings.features.ocr " y+"vars.settings.spacing . (!settings.OCR.allow ? " cRed" : ""), % LangTrans("m_ocr_enable")
 	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_ocr " (settings.OCR.allow ? "enable" : "compatibility")] := hwnd
 
@@ -2472,6 +2479,7 @@ Settings_OCR2(cHWND)
 		IniWrite, % LLK_ControlGet(vars.hwnd.settings.hotkey_block), ini\ocr.ini, settings, block native key-function
 		IniWrite, % input, ini\ocr.ini, settings, hotkey
 		IniWrite, % "tldr-tooltips", ini\config.ini, versions, reload settings
+		KeyWait, LButton
 		Reload
 		ExitApp
 
@@ -2742,7 +2750,7 @@ Settings_screenchecks()
 	For key in vars.imagesearch.list
 	{
 		If (settings.features[key] = 0) || InStr(key, "necro_") && !settings.features.necropolis || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
-			continue
+			Continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd"(!FileExist("img\Recognition (" vars.client.h "p)\GUI\" key ".bmp") ? " cRed" : ""), % " " LangTrans("global_calibrate") " "
@@ -2977,6 +2985,228 @@ Settings_searchstrings2(cHWND)
 	Else LLK_ToolTip("no action")
 }
 
+Settings_stash()
+{
+	local
+	global vars, settings
+
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Stash‐Ninja">wiki page</a>
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 y+" vars.settings.spacing " Checked" settings.features.stash, % LangTrans("m_stash_enable")
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_stash enable"] := hwnd
+
+	If !settings.features.stash
+		Return
+
+	Gui, %GUI%: Font, underline bold
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_general")
+	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_leagues")
+	leagues := [["necro", "Necropolis"], ["hc necro", "Hardcore Necropolis"], ["standard", "Standard"]]
+	For index, array in leagues
+	{
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd Border Center gSettings_stash2" (index = 1 ? "" : " x+" settings.general.fWidth//2) . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
+		vars.hwnd.settings["league_" array.2] := hwnd
+	}
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_ui")
+	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_font")
+	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_stash2 HWNDhwnd w"settings.general.fWidth*2, % "–"
+	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_stash2 HWNDhwnd w"settings.general.fWidth*3, % settings.stash.fSize
+	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_stash2 HWNDhwnd w"settings.general.fWidth*2, % "+"
+	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
+
+
+	Gui, %GUI%: Add, Text, % "ys", % LangTrans("global_pattern") ":"
+	colors := settings.stash.colors.Clone(), dimensions := []
+	Gui, %GUI%: Add, Text, % "ys Border Center HWNDhwndtext BackgroundTrans c" colors.1, % " 69.42 "
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" colors.2, 100
+	Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd00", % "  "
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" colors.1, 100
+	Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd10", % "  "
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" colors.2, 100
+	vars.hwnd.settings["color_1"] := hwnd00, vars.hwnd.settings["color_1_panel"] := hwnd01, vars.hwnd.settings["color_1_text"] := hwndtext
+	vars.hwnd.settings["color_2"] := hwnd10, vars.hwnd.settings["color_2_panel"] := hwnd11, vars.hwnd.settings["color_2_text"] := hwndback
+	vars.hwnd.help_tooltips["settings_generic color double"] := hwnd01, vars.hwnd.help_tooltips["settings_generic color double1"] := hwnd11
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("m_stash_tabs")
+	Gui, %GUI%: Font, norm
+
+	For tab in vars.stash.checks
+		dimensions.Push(LangTrans("m_stash_" tab))
+
+	LLK_PanelDimensions(dimensions, settings.general.fSize, width, height)
+	For tab in vars.stash.checks
+	{
+		If !vars.settings.selected_stash && (tab = "scarabs")
+			vars.settings.selected_stash := tab
+		style := (vars.settings.selected_stash = tab) ? " cLime gSettings_stash2" : " cGray"
+		Gui, %GUI%: Add, Text, % style . (InStr("14", A_Index) ? " xs Section" (A_Index = 4 ? " y+-1" : "") : " ys x+-1") " Border Center HWNDhwnd w" width, % " " LangTrans("m_stash_" tab) " "
+		If (tab != "scarabs")
+			vars.hwnd.help_tooltips["settings_stash placeholder" handle] := hwnd, handle .= "|"
+		Else vars.hwnd.settings["select_" tab] := hwnd
+	/*
+		Gui, %GUI%: Add, Checkbox, % (A_Index != 1 && settings.stash[prev].enable ? "y+" vars.settings.spacing : "") " xs Section HWNDhwnd gSettings_stash2 x" x_anchor " Checked" settings.stash.scarabs.enable, % LangTrans("m_stash_" tab) . (settings.stash[tab].enable ? ":" : "")
+		vars.hwnd.settings["enable_" tab] := hwnd, prev := tab
+		If !settings.stash[tab].enable
+			Continue
+		color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed"
+		Gui, %GUI%: Add, Text, % "ys x+0 Border HWNDhwnd gStash_calibrate" color, % " " LangTrans("global_calibrate", 2) " "
+		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd1 gSettings_stash2 x+" settings.general.fWidth//2, % " " LangTrans("global_test") " "
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % LangTrans("global_gap") ":"
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd3 gSettings_stash2 Center Border w" settings.general.fWidth * 2, % "–"
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd4 gSettings_stash2 Center Border wp x+" settings.general.fWidth//2, % "+"
+		vars.hwnd.settings["cal_" tab] := vars.hwnd.help_tooltips["settings_stash calibrate" handle] := hwnd
+		vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test" handle] := hwnd1
+		vars.hwnd.settings["gap-_" tab] := hwnd3, vars.hwnd.settings["gap+_" tab] vars.hwnd.help_tooltips["settings_stash gap" handle] := hwnd2
+		vars.hwnd.settings["gap+_" tab] := hwnd4, handle .= "|"
+	*/
+	}
+
+	tab := vars.settings.selected_stash, color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed", currencies := ["c", "e", "d"]
+	;Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_setup") ":"
+	;Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gStash_calibrate" color, % " " LangTrans("global_calibrate", 2) " "
+	Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd1 gSettings_stash2", % " " LangTrans("global_preview") " "
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % LangTrans("global_gap") ":"
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd3 gSettings_stash2 Center Border w" settings.general.fWidth * 2, % "–"
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd4 gSettings_stash2 Center Border wp x+" settings.general.fWidth//2, % "+"
+	;vars.hwnd.settings["cal_" tab] := vars.hwnd.help_tooltips["settings_stash calibrate"] := hwnd
+	vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test"] := hwnd1
+	vars.hwnd.settings["gap-_" tab] := hwnd3, vars.hwnd.settings["gap+_" tab] vars.hwnd.help_tooltips["settings_stash gap"] := hwnd2
+	vars.hwnd.settings["gap+_" tab] := hwnd4
+
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_limits")
+	Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", img\GUI\help.png
+	vars.hwnd.help_tooltips["settings_stash limits"] := hwnd
+
+	Loop 5
+	{
+		Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Border Center 0x200 h" settings.general.fHeight * 2 - 1 " w" settings.general.fWidth * 1.5, % A_Index
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 " cBlack"
+		Gui, %GUI%: Add, Edit, % "ys x+-1 Section Center HWNDhwnd gSettings_stash2 r1 w" settings.general.fWidth * 3, % settings.stash[tab].limits[A_Index].2
+		ControlGetPos, x, y,,,, ahk_id %hwnd%
+		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd1 gSettings_stash2 r1 wp", % settings.stash[tab].limits[A_Index].1
+		Gui, %GUI%: Add, Edit, % "ys Center x+0 HWNDhwnd2 gSettings_stash2 Limit1 r1 y" y + settings.general.fHeight/2 - 1 " w" settings.general.fWidth * 2, % currencies[settings.stash[tab].limits[A_Index].3]
+		Gui, %GUI%: Font, % "s" settings.general.fSize " cWhite"
+		vars.hwnd.settings["limits" A_Index "top_" tab] := hwnd, vars.hwnd.settings["limits" A_Index "bot_" tab] := hwnd1, vars.hwnd.settings["limits" A_Index "cur_" tab] := hwnd2
+	}
+	
+}
+
+Settings_stash2(cHWND)
+{
+	local
+	global vars, settings
+
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	If !InStr(check, "test") && !InStr(check, "font_")
+		KeyWait, LButton
+
+	If (check = "enable")
+	{
+		IniWrite, % (settings.features.stash := LLK_ControlGet(cHWND)), ini\config.ini, features, enable stash-ninja
+		If !settings.features.stash
+			Stash_Close()
+		Settings_menu("stash-ninja")
+	}
+	Else If InStr(check, "enable_")
+	{
+		IniWrite, % (settings.stash[control].enable := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, % control, enable
+		Settings_menu("stash-ninja")
+	}
+	Else If InStr(check, "league_")
+	{
+		GuiControl, +cWhite, % vars.hwnd.settings["league_" settings.stash.league]
+		GuiControl, movedraw, % vars.hwnd.settings["league_" settings.stash.league]
+		IniWrite, % (settings.stash.league := control), ini\stash-ninja.ini, settings, league
+		GuiControl, +cLime, % cHWND
+		GuiControl, movedraw, % cHWND
+	}
+	Else If InStr(check, "font_")
+	{
+		If (control = "minus") && (settings.stash.fSize <= 6)
+			Return
+		While GetKeyState("LButton", "P") ;&& !InStr(check, "reset")
+		{
+			If (control = "reset")
+				settings.stash.fSize := settings.general.fSize
+			Else settings.stash.fSize += (control = "minus" && settings.stash.fSize > 6) ? -1 : (control = "plus" ? 1 : 0)
+			GuiControl, Text, % vars.hwnd.settings.font_reset, % settings.stash.fSize
+			Sleep 150
+		}
+		IniWrite, % settings.stash.fSize, ini\stash-ninja.ini, settings, font-size
+		Init_stash(1)
+	}
+	Else If InStr(check, "color_")
+	{
+		color := (vars.system.click = 1) ? RGB_Picker(settings.stash.colors[control]) : (control = 1 ? "000000" : "00FF00")
+		If Blank(color)
+			Return
+		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_panel"]
+		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_text"]
+		GuiControl, % "movedraw", % vars.hwnd.settings["color_" control "_text"]
+		IniWrite, % (settings.stash.colors[control] := color), ini\stash-ninja.ini, UI, % (control = 1 ? "text" : "background") " color"
+	}
+	Else If InStr(check, "select_")
+	{
+		vars.settings.selected_stash := control
+		Settings_menu("stash-ninja")
+	}
+	Else If InStr(check, "gap")
+	{
+		If InStr(check, "-") && (settings.stash[control].gap = 0)
+			Return
+		settings.stash[control].gap += InStr(check, "-") ? -1 : 1
+		IniWrite, % settings.stash[control].gap, ini\stash-ninja.ini, % control, gap
+		Init_stash(1)
+	}
+	Else If InStr(check, "limits")
+	{
+		types := {"bot": 1, "top": 2, "cur": 3}
+		input := StrReplace(LLK_ControlGet(cHWND), ",", "."), lIndex := SubStr(check, 7, 1), lType := types[SubStr(check, 8, 3)], tab := control, currencies := ["c", "e", "d"]
+		If (SubStr(input, 1, 1) = "." || SubStr(input, 0) = ".") || InStr(input, "-") || InStr(input, "+")
+			input := "invalid"
+		If Blank(input)
+			settings.stash[tab].limits[lIndex][lType] := "", input := "null"
+		Else
+		{
+			lTop := settings.stash[tab].limits[lIndex].2, lBot := settings.stash[tab].limits[lIndex].1
+			If (lType < 3) && !IsNumber(input) || (lType = 1 && !Blank(lBot) && input > lTop) || (lType = 2 && !Blank(lTop) && input < lBot)
+			|| (lType = 3) && !InStr("ced", input)
+				valid := 0
+			Else valid := 1
+			GuiControl, % "+c" (!valid ? "Red" : "Black"), % cHWND
+			GuiControl, movedraw, % cHWND
+			If !valid
+				Return
+			If (lType = 3)
+				input := InStr("ced", input)
+			settings.stash[tab].limits[lIndex][lType] := input
+			While InStr(settings.stash[tab].limits[lIndex][lType], ".") && InStr(".0", SubStr(settings.stash[tab].limits[lIndex][lType], 0))
+				settings.stash[tab].limits[lIndex][lType] := SubStr(settings.stash[tab].limits[lIndex][lType], 1, -1)
+		}
+		IniWrite, % input, ini\stash-ninja.ini, % tab, % "limit " lIndex " " SubStr(check, 8, 3)
+	}
+	Else If InStr(check, "test")
+	{
+		Stash_(vars.settings.selected_stash, 1)
+		KeyWait, LButton
+		Stash_Close()
+	}
+	Else LLK_ToolTip("no action")
+
+	For index, val in ["limits", "gap", "color_", "font_", "league_"]
+		If InStr(check, val) && WinExist("ahk_id " vars.hwnd.stash.main)
+			Stash_("refresh")
+}
+
 Settings_unsupported()
 {
 	local
@@ -3115,7 +3345,7 @@ Settings_updater2(cHWND := "")
 	}
 	Else If (check = "update_refresh")
 	{
-		If vars.updater.latest.2 && (A_TickCount < refresh_tick + 10000)
+		If vars.updater.latest.2 && (A_TickCount < refresh_tick + 10000 && !settings.general.dev)
 			Return
 		in_progress := 1, UpdateCheck(1), in_progress := 0, refresh_tick := A_TickCount, Settings_menu("updater")
 	}
