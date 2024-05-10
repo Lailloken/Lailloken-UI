@@ -763,7 +763,7 @@
 ;#####################################################
 
 ;## these strings are displayed/required in the "stash-ninja" section of the settings menu
-		m_stash_enable			=	"enable the stash-ninja feature (beta)"
+		m_stash_enable			=	"enable the stash-ninja feature"
 		m_stash_breach			=	"breach"
 		m_stash_currency1		=	"currency"
 		m_stash_currency2		=	"currency ii"
