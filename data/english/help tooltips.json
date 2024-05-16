@@ -597,7 +597,7 @@
 	  "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
     ],
     "stash mintrade": [
-      "bulk-sale suggestions under this value will not be shown (unless they are the only option)"
+      "bulk-sale suggestions under this value will not be shown (unless they are the only option: in that case, they will be highlighted red)"
     ],
     "stash margins": [
       "specify your preferred target margins:\nadd as many as you want and separate them with commas, then press <enter>",
