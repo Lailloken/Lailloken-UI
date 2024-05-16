@@ -59,9 +59,9 @@ HotkeysESC()
 		CloneframesSettingsRefresh()
 	Else If WinExist("ahk_id " vars.hwnd.stash.main)
 		Stash_Close()
-	Else If vars.stash.enter
+	Else If WinExist("ahk_id " vars.hwnd.stash_picker.main) || vars.stash.enter
 	{
-		vars.stash.enter := 0
+		LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
 		SendInput, {ESC}
 	}
 	Else If WinExist("ahk_id " vars.hwnd.compat_test)
@@ -167,6 +167,7 @@ HotkeysTab()
 			SendInput, {DEL}{ENTER}
 		}
 		stash_toggle := !stash_toggle
+		KeyWait, % settings.hotkeys.tab
 		Return
 	}
 
@@ -276,7 +277,7 @@ HotkeysTab()
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
 
-#If !WinActive("ahk_id " vars.hwnd.settings.main) && WinExist("ahk_id " vars.hwnd.stash.main)
+#If !WinActive("ahk_id " vars.hwnd.settings.main) && WinActive("ahk_id " vars.hwnd.poe_client) && WinExist("ahk_id " vars.hwnd.stash.main)
 *1::
 *2::
 *3::
@@ -285,8 +286,8 @@ HotkeysTab()
 ~+LButton::
 ~*RButton::Stash_Hotkeys()
 
-#If vars.stash.enter
-~*Enter::vars.stash.enter := 0
+#If WinActive("ahk_id " vars.hwnd.poe_client) && vars.stash.enter
+~*Enter::vars.stash.enter := 0, LLK_Overlay(vars.hwnd.stash_picker.main, "destroy")
 
 #If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ClientFiller) ;prevent clicking and activating the filler GUI
 *MButton::

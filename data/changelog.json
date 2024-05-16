@@ -1,5 +1,11 @@
 [
   [
+	["1.53.2", 15302],
+	"stash-ninja: added optional price history/trend",
+	"stash-ninja: added optional bulk-sale suggestions",
+	"some minor fixes and additions"
+  ],
+  [
 	["1.53.1", 15301],
 	"stash-ninja: new feature that overlays poe.ninja prices onto stash tabs",
 	"item-info: fix for doryani's invitation",

@@ -530,6 +530,11 @@ type	=	monsters
 text	=	slow immune
 ID	=	087
 
+[area is inhabited by the vaal|found items have # chance to drop corrupted in area]
+type	=	area
+text	=	corr. drops: %
+ID	=	088
+
 [players are cursed with vulnerability|players are cursed with temporal chains|players are cursed with elemental weakness]
 type	=	player
 text	=	vuln | chains | ele weak

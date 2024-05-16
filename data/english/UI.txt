@@ -466,6 +466,9 @@
 		stash_update			=	"updating prices..."
 		stash_updateerror		=	"update failed, and there is no fallback data from previous successful attempts.;this might be a connection issue that fixes itself, so try again later."
 		stash_updateerror		=	"update failed"
+		stash_value			=	"value"
+		stash_margin			=	"target margin"
+		stash_reminder			=	"reminder: switch to <note> first"
 
 
 ;#####################################################
@@ -773,6 +776,11 @@
 		m_stash_leagues			=	"league:"
 		m_stash_tabs			=	"stash tab configuration:"
 		m_stash_limits			=	"price-range profiles:"
+		m_stash_history			=	"show price history"
+		m_stash_exalt			=	"show exalt rates"
+		m_stash_mintrade		=	"minimum trade value (chaos):"
+		m_stash_bulk			=	"show bulk-sale suggestions"
+		m_stash_margins			=	"margins:"
 
 
 
