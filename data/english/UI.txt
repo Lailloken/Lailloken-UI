@@ -467,11 +467,8 @@
 		stash_updateerror		=	"update failed, and there is no fallback data from previous successful attempts.;this might be a connection issue that fixes itself, so try again later."
 		stash_updateerror		=	"update failed"
 		stash_value			=	"value"
-		stash_bulk			=	"bulk"
-		stash_price			=	"price"
 		stash_margin			=	"target margin"
 		stash_reminder			=	"reminder: switch to <note> first"
-		stash_stackerror		=	"required stack-size;is too large"
 
 
 ;#####################################################
