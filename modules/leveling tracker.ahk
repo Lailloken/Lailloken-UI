@@ -1123,7 +1123,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
 				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
-				Gui, %GUI_name_main%: Add, Text, % style, % "buy " (LLK_HasVal(guide.group1, "buy item", 1) ? "items" : "gems") " (highlight: hold omni-key)"
+				Gui, %GUI_name_main%: Add, Text, % style " cFuchsia", % "buy " (LLK_HasVal(guide.group1, "buy item", 1) ? "items" : "gems") " (highlight: hold omni-key)"
 				Continue
 			}
 			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gems.Count() || guide.items.Count())
@@ -1175,7 +1175,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 		Gui, %GUI_name_back%: Show, NA x10000 y10000
 		WinGetPos, x, y, width, height, % "ahk_id " leveltracker_main
 	}
-	
+
 	While Mod(width, 2)
 		width += 1
 	wButtons := Round(settings.leveltracker.fWidth*2)

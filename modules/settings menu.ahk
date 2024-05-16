@@ -1377,7 +1377,7 @@ Settings_leveltracker()
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2" color, % " " LangTrans("m_lvltracker_reset") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd3 range0-500", 0
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 w" settings.general.fWidth*20 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
+		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*20 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 
 		vars.hwnd.settings["profile" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
@@ -1549,7 +1549,7 @@ Settings_leveltracker2(cHWND := "")
 	Else If InStr(check, "name")
 	{
 		name := LLK_ControlGet(cHWND), number := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : ""
-		IniWrite, % name, % "ini\leveling guide" number ".ini", info, name
+		IniWrite, % """" name """", % "ini\leveling guide" number ".ini", info, name
 	}
 	Else If InStr(check, "font_")
 	{
@@ -3001,17 +3001,39 @@ Settings_stash()
 
 	Gui, %GUI%: Font, underline bold
 	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_general")
+	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default HWNDhwnd gSettings_stash2", OK
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_leagues")
-	leagues := [["necro", "Necropolis"], ["hc necro", "Hardcore Necropolis"], ["standard", "Standard"]]
+	leagues := [["necro", "Necropolis"], ["hc necro", "Hardcore Necropolis"], ["standard", "Standard"]], vars.hwnd.settings.apply_button := hwnd
 	For index, array in leagues
 	{
 		Gui, %GUI%: Add, Text, % "ys HWNDhwnd Border Center gSettings_stash2" (index = 1 ? "" : " x+" settings.general.fWidth//2) . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
 		vars.hwnd.settings["league_" array.2] := hwnd
 	}
 
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 Checked" settings.stash.history, % LangTrans("m_stash_history")
+	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd1 gSettings_stash2 Checked" settings.stash.show_exalt, % LangTrans("m_stash_exalt")
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd4 gSettings_stash2 Checked" settings.stash.bulk_trade, % LangTrans("m_stash_bulk")
+	If settings.stash.bulk_trade
+	{
+		Gui, %GUI%: Add, Text, % "xs+" settings.stash.fWidth * 1.5 " Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit Right w" settings.general.fWidth * 3, % settings.stash.min_trade
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd_", % LangTrans("m_stash_margins")
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys cBlack Hidden Disabled r1", % settings.stash.margins "    "
+		Gui, %GUI%: Add, Edit, % "xp yp wp hp cBlack HWNDhwnd5 gSettings_stash2 r1 Right", % settings.stash.margins
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		vars.hwnd.settings.min_trade := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade"] := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade|"] := hwnd3
+		vars.hwnd.settings.margins := vars.hwnd.help_tooltips["settings_stash margins"] := hwnd5, vars.hwnd.settings.margin_max := hwnd6, vars.hwnd.settings.margin_step := hwnd7
+		vars.hwnd.help_tooltips["settings_stash margins|"] := hwnd_
+	}
+	vars.hwnd.settings.history := vars.hwnd.help_tooltips["settings_stash history"] := hwnd, vars.hwnd.settings.exalt := vars.hwnd.help_tooltips["settings_stash exalt"] := hwnd1
+	vars.hwnd.settings.bulk_trade := vars.hwnd.help_tooltips["settings_stash bulk"] := hwnd4
+
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_ui")
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing " x" x_anchor, % LangTrans("global_ui")
 	Gui, %GUI%: Font, norm
 
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_font")
@@ -3070,7 +3092,7 @@ Settings_stash()
 	*/
 	}
 
-	tab := vars.settings.selected_stash, color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed", currencies := ["c", "e", "d"]
+	tab := vars.settings.selected_stash, color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed", currencies := ["c", "e", "d", "%"]
 	;Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_setup") ":"
 	;Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gStash_calibrate" color, % " " LangTrans("global_calibrate", 2) " "
 	Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd1 gSettings_stash2", % " " LangTrans("global_preview") " "
@@ -3116,6 +3138,40 @@ Settings_stash2(cHWND)
 			Stash_Close()
 		Settings_menu("stash-ninja")
 	}
+	Else If (check = "apply_button")
+	{
+		ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
+		ControlGet, hwnd, HWND,, % hwnd
+		If (hwnd != vars.hwnd.settings.margins)
+			Return
+		valid := 1, input := LLK_ControlGet(vars.hwnd.settings.margins), valid := Blank(input) || InStr(input, ".") ? 0 : 1, margins0 := {}
+		If (input = settings.stash.margins)
+			Return
+		If valid
+		{
+			Loop, Parse, input, `,, % A_Space
+			{
+				If !IsNumber(A_LoopField) || (A_LoopField = "-0")
+				{
+					valid := 0
+					Break
+				}
+				loopfield_copy := StrReplace(A_LoopField, "+")
+				If !margins0.Haskey(loopfield_copy)
+					margins0[loopfield_copy] := 1, margins .= (Blank(margins) ? "" : ",") loopfield_copy
+				Sort, margins, D`, N
+			}
+			If valid
+				settings.stash.margins := StrReplace(margins, ",", ", ")
+		}
+		If !valid ;separate valid-check after the one above (since that may change the content of valid)
+			Return
+
+		IniWrite, % settings.stash.margins, ini\stash-ninja.ini, settings, margins
+		Settings_menu("stash-ninja")
+		If WinExist("ahk_id " vars.hwnd.stash_picker.main)
+			Stash_PricePicker()
+	}
 	Else If InStr(check, "enable_")
 	{
 		IniWrite, % (settings.stash[control].enable := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, % control, enable
@@ -3127,6 +3183,28 @@ Settings_stash2(cHWND)
 		GuiControl, movedraw, % vars.hwnd.settings["league_" settings.stash.league]
 		IniWrite, % (settings.stash.league := control), ini\stash-ninja.ini, settings, league
 		GuiControl, +cLime, % cHWND
+		GuiControl, movedraw, % cHWND
+	}
+	Else If (check = "history")
+		IniWrite, % (settings.stash.history := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, enable price history
+	Else If (check = "exalt")
+		IniWrite, % (settings.stash.show_exalt := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, show exalt conversion
+	Else If (check = "bulk_trade")
+	{
+		IniWrite, % (settings.stash.bulk_trade := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, show bulk-sale suggestions
+		If !settings.stash.bulk_trade && WinExist("ahk_id " vars.hwnd.stash_picker.main)
+			LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
+		Settings_menu("stash-ninja")
+	}
+	Else If (check = "min_trade")
+	{
+		input := LLK_ControlGet(cHWND), settings.stash.min_trade := !input ? "" : input, settings.stash[vars.stash.active].price_index := ""
+		IniWrite, % input, ini\stash-ninja.ini, settings, minimum trade value
+	}
+	Else If (check = "margins")
+	{
+		input := LLK_ControlGet(cHWND), diff := (input != settings.stash.margins) ? 1 : 0
+		GuiControl, % "+c" (!diff ? "Black": "Red"), % cHWND
 		GuiControl, movedraw, % cHWND
 	}
 	Else If InStr(check, "font_")
@@ -3170,8 +3248,8 @@ Settings_stash2(cHWND)
 	Else If InStr(check, "limits")
 	{
 		types := {"bot": 1, "top": 2, "cur": 3}
-		input := StrReplace(LLK_ControlGet(cHWND), ",", "."), lIndex := SubStr(check, 7, 1), lType := types[SubStr(check, 8, 3)], tab := control, currencies := ["c", "e", "d"]
-		If (SubStr(input, 1, 1) = "." || SubStr(input, 0) = ".") || InStr(input, "-") || InStr(input, "+")
+		input := StrReplace(LLK_ControlGet(cHWND), ",", "."), lIndex := SubStr(check, 7, 1), lType := types[SubStr(check, 8, 3)], tab := control, currencies := ["c", "e", "d", "%"]
+		If (SubStr(input, 1, 1) = "." || SubStr(input, 0) = ".") || InStr(input, "+")
 			input := "invalid"
 		If Blank(input)
 			settings.stash[tab].limits[lIndex][lType] := "", input := "null"
@@ -3179,7 +3257,7 @@ Settings_stash2(cHWND)
 		{
 			lTop := settings.stash[tab].limits[lIndex].2, lBot := settings.stash[tab].limits[lIndex].1
 			If (lType < 3) && !IsNumber(input) || (lType = 1 && !Blank(lTop) && input > lTop) || (lType = 2 && !Blank(lBot) && input < lBot)
-			|| (lType = 3) && !InStr("ced", input)
+			|| (lType = 3) && !InStr("ced%", input)
 				valid := 0
 			Else valid := 1
 			GuiControl, % "+c" (!valid ? "Red" : "Black"), % cHWND
@@ -3187,7 +3265,7 @@ Settings_stash2(cHWND)
 			If !valid
 				Return
 			If (lType = 3)
-				input := InStr("ced", input)
+				input := InStr("ced%", input)
 			settings.stash[tab].limits[lIndex][lType] := input
 			While InStr(settings.stash[tab].limits[lIndex][lType], ".") && InStr(".0", SubStr(settings.stash[tab].limits[lIndex][lType], 0))
 				settings.stash[tab].limits[lIndex][lType] := SubStr(settings.stash[tab].limits[lIndex][lType], 1, -1)
@@ -3202,7 +3280,7 @@ Settings_stash2(cHWND)
 	}
 	Else LLK_ToolTip("no action")
 
-	For index, val in ["limits", "gap", "color_", "font_", "league_"]
+	For index, val in ["limits", "gap", "color_", "font_", "league_", "history"]
 		If InStr(check, val) && WinExist("ahk_id " vars.hwnd.stash.main)
 			Stash_("refresh")
 }
