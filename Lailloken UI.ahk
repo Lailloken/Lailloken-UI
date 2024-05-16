@@ -640,7 +640,9 @@ Loop_main()
 			stashhover := {}
 			For item, val in vars.stash[tab]
 			{
-				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + vars.stash.box, y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + vars.stash.box
+				If !IsObject(val) || (item = "pricelist")
+					Continue
+				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + vars.stash[tab].box, y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + vars.stash[tab].box
 				If LLK_IsBetween(vars.general.xMouse, x1, x2) && LLK_IsBetween(vars.general.yMouse, y1, y2)
 				{
 					stashhover := {"x1": x1, "x2": x2, "y1": y1, "y2": y2}
@@ -1505,9 +1507,10 @@ LLK_IsBetween(var, x, y)
 {
 	If Blank(x) || Blank(y)
 		Return
+	x += 0, y += 0
 	If (x > y)
 		z := x, x := y, y := z
-	If var between %x% and %y%
+	If (x <= var) && (var <= y)
 		Return 1
 	Else Return 0
 }
