@@ -3167,7 +3167,7 @@ Settings_stash2(cHWND)
 		If !valid ;separate valid-check after the one above (since that may change the content of valid)
 			Return
 
-		IniWrite, % settings.stash.margins, ini\stash-ninja.ini, settings, margins
+		IniWrite, % """" settings.stash.margins """", ini\stash-ninja.ini, settings, margins
 		Settings_menu("stash-ninja")
 		If WinExist("ahk_id " vars.hwnd.stash_picker.main)
 			Stash_PricePicker()

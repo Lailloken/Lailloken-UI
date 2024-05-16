@@ -377,6 +377,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1)
 			Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount ((check := Mod(available, amount)) ? " (+" check ")" : "")
 		}
 		ControlGetPos, xColumn, yColumn, wColumn, hColumn,, ahk_id %hwnd%
+		Gui, %GUI_name%: Add, Progress, % "x0 y+-1 Disabled Background606060 w" xColumn + wColumn " h" settings.stash.fWidth//2, 0
 	}
 	Else LLK_PanelDimensions([val.prices.1, val.prices.2, val.prices.3, ".`n."], settings.stash.fSize, wMarket, hMarket,,, 0)
 
