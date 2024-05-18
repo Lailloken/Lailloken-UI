@@ -1,7 +1,7 @@
 [
   [
 	["1.53.2", 15302],
-	"hotfix 1: items with <scarab> in their name activated stash-ninja when omni-clicked",
+	"hotfix 1: omni-key activated the stash-ninja feature when pressed on items with <scarab> in their names",
 	"stash-ninja: added optional price history/trend",
 	"stash-ninja: added optional bulk-sale suggestions",
 	"some minor fixes and additions"
