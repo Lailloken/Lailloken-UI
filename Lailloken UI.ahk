@@ -172,14 +172,16 @@ FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to 
 	return time
 }
 
-LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0)
+LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
 {
 	local
 
+	If !IsObject(object) || Blank(value)
+		Return
 	parse := []
 	For key, val in object
 	{
-		If (key = value) || InStr && InStr(key, value, case_sensitive)
+		If (key = value) || InStr && InStr(key, value, case_sensitive) || recurse && IsObject(val) && LLK_HasKey(val, value, InStr, case_sensitive, all_results, recurse)
 		{
 			If !all_results
 				Return key
