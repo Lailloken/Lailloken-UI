@@ -258,17 +258,13 @@ OmniContext(mode := 0)
 		If settings.features.mapinfo
 			Return "mapinfo"
 	}
-	If settings.features.stash && InStr(item.name, "scarab")
+	If settings.features.stash
 	{
-		start := A_TickCount
-		While GetKeyState(ThisHotkey_copy, "P")
+		check := LLK_HasKey(vars.stash, item.name,,,, 1), start := A_TickCount
+		While check && GetKeyState(ThisHotkey_copy, "P")
 			If (A_TickCount >= start + 150)
 			{
-				Stash_("scarabs")
-				;SendInput, % "{" ThisHotkey_copy " UP}"
-				;KeyWait, % ThisHotkey_copy
-				;LLK_Overlay(vars.hwnd.stash.main, "destroy")
-				;vars.stash.GUI := vars.stash.hover := 0
+				Stash_(check)
 				Return
 			}
 	}
