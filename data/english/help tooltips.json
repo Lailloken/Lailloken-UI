@@ -434,8 +434,8 @@
     ],
     "mapinfo mod settings": [
       "below, you can customize the tiering of specific map mods without requiring maps that have them",
-	  "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
-	  "use the mod search to find mods, click the – and + buttons to (un)pin mods for regular access"
+      "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
+      "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
     ],
     "necro enable": [
       "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"
@@ -538,7 +538,7 @@
     "screenchecks image-test": [
       "click this button while the ui element shown in <info> is visible, the test should return positive",
       "click it again while the ui element shown in <info> is not visible, the test should return negative",
-	  "if tests keep returning negative after automatic calibration, right-click the <cal> button and snip the marked area shown in <info>"
+      "if tests keep returning negative after automatic calibration, right-click the <cal> button and snip the marked area shown in <info>"
     ],
     "screenchecks folder": [
       "opens the folder with calibration files",
@@ -582,8 +582,8 @@
     ],
     "stash enable": [
       "stash feature that highlights items in specific stash tabs according to rough market prices",
-	  "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
-	  "- there needs to be at least one tab-folder in your stash in general\n- tabs supported by this feature cannot be inside a folder"
+      "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
+      "- there needs to be at least one tab-folder in your stash in general\n- tabs supported by this feature cannot be inside a folder"
     ],
     "stash calibrate": [
       "move the settings window to the right side of the screen",
@@ -592,29 +592,29 @@
     ],
     "stash history": [
       "shows an additional bar-chart with an item's price history for this week",
-	  "this will be shown next to conversion rates when hovering over a highlighted item-slot",
-	  "it's a timeline with bars that each represent a day and display the change in price compared to the first day"
+      "this will be shown next to conversion rates when hovering over a highlighted item-slot",
+      "it's a timeline with bars that each represent a day and display the change in price compared to the first day"
     ],
     "stash exalt": [
       "also shows exalt-equivalent prices when hovering over highlighted items or pricing items"
     ],
     "stash bulk": [
       "whenever you right-click an item in the tab to price it, an additional panel with bulk-sale suggestions will be displayed",
-	  "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
+      "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
     ],
     "stash mintrade": [
-	  "you can specify an \"i don't want to trade below x chaos\" value here",
+      "you can specify an \"i don't want to trade below x chaos\" value here",
       "bulk-sales below this value will not be suggested, unless they are the only option (they will be highlighted red then)",
-	  "type in a number and press <enter>"
+      "type in a number and press <enter>"
     ],
     "stash autoprofiles": [
       "profiles 1-4 will be set up automatically according to your preferred trade value",
-	  ">> rule of thumb <<\nhighlighted items are worth trading if:\nstack-size >= profile-number",
-	  "profile 5 will be left untouched in order to allow creating a trash/vendor tier"
+      ">> rule of thumb <<\nhighlighted items are worth trading if:\nstack-size >= profile-number",
+      "profile 5 will be left untouched in order to allow creating a trash/vendor tier"
     ],
     "stash margins": [
       "specify your preferred target margins:\nadd as many as you want and separate them with commas, then press <enter>",
-	  "- does not support decimal values\n- red highlighting = unsaved changes"
+      "- does not support decimal values\n- red highlighting = unsaved changes"
     ],
     "stash config": [
       "to configure individual tabs, open them in game and long-press the omni-key over an item in the tab",
