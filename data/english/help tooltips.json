@@ -433,7 +433,7 @@
       "quantity, rarity, pack size, maps, scarabs, currency"
     ],
     "mapinfo mod settings": [
-      "below, you can customize the tiering of specific map mods without requiring maps that have them",
+      "below, you can customize the tiering of specific map mods, without requiring maps that have them",
       "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
       "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
     ],
@@ -542,7 +542,7 @@
     ],
     "screenchecks folder": [
       "opens the folder with calibration files",
-      "if tests keep failing, open the files to check if they have the correct data"
+      "if tests keep failing, open the img-files to check if they represent the correct image-clip"
     ],
     "searchstrings poe-regex": [
       "3rd-party website for regex-strings"
