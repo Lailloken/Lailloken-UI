@@ -91,6 +91,7 @@
 		global_delete			=	"del"
 		global_scan			=	"scanning..."
 		global_match			=	"no match"
+		global_match			=	"not specific enough"
 		global_window			=	"settings menu"
 		global_general			=	"general settings:"
 		global_ui			=	"ui settings:"
@@ -107,7 +108,6 @@
 		global_type			=	"type:"
 		global_add			=	"add"
 		global_calibrate		=	"cal"
-		global_calibrate		=	"calibrate"
 		global_calibrate		=	"calibration required"
 		global_import			=	"import"
 		global_test			=	"test"
@@ -710,6 +710,8 @@
 		m_mapinfo_textcolors		=	"text-colors:"
 		m_mapinfo_header		=	"header"					;## as in line at the top of a section/paragraph
 		m_mapinfo_logbook		=	"logbook-colors:"
+		m_mapinfo_modsettings		=	"map-mod settings:"
+		m_mapinfo_pinned		=	"pinned mods:"
 		m_mapinfo_modsearch		=	"mod search:"
 		m_mapinfo_roll_highlight	=	"highlight map rolls"
 
@@ -776,11 +778,13 @@
 		m_stash_leagues			=	"league:"
 		m_stash_tabs			=	"stash tab configuration:"
 		m_stash_limits			=	"price-range profiles:"
+		m_stash_profiles		=	"apply trade value to profiles 1-4"
 		m_stash_history			=	"show price history"
 		m_stash_exalt			=	"show exalt rates"
 		m_stash_mintrade		=	"minimum trade value (chaos):"
 		m_stash_bulk			=	"show bulk-sale suggestions"
 		m_stash_margins			=	"margins:"
+		m_stash_active			=	"active tab:"
 
 
 

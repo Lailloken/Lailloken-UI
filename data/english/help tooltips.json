@@ -34,7 +34,7 @@
       "background color: click to open the color-palette, right click to reset"
     ],
     "active character": [
-      "type in your character name and press enter",
+      "type in your character name and press <enter>",
       "specifying it here enables optional features such as level tracking and e-exp calculations"
     ],
     "active character status": [
@@ -418,7 +418,7 @@
       "logbook mods use positive rankings, with 4 being the best value"
     ],
     "mapinfo modsearch": [
-      "type in map-mods (in-game wording) and press enter to list them and customize their highlighting"
+      "type in map-mods (in-game wording) and press <enter> to list them below"
     ],
     "mapinfo roll highlight": [
       "map rolls (quant, rarity, etc.) will be highlighted if they meet certain requirements"
@@ -430,7 +430,12 @@
     ],
     "mapinfo requirements": [
       "specify required/desired minimum values for each roll",
-      "quantity, rarity, pack size\nmaps, scarabs, currency"
+      "quantity, rarity, pack size, maps, scarabs, currency"
+    ],
+    "mapinfo mod settings": [
+      "below, you can customize the tiering of specific map mods without requiring maps that have them",
+	  "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
+	  "use the mod search to find mods, click the – and + buttons to (un)pin mods for regular access"
     ],
     "necro enable": [
       "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"
@@ -509,8 +514,8 @@
       "captures certain pixel-values and stores them for future checks"
     ],
     "screenchecks pixel-test": [
-      "click this button while the ui element mentioned in <info> is visible, the test should return positive",
-      "click it again while the ui element mentioned in <info> is not visible, the test should return negative"
+      "click this button while the ui element shown in <info> is visible, the test should return positive",
+      "click it again while the ui element shown in <info> is not visible, the test should return negative"
     ],
     "screenchecks pixel-info": [
       "hold to see instructions"
@@ -531,8 +536,9 @@
       "opens the clipping tool: use it to clip the ui element from <info>"
     ],
     "screenchecks image-test": [
-      "click this button while the ui element mentioned in <info> is visible, the test should return positive",
-      "click it again while the ui element mentioned in <info> is not visible, the test should return negative"
+      "click this button while the ui element shown in <info> is visible, the test should return positive",
+      "click it again while the ui element shown in <info> is not visible, the test should return negative",
+	  "if tests keep returning negative after automatic calibration, right-click the <cal> button and snip the marked area shown in <info>"
     ],
     "screenchecks folder": [
       "opens the folder with calibration files",
@@ -572,12 +578,12 @@
       "this is part of the imported leveling guide and contains strings for every gem"
     ],
     "searchstrings add": [
-      "type in a name and press enter"
+      "type in a name and press <enter>"
     ],
     "stash enable": [
       "stash feature that highlights items in specific stash tabs according to rough market prices",
-	  "long-press the omni-key (default: middle mouse-button) while hovering over a scarab to activate the feature",
-	  "ui/scaling requirements:\n- there needs to be at least one tab-folder in your stash in general\n- tabs supported by this feature cannot be inside a folder"
+	  "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
+	  "- there needs to be at least one tab-folder in your stash in general\n- tabs supported by this feature cannot be inside a folder"
     ],
     "stash calibrate": [
       "move the settings window to the right side of the screen",
@@ -597,11 +603,22 @@
 	  "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
     ],
     "stash mintrade": [
-      "bulk-sale suggestions under this value will not be shown (unless they are the only option: in that case, they will be highlighted red)"
+	  "you can specify an \"i don't want to trade below x chaos\" value here",
+      "bulk-sales below this value will not be suggested, unless they are the only option (they will be highlighted red then)",
+	  "type in a number and press <enter>"
+    ],
+    "stash autoprofiles": [
+      "profiles 1-4 will be set up automatically according to your preferred trade value",
+	  ">> rule of thumb <<\nhighlighted items are worth trading if:\nstack-size >= profile-number",
+	  "profile 5 will be left untouched in order to allow creating a trash/vendor tier"
     ],
     "stash margins": [
       "specify your preferred target margins:\nadd as many as you want and separate them with commas, then press <enter>",
 	  "- does not support decimal values\n- red highlighting = unsaved changes"
+    ],
+    "stash config": [
+      "to configure individual tabs, open them in game and long-press the omni-key over an item in the tab",
+      "once the stash-ninja overlay is active, settings for the active tab will appear below"
     ],
     "stash gap": [
       "refers to the horizontal gap between item boxes/slots in the stash tab",
@@ -609,15 +626,9 @@
     ],
     "stash limits": [
       "you can configure up to 5 price-range profiles",
-      "profile # (left), max price (top), min price (bot), measuring unit: c, e, d, % (right)",
+      "profile # (top-left), max price (top-right)\nunit: c, e, d, % (bot-left), min price (bot-right)",
       "leaving min/max price blank will treat them as unlimited, leaving the measuring unit blank will disable the profile entirely",
       "while the overlay is on screen, press number-keys 1 to 5 to switch between profiles"
-    ],
-    "stash test": [
-      "open the selected tab in game, then long-click this button to preview the overlay"
-    ],
-    "stash placeholder": [
-      "coming soon (tm)"
     ],
     "update check": [
       "checks for updates on script launch and in the background while running",
@@ -771,7 +782,7 @@
       "hold to delete all images"
     ],
     "skilltree-cap caption": [
-      "type in a caption and press enter"
+      "type in a caption and press <enter>"
     ]
   },
   "maptracker": {
@@ -788,7 +799,7 @@
       "right-click to open the export folder"
     ],
     "logviewer filter": [
-      "type in keywords (separated by commas) and press ENTER to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
+      "type in keywords (separated by commas) and press <enter> to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
       "you can search inside columns by using search operators (check the book icon on the far left)"
     ],
     "logviewer sum avg": [
@@ -843,8 +854,8 @@
   },
   "maptrackernotes": {
     "help": [
-      "type in custom notes and press ENTER: include \"X#\" before the note to limit it to X runs",
-      "omni-click voidstones, scarabs, etc.",
+      "type in custom notes and press <enter>: include \"X#\" before the note to limit it to X runs",
+      "omni-click map-device items to add them as notes",
       "long-click a note to remove it, or the header to clear everything"
     ]
   },
@@ -874,65 +885,44 @@
       "-> the minimap has to be in the center",
       "-> the info-panel (img) has to be fully visible",
       "-> click <cal>",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> omni-key context, clone-frames toggling"
+      "-> follow the instructions in <test>"
     ],
     "inventory": [
       "(/bold)(/underline)instructions:",
       "-> open the inventory",
       "-> the top-right corner (img: yellow) has to be fully visible",
       "-> click <cal>",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> item-info league-start mode",
-      "-> mapping tracker portal reminder",
-      "-> item/map-info shift-click"
+      "-> follow the instructions in <test>"
     ],
     "betrayal": [
       "(/bold)(/underline)instructions:",
       "-> open the syndicate board",
-      "-> don't move or zoom into it",
-      "-> click <cal> and clip the marked area (img)",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> betrayal-info overlay"
+      "-> click <cal> to let the tool calibrate, OR right-click to manually calibrate",
+      "-> follow the instructions in <test>"
     ],
     "necro_lantern": [
       "(/bold)(/underline)instructions:",
       "-> open the lantern ui for a zone",
-      "-> click <cal> and clip the marked area (img)",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> necropolis: lantern highlighting"
+      "-> click <cal> to open the snipping tool, then clip the marked area shown in the img",
+      "-> follow the instructions in <test>"
     ],
     "skilltree": [
       "(/bold)(/underline)instructions:",
       "-> open the skilltree",
-      "-> click <cal> and clip the marked area (img)",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> leveling tracker: skilltree overlay"
+      "-> click <cal> to let the tool calibrate, OR right-click to manually calibrate",
+      "-> follow the instructions in <test>"
     ],
     "stash": [
       "(/bold)(/underline)instructions:",
       "-> open the stash",
-      "-> click <cal> and clip the marked area (img)",
-      "-> follow the instructions in <test>",
-      "",
-      "(/bold)(/underline)used for:",
-      "-> mapping tracker: loot tracker"
+      "-> click <cal> to let the tool calibrate, OR right-click to manually calibrate",
+      "-> follow the instructions in <test>"
     ]
   },
   "searchstrings": {
     "config entry-about": [
       "use-cases have their own entries that will be listed in the context-menu",
-      "type in a descriptive name for the string(s) and press enter"
+      "type in a descriptive name for the string(s) and press <enter>"
     ],
     "config entry-list": [
       "click an entry to edit its string(s), long-click <del> to remove it",
