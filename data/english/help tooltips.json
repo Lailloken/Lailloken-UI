@@ -626,7 +626,7 @@
     ],
     "stash limits": [
       "you can configure up to 5 price-range profiles",
-      "profile # (top-left), max price (top-right)\nunit: c, e, d, % (bot-left), min price (bot-right)",
+      "input-box structure:\nprofile # | max value\nunit: c, e, d, % | min value",
       "leaving min/max price blank will treat them as unlimited, leaving the measuring unit blank will disable the profile entirely",
       "while the overlay is on screen, press number-keys 1 to 5 to switch between profiles"
     ],
