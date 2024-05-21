@@ -9,6 +9,8 @@
 		IniWrite, % "", ini\map info.ini, UI
 	}
 
+	If !LLK_IniRead("ini\map info.ini", "pinned")
+		IniWrite, % "001=1`n002=1`n003=1`n004=1`n007=1", ini\map info.ini, pinned
 	settings.features.mapinfo := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map-info panel", 0)
 	settings.mapinfo := {"IDs": {}}
 
@@ -19,10 +21,11 @@
 		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": LLK_IniRead("ini\map info.ini", ID, "rank", 1), "show": LLK_IniRead("ini\map info.ini", ID, "show", 1)}
 	}
 
-	settings.mapinfo.dColor := ["FFFFFF", "f77e05", "Red", "Fuchsia", "909090"], settings.mapinfo.eColor_default := ["FFFFFF", "Yellow", "Green", "Lime"]
+	settings.mapinfo.dColor := ["FFFFFF", "f77e05", "Red", "Fuchsia"], settings.mapinfo.eColor_default := ["FFFFFF", "Yellow", "Green", "Lime"]
 	settings.mapinfo.color := [], settings.mapinfo.eColor := []
-	Loop 5
-		settings.mapinfo.color[A_Index] := LLK_IniRead("ini\map info.ini", "UI", (A_Index = 5) ? "header color" : "difficulty " A_Index " color", settings.mapinfo.dColor[A_Index]), settings.mapinfo.eColor[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "logbook " A_Index " color", settings.mapinfo.eColor_default[A_Index])
+	Loop 4
+		settings.mapinfo.color[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "difficulty " A_Index " color", settings.mapinfo.dColor[A_Index])
+	,	settings.mapinfo.eColor[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "logbook " A_Index " color", settings.mapinfo.eColor_default[A_Index])
 	settings.mapinfo.fSize := LLK_IniRead("ini\map info.ini", "settings", "font-size", settings.general.fSize)
 	LLK_FontDimensions(settings.mapinfo.fSize, font_height, font_width)
 	settings.mapinfo.fHeight := font_height, settings.mapinfo.fWidth := font_width
@@ -554,8 +557,8 @@ MapinfoRank(hotkey)
 	local
 	global vars, settings
 
-	search := (vars.general.wMouse = vars.hwnd.mapinfo_modsearch.main) ? 1 : 0
-	check := LLK_HasVal(!search ? vars.hwnd.mapinfo : vars.hwnd.mapinfo_modsearch, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
+	search := (vars.general.wMouse = vars.hwnd.settings.main) ? 1 : 0
+	check := LLK_HasVal(!search ? vars.hwnd.mapinfo : vars.hwnd.settings, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
 	Loop, Parse, hotkey
 		If IsNumber(A_LoopField)
 		{
@@ -567,17 +570,10 @@ MapinfoRank(hotkey)
 		Return
 
 	If IsNumber(hotkey)
-	{
-		settings.mapinfo.IDs[control].rank := hotkey
-		IniWrite, % hotkey, ini\map info.ini, % control, rank
-	}
-	Else
-	{
-		settings.mapinfo.IDs[control].show := !settings.mapinfo.IDs[control].show
-		IniWrite, % settings.mapinfo.IDs[control].show, ini\map info.ini, % control, show
-	}
+		IniWrite, % (settings.mapinfo.IDs[control].rank := hotkey), ini\map info.ini, % control, rank
+	Else IniWrite, % (settings.mapinfo.IDs[control].show := !settings.mapinfo.IDs[control].show), ini\map info.ini, % control, show
 	If !search
 		MapinfoParse(0), MapinfoGUI(0)
-	Else MapinfoModsearch()
+	Else Settings_menu("map-info",, 0)
 	KeyWait, % hotkey
 }

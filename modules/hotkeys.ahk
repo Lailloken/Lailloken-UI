@@ -277,7 +277,10 @@ HotkeysTab()
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
 
-#If !WinActive("ahk_id " vars.hwnd.settings.main) && WinActive("ahk_id " vars.hwnd.poe_client) && WinExist("ahk_id " vars.hwnd.stash.main)
+#If WinActive("ahk_group poe_ahk_window") && InStr(vars.stash.hover, "tab_")
+*~LButton::Stash_(StrReplace(vars.stash.hover, "tab_"))
+
+#If WinActive("ahk_id " vars.hwnd.poe_client) && WinExist("ahk_id " vars.hwnd.stash.main)
 *1::
 *2::
 *3::
@@ -396,7 +399,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *LButton::Alarm(1)
 *RButton::Alarm(2)
 
-#If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.mapinfo_modsearch.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo_modsearch, vars.general.cMouse))) ;ranking map-mods
+#If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.settings.main) && InStr(LLK_HasVal(vars.hwnd.settings, vars.general.cMouse), "mapmod_")) ;ranking map-mods
 
 *1::
 *2::

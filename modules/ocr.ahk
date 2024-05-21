@@ -487,7 +487,7 @@ OCR_FilterInput(text) ;WIP, currently not in use
 			Continue
 		parsed.Push(loopfield_copy)
 	}
-	
+
 	lookup := {"altars": ["map boss gains:", "eldritch minions gain:", "player gains:"], "vaalareas": [LangTrans("items_mapquantity")]}
 	dictionary := {"altars": ["map", "boss", "gains", "eldritch", "minions", "gain", "player"], "vaalareas": []}
 	Loop, Parse, % LangTrans("items_mapquantity"), % A_Space, % ":"

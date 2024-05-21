@@ -3,6 +3,17 @@
 	local
 	global vars, settings
 
+	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
+		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
+	Else settings.general.blackbars := 0
+
+	If settings.general.blackbars ;apply offsets if black-bar compensation is enabled
+	{
+		settings.general.oGamescreen := Format("{:0.0f}", (vars.client.w0 - (vars.client.h0 / (5/12))) / 2) ;get the width of the black bars (as an offset for pixel-checks)
+		vars.client.x := vars.client.x0 + settings.general.oGamescreen, vars.client.w := vars.client.w0 - 2*settings.general.oGamescreen
+	}
+	Else settings.general.oGamescreen := 0
+
 	settings.features.pixelchecks := LLK_IniRead("ini\config.ini", "Settings", "background pixel-checks", 1) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
 	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates")
 	If InStr(parse, ",")
@@ -19,24 +30,17 @@
 	vars.imagesearch := {}
 	vars.imagesearch.search := ["skilltree", "necro_lantern", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
 	vars.imagesearch.list := {"betrayal": 1, "necro_lantern": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
+	vars.imagesearch.checks := {"betrayal": {"x": vars.client.w - Round((1/72) * vars.client.h) * 2 , "y": Round((1/72) * vars.client.h), "w": Round((1/72) * vars.client.h), "h": Round((1/72) * vars.client.h)}
+		, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
+		, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}
+		, "necro_lantern": ""}
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
 		parse := StrSplit(LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
-
-	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
-		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
-	Else settings.general.blackbars := 0
-
-	If settings.general.blackbars ;apply offsets if black-bar compensation is enabled
-	{
-		settings.general.oGamescreen := Format("{:0.0f}", (vars.client.w0 - (vars.client.h0 / (5/12))) / 2) ;get the width of the black bars (as an offset for pixel-checks)
-		vars.client.x := vars.client.x0 + settings.general.oGamescreen, vars.client.w := vars.client.w0 - 2*settings.general.oGamescreen
-	}
-	Else settings.general.oGamescreen := 0
 }
 
-Screenchecks_ImageRecalibrate(mode := "")
+Screenchecks_ImageRecalibrate(mode := "", check := "")
 {
 	local
 	global vars, settings
@@ -86,52 +90,60 @@ Screenchecks_ImageRecalibrate(mode := "")
 	If mode
 		Return
 
-	KeyWait, LButton
-	KeyWait, RButton
-	Clipboard := "", vars.general.gui_hide := 1, LLK_Overlay("hide"), vars.snipping_tool := {"GUI": 1}
-	pBitmap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), Gdip_GetImageDimensions(pBitmap, width, height), hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-
-	Gui, LLK_snip: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_gui"
-	Gui, LLK_snip: Font, % "s" Round(settings.general.fSize * 1.5) " cAqua", % vars.system.font
-	Gui, LLK_snip: Margin, 0, 0
-	Loop 6
-		text .= (!text ? " " : "`n ") LangTrans("screen_snipinstructions", A_Index) " "
-	vars.hwnd.snipping_tool := {"main": hwnd_gui}, align := "left", LLK_PanelDimensions([text], settings.general.fSize * 2, wText, hText)
-	Gui, LLK_snip: Add, Text, % "x0 y" height//2 - hText//2 " w" width " h" hText " BackgroundTrans Left HWNDhwnd_text", % text
-	Gui, LLK_snip: Add, Pic, % "x0 y0 wp h" height " BackgroundTrans", img\GUI\square_black_trans.png
-	Gui, LLK_snip: Add, Pic, % "xp yp wp hp", HBitmap:*%hBitmap%*
-	Gui, LLK_snip: Show, NA x10000 y10000 w%width% h%height%
-	WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
-	Gui, LLK_snip: Show, % "x" vars.monitor.x + vars.monitor.w / 2 - width//2 " y" vars.monitor.y + vars.monitor.h / 2 - height//2
-	WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
-	vars.snipping_tool.coords := {"x": xPos, "y": yPos, "w": width, "h": height}, coords := vars.snipping_tool.coords
-
-	While vars.snipping_tool.GUI && WinActive("ahk_id " hwnd_gui)
+	If (check && vars.system.click = 1) && !InStr(check, "necro_")
 	{
-		If (align = "left") && (vars.general.xMouse <= coords.x + coords.w // 2)
-		{
-			GuiControl, +Right, % hwnd_text
-			GuiControl, movedraw, % hwnd_text
-			align := "right"
-		}
-		Else If (align = "right") && (vars.general.xMouse >= coords.x + coords.w // 2)
-		{
-			GuiControl, +Left, % hwnd_text
-			GuiControl, movedraw, % hwnd_text
-			align := "left"
-		}
-		Sleep 100
+		pBitmap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), checks := vars.imagesearch.checks
+		If settings.general.blackbars
+			pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, settings.general.oGamescreen,, vars.client.w, vars.client.h,, 1), Gdip_DisposeImage(pBitmap), pBitmap := pBitmap_copy
+		pClip := Gdip_CloneBitmapArea(pBitmap, checks[check].x, checks[check].y, checks[check].w, checks[check].h,, 1), Gdip_DisposeImage(pBitmap)
 	}
+	Else
+	{
+		Clipboard := "", vars.general.gui_hide := 1, LLK_Overlay("hide"), vars.snipping_tool := {"GUI": 1}
+		pBitmap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), Gdip_GetImageDimensions(pBitmap, width, height), hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 
-	Gui, LLK_snip: Destroy
-	Gui, LLK_snip_area: Destroy
-	vars.general.gui_hide := 0, LLK_Overlay("show")
-	If IsObject(area := vars.snipping_tool.coords_area)
-	&& LLK_IsBetween(area.x, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y, coords.y, coords.y + coords.h)
-	&& LLK_IsBetween(area.x + area.w, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y + area.h, coords.y, coords.y + coords.h)
-		pClip := Gdip_CloneBitmapArea(pBitmap, area.x - coords.x, area.y - coords.y, area.w, area.h,, 1)
-	Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red", settings.general.fSize,,, 1)
-	Gdip_DisposeImage(pBitmap), DeleteObject(hBitmap), vars.snipping_tool.GUI := 0
+		Gui, LLK_snip: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_gui"
+		Gui, LLK_snip: Font, % "s" Round(settings.general.fSize * 1.5) " cAqua", % vars.system.font
+		Gui, LLK_snip: Margin, 0, 0
+		Loop 6
+			text .= (!text ? " " : "`n ") LangTrans("screen_snipinstructions", A_Index) " "
+		vars.hwnd.snipping_tool := {"main": hwnd_gui}, align := "left", LLK_PanelDimensions([text], settings.general.fSize * 2, wText, hText)
+		Gui, LLK_snip: Add, Text, % "x0 y" height//2 - hText//2 " w" width " h" hText " BackgroundTrans Left HWNDhwnd_text", % text
+		Gui, LLK_snip: Add, Pic, % "x0 y0 wp h" height " BackgroundTrans", img\GUI\square_black_trans.png
+		Gui, LLK_snip: Add, Pic, % "xp yp wp hp", HBitmap:*%hBitmap%*
+		Gui, LLK_snip: Show, NA x10000 y10000 w%width% h%height%
+		WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
+		Gui, LLK_snip: Show, % "x" vars.monitor.x + vars.monitor.w / 2 - width//2 " y" vars.monitor.y + vars.monitor.h / 2 - height//2
+		WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
+		vars.snipping_tool.coords := {"x": xPos, "y": yPos, "w": width, "h": height}, coords := vars.snipping_tool.coords
+
+		While vars.snipping_tool.GUI && WinActive("ahk_id " hwnd_gui)
+		{
+			If (align = "left") && (vars.general.xMouse <= coords.x + coords.w // 2)
+			{
+				GuiControl, +Right, % hwnd_text
+				GuiControl, movedraw, % hwnd_text
+				align := "right"
+			}
+			Else If (align = "right") && (vars.general.xMouse >= coords.x + coords.w // 2)
+			{
+				GuiControl, +Left, % hwnd_text
+				GuiControl, movedraw, % hwnd_text
+				align := "left"
+			}
+			Sleep 100
+		}
+
+		Gui, LLK_snip: Destroy
+		Gui, LLK_snip_area: Destroy
+		vars.general.gui_hide := 0, LLK_Overlay("show")
+		If IsObject(area := vars.snipping_tool.coords_area)
+		&& LLK_IsBetween(area.x, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y, coords.y, coords.y + coords.h)
+		&& LLK_IsBetween(area.x + area.w, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y + area.h, coords.y, coords.y + coords.h)
+			pClip := Gdip_CloneBitmapArea(pBitmap, area.x - coords.x, area.y - coords.y, area.w, area.h,, 1)
+		Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red", settings.general.fSize,,, 1)
+		Gdip_DisposeImage(pBitmap), DeleteObject(hBitmap), vars.snipping_tool.GUI := 0
+	}
 	Return pClip
 }
 
@@ -152,14 +164,12 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		If (val != name) && ((settings.features[val] = 0) || InStr(val, "necro_") && !settings.features.necropolis || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
-		If InStr(A_Gui, "settings_menu") && (val != "betrayal") ;when testing a screen-check via the settings, check the whole screenshot (unless it's betrayal)
+		If InStr(A_Gui, "settings_menu") ;when testing a screen-check via the settings, check the whole screenshot
 			x1 := 0, y1 := 0, x2 := 0, y2 := 0
-		Else If (val = "betrayal") ;scan a specific area for betrayal
-			x1 := settings.general.oGamescreen, y1 := 0, x2 := vars.client.w/2 + settings.general.oGamescreen, y2 := vars.client.h/8
-		Else If (val = "necro_lantern")
-			x1 := settings.general.oGamescreen + vars.client.w // 2 - Round(vars.client.h * 0.215), y1 := 0, x2 := settings.general.oGamescreen + vars.client.w//2 + Round(vars.client.h * 0.215), y2 := vars.client.h // 2
 		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
+		Else If (val = "necro_lantern")
+			x1 := settings.general.oGamescreen + vars.client.w // 2 - Round(vars.client.h * 0.215), y1 := 0, x2 := settings.general.oGamescreen + vars.client.w//2 + Round(vars.client.h * 0.215), y2 := vars.client.h // 2
 		Else x1 := vars.imagesearch[val].x1, y1 := vars.imagesearch[val].y1, x2 := vars.imagesearch[val].x2, y2 := vars.imagesearch[val].y2
 
 		pNeedle := Gdip_CreateBitmapFromFile("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;load the reference image
