@@ -1,5 +1,13 @@
 [
   [
+	["1.53.3", 15303],
+	"image-checks: most checks don't require screen-clipping anymore",
+	"map-info: added pinned map mods to settings for easier switching between builds",
+	"stash-ninja: streamlined setup and customization of individual tabs",
+	"stash-ninja: added support for fragment and breach tabs",
+	"stash-ninja: added optional auto-profiles setting to find worthwhile sales more easily"
+  ],
+  [
 	["1.53.2", 15302],
 	"hotfix 1: omni-key activated the stash-ninja feature when pressed on items with <scarab> in their names",
 	"stash-ninja: added optional price history/trend",

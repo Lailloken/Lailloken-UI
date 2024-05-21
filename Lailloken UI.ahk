@@ -470,9 +470,16 @@ Init_general()
 	}
 	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini", 0)
 	If !ini_version
-		IniWrite, 15000, ini\config.ini, versions, ini
+		IniWrite, 15303, ini\config.ini, versions, ini
 
-	settings.general.version := ini_version ? ini_version : 15000
+	If (ini_version < 15303)
+	{
+		IniWrite, % (ini_version := 15303), ini\config.ini, versions, ini
+		FileDelete, % "img\Recognition (" vars.client.h "p)\GUI\betrayal.bmp"
+		If LLK_IniRead("ini\config.ini", "features", "enable betrayal-info", 0)
+			MsgBox, % "The betrayal image-check was changed in v1.53.3 and needs to be recalibrated."
+	}
+	settings.general.version := ini_version ? ini_version : 15303
 	settings.general.trans := 230
 	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
 	settings.general.character := LLK_IniRead("ini\config.ini", "Settings", "active character")
@@ -584,6 +591,18 @@ Loop_main()
 		Init_cloneframes()
 	}
 
+	If vars.hwnd.settings && !vars.settings.wait
+		If (vars.settings.color != "Black") && WinActive("ahk_id " vars.hwnd.settings.main)
+		{
+			Gui, % vars.hwnd.settings.GUI_name ": Color", Black
+			vars.settings.color := "Black"
+		}
+		Else If (vars.settings.color != "202030") && !WinActive("ahk_id " vars.hwnd.settings.main)
+		{
+			Gui, % vars.hwnd.settings.GUI_name ": Color", 202030
+			vars.settings.color := "202030"
+		}
+
 	If vars.hwnd.mapinfo_modsearch.main && WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main) && !WinActive("ahk_id " vars.hwnd.mapinfo_modsearch.main)
 		LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy"), vars.hwnd.mapinfo_modsearch.main := ""
 
@@ -644,7 +663,8 @@ Loop_main()
 			{
 				If !IsObject(val)
 					Continue
-				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + vars.stash[tab].box, y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + vars.stash[tab].box
+				box := InStr(item, "tab_") ? vars.stash.buttons : vars.stash[tab].box
+				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + box * (InStr(item, "tab_") ? 4.5 : 1), y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + box
 				If LLK_IsBetween(vars.general.xMouse, x1, x2) && LLK_IsBetween(vars.general.yMouse, y1, y2)
 				{
 					stashhover := {"x1": x1, "x2": x2, "y1": y1, "y2": y2}
@@ -661,20 +681,6 @@ Loop_main()
 		stashhover := ""
 	Else If WinActive("ahk_group poe_ahk_window") && vars.stash.hover && !vars.stash.enter && !LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width)
 		vars.stash.hover := "", Stash_("refresh")
-
-	/*
-		If !vars.stash.wait && WinExist("ahk_id " vars.hwnd.stash.main)
-		{
-			If (vars.general.wMouse = vars.hwnd.stash.main) && (stashhoverHWND != vars.general.cMouse) && (check := LLK_HasVal(vars.hwnd.stash, vars.general.cMouse))
-			{
-				If (check != vars.stash.hover)
-					vars.stash.hover := check, Stash_("refresh")
-			}
-			Else If (vars.general.wMouse != vars.hwnd.stash.main) && vars.stash.hover
-				vars.stash.hover := "", Stash_("refresh")
-			stashhoverHWND := vars.general.cMouse
-		}
-	*/
 
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{

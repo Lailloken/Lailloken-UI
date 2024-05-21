@@ -179,7 +179,7 @@ GuiToolbarButtons(cHWND, hotkey)
 		}
 		Else If WinExist("ahk_id "vars.hwnd.settings.main)
 			Settings_menuClose()
-		Else Settings_menu("general")
+		Else Settings_menu("general",, 0)
 	}
 	Else If InStr(check, "restart")
 	{

@@ -1588,9 +1588,9 @@ Settings_leveltracker2(cHWND := "")
 Settings_mapinfo()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 
-	GUI := "settings_menu" vars.settings.GUI_toggle
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel">wiki page</a>
 
 	If (settings.general.lang_client = "unknown")
@@ -1613,13 +1613,6 @@ Settings_mapinfo()
 	ControlGetPos, x, y, w, h,, ahk_id %hwnd%
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked"settings.mapinfo.tabtoggle, % LangTrans("m_mapinfo_tab")
 	vars.hwnd.settings.tabtoggle := vars.hwnd.help_tooltips["settings_mapinfo tab"] := hwnd
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_mapinfo_modsearch")
-	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default HWNDhwnd1 gSettings_mapinfo2", OK
-	ControlGetPos, x1, y1, w1, h1,, ahk_id %hwnd%
-	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys cBlack HWNDhwnd2 gSettings_mapinfo2 w" w - w1 - settings.general.fWidth, % ""
-	vars.hwnd.settings.modsearch := vars.hwnd.help_tooltips["settings_mapinfo modsearch"] := hwnd2, vars.hwnd.settings.modsearch_ok := hwnd1
-	Gui, %GUI%: Font, % "s" settings.general.fSize
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_ui")
@@ -1631,13 +1624,14 @@ Settings_mapinfo()
 	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_mapinfo2 HWNDhwnd w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_textcolors")
+	Gui, %GUI%: Add, Text, % "ys", % LangTrans("m_mapinfo_textcolors")
 	handle := ""
 	Loop 4
 	{
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.color[A_Index], % " " A_Index " "
 		vars.hwnd.settings["color_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo colors"handle] := hwnd, handle .= "|"
 	}
+	ControlGetPos, xGui,, wGui,,, ahk_id %hwnd%
 
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_logbook")
 	Loop 4
@@ -1664,11 +1658,72 @@ Settings_mapinfo()
 		vars.hwnd.settings.rollcolor_2 := hwnd3, vars.hwnd.settings.rollcolor_21 := hwnd31, dimensions := [], handle := ""
 		Loop 6
 		{
-			Gui, %GUI%: Add, Text, % (InStr("14", A_Index) ? "xs Section x" xControl + settings.general.fWidth * 1.5 : "ys") " Center HWNDhwnd Border w" settings.general.fWidth * 3, % LangTrans("maps_stats", A_Index + 1)
+			Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Center HWNDhwnd Border w" settings.general.fWidth * 2, % LangTrans("maps_stats", A_Index + 1)
 			Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-			Gui, %GUI%: Add, Edit, % "ys x+-1 wp hp Right cBlack Number HWNDhwnd1 Limit3 gSettings_mapinfo2", % settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)]
+			Gui, %GUI%: Add, Edit, % "ys x+-1 hp Right cBlack Number HWNDhwnd1 Limit3 gSettings_mapinfo2 w" settings.general.fWidth * 3, % settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)]
 			Gui, %GUI%: Font, % "s" settings.general.fSize
 			vars.hwnd.help_tooltips["settings_mapinfo requirements" handle] := hwnd, vars.hwnd.help_tooltips["settings_mapinfo requirements|" handle] := vars.hwnd.settings["thresh_" LangTrans("maps_stats_full", A_Index + 1)] := hwnd1, handle .= "||"
+		}
+	}
+
+	pinned := []
+	Loop, Parse, % LLK_IniRead("ini\map info.ini", "pinned"), `n
+		If InStr(A_LoopField, "=1")
+			pinned.Push(SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1))
+	Gui, %GUI%: Font, % "bold underline"
+	Gui, %GUI%: Add, Text, % "xs Section x" x_anchor " y+" vars.settings.spacing, % LangTrans("m_mapinfo_modsettings")
+	Gui, %GUI%: Font, % "norm"
+	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+	vars.hwnd.help_tooltips["settings_mapinfo mod settings"] := hwnd
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_pinned")
+	For index, ID in pinned
+	{
+		If !(check := LLK_HasVal(db.mapinfo.mods, ID,,,, 1))
+			Continue
+		text := db.mapinfo.mods[check].text, text := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text, color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", ID, "rank", 1)]
+		style := (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys"
+		If !LLK_IniRead("ini\map info.ini", ID, "show", 1)
+			Gui, %GUI%: Font, strike
+		Gui, %GUI%: Add, Text, % style " Border Center HWNDhwnd c" color, % " " text " "
+		Gui, %GUI%: Font, norm
+		ControlGetPos, xLast,, wLast,,, ahk_id %hwnd%
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border Center HWNDhwnd1 gSettings_mapinfo2 cRed w" settings.general.fWidth * 2, % "–"
+		vars.hwnd.settings["mapmod_" ID] := hwnd, vars.hwnd.settings["unpin_" ID] := hwnd1
+	}
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_mapinfo_modsearch")
+	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default HWNDhwnd1 gSettings_mapinfo2", OK
+	ControlGetPos, x1, y1, w1, h1,, ahk_id %hwnd%
+	Gui, %GUI%: Font, % "norm s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys cBlack HWNDhwnd2 gSettings_mapinfo2 w" w - w1 - settings.general.fWidth, % vars.settings.mapinfo_search
+	vars.hwnd.settings.modsearch := vars.hwnd.help_tooltips["settings_mapinfo modsearch"] := hwnd2, vars.hwnd.settings.modsearch_ok := hwnd1
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+
+	If (search := vars.settings.mapinfo_search)
+	{
+		For outer in ["", ""]
+		{
+			If (outer = 2) && (added.Count() > 10)
+			{
+				Gui, %GUI%: Add, Text, % "xs Section cRed", % LangTrans("global_match", 2)
+				Return
+			}
+			added := {}
+			For mod, object in db.mapinfo.mods
+			{
+				If !InStr(mod, search) || added[object.ID] || LLK_IniRead("ini\map info.ini", "pinned", object.ID, 0)
+					Continue
+				style := !added.Count() || (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys", added[object.ID] := 1
+				If (outer = 1)
+					Continue
+				color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", object.ID, "rank", 1)], text := InStr(object.text, ":") ? SubStr(object.text, 1, InStr(object.text, ":") - 1) : object.text
+				If !LLK_IniRead("ini\map info.ini", object.ID, "show", 1)
+					Gui, %GUI%: Font, strike
+				Gui, %GUI%: Add, Text, % style " Border Center HWNDhwnd c" color, % " " text " "
+				Gui, %GUI%: Font, norm
+				ControlGetPos, xLast,, wLast,,, ahk_id %hwnd%
+				Gui, %GUI%: Add, Text, % "ys x+-1 Border Center HWNDhwnd1 gSettings_mapinfo2 cLime w" settings.general.fWidth * 2, % "+"
+				vars.hwnd.settings["mapmod_" object.ID] := hwnd, vars.hwnd.settings["pin_" object.ID] := hwnd1
+			}
 		}
 	}
 }
@@ -1695,13 +1750,8 @@ Settings_mapinfo2(cHWND)
 		Case "modsearch":
 			GuiControl, +cBlack, % cHWND
 		Case "modsearch_ok":
-			input := LLK_ControlGet(cHWND := vars.hwnd.settings.modsearch)
-			If (StrLen(input) < 3)
-			{
-				GuiControl, +cRed, % cHWND
-				Return
-			}
-			MapinfoModsearch(input, cHWND)
+			vars.settings.mapinfo_search := LLK_ControlGet(cHWND := vars.hwnd.settings.modsearch), Settings_menu("map-info",, 0)
+			Return
 		Case "roll_highlight":
 			IniWrite, % (settings.mapinfo.roll_highlight := LLK_ControlGet(cHWND)), ini\map info.ini, settings, highlight map rolls
 			Settings_menu("map-info")
@@ -1748,6 +1798,13 @@ Settings_mapinfo2(cHWND)
 				IniWrite, % settings.mapinfo[key][control], ini\map info.ini, UI, % InStr(check, "color_") ? (control = 5 ? "header" : "difficulty " control) " color" : "logbook " control " color"
 				GuiControl, % "+c" settings.mapinfo[key][control], % cHWND
 				GuiControl, movedraw, % cHWND
+			}
+			Else If InStr(check, "pin_")
+			{
+				KeyWait, LButton
+				IniWrite, % InStr(check, "unpin_") ? 0 : 1, ini\map info.ini, pinned, % control
+				Settings_menu("map-info",, 0)
+				Return
 			}
 			Else LLK_ToolTip("no action")
 			If WinExist("ahk_id "vars.hwnd.mapinfo.main)
@@ -1991,7 +2048,7 @@ Settings_maptracker2(cHWND)
 	}
 }
 
-Settings_menu(section, mode := 0) ;mode parameter is used when manually calling this function to refresh the window
+Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually calling this function to refresh the window
 {
 	local
 	global vars, settings
@@ -2008,7 +2065,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		section := LLK_HasVal(vars.hwnd.settings, section) ? LLK_HasVal(vars.hwnd.settings, section) : section
 
 	vars.settings.xMargin := settings.general.fWidth*0.75, vars.settings.yMargin := settings.general.fHeight*0.15, vars.settings.line1 := settings.general.fHeight/4
-	vars.settings.spacing := settings.general.fHeight*0.8
+	vars.settings.spacing := settings.general.fHeight*0.8, vars.settings.wait := 1
 
 	If !IsNumber(mode)
 		mode := 0
@@ -2020,13 +2077,13 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		vars.settings.x := xPos, vars.settings.y := yPos
 	}
 
-	vars.settings.GUI_toggle := toggle := !toggle, GUI_name := "settings_menu" toggle
+	vars.settings.GUI_toggle := toggle := !toggle, GUI_name := "settings_menu" toggle, vars.settings.color := !vars.settings.color ? "Black" : vars.settings.color
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsettings_menu"
-	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Color, % vars.settings.color
 	Gui, %GUI_name%: Margin, % vars.settings.xMargin, % vars.settings.line1
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.settings.main ;backup of the old GUI's HWND with which to destroy it after drawing the new one
-	vars.hwnd.settings := {"main": settings_menu} ;settings-menu HWNDs are stored here
+	vars.hwnd.settings := {"main": settings_menu, "GUI_name": GUI_name} ;settings-menu HWNDs are stored here
 
 	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Border Center BackgroundTrans gSettings_general2 HWNDhwnd", % "lailloken ui: " LangTrans("global_window")
 	vars.hwnd.settings.winbar := hwnd
@@ -2118,7 +2175,7 @@ Settings_menu(section, mode := 0) ;mode parameter is used when manually calling 
 		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
 		vars.settings.x := vars.client.x
 	}
-	LLK_Overlay(vars.hwnd.settings.main, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h, vars.settings.restart := ""
+	LLK_Overlay(vars.hwnd.settings.main, "show", NA, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h, vars.settings.restart := vars.settings.wait := vars.settings.color := ""
 }
 
 Settings_menu2(section, mode := 0) ;mode parameter used when manually calling this function to refresh the window
@@ -2173,7 +2230,7 @@ Settings_menuClose()
 
 	KeyWait, LButton
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
-	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings")
+	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings"), vars.settings.mapinfo_search := ""
 	WinActivate, ahk_group poe_window
 }
 
@@ -2811,7 +2868,7 @@ Settings_screenchecks2(cHWND := "")
 						}
 						Else LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
 					Case "c":
-						pClipboard := Screenchecks_ImageRecalibrate()
+						pClipboard := Screenchecks_ImageRecalibrate("", control)
 						If (pClipboard <= 0)
 							Return
 						Else
@@ -3016,18 +3073,19 @@ Settings_stash()
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd4 gSettings_stash2 Checked" settings.stash.bulk_trade, % LangTrans("m_stash_bulk")
 	If settings.stash.bulk_trade
 	{
-		Gui, %GUI%: Add, Text, % "xs+" settings.stash.fWidth * 1.5 " Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
-		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit Right w" settings.general.fWidth * 3, % settings.stash.min_trade
-		Gui, %GUI%: Font, % "s" settings.general.fSize
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd_", % LangTrans("m_stash_margins")
+		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 1.5 " Section HWNDhwnd_", % LangTrans("m_stash_margins")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys cBlack Hidden Disabled r1", % settings.stash.margins "    "
 		Gui, %GUI%: Add, Edit, % "xp yp wp hp cBlack HWNDhwnd5 gSettings_stash2 r1 Right", % settings.stash.margins
 		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit Right w" settings.general.fWidth * 3, % settings.stash.min_trade
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd00 gSettings_stash2 Checked" settings.stash.autoprofiles, % LangTrans("m_stash_profiles")
 		vars.hwnd.settings.min_trade := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade"] := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade|"] := hwnd3
 		vars.hwnd.settings.margins := vars.hwnd.help_tooltips["settings_stash margins"] := hwnd5, vars.hwnd.settings.margin_max := hwnd6, vars.hwnd.settings.margin_step := hwnd7
-		vars.hwnd.help_tooltips["settings_stash margins|"] := hwnd_
+		vars.hwnd.help_tooltips["settings_stash margins|"] := hwnd_, vars.hwnd.settings.autoprofiles := vars.hwnd.help_tooltips["settings_stash autoprofiles"] := hwnd00
 	}
 	vars.hwnd.settings.history := vars.hwnd.help_tooltips["settings_stash history"] := hwnd, vars.hwnd.settings.exalt := vars.hwnd.help_tooltips["settings_stash exalt"] := hwnd1
 	vars.hwnd.settings.bulk_trade := vars.hwnd.help_tooltips["settings_stash bulk"] := hwnd4
@@ -3060,74 +3118,69 @@ Settings_stash()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("m_stash_tabs")
 	Gui, %GUI%: Font, norm
+	Gui, %GUI%: Add, Pic, % "ys BackgroundTrans HWNDhwnd hp w-1", img\GUI\help.png
 
-	For tab in vars.stash.checks
-		dimensions.Push(LangTrans("m_stash_" tab))
+	vars.hwnd.help_tooltips["settings_stash config"] := hwnd
+	If WinExist("ahk_id " vars.hwnd.stash.main) && vars.stash.active
+		vars.settings.selected_tab := vars.stash.active
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd2", % LangTrans("m_stash_active")
+	Gui, %GUI%: Add, Text, % "ys Center Left c" (vars.settings.selected_tab ? "Lime" : "Red"), % (vars.settings.selected_tab ? LangTrans("m_stash_" vars.settings.selected_tab) : LangTrans("global_none"))
+	If !vars.settings.selected_tab
+		Return
 
-	LLK_PanelDimensions(dimensions, settings.general.fSize, width, height)
-	For tab in vars.stash.checks
-	{
-		If !vars.settings.selected_stash && (tab = "scarabs")
-			vars.settings.selected_stash := tab
-		style := (vars.settings.selected_stash = tab) ? " cLime gSettings_stash2" : " cGray"
-		Gui, %GUI%: Add, Text, % style . (InStr("14", A_Index) ? " xs Section" (A_Index = 4 ? " y+-1" : "") : " ys x+-1") " Border Center HWNDhwnd w" width, % " " LangTrans("m_stash_" tab) " "
-		If (tab != "scarabs")
-			vars.hwnd.help_tooltips["settings_stash placeholder" handle] := hwnd, handle .= "|"
-		Else vars.hwnd.settings["select_" tab] := hwnd
-	/*
-		Gui, %GUI%: Add, Checkbox, % (A_Index != 1 && settings.stash[prev].enable ? "y+" vars.settings.spacing : "") " xs Section HWNDhwnd gSettings_stash2 x" x_anchor " Checked" settings.stash.scarabs.enable, % LangTrans("m_stash_" tab) . (settings.stash[tab].enable ? ":" : "")
-		vars.hwnd.settings["enable_" tab] := hwnd, prev := tab
-		If !settings.stash[tab].enable
-			Continue
-		color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed"
-		Gui, %GUI%: Add, Text, % "ys x+0 Border HWNDhwnd gStash_calibrate" color, % " " LangTrans("global_calibrate", 2) " "
-		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd1 gSettings_stash2 x+" settings.general.fWidth//2, % " " LangTrans("global_test") " "
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % LangTrans("global_gap") ":"
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd3 gSettings_stash2 Center Border w" settings.general.fWidth * 2, % "–"
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd4 gSettings_stash2 Center Border wp x+" settings.general.fWidth//2, % "+"
-		vars.hwnd.settings["cal_" tab] := vars.hwnd.help_tooltips["settings_stash calibrate" handle] := hwnd
-		vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test" handle] := hwnd1
-		vars.hwnd.settings["gap-_" tab] := hwnd3, vars.hwnd.settings["gap+_" tab] vars.hwnd.help_tooltips["settings_stash gap" handle] := hwnd2
-		vars.hwnd.settings["gap+_" tab] := hwnd4, handle .= "|"
-	*/
-	}
-
-	tab := vars.settings.selected_stash, color := FileExist("img\Recognition (" vars.client.h "p)\Stash-Ninja\" tab ".bmp") ? "" : " cRed", currencies := ["c", "e", "d", "%"]
-	;Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_setup") ":"
-	;Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gStash_calibrate" color, % " " LangTrans("global_calibrate", 2) " "
-	Gui, %GUI%: Add, Text, % "xs Section Border HWNDhwnd1 gSettings_stash2", % " " LangTrans("global_preview") " "
-	Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % LangTrans("global_gap") ":"
+	Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % "    " LangTrans("global_gap") ":"
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd3 gSettings_stash2 Center Border w" settings.general.fWidth * 2, % "–"
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd4 gSettings_stash2 Center Border wp x+" settings.general.fWidth//2, % "+"
 	;vars.hwnd.settings["cal_" tab] := vars.hwnd.help_tooltips["settings_stash calibrate"] := hwnd
-	vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test"] := hwnd1
+	vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test"] := hwnd1, tab := vars.settings.selected_tab
 	vars.hwnd.settings["gap-_" tab] := hwnd3, vars.hwnd.settings["gap+_" tab] vars.hwnd.help_tooltips["settings_stash gap"] := hwnd2
 	vars.hwnd.settings["gap+_" tab] := hwnd4
 
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_limits")
 	Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", img\GUI\help.png
-	vars.hwnd.help_tooltips["settings_stash limits"] := hwnd
-
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4 " cBlack"
+	vars.hwnd.help_tooltips["settings_stash limits"] := hwnd, currencies := ["c", "e", "d", "%"]
 	Loop 5
 	{
-		Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Border Center 0x200 h" settings.general.fHeight * 2 - 1 " w" settings.general.fWidth * 1.5, % A_Index
+		style := (A_Index != 5) && settings.stash.bulk_trade && settings.stash.min_trade && settings.stash.autoprofiles ? " Disabled" : ""
+		If style
+			Gui, %GUI%: Add, Edit, % (A_Index = 1 ? "xs" : "ys x+" settings.general.fWidth/2) " Section Border Center w" settings.stash.fWidth * 2 " h" settings.stash.fHeight . style, % A_Index
+		Else
+		{
+			Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs" : "ys x+" settings.general.fWidth/2) " Section cWhite 0x200 Border Center w" settings.stash.fWidth * 2 " h" settings.stash.fHeight, % A_Index
+			;Gui, %GUI%: Add, Progress, % "Disabled xp yp wp hp BackgroundWhite", 0
+		}
+		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd2 gSettings_stash2 Limit1 wp hp" style, % currencies[settings.stash[tab].limits[A_Index].3]
+		Gui, %GUI%: Add, Edit, % "ys Section x+-1 Center HWNDhwnd gSettings_stash2 Limit w" settings.general.fWidth * 4 " hp" style, % settings.stash[tab].limits[A_Index].2
+		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd1 Limit gSettings_stash2 wp hp" style, % settings.stash[tab].limits[A_Index].1
+		
+		vars.hwnd.settings["limits" A_Index "top_" tab] := hwnd, vars.hwnd.settings["limits" A_Index "bot_" tab] := hwnd1, vars.hwnd.settings["limits" A_Index "cur_" tab] := hwnd2
+	}
+	/*
+	Loop 5
+	{
+		style := (A_Index != 5) && settings.stash.bulk_trade && settings.stash.min_trade && settings.stash.autoprofiles ? "Disabled " : ""
+		Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Border Center 0x200 h" settings.general.fHeight * 2 - 1 " w" settings.general.fWidth * 2, % A_Index
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 " cBlack"
-		Gui, %GUI%: Add, Edit, % "ys x+-1 Section Center HWNDhwnd gSettings_stash2 r1 w" settings.general.fWidth * 3, % settings.stash[tab].limits[A_Index].2
+		Gui, %GUI%: Add, Edit, % style "ys x+-1 Section Center HWNDhwnd gSettings_stash2 Limit w" settings.general.fWidth * 3 " h" settings.general.fHeight, % settings.stash[tab].limits[A_Index].2
 		ControlGetPos, x, y,,,, ahk_id %hwnd%
-		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd1 gSettings_stash2 r1 wp", % settings.stash[tab].limits[A_Index].1
-		Gui, %GUI%: Add, Edit, % "ys Center x+0 HWNDhwnd2 gSettings_stash2 Limit1 r1 y" y + settings.general.fHeight/2 - 1 " w" settings.general.fWidth * 2, % currencies[settings.stash[tab].limits[A_Index].3]
+		Gui, %GUI%: Add, Edit, % style "xs y+-1 Center HWNDhwnd1 Limit gSettings_stash2 wp h" settings.general.fHeight, % settings.stash[tab].limits[A_Index].1
+		Gui, %GUI%: Add, Edit, % style "ys Center x+0 HWNDhwnd2 gSettings_stash2 Limit1 y" y + settings.general.fHeight/2 - 1 " w" settings.general.fWidth * 2, % currencies[settings.stash[tab].limits[A_Index].3]
 		Gui, %GUI%: Font, % "s" settings.general.fSize " cWhite"
 		vars.hwnd.settings["limits" A_Index "top_" tab] := hwnd, vars.hwnd.settings["limits" A_Index "bot_" tab] := hwnd1, vars.hwnd.settings["limits" A_Index "cur_" tab] := hwnd2
 	}
-	
+	*/
 }
 
 Settings_stash2(cHWND)
 {
 	local
 	global vars, settings
+	static in_progress
 
-	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	If in_progress
+		Return
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), in_progress := 1
 	If !InStr(check, "test") && !InStr(check, "font_")
 		KeyWait, LButton
 
@@ -3142,11 +3195,24 @@ Settings_stash2(cHWND)
 	{
 		ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
 		ControlGet, hwnd, HWND,, % hwnd
-		If (hwnd != vars.hwnd.settings.margins)
+		If !InStr(vars.hwnd.settings.margins "," vars.hwnd.settings.min_trade, hwnd)
+		{
+			in_progress := 0
 			Return
+		}
+		If (hwnd = vars.hwnd.settings.min_trade)
+		{
+			input := LLK_ControlGet(vars.hwnd.settings.min_trade)
+			IniWrite, % (settings.stash.min_trade := !input ? "" : input), ini\stash-ninja.ini, settings, minimum trade value
+			Init_stash("bulk_trade"), Settings_menu("stash-ninja"), in_progress := 0
+			Return
+		}
 		valid := 1, input := LLK_ControlGet(vars.hwnd.settings.margins), valid := Blank(input) || InStr(input, ".") ? 0 : 1, margins0 := {}
 		If (input = settings.stash.margins)
+		{
+			in_progress := 0
 			Return
+		}
 		If valid
 		{
 			Loop, Parse, input, `,, % A_Space
@@ -3165,7 +3231,10 @@ Settings_stash2(cHWND)
 				settings.stash.margins := StrReplace(margins, ",", ", ")
 		}
 		If !valid ;separate valid-check after the one above (since that may change the content of valid)
+		{
+			in_progress := 0
 			Return
+		}
 
 		IniWrite, % """" settings.stash.margins """", ini\stash-ninja.ini, settings, margins
 		Settings_menu("stash-ninja")
@@ -3194,12 +3263,14 @@ Settings_stash2(cHWND)
 		IniWrite, % (settings.stash.bulk_trade := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, show bulk-sale suggestions
 		If !settings.stash.bulk_trade && WinExist("ahk_id " vars.hwnd.stash_picker.main)
 			LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
-		Settings_menu("stash-ninja")
+		Init_stash("bulk_trade"), Settings_menu("stash-ninja")
 	}
 	Else If (check = "min_trade")
+		GuiControl, +cRed, % cHWND
+	Else If (check = "autoprofiles")
 	{
-		input := LLK_ControlGet(cHWND), settings.stash.min_trade := !input ? "" : input, settings.stash[vars.stash.active].price_index := ""
-		IniWrite, % input, ini\stash-ninja.ini, settings, minimum trade value
+		IniWrite, % (settings.stash.autoprofiles := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, enable trade-value profiles
+		Init_stash("bulk_trade"), Settings_menu("stash-ninja")
 	}
 	Else If (check = "margins")
 	{
@@ -3210,7 +3281,10 @@ Settings_stash2(cHWND)
 	Else If InStr(check, "font_")
 	{
 		If (control = "minus") && (settings.stash.fSize <= 6)
+		{
+			in_progress := 0
 			Return
+		}
 		While GetKeyState("LButton", "P") ;&& !InStr(check, "reset")
 		{
 			If (control = "reset")
@@ -3220,13 +3294,16 @@ Settings_stash2(cHWND)
 			Sleep 150
 		}
 		IniWrite, % settings.stash.fSize, ini\stash-ninja.ini, settings, font-size
-		Init_stash(1)
+		Init_stash("font")
 	}
 	Else If InStr(check, "color_")
 	{
 		color := (vars.system.click = 1) ? RGB_Picker(settings.stash.colors[control]) : (control = 1 ? "000000" : "00FF00")
 		If Blank(color)
+		{
+			in_progress := 0
 			Return
+		}
 		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_panel"]
 		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_text"]
 		GuiControl, % "movedraw", % vars.hwnd.settings["color_" control "_text"]
@@ -3240,10 +3317,13 @@ Settings_stash2(cHWND)
 	Else If InStr(check, "gap")
 	{
 		If InStr(check, "-") && (settings.stash[control].gap = 0)
+		{
+			in_progress := 0
 			Return
+		}
 		settings.stash[control].gap += InStr(check, "-") ? -1 : 1
 		IniWrite, % settings.stash[control].gap, ini\stash-ninja.ini, % control, gap
-		Init_stash(1)
+		Init_stash("gap")
 	}
 	Else If InStr(check, "limits")
 	{
@@ -3263,7 +3343,10 @@ Settings_stash2(cHWND)
 			GuiControl, % "+c" (!valid ? "Red" : "Black"), % cHWND
 			GuiControl, movedraw, % cHWND
 			If !valid
+			{
+				in_progress := 0
 				Return
+			}
 			If (lType = 3)
 				input := InStr("ced%", input)
 			settings.stash[tab].limits[lIndex][lType] := input
@@ -3273,16 +3356,13 @@ Settings_stash2(cHWND)
 		IniWrite, % input, ini\stash-ninja.ini, % tab, % "limit " lIndex " " SubStr(check, 8, 3)
 	}
 	Else If InStr(check, "test")
-	{
 		Stash_(vars.settings.selected_stash, 1)
-		KeyWait, LButton
-		Stash_Close()
-	}
 	Else LLK_ToolTip("no action")
 
 	For index, val in ["limits", "gap", "color_", "font_", "league_", "history"]
 		If InStr(check, val) && WinExist("ahk_id " vars.hwnd.stash.main)
-			Stash_("refresh")
+			Stash_("refresh", (val = "gap") ? 1 : 0)
+	in_progress := 0
 }
 
 Settings_unsupported()
