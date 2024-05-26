@@ -40,8 +40,8 @@ Init_general()
 Init_betrayal()
 Init_cheatsheets()
 Init_cloneframes()
-If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
-	Init_geforce()
+;If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
+;	Init_geforce()
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
@@ -295,6 +295,29 @@ HelpToolTip(HWND_key)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
+IniBatchRead(file, section)
+{
+	local
+
+	ini := {}
+	IniRead, read, % file, % section,, % A_Space
+	If (read = " " || read = "") 
+		Return ini
+	
+	Loop, Parse, read, `n, `r
+	{
+		If Blank(A_LoopField)
+			Continue
+		If InStr(A_LoopField, "=")
+			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		Else key := A_LoopField, val := ""
+
+		val := (SubStr(val, 1, 1) = """" && SubStr(val, 0, 1) = """") ? SubStr(val, 2, -1) : val
+		ini[key] := val
+	}
+	Return ini
+}
+
 Init_client()
 {
 	local
@@ -462,7 +485,7 @@ Init_general()
 	local
 	global vars, settings
 
-	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version")
+	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version"), new_version := 15304
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
@@ -470,16 +493,20 @@ Init_general()
 	}
 	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini", 0)
 	If !ini_version
-		IniWrite, 15303, ini\config.ini, versions, ini
+		IniWrite, % new_version, ini\config.ini, versions, ini
 
 	If (ini_version < 15303)
 	{
-		IniWrite, % (ini_version := 15303), ini\config.ini, versions, ini
 		FileDelete, % "img\Recognition (" vars.client.h "p)\GUI\betrayal.bmp"
 		If LLK_IniRead("ini\config.ini", "features", "enable betrayal-info", 0)
 			MsgBox, % "The betrayal image-check was changed in v1.53.3 and needs to be recalibrated."
 	}
-	settings.general.version := ini_version ? ini_version : 15303
+	If (ini_version < 15304)
+	{
+		FileDelete, data\global\[stash-ninja] prices.ini
+		IniWrite, % new_version, ini\config.ini, versions, ini
+	}
+	settings.general.version := new_version
 	settings.general.trans := 230
 	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
 	settings.general.character := LLK_IniRead("ini\config.ini", "Settings", "active character")
@@ -652,7 +679,7 @@ Loop_main()
 	MouseHover()
 	IteminfoOverlays()
 
-	If WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
+	If !vars.settings.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
 	{
 		tab := vars.stash.active
 		If !stashhover.exact || (vars.general.xMouse "," vars.general.yMouse != stashhover.exact)
@@ -664,7 +691,9 @@ Loop_main()
 				If !IsObject(val)
 					Continue
 				box := InStr(item, "tab_") ? vars.stash.buttons : vars.stash[tab].box
-				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + box * (InStr(item, "tab_") ? 4.5 : 1), y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + box
+				exception1 := LLK_PatternMatch(item, "", ["potent", "powerful", "prime"]) ? 1 : 0, exception2 := LLK_PatternMatch(item, "", ["powerful", "prime"]) ? 1 : 0
+				x1 := vars.client.x + val.coords.1, x2 := vars.client.x + val.coords.1 + (exception2 ? vars.client.h * (1/12) : box * (InStr(item, "tab_") ? 4.5 : 1))
+				y1 := vars.client.y + val.coords.2, y2 := vars.client.y + val.coords.2 + (exception1 ? vars.client.h * (1/12) : box)
 				If LLK_IsBetween(vars.general.xMouse, x1, x2) && LLK_IsBetween(vars.general.yMouse, y1, y2)
 				{
 					stashhover := {"x1": x1, "x2": x2, "y1": y1, "y2": y2}
@@ -996,12 +1025,8 @@ Startup()
 	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
 	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, snipping_tools, ahk_exe SnippingTool.exe
-	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
-	GroupAdd, poe_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
-	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
-	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
 	If settings.general.dev
 		GroupAdd, poe_ahk_window, ahk_exe code.exe ;treat VS Code's window as a client

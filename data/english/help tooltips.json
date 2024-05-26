@@ -583,7 +583,7 @@
     "stash enable": [
       "stash feature that highlights items in specific stash tabs according to rough market prices",
       "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
-      "- there needs to be at least one tab-folder in your stash in general\n- tabs supported by this feature cannot be inside a folder"
+      "there needs to be at least one tab-folder somewhere in your stash (the overlay will be slightly offset otherwise)"
     ],
     "stash calibrate": [
       "move the settings window to the right side of the screen",
@@ -608,6 +608,7 @@
       "type in a number and press <enter>"
     ],
     "stash autoprofiles": [
+      "this setting is meant to help you find (stacks of) items that are worth trading",
       "profiles 1-4 will be set up automatically according to your preferred trade value",
       ">> rule of thumb <<\nhighlighted items are worth trading if:\nstack-size >= profile-number",
       "profile 5 will be left untouched in order to allow creating a trash/vendor tier"
@@ -624,10 +625,14 @@
       "refers to the horizontal gap between item boxes/slots in the stash tab",
       "fine-tune this value to make the overlay scale correctly on your screen"
     ],
+    "stash in folder": [
+      "the overlay's position has to be offset if this specific tab is in a stash folder",
+      "check this box if this tab is in a folder"
+    ],
     "stash limits": [
-      "you can configure up to 5 price-range profiles",
-      "input-box structure:\nprofile # | max value\nunit: c, e, d, % | min value",
-      "leaving min/max price blank will treat them as unlimited, leaving the measuring unit blank will disable the profile entirely",
+      "you can configure up to 5 price-range profiles for each individual tab",
+      "input-box structure:\nprofile # | max value\nunit: c, e, d, % | min value        ",
+      "leaving min/max price blank will treat them as unlimited, leaving the unit blank will disable the profile entirely",
       "while the overlay is on screen, press number-keys 1 to 5 to switch between profiles"
     ],
     "update check": [

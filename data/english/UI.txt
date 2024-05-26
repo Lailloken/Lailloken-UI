@@ -467,7 +467,7 @@
 		stash_updateerror		=	"update failed, and there is no fallback data from previous successful attempts.;this might be a connection issue that fixes itself, so try again later."
 		stash_updateerror		=	"update failed"
 		stash_value			=	"value"
-		stash_margin			=	"target margin"
+		stash_margin			=	"target margin (%)"
 		stash_reminder			=	"reminder: switch to <note> first"
 
 
@@ -769,12 +769,16 @@
 
 ;## these strings are displayed/required in the "stash-ninja" section of the settings menu
 		m_stash_enable			=	"enable the stash-ninja feature"
+		m_stash_blight			=	"blight"
 		m_stash_breach			=	"breach"
 		m_stash_currency1		=	"currency"
 		m_stash_currency2		=	"currency ii"
+		m_stash_delirium		=	"delirium"
 		m_stash_delve			=	"delve"
+		m_stash_essences		=	"essence"
 		m_stash_fragments		=	"fragment"
 		m_stash_scarabs			=	"scarab"
+		m_stash_ultimatum		=	"ultimatum"
 		m_stash_leagues			=	"league:"
 		m_stash_tabs			=	"stash tab configuration:"
 		m_stash_limits			=	"price-range profiles:"
@@ -782,8 +786,9 @@
 		m_stash_history			=	"show price history"
 		m_stash_exalt			=	"show exalt rates"
 		m_stash_mintrade		=	"minimum trade value (chaos):"
+		m_stash_folder			=	"this tab is in a stash folder"
 		m_stash_bulk			=	"show bulk-sale suggestions"
-		m_stash_margins			=	"margins:"
+		m_stash_margins			=	"margins (%):"
 		m_stash_active			=	"active tab:"
 
 
