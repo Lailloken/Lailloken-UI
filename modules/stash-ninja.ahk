@@ -403,18 +403,19 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 		LLK_PanelDimensions(dimensions, settings.stash.fSize, wMarket, hMarket)
 		Gui, %GUI_name%: Add, Text, % "x0 y+-1 Section Border Center HWNDhwnd BackgroundTrans w" wMarket + hMarket - 1, % LangTrans("stash_value")
 		Gui, %GUI_name%: Add, Progress, % "ys x+-1 Disabled Background606060 w" settings.stash.fWidth//2 " hp", 0
+		available0 := (available / vars.stash.max_stack > 60) ? vars.stash.max_stack * 60 : available
 
-		Loop, % stack ? 5 : available
+		Loop, % stack ? 5 : available0
 		{
-			amount := stack ? 6 - A_Index : Round(available // A_Index)
+			amount := stack ? 6 - A_Index : Round(available0 // A_Index)
 			If (bulk_sizes.Count() = 5)
 				Break
-			If LLK_HasVal(bulk_sizes, amount) || (amount / vars.stash.max_stack > 60) || bulk_sizes.Count() && (Round(amount * val.prices.1 * (1 + margin)) < settings.stash.min_trade)
+			If LLK_HasVal(bulk_sizes, amount) || bulk_sizes.Count() && (Round(amount * val.prices.1 * (1 + margin)) < settings.stash.min_trade)
 				Continue
 			bulk_sizes.Push(amount)
 			If vars.stash.note
 				color := (InStr(vars.stash.note, "/" amount " ") || !InStr(vars.stash.note, "/") && (amount = 1) ? " cLime" : "")
-			Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount (!stack && (check := Mod(available, amount)) ? " (+" check ")" : "")
+			Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount (!stack && (check := Mod(available0, amount)) ? " (+" check ")" : "")
 			If stack
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack c603030", 100
 		}
@@ -425,11 +426,11 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 
 	For index, cType in ["chaos", "exalt", "divine"]
 	{
-		If (cType = "exalt") && !exalt || !trend && (available * val.prices[index] * (1 + margin) < 0.5) || price11 && (price11 < settings.stash.min_trade) || (item = cType " orb" || item = cType "ed orb")
+		If (cType = "exalt") && !exalt || !trend && (available * val.prices[index] * (1 + margin) < 0.5) || price11 && (price11 < settings.stash.min_trade) || !trend && (item = cType " orb" || item = cType "ed orb")
 			Continue
 		hLine := hMarket, style := " Section HWNDhwnd BackgroundTrans h" hLine - (!trend ? 2 : 0) " w-1" (!trend ? " Border" : ""), lines += 1, price := ""
 		Gui, %GUI_name%: Add, Pic, % (index != 1 || !trend ? "xs " (!trend ? "y+-1" : "") : "x+" settings.stash.fWidth " yp+" settings.stash.fWidth + (!trend ? settings.stash.fHeight : 0)) . style, % "img\GUI\" cType ".png"
-		If (index = 1)
+		If (lines = 1)
 			ControlGetPos, xAnchor2, yAnchor2,,,, ahk_id %hwnd%
 		Gui, %GUI_name%: Add, Text, % (!trend ? "Border x+-1 Center " : "") "ys hp BackgroundTrans HWNDhwnd w" wMarket . (!trend && available > 1 ? "" : " 0x200"), % (!trend && available > 1 ? Round(available * val.prices[index], 2) "`n@" : "") . Round(val.prices[index], 2)
 		ControlGetPos, xLast, yLast, wLast, hLast,, ahk_id %hwnd%
