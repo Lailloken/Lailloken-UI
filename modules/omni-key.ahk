@@ -227,7 +227,7 @@ OmniContext(mode := 0)
 	Loop, Parse, % "*~!+#^"
 		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
-	While GetKeyState("ALT", "P") && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1)
+	While (!settings.features.stash || GetKeyState("ALT", "P")) && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1)
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
 	If WinExist("ahk_id "vars.hwnd.legion.main) && (item.itembase = "Timeless Jewel")
