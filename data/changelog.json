@@ -1,5 +1,10 @@
 [
   [
+	["1.53.4", 15304],
+	"stash-ninja: bulk-sale improvements, added support for tabs within folders",
+	"stash-ninja: now supports every type of stash tab"
+  ],
+  [
 	["1.53.3", 15303],
 	"image-checks: most checks don't require screen-clipping anymore",
 	"map-info: added pinned map mods to settings for easier switching between builds",
