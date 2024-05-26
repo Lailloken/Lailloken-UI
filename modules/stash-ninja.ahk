@@ -2,76 +2,101 @@
 {
 	local
 	global vars, settings, db, Json
-	static exceptions := {"fragments2": ["reality fragment", "devouring fragment", "decaying fragment", "blazing fragment", "synthesising fragment", "cosmic fragment", "awakening fragment"
-	, "blessing of chayula", "blessing of xoph", "blessing of uul-netol", "blessing of tul", "blessing of esh", "ritual vessel"]}
+	static json_data, exceptions := {"currency": ["reality fragment", "devouring fragment", "decaying fragment", "blazing fragment", "synthesising fragment", "cosmic fragment", "awakening fragment"
+	, "blessing of chayula", "blessing of xoph", "blessing of uul-netol", "blessing of tul", "blessing of esh", "ritual vessel", "oil extractor"], "fragments": ["simulacrum", "simulacrum splinter"]}
+	, dLimits := [[0.5, "", 3], [0.25, 0.5, 3], [10, 30, 1], [1, 10, 1], ["", 1, 1]], essences := ["whispering", "muttering", "weeping", "wailing", "screaming", "shrieking", "deafening"]
 
-	settings.features.stash := LLK_IniRead("ini\config.ini", "features", "enable stash-ninja", 0)
+	If Blank(settings.features.stash)
+		settings.features.stash := LLK_IniRead("ini\config.ini", "features", "enable stash-ninja", 0)
 	If IsObject(settings.stash)
 		backup := settings.stash.Clone()
-	If !IsObject(settings.stash)
-		settings.stash := {}
-	settings.stash.fSize := LLK_IniRead("ini\stash-ninja.ini", "settings", "font-size", settings.general.fSize)
-	settings.stash.fSize2 := settings.stash.fSize - 3
-	settings.stash.league := LLK_IniRead("ini\stash-ninja.ini", "settings", "league", "Necropolis")
-	settings.stash.history := LLK_IniRead("ini\stash-ninja.ini", "settings", "enable price history", 1)
-	settings.stash.show_exalt := LLK_IniRead("ini\stash-ninja.ini", "settings", "show exalt conversion", 0)
-	settings.stash.bulk_trade := LLK_IniRead("ini\stash-ninja.ini", "settings", "show bulk-sale suggestions", 1)
-	settings.stash.min_trade := LLK_IniRead("ini\stash-ninja.ini", "settings", "minimum trade value", "")
-	settings.stash.autoprofiles := LLK_IniRead("ini\stash-ninja.ini", "settings", "enable trade-value profiles", 0)
-	settings.stash.margins := LLK_IniRead("ini\stash-ninja.ini", "settings", "margins", "0, 5, 10, 15, 20")
-	LLK_FontDimensions(settings.stash.fSize, height, width), LLK_FontDimensions(settings.stash.fSize2, height2, width2)
+	Else
+	{
+		settings.stash := {}, iSettings := IniBatchRead("ini\stash-ninja.ini", "settings"), iUI := IniBatchRead("ini\stash-ninja.ini", "UI")
+		settings.stash.fSize := !Blank(check := iSettings["font-size"]) ? check : settings.general.fSize
+		settings.stash.league := !Blank(check := iSettings["league"]) ? check : "Necropolis"
+		settings.stash.history := !Blank(check := iSettings["enble price history"]) ? check : 1
+		settings.stash.show_exalt := !Blank(check := iSettings["show exalt conversion"]) ? check : 0
+		settings.stash.bulk_trade := !Blank(check := iSettings["show bulk-sale suggestions"]) ? check : 1
+		settings.stash.min_trade := !Blank(check := iSettings["minimum trade value"]) ? check : ""
+		settings.stash.autoprofiles := !Blank(check := iSettings["enable trade-value profiles"]) ? check : 0
+		settings.stash.margins := !Blank(check := iSettings["margins"]) ? check : "0, 5, 10, 15, 20"
+		settings.stash.colors := [!Blank(check := iUI["text color"]) ? check : "000000", !Blank(check1 := iUI["background color"]) ? check1 : "00FF00"]
+	}
+	settings.stash.fSize2 := settings.stash.fSize - 3, LLK_FontDimensions(settings.stash.fSize, height, width), LLK_FontDimensions(settings.stash.fSize2, height2, width2)
 	settings.stash.fWidth := width, settings.stash.fHeight := height, settings.stash.fWidth2 := width2, settings.stash.fHeight2 := height2
-	settings.stash.colors := [LLK_IniRead("ini\stash-ninja.ini", "UI", "text color", "000000"), LLK_IniRead("ini\stash-ninja.ini", "UI", "background color", "00FF00")]
 	If (refresh = "font")
 		Return
 
-	If !IsObject(vars.stash) || refresh && (refresh != "bulk_trade")
+	width := Floor(vars.client.h * (37/60)), height := vars.client.h
+	If !(oCheck := IsObject(vars.stash)) || (refresh = "bulk_trade")
 	{
-		width := Floor(vars.client.h * (37/60)), height := vars.client.h
-		If !IsObject(vars.stash)
-			vars.stash := {"tabs": {"delve": [], "fragments": [24, Round(height * (1/72))], "scarabs": [30, 2], "breach": [20, Round(height * (1/72))], "currency1": [], "currency2": []}, "width": width, "buttons": height * 1/36
-			, "exalt": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", "currency", "exalted orb", "0"), ",", A_Space, 3).1, "divine": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", "currency", "divine orb", "0"), ",", A_Space, 3).1}
-		json_data := Json.Load(LLK_FileRead("data\global\[stash-ninja] tabs.json")), tabs := vars.stash.tabs
+		If !oCheck
+			vars.stash := {"currency": {}, "tabs": {"delve": [20, Round(height * (1/80))], "essences": [24, 4], "fragments": [24, Round(height * (1/72))], "scarabs": [30, 2]
+			, "breach": [20, Round(height * (1/80))], "currency1": [24, Round(height * (1/90))], "currency2": [24, Round(height * (1/90))], "blight": [24, Round(height * (1/60))]
+			, "delirium": [20, Round(height * (1/72))], "ultimatum": [20, Round(height * (1/90))]}
+			, "width": width, "buttons": Round(height * (1/36)), "exalt": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", "currency", "exalted orb", "0"), ",", A_Space, 3).1
+			, "divine": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", "currency", "divine orb", "0"), ",", A_Space, 3).1}
+			, json_data := Json.Load(LLK_FileRead("data\global\[stash-ninja] tabs.json"))
 		For tab, array in json_data
 		{
-			If !refresh || refresh && ((tab = refresh) || (refresh = "gap") || (InStr("currency,breach", refresh) && tab = "fragments"))
+			If !oCheck
+				iTab := IniBatchRead("ini\stash-ninja.ini", tab), settings.stash[tab] := {"gap": !Blank(check := iTab.gap) ? check : vars.stash.tabs[tab].2, "limits0": [], "limits": [], "profile": Blank(check1 := backup[tab].profile) ? 1 : check1, "margin": !Blank(check2 := iTab.margin) ? check2 : 0
+				, "in_folder": !Blank(check3 := iTab["tab is in folder"]) ? check3 : 0}, iLimits := IniBatchRead("ini\stash-ninja.ini", tab), vars.stash[tab] := {}
+			Loop 5
 			{
-				vars.stash[tab] := {}, gap := LLK_IniRead("ini\stash-ninja.ini", tab, "gap", tabs[tab].2), vars.stash[tab].box := dBox := vars.client.h//tabs[tab].1
-				For index, array1 in array
+				If !oCheck
 				{
-					If (tab = "scarabs" && SubStr(array1.3, 1, 3) = "of ")
-						name := name0 " " array1.3
-					Else name0 := name := array1.3
-					xCoord := array1.1 ? Floor((array1.1 / 1440) * vars.client.h) : xCoord + dBox + gap * (tab = "scarabs" && index > 105 ? 2 : 1)
-					yCoord := array1.2 ? Floor((array1.2 / 1440) * vars.client.h) : yCoord, tab0 := (check := LLK_HasVal(exceptions, name,,,, 1)) ? check : (tab = "breach") ? "fragments" : tab
-					vars.stash[tab][name] := {"coords": [xCoord, yCoord], "prices": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab0, name, "0"), ",", A_Space, 3)
-					, "trend": StrSplit(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab0, name "_trend", "0, 0, 0, 0, 0, 0, 0"), ",", A_Space)}
+					ini1 := !Blank(check := iLimits["limit " A_Index " bot"]) ? (check = "null" ? "" : check) : dLimits[A_Index].1
+					ini2 := !Blank(check := iLimits["limit " A_Index " top"]) ? (check = "null" ? "" : check) : dLimits[A_Index].2
+					ini3 := !Blank(check := iLimits["limit " A_Index " cur"]) ? (check = "null" ? "" : check) : dLimits[A_Index].3
+					settings.stash[tab].limits0[A_Index] := [ini1, ini2, ini3]
+				}
+				settings.stash[tab].limits[A_Index] := settings.stash[tab].limits0[A_Index].Clone()
+				If (A_Index < 5) && settings.stash.bulk_trade && settings.stash.min_trade && settings.stash.autoprofiles
+				{
+					max := (A_Index = 1) ? "" : (A_Index = 2) ? settings.stash.min_trade - 0.01 : min - 0.01
+					min := Round(settings.stash.min_trade / A_Index, 2)
+					settings.stash[tab].limits[A_Index] := [min, max ? Round(max, 2) : "", 1]
 				}
 			}
 		}
 	}
 
-	dLimits := [[0.51, "", 3], [0.25, 0.5, 3], [10, 30, 1], [1, 10, 1], ["", 1, 1]]
-	For tab in vars.stash.tabs
-		If InStr("fragments,scarabs,breach", tab)
+	If !oCheck
+	{
+		For tab in json_data
+			If !InStr("currency2, breach", tab)
+				tab := InStr(tab, "currency") ? "currency" : tab, i%tab% := IniBatchRead("data\global\[stash-ninja] prices.ini", tab)
+				, vars.stash[tab].timestamp := i%tab%.timestamp, vars.stash[tab].league := i%tab%.league
+	}
+	tabs := vars.stash.tabs
+	For tab, array in json_data
+	{
+		gap := settings.stash[tab].gap, vars.stash[tab].box := dBox := vars.client.h//tabs[tab].1, in_folder := settings.stash[tab].in_folder
+		For index, array1 in array
 		{
-			settings.stash[tab] := {"gap": LLK_IniRead("ini\stash-ninja.ini", tab, "gap", tabs[tab].2), "limits": [], "profile": Blank(backup[tab].profile) ? 1 : backup[tab].profile
-			, "margin": LLK_IniRead("ini\stash-ninja.ini", tab, "margin", 0)}
-			Loop 5
-			{
-				If (A_Index < 5) && settings.stash.bulk_trade && settings.stash.min_trade && settings.stash.autoprofiles
-				{
-					max := (A_Index = 1) ? "" : (A_Index = 2) ? settings.stash.min_trade - 0.01 : min - 0.01
-					min := Round(settings.stash.min_trade / A_Index, 2)
-					settings.stash[tab].limits.Push([min, max ? Round(max, 2) : "", 1])
-					Continue
-				}
-				ini1 := ((check := LLK_IniRead("ini\stash-ninja.ini", tab, "limit " A_Index " bot", dLimits[A_Index].1)) = "null") ? "" : check
-				ini2 := ((check := LLK_IniRead("ini\stash-ninja.ini", tab, "limit " A_Index " top", dLimits[A_Index].2)) = "null") ? "" : check
-				ini3 := ((check := LLK_IniRead("ini\stash-ninja.ini", tab, "limit " A_Index " cur", dLimits[A_Index].3)) = "null") ? "" : check
-				settings.stash[tab].limits.Push([ini1, ini2, ini3])
-			}
+			If (tab = "scarabs" && SubStr(array1.3, 1, 3) = "of ")
+				name := name0 " " array1.3
+			Else If (tab = "essences")
+				name := IsNumber(SubStr(array1.3, 1, 1)) ? StrReplace(array1.3, SubStr(array1.3, 1, 1), essences[SubStr(array1.3, 1, 1)] " essence of") : array1.3
+			Else If (tab = "blight")
+				name := array1.3 . (!InStr(array1.3, "extractor") ? " oil" : "")
+			Else If (tab = "delirium")
+				name := array1.3 . (!InStr(array1.3, "simulacrum") ? " delirium orb" : "")
+			Else If (tab = "ultimatum")
+				name := array1.3 " catalyst"
+			Else name0 := name := array1.3 (tab = "delve" && !InStr(array1.3, "resonator") ? " fossil" : "")
+			exception1 := LLK_PatternMatch(name, "", ["potent", "powerful", "prime"]) ? 1 : 0, exception2 := LLK_PatternMatch(name, "", ["prime"]) ? 1 : 0
+			xCoord := array1.1 ? Floor((array1.1 / 1440) * vars.client.h) : xCoord + (exception2 ? vars.client.h * (1/12) : dBox) + gap * (tab = "scarabs" && index > 105 ? 2 : 1)
+			yCoord := array1.2 ? Floor(((array1.2 + (in_folder ? 47 : 0)) / 1440) * vars.client.h) : yCoord
+			tab0 := (check := LLK_HasVal(exceptions, name,,,, 1)) ? check : (tab = "breach") ? "fragments" : InStr(tab, "currency") || (tab = "ultimatum") ? "currency" : tab
+			prices := IsObject(vars.stash[tab][name].prices) ? vars.stash[tab][name].prices.Clone() : StrSplit(!Blank(check := i%tab0%[name]) ? check : "0, 0, 0", ",", A_Space, 3)
+			trend := IsObject(vars.stash[tab][name].trend) ? vars.stash[tab][name].trend.Clone() : StrSplit(!Blank(check := i%tab0%[name "_trend"]) ? check : "0, 0, 0, 0, 0, 0, 0", ",", A_Space)
+			vars.stash[tab][name] := {"coords": [xCoord, yCoord], "prices": prices, "trend": trend}
 		}
+	}
+	vars.stash.currency1["chaos orb"].prices := [1, 1/vars.stash.exalt, 1/vars.stash.divine]
 	If (refresh = "bulk_trade") && WinExist("ahk_id " vars.hwnd.stash.main)
 		Stash_("refresh")
 }
@@ -83,27 +108,29 @@ Stash_(mode, test := 0)
 	static toggle := 0
 
 	toggle := !toggle, GUI_name := "stash_ninja" toggle
-	Loop 2
+	Loop, % (mode = "delirium" || vars.stash.active = "delirium") ? 3 : 2
 	{
-		tab := (A_Index = 1 ? "currency" : (mode = "refresh") ? vars.stash.active : mode), tab := (tab = "breach") ? "fragments" : tab, now := A_Now, timestamp := LLK_IniRead("data\global\[stash-ninja] prices.ini", tab, "timestamp")
-		league := LLK_IniRead("data\global\[stash-ninja] prices.ini", tab, "league")
+		If (A_Index = 2) && (mode = "ultimatum" || vars.stash.active = "ultimatum")
+			Continue
+		tab := (A_Index = 1 || InStr(mode, "currency") ? "currency" : (mode = "refresh") ? (InStr(vars.stash.active, "currency") ? "currency" : vars.stash.active) : mode)
+		tab := (tab = "breach" || A_Index = 3) ? "fragments" : tab, now := A_Now, timestamp := vars.stash[tab].timestamp, league := vars.stash[tab].league
 		EnvSub, now, timestamp, Minutes
-		If (league != settings.stash.league) || Blank(timestamp) || Blank(now) || (now >= 31) || (settings.stash.history && !InStr(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab), "_trend"))
+		If (league != settings.stash.league) || Blank(timestamp) || Blank(now) || (now >= 31)
 		{
-			check := Stash_PriceFetch(tab), vars.tooltip[vars.hwnd["tooltipstashprices"]] := A_TickCount
-			If !check && (!InStr(LLK_IniRead("data\global\[stash-ninja] prices.ini", tab), "`n",,, 3) || league != settings.stash.league)
-			{
-				MsgBox, % LangTrans("stash_updateerror")
-				Return -1
-			}
-			Else If !check
+			If !tooltip
+				LLK_ToolTip(LangTrans("stash_update"), 10000,,, "stashprices", "lime")
+			check := Stash_PriceFetch(tab), tooltip := 1
+			If !check
 			{
 				LLK_ToolTip(LangTrans("stash_updateerror", 2), 2,,,, "red"), now := A_Now
 				EnvAdd, now, -20, Minutes
 				IniWrite, % now, data\global\[stash-ninja] prices.ini, % tab, timestamp
+				vars.stash[tab].timestamp := now
 			}
 		}
 	}
+	If !Blank(check)
+		vars.tooltip[vars.hwnd["tooltipstashprices"]] := A_TickCount
 
 	Gui, %GUI_name%: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x20 +E0x02000000 +E0x00080000 HWNDhwnd_stash"
 	Gui, %GUI_name%: Font, % "s" settings.stash.fSize2 " cWhite", % vars.system.font
@@ -141,7 +168,9 @@ Stash_(mode, test := 0)
 			Else
 			{
 				price := Round(val.prices[lType], (val.prices[lType] > 1000) ? 0 : (val.prices[lType] > 100) ? 1 : 2)
-				Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border Right c" colors.1 " x" val.coords.1 " y" val.coords.2 + dBox - settings.stash.fHeight2 " w" dBox . (hidden ? " Hidden" : ""), % (test ? A_Index : (lType = 4) ? val.trend[val.trend.MaxIndex()] : price) " "
+				exception1 := LLK_PatternMatch(item, "", ["potent", "powerful", "prime"]) ? 1 : 0, exception2 := LLK_PatternMatch(item, "", ["powerful", "prime"]) ? 1 : 0
+				Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border Right c" colors.1 " x" val.coords.1 " y" val.coords.2 + (exception1 ? vars.client.h * (1/12) : dBox) - settings.stash.fHeight2
+				. " w" (exception2 ? vars.client.h * (1/12) : dBox) . (hidden ? " Hidden" : ""), % (test ? A_Index : (lType = 4) ? val.trend[val.trend.MaxIndex()] : price) " "
 				Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp HWNDhwnd Background" colors.2 . (hidden ? " Hidden" : ""), 0
 				vars.hwnd.stash[item] := hwnd
 				If (vars.stash.hover = item)
@@ -237,7 +266,7 @@ Stash_Hotkeys()
 	global vars, settings
 	static in_progress
 
-	start := A_TickCount, hotkey := A_ThisHotkey, tab := vars.stash.active
+	hotkey := A_ThisHotkey, tab := vars.stash.active
 	If vars.stash.wait || in_progress
 		Return
 	in_progress := 1
@@ -271,41 +300,50 @@ Stash_PriceFetch(tab)
 {
 	local
 	global vars, settings, json
-	static data_types := {"currencyoverview": ["fragments", "currency"], "itemoverview": ["scarabs"]}, types := {"fragments": "Fragment", "scarabs": "Scarab", "currency": "Currency"}
+	static types := {"fragments": ["Fragment"], "scarabs": ["Scarab"], "currency": ["Currency"], "delve": ["Fossil", "Resonator"], "essences": ["Essence"], "blight": ["Oil"], "delirium": ["DeliriumOrb"]}
 
-	type := types[tab], league := StrReplace(settings.stash.league, " ", "+"), data_type := LLK_HasVal(data_types, tab,,,, 1)
-	LLK_ToolTip(LangTrans("stash_update"), 10000,,, "stashprices", "lime")
-	UrlDownloadToFile, % "https://poe.ninja/api/data/" data_type "?league=" league "&type=" type, data\global\[stash-ninja] prices_temp.json
-	If ErrorLevel || !FileExist("data\global\[stash-ninja] prices_temp.json")
-		Return
-	prices := Json.Load(LLK_FileRead("data\global\[stash-ninja] prices_temp.json"))
-	If !prices.lines.Count()
-		Return
-	IniDelete, data\global\[stash-ninja] prices.ini, % tab
-	ini_dump := "timestamp=" A_Now "`nleague=" settings.stash.league
-	If (tab = "currency")
-		For index, val in prices.lines
-			If (val.currencytypename = "exalted orb")
-				vars.stash.exalt := val.chaosequivalent
-			Else If (val.currencytypename = "divine orb")
-				vars.stash.divine := val.chaosequivalent
-
-	For index, val in prices.lines
+	Loop, % (tab = "delve") ? 2 : 1
 	{
-		name := LLK_StringCase(val[InStr(data_type, "item") ? "name" : "currencytypename"]), price0 := val["chaos" (InStr(data_type, "item") ? "value" : "equivalent")]
-		price := price0 ", " price0 / vars.stash.exalt ", " price0 / vars.stash.divine, trend := ""
-		For iTrend, vTrend in val[(InStr(data_type, "item") ? "" : "receive") "sparkline"].data
-			trend .= (Blank(trend) ? "" : ", ") . (IsNumber(vTrend) ? vTrend : 0)
-		If (tab = "currency") && (InStr(name, " fragment") || InStr(name, "blessing of ") || name = "ritual vessel")
+		tab := InStr(tab, "currency") ? "currency" : tab, type := types[tab][A_Index], league := StrReplace(settings.stash.league, " ", "+"), outer := A_Index
+		data_type := (InStr("fragments,currency", tab) ? "currency" : "item") "overview"
+		UrlDownloadToFile, % "https://poe.ninja/api/data/" data_type "?league=" league "&type=" type, data\global\[stash-ninja] prices_temp.json
+		If ErrorLevel || !FileExist("data\global\[stash-ninja] prices_temp.json")
+			Return 0
+		prices := Json.Load(LLK_FileRead("data\global\[stash-ninja] prices_temp.json")), ini_dump := "timestamp=" A_Now "`nleague=" settings.stash.league
+		If !prices.lines.Count()
+			Return 0
+		If (A_Index = 1)
+			IniDelete, data\global\[stash-ninja] prices.ini, % tab
+		If (tab = "currency")
+			For index, val in prices.lines
+				If (val.currencytypename = "exalted orb")
+					vars.stash.exalt := val.chaosequivalent
+				Else If (val.currencytypename = "divine orb")
+					vars.stash.divine := val.chaosequivalent
+
+		For index, val in prices.lines
 		{
-			IniWrite, % """" price """", data\global\[stash-ninja] prices.ini, fragments2, % name
-			IniWrite, % """" trend """", data\global\[stash-ninja] prices.ini, fragments2, % name "_trend"
+			name := LLK_StringCase(val[InStr(data_type, "item") ? "name" : "currencytypename"]), price0 := val["chaos" (InStr(data_type, "item") ? "value" : "equivalent")]
+			price := price0 ", " price0 / vars.stash.exalt ", " price0 / vars.stash.divine, trend := ""
+			For iTrend, vTrend in val[(InStr(data_type, "item") ? "" : "receive") "sparkline"].data
+				trend .= (Blank(trend) ? "" : ", ") . (IsNumber(vTrend) ? vTrend : 0)
+			If (outer = 2)
+			{
+				IniWrite, % """" price """", data\global\[stash-ninja] prices.ini, % tab, % name
+				If !Blank(trend)
+					IniWrite, % """" trend """", data\global\[stash-ninja] prices.ini, % tab, % name "_trend"
+			}
+			Else ini_dump .= "`n" name "=""" price """", ini_dump .= !Blank(trend) ? "`n" name "_trend=""" trend """" : ""
+			If (check := LLK_HasKey(vars.stash, name,,,, 1))
+				vars.stash[check][name].prices := StrSplit(price, ",", A_Space, 3), vars.stash[check][name].trend := Blank(trend) ? [0, 0, 0, 0, 0, 0, 0] : StrSplit(trend, ",", A_Space, 7)
 		}
-		Else ini_dump .= "`n" name "=""" price """", ini_dump .= !Blank(trend) ? "`n" name "_trend=""" trend """" : ""
+		If (A_Index = 1)
+		{
+			IniWrite, % ini_dump, data\global\[stash-ninja] prices.ini, % tab
+			vars.stash[tab].timestamp := A_Now, vars.stash[tab].league := settings.stash.league
+		}
+		FileDelete, data\global\[stash-ninja] prices_temp.json
 	}
-	IniWrite, % ini_dump, data\global\[stash-ninja] prices.ini, % tab
-	FileDelete, data\global\[stash-ninja] prices_temp.json
-	Init_stash(tab)
 	Return 1
 }
 
@@ -371,7 +409,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 			amount := stack ? 6 - A_Index : Round(available // A_Index)
 			If (bulk_sizes.Count() = 5)
 				Break
-			If LLK_HasVal(bulk_sizes, amount) || (available / vars.stash.max_stack > 60) || bulk_sizes.Count() && (Round(amount * val.prices.1 * (1 + margin)) < settings.stash.min_trade)
+			If LLK_HasVal(bulk_sizes, amount) || (amount / vars.stash.max_stack > 60) || bulk_sizes.Count() && (Round(amount * val.prices.1 * (1 + margin)) < settings.stash.min_trade)
 				Continue
 			bulk_sizes.Push(amount)
 			If vars.stash.note
@@ -387,7 +425,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 
 	For index, cType in ["chaos", "exalt", "divine"]
 	{
-		If (cType = "exalt") && !exalt || !trend && (available * val.prices[index] * (1 + margin) < 0.5) || price11 && (price11 < settings.stash.min_trade)
+		If (cType = "exalt") && !exalt || !trend && (available * val.prices[index] * (1 + margin) < 0.5) || price11 && (price11 < settings.stash.min_trade) || (item = cType " orb" || item = cType "ed orb")
 			Continue
 		hLine := hMarket, style := " Section HWNDhwnd BackgroundTrans h" hLine - (!trend ? 2 : 0) " w-1" (!trend ? " Border" : ""), lines += 1, price := ""
 		Gui, %GUI_name%: Add, Pic, % (index != 1 || !trend ? "xs " (!trend ? "y+-1" : "") : "x+" settings.stash.fWidth " yp+" settings.stash.fWidth + (!trend ? settings.stash.fHeight : 0)) . style, % "img\GUI\" cType ".png"
@@ -403,8 +441,8 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 		{
 			For iBulk, vBulk in bulk_sizes
 			{
-				price0 := vBulk * val.prices[index], price := Round(price0 * (1 + margin)), price%index%%iBulk% := price
-				Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . (price >= 1 ? " gStash_PricePicker" : "") . (index = 1 && price < settings.stash.min_trade ? " cRed" : "")
+				price0 := vBulk * val.prices[index], price := Round(price0 * (1 + margin)), price%index%%iBulk% := price, inventory_check := (price / 20 > 60) ? 0 : 1
+				Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . (price >= 1 && inventory_check ? " gStash_PricePicker" : "") . (index = 1 && price < settings.stash.min_trade ? " cRed" : !inventory_check ? " cGray" : "")
 				, % (price >= 1) ? price "`n(" Round((price/price0) * 100 - 100, 1) "%)" : "`n"
 				vars.hwnd.stash_picker["pickprice_" (price = vBulk || vBulk = 1 ? price : price "_" vBulk) " " currencies_verbose[index]] := hwnd
 				ControlGetPos, xBox, yBox, wBox, hBox,, ahk_id %hwnd%

@@ -707,6 +707,7 @@ Settings_general2(cHWND := "")
 				If (A_TickCount >= start + 250)
 				{
 					WinGetPos,,, width, height, % "ahk_id " vars.hwnd.settings.main
+					vars.settings.drag := 1
 					While GetKeyState("LButton", "P")
 					{
 						LLK_Drag(width, height, xPos, yPos, 1)
@@ -714,7 +715,7 @@ Settings_general2(cHWND := "")
 					}
 					KeyWait, LButton
 					WinGetPos, xPos, yPos, w, h, % "ahk_id " vars.hwnd.settings.main
-					vars.settings.x := xPos, vars.settings.y := yPos
+					vars.settings.x := xPos, vars.settings.y := yPos, vars.settings.drag := 0
 					Return
 				}
 			}
@@ -2172,7 +2173,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	}
 	Else
 	{
-		Gui, %GUI_name%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
+		Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + vars.client.xc - w//2 " y" vars.monitor.y + vars.client.yc - h//2 " w"w - 1 " h"h - 2
 		vars.settings.x := vars.client.x
 	}
 	LLK_Overlay(vars.hwnd.settings.main, "show", NA, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.settings.w := w, vars.settings.h := h, vars.settings.restart := vars.settings.wait := vars.settings.color := ""
@@ -3084,7 +3085,7 @@ Settings_stash()
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd00 gSettings_stash2 Checked" settings.stash.autoprofiles, % LangTrans("m_stash_profiles")
 		vars.hwnd.settings.min_trade := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade"] := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade|"] := hwnd3
-		vars.hwnd.settings.margins := vars.hwnd.help_tooltips["settings_stash margins"] := hwnd5, vars.hwnd.settings.margin_max := hwnd6, vars.hwnd.settings.margin_step := hwnd7
+		vars.hwnd.settings.margins := vars.hwnd.help_tooltips["settings_stash margins"] := hwnd5
 		vars.hwnd.help_tooltips["settings_stash margins|"] := hwnd_, vars.hwnd.settings.autoprofiles := vars.hwnd.help_tooltips["settings_stash autoprofiles"] := hwnd00
 	}
 	vars.hwnd.settings.history := vars.hwnd.help_tooltips["settings_stash history"] := hwnd, vars.hwnd.settings.exalt := vars.hwnd.help_tooltips["settings_stash exalt"] := hwnd1
@@ -3131,10 +3132,11 @@ Settings_stash()
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd2", % "    " LangTrans("global_gap") ":"
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd3 gSettings_stash2 Center Border w" settings.general.fWidth * 2, % "–"
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd4 gSettings_stash2 Center Border wp x+" settings.general.fWidth//2, % "+"
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd5 gSettings_stash2 Checked" settings.stash[vars.stash.active].in_folder, % LangTrans("m_stash_folder")
 	;vars.hwnd.settings["cal_" tab] := vars.hwnd.help_tooltips["settings_stash calibrate"] := hwnd
 	vars.hwnd.settings.test := vars.hwnd.help_tooltips["settings_stash test"] := hwnd1, tab := vars.settings.selected_tab
 	vars.hwnd.settings["gap-_" tab] := hwnd3, vars.hwnd.settings["gap+_" tab] vars.hwnd.help_tooltips["settings_stash gap"] := hwnd2
-	vars.hwnd.settings["gap+_" tab] := hwnd4
+	vars.hwnd.settings["gap+_" tab] := hwnd4, vars.hwnd.settings["infolder_" tab] := vars.hwnd.help_tooltips["settings_stash in folder"] := hwnd5
 
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_limits")
 	Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", img\GUI\help.png
@@ -3266,7 +3268,10 @@ Settings_stash2(cHWND)
 		Init_stash("bulk_trade"), Settings_menu("stash-ninja")
 	}
 	Else If (check = "min_trade")
+	{
 		GuiControl, +cRed, % cHWND
+		GuiControl, movedraw, % cHWND
+	}
 	Else If (check = "autoprofiles")
 	{
 		IniWrite, % (settings.stash.autoprofiles := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, enable trade-value profiles
@@ -3309,11 +3314,6 @@ Settings_stash2(cHWND)
 		GuiControl, % "movedraw", % vars.hwnd.settings["color_" control "_text"]
 		IniWrite, % (settings.stash.colors[control] := color), ini\stash-ninja.ini, UI, % (control = 1 ? "text" : "background") " color"
 	}
-	Else If InStr(check, "select_")
-	{
-		vars.settings.selected_stash := control
-		Settings_menu("stash-ninja")
-	}
 	Else If InStr(check, "gap")
 	{
 		If InStr(check, "-") && (settings.stash[control].gap = 0)
@@ -3325,6 +3325,13 @@ Settings_stash2(cHWND)
 		IniWrite, % settings.stash[control].gap, ini\stash-ninja.ini, % control, gap
 		Init_stash("gap")
 	}
+	Else If InStr(check, "infolder_")
+	{
+		groups := [["fragments", "scarabs", "breach"], ["currency1", "currency2"], ["delve"], ["blight"], ["delirium"], ["essences"], ["ultimatum"]], gCheck := LLK_HasVal(groups, control,,,, 1)
+		For index, tab in groups[gCheck]
+			IniWrite, % (settings.stash[tab].in_folder := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, % tab, tab is in folder
+		Init_stash(1)
+	}
 	Else If InStr(check, "limits")
 	{
 		types := {"bot": 1, "top": 2, "cur": 3}
@@ -3332,7 +3339,7 @@ Settings_stash2(cHWND)
 		If (SubStr(input, 1, 1) = "." || SubStr(input, 0) = ".") || InStr(input, "+")
 			input := "invalid"
 		If Blank(input)
-			settings.stash[tab].limits[lIndex][lType] := "", input := "null"
+			settings.stash[tab].limits0[lIndex][lType] := settings.stash[tab].limits[lIndex][lType] := "", input := "null"
 		Else
 		{
 			lTop := settings.stash[tab].limits[lIndex].2, lBot := settings.stash[tab].limits[lIndex].1
@@ -3349,9 +3356,9 @@ Settings_stash2(cHWND)
 			}
 			If (lType = 3)
 				input := InStr("ced%", input)
-			settings.stash[tab].limits[lIndex][lType] := input
+			settings.stash[tab].limits0[lIndex][lType] := settings.stash[tab].limits[lIndex][lType] := input
 			While InStr(settings.stash[tab].limits[lIndex][lType], ".") && InStr(".0", SubStr(settings.stash[tab].limits[lIndex][lType], 0))
-				settings.stash[tab].limits[lIndex][lType] := SubStr(settings.stash[tab].limits[lIndex][lType], 1, -1)
+				input := settings.stash[tab].limits0[lIndex][lType] := settings.stash[tab].limits[lIndex][lType] := SubStr(settings.stash[tab].limits[lIndex][lType], 1, -1)
 		}
 		IniWrite, % input, ini\stash-ninja.ini, % tab, % "limit " lIndex " " SubStr(check, 8, 3)
 	}
@@ -3359,7 +3366,7 @@ Settings_stash2(cHWND)
 		Stash_(vars.settings.selected_stash, 1)
 	Else LLK_ToolTip("no action")
 
-	For index, val in ["limits", "gap", "color_", "font_", "league_", "history"]
+	For index, val in ["limits", "gap", "color_", "font_", "league_", "history", "folder"]
 		If InStr(check, val) && WinExist("ahk_id " vars.hwnd.stash.main)
 			Stash_("refresh", (val = "gap") ? 1 : 0)
 	in_progress := 0
