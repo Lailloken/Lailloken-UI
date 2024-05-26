@@ -416,8 +416,8 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 			If vars.stash.note
 				color := (InStr(vars.stash.note, "/" amount " ") || !InStr(vars.stash.note, "/") && (amount = 1) ? " cLime" : "")
 			Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount (!stack && (check := Mod(available0, amount)) ? " (+" check ")" : "")
-			If stack
-				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack c603030", 100
+			If stack || (available != available0)
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack c" (stack ? "603030" : "303060"), 100
 		}
 		ControlGetPos, xColumn, yColumn, wColumn, hColumn,, ahk_id %hwnd%
 		Gui, %GUI_name%: Add, Progress, % "x0 y+-1 Disabled Background606060 w" xColumn + wColumn " h" settings.stash.fWidth//2, 0
