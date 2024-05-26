@@ -598,10 +598,6 @@
     "stash exalt": [
       "also shows exalt-equivalent prices when hovering over highlighted items or pricing items"
     ],
-    "stash folder": [
-      "the overlay's position has to be offset if the in-game stash doesn't have folders",
-      "check this box if you don't use folders in your stash"
-    ],
     "stash bulk": [
       "whenever you right-click an item in the tab to price it, an additional panel with bulk-sale suggestions will be displayed",
       "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
