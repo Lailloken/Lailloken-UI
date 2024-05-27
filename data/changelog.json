@@ -1,6 +1,7 @@
 [
   [
 	["1.53.4", 15304],
+	"hotfix 1: help tooltips were displayed incorrectly if settings menu was in center position",
 	"stash-ninja: bulk-sale improvements, added support for tabs within folders",
 	"stash-ninja: now supports every type of stash tab"
   ],
