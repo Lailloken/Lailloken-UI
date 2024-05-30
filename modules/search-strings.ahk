@@ -20,7 +20,7 @@
 	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0, ini := IniBatchRead("ini\search-strings.ini")
 	For key, val in ini.searches
 	{
-		If (settings.general.lang_client != "english" && key = "beast crafting")
+		If (settings.general.lang_client != "english" && !vars.client.stream && key = "beast crafting")
 			Continue
 		vars.searchstrings.list[key] := {"enable": val}
 		If val

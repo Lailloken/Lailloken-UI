@@ -1398,6 +1398,7 @@ LeveltrackerSkilltree(index := 0)
 			If (index = "00" || SubStr(A_LoopFileName, 2, StrLen(index)) = index) && InStr("jpg,png,bmp", A_LoopFileExt) && (!InStr(A_LoopFileName, "[lab") || InStr(index, "lab"))
 			{
 				img := A_LoopFilePath, caption := StrReplace(A_LoopFileName, "."A_LoopFileExt), caption := SubStr(caption, InStr(caption, "]") + (InStr(caption, "] ") ? 2 : 1))
+				caption := StrReplace(caption, "&", "&&")
 				skilltree.active := SubStr(A_LoopFileName, 2, (SubStr(A_LoopFileName, 1, 4) = "[lab") ? 4 : 2)
 				Break
 			}
@@ -1516,7 +1517,7 @@ LeveltrackerSkilltreeLab(file)
 
 	Loop, Files, % "img\GUI\skill-tree" settings.leveltracker.profile "\[lab*]*"
 		If (SubStr(A_LoopFileName, 2, 4) = file)
-			image := A_LoopFilePath, caption := SubStr(StrReplace(A_LoopFileName, "."A_LoopFileExt), InStr(A_LoopFileName, "]") + 1), caption := StrReplace(caption, " ",,, 1)
+			image := A_LoopFilePath, caption := SubStr(StrReplace(A_LoopFileName, "."A_LoopFileExt), InStr(A_LoopFileName, "]") + 1), caption := StrReplace(StrReplace(caption, " ",,, 1), "&", "&&")
 	Gui, %GUI_name%: Add, Picture, % "Section BackgroundTrans Border", % image
 	Gui, %GUI_name%: Add, Text, % "xs y+-1 wp Center BackgroundTrans Border"(!caption ? " h"settings.general.fHeight/2 : ""), % caption
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack c404040 Border", 0

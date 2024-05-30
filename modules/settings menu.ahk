@@ -2886,7 +2886,7 @@ Settings_screenchecks()
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd"(!FileExist("img\Recognition (" vars.client.h "p)\GUI\" key ".bmp") ? " cRed" : ""), % " " LangTrans("global_calibrate") " "
 		vars.hwnd.settings["cImage_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-calibration"handle] := hwnd
-		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd"(!vars.imagesearch[key].x1 ? " cRed" : ""), % " " LangTrans("global_test") " "
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd" (Blank(vars.imagesearch[key].x1) ? " cRed" : ""), % " " LangTrans("global_test") " "
 		vars.hwnd.settings["tImage_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-test"handle] := hwnd, handle .= "|"
 		Gui, %GUI%: Add, Text, % "ys", % LangTrans((key = "betrayal" ? "mechanic_" : "global_") key)
 	}
@@ -3000,7 +3000,7 @@ Settings_ScreenChecksValid()
 	{
 		If (settings.features[key] = 0) || InStr(key, "necro_") && !settings.features.necropolis || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
 			continue
-		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && (vars.imagesearch[key].x1) ? 1 : 0
+		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && !Blank(vars.imagesearch[key].x1) ? 1 : 0
 	}
 
 	If valid
