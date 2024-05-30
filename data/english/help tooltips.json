@@ -318,9 +318,16 @@
       "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
     ],
     "leveltracker hints": [
-      "inserts additional information underneath specific guide-steps",
-      "this info is displayed in indented lines with smaller text",
+      "inserts additional hints underneath specific guide-steps",
+      "these are displayed in indented lines with smaller text",
       "if a hint is marked with a book icon, you can hold tab to see an illustration"
+    ],
+    "leveltracker hotkeys enable": [
+      "allows you switch guide-pages via customizable hotkeys"
+    ],
+    "leveltracker hotkeys": [
+      "type in a key-name and press <enter>",
+      "don't bind it to keys used for chatting"
     ],
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
@@ -515,7 +522,8 @@
     ],
     "screenchecks pixel-test": [
       "click this button while the ui element shown in <info> is visible, the test should return positive",
-      "click it again while the ui element shown in <info> is not visible, the test should return negative"
+      "click it again while the ui element shown in <info> is not visible, the test should return negative",
+	  "geforce now: move your character around a bit, then redo steps 1 & 2"
     ],
     "screenchecks pixel-info": [
       "hold to see instructions"
@@ -543,6 +551,11 @@
     "screenchecks folder": [
       "opens the folder with calibration files",
       "if tests keep failing, open the img-files to check if they represent the correct image-clip"
+    ],
+    "screenchecks variance": [
+      "since streaming-clients have variable image quality, the tool may not be able to accurately check the screen for certain ui elements",
+      "if clicking <test> doesn't return consistent, repeatable results, you may have to increase the allowed variance of screen-checks",
+      "increase the value in increments of 10 and retest the checks until the results are consistent"
     ],
     "searchstrings poe-regex": [
       "3rd-party website for regex-strings"
@@ -585,10 +598,9 @@
       "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
       "there needs to be at least one tab-folder somewhere in your stash (the overlay will be slightly offset otherwise)"
     ],
-    "stash calibrate": [
-      "move the settings window to the right side of the screen",
-      "open the specific stash tab in game (it CANNOT be in a tab-folder), then click this button",
-      "this calibration enables the omni-key to activate the overlay"
+    "stash hotkey": [
+      "this hotkey is exclusive to streaming clients, and pressing it will open an exclusive selection menu that lists the available tabs",
+      "bind this feature to a key not used for chatting: type in a key-name and press <enter>"
     ],
     "stash history": [
       "shows an additional bar-chart with an item's price history for this week",
@@ -623,7 +635,7 @@
     ],
     "stash gap": [
       "refers to the horizontal gap between item boxes/slots in the stash tab",
-      "fine-tune this value to make the overlay scale correctly on your screen"
+      "fine-tune this value to align the overlay and in-game stash"
     ],
     "stash in folder": [
       "the overlay's position has to be offset if this specific tab is in a stash folder",
