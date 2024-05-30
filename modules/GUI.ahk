@@ -160,7 +160,7 @@ GuiToolbarButtons(cHWND, hotkey)
 				KeyWait, LButton
 				IniWrite, % xPos, ini\config.ini, UI, button xcoord
 				IniWrite, % yPos, ini\config.ini, UI, button ycoord
-				settings.general.xButton := xPos, settings.general.yButton := yPos
+				settings.general.xButton := xPos, settings.general.yButton := yPos, vars.general.drag := 0
 				Init_GUI()
 				WinActivate, ahk_group poe_window
 				vars.toolbar.drag := 0

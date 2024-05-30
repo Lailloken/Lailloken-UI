@@ -7,6 +7,13 @@
 		Return			;there is a separate function activated when releasing the omni-key that clears this variable again
 	vars.omnikey.last := A_TickCount
 	StringScroll("ESC") ;close searchstring-scrolling
+
+	If vars.client.stream
+	{
+		Omnikey2()
+		Return
+	}
+
 	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
 
 	Loop, Parse, % "*,~,!,+,#,^, UP", `,
@@ -152,13 +159,13 @@ Omnikey2()
 			Return
 		}
 
-		If vars.imagesearch.necro_lantern.check
+		If settings.features.necropolis && vars.imagesearch.necro_lantern.check
 		{
 			Necropolis_(), OmniRelease()
 			Return
 		}
 
-		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1")) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
+		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1") || vars.client.stream) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
 		{
 			start := A_TickCount
 			While GetKeyState(ThisHotkey_copy, "P")

@@ -3,21 +3,21 @@
 	local
 	global vars, settings, db
 
-	settings.hotkeys := {}
-	settings.hotkeys.rebound_alt := LLK_IniRead("ini\hotkeys.ini", "Settings", "advanced item-info rebound", 0)
-	settings.hotkeys.item_descriptions := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "item-descriptions key")
+	settings.hotkeys := {}, ini := IniBatchRead("ini\hotkeys.ini")
+	settings.hotkeys.rebound_alt := !Blank(check := ini.settings["advanced item-info rebound"]) ? check : 0
+	settings.hotkeys.item_descriptions := !Blank(check := ini.hotkeys["item-descriptions key"]) ? check : ""
 	If !settings.hotkeys.item_descriptions
 		settings.hotkeys.rebound_alt := 0
-	settings.hotkeys.rebound_c := LLK_IniRead("ini\hotkeys.ini", "Settings", "c-key rebound", 0)
-	settings.hotkeys.movekey := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "move-key", "lbutton")
-	settings.hotkeys.omniblock := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block omnikey's native function", 0)
-	settings.hotkeys.omnikey := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey", "MButton")
-	settings.hotkeys.omnikey2 := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
+	settings.hotkeys.rebound_c := !Blank(check := ini.settings["c-key rebound"]) ? check : 0
+	settings.hotkeys.movekey := !Blank(check := ini.hotkeys["move-key"]) ? check : "lbutton"
+	settings.hotkeys.omniblock := !Blank(check := ini.hotkeys["block omnikey's native function"]) ? check : 0
+	settings.hotkeys.omnikey := !Blank(check := ini.hotkeys["omni-hotkey"]) ? check : "MButton"
+	settings.hotkeys.omnikey2 := !Blank(check := ini.hotkeys["omni-hotkey2"]) ? check : ""
 
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
-	settings.hotkeys.tab := LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
-	settings.hotkeys.tabblock := (settings.hotkeys.tab = "capslock") ? 1 : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "block tab-key's native function", 0)
+	settings.hotkeys.tab := !Blank(check := ini.hotkeys["tab replacement"]) ? check : "tab"
+	settings.hotkeys.tabblock := (settings.hotkeys.tab = "capslock") ? 1 : !Blank(check := ini.hotkeys["block tab-key's native function"]) ? check : 0
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
 	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
@@ -260,8 +260,8 @@ HotkeysTab()
 	If InStr(active, "leveltracker")
 	{
 		LLK_Overlay(vars.hwnd.leveltracker_zones.main, "destroy"), vars.leveltracker.overlays := 0
-		If (settings.leveltracker.sLayouts != LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts size"))
-			IniWrite, % settings.leveltracker.sLayouts, ini\leveling tracker.ini, Settings, zone-layouts size
+		If (settings.leveltracker.sLayouts != settings.leveltracker.sLayouts0)
+			IniWrite, % (settings.leveltracker.sLayouts0 := settings.leveltracker.sLayouts), ini\leveling tracker.ini, Settings, zone-layouts size
 	}
 	If InStr(active, "mapinfo")
 		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.toggle := 0
@@ -275,6 +275,7 @@ HotkeysTab()
 
 #If settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1) ;pre-defined context for hotkey command
 #If WinExist("ahk_id "vars.hwnd.horizons.main) ;pre-defined context for hotkey command
+#If WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main ;pre-defined context for hotkey command
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
 
 #If WinActive("ahk_group poe_ahk_window") && InStr(vars.stash.hover, "tab_")
@@ -567,6 +568,8 @@ z::
 CheatsheetImage("", A_ThisHotkey)
 KeyWait, % A_ThisHotkey
 Return
+
+#IfWinActive ahk_group poe_window
 
 #IfWinActive ahk_group poe_ahk_window
 

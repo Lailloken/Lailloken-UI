@@ -12,16 +12,23 @@
 		backup := settings.stash.Clone()
 	Else
 	{
-		settings.stash := {}, iSettings := IniBatchRead("ini\stash-ninja.ini", "settings"), iUI := IniBatchRead("ini\stash-ninja.ini", "UI")
-		settings.stash.fSize := !Blank(check := iSettings["font-size"]) ? check : settings.general.fSize
-		settings.stash.league := !Blank(check := iSettings["league"]) ? check : "Necropolis"
-		settings.stash.history := !Blank(check := iSettings["enble price history"]) ? check : 1
-		settings.stash.show_exalt := !Blank(check := iSettings["show exalt conversion"]) ? check : 0
-		settings.stash.bulk_trade := !Blank(check := iSettings["show bulk-sale suggestions"]) ? check : 1
-		settings.stash.min_trade := !Blank(check := iSettings["minimum trade value"]) ? check : ""
-		settings.stash.autoprofiles := !Blank(check := iSettings["enable trade-value profiles"]) ? check : 0
-		settings.stash.margins := !Blank(check := iSettings["margins"]) ? check : "0, 5, 10, 15, 20"
-		settings.stash.colors := [!Blank(check := iUI["text color"]) ? check : "000000", !Blank(check1 := iUI["background color"]) ? check1 : "00FF00"]
+		settings.stash := {}, ini := IniBatchRead("ini\stash-ninja.ini")
+		settings.stash.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+		settings.stash.league := !Blank(check := ini.settings["league"]) ? check : "Necropolis"
+		settings.stash.history := !Blank(check := ini.settings["enable price history"]) ? check : 1
+		settings.stash.show_exalt := !Blank(check := ini.settings["show exalt conversion"]) ? check : 0
+		settings.stash.bulk_trade := !Blank(check := ini.settings["show bulk-sale suggestions"]) ? check : 1
+		settings.stash.min_trade := !Blank(check := ini.settings["minimum trade value"]) ? check : ""
+		settings.stash.autoprofiles := !Blank(check := ini.settings["enable trade-value profiles"]) ? check : 0
+		settings.stash.margins := !Blank(check := ini.settings["margins"]) ? check : "0, 5, 10, 15, 20"
+		settings.stash.colors := [!Blank(check := ini.UI["text color"]) ? check : "000000", !Blank(check1 := ini.UI["background color"]) ? check1 : "00FF00"]
+
+		If vars.client.stream
+		{
+			settings.stash.hotkey := !Blank(check := ini.settings.hotkey) ? check : "F2"
+			Hotkey, IfWinActive, ahk_group poe_window
+			Hotkey, % settings.stash.hotkey, Stash_Selection, On
+		}
 	}
 	settings.stash.fSize2 := settings.stash.fSize - 3, LLK_FontDimensions(settings.stash.fSize, height, width), LLK_FontDimensions(settings.stash.fSize2, height2, width2)
 	settings.stash.fWidth := width, settings.stash.fHeight := height, settings.stash.fWidth2 := width2, settings.stash.fHeight2 := height2
@@ -41,15 +48,15 @@
 		For tab, array in json_data
 		{
 			If !oCheck
-				iTab := IniBatchRead("ini\stash-ninja.ini", tab), settings.stash[tab] := {"gap": !Blank(check := iTab.gap) ? check : vars.stash.tabs[tab].2, "limits0": [], "limits": [], "profile": Blank(check1 := backup[tab].profile) ? 1 : check1, "margin": !Blank(check2 := iTab.margin) ? check2 : 0
-				, "in_folder": !Blank(check3 := iTab["tab is in folder"]) ? check3 : 0}, iLimits := IniBatchRead("ini\stash-ninja.ini", tab), vars.stash[tab] := {}
+				iTab := ini[tab], settings.stash[tab] := {"gap": !Blank(check := iTab.gap) ? check : vars.stash.tabs[tab].2, "limits0": [], "limits": [], "profile": Blank(check1 := backup[tab].profile) ? 1 : check1, "margin": !Blank(check2 := iTab.margin) ? check2 : 0
+				, "in_folder": !Blank(check3 := iTab["tab is in folder"]) ? check3 : 0}, vars.stash[tab] := {}
 			Loop 5
 			{
 				If !oCheck
 				{
-					ini1 := !Blank(check := iLimits["limit " A_Index " bot"]) ? (check = "null" ? "" : check) : dLimits[A_Index].1
-					ini2 := !Blank(check := iLimits["limit " A_Index " top"]) ? (check = "null" ? "" : check) : dLimits[A_Index].2
-					ini3 := !Blank(check := iLimits["limit " A_Index " cur"]) ? (check = "null" ? "" : check) : dLimits[A_Index].3
+					ini1 := !Blank(check := iTab["limit " A_Index " bot"]) ? (check = "null" ? "" : check) : dLimits[A_Index].1
+					ini2 := !Blank(check := iTab["limit " A_Index " top"]) ? (check = "null" ? "" : check) : dLimits[A_Index].2
+					ini3 := !Blank(check := iTab["limit " A_Index " cur"]) ? (check = "null" ? "" : check) : dLimits[A_Index].3
 					settings.stash[tab].limits0[A_Index] := [ini1, ini2, ini3]
 				}
 				settings.stash[tab].limits[A_Index] := settings.stash[tab].limits0[A_Index].Clone()
@@ -65,10 +72,10 @@
 
 	If !oCheck
 	{
+		ini := IniBatchRead("data\global\[stash-ninja] prices.ini",, "65001")
 		For tab in json_data
 			If !InStr("currency2, breach", tab)
-				tab := InStr(tab, "currency") ? "currency" : tab, i%tab% := IniBatchRead("data\global\[stash-ninja] prices.ini", tab)
-				, vars.stash[tab].timestamp := i%tab%.timestamp, vars.stash[tab].league := i%tab%.league
+				tab := InStr(tab, "currency") ? "currency" : tab, vars.stash[tab].timestamp := ini[tab].timestamp, vars.stash[tab].league := ini[tab].league
 	}
 	tabs := vars.stash.tabs
 	For tab, array in json_data
@@ -91,8 +98,8 @@
 			xCoord := array1.1 ? Floor((array1.1 / 1440) * vars.client.h) : xCoord + (exception2 ? vars.client.h * (1/12) : dBox) + gap * (tab = "scarabs" && index > 105 ? 2 : 1)
 			yCoord := array1.2 ? Floor(((array1.2 + (in_folder ? 47 : 0)) / 1440) * vars.client.h) : yCoord
 			tab0 := (check := LLK_HasVal(exceptions, name,,,, 1)) ? check : (tab = "breach") ? "fragments" : InStr(tab, "currency") || (tab = "ultimatum") ? "currency" : tab
-			prices := IsObject(vars.stash[tab][name].prices) ? vars.stash[tab][name].prices.Clone() : StrSplit(!Blank(check := i%tab0%[name]) ? check : "0, 0, 0", ",", A_Space, 3)
-			trend := IsObject(vars.stash[tab][name].trend) ? vars.stash[tab][name].trend.Clone() : StrSplit(!Blank(check := i%tab0%[name "_trend"]) ? check : "0, 0, 0, 0, 0, 0, 0", ",", A_Space)
+			prices := IsObject(vars.stash[tab][name].prices) ? vars.stash[tab][name].prices.Clone() : StrSplit(!Blank(check := ini[tab0][name]) ? check : "0, 0, 0", ",", A_Space, 3)
+			trend := IsObject(vars.stash[tab][name].trend) ? vars.stash[tab][name].trend.Clone() : StrSplit(!Blank(check := ini[tab0][name "_trend"]) ? check : "0, 0, 0, 0, 0, 0, 0", ",", A_Space)
 			vars.stash[tab][name] := {"coords": [xCoord, yCoord], "prices": prices, "trend": trend}
 		}
 	}
@@ -280,7 +287,7 @@ Stash_Hotkeys()
 		Clipboard := ""
 		SendInput, ^{c}
 		ClipWait, 0.05
-		If !Clipboard || InStr(hotkey, "LButton") && (InStr(Clipboard, LangTrans("items_stack") " 1/") || !InStr(Clipboard, LangTrans("items_stack")))
+		If !vars.client.stream && (!Clipboard || InStr(hotkey, "LButton") && (InStr(Clipboard, LangTrans("items_stack") " 1/") || !InStr(Clipboard, LangTrans("items_stack"))))
 		{
 			in_progress := 0
 			Return
@@ -289,7 +296,7 @@ Stash_Hotkeys()
 			Stash_PricePicker()
 		LLK_Overlay(vars.hwnd.stash.main, "hide"), vars.stash.GUI := 0, vars.stash.enter := 1
 		While vars.stash.enter
-			Sleep 10
+			Sleep 1
 		LLK_Overlay(vars.hwnd.stash.main, "show")
 	}
 	KeyWait, % hotkey
@@ -385,7 +392,8 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 	Gui, %GUI_name%: Font, % "s" settings.stash.fSize
 	If !trend
 	{
-		Gui, %GUI_name%: Add, Text, % "x0 y0 Section Border Center BackgroundTrans", % " " LangTrans("stash_margin") ": "
+		Gui, %GUI_name%: Add, Text, % "x0 y0 Section Border gStash_PricePicker Center BackgroundTrans", % " x "
+		Gui, %GUI_name%: Add, Text, % "ys x+-1 Border Center BackgroundTrans", % " " LangTrans("stash_margin") ": "
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack Disabled Border", 0
 		Loop, Parse, % settings.stash.margins, `,, % A_Space
 		{
@@ -415,7 +423,16 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 			bulk_sizes.Push(amount)
 			If vars.stash.note
 				color := (InStr(vars.stash.note, "/" amount " ") || !InStr(vars.stash.note, "/") && (amount = 1) ? " cLime" : "")
-			Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount (!stack && (check := Mod(available0, amount)) ? " (+" check ")" : "")
+			If stack && (A_Index = 1)
+			{
+				Gui, %GUI_name%: Font, % "s" settings.stash.fSize
+				Gui, %GUI_name%: Add, Text, % "ys x+-1 Border BackgroundTrans hp w" wColumn, % ""
+				Gui, %GUI_name%: Add, Edit, % "xp yp wp hp cBlack Center Limit Number HWNDhwnd", % amount
+				Gui, %GUI_name%: Add, Button, % "xp yp wp hp Default Hidden gStash_PricePicker HWNDhwnd1", ok
+				Gui, %GUI_name%: Font, % "s" settings.stash.fSize
+				vars.hwnd.stash_picker.amount := hwnd, vars.hwnd.stash_picker.ok := hwnd1
+			}
+			Else Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd Border Center w" wColumn . color, % amount (!stack && (check := Mod(available0, amount)) ? " (+" check ")" : "")
 			If stack || (available != available0)
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border BackgroundBlack c" (stack ? "603030" : "303060"), 100
 		}
@@ -458,7 +475,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 			wMax += Stash_PriceHistory(GUI_name, xLast + wMax, yAnchor + settings.stash.fWidth, yLast + hLast - yAnchor - settings.stash.fWidth, settings.stash.fWidth, trend_data, min_max), LLK_PanelDimensions(min_max, settings.stash.fSize, wTrend, hTrend,,, 0)
 			For index, mm in min_max
 			{
-				style := (index = 1 ? "Section x" xLast + wMax + settings.stash.fWidth*1.5 " y" yAnchor2 : "xs"), color := (index = 2) ? " cB266FF" : (index = 1 ? " cLime" : " cRed")
+				style := (index = 1 ? "Section x" xLast + wMax + settings.stash.fWidth//2 " y" yAnchor2 : "xs"), color := (index = 2) ? " cB266FF" : (index = 1 ? " cLime" : " cRed")
 				If (index = 1)
 					wMax := 0
 				text := (mm = "0.0%" && index != 2 || index = 1 && mm = min_max[index + 1] || index = 3 && mm = min_max[index - 1]) ? "" : mm
@@ -467,7 +484,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 				wMax := (wLast > wMax) ? wLast : wMax
 			}
 		}
-		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border x" xAnchor " y" yAnchor " w" xLast + wMax - xAnchor + settings.stash.fWidth*1.5 " h" yLast + hLast - yAnchor + settings.stash.fWidth
+		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border x" xAnchor " y" yAnchor " w" xLast + wMax - xAnchor + settings.stash.fWidth * 1.5 " h" yLast + hLast - yAnchor + settings.stash.fWidth
 		Gui, %GUI_name%: Add, Progress, % "BackgroundBlack Disabled xp yp wp hp", 0
 		Gui, %GUI_name%: Font, % "s" settings.stash.fSize2	
 	}
@@ -586,7 +603,7 @@ Stash_PricePicker(cHWND := "")
 	global vars, settings
 	static toggle := 0
 
-	item := vars.stash.hover, tab := vars.stash.active, vars.stash.note := InStr(Clipboard, "`nnote:")
+	item := vars.stash.hover, tab := vars.stash.active, vars.stash.note := InStr(Clipboard, "`nnote:"), stack_unknown := 0
 	If !Blank(cHWND)
 	{
 		KeyWait, LButton
@@ -604,13 +621,27 @@ Stash_PricePicker(cHWND := "")
 			SendInput, ^{v}{Enter}
 			Return
 		}
+		Else If (check = "ok")
+		{
+			input := LLK_ControlGet(vars.hwnd.stash_picker.amount)
+			If !IsNumber(input)
+				Return
+			override := max_stack := 1, available := input
+		}
+		Else If (A_GuiControl = " x ")
+		{
+			LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
+			Return
+		}
 	}
 
+	KeyWait, RButton
 	toggle := !toggle, GUI_name := "stash_pricepicker" toggle, note := vars.stash.note := vars.stash.note ? SubStr(Clipboard, vars.stash.note + 7) : ""
-	If !InStr(Clipboard, LangTrans("items_stack"))
-		available := 5, max_stack := 1, stack_unknown := 1
-	Else available := SubStr(Clipboard, InStr(Clipboard, LangTrans("items_stack")) + StrLen(LangTrans("items_stack")) + 1),	max_stack := SubStr(available, InStr(available, "/") + 1)
-		, max_stack := SubStr(max_stack, 1, InStr(max_stack, "`r") - 1), available := SubStr(available, 1, InStr(available, "/") - 1)
+	If !override
+		If !InStr(Clipboard, LangTrans("items_stack"))
+			available := 5, max_stack := 1, stack_unknown := 1
+		Else available := SubStr(Clipboard, InStr(Clipboard, LangTrans("items_stack")) + StrLen(LangTrans("items_stack")) + 1),	max_stack := SubStr(available, InStr(available, "/") + 1)
+			, max_stack := SubStr(max_stack, 1, InStr(max_stack, "`r") - 1), available := SubStr(available, 1, InStr(available, "/") - 1)
 
 	For key, val in {"available": available, "max_stack": max_stack}
 		Loop, Parse, val
@@ -628,5 +659,41 @@ Stash_PricePicker(cHWND := "")
 	WinGetPos,,, w, h, ahk_id %hwnd_stash%
 	xPos := vars.client.x + vars.stash[tab][item].coords.1 + vars.stash[tab].box//2 - w//2, xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := vars.stash[tab][item].coords.2 - h - settings.stash.fWidth, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
-	LLK_Overlay(hwnd_stash, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+	LLK_Overlay(hwnd_stash, "show", !stack_unknown, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+}
+
+Stash_Selection(cHWND := "")
+{
+	local
+	global vars, settings
+
+	If !settings.features.stash
+		Return
+	If cHWND
+		check := LLK_HasVal(vars.hwnd.stash_selection, cHWND)
+	If check
+	{
+		Stash_(check)
+		Gui, stash_selection: Destroy
+		Return
+	}
+	dimensions := [], dimensions0 := []
+	Gui, stash_selection: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDhwndGUI"
+	Gui, stash_selection: Font, % "s" settings.stash.fSize2 " cWhite", % vars.system.font
+	Gui, stash_selection: Color, Black
+	Gui, stash_selection: Margin, 0, 0
+
+	For tab in vars.stash.tabs
+		dimensions.Push(LangTrans("m_stash_" tab)), dimensions0.Push(tab)
+	LLK_PanelDimensions(dimensions, settings.stash.fSize, width, height), vars.hwnd.stash_selection := {"main": hwndGUI}
+	For index, tab in dimensions
+	{
+		Gui, stash_selection: Add, Text, % "xs Section gStash_selection HWNDhwnd w" width, % " " tab " "
+		vars.hwnd.stash_selection[dimensions0[index]] := hwnd
+	}
+	Gui, stash_selection: Show, % "x" vars.general.xMouse - width//2 " y" vars.general.yMouse - settings.stash.fHeight
+	WinWait, ahk_id %hwndGUI%
+	While WinActive("ahk_id " hwndGUI)
+		Sleep 100
+	Gui, stash_selection: Destroy
 }

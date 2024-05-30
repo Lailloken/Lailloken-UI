@@ -19,12 +19,12 @@
 	If InStr(parse, ",")
 		vars.pixelsearch.gamescreen := {"x1": SubStr(parse, 1, InStr(parse, ",") - 1), "y1": SubStr(parse, InStr(parse, ",") + 1)}
 
-	vars.pixelsearch.gamescreen.color1 := LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", "gamescreen", "color 1")
+	ini := IniBatchRead("ini\screen checks (" vars.client.h "p).ini")
+	vars.pixelsearch.gamescreen.color1 := ini.gamescreen["color 1"]
 	vars.pixelsearch.gamescreen.check := 0
-
 	vars.pixelsearch.inventory := {"x1": 0, "x2": 0, "x3": 6, "y1": 0, "y2": 6, "y3": 0, "check": 0}
 	Loop 3
-		vars.pixelsearch.inventory["color" A_Index] := LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", "inventory", "color " A_Index)
+		vars.pixelsearch.inventory["color" A_Index] := ini.inventory["color " A_Index]
 
 	vars.pixelsearch.variation := 0, vars.pixelsearch.list := {"gamescreen": 1, "inventory": 1}
 	vars.imagesearch := {}
@@ -37,7 +37,7 @@
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
-		parse := StrSplit(LLK_IniRead("ini\screen checks (" vars.client.h "p).ini", key, "last coordinates"), ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
+		parse := StrSplit(ini[key]["last coordinates"], ","), vars.imagesearch[key] := {"check": 0, "x1": parse.1, "y1": parse.2, "x2": parse.3, "y2": parse.4}
 }
 
 Screenchecks_ImageRecalibrate(mode := "", check := "")
@@ -117,6 +117,8 @@ Screenchecks_ImageRecalibrate(mode := "", check := "")
 		WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%
 		vars.snipping_tool.coords := {"x": xPos, "y": yPos, "w": width, "h": height}, coords := vars.snipping_tool.coords
 
+		If vars.client.stream
+			Sleep, 1000
 		While vars.snipping_tool.GUI && WinActive("ahk_id " hwnd_gui)
 		{
 			If (align = "left") && (vars.general.xMouse <= coords.x + coords.w // 2)
@@ -154,9 +156,14 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 
 	For key, val in vars.imagesearch.search
 		vars.imagesearch[val].check := 0 ;reset results for all checks
+	check := 0
+	For index, val in ["betrayal", "leveltracker", "necropolis"]
+		check += settings.features[val]
+	If !check
+		Return
 
 	pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1) ;take screenshot from client
-	For key, val in vars.imagesearch.search
+	For index, val in vars.imagesearch.search
 	{
 		If name ;if parameter was passed to function, override val
 			val := name
@@ -165,7 +172,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 			continue ;skip check if the connected feature is not enabled
 
 		If InStr(A_Gui, "settings_menu") ;when testing a screen-check via the settings, check the whole screenshot
-			x1 := 0, y1 := 0, x2 := 0, y2 := 0
+			x1 := 0, y1 := 0, x2 := 0, y2 := 0, settings_menu := 1
 		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
 		Else If (val = "necro_lantern")
@@ -178,7 +185,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 			Gdip_GetImageDimension(pNeedle, width, height)
 			vars.imagesearch[val].check := 1, vars.imagesearch[val].found := StrSplit(LIST, ",")
 			vars.imagesearch[val].found.1 -= settings.general.oGamescreen, vars.imagesearch[val].found.3 := width, vars.imagesearch[val].found.4 := height
-			If !InStr(val, "necro") && (SubStr(LIST, 1, InStr(LIST, ",") - 1) != vars.imagesearch[val].x1) || (SubStr(LIST, InStr(LIST, ",") + 1) != vars.imagesearch[val].y1) ;if the coordinates are different from those saved in the ini, update them
+			If (!InStr(val, "necro") || settings_menu) && (SubStr(LIST, 1, InStr(LIST, ",") - 1) != vars.imagesearch[val].x1 || SubStr(LIST, InStr(LIST, ",") + 1) != vars.imagesearch[val].y1) ;if the coordinates are different from those saved in the ini, update them
 			{
 				coords := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height)
 				IniWrite, % coords, % "ini\screen checks ("vars.client.h "p).ini", % val, last coordinates
@@ -194,7 +201,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 				}
 			}
 			Gdip_DisposeImage(pNeedle)
-			If (val != "necro_lantern")		;for the necropolis lantern, don't dispose of the image but make a copy of the pointer
+			If (val != "necro_lantern") ;for the necropolis lantern, don't dispose of the image but make a copy of the pointer
 				Gdip_DisposeImage(pHaystack)
 			Else vars.imagesearch[val].pHaystack := pHaystack
 			Return 1

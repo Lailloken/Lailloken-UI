@@ -3,26 +3,25 @@
 	local
 	global vars, settings, db, Json
 
-	settings.OCR := {"profile": 1} ;in case profiles are desired in the future
-	settings.OCR.allow := LLK_IniRead("ini\ocr.ini", "Settings", "allow ocr", 0) * (vars.client.h > 720 ? 1 : 0)
-	settings.OCR.hotkey := LLK_IniRead("ini\ocr.ini", "Settings", "hotkey")
+	ini := IniBatchRead("ini\ocr.ini"), settings.OCR := {"profile": 1} ;in case profiles are desired in the future
+	settings.OCR.allow := (!Blank(check := ini.settings["allow ocr"]) ? check : 0) * (vars.client.h > 720 ? 1 : 0)
+	settings.OCR.hotkey := !Blank(check := ini.settings["hotkey"]) ? check : ""
 	settings.OCR.hotkey_single := settings.OCR.hotkey
 	If (StrLen(settings.OCR.hotkey) > 1)
 		Loop, Parse, % "+!^#"
 			settings.OCR.hotkey_single := StrReplace(settings.OCR.hotkey_single, A_LoopField)
 	If !GetKeyVK(settings.OCR.hotkey_single)
 		settings.OCR.hotkey_single := ""
-	settings.OCR.hotkey_block := LLK_IniRead("ini\ocr.ini", "Settings", "block native key-function", 0)
-	settings.OCR.z_hotkey := LLK_IniRead("ini\ocr.ini", "Settings", "toggle highlighting hotkey", "z")
-	settings.OCR.debug := LLK_IniRead("ini\ocr.ini", "Settings", "enable debug", 0)
-	settings.OCR.fSize := LLK_IniRead("ini\ocr.ini", "Settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.OCR.fSize, font_height, font_width)
-	settings.OCR.fHeight := font_height, settings.OCR.fWidth := font_width
+	settings.OCR.hotkey_block := !Blank(check := ini.settings["block native key-function"]) ? check : 0
+	settings.OCR.z_hotkey := !Blank(check := ini.settings["toggle highlighting hotkey"]) ? check : "z"
+	settings.OCR.debug := !Blank(check := ini.settings["enable debug"]) ? check : 0
+	settings.OCR.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.OCR.fSize, font_height, font_width), settings.OCR.fHeight := font_height, settings.OCR.fWidth := font_width
 	settings.OCR.dColors := [["00FF00", "00000"], ["FF8000", "00000"], ["FF0000", "00000"], ["FF00FF", "00000"], ["FF0000", "FFFFFF"]], settings.OCR.dColors.0 := ["FFFFFF", "000000"]
 	settings.OCR.colors := []
 	For index, color in settings.OCR.dColors
-		If (iniread := LLK_IniRead("ini\ocr.ini", "UI", "pattern " index))
-			settings.OCR.colors[index] := StrSplit(iniread, ",")
+		If !Blank(check := ini.UI["pattern " index])
+			settings.OCR.colors[index] := StrSplit(check, ",")
 		Else settings.OCR.colors[index] := color.Clone()
 
 	settings.features.OCR := LLK_IniRead("ini\config.ini", "Features", "enable ocr", 0) * settings.OCR.allow
@@ -408,7 +407,7 @@ OCR_Altars()
 	Else
 	{
 		LLK_PanelDimensions(panels.1, settings.OCR.fSize, w1, h1), LLK_PanelDimensions(panels.2, settings.OCR.fSize, w2, h2)
-		width := Max(w1, w2)
+		width := Max(w1, w2), ini := IniBatchRead("ini\ocr - altars.ini")
 		For index, array in panels
 			For index1, panel_text in array
 			{
@@ -416,7 +415,7 @@ OCR_Altars()
 					vars.OCR.coords.hPanel := yControl + hControl
 				If (index1 = 1)
 					key := StrReplace(panel_text, ":")
-				rank := LLK_IniRead("ini\ocr - altars.ini", "profile " settings.OCR.profile " " key, panel_text, 0)
+				rank := !Blank(check := ini["profile " settings.OCR.profile " " key][panel_text]) ? check : 0
 				colors := (index1 = 1) ? ["FFFFFF", "000000"] : settings.OCR.colors[rank].Clone()
 				Gui, %GUI_name%: Add, Text, % (index = 2 && index1 = 1 ? "y+" vars.client.h / 10 : (index = 1 && index1 = 1) ? "" : "y+-1") " xs Section Center Border BackgroundTrans HWNDhwnd0 w" width " c" colors.1, % StrReplace(panel_text, "&", "&&")
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border HWNDhwnd BackgroundBlack c" colors.2, 100
@@ -636,7 +635,7 @@ OCR_VaalAreas()
 		If val.Count()
 			LLK_PanelDimensions(val, settings.OCR.fSize, w%key%, h%key%), wPanels := (w%key% > wPanels) ? w%key% : wPanels
 	}
-	LLK_PanelDimensions(categories, settings.OCR.fSize, wCategories, hCategories), added := -1
+	LLK_PanelDimensions(categories, settings.OCR.fSize, wCategories, hCategories), added := -1, ini := IniBatchRead("ini\ocr - vaal areas.ini")
 	For key, val in lines
 	{
 		If !val.Count()
@@ -645,7 +644,7 @@ OCR_VaalAreas()
 			key := "unclear"
 		For index, line in val
 		{
-			rank := LLK_IniRead("ini\ocr - vaal areas.ini", "profile " settings.OCR.profile, StrReplace(line, "`n", ";"), 0), colors := settings.OCR.colors[rank].Clone(), added += 1
+			rank := !Blank(check := ini["profile " settings.OCR.profile][StrReplace(line, "`n", ";")]) ? check : 0, colors := settings.OCR.colors[rank].Clone(), added += 1
 			Gui, %GUI_name%: Add, Text, % "xs x" wCategories - 1 . (added = 0 ? "" : " y+-1") " Section Border BackgroundTrans HWNDhwnd c" colors.1 " w" wPanels, % " " StrReplace(StrReplace(line, "`n", "`n "), "&", "&&") " "
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd1 c" colors.2, 100
 			If (index = 1)

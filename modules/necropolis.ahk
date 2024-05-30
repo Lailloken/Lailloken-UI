@@ -5,23 +5,23 @@
 
 	If !IsObject(settings.OCR)
 		settings.OCR := {}
-	settings.OCR.allow := LLK_IniRead("ini\ocr.ini", "Settings", "allow ocr", 0) * (vars.client.h > 720 ? 1 : 0)
+	settings.OCR.allow := LLK_IniRead("ini\ocr.ini", "Settings", "allow ocr", 0) * (vars.client.h > 720 ? 1 : 0), ini := IniBatchRead("ini\necropolis.ini")
 
 	If !IsObject(settings.necropolis)
-		settings.necropolis := {"mods": {}, "profile": LLK_IniRead("ini\necropolis.ini", "settings", "profile", 1)}
+		settings.necropolis := {"mods": {}, "profile": !Blank(check := ini.settings["profile"]) ? check : 1}
 
-	settings.necropolis.debug := LLK_IniRead("ini\necropolis.ini", "settings", "enable debug", 0)
+	settings.necropolis.debug := !Blank(check := ini.settings["debug"]) ? check : 0
 	settings.necropolis.dColors := ["00FF00", "FF8000", "FF0000", "FF00FF", "00FFFF"], settings.necropolis.dColors.0 := "FFFFFF"
 	settings.necropolis.colors := []
-	settings.necropolis.opac := LLK_IniRead("ini\necropolis.ini", "UI", "opacity", 50)
+	settings.necropolis.opac := !Blank(check := ini.UI["opacity"]) ? check : 50
 
 	For index, color in settings.necropolis.dColors
-		If (iniread := LLK_IniRead("ini\necropolis.ini", "UI", "color " index))
-			settings.necropolis.colors[index] := iniread
+		If !Blank(check := ini.UI["color " index])
+			settings.necropolis.colors[index] := check
 		Else settings.necropolis.colors[index] := color
 
 	For key, val in {"g": "Gap", "x": "Xpos", "y": "Ypos", "w": "Width", "h": "Height"}
-		settings.necropolis["o" val] := LLK_IniRead("ini\necropolis.ini", "UI", val " offset", 0)
+		settings.necropolis["o" val] := !Blank(check := ini.UI[val " offset"]) ? check : 0
 
 	settings.features.necropolis := LLK_IniRead("ini\config.ini", "features", "enable necropolis", 0) * settings.OCR.allow
 	If !IsObject(db.necropolis)
@@ -29,7 +29,7 @@
 		db.necropolis := Json.Load(LLK_FileRead("data\english\necropolis.json")), db.necropolis.dictionary := []
 		For index, mod in db.necropolis.mods
 		{
-			settings.necropolis.mods[mod] := LLK_IniRead("ini\necropolis.ini", "profile " settings.necropolis.profile, mod, 0)
+			settings.necropolis.mods[mod] := !Blank(check := ini["profile " settings.necropolis.profile][mod]) ? check : 0
 			Loop, Parse, mod, % A_Space
 				If !LLK_HasVal(db.necropolis.dictionary, A_LoopField)
 					db.necropolis.dictionary.Push(A_LoopField)
@@ -138,8 +138,7 @@ Necropolis_Click()
 		Gui, % vars.hwnd.necropolis.GUI_name ": -E0x20"
 	}
 	Else Return
-
-	Sleep 50
+	Sleep, 50
 	MouseGetPos, xMouse, yMouse, wMouse, cMouse1, 2
 	button1 := LLK_HasVal(vars.necropolis.buttons, cMouse1), hwnd1 := LLK_HasVal(vars.hwnd.necropolis, cMouse1)
 	If !Blank(text) && button && button1 && (button != button1)

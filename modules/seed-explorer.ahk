@@ -9,10 +9,9 @@
 			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
 		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
 
-		settings.legion := {"fSize": LLK_IniRead("ini\seed-explorer.ini", "settings", "font-size", settings.general.fSize)}
+		ini := IniBatchRead("ini\seed-explorer.ini")
+		settings.legion := {"fSize": !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize, "profile": !Blank(check1 := ini.settings["profile"]) ? check1 : 1}
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height
-		settings.legion.profile := LLK_IniRead("ini\seed-explorer.ini", "settings", "profile", 1)
-
 		vars.legion := {}
 	}
 	settings.legion.highlights := {}

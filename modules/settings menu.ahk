@@ -534,7 +534,7 @@ Settings_general()
 	Gui, %GUI%: Font, % "s"settings.general.fsize
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_general2 Checked"settings.features.browser, % LangTrans("m_general_browser")
 	vars.hwnd.settings.browser := hwnd, vars.hwnd.help_tooltips["settings_browser features"] := hwnd
-	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_general2 Checked"LLK_IniRead("ini\config.ini", "Settings", "enable CapsLock-toggling", 1), % LangTrans("m_general_capslock")
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_general2 Checked" settings.general.capslock, % LangTrans("m_general_capslock")
 	vars.hwnd.settings.capslock := hwnd, vars.hwnd.help_tooltips["settings_capslock toggling"] := hwnd, check := ""
 
 	Loop, Files, data\*, R
@@ -597,86 +597,89 @@ Settings_general()
 		Else vars.hwnd.help_tooltips["settings_lang incompatible|"] := hwnd
 	}
 
-	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_general_client")
-	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_general2", % " " LangTrans("global_restart") " "
-	vars.hwnd.settings.apply := hwnd
-
-	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_general_language", 2) " "
-	Gui, %GUI%: Add, Text, % "ys x+0 c" (settings.general.lang_client = "unknown" ? "Red" : "Lime"), % (settings.general.lang_client = "unknown") ? LangTrans("m_general_language", 3) : settings.general.lang_client
-
-	If (settings.general.lang_client = "unknown")
-		Gui, %GUI%: Add, Text, % "xs Section cRed", % "(some features will not be available)"
-
-	If !InStr("unknown,english", settings.general.lang_client)
+	If !vars.client.stream
 	{
-		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd", % " " LangTrans("global_credits") " "
-		vars.hwnd.help_tooltips["settings_lang contributors"] := hwnd
-	}
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_general_client")
+		Gui, %GUI%: Font, norm
+		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd gSettings_general2", % " " LangTrans("global_restart") " "
+		vars.hwnd.settings.apply := hwnd
 
-	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_general_display", 1) " "
-	Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % (vars.client.fullscreen = "true") ? LangTrans("m_general_display", 2) : !vars.client.borderless ? LangTrans("m_general_display", 3) : LangTrans("m_general_display", 4)
-	vars.hwnd.settings.window_mode := hwnd
+		Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_general_language", 2) " "
+		Gui, %GUI%: Add, Text, % "ys x+0 c" (settings.general.lang_client = "unknown" ? "Red" : "Lime"), % (settings.general.lang_client = "unknown") ? LangTrans("m_general_language", 3) : settings.general.lang_client
 
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_general_resolution")
-	vars.hwnd.help_tooltips["settings_force resolution"] := hwnd
-	If (vars.client.fullscreen = "true")
-	{
-		Gui, %GUI%: Add, Text, % "ys hp BackgroundTrans HWNDhwnd x+"settings.general.fwidth/2, % vars.monitor.w
-		vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution|"] := hwnd
-	}
-	Else
-	{
-		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-		Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2 " w"settings.general.fWidth*4, % vars.client.w0
-		vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution||"] := hwnd
-		Gui, %GUI%: Font, % "s"settings.general.fsize
-	}
-	Gui, %GUI%: Add, Text, % "ys hp BackgroundTrans x+0", % " x "
+		If (settings.general.lang_client = "unknown")
+			Gui, %GUI%: Add, Text, % "xs Section cRed", % "(some features will not be available)"
 
-	Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-	If vars.general.safe_mode
-		vars.general.available_resolutions := StrReplace(vars.general.available_resolutions, vars.monitor.h "|")
-	Gui, %GUI%: Add, DDL, % "ys hp BackgroundTrans HWNDhwnd gSettings_general2 r10 x+0 w"5* settings.general.fwidth, % StrReplace(vars.general.available_resolutions, vars.client.h "|", vars.client.h "||")
-	vars.hwnd.settings.custom_resolution := hwnd, vars.hwnd.help_tooltips["settings_force resolution|||"] := hwnd
-	Gui, %GUI%: Font, % "s"settings.general.fsize
-
-	WinGetPos,,, wCheck, hCheck, ahk_group poe_window
-	If !vars.general.safe_mode && (wCheck < vars.monitor.w || hCheck < vars.monitor.h)
-	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_general_position")
-		vars.hwnd.help_tooltips["settings_window position"] := hwnd
-		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
-		If (wCheck < vars.monitor.w)
+		If !InStr("unknown,english", settings.general.lang_client)
 		{
-			Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd w"Floor(settings.general.fWidth* 6.5) " gSettings_general2", % StrReplace(LangTrans("m_general_posleft") "|" LangTrans("m_general_poscenter") "|" LangTrans("m_general_posright") "|", LangTrans("m_general_pos" vars.client.docked) "|", LangTrans("m_general_pos" vars.client.docked) "||")
-			vars.hwnd.settings.dock := hwnd, vars.hwnd.help_tooltips["settings_window position|"] := hwnd
+			Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd", % " " LangTrans("global_credits") " "
+			vars.hwnd.help_tooltips["settings_lang contributors"] := hwnd
 		}
-		If (hCheck < vars.monitor.h)
+
+		Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_general_display", 1) " "
+		Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % (vars.client.fullscreen = "true") ? LangTrans("m_general_display", 2) : !vars.client.borderless ? LangTrans("m_general_display", 3) : LangTrans("m_general_display", 4)
+		vars.hwnd.settings.window_mode := hwnd
+
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_general_resolution")
+		vars.hwnd.help_tooltips["settings_force resolution"] := hwnd
+		If (vars.client.fullscreen = "true")
 		{
-			Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd gSettings_general2" (wCheck < vars.monitor.w ? " wp" : " w"settings.general.fWidth * 6.5), % StrReplace(LangTrans("m_general_postop") "|" LangTrans("m_general_poscenter") "|" LangTrans("m_general_posbottom") "|", LangTrans("m_general_pos" vars.client.docked2) "|", LangTrans("m_general_pos" vars.client.docked2) "||")
-			vars.hwnd.settings.dock2 := hwnd, vars.hwnd.help_tooltips["settings_window position||"] := hwnd
+			Gui, %GUI%: Add, Text, % "ys hp BackgroundTrans HWNDhwnd x+"settings.general.fwidth/2, % vars.monitor.w
+			vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution|"] := hwnd
+		}
+		Else
+		{
+			Gui, %GUI%: Font, % "s"settings.general.fsize - 4
+			Gui, %GUI%: Add, Edit, % "ys hp Limit4 Number Center cBlack BackgroundTrans gSettings_general2 HWNDhwnd x+"settings.general.fwidth/2 " w"settings.general.fWidth*4, % vars.client.w0
+			vars.hwnd.settings.custom_width := hwnd, vars.hwnd.help_tooltips["settings_force resolution||"] := hwnd
 			Gui, %GUI%: Font, % "s"settings.general.fsize
 		}
-		If (vars.client.fullscreen = "false")
+		Gui, %GUI%: Add, Text, % "ys hp BackgroundTrans x+0", % " x "
+
+		Gui, %GUI%: Font, % "s"settings.general.fsize - 4
+		If vars.general.safe_mode
+			vars.general.available_resolutions := StrReplace(vars.general.available_resolutions, vars.monitor.h "|")
+		Gui, %GUI%: Add, DDL, % "ys hp BackgroundTrans HWNDhwnd gSettings_general2 r10 x+0 w"5* settings.general.fwidth, % StrReplace(vars.general.available_resolutions, vars.client.h "|", vars.client.h "||")
+		vars.hwnd.settings.custom_resolution := hwnd, vars.hwnd.help_tooltips["settings_force resolution|||"] := hwnd
+		Gui, %GUI%: Font, % "s"settings.general.fsize
+
+		WinGetPos,,, wCheck, hCheck, ahk_group poe_window
+		If !vars.general.safe_mode && (wCheck < vars.monitor.w || hCheck < vars.monitor.h)
 		{
-			Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", % LangTrans("m_general_borderless")
-			vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
+			Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_general_position")
+			vars.hwnd.help_tooltips["settings_window position"] := hwnd
+			Gui, %GUI%: Font, % "s"settings.general.fsize - 4
+			If (wCheck < vars.monitor.w)
+			{
+				Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd w"Floor(settings.general.fWidth* 6.5) " gSettings_general2", % StrReplace(LangTrans("m_general_posleft") "|" LangTrans("m_general_poscenter") "|" LangTrans("m_general_posright") "|", LangTrans("m_general_pos" vars.client.docked) "|", LangTrans("m_general_pos" vars.client.docked) "||")
+				vars.hwnd.settings.dock := hwnd, vars.hwnd.help_tooltips["settings_window position|"] := hwnd
+			}
+			If (hCheck < vars.monitor.h)
+			{
+				Gui, %GUI%: Add, DDL, % "ys hp r3 HWNDhwnd gSettings_general2" (wCheck < vars.monitor.w ? " wp" : " w"settings.general.fWidth * 6.5), % StrReplace(LangTrans("m_general_postop") "|" LangTrans("m_general_poscenter") "|" LangTrans("m_general_posbottom") "|", LangTrans("m_general_pos" vars.client.docked2) "|", LangTrans("m_general_pos" vars.client.docked2) "||")
+				vars.hwnd.settings.dock2 := hwnd, vars.hwnd.help_tooltips["settings_window position||"] := hwnd
+				Gui, %GUI%: Font, % "s"settings.general.fsize
+			}
+			If (vars.client.fullscreen = "false")
+			{
+				Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd Checked"vars.client.borderless " gSettings_general2", % LangTrans("m_general_borderless")
+				vars.hwnd.settings.remove_borders := hwnd, vars.hwnd.help_tooltips["settings_window borders"] := hwnd
+			}
 		}
-	}
 
-	If settings.general.FillerAvailable
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_general2 HWNDhwnd Checked" settings.general.ClientFiller, % LangTrans("m_general_filler")
-		vars.hwnd.settings.ClientFiller := vars.hwnd.help_tooltips["settings_client filler"] := hwnd
-	}
+		If settings.general.FillerAvailable
+		{
+			Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_general2 HWNDhwnd Checked" settings.general.ClientFiller, % LangTrans("m_general_filler")
+			vars.hwnd.settings.ClientFiller := vars.hwnd.help_tooltips["settings_client filler"] := hwnd
+		}
 
-	If (vars.client.h0 / vars.client.w0 < (5/12))
-	{
-		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0)
-		Gui, %GUI%: Add, Checkbox, % "hp xs Section BackgroundTrans gSettings_general2 HWNDhwnd Center Checked"settings.general.blackbars, % LangTrans("m_general_blackbars")
-		vars.hwnd.settings.blackbars := hwnd, vars.hwnd.help_tooltips["settings_black bars"] := hwnd
+		If (vars.client.h0 / vars.client.w0 < (5/12))
+		{
+			settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0)
+			Gui, %GUI%: Add, Checkbox, % "hp xs Section BackgroundTrans gSettings_general2 HWNDhwnd Center Checked"settings.general.blackbars, % LangTrans("m_general_blackbars")
+			vars.hwnd.settings.blackbars := hwnd, vars.hwnd.help_tooltips["settings_black bars"] := hwnd
+		}
 	}
 
 	Gui, %GUI%: Font, bold underline
@@ -707,7 +710,6 @@ Settings_general2(cHWND := "")
 				If (A_TickCount >= start + 250)
 				{
 					WinGetPos,,, width, height, % "ahk_id " vars.hwnd.settings.main
-					vars.settings.drag := 1
 					While GetKeyState("LButton", "P")
 					{
 						LLK_Drag(width, height, xPos, yPos, 1)
@@ -715,7 +717,7 @@ Settings_general2(cHWND := "")
 					}
 					KeyWait, LButton
 					WinGetPos, xPos, yPos, w, h, % "ahk_id " vars.hwnd.settings.main
-					vars.settings.x := xPos, vars.settings.y := yPos, vars.settings.drag := 0
+					vars.settings.x := xPos, vars.settings.y := yPos, vars.general.drag := 0
 					Return
 				}
 			}
@@ -838,8 +840,7 @@ Settings_general2(cHWND := "")
 					GuiControl, text, % vars.hwnd.settings.font_reset, % settings.general.fSize
 					Sleep 150
 				}
-				LLK_FontDimensions(settings.general.fSize, font_height, font_width)
-				settings.general.fheight := font_height, settings.general.fwidth := font_width
+				LLK_FontDimensions(settings.general.fSize, font_height, font_width), settings.general.fheight := font_height, settings.general.fwidth := font_width
 				IniWrite, % settings.general.fSize, ini\config.ini, Settings, font-size
 				Init_GUI()
 				Settings_menu("general")
@@ -875,32 +876,37 @@ Settings_hotkeys()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
 	Gui, %GUI%: Add, Link, % "ys x+"settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
 
-	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_hotkeys_settings")
-	Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
-	Gui, %GUI%: Font, norm
-
-	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.rebound_alt, % LangTrans("m_hotkeys_descriptions")
-	vars.hwnd.settings.rebound_alt := hwnd, vars.hwnd.help_tooltips["settings_hotkeys ingame-keybinds"] := hwnd0
-	If settings.hotkeys.rebound_alt
+	If !vars.client.stream || settings.features.leveltracker
 	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % "    " LangTrans("m_hotkeys_descriptions", 2)
-		Gui, %GUI%: font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp gSettings_hotkeys2 w"settings.general.fWidth*10 " HWNDhwnd cBlack", % settings.hotkeys.item_descriptions
-		vars.hwnd.help_tooltips["settings_hotkeys altkey"] := hwnd0, vars.hwnd.settings.item_descriptions := vars.hwnd.help_tooltips["settings_hotkeys altkey|"] := hwnd
-		Gui, %GUI%: font, % "s"settings.general.fSize
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_hotkeys_settings")
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
+		Gui, %GUI%: Font, norm
 	}
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.rebound_c, % LangTrans("m_hotkeys_ckey")
-	vars.hwnd.settings.rebound_c := hwnd
+	If !vars.client.stream
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.rebound_alt, % LangTrans("m_hotkeys_descriptions")
+		vars.hwnd.settings.rebound_alt := hwnd, vars.hwnd.help_tooltips["settings_hotkeys ingame-keybinds"] := hwnd0
+		If settings.hotkeys.rebound_alt
+		{
+			Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 xp+" settings.general.fWidth * 1.5, % LangTrans("m_hotkeys_descriptions", 2)
+			Gui, %GUI%: font, % "s"settings.general.fSize - 4
+			Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp gSettings_hotkeys2 w"settings.general.fWidth*10 " HWNDhwnd cBlack", % settings.hotkeys.item_descriptions
+			vars.hwnd.help_tooltips["settings_hotkeys altkey"] := hwnd0, vars.hwnd.settings.item_descriptions := vars.hwnd.help_tooltips["settings_hotkeys altkey|"] := hwnd
+			Gui, %GUI%: font, % "s"settings.general.fSize
+		}
+		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked" settings.hotkeys.rebound_c " x" x_anchor, % LangTrans("m_hotkeys_ckey")
+		vars.hwnd.settings.rebound_c := hwnd
+	}
 
 	If settings.features.leveltracker
 	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_hotkeys_movekey")
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 x" x_anchor, % LangTrans("m_hotkeys_movekey")
 		Gui, %GUI%: font, % "s"settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp gSettings_hotkeys2 w"settings.general.fWidth*10 " HWNDhwnd cBlack", % settings.hotkeys.movekey
 		vars.hwnd.help_tooltips["settings_hotkeys movekey"] := hwnd0, vars.hwnd.settings.movekey := hwnd, vars.hwnd.help_tooltips["settings_hotkeys movekey|"] := hwnd
@@ -908,7 +914,7 @@ Settings_hotkeys()
 	}
 
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_hotkeys_omnikey")
+	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing " x" x_anchor, % LangTrans("m_hotkeys_omnikey")
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
 	vars.hwnd.help_tooltips["settings_hotkeys omnikey-info"] := hwnd
 	Gui, %GUI%: Font, norm
@@ -916,7 +922,7 @@ Settings_hotkeys()
 	LLK_PanelDimensions([LangTrans("m_hotkeys_omnikey", 2), settings.hotkeys.rebound_c ? LangTrans("m_hotkeys_omnikey", 3) : ""], settings.general.fSize, wText, hText,,, 0)
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 w" wText, % LangTrans("m_hotkeys_omnikey", 2)
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+" settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.omnikey = "MButton") ? "" : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey")
+	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+" settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.omnikey = "MButton") ? "" : settings.hotkeys.omnikey
 	vars.hwnd.help_tooltips["settings_hotkeys omnikey"] := hwnd0, vars.hwnd.settings.omnikey := vars.hwnd.help_tooltips["settings_hotkeys omnikey|"] := hwnd
 	ControlGetPos, x, y,,,, % "ahk_id "hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
@@ -925,7 +931,7 @@ Settings_hotkeys()
 	{
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 w" wText, % LangTrans("m_hotkeys_omnikey", 3)
 		Gui, %GUI%: font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "yp x+" settings.general.fWidth/2 " hp cBlack HWNDhwnd gSettings_hotkeys2 w"settings.general.fWidth*10, % LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "omni-hotkey2")
+		Gui, %GUI%: Add, Edit, % "yp x+" settings.general.fWidth/2 " hp cBlack HWNDhwnd gSettings_hotkeys2 w"settings.general.fWidth*10, % settings.hotkeys.omnikey2
 		vars.hwnd.help_tooltips["settings_hotkeys omnikey2"] := hwnd0, vars.hwnd.settings.omnikey2 := vars.hwnd.help_tooltips["settings_hotkeys omnikey2|"] := hwnd
 		Gui, %GUI%: font, % "s"settings.general.fSize
 	}
@@ -940,7 +946,7 @@ Settings_hotkeys()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0", % LangTrans("m_hotkeys_tab")
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.tab = "TAB") ? "" : LLK_IniRead("ini\hotkeys.ini", "Hotkeys", "tab replacement", "tab")
+	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd gSettings_hotkeys2 x+"settings.general.fWidth/2 " w"settings.general.fWidth*10, % (settings.hotkeys.tab = "TAB") ? "" : settings.hotkeys.tab
 	vars.hwnd.help_tooltips["settings_hotkeys tab"] := hwnd0, vars.hwnd.settings.tab := hwnd, vars.hwnd.help_tooltips["settings_hotkeys tab|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.tabblock, % LangTrans("m_hotkeys_keyblock")
@@ -1323,7 +1329,7 @@ Settings_leveltracker()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_leveltracker2 HWNDhwnd Checked"settings.features.leveltracker, % LangTrans("m_lvltracker_enable")
@@ -1335,12 +1341,15 @@ Settings_leveltracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_general")
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.timer, % LangTrans("m_lvltracker_timer")
-	vars.hwnd.settings.timer := vars.hwnd.help_tooltips["settings_leveltracker timer"] := hwnd
-	If settings.leveltracker.timer
+	If !vars.client.stream
 	{
-		Gui, %GUI%: Add, Checkbox, % "ys x+"settings.general.fWidth/2 " gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pausetimer, % LangTrans("m_lvltracker_pause")
-		vars.hwnd.settings.pausetimer := hwnd, vars.hwnd.help_tooltips["settings_leveltracker timer-pause"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.timer, % LangTrans("m_lvltracker_timer")
+		vars.hwnd.settings.timer := vars.hwnd.help_tooltips["settings_leveltracker timer"] := hwnd
+		If settings.leveltracker.timer
+		{
+			Gui, %GUI%: Add, Checkbox, % "ys x+"settings.general.fWidth/2 " gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pausetimer, % LangTrans("m_lvltracker_pause")
+			vars.hwnd.settings.pausetimer := hwnd, vars.hwnd.help_tooltips["settings_leveltracker timer-pause"] := hwnd
+		}
 	}
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.fade, % LangTrans("m_lvltracker_fade")
 	vars.hwnd.settings.fade := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade-timer"] := hwnd
@@ -1356,17 +1365,37 @@ Settings_leveltracker()
 		vars.hwnd.settings.fade_hover := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade mouse"] := hwnd
 	}
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % LangTrans("m_lvltracker_gear")
-	vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
-
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % LangTrans("m_lvltracker_zones")
-	vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
-
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.hints, % LangTrans("m_lvltracker_hints")
 	vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
 
+	If !vars.client.stream
+	{
+		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % LangTrans("m_lvltracker_gear")
+		vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % LangTrans("m_lvltracker_zones")
+		vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
+	}
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked" settings.leveltracker.hotkeys, % LangTrans("m_lvltracker_hotkeys")
+	vars.hwnd.settings.hotkeys_enable := vars.hwnd.help_tooltips["settings_leveltracker hotkeys enable"] := hwnd
+	If settings.leveltracker.hotkeys
+	{
+		Gui, %GUI%: Add, Button, % "ys Hidden hp Default gSettings_leveltracker2 HWNDhwnd0 w" settings.general.fWidth, ok
+		width := settings.general.fWidth * 8
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 
+		Gui, %GUI%: Add, Edit, % "xs+" settings.general.fWidth * 1.8 " Section Right cBlack HWNDhwnd1 gSettings_leveltracker2 Limit w" width " h" settings.general.fHeight, % settings.leveltracker.hotkey_1
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Text, % "ys x+0 Center BackgroundTrans Border w" settings.general.fWidth * 2, % "<"
+		Gui, %GUI%: Add, Text, % "ys x+0 Center BackgroundTrans Border wp", % ">"
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 
+		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack HWNDhwnd2 Limit gSettings_leveltracker2 w" width " h" settings.general.fHeight, % settings.leveltracker.hotkey_2
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		vars.hwnd.settings.apply_button := hwnd0
+		vars.hwnd.settings.hotkey_1 := vars.hwnd.help_tooltips["settings_leveltracker hotkeys"] := hwnd1, vars.hwnd.settings.hotkey_2 := vars.hwnd.help_tooltips["settings_leveltracker hotkeys|"] := hwnd2
+	}
+
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section", % LangTrans("m_lvltracker_guide")
+	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section x" x_anchor, % LangTrans("m_lvltracker_guide")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "ys Border Center gSettings_leveltracker2 HWNDhwnd", % " " LangTrans("m_lvltracker_generate") " "
 	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd, handle := ""
@@ -1432,9 +1461,9 @@ Settings_leveltracker2(cHWND := "")
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If (check = "enable")
 	{
-		settings.features.leveltracker := LLK_ControlGet(cHWND)
-		If !settings.features.leveltracker && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0)) ;save current timer state
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+		settings.features.leveltracker := LLK_ControlGet(cHWND), timer := vars.leveltracker.timer
+		If !settings.features.leveltracker && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0) ;save current timer state
+			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		IniWrite, % settings.features.leveltracker, ini\config.ini, features, enable leveling guide
 		LeveltrackerToggle("destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
 		vars.leveltracker := {}, vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
@@ -1444,14 +1473,13 @@ Settings_leveltracker2(cHWND := "")
 	}
 	Else If (check = "timer")
 	{
-		settings.leveltracker.timer := LLK_ControlGet(cHWND)
+		settings.leveltracker.timer := LLK_ControlGet(cHWND), timer := vars.leveltracker.timer
 		IniWrite, % settings.leveltracker.timer, ini\leveling tracker.ini, settings, enable timer
-		If !settings.leveltracker.timer && IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+		If !settings.leveltracker.timer && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
+			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			LeveltrackerProgress(1)
-		vars.leveltracker.timer.pause := -1
-		Settings_menu("leveling tracker")
+		vars.leveltracker.timer.pause := -1, Settings_menu("leveling tracker")
 	}
 	Else If (check = "pausetimer")
 	{
@@ -1497,6 +1525,40 @@ Settings_leveltracker2(cHWND := "")
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			LeveltrackerProgress(1)
 	}
+	Else If (check = "hotkeys_enable")
+	{
+		IniWrite, % (settings.leveltracker.hotkeys := LLK_ControlGet(cHWND)), ini\leveling tracker.ini, settings, enable page hotkeys
+		settings.leveltracker.hotkey_01 := settings.leveltracker.hotkey_1, settings.leveltracker.hotkey_02 := settings.leveltracker.hotkey_2
+		LeveltrackerHotkeys("refresh"), Settings_menu("leveling tracker")
+	}
+	Else If InStr(check, "hotkey_")
+	{
+		GuiControl, % "+c" (LLK_ControlGet(cHWND) != settings.leveltracker[check] ? "Red" : "Black"), % cHWND
+		GuiControl, movedraw, % cHWND
+	}
+	Else If (check = "apply_button")
+	{
+		ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
+		ControlGet, hwnd, HWND,, % hwnd
+		If !InStr(vars.hwnd.settings.hotkey_1 "," vars.hwnd.settings.hotkey_2, hwnd)
+			Return
+		input0 := LLK_ControlGet(hwnd)
+		If (StrLen(input0) > 1)
+			Loop, Parse, % "^!+#"
+				input := (A_Index = 1) ? input0 : input, input := StrReplace(input, A_LoopField)
+		If !GetKeyVK(input)
+		{
+			WinGetPos, x, y, w, h, ahk_id %hwnd%
+			LLK_ToolTip(LangTrans("m_hotkeys_error"), 1.5, x, y + h - 1,, "Red")
+			Return
+		}
+		settings.leveltracker.hotkey_01 := settings.leveltracker.hotkey_1, settings.leveltracker.hotkey_02 := settings.leveltracker.hotkey_2
+		control := (hwnd = vars.hwnd.settings.hotkey_1) ? 1 : 2
+		IniWrite, % (settings.leveltracker["hotkey_" control] := input0), ini\leveling tracker.ini, settings, % "hotkey " control
+		LeveltrackerHotkeys("refresh")
+		GuiControl, +cBlack, % hwnd
+		GuiControl, movedraw, % hwnd
+	}
 	Else If (check = "pob")
 	{
 		settings.leveltracker.pob := LLK_ControlGet(cHWND)
@@ -1521,8 +1583,9 @@ Settings_leveltracker2(cHWND := "")
 	{
 		GuiControl, +cWhite, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
-		If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
-			IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+		timer := vars.leveltracker.timer
+		If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
+			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		settings.leveltracker.profile := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "", vars.leveltracker.timer.pause := -1
 		IniWrite, % settings.leveltracker.profile, ini\leveling tracker.ini, Settings, profile
 		GuiControl, +cFuchsia, % vars.hwnd.settings["profile" settings.leveltracker.profile]
@@ -1667,23 +1730,20 @@ Settings_mapinfo()
 		}
 	}
 
-	pinned := []
-	Loop, Parse, % LLK_IniRead("ini\map info.ini", "pinned"), `n
-		If InStr(A_LoopField, "=1")
-			pinned.Push(SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1))
 	Gui, %GUI%: Font, % "bold underline"
 	Gui, %GUI%: Add, Text, % "xs Section x" x_anchor " y+" vars.settings.spacing, % LangTrans("m_mapinfo_modsettings")
 	Gui, %GUI%: Font, % "norm"
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
 	vars.hwnd.help_tooltips["settings_mapinfo mod settings"] := hwnd
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_mapinfo_pinned")
-	For index, ID in pinned
+	For ID, val in settings.mapinfo.pinned
 	{
-		If !(check := LLK_HasVal(db.mapinfo.mods, ID,,,, 1))
+		If !(check := LLK_HasVal(db.mapinfo.mods, ID,,,, 1)) || !val
 			Continue
-		text := db.mapinfo.mods[check].text, text := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text, color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", ID, "rank", 1)]
-		style := (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys"
-		If !LLK_IniRead("ini\map info.ini", ID, "show", 1)
+		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, ini := IniBatchRead("ini\map info.ini", ID)
+		text := db.mapinfo.mods[check].text, text := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text, color := settings.mapinfo.color[!Blank(check := ini[ID].rank) ? check : 1]
+		style := (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys", show := !Blank(check := ini[ID].show) ? check : 1
+		If !show
 			Gui, %GUI%: Font, strike
 		Gui, %GUI%: Add, Text, % style " Border Center HWNDhwnd c" color, % " " text " "
 		Gui, %GUI%: Font, norm
@@ -1711,13 +1771,14 @@ Settings_mapinfo()
 			added := {}
 			For mod, object in db.mapinfo.mods
 			{
-				If !InStr(mod, search) || added[object.ID] || LLK_IniRead("ini\map info.ini", "pinned", object.ID, 0)
+				If !InStr(mod, search) || added[object.ID] || settings.mapinfo.pinned[object.ID]
 					Continue
 				style := !added.Count() || (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys", added[object.ID] := 1
 				If (outer = 1)
 					Continue
-				color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", object.ID, "rank", 1)], text := InStr(object.text, ":") ? SubStr(object.text, 1, InStr(object.text, ":") - 1) : object.text
-				If !LLK_IniRead("ini\map info.ini", object.ID, "show", 1)
+				ini := IniBatchRead("ini\map info.ini", object.ID), color := settings.mapinfo.color[!Blank(check := ini[object.ID].rank) ? check : 1]
+				show := !Blank(check := ini[object.ID].show) ? check : 1, text := InStr(object.text, ":") ? SubStr(object.text, 1, InStr(object.text, ":") - 1) : object.text
+				If !show
 					Gui, %GUI%: Font, strike
 				Gui, %GUI%: Add, Text, % style " Border Center HWNDhwnd c" color, % " " text " "
 				Gui, %GUI%: Font, norm
@@ -2057,7 +2118,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stash-ninja", "stream-clients", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stash-ninja", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -2105,8 +2166,8 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	{
 		For key, val in vars.settings.sections
 		{
-			If (val = "general") || (val = "screen-checks") && !IsNumber(vars.pixelsearch.gamescreen.x1) || !vars.log.file_location && (val = "leveling tracker" || val = "mapping tracker") ;cont
-			|| (!WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") && val = "stream-clients")
+			If (val = "general") || (val = "screen-checks") && !IsNumber(vars.pixelsearch.gamescreen.x1) || !vars.log.file_location && (val = "mapping tracker") ;cont
+			|| (WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")) && InStr("item-info, map-info", val)
 				continue
 			color := (val = "updater" && IsNumber(vars.update.1) && vars.update.1 < 0) ? " cRed" : (val = "updater" && IsNumber(vars.update.1) && vars.update.1 > 0) ? " cLime" : ""
 			color := feature_check[val] && !settings.features[feature_check[val]] ? " cGray" : color, color := feature_check2[val] && (settings.general.lang_client = "unknown") ? " cGray" : color
@@ -2250,7 +2311,7 @@ Settings_necropolis()
 		Return
 	}
 
-	If (settings.general.lang_client != "english")
+	If (settings.general.lang_client != "english") && !vars.client.stream
 	{
 		Settings_unsupported()
 		Return
@@ -2394,7 +2455,7 @@ Settings_OCR()
 		Return
 	}
 
-	If (settings.general.lang_client != "english")
+	If (settings.general.lang_client != "english") && !vars.client.stream
 	{
 		Settings_unsupported()
 		Return
@@ -2411,11 +2472,11 @@ Settings_OCR()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd1 gSettings_OCR2 cRed Hidden", % " " LangTrans("global_restart") " "
 
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey", 2)
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey")
 	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd0 cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.z_hotkey
 	Gui, %GUI%: Font, % "s" settings.general.fSize
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("m_ocr_hotkey")
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % LangTrans("global_hotkey")
 	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 	Gui, %GUI%: Add, Edit, % "ys hp HWNDhwnd cBlack gSettings_OCR2 w" settings.general.fWidth * 10, % settings.OCR.hotkey
 	Gui, %GUI%: Font, % "s" settings.general.fSize
@@ -2657,6 +2718,8 @@ Settings_qol()
 		}
 	}
 
+	If vars.client.stream
+		Return
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "Section xs HWNDhwnd0 y+"vars.settings.spacing (settings.general.lang_client = "unknown" ? " cGray" : ""), % LangTrans("m_qol_lab")
 	Gui, %GUI%: Font, norm
@@ -2789,6 +2852,16 @@ Settings_screenchecks()
 	Gui, %GUI%: Add, Checkbox, % "hp xs Section gSettings_screenchecks2 HWNDhwnd Checked" settings.features.pixelchecks, % LangTrans("m_screen_pixel", 2)
 	vars.hwnd.settings.pixelchecks := vars.hwnd.help_tooltips["settings_screenchecks pixel-background"] := hwnd
 
+	If vars.client.stream
+	{
+		Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_variance") ":"
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys hp Number Limit3 r1 cBlack gSettings_screenchecks2 HWNDhwnd w" settings.general.fWidth * 3, % vars.pixelsearch.variation
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd1", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_screenchecks variance"] := hwnd1, vars.hwnd.settings.variance_pixel := hwnd
+	}
+
 	count := 0
 	For key in vars.imagesearch.list
 	{
@@ -2820,6 +2893,16 @@ Settings_screenchecks()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section Center Border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_imgfolder") " "
 	vars.hwnd.settings.folder := vars.hwnd.help_tooltips["settings_screenchecks folder"] := hwnd
+
+	If vars.client.stream
+	{
+		Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_variance") ":"
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys hp Number Limit3 r1 cBlack gSettings_screenchecks2 HWNDhwnd w" settings.general.fWidth * 3, % vars.imagesearch.variation
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd1", img\GUI\help.png
+		vars.hwnd.help_tooltips["settings_screenchecks variance|"] := hwnd1, vars.hwnd.settings.variance_image := hwnd
+	}
 }
 
 Settings_screenchecks2(cHWND := "")
@@ -2841,7 +2924,12 @@ Settings_screenchecks2(cHWND := "")
 				Run, % "explore img\Recognition ("vars.client.h "p)\GUI\"
 			Else LLK_ToolTip(LangTrans("cheat_filemissing"),,,,, "red")
 		Default:
-			If InStr(check, "Pixel")
+			If InStr(check, "variance_")
+			{
+				input := LLK_ControlGet(cHWND), input := (input > 255) ? 255 : Blank(input) ? 0 : input
+				IniWrite, % (vars[control "search"].variation := input), ini\geforce now.ini, settings, % control "-check variation"
+			}
+			Else If InStr(check, "Pixel")
 			{
 				Switch SubStr(check, 1, 1)
 				{
@@ -3069,6 +3157,15 @@ Settings_stash()
 		vars.hwnd.settings["league_" array.2] := hwnd
 	}
 
+	If vars.client.stream
+	{
+		Gui, %GUI%: Add, Text, % "xs Section ", % LangTrans("global_hotkey")
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		Gui, %GUI%: Add, Edit, % "ys HWNDhwnd Limit cBlack r1 gSettings_stash2 w" settings.general.fWidth * 8, % settings.stash.hotkey
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+		vars.hwnd.settings.hotkey := vars.hwnd.help_tooltips["settings_stash hotkey"] := hwnd
+	}
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 Checked" settings.stash.history, % LangTrans("m_stash_history")
 	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd1 gSettings_stash2 Checked" settings.stash.show_exalt, % LangTrans("m_stash_exalt")
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd4 gSettings_stash2 Checked" settings.stash.bulk_trade, % LangTrans("m_stash_bulk")
@@ -3076,12 +3173,12 @@ Settings_stash()
 	{
 		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 1.5 " Section HWNDhwnd_", % LangTrans("m_stash_margins")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys cBlack Hidden Disabled r1", % settings.stash.margins "    "
+		Gui, %GUI%: Add, Edit, % "ys cBlack Hidden hp Disabled r1", % settings.stash.margins "    "
 		Gui, %GUI%: Add, Edit, % "xp yp wp hp cBlack HWNDhwnd5 gSettings_stash2 r1 Right", % settings.stash.margins
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit Right w" settings.general.fWidth * 3, % settings.stash.min_trade
+		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit hp Right w" settings.general.fWidth * 3, % settings.stash.min_trade
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd00 gSettings_stash2 Checked" settings.stash.autoprofiles, % LangTrans("m_stash_profiles")
 		vars.hwnd.settings.min_trade := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade"] := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade|"] := hwnd3
@@ -3155,7 +3252,7 @@ Settings_stash()
 		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd2 gSettings_stash2 Limit1 wp hp" style, % currencies[settings.stash[tab].limits[A_Index].3]
 		Gui, %GUI%: Add, Edit, % "ys Section x+-1 Center HWNDhwnd gSettings_stash2 Limit w" settings.general.fWidth * 4 " hp" style, % settings.stash[tab].limits[A_Index].2
 		Gui, %GUI%: Add, Edit, % "xs y+-1 Center HWNDhwnd1 Limit gSettings_stash2 wp hp" style, % settings.stash[tab].limits[A_Index].1
-		
+
 		vars.hwnd.settings["limits" A_Index "top_" tab] := hwnd, vars.hwnd.settings["limits" A_Index "bot_" tab] := hwnd1, vars.hwnd.settings["limits" A_Index "cur_" tab] := hwnd2
 	}
 	/*
@@ -3193,11 +3290,16 @@ Settings_stash2(cHWND)
 			Stash_Close()
 		Settings_menu("stash-ninja")
 	}
+	Else If (check = "hotkey")
+	{
+		GuiControl, +cRed, % cHWND
+		GuiControl, movedraw, % cHWND
+	}
 	Else If (check = "apply_button")
 	{
 		ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
 		ControlGet, hwnd, HWND,, % hwnd
-		If !InStr(vars.hwnd.settings.margins "," vars.hwnd.settings.min_trade, hwnd)
+		If !InStr(vars.hwnd.settings.hotkey "," vars.hwnd.settings.margins "," vars.hwnd.settings.min_trade, hwnd)
 		{
 			in_progress := 0
 			Return
@@ -3207,6 +3309,28 @@ Settings_stash2(cHWND)
 			input := LLK_ControlGet(vars.hwnd.settings.min_trade)
 			IniWrite, % (settings.stash.min_trade := !input ? "" : input), ini\stash-ninja.ini, settings, minimum trade value
 			Init_stash("bulk_trade"), Settings_menu("stash-ninja"), in_progress := 0
+			Return
+		}
+		Else If (hwnd = vars.hwnd.settings.hotkey)
+		{
+			If (StrLen(input0 := LLK_ControlGet(vars.hwnd.settings.hotkey)) > 1)
+				Loop, Parse, % "^!#+"
+					input := (A_Index = 1) ? input0 : input, input := StrReplace(input, A_LoopField)
+			If !GetKeyVK(input)
+			{
+				WinGetPos, x, y, w, h, % "ahk_id " vars.hwnd.settings.hotkey
+				LLK_ToolTip(LangTrans("m_hotkeys_error"), 1.5, x + w - 1, y,, "Red")
+			}
+			Else
+			{
+				Hotkey, IfWinActive, ahk_group poe_window
+				Hotkey, % settings.stash.hotkey, Stash_Selection, Off
+				Hotkey, % (settings.stash.hotkey := input0), Stash_Selection, On
+				IniWrite, % """" input0 """", ini\stash-ninja.ini, settings, hotkey
+				GuiControl, +cBlack, % vars.hwnd.settings.hotkey
+				GuiControl, movedraw, % vars.hwnd.settings.hotkey
+			}
+			in_progress := 0
 			Return
 		}
 		valid := 1, input := LLK_ControlGet(vars.hwnd.settings.margins), valid := Blank(input) || InStr(input, ".") ? 0 : 1, margins0 := {}
