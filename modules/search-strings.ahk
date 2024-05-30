@@ -17,20 +17,19 @@
 
 	If !IsObject(vars.searchstrings)
 		vars.searchstrings := {}
-	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0
-	Loop, Parse, % LLK_IniRead("ini\search-strings.ini", "searches"), `n
+	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0, ini := IniBatchRead("ini\search-strings.ini")
+	For key, val in ini.searches
 	{
-		inikey := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), inival := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-		If (settings.general.lang_client != "english" && inikey = "beast crafting")
+		If (settings.general.lang_client != "english" && !vars.client.stream && key = "beast crafting")
 			Continue
-		vars.searchstrings.list[inikey] := {"enable": inival}
-		If inival
+		vars.searchstrings.list[key] := {"enable": val}
+		If val
 			vars.searchstrings.enabled += 1
 	}
 
 	For key in vars.searchstrings.list
 	{
-		Loop, Parse, % LLK_IniRead("ini\search-strings.ini", key, "last coordinates"), `,
+		Loop, Parse, % ini[key]["last coordinates"], `,
 		{
 			If (A_Index = 1)
 				vars.searchstrings.list[key].x1 := A_LoopField
@@ -41,14 +40,12 @@
 			Else vars.searchstrings.list[key].y2 := A_LoopField + vars.searchstrings.list[key].y1
 		}
 
-		Loop, Parse, % LLK_IniRead("ini\search-strings.ini", key), `n
+		For inikey, inival in ini[key]
 		{
-			If !A_LoopField || InStr(A_LoopField, "last coordinates")
-				continue
+			If InStr(inikey, "last coordinates")
+				Continue
 			If !IsObject(vars.searchstrings.list[key].strings)
 				vars.searchstrings.list[key].strings := {}
-			inikey := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), inival := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-			inival := (SubStr(inival, 1, 1) = """") ? SubStr(inival, 2, -1) : inival ;remove quote-marks that would normally be removed if key-value pair was read via IniRead
 			vars.searchstrings.list[key].strings[inikey] := []
 			Loop, Parse, % StrReplace(inival, " `;`;`; ", "`n"), `n
 			{
@@ -254,6 +251,7 @@ StringMenu2(cHWND)
 				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
 			Sleep 1
 		}
+		vars.general.drag := 0
 		Return
 	}
 

@@ -15,7 +15,7 @@
 			Return
 		}
 	}
-	
+
 	If mode
 		vars.log.level := ""
 	Else
@@ -26,7 +26,7 @@
 
 		If !settings.general.lang_client
 			check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-	
+
 		settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
 	}
 

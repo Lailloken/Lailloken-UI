@@ -3,28 +3,28 @@
 	local
 	global vars, settings
 
-	settings.qol := {"alarm": LLK_IniRead("ini\qol tools.ini", "features", "alarm", 0), "notepad": LLK_IniRead("ini\qol tools.ini", "features", "notepad", 0)}
-	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\qol tools.ini", "features", "lab", 0)
+	ini := IniBatchRead("ini\qol tools.ini")
+	settings.qol := {"alarm": !Blank(check := ini.features.alarm) ? check : 0, "notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0}
+	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : !Blank(check := ini.features.lab) ? check : 0
 
-	settings.alarm := {"fSize": LLK_IniRead("ini\qol tools.ini", "alarm", "font-size", settings.general.fSize)}
+	settings.alarm := {"fSize": !Blank(check := ini.alarm["font-size"]) ? check : settings.general.fSize}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
-	settings.alarm.color := LLK_IniRead("ini\qol tools.ini", "alarm", "font-color", "FFFFFF")
-	settings.alarm.color1 := LLK_IniRead("ini\qol tools.ini", "alarm", "background color", "000000")
-	;settings.alarm.trans := LLK_IniRead("ini\qol tools.ini", "alarm", "transparency", 5), settings.alarm.trans := (settings.alarm.trans > 5) ? 5 : settings.alarm.trans
-	settings.alarm.xPos := LLK_IniRead("ini\qol tools.ini", "alarm", "x-coordinate")
-	settings.alarm.yPos := LLK_IniRead("ini\qol tools.ini", "alarm", "y-coordinate")
-	vars.alarm := {"timestamp": LLK_IniRead("ini\qol tools.ini", "alarm", "timestamp")}, vars.alarm.timestamp := (vars.alarm.timestamp < A_Now) ? "" : vars.alarm.timestamp
+	settings.alarm.color := !Blank(check := ini.alarm["font-color"]) ? check : "FFFFFF"
+	settings.alarm.color1 := !Blank(check := ini.alarm["background color"]) ? check : "000000"
+	settings.alarm.xPos := !Blank(check := ini.alarm["x-coordinate"]) ? check : ""
+	settings.alarm.yPos := !Blank(check := ini.alarm["y-coordinate"]) ? check : ""
+	vars.alarm := {"timestamp": !Blank(check := ini.alarm["timestamp"]) ? check : ""}, vars.alarm.timestamp := (vars.alarm.timestamp < A_Now) ? "" : vars.alarm.timestamp
 
 	If InStr(vars.log.areaID, "labyrinth_")
 		Lab("init")
 
-	settings.notepad := {"fSize": LLK_IniRead("ini\qol tools.ini", "notepad", "font-size", settings.general.fSize)}
+	settings.notepad := {"fSize": !Blank(check := ini.notepad["font-size"]) ? check : settings.general.fSize}
 	LLK_FontDimensions(settings.notepad.fSize, font_height, font_width), settings.notepad.fHeight := font_height, settings.notepad.fWidth := font_width
-	settings.notepad.color := LLK_IniRead("ini\qol tools.ini", "notepad", "font-color", "FFFFFF")
-	settings.notepad.color1 := LLK_IniRead("ini\qol tools.ini", "notepad", "background color", "000000")
-	settings.notepad.trans := LLK_IniRead("ini\qol tools.ini", "notepad", "transparency", 5), settings.notepad.trans := (settings.notepad.trans > 5) ? 5 : settings.notepad.trans
-	settings.notepad.xQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "x-coordinate quicknote")
-	settings.notepad.yQuickNote := LLK_IniRead("ini\qol tools.ini", "notepad", "y-coordinate quicknote")
+	settings.notepad.color := !Blank(check := ini.notepad["font-color"]) ? check : "FFFFFF"
+	settings.notepad.color1 := !Blank(check := ini.notepad["background color"]) ? check : "000000"
+	settings.notepad.trans := !Blank(check := ini.notepad["transparency"]) ? check : 5, settings.notepad.trans := (settings.notepad.trans > 5) ? 5 : settings.notepad.trans
+	settings.notepad.xQuickNote := !Blank(check := ini.notepad["x-coordinate quicknote"]) ? check : ""
+	settings.notepad.yQuickNote := !Blank(check := ini.notepad["y-coordinate quicknote"]) ? check : ""
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
 }
 
@@ -72,6 +72,7 @@ Alarm(click := 0)
 			Sleep 1
 		}
 	}
+	vars.general.drag := 0
 	If WinExist("ahk_id "vars.hwnd.alarm.main)
 		Gui, % GuiName(vars.hwnd.alarm.main) ": -E0x20"
 	If !Blank(y)
@@ -99,7 +100,7 @@ Alarm(click := 0)
 			vars.alarm.timestamp := A_Now
 		Else If !vars.alarm.timestamp
 		{
-			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDalarm_set"
+			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDalarm_set", LLK-UI: alarm set
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
 			Gui, alarm_set: Font, % "s" settings.alarm.fSize//2 " cWhite", % vars.system.font
@@ -522,6 +523,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 				Sleep 1
 			}
 		}
+		vars.general.drag := 0
 		If !Blank(yPos)
 			vars.notepad.x := xPos, vars.notepad.y := yPos
 		Return
@@ -723,13 +725,13 @@ NotepadReload()
 	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
 
 	vars.notepad.entries := {"notepad_reminder_feature": vars.notepad.entries.notepad_reminder_feature}, vars.notepad.settings := {}
-	Iniread, ini, ini\qol tools.ini, notepad
-	Loop, Parse, ini, `n, `r
+	ini := IniBatchRead("ini\qol tools.ini", "notepad"), ini1 := IniBatchRead("ini\qol tools.ini", "notepad tab settings")
+	For key, val in ini.notepad
 	{
-		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), "(n)", "`n"), val := (SubStr(val, 1, 1) = """") ? SubStr(val, 2, -1) : val
-		If !Blank(LLK_HasVal(skip, key))
+		val := StrReplace(val, "(n)", "`n")
+		If LLK_HasVal(skip, key)
 			Continue
-		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(LLK_IniRead("ini\qol tools.ini", "notepad tab settings", key, settings.notepad.color "|" settings.notepad.color1), "|")
+		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(!Blank(check := ini1[key]) ? check : settings.notepad.color "|" settings.notepad.color1, "|")
 		Loop 2
 			If Blank(vars.notepad.settings[key][A_Index])
 				vars.notepad.settings[key][A_Index] := settings.notepad["color" (A_Index = 1 ? "" : "1")]
@@ -869,6 +871,7 @@ NotepadWidget(tab, mode := 0, color := 0)
 		LLK_Drag(w, h, x, y,, GUI_name, 1)
 		Sleep 1
 	}
+	vars.general.drag := 0
 	If longpress && (tab = "notepad_reminder_feature") && !Blank(y)
 	{
 		settings.notepad.xQuickNote := x, settings.notepad.yQuickNote := y

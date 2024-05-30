@@ -11,10 +11,10 @@
 		IniWrite, % "", ini\leveling tracker.ini, UI
 	}
 
-	settings.leveltracker := {}
-	settings.leveltracker.profile := LLK_IniRead("ini\leveling tracker.ini", "Settings", "profile")
+	settings.leveltracker := {}, ini := IniBatchRead("ini\leveling tracker.ini")
+	settings.leveltracker.profile := !Blank(check := ini.settings["profile"]) ? check : ""
 
-	If !InStr(LLK_IniRead("ini\leveling tracker.ini"), "current run" settings.leveltracker.profile)
+	If !LLK_HasKey(ini, "current run" settings.leveltracker.profile)
 	{
 		IniWrite, % "", ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, name
 		IniWrite, 0, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
@@ -25,59 +25,71 @@
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
 		FileCreateDir, % "img\GUI\skill-tree" settings.leveltracker.profile
 
-	settings.leveltracker.timer := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable timer", 0)
-	settings.leveltracker.pausetimer := LLK_IniRead("ini\leveling tracker.ini", "Settings", "hideout pause", 0)
-	settings.leveltracker.fade := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable fading", 0)
-	settings.leveltracker.fadetime := LLK_IniRead("ini\leveling tracker.ini", "Settings", "fade-time", 5000)
-	settings.leveltracker.fade_hover := LLK_IniRead("ini\leveling tracker.ini", "Settings", "show on hover", 1)
-	settings.leveltracker.geartracker := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable geartracker", 0)
-	settings.leveltracker.expbar := LLK_IniRead("ini\leveling tracker.ini", "Settings", "exp-bar offset", 0)
-	settings.leveltracker.layouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable zone-layout overlay", 0)
-	settings.leveltracker.hints := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable additional hints", 1)
-	settings.leveltracker.fSize := LLK_IniRead("ini\leveling tracker.ini", "Settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width)
-	settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
-	settings.leveltracker.pob := LLK_IniRead("ini\leveling tracker.ini", "Settings", "enable pob-screencap", 0)
-	settings.leveltracker.trans := LLK_IniRead("ini\leveling tracker.ini", "Settings", "transparency", 5), settings.leveltracker.trans := (settings.leveltracker.trans > 5) ? 5 : settings.leveltracker.trans
-	settings.leveltracker.xCoord := LLK_IniRead("ini\leveling tracker.ini", "Settings", "x-coordinate")
-	settings.leveltracker.yCoord := LLK_IniRead("ini\leveling tracker.ini", "Settings", "y-coordinate")
-	settings.leveltracker.xLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts x")
-	settings.leveltracker.yLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts y")
-	settings.leveltracker.sLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts size", 8)
-	settings.leveltracker.aLayouts := LLK_IniRead("ini\leveling tracker.ini", "Settings", "zone-layouts arrangement", "vertical")
+	settings.leveltracker.timer := vars.client.stream ? 0 : !Blank(check := ini.settings["enable timer"]) ? check : 0
+	settings.leveltracker.pausetimer := !Blank(check := ini.settings["hideout pause"]) ? check : 0
+	settings.leveltracker.fade := !Blank(check := ini.settings["enable fading"]) ? check : 0
+	settings.leveltracker.fadetime := !Blank(check := ini.settings["fade-time"]) ? check : 5000
+	settings.leveltracker.fade_hover := !Blank(check := ini.settings["show on hover"]) ? check : 1
+	settings.leveltracker.geartracker := vars.client.stream ? 0 : !Blank(check := ini.settings["enable geartracker"]) ? check : 0
+	settings.leveltracker.layouts := vars.client.stream ? 0 : !Blank(check := ini.settings["enable zone-layout overlay"]) ? check : 0
+	settings.leveltracker.hints := !Blank(check := ini.settings["enable additional hints"]) ? check : 1
+	settings.leveltracker.hotkeys := !Blank(check := ini.settings["enable page hotkeys"]) ? check : vars.client.stream
+	settings.leveltracker.hotkey_1 := !Blank(check := ini.settings["hotkey 1"]) ? check : "F3"
+	settings.leveltracker.hotkey_2 := !Blank(check := ini.settings["hotkey 2"]) ? check : "F4"
+	settings.leveltracker.fSize := !Blank(check := ini.settings["font_size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width), settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
+	settings.leveltracker.pob := !Blank(check := ini.settings["enable pob-screencap"]) ? check : 0
+	settings.leveltracker.trans := !Blank(check := ini.settings["transparency"]) ? check : 5
+	settings.leveltracker.trans := (settings.leveltracker.trans > 5) ? 5 : settings.leveltracker.trans
+	settings.leveltracker.xCoord := !Blank(check := ini.settings["x-coordinate"]) ? check : ""
+	settings.leveltracker.yCoord := !Blank(check := ini.settings["y-coordinate"]) ? check : ""
+	settings.leveltracker.xLayouts := !Blank(check := ini.settings["zone-layouts x"]) ? check : ""
+	settings.leveltracker.yLayouts := !Blank(check := ini.settings["zone-layouts y"]) ? check : ""
+	settings.leveltracker.sLayouts0 := settings.leveltracker.sLayouts := !Blank(check := ini.settings["zone-layouts size"]) ? check : 8
+	settings.leveltracker.aLayouts := !Blank(check := ini.settings["zone-layouts arrangement"]) ? check : "vertical"
+
+	If settings.leveltracker.hotkeys
+	{
+		Hotkey, If, WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main
+		Hotkey, % settings.leveltracker.hotkey_1, LeveltrackerHotkeys, On
+		Hotkey, % settings.leveltracker.hotkey_2, LeveltrackerHotkeys, On
+	}
 
 	vars.leveltracker.gearfilter := 1, vars.leveltracker.gear := []
-	vars.leveltracker.character := LLK_IniRead("ini\leveling tracker.ini", "Settings", "character")
-	iniread := LLK_IniRead("ini\leveling tracker.ini", "gear" settings.leveltracker.profile) "`n" LLK_IniRead("ini\leveling tracker.ini", "gems" settings.leveltracker.profile)
-	StringLower, iniread, iniread
-	Sort, iniread, D`n N P2
-	Loop, Parse, iniread, `n
+	For key in ini["gear" settings.leveltracker.profile]
+		parse .= (Blank(parse) ? "" : "`n") key
+	For key in ini["gems" settings.leveltracker.profile]
+		parse .= (Blank(parse) ? "" : "`n") key
+	StringLower, parse, parse
+	Sort, parse, D`n N P2
+	Loop, Parse, parse, `n
 	{
-		If Blank(A_LoopField) || !Blank(LLK_HasVal(vars.leveltracker.gear, SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)))
+		If Blank(A_LoopField) || LLK_HasVal(vars.leveltracker.gear, A_LoopField)
 			Continue
-		vars.leveltracker.gear.Push(SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1))
+		vars.leveltracker.gear.Push(A_LoopField)
 	}
 	If settings.leveltracker.geartracker
 		GeartrackerGUI("refresh")
 
-	;settings.leveltracker.gear.x := LLK_IniRead("ini\leveling tracker.ini", "UI", "indicator xcoord", 0.3* vars.client.w)
-	;settings.leveltracker.gear.y := LLK_IniRead("ini\leveling tracker.ini", "UI", "indicator ycoord", 0.91* vars.client.h)
-
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
 
-	vars.leveltracker.timer := {"name": LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "name"), "current_split": LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0), "current_act": 1, "total_time": 0, "pause": -1}
+	vars.leveltracker.timer := {"name": ini["current run" settings.leveltracker.profile].name, "current_split": !Blank(check := ini["current run" settings.leveltracker.profile].time) ? check : 0, "current_act": 1, "total_time": 0, "pause": -1}, vars.leveltracker.timer.current_split0 := vars.leveltracker.timer.current_split
 	Loop 11
 	{
-		iniread := LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "act " A_Index)
 		vars.leveltracker.timer.current_act := A_Index
-		If !iniread
+		If Blank(check := ini["current run" settings.leveltracker.profile]["act " A_Index])
 			Break
-		vars.leveltracker.timer.total_time += iniread
+		vars.leveltracker.timer.total_time += check
 	}
-	vars.leveltracker.skilltree := {"active": LLK_IniRead("ini\leveling tracker.ini", "Settings", "last skilltree-image" settings.leveltracker.profile, "00")}
+	vars.leveltracker.skilltree := {"active": !Blank(check := ini.settings["last skilltree-image" settings.leveltracker.profile]) ? check : "00"}
 
-	lang := settings.general.lang_client, db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json")), "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] gems.json")), "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json")), "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))}
+	If !IsObject(db.leveltracker)
+		lang := settings.general.lang_client
+		, db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
+		, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] gems.json"))
+		, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
+		, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))}
 }
 
 Geartracker(mode := "")
@@ -251,7 +263,7 @@ Leveltracker(cHWND := "", hotkey := "")
 				Return
 			}
 			start := A_TickCount, loop := 1
-			While GetKeyState("LButton", "P") && (cHWND = vars.hwnd.leveltracker["+"]) && (loop = 1)
+			While (loop = 1) && (GetKeyState("LButton", "P") && (cHWND = vars.hwnd.leveltracker["+"]) || settings.leveltracker.hotkeys && settings.leveltracker.hotkey_2 && GetKeyState(settings.leveltracker.hotkey_2, "P"))
 				If (A_TickCount >= start + 1000)
 					loop := 1000, vars.leveltracker.fast := 1, area_check := !db.leveltracker.areas.HasKey(vars.log.areaID) || InStr(vars.log.areaID, "labyrinth") ? 0 : 1
 
@@ -308,7 +320,7 @@ Leveltracker(cHWND := "", hotkey := "")
 				Return
 			}
 			start := A_TickCount, loop := 0
-			While GetKeyState("LButton", "P") && (cHWND = vars.hwnd.leveltracker["-"]) && !loop
+			While !loop && (GetKeyState("LButton", "P") && (cHWND = vars.hwnd.leveltracker["-"]) || settings.leveltracker.hotkeys && settings.leveltracker.hotkey_1 && GetKeyState(settings.leveltracker.hotkey_1, "P"))
 				If (A_TickCount >= start + 1000)
 					loop := 1
 
@@ -350,7 +362,7 @@ Leveltracker(cHWND := "", hotkey := "")
 					LLK_Drag(vars.leveltracker.coords.w + 2, vars.leveltracker.coords.h - 1, xDummy, yDummy, 0, "dummy_gui", 1)
 					Sleep 1
 				}
-			vars.leveltracker.drag := 0
+			vars.leveltracker.drag := 0, vars.general.drag := 0
 			If !Blank(xDummy) || !Blank(yDummy)
 			{
 				settings.leveltracker.xCoord := xDummy - (xDummy >= vars.monitor.w / 2 ? 1 : 0), settings.leveltracker.yCoord := yDummy + (yDummy >= vars.monitor.h / 2 ? 2 : 0), write := 1
@@ -410,7 +422,7 @@ LeveltrackerExperience(arealevel := "", safe := 0, feature := "")
 	local
 	global vars, settings
 
-	If (vars.log.level = 0)
+	If !vars.log.level
 		Return
 
 	arealevel := !arealevel ? vars.log.arealevel : arealevel, exp_penalty := {95: 1.069518717, 96: 1.129943503, 97: 1.2300123, 98: 1.393728223, 99: 1.666666667}
@@ -485,6 +497,30 @@ LeveltrackerHints()
 	}
 	KeyWait, % settings.hotkeys.tab
 	Gui, leveltracker_hints: Destroy
+}
+
+LeveltrackerHotkeys(mode := "")
+{
+	local
+	global vars, settings
+
+	Loop, Parse, % "^!+~#"
+		hotkey := (A_Index = 1) ? A_ThisHotkey : hotkey, hotkey := StrReplace(hotkey, A_LoopField)
+	If (mode = "refresh")
+	{
+		Hotkey, If, WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main
+		Hotkey, % settings.leveltracker.hotkey_01, LeveltrackerHotkeys, Off
+		Hotkey, % settings.leveltracker.hotkey_02, LeveltrackerHotkeys, Off
+		If settings.leveltracker.hotkeys
+		{
+			Hotkey, % settings.leveltracker.hotkey_1, LeveltrackerHotkeys, On
+			Hotkey, % settings.leveltracker.hotkey_2, LeveltrackerHotkeys, On
+		}
+		Return
+	}
+	button := (A_ThisHotkey = settings.leveltracker.hotkey_1) ? "-" : "+"
+	Leveltracker(button)
+	KeyWait, % hotkey
 }
 
 LeveltrackerImport(profile := "")
@@ -863,6 +899,7 @@ LeveltrackerScreencapMenu2(cHWND)
 				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
 				Sleep 1
 			}
+		vars.general.drag := 0
 		Return
 	}
 	Else LLK_ToolTip("no action")
@@ -1361,6 +1398,7 @@ LeveltrackerSkilltree(index := 0)
 			If (index = "00" || SubStr(A_LoopFileName, 2, StrLen(index)) = index) && InStr("jpg,png,bmp", A_LoopFileExt) && (!InStr(A_LoopFileName, "[lab") || InStr(index, "lab"))
 			{
 				img := A_LoopFilePath, caption := StrReplace(A_LoopFileName, "."A_LoopFileExt), caption := SubStr(caption, InStr(caption, "]") + (InStr(caption, "] ") ? 2 : 1))
+				caption := StrReplace(caption, "&", "&&")
 				skilltree.active := SubStr(A_LoopFileName, 2, (SubStr(A_LoopFileName, 1, 4) = "[lab") ? 4 : 2)
 				Break
 			}
@@ -1479,7 +1517,7 @@ LeveltrackerSkilltreeLab(file)
 
 	Loop, Files, % "img\GUI\skill-tree" settings.leveltracker.profile "\[lab*]*"
 		If (SubStr(A_LoopFileName, 2, 4) = file)
-			image := A_LoopFilePath, caption := SubStr(StrReplace(A_LoopFileName, "."A_LoopFileExt), InStr(A_LoopFileName, "]") + 1), caption := StrReplace(caption, " ",,, 1)
+			image := A_LoopFilePath, caption := SubStr(StrReplace(A_LoopFileName, "."A_LoopFileExt), InStr(A_LoopFileName, "]") + 1), caption := StrReplace(StrReplace(caption, " ",,, 1), "&", "&&")
 	Gui, %GUI_name%: Add, Picture, % "Section BackgroundTrans Border", % image
 	Gui, %GUI_name%: Add, Text, % "xs y+-1 wp Center BackgroundTrans Border"(!caption ? " h"settings.general.fHeight/2 : ""), % caption
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack c404040 Border", 0
@@ -1629,8 +1667,8 @@ LeveltrackerTimer(mode := "")
 			If (timer.current_act = 11)
 				LeveltrackerProgress(1)
 		}
-		Else If timer.current_split && !Mod(timer.current_split, 60) && (timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0)) ;save current time every minute as backup for potential crashes
-			IniWrite, % timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+		Else If timer.current_split && !Mod(timer.current_split, 60) && (timer.current_split != timer.current_split0) ;save current time every minute as backup for potential crashes
+			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 		If !vars.leveltracker.wait ;update the timer every cycle
 		{
 			GuiControl, Text, % vars.hwnd.leveltracker.timer_total, % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
@@ -1680,6 +1718,7 @@ LeveltrackerZoneLayouts(mode := 0, drag := 0, cHWND := "")
 			LLK_Drag(width, height, x, y,, "leveltracker_zones" toggle, (settings.leveltracker.aLayouts = "horizontal") ? 1 : 0)
 			Sleep 1
 		}
+	vars.general.drag := 0
 
 	If cHWND && !longpress && (drag = 1)
 	{

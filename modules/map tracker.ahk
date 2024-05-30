@@ -7,19 +7,19 @@
 
 	If !IsObject(settings.maptracker)
 		settings.maptracker := {}
-	settings.maptracker.loot := LLK_IniRead("ini\map tracker.ini", "Settings", "enable loot tracker", 0)
-	settings.maptracker.hide := LLK_IniRead("ini\map tracker.ini", "Settings", "hide panel when paused", 0)
-	settings.maptracker.kills := LLK_IniRead("ini\map tracker.ini", "Settings", "enable kill tracker", 0)
-	settings.maptracker.mapinfo := LLK_IniRead("ini\map tracker.ini", "Settings", "log mods from map-info panel", 0)
-	settings.maptracker.notes := LLK_IniRead("ini\map tracker.ini", "Settings", "enable notes", 0)
-	settings.maptracker.fSize := LLK_IniRead("ini\map tracker.ini", "Settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.maptracker.fSize, height, width)
-	settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
-	settings.maptracker.rename := LLK_IniRead("ini\map tracker.ini", "settings", "rename boss maps", 1)
-	settings.maptracker.sidecontent := LLK_IniRead("ini\map tracker.ini", "Settings", "track side-areas", 0)
-	settings.maptracker.mechanics := LLK_IniRead("ini\map tracker.ini", "Settings", "track league mechanics", 0)
-	settings.maptracker.portal_reminder := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll reminder", 0)
-	settings.maptracker.portal_hotkey := LLK_IniRead("ini\map tracker.ini", "Settings", "portal-scroll hotkey")
+	ini := IniBatchRead("ini\map tracker.ini")
+	settings.maptracker.loot := !Blank(check := ini.settings["enable loot tracker"]) ? check : 0
+	settings.maptracker.hide := !Blank(check := ini.settings["hide panel when paused"]) ? check : 0
+	settings.maptracker.kills := !Blank(check := ini.settings["enable kill tracker"]) ? check : 0
+	settings.maptracker.mapinfo := !Blank(check := ini.settings["log mods from map-info panel"]) ? check : 0
+	settings.maptracker.notes := !Blank(check := ini.settings["enable notes"]) ? check : 0
+	settings.maptracker.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.maptracker.fSize, height, width), settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
+	settings.maptracker.rename := !Blank(check := ini.settings["rename boss maps"]) ? check : 1
+	settings.maptracker.sidecontent := !Blank(check := ini.settings["track side-areas"]) ? check : 0
+	settings.maptracker.mechanics := !Blank(check := ini.settings["track league mechanics"]) ? check : 0
+	settings.maptracker.portal_reminder := !Blank(check := ini.settings["portal-scroll reminder"]) ? check : 0
+	settings.maptracker.portal_hotkey := !Blank(check := ini.settings["portal-scroll hotkey"]) ? check : ""
 	If !Blank(settings.maptracker.portal_hotkey)
 	{
 		Hotkey, If, (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client)
@@ -32,19 +32,21 @@
 		If Blank(settings.maptracker.portal_hotkey_single)
 			settings.maptracker.portal_hotkey_single := settings.maptracker.portal_hotkey
 	}
-	settings.maptracker.xCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "x-coordinate")
-	settings.maptracker.yCoord := LLK_IniRead("ini\map tracker.ini", "Settings", "y-coordinate")
+	settings.maptracker.xCoord := !Blank(check := ini.settings["x-coordinate"]) ? check : ""
+	settings.maptracker.yCoord := !Blank(check := ini.settings["y-coordinate"]) ? check : ""
 	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300", "league 4": "330066"}
 	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
-		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}, vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20250101]], vars.maptracker.notes := LLK_IniRead("ini\map tracker.ini", "UI", "notes")
-	For mechanic in vars.maptracker.mechanics
-		settings.maptracker[mechanic] := LLK_IniRead("ini\map tracker.ini", "mechanics", mechanic, 0)
+		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}
+	,	vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20250101]]
 
-	settings.maptracker.colors.date_unselected := LLK_IniRead("ini\map tracker.ini", "UI", "date_unselected color", settings.maptracker.dColors.date_unselected)
-	settings.maptracker.colors.date_selected := LLK_IniRead("ini\map tracker.ini", "UI", "date_selected color", settings.maptracker.dColors.date_selected)
+	For mechanic in vars.maptracker.mechanics
+		settings.maptracker[mechanic] := !Blank(check := ini.mechanics[mechanic]) ? check : 0
+
+	settings.maptracker.colors.date_unselected := !Blank(check := ini.UI["date_unselected color"]) ? check : settings.maptracker.dColors.date_unselected
+	settings.maptracker.colors.date_selected := !Blank(check := ini.UI["date_selected color"]) ? check : settings.maptracker.dColors.date_selected
 	For index, array in vars.maptracker.leagues
-		settings.maptracker.colors["league " index] := LLK_IniRead("ini\map tracker.ini", "UI", "league " index " color", settings.maptracker.dColors["league " index])
+		settings.maptracker.colors["league " index] := !Blank(check := ini.UI["league " index " color"]) ? check : settings.maptracker.dColors["league " index]
 	vars.maptracker.dialog := InStr(LLK_FileRead(vars.system.config), "output_all_dialogue_to_chat=true")
 }
 
@@ -72,6 +74,7 @@ Maptracker(cHWND := "", hotkey := "")
 					LLK_Drag(width, height, xPos, yPos,, gui_name, 1)
 					Sleep 1
 				}
+			vars.general.drag := 0
 			If !Blank(xPos) || !Blank(yPos)
 				settings.maptracker.xCoord := Blank(xPos) ? "center" : xPos + (xPos >= vars.monitor.w / 2 ? 1 : 0), settings.maptracker.yCoord := yPos + (yPos >= vars.monitor.h / 2 ? 1 : 0), write := 1
 			If write

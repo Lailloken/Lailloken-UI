@@ -4,23 +4,21 @@
 	global vars, settings, Json
 
 	settings.features.betrayal := LLK_IniRead("ini\config.ini", "Features", "enable betrayal-info", 0)
+	ini := IniBatchRead("ini\betrayal info.ini")
 	settings.betrayal := {}, file := FileExist("data\" settings.general.lang_client "\Betrayal.json") ? settings.general.lang_client : "english"
-	settings.betrayal.fSize := LLK_IniRead("ini\betrayal info.ini", "Settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.betrayal.fSize, font_height, font_width)
-	settings.betrayal.fHeight := font_height, settings.betrayal.fWidth := font_width
-	settings.betrayal.trans := LLK_IniRead("ini\betrayal info.ini", "Settings", "transparency", 220)
+	settings.betrayal.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.betrayal.fSize, font_height, font_width), settings.betrayal.fHeight := font_height, settings.betrayal.fWidth := font_width
 	settings.betrayal.dColors := ["00D000", "Yellow", "E90000"]
 	settings.betrayal.colors := []
 	settings.betrayal.colors[0] := "White"
 	settings.betrayal.sPrio := vars.client.h * (2/15)
-	settings.betrayal.ruthless := LLK_IniRead("ini\betrayal info.ini", "settings", "ruthless", 0)
+	settings.betrayal.ruthless := !Blank(check := ini.settings.ruthless) ? check : 0
 
 	Loop 3
-		settings.betrayal.colors[A_Index] := LLK_IniRead("ini\betrayal info.ini", "settings", "rank "A_Index " color", settings.betrayal.dColors[A_Index])
+		settings.betrayal.colors[A_Index] := !Blank(check := ini.settings["rank " A_Index " color"]) ? check : settings.betrayal.dColors[A_Index]
 
-	ini := LLK_IniRead("ini\betrayal info.ini", "settings", "board")
-	If !IsObject(vars.betrayal.board) && ini
-		vars.betrayal.board := Json.Load(ini)
+	If !IsObject(vars.betrayal.board) && ini.settings.board
+		vars.betrayal.board := Json.Load(ini.settings.board)
 
 	vars.betrayal.members := Json.Load(LLK_FileRead("data\" file "\Betrayal.json", 0, "65001")), vars.betrayal.members_localized := {}, vars.betrayal.divisions_localized := {}
 	For key in vars.betrayal.members ;create an object with localized names (solely for alphabetical ordering)
@@ -33,11 +31,10 @@
 	If !FileExist("ini\betrayal info.ini")
 	{
 		IniWrite, % settings.general.fSize, ini\betrayal info.ini, Settings, font-size
-		IniWrite, 220, ini\betrayal info.ini, Settings, transparency
 		For member in vars.betrayal.members
 			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member
 	}
-	If !InStr(LLK_FileRead("ini\betrayal info.ini"), " - ruthless")
+	If !LLK_HasKey(ini, "- ruthless", 1,,, 1)
 		For member in vars.betrayal.members
 			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member " - ruthless"
 
@@ -45,7 +42,7 @@
 	{
 		vars.betrayal.members[member].ranks := {}
 		For division in vars.betrayal.divisions
-			vars.betrayal.members[member].ranks[division] := LLK_IniRead("ini\betrayal info.ini", member (settings.betrayal.ruthless ? " - ruthless" : ""), division, 0)
+			vars.betrayal.members[member].ranks[division] := !Blank(check := ini[member (settings.betrayal.ruthless ? " - ruthless" : "")][division]) ? check : 0
 	}
 	BetrayalRefreshRanks()
 }

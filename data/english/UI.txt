@@ -153,6 +153,8 @@
 		global_pattern			=	"pattern"	;## as in color pattern
 		global_regular			=	"regular"	;## as in default
 		global_setup			=	"setup"
+		global_variance			=	"variance (0-255)"
+		global_hotkey			=	"hotkey:"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -665,9 +667,10 @@
 		m_lvltracker_pause		=	"pause timer in hideouts"
 		m_lvltracker_fade		=	"fade out after x seconds:"
 		m_lvltracker_fade		=	"fade in on mouse-hover"
-		m_lvltracker_gear		=	"enable gear tracker"
-		m_lvltracker_zones		=	"enable zone-layout overlay"
-		m_lvltracker_hints		=	"show additional hints in the guide"
+		m_lvltracker_gear		=	"gear tracker"
+		m_lvltracker_zones		=	"zone-layouts"
+		m_lvltracker_hints		=	"hints"
+		m_lvltracker_hotkeys		=	"enable page-switching via hotkeys"
 		m_lvltracker_skilltree		=	"skill-tree overlay settings:"
 		m_lvltracker_pob		=	"pob: middle-click opens screen-cap menu"
 		m_lvltracker_screencap		=	"screen-cap menu"
@@ -804,7 +807,6 @@
 		m_ocr_error			=	"test requires at least 8 unique words"
 		m_ocr_error			=	"screen-cap too large"
 		m_ocr_finish			=	"press esc to finish setup"
-		m_ocr_hotkey			=	"hotkey:"
 		m_ocr_hotkey			=	"<toggle highlighting> (in game):"
 		m_ocr_debug			=	"enable debug features"
 		m_ocr_unsupported		=	"720p and lower resolutions are not supported because screen-reading has a very high failure rate at low resolutions, making this feature almost unusable"

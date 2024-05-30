@@ -4,11 +4,11 @@
 	global vars, settings
 
 	If !FileExist("ini\clone frames.ini")
-		IniWrite, 0, ini\clone frames.ini, Settings, enable pixel-check
+		IniWrite, % "", ini\clone frames.ini, settings
 
-	settings.cloneframes := {}
-	settings.cloneframes.pixelchecks := LLK_IniRead("ini\clone frames.ini", "Settings", "enable pixel-check", 1)
-	settings.cloneframes.hide := LLK_IniRead("ini\clone frames.ini", "Settings", "hide in hideout", 0)
+	settings.cloneframes := {}, ini := IniBatchRead("ini\clone frames.ini")
+	settings.cloneframes.pixelchecks := !Blank(check := ini.settings["enable pixel-check"]) ? check : 0
+	settings.cloneframes.hide := !Blank(check := ini.settings["hide in hideout"]) ? check : 0
 
 	If !IsObject(vars.cloneframes)
 		vars.cloneframes := {"enabled": 0, "scroll": {}}
@@ -22,37 +22,26 @@
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
-	iniread := StrReplace(LLK_IniRead("ini\clone frames.ini"), "settings`n")
-	Loop, Parse, iniread, `n ;remove underscores from old name-formatting
+	vars.hwnd.cloneframes := {}
+	For key, val in ini
 	{
-		If InStr(A_LoopField, "_")
-		{
-			IniRead, parse, ini\clone frames.ini, % A_LoopField
-			IniDelete, ini\clone frames.ini, % A_LoopField
-			IniWrite, % parse, ini\clone frames.ini, % StrReplace(A_LoopField, "_", " ")
-		}
-	}
-
-	vars.hwnd.cloneframes := {}, iniread := StrReplace(LLK_IniRead("ini\clone frames.ini"), "settings", "settings_cloneframe") ;replace 'settings' ini-section with a dummy entry for clone-frame creation
-	Loop, Parse, iniread, `n
-	{
-		If (A_LoopField = "")
-			continue
-		vars.cloneframes.list[A_LoopField] := {"enable": LLK_IniRead("ini\clone frames.ini", A_LoopField, "enable", 1)}
-		Gui, % StrReplace(A_LoopField, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
-		vars.hwnd.cloneframes[A_LoopField] := hwnd
-		If vars.cloneframes.list[A_LoopField].enable
+		If (key = "settings")
+			key := "settings_cloneframe" ;dummy entry for clone-frame creation
+		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1}
+		Gui, % StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
+		vars.hwnd.cloneframes[key] := hwnd
+		If vars.cloneframes.list[key].enable
 			vars.cloneframes.enabled += 1
 
-		vars.cloneframes.list[A_LoopField].xSource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source x-coordinate", vars.client.x - vars.monitor.x + 4)) ;coordinates refer to monitor's coordinates (without offsets)
-		vars.cloneframes.list[A_LoopField].ySource := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "source y-coordinate", vars.client.y - vars.monitor.y + 4))
-		vars.cloneframes.list[A_LoopField].width := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-width", 200))
-		vars.cloneframes.list[A_LoopField].height := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "frame-height", 200))
-		vars.cloneframes.list[A_LoopField].xTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target x-coordinate", vars.client.xc - 100))
-		vars.cloneframes.list[A_LoopField].yTarget := Format("{:0.0f}", LLK_IniRead("ini\clone frames.ini", A_LoopField, "target y-coordinate", vars.client.y - vars.monitor.y + 13))
-		vars.cloneframes.list[A_LoopField].xScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling x-axis", 100)
-		vars.cloneframes.list[A_LoopField].yScale := LLK_IniRead("ini\clone frames.ini", A_LoopField, "scaling y-axis", 100)
-		vars.cloneframes.list[A_LoopField].opacity := LLK_IniRead("ini\clone frames.ini", A_LoopField, "opacity", 5)
+		vars.cloneframes.list[key].xSource := Format("{:0.0f}", !Blank(check := ini[key]["source x-coordinate"]) ? check : vars.client.x - vars.monitor.x + 4) ;coordinates refer to monitor's coordinates (without offsets)
+		vars.cloneframes.list[key].ySource := Format("{:0.0f}", !Blank(check := ini[key]["source y-coordinate"]) ? check : vars.client.y - vars.monitor.y + 4)
+		vars.cloneframes.list[key].width := Format("{:0.0f}", !Blank(check := ini[key]["frame-width"]) ? check : 200)
+		vars.cloneframes.list[key].height := Format("{:0.0f}", !Blank(check := ini[key]["frame-height"]) ? check : 200)
+		vars.cloneframes.list[key].xTarget := Format("{:0.0f}", !Blank(check := ini[key]["target x-coordinate"]) ? check : vars.client.xc - 100)
+		vars.cloneframes.list[key].yTarget := Format("{:0.0f}", !Blank(check := ini[key]["target y-coordinate"]) ? check : vars.client.y - vars.monitor.y + 13)
+		vars.cloneframes.list[key].xScale := !Blank(check := ini[key]["scaling x-axis"]) ? check : 100
+		vars.cloneframes.list[key].yScale := !Blank(check := ini[key]["scaling y-axis"]) ? check : 100
+		vars.cloneframes.list[key].opacity := !Blank(check := ini[key]["opacity"]) ? check : 5
 	}
 	vars.cloneframes.enabled -= 1, vars.cloneframes.list.settings_cloneframe.enable := 0 ;set the dummy entry to disabled
 }
@@ -132,7 +121,6 @@ CloneframesSettingsRefresh(name := "")
 	GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	If (name = "")
 	{
-		Init_cloneframes()
 		name := "settings_cloneframe"
 		Settings_menu("clone-frames")
 		Return

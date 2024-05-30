@@ -1,5 +1,11 @@
 [
   [
+	["1.53.5", 15305],
+	"restored geforce now compatibility",
+	"added optional hotkeys to switch between leveling tracker guide-pages",
+	"stash-ninja: price history fix, custom stock for unstackable items"
+  ],
+  [
 	["1.53.4", 15304],
 	"hotfix 1: help tooltips were displayed incorrectly if settings menu was in center position",
 	"stash-ninja: bulk-sale improvements, added support for tabs within folders",

@@ -7,29 +7,29 @@
 		IniWrite, % "", ini\item-checker.ini, settings
 
 	lang := settings.general.lang_client
-	db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
-	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
+	If !IsObject(db.anoints)
+		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
+	,	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
 
-	settings.iteminfo := {}
-	settings.iteminfo.profile := LLK_IniRead("ini\item-checker.ini", "settings", "current profile", 1)
-	settings.iteminfo.modrolls := LLK_IniRead("ini\item-checker.ini", "settings", "hide roll-ranges", 1)
-	settings.iteminfo.trigger := LLK_IniRead("ini\item-checker.ini", "settings", "enable wisdom-scroll trigger", 0)
-	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "enable item-levels", 0)
-	settings.iteminfo.itembase := LLK_IniRead("ini\item-checker.ini", "Settings", "enable base-info", 1)
-	settings.iteminfo.override := LLK_IniRead("ini\item-checker.ini", "Settings", "enable blacklist-override", 0)
-	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "enable gear-tracking", 0)
+	settings.iteminfo := {}, ini := IniBatchRead("ini\item-checker.ini")
+	settings.iteminfo.profile := !Blank(check := ini.settings["current profile"]) ? check : 1
+	settings.iteminfo.modrolls := !Blank(check := ini.settings["hide roll-ranges"]) ? check : 1
+	settings.iteminfo.trigger := !Blank(check := ini.settings["enable wisdom-scroll trigger"]) ? check : 0
+	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable item-levels"]) ? check : 0
+	settings.iteminfo.itembase := !Blank(check := ini.settings["enable base-info"]) ? check : 1
+	settings.iteminfo.override := !Blank(check := ini.settings["enable blacklist-override"]) ? check : 0
+	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
 
 	settings.iteminfo.rules := {}
-	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "weapon res override", 0)
-	settings.iteminfo.rules.res := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "res override", 0)
-	settings.iteminfo.rules.spells := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "spells override", 0)
-	settings.iteminfo.rules.attacks := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "attacks override", 0)
-	settings.iteminfo.rules.hitgain := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "lifemana gain override", 0)
-	settings.iteminfo.rules.crit := (settings.general.lang_client != "english") ? 0 : LLK_IniRead("ini\item-checker.ini", "Settings", "crit override", 0)
+	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["weapon res override"]) ? check : 0
+	settings.iteminfo.rules.res := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["res override"]) ? check : 0
+	settings.iteminfo.rules.spells := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["spells override"]) ? check : 0
+	settings.iteminfo.rules.attacks := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["attacks override"]) ? check : 0
+	settings.iteminfo.rules.hitgain := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["lifemana gain override"]) ? check : 0
+	settings.iteminfo.rules.crit := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["crit override"]) ? check : 0
 
-	settings.iteminfo.fSize := LLK_IniRead("ini\item-checker.ini", "settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.iteminfo.fSize, height, width)
-	settings.iteminfo.fWidth := width, settings.iteminfo.fHeight := height
+	settings.iteminfo.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.iteminfo.fSize, height, width), settings.iteminfo.fWidth := width, settings.iteminfo.fHeight := height
 
 	settings.iteminfo.dColors_tier := ["00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "00eeee"]
 	settings.iteminfo.dColors_tier[0] := "3399ff"
@@ -39,35 +39,31 @@
 
 	Loop 8 ;load custom colors
 	{
-		settings.iteminfo.colors_tier[A_Index - 1] := LLK_IniRead("ini\item-checker.ini", "UI", (A_Index = 8) ? "fractured" : "tier " A_Index - 1, settings.iteminfo.dColors_tier[A_Index - 1])
-		settings.iteminfo.colors_ilvl[A_Index] := LLK_IniRead("ini\item-checker.ini", "UI", "ilvl tier " A_Index, settings.iteminfo.dColors_ilvl[A_Index])
+		settings.iteminfo.colors_tier[A_Index - 1] := !Blank(check := ini.UI[(A_Index = 8) ? "fractured" : "tier " A_Index - 1]) ? check : settings.iteminfo.dColors_tier[A_Index - 1]
+		settings.iteminfo.colors_ilvl[A_Index] := !Blank(check := ini.UI["ilvl tier " A_Index]) ? check : settings.iteminfo.dColors_ilvl[A_Index]
 	}
 
 	If !IsObject(vars.iteminfo) ;only do this when the function is called for the very first time (i.e. at startup) ;this function is used whenever major features are toggled on/off
 	{
 		vars.iteminfo := {"UI": {}, "compare": {}}
 		vars.iteminfo.compare.slots := {"mainhand": {}, "offhand": {}, "helmet": {}, "body": {}, "amulet": {}, "ring1": {}, "ring2": {}, "belt": {}, "gloves": {}, "boots": {}}
-		vars.hwnd.iteminfo := {}
+		vars.hwnd.iteminfo := {}, ini2 := IniBatchRead("ini\item-checker gear.ini")
 
 		For key in vars.iteminfo.compare.slots ;load gear from ini
-			vars.iteminfo.compare.slots[key].equipped := LLK_IniRead("ini\item-checker gear.ini", key,, "empty")
+			vars.iteminfo.compare.slots[key].equipped := !Blank(check := ini2[key]) ? check.Clone() : "empty"
 	}
 
 	vars.iteminfo.highlight := {"global": {}}, vars.iteminfo.blacklist := {"global": {}}
-	iniread := LLK_IniRead("ini\item-checker.ini", "highlighting " settings.iteminfo.profile)
 
-	Loop, Parse, iniread, `n ;load global and slot-specific (un)desired highlighting
+	For key, val in ini["highlighting " settings.iteminfo.profile]
 	{
-		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
 		If !InStr(key, "highlight") && !InStr(key, "blacklist")
 		{
 			IniDelete, ini\item-checker.ini, % "highlighting " settings.iteminfo.profile, % key ;delete buggy key in ini-file
 			continue
 		}
-
 		category := InStr(key, "highlight") ? "highlight" : "blacklist"
 		class := InStr(key, " ") ? SubStr(key, InStr(key, " ") + 1) : "global"
-		val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
 		If !IsObject(vars.iteminfo[category][class])
 			vars.iteminfo[category][class] := {}
 		Loop, Parse, val, |
@@ -79,7 +75,7 @@
 	}
 
 	vars.iteminfo.inverted_mods := {}
-	Loop, Parse, % LLK_IniRead("ini\item-checker.ini", "inverted mods", "invert"), |, % A_Space
+	Loop, Parse, % ini["inverted mods"].invert, |, % A_Space
 	{
 		If Blank(A_LoopField)
 			Continue
@@ -92,44 +88,12 @@
 
 	vars.iteminfo.compare.xBase := vars.client.h* (443/720) - 1 ;x-coordinate in client that approximates the left edge of the inventory
 	vars.iteminfo.compare.dButton := vars.client.h*(1/18)/3, vars.hwnd.iteminfo_comparison := {}
+	coords := {"mainhand": [1/16, 1/9, 5/48, 1/5], "offhand": [107/240, 1/9, 5/48, 1/5], "helmet": [23/90, 7/72, 5/48, 5/48], "body": [23/90, 5/24, 5/48, 11/72], "amulet": [3/8, 7/36, 1/18, 1/18]
+	, "ring1": [11/60, 23/90, 1/18, 1/18], "ring2": [3/8, 23/90, 1/18, 1/18], "belt": [23/90, 35/96, 5/48, 1/18], "gloves": [13/96, 91/288, 5/48, 5/48], "boots": [3/8, 91/288, 5/48, 5/48]}
 	For key in vars.iteminfo.compare.slots ;load/update gear-update buttons used for tracking equipped items
 	{
-		iniread := LLK_IniRead("ini\item-checker.ini", "UI", A_LoopField " coords", "0,0")
-		Switch key
-		{
-			Case "mainhand":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (1/16), vars.iteminfo.compare.slots[key].y := vars.client.h * (1/9)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/5)
-			Case "offhand":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (107/240), vars.iteminfo.compare.slots[key].y := vars.client.h * (1/9)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/5)
-			Case "helmet":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (23/90), vars.iteminfo.compare.slots[key].y := vars.client.h * (7/72)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (5/48)
-			Case "body":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (23/90), vars.iteminfo.compare.slots[key].y := vars.client.h * (5/24)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (11/72)
-			Case "amulet":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (3/8), vars.iteminfo.compare.slots[key].y := vars.client.h * (7/36)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (1/18), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/18)
-			Case "ring1":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (11/60), vars.iteminfo.compare.slots[key].y := vars.client.h * (23/90)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (1/18), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/18)
-			Case "ring2":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (3/8), vars.iteminfo.compare.slots[key].y := vars.client.h * (23/90)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (1/18), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/18)
-			Case "belt":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (23/90), vars.iteminfo.compare.slots[key].y := vars.client.h * (35/96)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (1/18)
-			Case "gloves":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (13/96), vars.iteminfo.compare.slots[key].y := vars.client.h * (91/288)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (5/48)
-			Case "boots":
-				vars.iteminfo.compare.slots[key].x := vars.client.h * (3/8), vars.iteminfo.compare.slots[key].y := vars.client.h * (91/288)
-				vars.iteminfo.compare.slots[key].w := vars.client.h * (5/48), vars.iteminfo.compare.slots[key].h := vars.client.h * (5/48)
-		}
-		If (iniread != "0,0")
-			vars.iteminfo.compare.slots[key].x := SubStr(iniread, 1, InStr(iniread, ",") -1), vars.iteminfo.compare.slots[key].y := SubStr(iniread, InStr(iniread, ",") + 1)
+		vars.iteminfo.compare.slots[key].x := vars.client.h * coords[key].1, vars.iteminfo.compare.slots[key].y := vars.client.h * coords[key].2
+		vars.iteminfo.compare.slots[key].w := vars.client.h * coords[key].3, vars.iteminfo.compare.slots[key].h := vars.client.h * coords[key].4
 
 		Gui, iteminfo_button_%key%: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption HWNDhwnd
 		Gui, iteminfo_button_%key%: Margin, 0, 0
@@ -683,17 +647,16 @@ Iteminfo3_mods()
 		Loop, Parse, item_slot, `, ;read individual stats for all currently equipped items in the target slots
 		{
 			loop := A_Index
-			Loop, Parse, % vars.iteminfo.compare.slots[A_LoopField].equipped, `n ;read stats, declare variables
+			For key, val in vars.iteminfo.compare.slots[A_LoopField].equipped
 			{
-				parse := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
-				%parse%_%loop% := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1) ;declare variable, e.g. to_maximum_life_1 := 100 ("_n" denoting the n-th currently equipped item, e.g. ring1)
-				compare.items[loop][parse] := %parse%_%loop%
-				If (%parse% = "")
+				%key%_%loop% := val ;declare variable, e.g. to_maximum_life_1 := 100 ("_n" denoting the n-th currently equipped item, e.g. ring1)
+				compare.items[loop][key] := %key%_%loop%
+				If (%key% = "")
 				{
-					%parse% := 0  ;if the looted item doesn't have this stat, set its variable to 0
-					compare.items.0[parse] := 0
+					%key% := 0  ;if the looted item doesn't have this stat, set its variable to 0
+					compare.items.0[key] := 0
 				}
-				stats_equipped_%loop% .= parse "," ;list stats that are present on the item
+				stats_equipped_%loop% .= key "," ;list stats that are present on the item
 			}
 			compare.items[loop].stats := stats_equipped_%loop%
 		}
@@ -2103,6 +2066,15 @@ IteminfoGearParse(slot) ;parse the info of an equipped item and save it for item
 
 	vars.iteminfo.compare.slots[slot].equipped := (item_type = "attack") ? "dps="tdps "`npdps="pdps "`nedps="edps0 "`ncdps="cdps "`nspeed=" speed "`n" IteminfoCompare(implicits "`n" itemcheck_clip, item_type) : defenses IteminfoCompare(implicits "`n" itemcheck_clip, item_type)
 	IniWrite, % vars.iteminfo.compare.slots[slot].equipped, ini\item-checker gear.ini, % slot
+	Loop, Parse, % vars.iteminfo.compare.slots[slot].equipped, `n
+	{
+		If (A_Index = 1)
+			vars.iteminfo.compare.slots[slot].equipped := {}
+		If Blank(A_LoopField)
+			Continue
+		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		vars.iteminfo.compare.slots[slot].equipped[key] := val
+	}
 	LLK_ToolTip(slot " updated")
 	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
 		Iteminfo(1)

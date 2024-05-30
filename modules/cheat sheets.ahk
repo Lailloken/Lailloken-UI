@@ -4,22 +4,17 @@
 	global vars, settings
 
 	settings.features.cheatsheets := LLK_IniRead("ini\config.ini", "Features", "enable cheat-sheets", 0)
-	settings.cheatsheets := {}
-	settings.cheatsheets.fSize := LLK_IniRead("ini\cheat-sheets.ini", "settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.cheatsheets.fSize, font_height, font_width)
-	settings.cheatsheets.fHeight := font_height, settings.cheatsheets.fWidth := font_width
+	settings.cheatsheets := {}, ini := IniBatchRead("ini\cheat-sheets.ini")
+	settings.cheatsheets.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.cheatsheets.fSize, font_height, font_width), settings.cheatsheets.fHeight := font_height, settings.cheatsheets.fWidth := font_width
 	settings.cheatsheets.dColors := ["Lime", "Yellow", "Red", "Aqua"]
-	settings.cheatsheets.colors := []
-	settings.cheatsheets.colors[0] := "White"
-	;settings.cheatsheets.quick := LLK_IniRead("ini\cheat-sheets.ini", "settings", "quick access", 0)
+	settings.cheatsheets.colors := [], settings.cheatsheets.colors[0] := "White"
 	settings.cheatsheets.modifiers := ["alt", "ctrl", "shift"]
-	settings.cheatsheets.modifier := LLK_IniRead("ini\cheat-sheets.ini", "settings", "modifier-key", "alt")
+	settings.cheatsheets.modifier := !Blank(check := ini.settings["modifier-key"]) ? check : "alt"
 	If Blank(LLK_HasVal(settings.cheatsheets.modifiers, settings.cheatsheets.modifier)) ;force alt if modifier-key is an unexpected key
 		settings.cheatsheets.modifier := "alt"
-
 	Loop 4
-		settings.cheatsheets.colors[A_Index] := LLK_IniRead("ini\cheat-sheets.ini", "UI", "rank " A_Index " color", settings.cheatsheets.dColors[A_Index])
-
+		settings.cheatsheets.colors[A_Index] := !Blank(check := ini.UI["rank " A_Index " color"]) ? check : settings.cheatsheets.dColors[A_Index]
 	vars.cheatsheets.count_advanced := 0 ;save number of advanced sheets (used in the settings menu to determine if list of advanced sheets will be shown or not)
 
 	;rebuild list of cheat-sheets
@@ -31,15 +26,15 @@
 	{
 		If !IsObject(vars.cheatsheets[key])
 			vars.cheatsheets[key] := {}
-		vars.cheatsheets.list[key].enable := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "enable", 1)
-		vars.cheatsheets.list[key].area := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "image search", "static")
-		vars.cheatsheets.list[key].type := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "type", "images")
-		vars.cheatsheets.list[key].activation := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "activation", "hold")
-		vars.cheatsheets.list[key].scale := LLK_IniRead("cheat-sheets\" key "\info.ini", "UI", "scale", 1)
-		vars.cheatsheets.list[key].pos := LLK_IniRead("cheat-sheets\" key "\info.ini", "UI", "position", "2,2")
+		ini := IniBatchRead("cheat-sheets\" key "\info.ini")
+		vars.cheatsheets.list[key].enable := !Blank(check := ini.general.enable) ? check : 1
+		vars.cheatsheets.list[key].area := !Blank(check := ini.general["image search"]) ? check : "static"
+		vars.cheatsheets.list[key].type := !Blank(check := ini.general.type) ? check : "images"
+		vars.cheatsheets.list[key].activation := !Blank(check := ini.general.activation) ? check : "hold"
+		vars.cheatsheets.list[key].scale := !Blank(check := ini.UI.scale) ? check : 1
+		vars.cheatsheets.list[key].pos := !Blank(check := ini.UI.position) ? check : "2,2"
 		vars.cheatsheets.list[key].pos := [SubStr(vars.cheatsheets.list[key].pos, 1, 1), SubStr(vars.cheatsheets.list[key].pos, 3, 1)]
-		iniread := LLK_IniRead("cheat-sheets\" key "\info.ini", "image search", "last coordinates")
-		Loop, Parse, iniread, `,
+		Loop, Parse, % ini["image search"]["last coordinates"], `,
 		{
 			If (A_Index = 1)
 				vars.cheatsheets.list[key].x1 := A_LoopField
@@ -53,24 +48,22 @@
 		If (vars.cheatsheets.list[key].type = "advanced")
 		{
 			vars.cheatsheets.count_advanced += 1
-			vars.cheatsheets.list[key].variation := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "image search variation", 0) ;each sheet has its own imgsearch-variation (strictness) which is determined on-the-fly, then saved for future use
-			iniread := LLK_IniRead("cheat-sheets\" key "\info.ini", "entries") ;load a sheet's entries from ini
+			vars.cheatsheets.list[key].variation := !Blank(check := ini.general["image search variation"]) ? check : 0 ;each sheet has its own imgsearch-variation (strictness) which is determined on-the-fly, then saved for future use
 			vars.cheatsheets.list[key].entries := {} ;store the entries here
-			Loop, Parse, iniread, `n
+			For kEntry, vEntry in ini.entries
 			{
-				parse1 := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
-				vars.cheatsheets.list[key].entries[parse1] := {"panels": [], "ranks": []} ;each entry has panels which may also be ranked
+				vars.cheatsheets.list[key].entries[kEntry] := {"panels": [], "ranks": []} ;each entry has panels which may also be ranked
 				Loop 4
 				{
-					vars.cheatsheets.list[key].entries[parse1].panels[A_Index] := StrReplace(LLK_IniRead("cheat-sheets\" key "\info.ini", parse1, "panel "A_Index), "^^^", "`n")
-					vars.cheatsheets.list[key].entries[parse1].ranks[A_Index] := LLK_IniRead("cheat-sheets\" key "\info.ini", parse1, "panel " A_Index " rank", 0)
+					vars.cheatsheets.list[key].entries[kEntry].panels[A_Index] := StrReplace(ini[kEntry]["panel " A_Index], "^^^", "`n")
+					vars.cheatsheets.list[key].entries[kEntry].ranks[A_Index] := !Blank(check := ini[kEntry]["panel " A_Index " rank"]) ? check : 0
 				}
 			}
 		}
 		Else If (vars.cheatsheets.list[key].type = "app")
-			vars.cheatsheets.list[key].title := LLK_IniRead("cheat-sheets\" key "\info.ini", "general", "app title")
+			vars.cheatsheets.list[key].title := ini.general["app title"]
 		Else If (vars.cheatsheets.list[key].type = "images")
-			vars.cheatsheets.list[key].header := LLK_IniRead("cheat-sheets\"key "\info.ini", "general", "00-position", "top")
+			vars.cheatsheets.list[key].header := !Blank(check := ini.general["00-position"]) ? check : "top"
 	}
 }
 
@@ -579,6 +572,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			Return
 		}
 		Gdip_GetImageDimensions(pBitmap, width, height)
+
 		If (height >= vars.monitor.h*0.9)
 		{
 			pBitmap_copy := pBitmap
@@ -684,7 +678,7 @@ CheatsheetInfo(name)
 		Gui, cheatsheet_info: Add, Text, % "Section xs BackgroundTrans w"settings.general.fWidth*35, % "instructions:"
 		Gui, cheatsheet_info: Font, norm
 		IniRead, ini, % "cheat-sheets\" name "\info.ini", general, instructions, % "to recalibrate, screen-cap the area displayed above"
-		While (ini != "")
+		While (ini != "" && ini != " ")
 		{
 			Gui, cheatsheet_info: Add, Text, % "xs y+0 BackgroundTrans w"settings.general.fWidth*35, % "–> " ini
 			IniRead, ini, % "cheat-sheets\" name "\info.ini", general, instructions%A_Index%, % A_Space
@@ -866,6 +860,7 @@ CheatsheetMenu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' G
 				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
 			Sleep 1
 		}
+		vars.general.drag := 0
 	}
 	Else LLK_Tooltip("no action")
 
@@ -1162,11 +1157,11 @@ CheatsheetMenuEntrySave()
 	local
 	global vars, settings
 
-	name := vars.cheatsheet_menu.active
+	name := vars.cheatsheet_menu.active, ini := IniBatchRead("cheat-sheets\" name "\info.ini")
 	Loop 4
 	{
 		vars.cheatsheets.list[name].entries[vars.cheatsheet_menu.entry].panels[A_Index] := LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index])
-		If (StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") != LLK_IniRead("cheat-sheets\"name "\info.ini", vars.cheatsheet_menu.entry, "panel "A_Index))
+		If (StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") != ini[vars.cheatsheet_menu.entry]["panel " A_Index])
 			IniWrite, % """" StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") """", % "cheat-sheets\"name "\info.ini", % vars.cheatsheet_menu.entry, % "panel " A_Index
 	}
 }

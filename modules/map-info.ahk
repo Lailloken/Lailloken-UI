@@ -9,32 +9,38 @@
 		IniWrite, % "", ini\map info.ini, UI
 	}
 
-	If !LLK_IniRead("ini\map info.ini", "pinned")
+	ini := IniBatchRead("ini\map info.ini")
+	If !ini.HasKey("pinned")
+	{
 		IniWrite, % "001=1`n002=1`n003=1`n004=1`n007=1", ini\map info.ini, pinned
+		ini.pinned := {"001": 1, "002": 1, "003": 1, "004": 1, "007": 1}
+	}
 	settings.features.mapinfo := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map-info panel", 0)
-	settings.mapinfo := {"IDs": {}}
+	settings.mapinfo := {"IDs": {}, "pinned": {}}
+
+	For key, val in ini.pinned
+		settings.mapinfo.pinned[key] := val
 
 	Loop, Parse, % StrReplace(LLK_FileRead("data\english\map-info.txt"), "`t"), `n, `r
 	{
 		If !InStr(A_LoopField, "id=")
 			Continue
-		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": LLK_IniRead("ini\map info.ini", ID, "rank", 1), "show": LLK_IniRead("ini\map info.ini", ID, "show", 1)}
+		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": !Blank(check := ini[ID].rank) ? check : 1, "show": !Blank(check1 := ini[ID].show) ? check1 : 1}
 	}
 
 	settings.mapinfo.dColor := ["FFFFFF", "f77e05", "Red", "Fuchsia"], settings.mapinfo.eColor_default := ["FFFFFF", "Yellow", "Green", "Lime"]
 	settings.mapinfo.color := [], settings.mapinfo.eColor := []
 	Loop 4
-		settings.mapinfo.color[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "difficulty " A_Index " color", settings.mapinfo.dColor[A_Index])
-	,	settings.mapinfo.eColor[A_Index] := LLK_IniRead("ini\map info.ini", "UI", "logbook " A_Index " color", settings.mapinfo.eColor_default[A_Index])
-	settings.mapinfo.fSize := LLK_IniRead("ini\map info.ini", "settings", "font-size", settings.general.fSize)
-	LLK_FontDimensions(settings.mapinfo.fSize, font_height, font_width)
-	settings.mapinfo.fHeight := font_height, settings.mapinfo.fWidth := font_width
-	settings.mapinfo.trigger := LLK_IniRead("ini\map info.ini", "Settings", "enable shift-clicking", 0)
-	settings.mapinfo.tabtoggle := LLK_IniRead("ini\map info.ini", "Settings", "show panel while holding tab", 0)
-	settings.mapinfo.roll_highlight := LLK_IniRead("ini\map info.ini", "Settings", "highlight map rolls", 0), settings.mapinfo.roll_requirements := {}
-	settings.mapinfo.roll_colors := [LLK_IniRead("ini\map info.ini", "UI", "map rolls text color", "00FF00"), LLK_IniRead("ini\map info.ini", "UI", "map rolls back color", "000000")]
+		settings.mapinfo.color[A_Index] := !Blank(check := ini.UI["difficulty " A_Index " color"]) ? check : settings.mapinfo.dColor[A_Index]
+	,	settings.mapinfo.eColor[A_Index] := !Blank(check := ini.UI["logbook " A_Index " color"]) ? check : settings.mapinfo.eColor_default[A_Index]
+	settings.mapinfo.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
+	LLK_FontDimensions(settings.mapinfo.fSize, font_height, font_width), settings.mapinfo.fHeight := font_height, settings.mapinfo.fWidth := font_width
+	settings.mapinfo.trigger := !Blank(check := ini.settings["enable shift-clicking"]) ? check : 0
+	settings.mapinfo.tabtoggle := !Blank(check := ini.settings["show panel while holding tab"]) ? check : 0
+	settings.mapinfo.roll_highlight := !Blank(check := ini.settings["highlight map rolls"]) ? check : 0, settings.mapinfo.roll_requirements := {}
+	settings.mapinfo.roll_colors := [!Blank(check := ini.UI["map rolls text color"]) ? check : "00FF00", !Blank(check1 := ini.UI["map rolls back color"]) ? check1 : "000000"]
 	Loop 6
-		settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)] := LLK_IniRead("ini\map info.ini", "UI", LangTrans("maps_stats_full", A_Index + 1) " requirement")
+		settings.mapinfo.roll_requirements[LangTrans("maps_stats_full", A_Index + 1)] := !Blank(check := ini.UI[LangTrans("maps_stats_full", A_Index + 1) " requirement"]) ? check : ""
 
 	lang := settings.general.lang_client, db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
 	Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" lang "\map-info.txt") ? lang : "english") "\map-info.txt", 1), "`t"), `n, `r
@@ -352,11 +358,11 @@ MapinfoModsearch(input0 := "", cHWND0 := "")
 		If !added_mods.HasKey(db.mapinfo.mods[mod].id)
 			text := db.mapinfo.mods[mod].text, added_mods[db.mapinfo.mods[mod].id] := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text
 
-	LLK_PanelDimensions(added_mods, settings.mapinfo.fSize, width, height)
+	LLK_PanelDimensions(added_mods, settings.mapinfo.fSize, width, height), ini := IniBatchRead("ini\map info.ini")
 	For ID, text in added_mods
 	{
-		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, color := settings.mapinfo.color[LLK_IniRead("ini\map info.ini", ID, "rank", 1)]
-		If !LLK_IniRead("ini\map info.ini", ID, "show", 1)
+		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, color := settings.mapinfo.color[!Blank(check := ini[ID].rank) ? check : 1], show := !Blank(check := ini[ID].show) ? check : 1
+		If !show
 			Gui, %GUI_name%: Font, strike
 		Gui, %GUI_name%: Add, Text, % "xs Section Border HWNDhwnd w" width " c" color . (A_Index = 1 ? "" : " y+-1"), % " " text " "
 		vars.hwnd.mapinfo_modsearch["_" ID] := hwnd

@@ -27,10 +27,10 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {}
-If LLK_IniRead("ini\config.ini", "versions", "apply update", 0)
+vars := {}, ini := IniBatchRead("ini\config.ini")
+If ini.versions["apply update"]
 	UpdateCheck(2)
-Else If LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)
+Else If ini.settings["update auto-check"]
 	UpdateCheck()
 IniDelete, ini\config.ini, versions, apply update
 Init_vars()
@@ -40,8 +40,8 @@ Init_general()
 Init_betrayal()
 Init_cheatsheets()
 Init_cloneframes()
-;If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
-;	Init_geforce()
+If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
+	Init_geforce()
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
@@ -70,9 +70,9 @@ Else
 Init_GUI()
 SetTimer, LogLoop, 1000
 
-If LLK_IniRead("ini\config.ini", "Versions", "reload settings")
+If (check := ini.versions["reload settings"])
 {
-	Settings_menu(LLK_IniRead("ini\config.ini", "Versions", "reload settings"))
+	Settings_menu(check)
 	IniDelete, ini\config.ini, Versions, reload settings
 }
 Return
@@ -148,8 +148,8 @@ Exit()
 		If (ini != Json.Dump(vars.betrayal.board))
 			IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	}
-
-	If IsNumber(vars.leveltracker.timer.current_split) && (vars.leveltracker.timer.current_split != LLK_IniRead("ini\leveling tracker.ini", "current run" settings.leveltracker.profile, "time", 0))
+	timer := vars.leveltracker.timer
+	If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
 		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 
 	If vars.maptracker.map.date_time
@@ -295,25 +295,31 @@ HelpToolTip(HWND_key)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
-IniBatchRead(file, section)
+IniBatchRead(file, section := "", encoding := "1200")
 {
 	local
 
-	ini := {}
-	IniRead, read, % file, % section,, % A_Space
-	If (read = " " || read = "") 
+	ini := {}, file := Blank(section) ? LLK_FileRead(file, 1, encoding) : LLK_IniRead(file, section)
+	If !Blank(section)
+		ini[section] := {}
+	If Blank(section) && !InStr(file, "[") && !InStr(file, "]") || !Blank(section) && (file = " " || file = "")
 		Return ini
-	
-	Loop, Parse, read, `n, `r
+
+	Loop, Parse, file, `n, `r
 	{
 		If Blank(A_LoopField)
 			Continue
+		If (SubStr(A_LoopField, 1, 1) = "[")
+		{
+			section := SubStr(A_LoopField, 2, -1), ini[section] := {}
+			Continue
+		}
 		If InStr(A_LoopField, "=")
 			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
 		Else key := A_LoopField, val := ""
 
 		val := (SubStr(val, 1, 1) = """" && SubStr(val, 0, 1) = """") ? SubStr(val, 2, -1) : val
-		ini[key] := val
+		ini[section][key] := val
 	}
 	Return ini
 }
@@ -326,7 +332,8 @@ Init_client()
 	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
 	{
 		;load client-config location and double-check
-		IniRead, poe_config_file, ini\config.ini, Settings, PoE config-file, %A_MyDocuments%\My Games\Path of Exile\production_Config.ini
+		ini := IniBatchRead("ini\config.ini")
+		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile\production_Config.ini"
 		If !FileExist(poe_config_file)
 		{
 			FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the 'production_Config.ini' file which is stored in the same folder as loot-filters, config files (*.ini)
@@ -344,8 +351,7 @@ Init_client()
 			IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 		}
 		Else IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
-
-		vars.system.config := poe_config_file
+		vars.system.config := poe_config_file, vars.client.stream := 0
 
 		;check the contents of the client-config
 		FileRead, poe_config_check, % poe_config_file
@@ -371,8 +377,7 @@ Init_client()
 		}
 
 		;check if client's window settings have changed since the previous session
-		IniRead, fullscreen_last, ini\config.ini, Settings, fullscreen, % A_Space
-		If (fullscreen_last != vars.client.fullscreen)
+		If (ini.settings.fullscreen != vars.client.fullscreen)
 		{
 			IniWrite, % vars.client.fullscreen, ini\config.ini, Settings, fullscreen
 			IniWrite, 0, ini\config.ini, Settings, remove window-borders
@@ -380,7 +385,7 @@ Init_client()
 			IniDelete, ini\config.ini, Settings, custom-width
 		}
 	}
-	Else IniWrite, 0, ini\config.ini, Settings, enable custom-resolution ;disable custom resolutions for streaming clients
+	Else vars.client.stream := 1, vars.client.fullscreen := "true"
 
 	;determine native resolution of the active monitor
 	WinGet, minmax, MinMax, ahk_group poe_window
@@ -395,9 +400,12 @@ Init_client()
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native, "xc": xScreenOffset_monitor + width_native / 2, "yc": yScreenOffSet_monitor + height_native / 2}
 
-	vars.client.docked := LLK_IniRead("ini\config.ini", "Settings", "window-position", "center"), vars.client.docked2 := LLK_IniRead("ini\config.ini", "Settings", "window-position vertical", "center")
-	vars.client.borderless := (vars.client.fullscreen = "true") ? 1 : LLK_IniRead("ini\config.ini", "Settings", "remove window-borders", 0)
-	vars.client.customres := [LLK_IniRead("ini\config.ini", "Settings", "custom-width"), LLK_IniRead("ini\config.ini", "Settings", "custom-resolution")]
+	If !vars.client.stream
+	{
+		vars.client.docked := !Blank(check := ini.settings["window-position"]) ? check : "center", vars.client.docked2 := !Blank(check := ini.settings["window-position vertical"]) ? check : "center"
+		vars.client.borderless := (vars.client.fullscreen = "true") ? 1 : !Blank(check := ini.settings["remove window-borders"]) ? check : 0
+		vars.client.customres := [ini.settings["custom-width"], ini.settings["custom-resolution"]]
+	}
 	If IsNumber(vars.client.customres.1) && IsNumber(vars.client.customres.2)
 	{
 		If (vars.client.customres.1 > vars.monitor.w) || (vars.client.customres.2 > vars.monitor.h) ;check resolution in case of manual .ini edit
@@ -425,7 +433,7 @@ Init_client()
 	vars.client.x_offset := (vars.client.fullscreen = "false" && !vars.client.borderless) ? vars.system.xborder : 0
 	xTarget := (vars.client.docked = "left") ? vars.monitor.x - vars.client.x_offset : (vars.client.docked = "center") ? vars.monitor.x + (vars.monitor.w - w) / 2 : vars.monitor.x + vars.monitor.w - (w - vars.client.x_offset)
 	yTarget := (vars.client.docked2 = "top") ? vars.monitor.y : (vars.client.docked2 = "center") ? vars.monitor.y + (vars.monitor.h - h)/2 : vars.monitor.y + vars.monitor.h - (h - (vars.client.borderless ? 0 : vars.system.yBorder))
-	If (vars.client.fullscreen = "false") || (vars.client.w < vars.monitor.w) || (vars.client.h < vars.monitor.h)
+	If !vars.client.stream && ((vars.client.fullscreen = "false") || (vars.client.w < vars.monitor.w) || (vars.client.h < vars.monitor.h))
 	{
 		WinMove, ahk_group poe_window,, % xTarget, % yTarget
 		WinGetPos, x, y, w, h, ahk_group poe_window
@@ -476,7 +484,7 @@ Init_geforce()
 	local
 	global vars, settings
 
-	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 0)
+	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 10)
 	vars.imagesearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "image-check variation", 25)
 }
 
@@ -485,20 +493,20 @@ Init_general()
 	local
 	global vars, settings
 
-	legacy_version := LLK_IniRead("ini\config.ini", "versions", "ini-version"), new_version := 15304
+	ini := IniBatchRead("ini\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15304
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
 	}
-	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini", 0)
+	ini_version := !Blank(check := ini.versions.ini) ? check : 0
 	If !ini_version
 		IniWrite, % new_version, ini\config.ini, versions, ini
 
 	If (ini_version < 15303)
 	{
 		FileDelete, % "img\Recognition (" vars.client.h "p)\GUI\betrayal.bmp"
-		If LLK_IniRead("ini\config.ini", "features", "enable betrayal-info", 0)
+		If ini.features["enable betrayal-info"]
 			MsgBox, % "The betrayal image-check was changed in v1.53.3 and needs to be recalibrated."
 	}
 	If (ini_version < 15304)
@@ -509,24 +517,22 @@ Init_general()
 	settings.general.version := new_version
 	settings.general.trans := 230
 	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
-	settings.general.character := LLK_IniRead("ini\config.ini", "Settings", "active character")
-	settings.general.dev := LLK_IniRead("ini\config.ini", "Settings", "dev", 0)
-	settings.general.dev_env := settings.general.dev * LLK_IniRead("ini\config.ini", "Settings", "dev env", 0)
-	settings.general.xButton := LLK_IniRead("ini\config.ini", "UI", "button xcoord", 0)
-	settings.general.yButton := LLK_IniRead("ini\config.ini", "UI", "button ycoord", 0)
-	;settings.general.hide_button := LLK_IniRead("ini\config.ini", "UI", "hide panel", 0)
-	settings.general.warning_ultrawide := LLK_IniRead("ini\config.ini", "Versions", "ultrawide warning", 0)
-	settings.general.hide_toolbar := LLK_IniRead("ini\config.ini", "UI", "hide toolbar", 0)
-	settings.general.ClientFiller := settings.general.FillerAvailable ? LLK_IniRead("ini\config.ini", "Settings", "client background filler", 0) : 0
+	settings.general.character := ini.settings["active character"]
+	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0
+	settings.general.dev_env := settings.general.dev * (!Blank(check := ini.settings["dev env"]) ? check : 0)
+	settings.general.xButton := !Blank(check := ini.UI["button xcoord"]) ? check : 0
+	settings.general.yButton := !Blank(check := ini.UI["button ycoord"]) ? check : 0
+	settings.general.warning_ultrawide := !Blank(check := ini.versions["ultrawide warning"]) ? check : 0
+	settings.general.hide_toolbar := !Blank(check := ini.UI["hide toolbar"]) ? check : 0
+	settings.general.ClientFiller := !settings.general.FillerAvailable ? 0 : !Blank(check := ini.settings["client background filler"]) ? check : 0
 
-	settings.general.fSize := LLK_IniRead("ini\config.ini", "settings", "font-size", LLK_FontDefault())
+	settings.general.fSize := !Blank(check := ini.settings["font-size"]) ? check : LLK_FontDefault()
 	If (settings.general.fSize < 6)
 		settings.general.fSize := 6
-	LLK_FontDimensions(settings.general.fSize, font_height, font_width)
-	settings.general.fHeight := font_height, settings.general.fWidth := font_width
-	settings.features.browser := LLK_IniRead("ini\config.ini", "Settings", "enable browser features", 1)
+	LLK_FontDimensions(settings.general.fSize, font_height, font_width), settings.general.fHeight := font_height, settings.general.fWidth := font_width
+	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
 
-	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
+	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
 }
 
 Init_vars()
@@ -679,7 +685,10 @@ Loop_main()
 	MouseHover()
 	IteminfoOverlays()
 
-	If !vars.settings.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
+	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && (vars.general.wMouse != vars.hwnd.necropolis.main) && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
+		WinActivate, % "ahk_id " vars.general.wMouse
+
+	If !vars.general.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
 	{
 		tab := vars.stash.active
 		If !stashhover.exact || (vars.general.xMouse "," vars.general.yMouse != stashhover.exact)
@@ -1005,7 +1014,10 @@ Startup()
 	local
 	global vars, settings
 
-	SetStoreCapsLockMode, % LLK_IniRead("ini\config.ini", "Settings", "enable CapsLock-toggling", 1) ;for people who have something bound to CapsLock
+	ini := IniBatchRead("ini\config.ini", "settings")
+	settings.general := {"kill": [!Blank(check := ini.settings["kill script"]) ? check : 1, !Blank(check1 := ini.settings["kill script"]) ? check1 : 1]}
+	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0, settings.general.capslock := !Blank(check := ini.settings["enable capslock-toggling"]) ? check : 1
+	SetStoreCapsLockMode, % settings.general.capslock ;for people who have something bound to CapsLock
 	If !pToken := Gdip_Startup()
 	{
 		MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
@@ -1018,16 +1030,17 @@ Startup()
 	SysGet, caption, 4
 	vars.system.xborder := xborder, vars.system.yborder := yborder, vars.system.caption := caption
 
-	settings.general := {"kill": [LLK_IniRead("ini\config.ini", "Settings", "kill script", 1), LLK_IniRead("ini\config.ini", "Settings", "kill-timeout", 1)]}
-	settings.general.dev := LLK_IniRead("ini\config.ini", "Settings", "dev", 0)
-
 	;create window-groups for easier window detection
 	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
 	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, snipping_tools, ahk_exe SnippingTool.exe
 	GroupAdd, poe_window, ahk_class POEWindowClass
+	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
+	GroupAdd, poe_window, ahk_exe boosteroid.exe
 	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
+	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
+	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
 	If settings.general.dev
 		GroupAdd, poe_ahk_window, ahk_exe code.exe ;treat VS Code's window as a client
 
@@ -1367,7 +1380,7 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 	local
 	global vars, settings
 
-	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1
+	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1, vars.general.drag := 1
 	MouseGetPos, xPos, yPos
 	xMouse := xPos, yMouse := yPos
 	If !gui_name
@@ -1404,7 +1417,7 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 	If center && LLK_IsBetween(xMouse, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
 		xPos := "", xTarget := vars.client.xc - width/2 + 1
 
-	Gui, %gui_name%: Show, % "NA x" vars.monitor.x + xTarget " y"vars.monitor.y + yTarget
+	Gui, %gui_name%: Show, % (vars.client.stream ? "" : "NA ") "x" vars.monitor.x + xTarget " y" vars.monitor.y + yTarget
 }
 
 LLK_Error(ErrorMessage, restart := 0)
