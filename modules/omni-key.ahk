@@ -268,7 +268,7 @@ OmniContext(mode := 0)
 	If settings.features.stash
 	{
 		check := LLK_HasKey(vars.stash, item.name,,,, 1), start := A_TickCount
-		While check && GetKeyState(ThisHotkey_copy, "P")
+		While check && (Blank(item.itembase) || item.name = item.itembase) && GetKeyState(ThisHotkey_copy, "P")
 			If (A_TickCount >= start + 150)
 			{
 				Stash_(check)
