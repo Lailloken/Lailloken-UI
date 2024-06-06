@@ -1,6 +1,7 @@
 [
   [
 	["1.53.5", 15305],
+	"hotfix 1: stash-ninja was activated by rare items that had the same name as tab-specific items",
 	"restored geforce now compatibility",
 	"added optional hotkeys to switch between leveling tracker guide-pages",
 	"stash-ninja: price history fix, custom stock for unstackable items"
