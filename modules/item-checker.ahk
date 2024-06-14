@@ -1198,9 +1198,9 @@ Iteminfo4_GUI()
 			Gui, %GUI_name%: Add, Text, % "xs Section HWNDhwnd Border Hidden Center w"(UI.segments - (unique ? 1 : 1.25))*UI.wSegment, % mod_text ;dummy text-panel to gauge the required height of the text
 			GuiControlGet, text_, Pos, % hwnd
 
-			color := unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
+			color := (invert_check && (rolls_val / rolls_max) * 100 != 0) ? "505000" : unique ? "994C00" : !InStr(LLK_StringRemove(A_LoopField, " (fractured), (crafted)"), "(") ? "303060" : "404040"
 			;if dummy text-panel is single-line, increase height slightly to make small cells square
-			Gui, %GUI_name%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center", % mod_text ;add actual text-panel with the correct size
+			Gui, %GUI_name%: Add, Text, % "xp yp wp h"(text_h < UI.hSegment ? UI.hSegment : "p" ) " Section BackgroundTrans HWNDhwnd Border Center" (invert_check && (rolls_val / rolls_max) * 100 = 0 ? " cCCCC00" : ""), % mod_text ;add actual text-panel with the correct size
 			GuiControlGet, text_, Pos, % hwnd ;get position and size of the text-panel
 			height += text_h ;sum up the heights of each line belonging to the same mod, so it can be used for the cells right next to them (highlight, tier, and potentially icon/ilvl)
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Section HWNDhwnd Border Disabled BackgroundBlack range0-100 c"color, % (rolls_val / rolls_max) * 100
