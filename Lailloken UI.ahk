@@ -262,7 +262,7 @@ HelpToolTip(HWND_key)
 	Gui, %GUI_name%: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
 	Gui, %GUI_name%: Color, 202020
 	Gui, %GUI_name%: Margin, 0, 0
-	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
+	Gui, %GUI_name%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
 
 	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
@@ -533,6 +533,8 @@ Init_general()
 	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
 
 	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
+
+	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "maptracker": {}}
 }
 
 Init_vars()
@@ -1522,6 +1524,15 @@ LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the 
 			Return A_Index + 2 ;because every text exclusively uses lower-case letters
 		}
 	}
+}
+
+LLK_ImageCache(file)
+{
+	local
+	global vars, settings
+
+	pBitmap := Gdip_CreateBitmapFromFile(file), pHBM := Gdip_CreateHBITMAPFromBitmap(pBitmap, 0), Gdip_DisposeImage(pBitmap)
+	Return pHBM
 }
 
 LLK_IniRead(file, section := "", key := "", default := "")
