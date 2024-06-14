@@ -249,7 +249,7 @@
       "it will be available once a language-pack for the current language has been installed"
     ],
     "leveltracker enable": [
-      "provides an automated leveling guide overlay and several campaign qol-tools"
+      "provides an automated campaign guide-overlay and several qol features"
     ],
     "leveltracker timer": [
       "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
@@ -385,12 +385,12 @@
       "refreshing kills only has to be done if you have finished the map and won't go back in"
     ],
     "maptracker mapinfo": [
-      "map-mod data loaded into the map-info panel will be logged",
+      "map-mods in the map-info panel will be logged",
+      "this also includes information such as:\nelder guardians, conquerors, type of maven invitation, blight(-ravaged), contract/blueprint",
       "the map-info panel is a separate feature and has to be enabled"
     ],
     "maptracker notes": [
-      "adds an icon to the tracker panel to log custom notes for individual map runs",
-      "long-click to view current notes, right-click to edit"
+      "adds an icon to the tracker panel to log custom notes for individual map runs"
     ],
     "maptracker color unselected": [
       "used for highlighted cells in the log-viewer, and for non-league dates in the date selection",
@@ -815,58 +815,95 @@
       "long-click to export the list of runs below as a CSV-file, overwriting any existing file with the same date",
       "right-click to open the export folder"
     ],
-    "logviewer filter": [
-      "type in keywords (separated by commas) and press <enter> to only show specific runs: simple words are treated as map names, simple numbers as map tiers (e.g. \"crimson temple, 16\")",
-      "you can search inside columns by using search operators (check the book icon on the far left)"
+    "logviewer page-entries": [
+      "how many entries to show on each page (auto = log-viewer will adjust to available screen space)"
+    ],
+    "logviewer search": [
+      "each column has a search bar that supports regex and custom patterns (hover over them for more info):\npress <enter> to start a search with every input at once, or click the red x to restore the unfiltered log-viewer",
+	  "some column headers can be clicked to perform yes/no searches for easy filtering (hover over them for more info)"
     ],
     "logviewer sum avg": [
       "click highlighted cells in this row to display the data within a column as totals / percentages / averages"
     ],
-    "logviewer headers": [
-      "some column headers can be clicked for searching: left = paste search-operator, right = paste !operator",
-      "double-clicking will immediately start the search with the bare operator: using an operator without any keywords will simply search for runs where corresponding data had any value other than 0 or blank"
+    "logviewer search map": [
+      "search for <xyz> to only show map names with <xyz>, or <!xyz> to only show those without it",
+	  "<!abc> and <xyz> can be combined, e.g. <bog !blight> to exclude blight(-ravaged) versions of bog"
     ],
     "logviewer header map": [
       "long-click a map name to edit it, hold right-click to delete the run",
-      "names can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+      "click a map name to paste it into the search, right-click it to paste the exclude-string\ndouble-(right-)click a map name to search immediately without pasting"
     ],
-    "logviewer header run": [
-      "searching for \"r:XYZ\" will only list runs that took XYZ amount of time and below",
-      "if XYZ doesn't include any colons, the value is treated as seconds, otherwise it's treated as hh:mm:ss"
-    ],
-    "logviewer header e-exp": [
-      "effective exp gained in a map, based on your level and the monsters'",
-      "requires your character name in the <general> section of the settings menu"
-    ],
-    "logviewer header deaths": [
-      "searching for \"d:X\" will only list runs with at least X deaths"
-    ],
-    "logviewer header portals": [
-      "searching for \"p:X\" will only list runs with at least X portals used"
-    ],
-    "logviewer header kills": [
-      "number of monsters killed in a map: uses /kills command (optional setting, has to be enabled first)",
-      "searching for \"k:X\" will only list runs with at least X kills"
-    ],
-    "logviewer header loot": [
-      "loot found in a map (optional setting, has to be enabled first)",
-      "click highlighted cells in this column to view the list"
-    ],
-    "logviewer header mapinfo": [
-      "mods rolled on a map (optional setting, has to be enabled first): click highlighted cells in this column to view the list",
-      "the operator also allows searching for general stats (mod-count, quant, etc.), e.g. \"m:100q\" will search for 100% quant and above"
-    ],
-    "logviewer header notes": [
-      "notes can be added to individual map runs by right-clicking cells in this column",
-      "click highlighted cells in this column to view the notes"
-    ],
-    "logviewer header content": [
-      "side-content you encountered in a map (optional setting, has to be enabled first)",
-      "the icons can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+    "logviewer search tier": [
+      "you can search for <x> (exact tier), <x-y> (between x and y), or <x+> (x or higher)",
+	  "you can also exclude tiers by searching for <!x>"
     ],
     "logviewer header tier": [
       "the tier (map) or level (e.g. contract) of the run",
-      "tiers can be clicked for searching, just like some of the headers (check the book icon in the top left)"
+      "click a number to paste it into the search, right-click it to paste the exclude-string\ndouble-(right-)click a number to search immediately without pasting"
+    ],
+    "logviewer search run": [
+      "you can search for <x> (exact time), <x-y> (between x and y), or <x+> (x or longer)",
+      "if x/y don't include any colons, they will be treated as seconds, otherwise as (hh:)mm:ss"
+    ],
+    "logviewer header run": [
+      "the time it took to complete the run"
+    ],
+    "logviewer header e-exp": [
+      "effective exp gained in a map (i.e. after penalties), based on your level and the monsters'",
+      "requires you to specify your character's name in the <general> section of the settings menu"
+    ],
+    "logviewer search deaths": [
+      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+    ],
+    "logviewer header deaths": [
+      "number of deaths in a run",
+      "click this header to paste <1+>, right-click it to paste <0>\ndouble-(right-)click this header to search immediately without pasting"
+    ],
+    "logviewer search portals": [
+      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+    ],
+    "logviewer header portals": [
+      "number of portals used in a run"
+    ],
+    "logviewer search kills": [
+      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+    ],
+    "logviewer header kills": [
+      "monsters killed in a run (optional, has to be enabled first): uses the in-game /kills command",
+      "click this header to paste <1+>, right-click it to paste <0>\ndouble-(right-)click this header to search immediately without pasting"
+    ],
+    "logviewer search loot": [
+      "search for <xyz> to only show runs where <xyz> dropped, or <!xyz> to only show those where it didn't",
+	  "search for <abc, xyz, ...> to only show runs where multiple specific items dropped, e.g. <divine orb, exalted orb>"
+    ],
+    "logviewer header loot": [
+      "loot found in a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list with logged loot",
+      "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+    ],
+    "logviewer search mapinfo": [
+      "search for <xyz> to only show runs with specific mods, or general rolls (e.g. <100q> for 100% quantity)",
+      "search for <abc, xyz, ...> to only show runs with multiple specific characteristics"
+    ],
+    "logviewer header mapinfo": [
+      "mods rolled on a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list of logged mods",
+      "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+    ],
+    "logviewer search notes": [
+      "search for <xyz> to only show runs with specific notes",
+      "search for <abc, xyz, ...> to only show runs with multiple specific notes"
+    ],
+    "logviewer header notes": [
+      "custom notes for runs (optional, has to be enabled first to add notes during/before the run):\nright-click cells in this column to add/edit notes after the run, click highlighted cells to view them",
+	  "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+    ],
+    "logviewer search content": [
+      "search for <xyz> to only show runs with specific content, or <!xyz> to only show those without it",
+      "search for <abc, xyz, ...> to only show runs with multiple specific types of content, e.g. <maven, baran>",
+	  "available short-hand inputs: <elder> for elder guardians, <sirus> for conquerors"
+    ],
+    "logviewer header content": [
+      "side-content you encountered in a map (optional, has to be enabled first):\nclick icons to paste their names into the search, right-click them to paste the exclude-string\ndouble-(right-)click icons to search immediately without pasting",
+	  "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
     ]
   },
   "maptrackernotes": {

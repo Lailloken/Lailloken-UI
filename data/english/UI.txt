@@ -63,8 +63,8 @@
 		ms_clone-frames			=	"clone-frames"
 		ms_hotkeys			=	"hotkeys"
 		ms_item-info			=	"item-info"
-		ms_leveling tracker		=	"leveling tracker"
-		ms_mapping tracker		=	"mapping tracker"
+		ms_leveling tracker		=	"act-tracker"
+		ms_mapping tracker		=	"map-tracker"
 		ms_map-info			=	"map-info"
 		ms_minor qol tools		=	"minor qol tools"
 		ms_necropolis			=	"necropolis"
@@ -155,6 +155,9 @@
 		global_setup			=	"setup"
 		global_variance			=	"variance (0-255)"
 		global_hotkey			=	"hotkey:"
+		global_panelsize		=	"panel-size:"
+		global_uisize			=	"ui-size:"
+		global_auto			=	"auto"		;## as in automatic
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -171,6 +174,14 @@
 		mechanic_lab trial		=	"lab trial"
 		mechanic_ultimatum		=	"ultimatum"
 		mechanic_maven			=	"maven"
+		mechanic_baran			=	"baran"
+		mechanic_drox			=	"drox"
+		mechanic_al-hezmin		=	"al-hezmin"
+		mechanic_veritania		=	"veritania"
+		mechanic_constrictor		=	"constrictor"
+		mechanic_enslaver		=	"enslaver"
+		mechanic_eradicator		=	"eradicator"
+		mechanic_purifier		=	"purifier"
 
 
 ;#####################################################
@@ -282,10 +293,10 @@
 
 
 ;#####################################################
-;## leveling tracker
+;## leveling tracker / act-tracker
 ;#####################################################
 
-;## these strings are displayed/required when using the leveling tracker
+;## these strings are displayed/required when using the leveling tracker / act-tracker
 		lvltracker_header		=	"skilltree configuration"
 		lvltracker_deleteall		=	"del all"
 		lvltracker_gemnotes		=	"no notes;for this gem"
@@ -333,6 +344,7 @@
 		maptracker_logs			=	"logs:"
 		maptracker_logs			=	"couldn't find any map-logs"
 		maptracker_page			=	"page:"
+		maptracker_page			=	"page-entries:"		;## i.e. how many entries to show on each page
 		maptracker_header		=	"map-log viewer"
 		maptracker_dialogue		=	"<output dialogue to chat> has to;be enabled in the game's <ui> settings"
 
@@ -348,6 +360,8 @@
 		maptracker_portals		=	"portals"
 		maptracker_kills1		=	"kills"
 		maptracker_loot1		=	"loot"
+		maptracker_mapinfo		=	"mods"			;## as in map mods
+		maptracker_notes		=	"notes"
 		maptracker_content		=	"content"		;## refers to map-content (league-mechanics, side-areas, etc.)
 		maptracker_search		=	"search:"
 
@@ -658,11 +672,11 @@
 
 
 ;#####################################################
-;## settings menu: leveling tracker
+;## settings menu: leveling tracker / act-tracker
 ;#####################################################
 
-;## these strings are displayed/required in the "leveling tracker" section of the settings menu
-		m_lvltracker_enable		=	"enable the leveling tracker"
+;## these strings are displayed/required in the "leveling tracker / act-tracker" section of the settings menu
+		m_lvltracker_enable		=	"enable the act-tracker feature"
 		m_lvltracker_timer		=	"enable timer"
 		m_lvltracker_pause		=	"pause timer in hideouts"
 		m_lvltracker_fade		=	"fade out after x seconds:"
@@ -682,11 +696,11 @@
 
 
 ;#####################################################
-;## settings menu: mapping tracker
+;## settings menu: map-tracker
 ;#####################################################
 
-;## these strings are displayed/required in the "mapping tracker" section of the settings menu
-		m_maptracker_enable		=	"enable the mapping tracker"
+;## these strings are displayed/required in the "map-tracker" section of the settings menu
+		m_maptracker_enable		=	"enable the map-tracker feature"
 		m_maptracker_hide		=	"hide the panel when the tracker is paused"
 		m_maptracker_loot		=	"loot"
 		m_maptracker_kills		=	"kills"
