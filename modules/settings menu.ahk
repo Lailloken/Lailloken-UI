@@ -1330,7 +1330,7 @@ Settings_leveltracker()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Leveling-Tracker">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Act‐Tracker">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_leveltracker2 HWNDhwnd Checked"settings.features.leveltracker, % LangTrans("m_lvltracker_enable")
 	vars.hwnd.settings.enable := hwnd, vars.hwnd.help_tooltips["settings_leveltracker enable"] := hwnd
@@ -1880,7 +1880,7 @@ Settings_maptracker()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
-	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Mapping-tracker">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map‐Tracker">wiki page</a>
 
 	If (settings.general.lang_client = "unknown")
 	{
@@ -1959,7 +1959,7 @@ Settings_maptracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center y+"vars.settings.spacing " x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2, % LangTrans("global_ui")
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Text, % "xs Section Center HWNDhwnd0", % LangTrans("global_font") " "
+	Gui, %GUI%: Add, Text, % "xs Section Center HWNDhwnd0", % LangTrans("global_panelsize") " "
 	Gui, %GUI%: Add, Text, % "ys x+0 Center gSettings_maptracker2 Border HWNDhwnd w"settings.general.fWidth*2, % "–"
 	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys Center gSettings_maptracker2 Border HWNDhwnd x+"settings.general.fWidth/4, % " " settings.maptracker.fSize " "
@@ -2107,6 +2107,8 @@ Settings_maptracker2(cHWND)
 					MaptrackerLogs()
 			}
 			Else LLK_ToolTip("no action")
+			If WinExist("ahk_id " vars.hwnd.maptracker_logs.main)
+				LLK_Overlay(vars.hwnd.settings.main, "show", 0)
 	}
 }
 
@@ -2118,7 +2120,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "leveling tracker", "mapping tracker", "map-info", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stash-ninja", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "hotkeys", "item-info", "map-info", "mapping tracker", "minor qol tools", "necropolis", "screen-checks", "search-strings", "stash-ninja", "tldr-tooltips", "updater"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -3518,6 +3520,7 @@ Settings_updater()
 	Gui, %GUI%: Add, Text, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, % LangTrans("global_general")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Checkbox, % "Section xs HWNDhwnd gSettings_updater2 checked"settings.updater.update_check, % LangTrans("m_updater_autocheck")
+	Gui, %GUI%: Add, Text, % "ys", % "        " ;to make the window a bit wider and improve changelog tooltips
 	WinGetPos,,, wCheckbox, hCheckbox, ahk_id %hwnd%
 	vars.hwnd.settings.update_check := vars.hwnd.help_tooltips["settings_update check"] := hwnd
 

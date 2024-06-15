@@ -95,6 +95,7 @@
 		maps_atziri			=	"atziri"
 		maps_atziri			=	"uber atziri"
 		maps_sirus			=	"sirus"
+		maps_cortex			=	"cortex"
 
 ;## these strings are shown in the map-info panel
 		maps_stats_full			=	"mods#quantity#rarity#pack size#maps#scarabs#currency"		;## map rolls/multipliers
@@ -181,6 +182,7 @@
 		log_betrayal			=	"Vorici, Silent Brother:"
 		log_ultimatum			=	"The Trialmaster:"
 		log_maven			=	"The Maven:"
+		
 
 ;## expedition note: there is a difference in displayed names depending on whether the NPCs greet you when they first see you in a map (Gwennen, the Gambler) or whether the encounter has finished (Gwennen)
 ;## always use the name displayed when they greet you
@@ -229,6 +231,16 @@
 		items_mapcurrency		=	"More Currency:"
 		items_stack			=	"Stack Size:"
 		items_mapname			=	"# Map"							;## the format of map-items, e.g. Frozen River Map (German, for example, uses 'Frozen River'-Map)
+		items_elderguardian		=	"Map is occupied by"					;## the implicit on elder-guardian maps
+		items_enslaver			=	"The Enslaver"
+		items_eradicator		=	"The Eradicator"
+		items_constrictor		=	"The Constrictor"
+		items_purifier			=	"The Purifier"
+		items_conqueror			=	"Map contains # Citadel"				;## the implicit on conqueror maps
+		items_baran			=	"Baran"
+		items_drox			=	"Drox"
+		items_al-hezmin			=	"Al-Hezmin"
+		items_veritania			=	"Veritania"
 
 
 ;## these strings are displayed in the in-game tooltip when hovering over an item and holding the hotkey for advanced item descriptions (usually ALT)

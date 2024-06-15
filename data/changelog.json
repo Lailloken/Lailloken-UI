@@ -1,5 +1,12 @@
 [
   [
+	["1.53.6", 15306],
+	"renamed features: leveling tracker -> act-tracker, mapping tracker -> map-tracker",
+	"item-info: inverted mod-rolls are now highlighted to avoid confusion",
+	"map-tracker: partially restructured the log-viewer, improved search",
+	"map-tracker: added conquerors and elder guardians to trackable content"
+  ],
+  [
 	["1.53.5", 15305],
 	"hotfix 1: stash-ninja was activated by rare items that had the same name as tab-specific items",
 	"restored geforce now compatibility",

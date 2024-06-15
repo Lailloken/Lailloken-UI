@@ -395,7 +395,7 @@ MapinfoParse(mode := 1)
 	expedition_groups := db.mapinfo["expedition groups"].Clone(), vars.mapinfo.expedition_areas := db.mapinfo["expedition areas"].Clone(), vars.mapinfo.categories := db.mapinfo["mod types"].Clone(), vars.mapinfo.active_map := {}
 	For index, category in vars.mapinfo.categories
 		vars.mapinfo.active_map[category] := []
-	mod_count := 0, map_mods := {}, mod_multi := 1, map := vars.mapinfo.active_map, mods := db.mapinfo.mods ;short-cut variables
+	mod_count := 0, map_mods := {}, content := [], mod_multi := 1, map := vars.mapinfo.active_map, mods := db.mapinfo.mods ;short-cut variables
 	For key in map
 		Loop 5
 			map[key][(A_Index = 5) ? 0 : A_Index] := []
@@ -430,6 +430,13 @@ MapinfoParse(mode := 1)
 				Clipboard := check
 				MsgBox, % check
 			}
+		}
+		Else If LLK_PatternMatch(A_LoopField, "", [LangTrans("items_elderguardian")]) || LangMatch(A_LoopField, vars.lang.items_conqueror)
+		{
+			For outer in ["", ""]
+				For mechanic in (outer = 1) ? {"enslaver": 1, "eradicator": 1, "constrictor": 1, "purifier": 1} : {"baran": 1, "drox": 1, "al-hezmin": 1, "veritania": 1}
+					If InStr(A_LoopField, LangTrans("items_" mechanic), 1)
+						content.Push(mechanic)
 		}
 		Else If InStr(A_LoopField, " (enchant)")
 		{
@@ -555,6 +562,8 @@ MapinfoParse(mode := 1)
 			Break
 		}
 	map.quantity := quantity, map.rarity := rarity, map.packsize := packsize, map.maps := maps, map.scarabs := scarabs, map.currency := currency, map.name := name, map.name_copy := name_copy, map.mods := mod_count, map.english := item.name "`n" item.itembase
+	If content.Count()
+		map.content := content.Clone()
 	Return 1
 }
 

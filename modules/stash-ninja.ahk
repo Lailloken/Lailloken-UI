@@ -484,9 +484,11 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 				wMax := (wLast > wMax) ? wLast : wMax
 			}
 		}
-		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border x" xAnchor " y" yAnchor " w" xLast + wMax - xAnchor + settings.stash.fWidth * 1.5 " h" yLast + hLast - yAnchor + settings.stash.fWidth
+		Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans Border x" xAnchor " y" yAnchor " w" xLast + wMax - xAnchor + settings.stash.fWidth * 1.5 " h" yLast + hLast - yAnchor + settings.stash.fWidth
 		Gui, %GUI_name%: Add, Progress, % "BackgroundBlack Disabled xp yp wp hp", 0
-		Gui, %GUI_name%: Font, % "s" settings.stash.fSize2	
+		Gui, %GUI_name%: Font, % "s" settings.stash.fSize2
+		Gui, %GUI_name%: Add, Text, % "xs y+-1 Border Center BackgroundTrans wp", % item
+		Gui, %GUI_name%: Add, Progress, % "BackgroundBlack Disabled xp yp wp hp", 0
 	}
 	Else
 	{
@@ -499,103 +501,6 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, stack := "")
 		}
 	}
 }
-
-/*
-Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1)
-{
-	local
-	global vars, settings
-
-	available := vars.stash.available, exalt := settings.stash.show_exalt, currencies := ["c", "e", "d"], currencies_verbose := ["chaos", "exalted", "divine"], lines := 0, tab := vars.stash.active, trend_data := vars.stash[tab][item].trend.Clone()
-	margin := settings.stash[tab].margin, margin := margin ? Round(margin / 100, 2) : margin
-	Gui, %GUI_name%: Font, % "s" settings.stash.fSize
-	If !trend
-	{
-		Gui, %GUI_name%: Add, Text, % "x0 y0 Section Border Center BackgroundTrans", % " " LangTrans("stash_margin") ": "
-		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack Disabled Border", 0
-		For index, vMargin in [0, 5, 10, 15, 20]
-		{
-			Gui, %GUI_name%: Add, Text, % "ys x+-1 Border HWNDhwnd gStash_PricePicker BackgroundTrans", % " " vMargin "% "
-			vars.hwnd.stash_picker["margin_" vMargin] := hwnd
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd BackgroundBlack Disabled Border c" (margin * 100 = vMargin ? "Green" : "Black"), 100
-		}
-		ControlGetPos, xMargin, yMargin, wMargin,,, ahk_id %hwnd%
-		dimensions := []
-		Loop 4
-			If exalt && (A_Index = 2) || !exalt && (A_Index != 2) || (val.prices[A_Index] < 0.02)
-				dimensions[A_Index] := " " (A_Index = 4 ? LangTrans("stash_value") : Round(available * val.prices[A_Index], 2) (available > 1 ? " `n @" val.prices[A_Index] : "`n")) " "
-		LLK_PanelDimensions(dimensions, settings.stash.fSize, wMarket, hMarket,,, 0)
-		Gui, %GUI_name%: Add, Text, % "xs y+-1 Section Border Center HWNDhwnd BackgroundTrans w" wMarket + hMarket - 1, % LangTrans("stash_value")
-	}
-	Else LLK_PanelDimensions([val.prices.1, val.prices.2, val.prices.3, ".`n."], settings.stash.fSize, wMarket, hMarket,,, 0)
-
-	For index, cType in ["chaos", "exalt", "divine"]
-	{
-		If (cType = "exalt") && !exalt || !trend && (val.prices[index] < 0.02 || available * val.prices[index] * (1 + margin) < 0.8)
-			Continue
-		hLine := hMarket, style := " Section HWNDhwnd BackgroundTrans h" hLine - (!trend ? 2 : 0) " w-1" (!trend ? " Border" : ""), lines += 1
-		Gui, %GUI_name%: Add, Pic, % (index != 1 || !trend ? "xs " (!trend ? "y+-1" : "") : "x+" settings.stash.fWidth " yp+" settings.stash.fWidth + (!trend ? settings.stash.fHeight : 0)) . style, % "img\GUI\" cType ".png"
-		If (index = 1)
-			ControlGetPos, xAnchor2, yAnchor2,,,, ahk_id %hwnd%
-		Gui, %GUI_name%: Add, Text, % (!trend ? "Border x+-1 Center " : "") "ys hp BackgroundTrans HWNDhwnd w" wMarket . (!trend && available > 1 ? "" : " 0x200"), % (!trend && available > 1 ? Round(available * val.prices[index], 2) "`n@" : "") . val.prices[index]
-		ControlGetPos, xLast, yLast, wLast, hLast,, ahk_id %hwnd%
-		wMax := (wLast > wMax) ? wLast : wMax
-	}
-
-	If trend
-	{
-		If trend_data.Count() && settings.stash.history
-		{
-			wMax += Stash_PriceHistory(GUI_name, xLast + wMax + settings.stash.fWidth, yAnchor + settings.stash.fWidth, yLast + hLast - yAnchor - settings.stash.fWidth, settings.stash.fWidth, trend_data, min_max), LLK_PanelDimensions(min_max, settings.stash.fSize, wTrend, hTrend,,, 0)
-			For index, mm in min_max
-			{
-				style := (index = 1 ? "Section x" xLast + wMax + settings.stash.fWidth*1.5 " y" yAnchor2 : "xs"), color := (index = 2) ? " cB266FF" : (index = 1 ? " cLime" : " cRed")
-				If (index = 1)
-					wMax := 0
-				text := (mm = "0.0%" && index != 2 || index = 1 && mm = min_max[index + 1] || index = 3 && mm = min_max[index - 1]) ? "" : mm
-				Gui, %GUI_name%: Add, Text, % style " BackgroundTrans HWNDhwnd Right 0x200 w" wTrend " h" hLine * (!exalt ? 2/3 : 1) . color, % text
-				ControlGetPos, xLast,, wLast,,, ahk_id %hwnd%
-				wMax := (wLast > wMax) ? wLast : wMax
-			}
-		}
-		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border x" xAnchor " y" yAnchor " w" xLast + wMax - xAnchor + settings.stash.fWidth*1.5 " h" yLast + hLast - yAnchor + settings.stash.fWidth, % " "
-		Gui, %GUI_name%: Add, Progress, % "BackgroundBlack Disabled xp yp wp hp", 0
-		Gui, %GUI_name%: Font, % "s" settings.stash.fSize2	
-	}
-	Else
-	{
-		Gui, %GUI_name%: Add, Progress, % "Section ys x+-1 y" settings.stash.fHeight - 1 " Disabled Background606060 w" settings.stash.fWidth//2 " h" settings.stash.fHeight + hLine * lines - lines, 0
-		added := []
-		Loop, % available
-		{
-			outer := A_Index, amount := Round(available // outer)
-			If (outer > available) || (outer > 5)
-				Break
-			If added[Round(amount)] || (available / vars.stash.max_stack > 60) ;|| (amount * val.prices.1 < settings.stash.min_trade)
-				Continue
-			added[Round(amount)] := 1
-			Gui, %GUI_name%: Add, Text, % "ys x+-1 Section BackgroundTrans Border Center w" settings.stash.fWidth * 7, % amount
-			Loop 3
-			{
-				If !exalt && (A_Index = 2) || (val.prices[A_Index] < 0.02) || (amount * val.prices[A_Index] * (1 + margin) < 0.8) || (A_Index > 1 && price1 < settings.stash.min_trade)
-					Continue
-				price0 := amount * val.prices[A_Index], price := Round(price0 * (1 + margin)), price%A_Index% := price
-				Gui, %GUI_name%: Add, Text, % "xs y+-1 BackgroundTrans HWNDhwnd Border Center wp" (price >= 1 ? " gStash_PricePicker" : "") . (price1 < settings.stash.min_trade ? " cRed" : "")
-				, % (price >= 1) ? price "`n(" Round((price/price0) * 100 - 100, 1) "%)" : "`n"
-				vars.hwnd.stash_picker["pickprice_" (price = amount || amount = 1 ? price : price "_" amount) " " currencies_verbose[A_Index]] := hwnd
-				ControlGetPos, xBox, yBox, wBox, hBox,, ahk_id %hwnd%
-			}
-		}
-		Gui, %GUI_name%: Add, Text, % "Border BackgroundTrans x0 y0 w" Max(xMargin + wMargin, !IsNumber(xBox + wBox) ? 0 : xBox + wBox) " h" settings.stash.fHeight*2 - 1 + hLine * lines - lines, 0
-		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack", 0
-		If vars.stash.note
-		{
-			Gui, %GUI_name%: Add, Text, % "xp wp y+-1 Border Center BackgroundTrans", % " " LangTrans("stash_reminder") " "
-			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cMaroon", 100
-		}
-	}
-}
-*/
 
 Stash_PricePicker(cHWND := "")
 {
