@@ -327,7 +327,7 @@ MaptrackerDateSelect()
 						vars.maptracker.keywords := {}
 				}
 				vars.maptracker.active_page := 1
-				MaptrackerLogs(StrMatch(active_date, delDate) || delDate = "all" || (active_date = "all") ? "DEL" : "refresh")
+				MaptrackerLogs("DEL") ;StrMatch(active_date, delDate) || (delDate = "all") || (active_date = "all") ? "DEL" : "refresh")
 				SetTimer, MaptrackerDateSelect, -100
 				Break
 			}
@@ -575,7 +575,7 @@ MaptrackerLogs(mode := "")
 
 	If !IsObject(vars.maptracker.entries)
 		MaptrackerLogsLoad()
-	entries := vars.maptracker.entries
+	entries := vars.maptracker.entries, entries_copy := {}
 
 	For date, runs in entries
 		If !runs.Count()
@@ -589,7 +589,7 @@ MaptrackerLogs(mode := "")
 		date_isLeague := LLK_HasVal(vars.maptracker.leagues, vars.maptracker.active_date,,,, 1)
 		If (vars.maptracker.active_date != "all") && vars.maptracker.active_date && !date_isLeague && !LLK_HasKey(entries, vars.maptracker.active_date, 1) ;reset selected date if the previous one no longer exists
 			vars.maptracker.active_date := "all"
-		entries_copy := {}, ddl := [], active_date := vars.maptracker.active_date
+		ddl := [], active_date := vars.maptracker.active_date
 		For date, runs in entries
 			For run, content in runs
 			{
@@ -635,7 +635,7 @@ MaptrackerLogs(mode := "")
 		}
 		vars.maptracker.keywords_lastworking := vars.maptracker.keywords.Clone(), vars.maptracker.entries_lastworking := vars.maptracker.entries_copy.Clone()
 	}
-	Else vars.maptracker.active_date := LangTrans("global_none"), entries := {"1970/01/01": []}
+	Else vars.maptracker.active_date := LangTrans("global_none"), entries := vars.maptracker.entries_copy := entries_copy.Clone()
 
 	toggle := !toggle, GUI_name := "maptracker_logs" toggle
 	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmaptracker_logs"

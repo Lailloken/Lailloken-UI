@@ -3520,6 +3520,7 @@ Settings_updater()
 	Gui, %GUI%: Add, Text, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y"vars.settings.ySelection, % LangTrans("global_general")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Checkbox, % "Section xs HWNDhwnd gSettings_updater2 checked"settings.updater.update_check, % LangTrans("m_updater_autocheck")
+	Gui, %GUI%: Add, Text, % "ys", % "        " ;to make the window a bit wider and improve changelog tooltips
 	WinGetPos,,, wCheckbox, hCheckbox, ahk_id %hwnd%
 	vars.hwnd.settings.update_check := vars.hwnd.help_tooltips["settings_update check"] := hwnd
 
