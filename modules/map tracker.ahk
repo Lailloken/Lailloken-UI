@@ -408,7 +408,7 @@ MaptrackerFilter(object) ;checks a run's characteristics based on the current se
 				Loop, Parse, val0, `:, %A_Space%
 					convert.InsertAt(1, Blank(A_LoopField) || !IsNumber(A_LoopField) ? 0 : A_LoopField)
 				Loop 3
-					seconds += convert[A_Index] * (A_Index = 1 ? 1 : A_Index = 2 ? 60 : 360)
+					seconds += convert[A_Index] * (A_Index = 1 ? 1 : A_Index = 2 ? 60 : 3600)
 				val .= (Blank(val) ? "" : "-") seconds
 			}
 			val .= plus && !InStr(val, "-") ? "+" : ""
@@ -674,7 +674,7 @@ MaptrackerLogs(mode := "")
 			If (Ceil(run_count / Min(max_lines, page_entries)) < A_Index) || (page_count = 11)
 				Break
 			page_count += 1, max_pages := A_Index
-			Gui, %GUI_name%: Add, Text, % "ys Border Center gMaptrackerLogs2 HWNDhwnd x+"(A_Index = 1 ? settings.maptracker.fWidth2/2 : settings.maptracker.fWidth2/4) " w"settings.maptracker.fWidth2 * 3 . (A_Index = vars.maptracker.active_page ? " cFuchsia" : ""), % A_Index
+			Gui, %GUI_name%: Add, Text, % "ys Border Center gMaptrackerLogs2 HWNDhwnd x+"(page_count = 1 ? settings.maptracker.fWidth2/2 : settings.maptracker.fWidth2/4) " w"settings.maptracker.fWidth2 * 3 . (A_Index = vars.maptracker.active_page ? " cFuchsia" : ""), % A_Index
 			vars.hwnd.maptracker_logs["page_"A_Index] := hwnd
 		}
 	}
@@ -711,8 +711,8 @@ MaptrackerLogs(mode := "")
 	table := [["#", "center", ["#", "777777"]], ["time", "right", [LangTrans("maptracker_time", 2), "7777-77-77, 77:77"]]
 	, ["map", "left", [LangTrans("maptracker_map"), "777777777777777777777777777777777777777"]], ["tier", "right", [LangTrans("maptracker_tier"), "77"]]
 	, ["run", "right", [LangTrans("maptracker_run"), "7:77:77"]], ["e-exp", "right", [LangTrans("maptracker_e-exp"), "77.7%"]], ["deaths", "right", [".", "77"]]
-	, ["portals", "right", [".", "77"]], ["kills", "right", [LangTrans("maptracker_kills1"), "777777"]], ["loot", "center", [LangTrans("maptracker_loot1"), "77777777"]]
-	, ["mapinfo", "center", [LangTrans("maptracker_mapinfo"), "77777777"]], ["notes", "center", [LangTrans("maptracker_notes"), "77777777"]], ["content", "center", ["content"]]], columns := {}, combined_runs := 0
+	, ["portals", "right", [".", "77"]], ["kills", "right", [".", "777777"]], ["loot", "center", [".", "77777777"]], ["mapinfo", "center", [".", "77777777"]]
+	, ["notes", "center", [".", "77777777"]], ["content", "center", ["content"]]], columns := {}, combined_runs := 0
 
 	For date, array in entries
 	{
@@ -723,7 +723,7 @@ MaptrackerLogs(mode := "")
 
 	For index, val in table
 	{
-		header := val.1, icon := InStr(" deaths, portals,", " " val.1 ",") ? 1 : 0, index_sum := 0, date_check := 1
+		header := val.1, icon := InStr(" deaths, portals, kills, loot, mapinfo, notes,", " " val.1 ",") ? 1 : 0, index_sum := 0, date_check := 1
 		;If !date_check && (header = "time") && (vars.maptracker.active_date != LangTrans("global_none"))
 		;	date_check := IsNumber(StrReplace(vars.maptracker.active_date, "/")) && (StrLen(StrReplace(vars.maptracker.active_date, "/")) < 7) || !IsNumber(StrReplace(vars.maptracker.active_date, "/")) ? 1 : 0, val.3 := !date_check ? [LangTrans("maptracker_time"), "77:77"] : val.3.Clone()
 		
@@ -783,14 +783,14 @@ MaptrackerLogs(mode := "")
 						If (header = "#")
 							Gui, %GUI_name%: Font, % "s" settings.maptracker.fSize2 * 0.6, Times New Roman
 						text := (header = "#") ? "Σ" : ""
-						Gui, %GUI_name%: Add, Text, % "xs Border HWNDhwnd Center BackgroundTrans w" width . (hSum ? " h" hSum : "") . (InStr("#,time,e-exp", header) ? "" : " gMaptrackerLogs2") . (keywords || active_date != "all" ? " cLime" : ""), % text
+						Gui, %GUI_name%: Add, Text, % "xs Border HWNDhwnd Center BackgroundTrans w" width . (hSum ? " h" hSum : "") . (InStr("#,e-exp", header) ? "" : " gMaptrackerLogs2") . (keywords || active_date != "all" ? " cLime" : ""), % text
 						vars.hwnd.maptracker_logs["avgsum_" header] := hwnd
 						If (text = "Σ")
 						{
 							ControlGetPos,,,, hSum,, ahk_id %hwnd%
 							vars.hwnd.help_tooltips["maptracker_logviewer sum avg"] := hwnd
 						}
-						If !InStr("#,time,e-exp", header)
+						If !InStr("#,e-exp", header)
 							Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack c"settings.maptracker.colors.date_unselected, 100
 						If (header = "#")
 							Gui, %GUI_name%: Font, % "s" settings.maptracker.fSize2, % vars.system.font
@@ -1077,7 +1077,7 @@ MaptrackerLogsFilter(cHWND) ;adds operators/keywords to the search-bar when icon
 			If Blank(A_LoopField)
 				Continue
 			vars.maptracker.keywords[search0] := (Blank(pCheck := vars.maptracker.keywords[search0]) || InStr(pCheck, A_LoopField) || override ? "" : pCheck (vars.system.click = 1 ? ", " : " ")) A_LoopField
-			vars.maptracker.focus := search0, MaptrackerLogs()
+			vars.maptracker.focus := search0, vars.maptracker.active_page := 1, MaptrackerLogs()
 			Return
 		}
 	GuiControl,, % vars.hwnd.maptracker_logs.searches[search0], % (SubStr(input, 1, 1) = " ") ? SubStr(input, 2) : input
@@ -1145,17 +1145,18 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			{
 				For run, object in array
 				{
-					runs += 1
-					If Blank(totals[object[column]])
-						totals[object[column]] := 0
-					totals[object[column]] += 1
+					runs += 1, key := (column = "time") ? SubStr(object[column], 1, 2) ":00" : object[column]
+					If Blank(totals[key])
+						totals[key] := 0
+					totals[key] += 1
 				}
 			}
 		}
 		For key, val in totals
 			list .= (Blank(list) ? "" : "`n") val "x " key
 		Sort, list, D`n N R
-		boxes := [InStr("deaths,portals,kills,run,loot", column) ? LangTrans("maptracker_sum") : "#"], boxes1 := [InStr("deaths,portals,kills,run,loot", column) ? LangTrans("maptracker_average") : "%"], sum := 0, sum_content := {}
+		boxes := [InStr("deaths,portals,kills,run,loot", column) ? LangTrans("maptracker_sum") : "#"]
+		boxes1 := [InStr("deaths,portals,kills,run,loot", column) ? LangTrans("maptracker_average") : "%"], sum := 0, sum_content := {}
 		If !InStr("deaths,portals,kills,run", column)
 			boxes2 := [(column = "tier" ? "t/l" : column)]
 		Loop, Parse, list, `n
@@ -1193,7 +1194,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 					sum_content[key_content] += count * (count_content ? count_content : 1)
 				}
 			}
-			If InStr("map ,tier ", column " ")
+			If InStr("time ,map ,tier ", column " ")
 			{
 				boxes.Push(count), boxes1.Push(percent), boxes2.Push(key)
 				;If (boxes.Count() = vars.maptracker.max_lines)
@@ -1487,8 +1488,6 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 		}
 		Else
 		{
-			If LLK_HasVal(notes[category].2, add.1)
-				Return
 			notes[category].2.InsertAt(1, add.1)
 			If (notes[category].2.Count() > 4)
 				notes[category].2.Pop()
