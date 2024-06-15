@@ -523,7 +523,7 @@
     "screenchecks pixel-test": [
       "click this button while the ui element shown in <info> is visible, the test should return positive",
       "click it again while the ui element shown in <info> is not visible, the test should return negative",
-	  "geforce now: move your character around a bit, then redo steps 1 & 2"
+      "geforce now: move your character around a bit, then redo steps 1 & 2"
     ],
     "screenchecks pixel-info": [
       "hold to see instructions"
@@ -819,30 +819,27 @@
       "how many entries to show on each page (auto = log-viewer will adjust to available screen space)"
     ],
     "logviewer search": [
-      "each column has a search bar that supports regex and custom patterns (hover over them for more info):\npress <enter> to start a search with every input at once, or click the red x to restore the unfiltered log-viewer",
-	  "some column headers can be clicked to perform yes/no searches for easy filtering (hover over them for more info)"
+      "each column has a search bar that supports regex and custom patterns (hover over them for more info):\npress <enter> to start a search with every input at once, or click the red x to restore the unfiltered log-viewer"
     ],
     "logviewer sum avg": [
       "click highlighted cells in this row to display the data within a column as totals / percentages / averages"
     ],
     "logviewer search map": [
-      "search for <xyz> to only show map names with <xyz>, or <!xyz> to only show those without it",
-	  "<!abc> and <xyz> can be combined, e.g. <bog !blight> to exclude blight(-ravaged) versions of bog"
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc)"
     ],
     "logviewer header map": [
       "long-click a map name to edit it, hold right-click to delete the run",
-      "click a map name to paste it into the search, right-click it to paste the exclude-string\ndouble-(right-)click a map name to search immediately without pasting"
+      "map names are clickable for searching:\nclick to paste \"<name>\" into the search, r-click to paste \"!<name>\", double-(r-)click to search immediately"
     ],
     "logviewer search tier": [
-      "you can search for <x> (exact tier), <x-y> (between x and y), or <x+> (x or higher)",
-	  "you can also exclude tiers by searching for <!x>"
+      "supported inputs:\n\"x\" (exact tier), \"!x\" (exclude), \"x-y\" (between x and y), \"x+\" (x or higher)"
     ],
     "logviewer header tier": [
       "the tier (map) or level (e.g. contract) of the run",
-      "click a number to paste it into the search, right-click it to paste the exclude-string\ndouble-(right-)click a number to search immediately without pasting"
+      "numbers are clickable for searching:\nclick to paste \"<tier>\" into the search, r-click to paste \"!<tier>\", double-(r-)click to search immediately"
     ],
     "logviewer search run": [
-      "you can search for <x> (exact time), <x-y> (between x and y), or <x+> (x or longer)",
+      "supported inputs:\n\"x\" (exact time), \"x-y\" (between x and y), or \"x+\" (x or longer)",
       "if x/y don't include any colons, they will be treated as seconds, otherwise as (hh:)mm:ss"
     ],
     "logviewer header run": [
@@ -850,60 +847,57 @@
     ],
     "logviewer header e-exp": [
       "effective exp gained in a map (i.e. after penalties), based on your level and the monsters'",
-      "requires you to specify your character's name in the <general> section of the settings menu"
+      "you have to specify your character's name in the <general> section of the settings menu first"
     ],
     "logviewer search deaths": [
-      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
     ],
     "logviewer header deaths": [
       "number of deaths in a run",
-      "click this header to paste <1+>, right-click it to paste <0>\ndouble-(right-)click this header to search immediately without pasting"
+      "header is clickable for searching:\nclick to paste \"1+\" into the search, r-click to paste \"0\", double-(r-)click to search immediately"
     ],
     "logviewer search portals": [
-      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
     ],
     "logviewer header portals": [
       "number of portals used in a run"
     ],
     "logviewer search kills": [
-      "you can search for <x> (exact value), <x-y> (between x and y), or <x+> (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
     ],
     "logviewer header kills": [
       "monsters killed in a run (optional, has to be enabled first): uses the in-game /kills command",
-      "click this header to paste <1+>, right-click it to paste <0>\ndouble-(right-)click this header to search immediately without pasting"
+      "header is clickable for searching:\nclick to paste \"1+\" into the search, r-click to paste \"0\", double-(r-)click to search immediately"
     ],
     "logviewer search loot": [
-      "search for <xyz> to only show runs where <xyz> dropped, or <!xyz> to only show those where it didn't",
-	  "search for <abc, xyz, ...> to only show runs where multiple specific items dropped, e.g. <divine orb, exalted orb>"
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)"
     ],
     "logviewer header loot": [
       "loot found in a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list with logged loot",
-      "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+      "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
     ],
     "logviewer search mapinfo": [
-      "search for <xyz> to only show runs with specific mods, or general rolls (e.g. <100q> for 100% quantity)",
-      "search for <abc, xyz, ...> to only show runs with multiple specific characteristics"
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)",
+      "you can search for mods and also general rolls, e.g. \"100q\" for 100% quantity\n(for general rolls, it will always search for <x and above>)"
     ],
     "logviewer header mapinfo": [
       "mods rolled on a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list of logged mods",
-      "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+      "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
     ],
     "logviewer search notes": [
-      "search for <xyz> to only show runs with specific notes",
-      "search for <abc, xyz, ...> to only show runs with multiple specific notes"
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)"
     ],
     "logviewer header notes": [
-      "custom notes for runs (optional, has to be enabled first to add notes during/before the run):\nright-click cells in this column to add/edit notes after the run, click highlighted cells to view them",
-	  "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+      "custom notes for runs (adding notes during/before the run is optional and has to be enabled first):\nright-click cells in this column to add/edit notes after the run, click highlighted cells to view them",
+      "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
     ],
     "logviewer search content": [
-      "search for <xyz> to only show runs with specific content, or <!xyz> to only show those without it",
-      "search for <abc, xyz, ...> to only show runs with multiple specific types of content, e.g. <maven, baran>",
-	  "available short-hand inputs: <elder> for elder guardians, <sirus> for conquerors"
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)",
+      "available short-hand inputs: \"elder\" for elder guardians, \"sirus\" for conquerors"
     ],
     "logviewer header content": [
-      "side-content you encountered in a map (optional, has to be enabled first):\nclick icons to paste their names into the search, right-click them to paste the exclude-string\ndouble-(right-)click icons to search immediately without pasting",
-	  "click this header to paste <yes>, right-click it to paste <no>\ndouble-(right-)click this header to search immediately without pasting"
+      "side-content you encountered in a map (optional, has to be enabled first)",
+      "header & icons are clickable for searching:\nclick to paste \"<content>\" into the search, r-click to paste \"!<content>\", double-(r-)click to search immediately"
     ]
   },
   "maptrackernotes": {
