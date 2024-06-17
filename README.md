@@ -109,8 +109,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ### \*[Map-Tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Map%E2%80%90Tracker): collect, save, view, and export mapping-related data for statistical analysis
-| in-game log viewer | loot tracking | map-mod tracking |
-|---|---|---|
+| in-game log viewer |
+|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/maptracker_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/maptracker_002.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/maptracker_003.png) |
 <br>
 
