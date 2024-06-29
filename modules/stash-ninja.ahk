@@ -24,7 +24,7 @@
 		settings.stash.bulk_trade := !Blank(check := ini.settings["show bulk-sale suggestions"]) ? check : 1
 		settings.stash.min_trade := !Blank(check := ini.settings["minimum trade value"]) ? check : ""
 		settings.stash.autoprofiles := !Blank(check := ini.settings["enable trade-value profiles"]) ? check : 0
-		settings.stash.retry := !Blank(check := ini.settings["retry"]) ? check : 0
+		settings.stash.retry := !Blank(check := ini.settings["retry"]) && (check > A_Now) ? check : 0
 		settings.stash.index_stock := !Blank(check := ini.settings["show stock in index"]) ? check : 1
 		settings.stash.rate_limits := {"timestamp": ""}
 		settings.stash.colors := [!Blank(check := ini.UI["text color"]) ? check : "000000", !Blank(check1 := ini.UI["background color"]) ? check1 : "00FF00"
@@ -734,7 +734,6 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, currency := 0
 		For limit in settings.stash.rate_limits.limits
 			max_limit := limit, dimensions.Push(limit)
 		LLK_PanelDimensions(dimensions, settings.stash.fSize, width, height)
-		MsgBox, % settings.stash.retry ", " A_Now
 		If (pCheck := settings.stash.rate_limits.limits) || (settings.stash.retry > A_Now)
 		{
 			Gui, %GUI_name%: Add, Text, % "Section xs y+0 Border BackgroundTrans Center HWNDhwnd" (pCheck ? " w" xLast + wLast + 1 - (width*lCount - (lCount - 1)) : ""), % (pCheck ? "" : " ") . LangTrans("stash_limits") . (pCheck ? "" : " ")
