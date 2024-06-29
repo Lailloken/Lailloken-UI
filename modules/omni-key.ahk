@@ -179,18 +179,7 @@ Omnikey2()
 				}
 			}
 		}
-		/*
-		start := A_TickCount
-		While vars.imagesearch.stash.check && GetKeyState(ThisHotkey_copy, "P")
-			If (start + 100 >= A_TickCount)
-			{
-				If !Stash_()
-					LLK_ToolTip(LangTrans("ms_stash-ninja") ":`n" LangTrans("stash_checkerror"), 2,,,, "red")
-				KeyWait, % ThisHotkey_copy
-				LLK_Overlay(vars.hwnd.stash.main, "destroy")
-				vars.stash.GUI := vars.stash.hover := 0, stash := 1
-			}
-		*/
+
 		If !stash && vars.searchstrings.enabled
 		{
 			If WinExist("ahk_id "vars.hwnd.searchstrings_menu.main)
@@ -333,7 +322,7 @@ OmniContextMenu()
 				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd2" style, % "craft of exile"
 				ControlGetPos,,, w4,,, % "ahk_id " hwnd2
 			}
-			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1, vars.hwnd.omni_context.craftofexile := hwnd2, width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width 
+			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1, vars.hwnd.omni_context.craftofexile := hwnd2, width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width
 		}
 
 		If InStr(item.name, "to the goddess")

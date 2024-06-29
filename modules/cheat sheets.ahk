@@ -70,7 +70,7 @@
 CheatsheetActivate(name, hotkey)
 {
 	local
-	global vars 
+	global vars
 
 	type := vars.cheatsheets.list[name].type, activation := vars.cheatsheets.list[name].activation
 	vars.cheatsheets.active := {"name": name, "type": type, "toggle": GetKeyState("alt", "P") + GetKeyState("ctrl", "P") + GetKeyState("shift", "P")}

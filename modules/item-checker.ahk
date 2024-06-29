@@ -607,7 +607,7 @@ Iteminfo3_mods()
 		clip2 := SubStr(clip2, 1, -1)
 
 	If settings.iteminfo.compare ;parse the item's info if league-start mode is enabled
-	{ 
+	{
 		For slot, val in vars.iteminfo.compare.slots ;determine which item-slot the given item belongs in
 		{
 			If (slot = "mainhand" || slot = "offhand") && InStr(clip, "attacks per second: ")
@@ -897,7 +897,7 @@ Iteminfo4_GUI()
 						style := (filler = "") ? "xs Section" : "ys"
 						If settings.iteminfo.compare ;filler-text for league-start mode
 						{
-							If InStr(compare.items.slots, ",") ;for rings, change ring1 and ring2 to l-ring and r-ring 
+							If InStr(compare.items.slots, ",") ;for rings, change ring1 and ring2 to l-ring and r-ring
 								parse := (loop = 1) ? StrReplace(SubStr(compare.items.slots, 1, InStr(compare.items.slots, ",") - 1), "ring1", "l-ring") " " : StrReplace(SubStr(compare.items.slots, InStr(compare.items.slots, ",") + 1), "ring2", "r-ring") " "
 							Else parse := compare.items.slots " "
 						}
@@ -1278,7 +1278,7 @@ Iteminfo4_GUI()
 					{
 						Gui, %GUI_name%: Add, Text, % "x+0 wp hp Border BackgroundTrans HWNDhwnd", ;add dummy text-panel with borders (can't use icon's borders for taller cells)
 						Gui, %GUI_name%: Add, Picture, % "xp+1 yp+"height/2 - UI.hSegment/2 + 1 " BackgroundTrans h"UI.hSegment-2 " w-1", img\GUI\item info\%label%.png ;add icon-cell
-					} 
+					}
 				}
 				ControlGetPos, x, y,,,, % "ahk_id " hwnd ;get the cells coordinates to place progress-control right onto it (can't use xp yp in cases with taller cells that also contain an icon)
 				If (settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") && !InStr(A_LoopField, " (fractured)") ;get the correct color for the ilvl (unless the mod is fractured)
@@ -2301,7 +2301,7 @@ IteminfoModRollCheck(mod) ;parses a mod's text and returns an array with informa
 			Return ["", "", ""]
 		sum_min += min, sum_current += current, sum_max += max ;if the mod as multiple ranges, sum up the values
 	}
-	Return [sum_min, sum_current, sum_max] 
+	Return [sum_min, sum_current, sum_max]
 }
 
 IteminfoOverlays() ;show update buttons for specific gear-slots underneath the cursor
