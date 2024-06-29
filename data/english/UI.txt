@@ -157,7 +157,10 @@
 		global_hotkey			=	"hotkey:"
 		global_panelsize		=	"panel-size:"
 		global_uisize			=	"ui-size:"
-		global_auto			=	"auto"		;## as in automatic
+		global_auto			=	"auto"
+		global_price			=	"price"
+		global_all			=	"all"
+		global_confirm			=	"confirm"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -478,13 +481,20 @@
 ;#####################################################
 
 ;## these strings are displayed/required when using the stash-ninja feature
-		stash_checkerror		=	"couldn't find supported;stash on screen"
-		stash_update			=	"updating prices..."
+		stash_update			=	"updating poe.ninja;prices..."
 		stash_updateerror		=	"update failed, and there is no fallback data from previous successful attempts.;this might be a connection issue that fixes itself, so try again later."
 		stash_updateerror		=	"update failed"
-		stash_value			=	"value"
-		stash_margin			=	"target margin (%)"
-		stash_reminder			=	"reminder: switch to <note> first"
+		stash_value			=	"market value"
+		stash_reminder			=	"switch to <note> first"
+		stash_limits			=	"rate limits:"			;## GGG's APIs have tiered rate limits that control how often you can access them
+		stash_open			=	"open"				;## in the context of "X open trade listings"
+		stash_nolistings		=	"no listings;online"		;## i.e. no-one is selling that item right now
+		stash_bulk			=	"bulk:"
+		stash_stock			=	"stock"				;## as in available stock
+		stash_pricetags			=	"price tags:"
+		stash_solo			=	"solo"				;## as in a single person/thing/reason
+		stash_sell			=	"sell"
+		stash_sell			=	"for"				;## these two belong together, i.e. "sell X for Y"
 
 
 ;#####################################################
@@ -804,7 +814,7 @@
 		m_stash_exalt			=	"show exalt rates"
 		m_stash_mintrade		=	"minimum trade value (chaos):"
 		m_stash_folder			=	"this tab is in a stash folder"
-		m_stash_bulk			=	"show bulk-sale suggestions"
+		m_stash_bulk			=	"enable bulk-sale management"
 		m_stash_margins			=	"margins (%):"
 		m_stash_active			=	"active tab:"
 
