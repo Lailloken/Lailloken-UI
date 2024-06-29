@@ -305,7 +305,7 @@ HTTPtoVar(URL, mode := "URL", currency := "") ; taken from the AHK-wiki, adapted
 	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	whr.Open((mode = "exchange") ? "POST" : "GET", URL, true)
 	If (mode = "exchange")
-		whr.SetRequestHeader("User-Agent", "Chrome/126.0.0.0"), whr.SetRequestHeader("Content-Type", "application/json")
+		whr.SetRequestHeader("Content-Type", "application/json")
 	whr.Send((mode = "exchange") ? "{""query"":{""status"":{""option"":""onlineleague""},""have"":[""" currency """],""want"":[""" item """]},""sort"":{""have"":""asc""},""engine"":""new""}" : "")
 	; Using 'true' above and the call below allows the script to remain responsive.
 	whr.WaitForResponse()
