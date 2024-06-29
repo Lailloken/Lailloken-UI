@@ -3,6 +3,9 @@
 	local
 	global vars, settings
 
+	If !FileExist("ini\cheat-sheets.ini")
+		IniWrite, % "", ini\cheat-sheets.ini, settings
+
 	settings.features.cheatsheets := LLK_IniRead("ini\config.ini", "Features", "enable cheat-sheets", 0)
 	settings.cheatsheets := {}, ini := IniBatchRead("ini\cheat-sheets.ini")
 	settings.cheatsheets.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize

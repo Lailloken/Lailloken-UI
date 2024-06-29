@@ -6,6 +6,9 @@
 	, "blessing of chayula", "blessing of xoph", "blessing of uul-netol", "blessing of tul", "blessing of esh", "ritual vessel", "oil extractor"], "fragments": ["simulacrum", "simulacrum splinter"]}
 	, dLimits := [[0.5, "", 3], [0.25, 0.5, 3], [10, 30, 1], [1, 10, 1], ["", 1, 1]], essences := ["whispering", "muttering", "weeping", "wailing", "screaming", "shrieking", "deafening"]
 
+	If !FileExist("ini\stash-ninja.ini")
+		IniWrite, % "", ini\stash-ninja.ini, settings
+
 	If Blank(settings.features.stash)
 		settings.features.stash := LLK_IniRead("ini\config.ini", "features", "enable stash-ninja", 0)
 	If IsObject(settings.stash)
@@ -21,7 +24,7 @@
 		settings.stash.bulk_trade := !Blank(check := ini.settings["show bulk-sale suggestions"]) ? check : 1
 		settings.stash.min_trade := !Blank(check := ini.settings["minimum trade value"]) ? check : ""
 		settings.stash.autoprofiles := !Blank(check := ini.settings["enable trade-value profiles"]) ? check : 0
-		settings.stash.retry := !Blank(check := ini.settings["retry"]) && (check > A_Now) ? check : 0
+		settings.stash.retry := !Blank(check := ini.settings["retry"]) ? check : 0
 		settings.stash.index_stock := !Blank(check := ini.settings["show stock in index"]) ? check : 1
 		settings.stash.rate_limits := {"timestamp": ""}
 		settings.stash.colors := [!Blank(check := ini.UI["text color"]) ? check : "000000", !Blank(check1 := ini.UI["background color"]) ? check1 : "00FF00"
@@ -366,7 +369,7 @@ Stash_PriceFetchTrade(array)
 		If (rVal.1/rVal.2 = 1)
 		{
 			retry := A_Now
-			EnvAdd, retry, % Ceil((rKey/rVal.1)*1.5), seconds
+			EnvAdd, retry, % Ceil((rKey/rVal.1)*2), seconds
 			settings.stash.retry := retry
 		}
 	}
@@ -657,8 +660,8 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, currency := 0
 					If IsNumber(A_LoopField) || InStr("/.", A_LoopField)
 						pNote .= A_LoopField
 				pNote := StrSplit(pNote, "/",, 2), listed_price := pNote.1, listed_bulk := pNote.2 ? pNote.2 : 1, vars.stash[tab][item].prices[index] := Round(listed_price/listed_bulk, 6)
-				iPrice := LLK_HasVal(prices, val.prices[index],,,, 1, 1)
-				prices[iPrice].2 := listed_price, prices[iPrice].3 := listed_bulk, color := " cAqua"
+				val.source.3[index].bulk := [listed_bulk, listed_price]
+				color := " cAqua"
 			}
 			Else If IsObject(prices := val.source.3[index].prices)
 				iPrice := LLK_HasVal(prices, val.prices[index],,,, 1, 1), listed_price0 := listed_price := prices[iPrice].2, listed_bulk0 := listed_bulk := prices[iPrice].3
@@ -731,6 +734,7 @@ Stash_PriceInfo(GUI_name, xAnchor, yAnchor, item, val, trend := 1, currency := 0
 		For limit in settings.stash.rate_limits.limits
 			max_limit := limit, dimensions.Push(limit)
 		LLK_PanelDimensions(dimensions, settings.stash.fSize, width, height)
+		MsgBox, % settings.stash.retry ", " A_Now
 		If (pCheck := settings.stash.rate_limits.limits) || (settings.stash.retry > A_Now)
 		{
 			Gui, %GUI_name%: Add, Text, % "Section xs y+0 Border BackgroundTrans Center HWNDhwnd" (pCheck ? " w" xLast + wLast + 1 - (width*lCount - (lCount - 1)) : ""), % (pCheck ? "" : " ") . LangTrans("stash_limits") . (pCheck ? "" : " ")

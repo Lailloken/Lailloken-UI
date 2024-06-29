@@ -5,6 +5,12 @@
 
 	settings.features.maptracker := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 
+	If !FileExist("ini\map tracker.ini")
+	{
+		IniWrite, % "", ini\map tracker.ini, settings
+		IniWrite, % "", ini\map tracker log.ini, blank
+	}
+
 	If !IsObject(settings.maptracker)
 		settings.maptracker := {}
 	ini := IniBatchRead("ini\map tracker.ini")
@@ -1095,7 +1101,7 @@ MaptrackerLogsLoad()
 	StringLower, ini, ini
 	Loop, Parse, ini, `n, `r
 	{
-		If Blank(A_LoopField)
+		If Blank(A_LoopField) || InStr(A_LoopField, "[blank]")
 			Continue
 		If InStr(A_LoopField, "[")
 		{

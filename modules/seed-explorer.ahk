@@ -3,6 +3,9 @@
 	local
 	global vars, settings, db, Json
 
+	If !FileExist("ini\seed-explorer.ini")
+		IniWrite, % "", ini\seed-explorer.ini, settings
+
 	If !mode
 	{
 		If !FileExist("data\" settings.general.lang_client "\timeless jewels.json")

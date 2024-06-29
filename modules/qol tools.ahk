@@ -3,6 +3,9 @@
 	local
 	global vars, settings
 
+	If !FileExist("ini\qol tools.ini")
+		IniWrite, % "", ini\qol tools.ini, settings
+
 	ini := IniBatchRead("ini\qol tools.ini")
 	settings.qol := {"alarm": !Blank(check := ini.features.alarm) ? check : 0, "notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0}
 	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : !Blank(check := ini.features.lab) ? check : 0
