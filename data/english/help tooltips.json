@@ -622,8 +622,8 @@
       "pick a price from the list, and the panel will offer applicable bulk configurations to scroll through and pick from"
     ],
     "stash mintrade": [
-      "you can specify an \"i don't want to trade below x chaos\" value here so that bulk-sale configurations below this value will not be offered",
-      "type in a number and press <enter>"
+      "you can specify an \"i don't want to trade below x chaos\" value here:\ntype in a number and press <enter>",
+      "bulk-sale configurations in chaos will auto-adjust to start at this value"
     ],
     "stash autoprofiles": [
       "this setting is meant to help you find (stacks of) items that are worth trading",
