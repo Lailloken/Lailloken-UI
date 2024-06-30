@@ -380,10 +380,7 @@ Stash_PriceFetchTrade(array)
 		IniWrite, % (settings.stash.retry := retry), ini\stash-ninja.ini, settings, retry
 	}
 	If (array.3 != 200)
-	{
-		LLK_ToolTip(LangTrans("global_error"),,,,, "Red")
 		Return -1
-	}
 
 	listings := {}, stocks := {}
 	For kResult, vResult in array.1.result
@@ -889,7 +886,8 @@ Stash_PricePicker(cHWND := "")
 	Stash_PriceInfo(GUI_name, 0, 0, item, vars.stash[tab][item], 0, currency)
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, w, h, ahk_id %hwnd_stash%
-	xPos := vars.client.x + vars.stash[tab][item].coords.1 + vars.stash[tab].box//2 - w//2, xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := vars.stash[tab][item].coords.2 - h - settings.stash.fWidth, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
+	xPos := vars.client.x + vars.stash[tab][item].coords.1 + vars.stash[tab].box//2 - w//2, xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos
+	yPos := vars.client.y + vars.stash[tab][item].coords.2 - h - settings.stash.fWidth, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(hwnd_stash, "show", 0, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If settings.stash.rate_limits.timestamp || (settings.stash.retry > A_Now)
@@ -898,6 +896,8 @@ Stash_PricePicker(cHWND := "")
 		Stash_PriceIndex(1, control)
 	If (tradecheck_status = 0)
 		LLK_ToolTip(LangTrans("stash_nolistings"), 2,,,, "yellow"), Stash_PriceIndex("destroy")
+	If (tradecheck_status = -1)
+		LLK_ToolTip(LangTrans("global_error"),,,, "Red")
 }
 
 Stash_RateTick(mode := 0)
