@@ -3,12 +3,13 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ## Download & Setup
-[![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_autohotkey.png)](https://www.autohotkey.com/) [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip)  
-[![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_help.png)](https://github.com/Lailloken/Lailloken-UI/issues/340) [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_releases.png)](https://github.com/Lailloken/Lailloken-UI/releases)  
+| [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_autohotkey.png)](https://www.autohotkey.com/) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) |
+|---|---|---|---|
 <br>
 
 ## Contributions
-[![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_translations.png)](https://github.com/Lailloken/Lailloken-UI/discussions/326) [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_code.png)
+| [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_translations.png)](https://github.com/Lailloken/Lailloken-UI/discussions/326) | [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_code.png) |
+|---|---|---|
 <br>
 
 ## Context: What is this project?
@@ -84,8 +85,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_003.jpg) |
 <br>
 
-### [Stash-Ninja](https://github.com/Lailloken/Lailloken-UI/wiki/Stash%E2%80%90Ninja): interactive overlay that shows poe.ninja prices inside stash tabs
-| customizable price-tags and profiles | conversion rates & optional price history | bulk-sale management with customizable margins |
+### [Stash-Ninja](https://github.com/Lailloken/Lailloken-UI/wiki/Stash%E2%80%90Ninja): poe.ninja/bulk-exchange price-overlay & sale management
+| customizable price-tags and profiles | conversion rates & optional price history | (bulk-)sale management & bulk-exchange listings |
 |---|---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_001.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_003.jpg) |
 <br>
@@ -153,6 +154,9 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 - `item-info` uses a custom version of [Path of Building's](https://github.com/PathOfBuildingCommunity/PathOfBuilding) datamined resources
 
 - `leveling tracker` uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
+
+- `stash-ninja` uses price-data provided by [poe.ninja](https://poe.ninja/), and bulk-exchange support was implemented with [BocikPG](https://github.com/BocikPG)'s help
+
 - `seed-explorer` uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
 <br>
 
