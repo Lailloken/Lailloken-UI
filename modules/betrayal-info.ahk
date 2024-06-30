@@ -30,6 +30,7 @@
 
 	If !FileExist("ini\betrayal info.ini")
 	{
+		IniWrite, % "", ini\betrayal info.ini, settings
 		IniWrite, % settings.general.fSize, ini\betrayal info.ini, Settings, font-size
 		For member in vars.betrayal.members
 			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member

@@ -3,6 +3,9 @@
 	local
 	global vars, settings
 
+	If !FileExist("ini\qol tools.ini")
+		IniWrite, % "", ini\qol tools.ini, settings
+
 	ini := IniBatchRead("ini\qol tools.ini")
 	settings.qol := {"alarm": !Blank(check := ini.features.alarm) ? check : 0, "notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0}
 	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : !Blank(check := ini.features.lab) ? check : 0
@@ -307,9 +310,8 @@ Lab(mode := "", override := 0)
 			}
 			If (step = 1) && InStr(Clipboard, "www.poelab.com") && InStr(Clipboard, ".json")
 			{
-				step := 2, lab_compass := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-				lab_compass.Open("GET", Clipboard, true), lab_compass.Send(), lab_compass.WaitForResponse()
-				lab_compass_json := Json.Load(lab_compass.ResponseText)
+				step := 2
+				Try lab_compass_json := Json.Load(HTTPtoVar(Clipboard))
 				If lab_compass_json.Count()
 				{
 					LLK_ToolTip(LangTrans("global_success"), 1.5,,,, "lime")
@@ -319,7 +321,7 @@ Lab(mode := "", override := 0)
 					vars.tooltip_mouse := ""
 					Break
 				}
-				Else LLK_ToolTip(LangTrans("global_fail"), 1.5,,,, "lime")
+				Else LLK_ToolTip(LangTrans("global_fail"), 1.5,,,, "red")
 				Clipboard := ""
 			}
 			Sleep 250

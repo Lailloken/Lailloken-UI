@@ -57,11 +57,13 @@ HotkeysESC()
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh()
+	Else If WinExist("ahk_id " vars.hwnd.stash_index.main)
+		Stash_PriceIndex("destroy")
 	Else If WinExist("ahk_id " vars.hwnd.stash.main)
 		Stash_Close()
 	Else If WinExist("ahk_id " vars.hwnd.stash_picker.main) || vars.stash.enter
 	{
-		LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
+		Stash_PricePicker("destroy"), vars.stash.enter := 0
 		SendInput, {ESC}
 	}
 	Else If WinExist("ahk_id " vars.hwnd.compat_test)
@@ -155,7 +157,7 @@ HotkeysTab()
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
 		If !stash_toggle
 		{
-			Clipboard := """note:""" 
+			Clipboard := """note:"""
 			SendInput, ^{f}
 			Sleep 100
 			SendInput, ^{v}{ENTER}
@@ -281,6 +283,11 @@ HotkeysTab()
 #If WinActive("ahk_group poe_ahk_window") && InStr(vars.stash.hover, "tab_")
 *~LButton::Stash_(StrReplace(vars.stash.hover, "tab_"))
 
+#If vars.hwnd.stash_picker.main && vars.general.cMouse && WinExist("ahk_id " vars.hwnd.stash_picker.main) && LLK_PatternMatch(LLK_HasVal(vars.hwnd.stash_picker, vars.general.cMouse), "", ["confirm_", "bulk"])
+WheelUp::Stash_PricePicker("+")
+WheelDown::Stash_PricePicker("-")
+MButton::Stash_PricePicker("reset")
+
 #If WinActive("ahk_id " vars.hwnd.poe_client) && WinExist("ahk_id " vars.hwnd.stash.main)
 *1::
 *2::
@@ -291,7 +298,7 @@ HotkeysTab()
 ~*RButton::Stash_Hotkeys()
 
 #If WinActive("ahk_id " vars.hwnd.poe_client) && vars.stash.enter
-~*Enter::vars.stash.enter := 0, LLK_Overlay(vars.hwnd.stash_picker.main, "destroy")
+~*Enter::vars.stash.enter := 0, Stash_PricePicker("destroy")
 
 #If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ClientFiller) ;prevent clicking and activating the filler GUI
 *MButton::

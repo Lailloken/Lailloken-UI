@@ -14,6 +14,7 @@
 
 SetWorkingDir %A_ScriptDir%
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
+;ComObjError(0)
 OnMessage(0x0204, "RightClick")
 StringCaseSense, Locale
 SetKeyDelay, 100
@@ -99,7 +100,6 @@ Return
 #Include modules\settings menu.ahk
 #Include modules\stash-ninja.ahk
 
-
 Blank(var)
 {
 	If (var = "")
@@ -156,7 +156,7 @@ Exit()
 		MaptrackerSave()
 }
 
-FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
+FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
 {
 	local
 
@@ -167,7 +167,7 @@ FormatSeconds(seconds, mode := 1)  ; Convert the specified number of seconds to 
 	FormatTime, time, %time%, HH:mm:ss
 	If days
 		time := (days < 10 ? "0" : "") days ":" time
-	While !mode && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
+	While !leading_zeroes && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
 		time := SubStr(time, 2)
 	return time
 }
@@ -213,7 +213,7 @@ LLK_HasRegex(object, regex, all_results := 0, check_key := 0)
 		Return parse
 }
 
-LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
+LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0, check_decimals := 0) ; check_decimals is a band-aid fix for very specific use-cases where X and X.000[...] need to be distinguished
 {
 	local
 
@@ -221,7 +221,7 @@ LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, rec
 		Return
 	parse := []
 	For key, val in object
-		If (val = value) || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse)
+		If (val = value) && !check_decimals || (val = value) && InStr(val, ".") && InStr(value, ".") && check_decimals || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse, check_decimals)
 		{
 			If !all_results
 				Return key
@@ -293,6 +293,36 @@ HelpToolTip(HWND_key)
 	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
 	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (check = "maptracker" ? height - 1 : 0) : yPos)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+}
+
+HTTPtoVar(URL, mode := "URL", currency := "") ; taken from the AHK-wiki, adapted to also fetch data from bulk-exchange
+{
+	local
+	global vars, settings, json
+
+	If (mode = "exchange")
+		item := URL, URL := "https://www.pathofexile.com/api/trade/exchange/" StrReplace(settings.stash.league, " ", "%20"), array := []
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	whr.Open((mode = "exchange") ? "POST" : "GET", URL, true)
+	If (mode = "exchange")
+		whr.SetRequestHeader("Content-Type", "application/json")
+	whr.Send((mode = "exchange") ? "{""query"":{""status"":{""option"":""onlineleague""},""have"":[""" currency """],""want"":[""" item """]},""sort"":{""have"":""asc""},""engine"":""new""}" : "")
+	; Using 'true' above and the call below allows the script to remain responsive.
+	whr.WaitForResponse()
+
+	If (mode = "exchange")
+	{
+		limits_max := StrSplit(whr.GetResponseHeader("X-Rate-Limit-Ip"), ",", A_Space), limits_current := StrSplit(whr.GetResponseHeader("X-Rate-Limit-Ip-State"), ",", A_Space)
+		status := whr.Status(), limits := {}
+		Loop, % limits_max.Count()
+		{
+			pCurrent := StrSplit(limits_current[A_Index], ":", A_Space), pMax := StrSplit(limits_max[A_Index], ":", A_Space)
+			limits[pCurrent.2] := [pCurrent.1, pMax.1, pMax.3]
+		}
+		array.1 := (SubStr(whr.ResponseText, 1, 1) . SubStr(whr.ResponseText, 0) != "{}") || InStr(whr.ResponseText, """error""") ? "" : json.Load(whr.ResponseText)
+		array.2 := limits, array.3 := status, array.4 := (status = 429) ? whr.GetResponseHeader("Retry-After") : ""
+	}
+	Return (mode = "URL" ? whr.ResponseText : array)
 }
 
 IniBatchRead(file, section := "", encoding := "1200")
@@ -534,7 +564,7 @@ Init_general()
 
 	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
 
-	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "maptracker": {}}
+	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "maptracker": {}, "stashninja": {}}
 }
 
 Init_vars()
@@ -617,7 +647,7 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0, stashhover := {}
+	static tick_helptooltips := 0, ClientFiller_count := 0, stashhover := {}, priceindex_count := 0
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
@@ -625,6 +655,14 @@ Loop_main()
 		vars.cloneframes.editing := ""
 		Init_cloneframes()
 	}
+
+	If vars.hwnd.stash_index.main && WinExist("ahk_id " vars.hwnd.stash_index.main) && !WinActive("ahk_id " vars.hwnd.stash_index.main) && !WinActive("ahk_id " vars.hwnd.stash_picker.main)
+	{
+		priceindex_count += 1
+		If (priceindex_count >= 3)
+			Stash_PriceIndex("destroy"), priceindex_count := 0
+	}
+	Else priceindex_count := 0
 
 	If vars.hwnd.settings && !vars.settings.wait
 		If (vars.settings.color != "Black") && WinActive("ahk_id " vars.hwnd.settings.main)
@@ -1207,25 +1245,34 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	}
 
 	FileDelete, data\version_check.json
-	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/versions.json", data\version_check.json
-	update.1 := ErrorLevel || !InStr(LLK_FileRead("data\version_check.json"), """_release""") ? -4 : update.1 ;error-code -4 = version-list download failed
+	Try version_check := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/versions.json")
+	update.1 := !InStr(version_check, """_release""") ? -4 : update.1 ;error-code -4 = version-list download failed
 	If (update.1 = -4)
 	{
 		If InStr("2", timer)
 			IniWrite, updater, ini\config.ini, versions, reload settings
 		Return
 	}
-	versions_live := Json.Load(LLK_FileRead("data\version_check.json")) ;load version-list into object
+	versions_live := Json.Load(version_check) ;load version-list into object
 	If versions_live.HasKey("hotfix")
 		versions_live._release.1 .= "." . (versions_live.hotfix < 10 ? "0" : "") . versions_live.hotfix
 	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
 	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
 
-	FileDelete, data\changelog.json
-	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json", data\changelog.json
-	If FileExist("data\changelog.json")
+	Try changelog_check := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json")
+	If (SubStr(changelog_check, 1, 1) . SubStr(changelog_check, 0) = "[]")
+	{
+		vars.updater.changelog := Json.Load(changelog_check)
+		FileDelete, data\changelog.json
+		If !FileExist("data\changelog.json")
+			FileAppend, % changelog_check, data\changelog.json
+	}
+	Else
+	{
 		vars.updater.changelog := Json.Load(LLK_FileRead("data\changelog.json"))
-	Else vars.updater.changelog := [[[vars.updater.version.2, vars.updater.version.1], "couldn't load changelog"]]
+		If !LLK_HasVal(vars.updater.changelog, vars.updater.version.1,,,, 1)
+			vars.updater.changelog.InsertAt(1, [[vars.updater.version.2, vars.updater.version.1], "changelog download failed"])
+	}
 
 	If (timer != 2) && (vars.updater.skip = vars.updater.latest.1)
 		Return
@@ -1719,6 +1766,8 @@ LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress
 
 LLK_StringCase(string, mode := 0, title := 0)
 {
+	local
+
 	If mode
 		StringUpper, string, % string, % title ? "T" : ""
 	Else StringLower, string, % string, % title ? "T" : ""
@@ -1727,6 +1776,8 @@ LLK_StringCase(string, mode := 0, title := 0)
 
 LLK_StringRemove(string, characters)
 {
+	local
+
 	Loop, Parse, characters, `,
 	{
 		If (A_LoopField = "")
@@ -1782,6 +1833,21 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	If duration
 		vars.tooltip[hwnd] := A_TickCount + duration*1000
 	vars.tooltip.wait := 0
+}
+
+LLK_TrimDecimals(string)
+{
+	local
+
+	If !InStr(string, ".")
+		Return string
+	While InStr("0.", (check := SubStr(string, 0))) && !Blank(check)
+	{
+		string := SubStr(string, 1, -1)
+		If (check = ".")
+			Break
+	}
+	Return string
 }
 
 WinGet(command, win_title)

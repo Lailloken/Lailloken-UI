@@ -3,6 +3,9 @@
 	local
 	global vars, settings, db, Json
 
+	If !FileExist("ini\necropolis.ini")
+		IniWrite, % "", ini\necropolis.ini, settings
+
 	If !IsObject(settings.OCR)
 		settings.OCR := {}
 	settings.OCR.allow := LLK_IniRead("ini\ocr.ini", "Settings", "allow ocr", 0) * (vars.client.h > 720 ? 1 : 0), ini := IniBatchRead("ini\necropolis.ini")

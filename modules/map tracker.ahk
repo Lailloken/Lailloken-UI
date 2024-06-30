@@ -5,6 +5,12 @@
 
 	settings.features.maptracker := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 
+	If !FileExist("ini\map tracker.ini")
+	{
+		IniWrite, % "", ini\map tracker.ini, settings
+		IniWrite, % "", ini\map tracker log.ini, blank
+	}
+
 	If !IsObject(settings.maptracker)
 		settings.maptracker := {}
 	ini := IniBatchRead("ini\map tracker.ini")
@@ -726,7 +732,7 @@ MaptrackerLogs(mode := "")
 		header := val.1, icon := InStr(" deaths, portals, kills, loot, mapinfo, notes,", " " val.1 ",") ? 1 : 0, index_sum := 0, date_check := 1
 		;If !date_check && (header = "time") && (vars.maptracker.active_date != LangTrans("global_none"))
 		;	date_check := IsNumber(StrReplace(vars.maptracker.active_date, "/")) && (StrLen(StrReplace(vars.maptracker.active_date, "/")) < 7) || !IsNumber(StrReplace(vars.maptracker.active_date, "/")) ? 1 : 0, val.3 := !date_check ? [LangTrans("maptracker_time"), "77:77"] : val.3.Clone()
-		
+
 		gLabel := InStr(" deaths, kills, loot, mapinfo, notes, content,", " " val.1 ",") ? " gMaptrackerLogsFilter" : ""
 		LLK_PanelDimensions(val.3, settings.maptracker.fSize2, width, height,, 4), LLK_FontDimensions(settings.maptracker.fSize2 + 4, font_height, font_width)
 		width := (width < hFont) ? hFont : width * (header = "content" ? 3 : 1), header_tooltips := ["map", "e-exp", "deaths", "portals", "kills", "loot", "mapinfo", "notes", "content", "tier", "run"]
@@ -1095,7 +1101,7 @@ MaptrackerLogsLoad()
 	StringLower, ini, ini
 	Loop, Parse, ini, `n, `r
 	{
-		If Blank(A_LoopField)
+		If Blank(A_LoopField) || InStr(A_LoopField, "[blank]")
 			Continue
 		If InStr(A_LoopField, "[")
 		{
@@ -1285,7 +1291,7 @@ MaptrackerLoot(mode := "")
 	static last := []
 
 	If (mode = "clear")
-		last := [], vars.maptracker.loot := 0 
+		last := [], vars.maptracker.loot := 0
 
 	If !vars.maptracker.map.date_time || (mode = "clear") || !Screenchecks_ImageSearch("stash") || vars.maptracker.pause
 		Return

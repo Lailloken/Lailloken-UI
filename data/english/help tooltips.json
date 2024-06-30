@@ -593,6 +593,12 @@
     "searchstrings add": [
       "type in a name and press <enter>"
     ],
+    "stash color tag1": [
+      "this is what price tags with poe.ninja-prices look like"
+    ],
+    "stash color tag2": [
+      "this is what price tags with exchange-prices look like"
+    ],
     "stash enable": [
       "stash feature that highlights items in specific stash tabs according to rough market prices",
       "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
@@ -611,23 +617,19 @@
       "also shows exalt-equivalent prices when hovering over highlighted items or pricing items"
     ],
     "stash bulk": [
-      "whenever you right-click an item in the tab to price it, an additional panel with bulk-sale suggestions will be displayed",
-      "click a preferred target margin, then click a suggestion in the table to paste the price into the game ui and confirm it"
+      "right-clicking an item in a tab will open an additional panel for bulk-sale management",
+      "it will only show poe.ninja prices initially:\nclick a currency icon to view open listings on the bulk exchange, or right-click it to refresh the data",
+      "pick a price from the list, and the panel will offer applicable bulk configurations to scroll through and pick from"
     ],
     "stash mintrade": [
-      "you can specify an \"i don't want to trade below x chaos\" value here",
-      "bulk-sales below this value will not be suggested, unless they are the only option (they will be highlighted red then)",
-      "type in a number and press <enter>"
+      "you can specify an \"i don't want to trade below x chaos\" value here:\ntype in a number and press <enter>",
+      "bulk-sale configurations in chaos will auto-adjust to start at this value"
     ],
     "stash autoprofiles": [
       "this setting is meant to help you find (stacks of) items that are worth trading",
       "profiles 1-4 will be set up automatically according to your preferred trade value",
       ">> rule of thumb <<\nhighlighted items are worth trading if:\nstack-size >= profile-number",
       "profile 5 will be left untouched in order to allow creating a trash/vendor tier"
-    ],
-    "stash margins": [
-      "specify your preferred target margins:\nadd as many as you want and separate them with commas, then press <enter>",
-      "- does not support decimal values\n- red highlighting = unsaved changes"
     ],
     "stash config": [
       "to configure individual tabs, open them in game and long-press the omni-key over an item in the tab",

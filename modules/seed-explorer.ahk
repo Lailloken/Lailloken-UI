@@ -3,14 +3,27 @@
 	local
 	global vars, settings, db, Json
 
+	If !FileExist("ini\seed-explorer.ini")
+		IniWrite, % "", ini\seed-explorer.ini, settings
+
 	If !mode
 	{
 		If !FileExist("data\" settings.general.lang_client "\timeless jewels.json")
 			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
 		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
 
+		If FileExist("data\global\[legion] version.txt")
+		{
+			version := StrReplace(StrReplace(LLK_FileRead("data\global\[legion] version.txt"), "`r"), "`n")
+			IniWrite, % version, ini\seed-explorer.ini, settings, version
+			FileDelete, % "data\global\[legion] version.txt"
+		}
+		If FileExist("data\global\[legion] version_check.txt")
+			FileDelete, % "data\global\[legion] version_check.txt"
+
 		ini := IniBatchRead("ini\seed-explorer.ini")
 		settings.legion := {"fSize": !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize, "profile": !Blank(check1 := ini.settings["profile"]) ? check1 : 1}
+		settings.legion.version := !Blank(check := ini.settings.version) ? check : 0
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height
 		vars.legion := {}
 	}
@@ -388,31 +401,35 @@ LegionUpdate()
 		If FileExist("data\global\[legion] " val ".csv")
 			count := !count ? 1 : count + 1
 
-	UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20version.txt", data\global\[legion] version_check.txt
-	If ErrorLevel || InStr(LLK_FileRead("data\global\[legion] version_check.txt"), "404: not found")
+	Try version_check := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20version.txt")
+	If Blank(version_check) || InStr(version_check, "404: not found")
 	{
 		LLK_ToolTip(LangTrans("global_error") ": version-check", 2,,,, "Red")
-		FileDelete, data\global\[legion] version_check.txt
 		Return
 	}
+	version_online := StrReplace(StrReplace(version_check, "`n"), "`r")
 
 	If (count = 5)
 	{
-		version_online := StrReplace(StrReplace(LLK_FileRead("data\global\[legion] version_check.txt"), "`n"), "`r"), version_installed := !FileExist("data\global\[legion] version.txt") ? 0 : LLK_FileRead("data\global\[legion] version.txt")
-		update := (version_online > version_installed) ? 1 : 0
+		update := (version_online > settings.legion.version) ? 1 : 0
 		If !update
-			LLK_ToolTip(LangTrans("seed_uptodate"))
+			LLK_ToolTip(LangTrans("seed_uptodate"),,,,, "Lime")
 	}
 
 	If (count != 5) || update
 	{
 		LLK_ToolTip("downloading...", 0,,, "legion_update", "Lime")
+		GuiControl, +cGreen, % vars.hwnd.legion.update_bar
+		GuiControl, movedraw, % vars.hwnd.legion.update_bar
+		GuiControl,, % vars.hwnd.legion.update_bar, 0
 		For index, val in jewels
 		{
 			UrlDownloadToFile, % "https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20" StrReplace(val, " ", "%20") ".csv", % "data\global\[legion] " val ".csv"
 			If ErrorLevel
 			{
 				error := 1
+				GuiControl, +cRed, % vars.hwnd.legion.update_bar
+				GuiControl, movedraw, % vars.hwnd.legion.update_bar
 				Break
 			}
 			Else GuiControl,, % vars.hwnd.legion.update_bar, % index
@@ -420,10 +437,9 @@ LegionUpdate()
 		vars.tooltip[vars.hwnd["tooltiplegion_update"]] := A_TickCount
 		If !error
 		{
-			FileMove, data\global\[legion] version_check.txt, data\global\[legion] version.txt, 1
+			IniWrite, % (settings.legion.version := version_online), ini\seed-explorer.ini, settings, version
 			vars.legion := {}, LegionParse(), LegionGUI(), LLK_ToolTip(LangTrans("global_success"), 1,,,, "Lime")
 		}
 		Else LLK_ToolTip(LangTrans("global_error"), 2,,, "Red")
 	}
-	FileDelete, data\global\[legion] version_check.txt
 }

@@ -1382,12 +1382,12 @@ Settings_leveltracker()
 	{
 		Gui, %GUI%: Add, Button, % "ys Hidden hp Default gSettings_leveltracker2 HWNDhwnd0 w" settings.general.fWidth, ok
 		width := settings.general.fWidth * 8
-		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "xs+" settings.general.fWidth * 1.8 " Section Right cBlack HWNDhwnd1 gSettings_leveltracker2 Limit w" width " h" settings.general.fHeight, % settings.leveltracker.hotkey_1
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		Gui, %GUI%: Add, Text, % "ys x+0 Center BackgroundTrans Border w" settings.general.fWidth * 2, % "<"
 		Gui, %GUI%: Add, Text, % "ys x+0 Center BackgroundTrans Border wp", % ">"
-		Gui, %GUI%: Font, % "s" settings.general.fSize - 4 
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack HWNDhwnd2 Limit gSettings_leveltracker2 w" width " h" settings.general.fHeight, % settings.leveltracker.hotkey_2
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		vars.hwnd.settings.apply_button := hwnd0
@@ -3152,7 +3152,7 @@ Settings_stash()
 	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default HWNDhwnd gSettings_stash2", OK
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("m_stash_leagues")
-	leagues := [["necro", "Necropolis"], ["hc necro", "Hardcore Necropolis"], ["standard", "Standard"]], vars.hwnd.settings.apply_button := hwnd
+	leagues := settings.stash.leagues, vars.hwnd.settings.apply_button := hwnd
 	For index, array in leagues
 	{
 		Gui, %GUI%: Add, Text, % "ys HWNDhwnd Border Center gSettings_stash2" (index = 1 ? "" : " x+" settings.general.fWidth//2) . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
@@ -3173,19 +3173,13 @@ Settings_stash()
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd4 gSettings_stash2 Checked" settings.stash.bulk_trade, % LangTrans("m_stash_bulk")
 	If settings.stash.bulk_trade
 	{
-		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 1.5 " Section HWNDhwnd_", % LangTrans("m_stash_margins")
-		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys cBlack Hidden hp Disabled r1", % settings.stash.margins "    "
-		Gui, %GUI%: Add, Edit, % "xp yp wp hp cBlack HWNDhwnd5 gSettings_stash2 r1 Right", % settings.stash.margins
-		Gui, %GUI%: Font, % "s" settings.general.fSize
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
+		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 1.5 " Section HWNDhwnd3", % LangTrans("m_stash_mintrade")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit hp Right w" settings.general.fWidth * 3, % settings.stash.min_trade
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd00 gSettings_stash2 Checked" settings.stash.autoprofiles, % LangTrans("m_stash_profiles")
 		vars.hwnd.settings.min_trade := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade"] := hwnd2, vars.hwnd.help_tooltips["settings_stash mintrade|"] := hwnd3
-		vars.hwnd.settings.margins := vars.hwnd.help_tooltips["settings_stash margins"] := hwnd5
-		vars.hwnd.help_tooltips["settings_stash margins|"] := hwnd_, vars.hwnd.settings.autoprofiles := vars.hwnd.help_tooltips["settings_stash autoprofiles"] := hwnd00
+		vars.hwnd.settings.autoprofiles := vars.hwnd.help_tooltips["settings_stash autoprofiles"] := hwnd00
 	}
 	vars.hwnd.settings.history := vars.hwnd.help_tooltips["settings_stash history"] := hwnd, vars.hwnd.settings.exalt := vars.hwnd.help_tooltips["settings_stash exalt"] := hwnd1
 	vars.hwnd.settings.bulk_trade := vars.hwnd.help_tooltips["settings_stash bulk"] := hwnd4
@@ -3194,6 +3188,24 @@ Settings_stash()
 	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing " x" x_anchor, % LangTrans("global_ui")
 	Gui, %GUI%: Font, norm
 
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("stash_pricetags")
+	colors := settings.stash.colors.Clone()
+	Loop 2
+	{
+		color1 := colors[Floor(A_Index * 1.5)], color2 := colors[A_Index * 2]
+		Gui, %GUI%: Add, Text, % "ys Border Center HWNDhwndtext BackgroundTrans c" color1, % " 69.42 "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" color2, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd00", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" color1, 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd10", % "  "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" color2, 100
+		vars.hwnd.settings["color_" Floor(A_Index * 1.5)] := hwnd00, vars.hwnd.settings["color_" Floor(A_Index * 1.5) "_panel"] := hwnd01, vars.hwnd.settings["color_" Floor(A_Index * 1.5) "_text"] := hwndtext
+		vars.hwnd.settings["color_" A_Index * 2] := hwnd10, vars.hwnd.settings["color_" A_Index * 2 "_panel"] := hwnd11, vars.hwnd.settings["color_" A_Index * 2 "_text"] := hwndback
+		vars.hwnd.help_tooltips["settings_generic color double" (A_Index = 2 ? "|" : "")] := hwnd01, vars.hwnd.help_tooltips["settings_generic color double1" (A_Index = 2 ? "|" : "")] := hwnd11
+		vars.hwnd.help_tooltips["settings_stash color tag" A_Index] := hwndback
+	}
+
+
 	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_font")
 	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_stash2 HWNDhwnd w"settings.general.fWidth*2, % "–"
 	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
@@ -3201,19 +3213,6 @@ Settings_stash()
 	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_stash2 HWNDhwnd w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-
-
-	Gui, %GUI%: Add, Text, % "ys", % LangTrans("global_pattern") ":"
-	colors := settings.stash.colors.Clone(), dimensions := []
-	Gui, %GUI%: Add, Text, % "ys Border Center HWNDhwndtext BackgroundTrans c" colors.1, % " 69.42 "
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwndback c" colors.2, 100
-	Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd00", % "  "
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd01 c" colors.1, 100
-	Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_stash2 HWNDhwnd10", % "  "
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" colors.2, 100
-	vars.hwnd.settings["color_1"] := hwnd00, vars.hwnd.settings["color_1_panel"] := hwnd01, vars.hwnd.settings["color_1_text"] := hwndtext
-	vars.hwnd.settings["color_2"] := hwnd10, vars.hwnd.settings["color_2_panel"] := hwnd11, vars.hwnd.settings["color_2_text"] := hwndback
-	vars.hwnd.help_tooltips["settings_generic color double"] := hwnd01, vars.hwnd.help_tooltips["settings_generic color double1"] := hwnd11
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("m_stash_tabs")
@@ -3301,7 +3300,7 @@ Settings_stash2(cHWND)
 	{
 		ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
 		ControlGet, hwnd, HWND,, % hwnd
-		If !InStr(vars.hwnd.settings.hotkey "," vars.hwnd.settings.margins "," vars.hwnd.settings.min_trade, hwnd)
+		If !InStr(vars.hwnd.settings.hotkey "," vars.hwnd.settings.min_trade, hwnd)
 		{
 			in_progress := 0
 			Return
@@ -3335,39 +3334,6 @@ Settings_stash2(cHWND)
 			in_progress := 0
 			Return
 		}
-		valid := 1, input := LLK_ControlGet(vars.hwnd.settings.margins), valid := Blank(input) || InStr(input, ".") ? 0 : 1, margins0 := {}
-		If (input = settings.stash.margins)
-		{
-			in_progress := 0
-			Return
-		}
-		If valid
-		{
-			Loop, Parse, input, `,, % A_Space
-			{
-				If !IsNumber(A_LoopField) || (A_LoopField = "-0")
-				{
-					valid := 0
-					Break
-				}
-				loopfield_copy := StrReplace(A_LoopField, "+")
-				If !margins0.Haskey(loopfield_copy)
-					margins0[loopfield_copy] := 1, margins .= (Blank(margins) ? "" : ",") loopfield_copy
-				Sort, margins, D`, N
-			}
-			If valid
-				settings.stash.margins := StrReplace(margins, ",", ", ")
-		}
-		If !valid ;separate valid-check after the one above (since that may change the content of valid)
-		{
-			in_progress := 0
-			Return
-		}
-
-		IniWrite, % """" settings.stash.margins """", ini\stash-ninja.ini, settings, margins
-		Settings_menu("stash-ninja")
-		If WinExist("ahk_id " vars.hwnd.stash_picker.main)
-			Stash_PricePicker()
 	}
 	Else If InStr(check, "enable_")
 	{
@@ -3381,6 +3347,7 @@ Settings_stash2(cHWND)
 		IniWrite, % (settings.stash.league := control), ini\stash-ninja.ini, settings, league
 		GuiControl, +cLime, % cHWND
 		GuiControl, movedraw, % cHWND
+		Stash_PriceFetch("flush")
 	}
 	Else If (check = "history")
 		IniWrite, % (settings.stash.history := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, enable price history
@@ -3390,7 +3357,7 @@ Settings_stash2(cHWND)
 	{
 		IniWrite, % (settings.stash.bulk_trade := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, show bulk-sale suggestions
 		If !settings.stash.bulk_trade && WinExist("ahk_id " vars.hwnd.stash_picker.main)
-			LLK_Overlay(vars.hwnd.stash_picker.main, "destroy"), vars.stash.enter := 0
+			Stash_PricePicker("destroy"), vars.stash.enter := 0
 		Init_stash("bulk_trade"), Settings_menu("stash-ninja")
 	}
 	Else If (check = "min_trade")
@@ -3402,12 +3369,6 @@ Settings_stash2(cHWND)
 	{
 		IniWrite, % (settings.stash.autoprofiles := LLK_ControlGet(cHWND)), ini\stash-ninja.ini, settings, enable trade-value profiles
 		Init_stash("bulk_trade"), Settings_menu("stash-ninja")
-	}
-	Else If (check = "margins")
-	{
-		input := LLK_ControlGet(cHWND), diff := (input != settings.stash.margins) ? 1 : 0
-		GuiControl, % "+c" (!diff ? "Black": "Red"), % cHWND
-		GuiControl, movedraw, % cHWND
 	}
 	Else If InStr(check, "font_")
 	{
@@ -3429,7 +3390,7 @@ Settings_stash2(cHWND)
 	}
 	Else If InStr(check, "color_")
 	{
-		color := (vars.system.click = 1) ? RGB_Picker(settings.stash.colors[control]) : (control = 1 ? "000000" : "00FF00")
+		color := (vars.system.click = 1) ? RGB_Picker(settings.stash.colors[control]) : (InStr("13", control) ? "000000" : (control = 2) ? "00FF00" : "FF8000")
 		If Blank(color)
 		{
 			in_progress := 0
@@ -3438,7 +3399,7 @@ Settings_stash2(cHWND)
 		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_panel"]
 		GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_text"]
 		GuiControl, % "movedraw", % vars.hwnd.settings["color_" control "_text"]
-		IniWrite, % (settings.stash.colors[control] := color), ini\stash-ninja.ini, UI, % (control = 1 ? "text" : "background") " color"
+		IniWrite, % (settings.stash.colors[control] := color), ini\stash-ninja.ini, UI, % (InStr("13", control) ? "text" : "background") " color" (control > 2 ? "2" : "")
 	}
 	Else If InStr(check, "gap")
 	{

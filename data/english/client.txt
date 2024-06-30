@@ -182,7 +182,7 @@
 		log_betrayal			=	"Vorici, Silent Brother:"
 		log_ultimatum			=	"The Trialmaster:"
 		log_maven			=	"The Maven:"
-		
+
 
 ;## expedition note: there is a difference in displayed names depending on whether the NPCs greet you when they first see you in a map (Gwennen, the Gambler) or whether the encounter has finished (Gwennen)
 ;## always use the name displayed when they greet you
