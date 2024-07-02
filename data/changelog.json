@@ -1,6 +1,7 @@
 [
   [
 	["1.54.0", 15400],
+	"hotfix 1: map-tracker's <stash> image-check failed when it was the only active check",
 	"stash-ninja: added support for official bulk-exchange prices",
 	"stash-ninja: streamlined bulk-sale management"
   ],
