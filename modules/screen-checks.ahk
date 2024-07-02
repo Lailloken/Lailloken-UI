@@ -157,8 +157,8 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 	For key, val in vars.imagesearch.search
 		vars.imagesearch[val].check := 0 ;reset results for all checks
 	check := 0
-	For index, val in ["betrayal", "leveltracker", "necropolis"]
-		check += settings.features[val]
+	For index, val in ["betrayal", "leveltracker", "necropolis", "maptracker"]
+		check += (val = "maptracker") ? settings.features.maptracker * settings.maptracker.loot : settings.features[val]
 	If !check
 		Return
 

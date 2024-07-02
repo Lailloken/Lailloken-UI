@@ -770,8 +770,13 @@ LeveltrackerImport(profile := "")
 	guide_text := StrReplace(guide_text, "enter (img:arena) arena:shavronne's_sorrow , kill shavronne `n", "kill doedre , (color:FF8111)maligaro , (color:FF8111)shavronne`n")
 	guide_text := StrReplace(guide_text, "talk to sin, enter (img:arena)", "enter (img:arena)"), guide_text := StrReplace(guide_text, "activate the (img:craft) `ntalk", "activate the (img:craft) , talk")
 	StringLower, guide_text, guide_text
-	IniDelete, ini\leveling guide%profile%.ini, Steps
-	IniDelete, ini\leveling guide%profile%.ini, Info
+	If !FileExist("ini\leveling guide" profile ".ini")
+		IniWrite, % "", ini\leveling guide%profile%.ini, Steps
+	Else
+	{
+		IniDelete, ini\leveling guide%profile%.ini, Steps
+		IniDelete, ini\leveling guide%profile%.ini, Info
+	}
 	IniWrite, % guide_text, ini\leveling guide%profile%.ini, Steps
 
 	Settings_menu("leveling tracker")
