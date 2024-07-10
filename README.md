@@ -5,12 +5,10 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 ## Download & Setup
 | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_autohotkey.png)](https://www.autohotkey.com/) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_guide.png)](https://github.com/Lailloken/Lailloken-UI/wiki) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_download.png)](https://github.com/Lailloken/Lailloken-UI/archive/refs/heads/main.zip) | [![img](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_releases.png)](https://github.com/Lailloken/Lailloken-UI/releases) |
 |---|---|---|---|
-<br>
 
 ## Contributions
 | [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_translations.png)](https://github.com/Lailloken/Lailloken-UI/discussions/326) | [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_code.png) |
 |---|---|---|
-<br>
 
 ## Context: What is this project?
 <details><summary>show</summary>
@@ -27,7 +25,6 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 
 - I view this as a personal toolkit rather than a product, so certain aspects may seem rough around the edges (or simply unconventional) when compared to other PoE-related projects
 </details>
-<br>
 
 ## Transparency Notice / Things you should know
 <details><summary>show</summary>
@@ -50,7 +47,6 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
  
   - (weak) annecdotal evidence: I have not been banned, nor have I heard of anyone else being banned
 </details>
-<br>
 
 ## Main Features
 \* = based on a user-request
@@ -158,6 +154,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 - `stash-ninja` uses price-data provided by [poe.ninja](https://poe.ninja/), and bulk-exchange support was implemented with [BocikPG](https://github.com/BocikPG)'s help
 
 - `seed-explorer` uses a custom version of the timeless-jewel databases provided via [TimelessJewelData](https://github.com/KeshHere/TimelessJewelData)
+
+- [GDI+ Library for AutoHotkey](https://github.com/marius-sucan/AHK-GDIp-Library-Compilation), [GDI+ ImageSearch](https://github.com/MasterFocus/AutoHotkey/blob/master/Functions/Gdip_ImageSearch/Gdip_ImageSearch.ahk), [OCR with UWP API](https://www.autohotkey.com/boards/viewtopic.php?t=72674) enable advanced screen/image-related features
 <br>
 
 ### (Temporarily-)retired / Legacy Features:
