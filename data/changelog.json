@@ -1,5 +1,12 @@
 [
   [
+	["1.54.1", 15401],
+	"fix: AHK bug caused ini-files to be misconfigured (you may have to update manually, check the full changelog)",
+	"fix: pinned mods in the map-info settings didn't work correctly",
+	"settings: restructured tabs and <general> a bit",
+	"clone-frames: restructured settings, streamlined setup"
+  ],
+  [
 	["1.54.0", 15400],
 	"hotfix 1: map-tracker's <stash> image-check failed when it was the only active check",
 	"stash-ninja: added support for official bulk-exchange prices",
