@@ -1,7 +1,7 @@
 [
   [
 	["1.54.1", 15401],
-	"fix: AHK bug caused ini-files to be misconfigured (you may have to update manually, check the full changelog)",
+	"fix: autohotkey bug caused ini-files to be misconfigured (you may have to update manually, check the full changelog)",
 	"fix: pinned mods in the map-info settings didn't work correctly",
 	"settings: restructured tabs and <general> a bit",
 	"clone-frames: restructured settings, streamlined setup"
