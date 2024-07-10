@@ -21,7 +21,7 @@
 	vars.cheatsheets.count_advanced := 0 ;save number of advanced sheets (used in the settings menu to determine if list of advanced sheets will be shown or not)
 
 	;rebuild list of cheat-sheets
-	vars.cheatsheets.list := {}
+	vars.cheatsheets.list := {}, vars.cheatsheets.enabled := 0
 	Loop, Files, cheat-sheets\*, D
 		vars.cheatsheets.list[A_LoopFileName] := {}
 
@@ -31,6 +31,7 @@
 			vars.cheatsheets[key] := {}
 		ini := IniBatchRead("cheat-sheets\" key "\info.ini")
 		vars.cheatsheets.list[key].enable := !Blank(check := ini.general.enable) ? check : 1
+		vars.cheatsheets.enabled += vars.cheatsheets.list[key].enable
 		vars.cheatsheets.list[key].area := !Blank(check := ini.general["image search"]) ? check : "static"
 		vars.cheatsheets.list[key].type := !Blank(check := ini.general.type) ? check : "images"
 		vars.cheatsheets.list[key].activation := !Blank(check := ini.general.activation) ? check : "hold"

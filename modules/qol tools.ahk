@@ -335,7 +335,8 @@ Lab(mode := "", override := 0)
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
 		pBitmap := Gdip_ResizeBitmap(pBitmap_copy, vars.client.w * 53/128, 10000, 1, 7, 1)
 		Gdip_SaveBitmapToFile(pBitmap, "img\lab.jpg", 100), Gdip_DisposeImage(pBitmap_copy), Gdip_DisposeImage(pBitmap)
-		vars.pics.lab.lab := ""
+		If vars.pics.lab.lab
+			Gdip_DisposeImage(vars.pics.lab.lab), vars.pics.lab.lab := ""
 		Return
 	}
 
