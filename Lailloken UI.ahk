@@ -14,7 +14,6 @@
 
 SetWorkingDir %A_ScriptDir%
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
-;ComObjError(0)
 OnMessage(0x0204, "RightClick")
 StringCaseSense, Locale
 SetKeyDelay, 100
@@ -28,12 +27,17 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {}, ini := IniBatchRead("ini\config.ini")
+vars := {}
+If FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
+	IniIntegrityCheck()
+ini := IniBatchRead("ini\config.ini")
 If ini.versions["apply update"]
+{
 	UpdateCheck(2)
+	IniDelete, ini\config.ini, versions, apply update
+}
 Else If ini.settings["update auto-check"]
 	UpdateCheck()
-IniDelete, ini\config.ini, versions, apply update
 Init_vars()
 Startup()
 Init_screenchecks()
@@ -73,8 +77,14 @@ SetTimer, LogLoop, 1000
 
 If (check := ini.versions["reload settings"])
 {
-	Settings_menu(check)
+	Settings_menu(check,, 0)
 	IniDelete, ini\config.ini, Versions, reload settings
+}
+If vars.ini_integrity
+{
+	MsgBox, % "The tool tried to fix misconfigured config-files in order to resolve an AHK bug, but there was an error.`n`nTo fix this manually, you have to open the files listed below (left) in a text-editor and copy their contents into the fixed files (right), replacing everything inside:`n`n" vars.ini_integrity "`n`nThis list is also stored in ""ini\file check.ini"" in case you want to do it later.`nIf you skip this manual fix, you'll have to reconfigure those features that rely on the files listed above."
+	Reload
+	ExitApp
 }
 Return
 
@@ -142,12 +152,8 @@ Exit()
 
 	If (vars.system.timeout != 0) ;script exited before completing startup routines: return here to prevent storing corrupt/incomplete data in ini-files
 		Return
-	If (Json.Dump(vars.betrayal.board) != "{}")
-	{
-		IniRead, ini, ini\betrayal info.ini, settings, board
-		If (ini != Json.Dump(vars.betrayal.board))
-			IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
-	}
+	If IsObject(vars.betrayal.board) && (vars.betrayal.board0 != Json.Dump(vars.betrayal.board))
+		IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	timer := vars.leveltracker.timer
 	If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
 		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
@@ -246,15 +252,16 @@ HelpToolTip(HWND_key)
 		h := settings.general.fHeight
 	}
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu" ;cont
-	, "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
+	If (check = "donation")
+		check := "settings", donation := 1
+	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	If (check = "lab" && InStr(control, "square"))
 		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name], vars.help.lab[control].1 .= (vars.help.lab[control].1 = vars.lab.room.2) ? " (" LangTrans("lab_movemarker") ")" : ""
-	database := !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
+	database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
 
-	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "seed-explorer" ? 0.5 : 1)
+	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
 	If !tooltip_width
 		Return
 
@@ -280,7 +287,7 @@ HelpToolTip(HWND_key)
 				}
 		}
 	Else
-		For index, text in database[check][control]
+		For index, text in (donation ? database[control].2 : database[check][control])
 		{
 			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 			Gui, %GUI_name%: Font, % font
@@ -354,10 +361,46 @@ IniBatchRead(file, section := "", encoding := "1200")
 	Return ini
 }
 
+IniIntegrityCheck()
+{
+	local
+	global vars
+
+	If !FileExist("ini backup\")
+		FileCopyDir, ini, ini backup, 1
+	Loop, Files, ini\*.ini
+	{
+		If InStr(A_LoopFileName, " backup")
+			Continue
+		FileRead, check, *P1200 %A_LoopFilePath%
+		If !InStr(check, "[") || !InStr(check, "]")
+		{
+			FileRead, check, *P65001 %A_LoopFilePath%
+			If (StrLen(check) > 0) && (!InStr(check, "[") || !InStr(check, "]"))
+			{
+				FileMove, % A_LoopFilePath, % StrReplace(A_LoopFilePath, ".ini", " backup.ini"), 1
+				vars.ini_integrity .= (Blank(vars.ini_integrity) ? "" : "`n") "`t" StrReplace(A_LoopFilePath, ".ini", " backup.ini") " -> " A_LoopFilePath
+			}
+			Else
+			{
+				FileDelete, % A_LoopFilePath
+				If InStr(check, "[") && InStr(check, "]")
+					FileAppend, % check, % A_LoopFilePath, CP1200
+			}
+		}
+	}
+	IniWrite, % A_Now, ini\file check.ini, check, timestamp
+	If vars.ini_integrity
+		IniWrite, % StrReplace(vars.ini_integrity, "`t"), ini\file check.ini, errors
+}
+
 Init_client()
 {
 	local
 	global vars, settings
+
+	If !FileExist("ini\config.ini")
+		IniWrite, % "", ini\config.ini, settings
 
 	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
 	{
@@ -407,12 +450,13 @@ Init_client()
 		}
 
 		;check if client's window settings have changed since the previous session
-		If (ini.settings.fullscreen != vars.client.fullscreen)
+		If ini.settings.fullscreen && (ini.settings.fullscreen != vars.client.fullscreen)
 		{
 			IniWrite, % vars.client.fullscreen, ini\config.ini, Settings, fullscreen
 			IniWrite, 0, ini\config.ini, Settings, remove window-borders
 			IniDelete, ini\config.ini, Settings, custom-resolution
 			IniDelete, ini\config.ini, Settings, custom-width
+			ini.settings["custom-width"] := ini.settings["custom-resolution"] := "", ini.settings["remove window-borders"] := 0
 		}
 	}
 	Else vars.client.stream := 1, vars.client.fullscreen := "true"
@@ -459,7 +503,7 @@ Init_client()
 		}
 	}
 
-	WinGetPos, x, y, w, h, ahk_group poe_window ;get the initial offsets, widths, and heights (separately saved as x0, y0, etc. because of potential recalculation later on)
+	WinGetPos, x, y, w, h, ahk_group poe_window
 	vars.client.x_offset := (vars.client.fullscreen = "false" && !vars.client.borderless) ? vars.system.xborder : 0
 	xTarget := (vars.client.docked = "left") ? vars.monitor.x - vars.client.x_offset : (vars.client.docked = "center") ? vars.monitor.x + (vars.monitor.w - w) / 2 : vars.monitor.x + vars.monitor.w - (w - vars.client.x_offset)
 	yTarget := (vars.client.docked2 = "top") ? vars.monitor.y : (vars.client.docked2 = "center") ? vars.monitor.y + (vars.monitor.h - h)/2 : vars.monitor.y + vars.monitor.h - (h - (vars.client.borderless ? 0 : vars.system.yBorder))
@@ -514,6 +558,8 @@ Init_geforce()
 	local
 	global vars, settings
 
+	If !FileExist("ini\geforce now.ini")
+		IniWrite, % "", ini\geforce now.ini, settings
 	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 10)
 	vars.imagesearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "image-check variation", 25)
 }
@@ -564,7 +610,7 @@ Init_general()
 
 	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
 
-	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "maptracker": {}, "stashninja": {}}
+	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
 }
 
 Init_vars()
@@ -774,7 +820,7 @@ Loop_main()
 	tick_helptooltips += 1
 	If !Mod(tick_helptooltips, 3) || check_help
 	{
-		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square") || check = "donation" && vars.settings.donations[control].2.Count()) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 			HelpTooltip(check_help)
 		Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 			LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
@@ -985,7 +1031,7 @@ SnippingTool(mode := 0)
 		WinSet, trans, 100
 		vars.hwnd.snip := {"main": hwnd}
 
-		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", img\GUI\help.png
+		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
 		If vars.snip.w
 			Gui, snip: Show, % "x" vars.snip.x " y" vars.snip.y " w" vars.snip.w - vars.system.xBorder*2 " h" vars.snip.h - vars.system.caption - vars.system.yBorder*2
@@ -1710,7 +1756,7 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
 			vars.GUI.RemoveAt(A_LoopField)
 }
 
-LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", header_offset := 0, margins := 1)
+LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", header_offset := 0, margins := 1, min_width := 0)
 {
 	local
 	global vars
@@ -1719,7 +1765,21 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 	Gui, panel_dimensions: Margin, 0, 0
 	Gui, panel_dimensions: Color, Black
 	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", % vars.system.font
-	width := 0, height := 0
+	width := min_width ? 9999 : 0, height := 0, string := array.1
+
+	If min_width
+	{
+		array := []
+		Loop, % Max(LLK_InStrCount(string, " "), 1)
+		{
+			outer := A_Index, new_string := ""
+			Loop, Parse, string, %A_Space%
+				new_string .= A_LoopField . (outer = A_Index ? "`n" : " ")
+			If (SubStr(new_string, 0) = "`n")
+				new_string := SubStr(new_string, 1, -1)
+			array.Push(new_string)
+		}
+	}
 
 	For index, val in array
 	{
@@ -1730,11 +1790,14 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 		Gui, panel_dimensions: Font, % "norm s"fSize
 		WinGetPos,,, w, h, ahk_id %hwnd%
 		height := (h > height) ? h : height
-		width := (w > width) ? w : width
+		width := (min_width && w < width || !min_width && w > width) ? w : width
+		min_string := (w = width) ? val : min_string
 	}
 
 	Gui, panel_dimensions: Destroy
 	;width := Format("{:0.0f}", width* 1.25)
+	If min_width
+		Return min_string
 	While Mod(width, 2)
 		width += 1
 	While Mod(height, 2)
