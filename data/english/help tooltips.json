@@ -6,7 +6,7 @@
     ],
     "browser features": [
       "enables additional features when accessing 3rd-party websites via the script",
-      "examples:\n-> chrome calculator: auto-paste stats\n-> poe.db cluster jewels: auto-highlight type"
+      "examples:\n-> chrome calculator: auto-paste stats\n-> poe.db cluster jewels: auto-highlight type\n-> poelab.com: import layout"
     ],
     "capslock toggling": [
       "only uncheck this box if something outside of this script is bound to capslock",
@@ -18,8 +18,7 @@
       "the script will restart upon selection"
     ],
     "toolbar hide": [
-      "permanently hides the button-toolbar. hold tab or move the cursor to the area to make it appear",
-      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+      "permanently hides the toolbar until you hold tab or hover the cursor over its previous position"
     ],
     "font-size": [
       "– and + can be held down, the middle button resets the size"
@@ -49,22 +48,21 @@
     ],
     "client filler": [
       "blacks out the empty screen area around the client window and makes it unclickable",
-      "this black area can be used to place overlays outside the client area and also prevents misclicks on background windows"
+      "this black area can be used to place overlays outside the client area, and it also prevents misclicks on background windows"
     ],
     "window position": [
       "the client has to be docked to a specific spot to ensure that overlays are positioned correctly",
-      "pick a preferred position, the client will be placed there automatically every time"
+      "pick a preferred position, and the client will be placed there automatically every time"
     ],
     "black bars": [
       "the client's aspect ratio is limited to 24:10 and there will be black bars if it's wider",
-      "this option repositions the script's overlays and screen-checks to compensate for this"
+      "this option repositions the script's overlays and screen-checks to compensate for that"
     ],
     "window borders": [
-      "removes borders around the client window",
-      "mostly relevant for 32:9 monitor users"
+      "removes borders around the client window"
     ],
     "write permissions": [
-      "troubleshoot write permission issues on your system if the script can't create/edit files",
+      "use this to troubleshoot write-permission issues on your system if the script can't create/edit files",
       "when these issues are detected, an error message will appear and ask you to run this test",
       "if the test results show errors, move the script-folder to a different location or restart the script as admin, then re-run the test"
     ],
@@ -145,15 +143,15 @@
       "enters edit-mode, which activates the section below and allows you to adjust the frame's settings"
     ],
     "cloneframes delete": [
-      "long-click to delete the clone-frame"
+      "long-click to delete this clone-frame"
     ],
     "cloneframes toggle": [
-      "enables/disables the clone-frame"
+      "enable/disable this clone-frame"
     ],
     "cloneframes corners": [
-      "edit-mode adds colored corners to the source and target frame",
-      "f-keys: snap the corresponding corner to the cursor's position",
-      "hitting esc or <discard> exits edit-mode"
+      "in edit-mode, source and target frames have colored corners that correspond to a mouse-button (boxes on the right)",
+      "click a button to move the corner to the cursor's current position, press <esc> or click <discard> to exit edit-mode",
+      "you can also adjust the values below for fine-tuning and more control"
     ],
     "cloneframes scroll": [
       "for fine-tuning, scroll the mouse-wheel to adjust this value by 1"
@@ -216,7 +214,7 @@
     ],
     "iteminfo league-start": [
       "adds a section where the item's stats are compared to your current gear",
-      "this section replaces the base info section and requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
+      "this section replaces the base-stats section and requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "iteminfo base-info": [
       "adds a section that shows how the item's stats compare to the best-in-class stats",
@@ -235,11 +233,11 @@
       "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo override": [
-      "undesired mods will always be highlighted like t6, except fractured ones"
+      "undesired mods will always be highlighted like t6 ones, except fractured ones"
     ],
     "iteminfo rules": [
-      "single-click solution to mark larger mod groups as un/desired",
-      "the name specifies which mods are affected, the color whether they'll be set to un/desired"
+      "single-click solution to mark larger mod groups as (un)desired",
+      "the name specifies which mods are affected, the color whether they'll be set to (un)desired"
     ],
     "lang unavailable": [
       "this feature is currently not available on non-english clients"
@@ -264,8 +262,7 @@
       "automatically hides the overlay after a delay (except when in towns)",
       "delay: x seconds after switching guide pages",
       "whenever it switches pages, the overlay will be shown again and the delay will be restarted",
-      "it will also be shown while holding tab",
-      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+      "it will also be shown while holding tab"
     ],
     "leveltracker fade mouse": [
       "overlay will be shown while hovering the cursor over its previous area",
@@ -275,7 +272,7 @@
       "notifies you when new gear can be equipped (the guide button will show a green number)",
       "accessed by right-clicking the guide button in the toolbar",
       "while the panel is open, omni-click items to add them to the list",
-      "requires specifying your character name in the <general> settings"
+      "you have to specify your character-name in the <general> section of the settings first"
     ],
     "leveltracker expbar": [
       "slightly moves the guide-overlay up so it doesn't cover the exp-bar"
@@ -323,7 +320,7 @@
       "if a hint is marked with a book icon, you can hold tab to see an illustration"
     ],
     "leveltracker hotkeys enable": [
-      "allows you switch guide-pages via customizable hotkeys"
+      "allows you to switch guide-pages via customizable hotkeys"
     ],
     "leveltracker hotkeys": [
       "type in a key-name and press <enter>",
@@ -343,8 +340,7 @@
     ],
     "maptracker hide": [
       "hides the panel instead of just graying it out whenever tracking is paused (by right-clicking the button in the toolbar)",
-      "check the toolbar-button to see the state of the tracker (it's also grayed out when paused)",
-      "this is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+      "check the toolbar-button to see the state of the tracker (it's also grayed out when paused)"
     ],
     "maptracker mechanics": [
       "logs certain mechanics you encounter while mapping"
@@ -376,7 +372,7 @@
     ],
     "maptracker loot-tracker": [
       "items you ctrl-click into the stash will be logged",
-      "ctrl-rightclick will remove previously added items one by one",
+      "ctrl-right-click will remove previously added items one by one (similar to ctrl-z in text editing)",
       "requires the <stash> image-check to be set up correctly in the <screen-checks> menu"
     ],
     "maptracker kill-tracker": [
@@ -401,7 +397,7 @@
       "click to open the color-palette, right-click to reset to default"
     ],
     "maptracker color leagues": [
-      "used to highlight dates that correspond with a league",
+      "used to highlight dates within a certain league",
       "click to open the color-palette, right-click to reset to default"
     ],
     "mapinfo enable": [
@@ -440,7 +436,7 @@
       "quantity, rarity, pack size, maps, scarabs, currency"
     ],
     "mapinfo mod settings": [
-      "below, you can customize the tiering of specific map mods, without requiring maps that have them",
+      "below, you can customize the tiering of specific map mods",
       "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
       "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
     ],
@@ -477,8 +473,7 @@
     ],
     "notepad opacity": [
       "the opacity of inactive widgets (when tab is not held down)",
-      "0 = inactive widgets are hidden",
-      "zero opacity is primarily a compatibility setting to improve variable refresh-rate (g-sync, freesync) support by hiding overlays as much as possible"
+      "0 = inactive widgets are hidden"
     ],
     "lab enable": [
       "simple lab layout overlay and tracker for casual runs",
@@ -561,8 +556,8 @@
       "3rd-party website for regex-strings"
     ],
     "searchstrings about": [
-      "regex-strings are grouped into use-cases, e.g. gwennen, vendor, stash",
-      "when pressing the omni-key, the script detects the right use-case and displays a context-menu with strings to choose from",
+      "search-strings are grouped into use-cases, e.g. gwennen, harvest, vendor",
+      "when pressing the omni-key, the script detects the right use-case and displays a list with entries to choose from",
       "this detection requires manual image calibration for each use-case"
     ],
     "searchstrings calibrate": [
@@ -617,7 +612,7 @@
       "also shows exalt-equivalent prices when hovering over highlighted items or pricing items"
     ],
     "stash bulk": [
-      "right-clicking an item in a tab will open an additional panel for bulk-sale management",
+      "right-clicking an item in a tab will open an additional panel for (bulk-)sale management",
       "it will only show poe.ninja prices initially:\nclick a currency icon to view open listings on the bulk exchange, or right-click it to refresh the data",
       "pick a price from the list, and the panel will offer applicable bulk configurations to scroll through and pick from"
     ],
@@ -651,7 +646,7 @@
     ],
     "update check": [
       "checks for updates on script launch and in the background while running",
-      "if there is an update available, the toolbar will turn green"
+      "if there is an update available, the main toolbar will turn green"
     ],
     "update hotfix": [
       "a hotfix release is available, you can download it below",
@@ -849,7 +844,7 @@
     ],
     "logviewer header e-exp": [
       "effective exp gained in a map (i.e. after penalties), based on your level and the monsters'",
-      "you have to specify your character's name in the <general> section of the settings menu first"
+      "you have to specify your character's name in the <general> section of the settings first"
     ],
     "logviewer search deaths": [
       "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
@@ -971,13 +966,13 @@
   },
   "searchstrings": {
     "config entry-about": [
-      "use-cases have their own entries that will be listed in the context-menu",
-      "type in a descriptive name for the string(s) and press <enter>"
+      "create a custom list of strings for this use-case by adding entries:\ntype in a descriptive name for the entry and press <enter>",
+      "example-list for harvest crafting:\n- sacrifice corrupted map\n- sacrifice div card\n- change resistance"
     ],
     "config entry-list": [
       "click an entry to edit its string(s), long-click <del> to remove it",
-      "each line in the edit-field is an individual string",
-      "adding multiple lines turns the entry into a scrollable search"
+      "paste the string(s) into the edit-field on the right:\nyou can add multiple strings per entry by pasting them into separate lines",
+      "when activating an entry with multiple strings, you can scroll the mouse-wheel to paste them into the game one after the other"
     ]
   },
   "seed-explorer": {
@@ -990,6 +985,23 @@
     "download": [
       "the required databases have not been downloaded yet",
       "click this button to start the download"
+    ],
+    "legion notables": [
+      "the list below shows every legion notable of the current jewel type",
+      "hover over notables to see their effects, right-click them to mark them as desired"
+    ],
+    "legion notables socket": [
+      "the list below shows the resulting modifications after slotting this jewel into the selected jewel slot",
+      "hover over notables to see their effects,\nclick them to highlight their position on the in-game skilltree,\nright-click them to mark them as desired"
+    ],
+    "socket": [
+      "the list below shows the regular notables around the currently-selected jewel socket",
+      "click a notable to highlight it on the in-game skilltree, right-click it to mark it as allocated",
+      "allocated notables are highlighted green, or yellow if the current seed turns it into a desired legion notable"
+    ],
+    "tree": [
+      "click a jewel socket to load it into the explorer above, or click it again to deselect it",
+      "each socket may be labeled with numbers if the seed results in desired legion notables:\n- teal labels show the number of desired legion notables around the socket\n- yellow labels show the number of allocated notables that will turn into desired legion notables"
     ],
     "update": [
       "click this button to check for database updates"
