@@ -61,6 +61,7 @@
 		ms_betrayal-info		=	"betrayal-info"
 		ms_cheat-sheets			=	"cheat-sheets"
 		ms_clone-frames			=	"clone-frames"
+		ms_donations			=	"donations"
 		ms_hotkeys			=	"hotkeys"
 		ms_item-info			=	"item-info"
 		ms_leveling tracker		=	"act-tracker"
@@ -161,6 +162,8 @@
 		global_price			=	"price"
 		global_all			=	"all"
 		global_confirm			=	"confirm"
+		global_mouse			=	"l#m#r"		;## left, middle, right mouse-button
+		global_coordinates		=	"coordinates"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -515,8 +518,8 @@
 ;## these strings are displayed/required in the "general" section of the settings menu
 		m_general_settings		=	"script settings:"
 		m_general_kill			=	"exit x minutes after closing the game:"
-		m_general_browser		=	"enable browser features"
-		m_general_capslock		=	"enable capslock-toggling"			;## by default, AHK will toggle capslock to off whenever it sends key-strokes
+		m_general_browser		=	"browser features"
+		m_general_capslock		=	"capslock-toggling"		;## by default, AHK will toggle capslock back and forth whenever it sends key-strokes
 		m_general_character		=	"active character:"
 		m_general_level			=	"lvl"
 		m_general_client		=	"game-client settings:"
@@ -542,7 +545,7 @@
 		m_general_start			=	"start test"
 		m_general_admin			=	"restart script as admin"
 		m_general_toolbar		=	"toolbar-size:"
-		m_general_hidetoolbar		=	"permanently hide the toolbar"
+		m_general_hidetoolbar		=	"hide the toolbar when not in use"
 
 
 

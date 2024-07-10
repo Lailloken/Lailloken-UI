@@ -3,6 +3,9 @@
 	local
 	global vars, settings
 
+	If !FileExist("ini\screen checks (" vars.client.h "p).ini")
+		IniWrite, % "", % "ini\screen checks (" vars.client.h "p).ini", gamescreen
+
 	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
 		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
 	Else settings.general.blackbars := 0
@@ -109,7 +112,9 @@ Screenchecks_ImageRecalibrate(mode := "", check := "")
 			text .= (!text ? " " : "`n ") LangTrans("screen_snipinstructions", A_Index) " "
 		vars.hwnd.snipping_tool := {"main": hwnd_gui}, align := "left", LLK_PanelDimensions([text], settings.general.fSize * 2, wText, hText)
 		Gui, LLK_snip: Add, Text, % "x0 y" height//2 - hText//2 " w" width " h" hText " BackgroundTrans Left HWNDhwnd_text", % text
-		Gui, LLK_snip: Add, Pic, % "x0 y0 wp h" height " BackgroundTrans", img\GUI\square_black_trans.png
+		If !vars.pics.global.square_black_trans
+			vars.pics.global.square_black_trans := LLK_ImageCache("img\GUI\square_black_trans.png")
+		Gui, LLK_snip: Add, Pic, % "x0 y0 wp h" height " BackgroundTrans", % "HBitmap:*" vars.pics.global.square_black_trans
 		Gui, LLK_snip: Add, Pic, % "xp yp wp hp", HBitmap:*%hBitmap%*
 		Gui, LLK_snip: Show, NA x10000 y10000 w%width% h%height%
 		WinGetPos, xPos, yPos, width, height, ahk_id %hwnd_gui%

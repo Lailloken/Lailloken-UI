@@ -335,6 +335,8 @@ Lab(mode := "", override := 0)
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
 		pBitmap := Gdip_ResizeBitmap(pBitmap_copy, vars.client.w * 53/128, 10000, 1, 7, 1)
 		Gdip_SaveBitmapToFile(pBitmap, "img\lab.jpg", 100), Gdip_DisposeImage(pBitmap_copy), Gdip_DisposeImage(pBitmap)
+		If vars.pics.lab.lab
+			Gdip_DisposeImage(vars.pics.lab.lab), vars.pics.lab.lab := ""
 		Return
 	}
 
@@ -396,19 +398,26 @@ Lab(mode := "", override := 0)
 	Gui, %GUI_name%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.lab.main, hwnd_old2 := vars.hwnd.lab.button, vars.hwnd.lab := {"main": lab}
 
+	If !IsObject(vars.pics.lab)
+	{
+		vars.pics.lab := {}
+		For index, val in ["square_red_trans", "square_purple_trans", "square_green_trans", "square_trans", "lab1", "lab2", "lab3"]
+			vars.pics.lab[val] := LLK_ImageCache("img\GUI\" val ".png")
+	}
+
 	If vars.lab.outdated
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
 		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_outdated") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.date "`n" LangTrans("lab_outdated", 3) " " SubStr(A_NowUTC, 1, 4) "-" SubStr(A_NowUTC, 5, 2) "-" SubStr(A_NowUTC, 7, 2)
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
-		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, img\GUI\square_red_trans.png
+		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, % "HBitmap:*" vars.pics.lab.square_red_trans
 	}
 	Else If !InStr(vars.log.areaID, "airlock") && !Blank(vars.lab.compass.difficulty) && (difficulties[vars.log.arealevel] != vars.lab.compass.difficulty)
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
 		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_mismatch") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.difficulty "`n" LangTrans("lab_mismatch", 2) " " difficulties[vars.log.arealevel]
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
-		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, img\GUI\square_red_trans.png
+		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, % "HBitmap:*" vars.pics.lab.square_red_trans
 		vars.lab.mismatch := 1
 	}
 
@@ -419,14 +428,18 @@ Lab(mode := "", override := 0)
 		If !Blank(LLK_HasVal(vars.lab.exits.numbers, index)) && (vars.lab.exits.numbers.Count() > 1) && !(vars.lab.room.2 = "aspirant's trial" && index > vars.lab.room.1) ;&& !(vars.lab.room.1 > index)
 			Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center x"(room.x + 12) * scale - dim/2 " w"dim*2 " y"(room.y + 48) * scale - text_height, % SubStr(room.name, 1, 2) " " SubStr(room.name, InStr(room.name, " ") + 1, 2)
 		If (vars.lab.room.1 = index)
-			Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_purple_trans.png
+			Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, % "HBitmap:*" vars.pics.lab.square_purple_trans
 		Else If vars.lab.rooms[index].Count() && vars.lab.rooms[index].name
-			Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_green_trans.png
-		Else Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, img\GUI\square_trans.png
+			Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, % "HBitmap:*" vars.pics.lab.square_green_trans
+		Else Gui, %GUI_name%: Add, Pic, % "BackgroundTrans HWNDhwnd x"(room.x + 12) * scale " w"dim " h"dim " y"(room.y + 48) * scale, % "HBitmap:*" vars.pics.lab.square_trans
 		vars.hwnd.lab["square_"index] := vars.hwnd.help_tooltips["lab_square"room.id] := hwnd
 	}
 	If FileExist("img\lab.jpg")
-		Gui, %GUI_name%: Add, Pic, % "x0 y0", img\lab.jpg
+	{
+		If !vars.pics.lab.lab
+			vars.pics.lab.lab := LLK_ImageCache("img\lab.jpg")
+		Gui, %GUI_name%: Add, Pic, % "x0 y0", % "HBitmap:*" vars.pics.lab.lab
+	}
 	Else
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
@@ -446,7 +459,7 @@ Lab(mode := "", override := 0)
 	Gui, %GUI_name2%: Margin, 0, 0
 	Gui, %GUI_name2%: Font, % "s"vars.lab.custom_font " cWhite", % vars.system.font
 
-	Gui, %GUI_name2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "img\GUI\lab" (file_missing || vars.lab.outdated || vars.lab.mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1") ".png"
+	Gui, %GUI_name2%: Add, Pic, % "h"dim*0.95 " w-1 HWNDhwnd", % "HBitmap:*" vars.pics.lab["lab" (file_missing || vars.lab.outdated || vars.lab.mismatch ? "3" : Blank(vars.lab.compass.difficulty) ? "2" : "1")]
 	vars.hwnd.lab.button := lab2, vars.hwnd.help_tooltips["lab_button"] := hwnd
 	Gui, %GUI_name2%: Show, % "NA x"x " y"y
 	LLK_Overlay(lab, "show",, GUI_name), LLK_Overlay(lab2, "show",, GUI_name2)

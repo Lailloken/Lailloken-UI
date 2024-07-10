@@ -17,8 +17,8 @@
 	Loop 3
 		settings.betrayal.colors[A_Index] := !Blank(check := ini.settings["rank " A_Index " color"]) ? check : settings.betrayal.dColors[A_Index]
 
-	If !IsObject(vars.betrayal.board) && ini.settings.board
-		vars.betrayal.board := Json.Load(ini.settings.board)
+	If !IsObject(vars.betrayal.board) && (SubStr(ini.settings.board, 1, 1) . SubStr(ini.settings.board, 0) = "{}")
+		vars.betrayal.board := Json.Load(ini.settings.board), vars.betrayal.board0 := ini.settings.board
 
 	vars.betrayal.members := Json.Load(LLK_FileRead("data\" file "\Betrayal.json", 0, "65001")), vars.betrayal.members_localized := {}, vars.betrayal.divisions_localized := {}
 	For key in vars.betrayal.members ;create an object with localized names (solely for alphabetical ordering)
@@ -30,7 +30,6 @@
 
 	If !FileExist("ini\betrayal info.ini")
 	{
-		IniWrite, % "", ini\betrayal info.ini, settings
 		IniWrite, % settings.general.fSize, ini\betrayal info.ini, Settings, font-size
 		For member in vars.betrayal.members
 			IniWrite, transportation=0`nfortification=0`nresearch=0`nintervention=0, ini\betrayal info.ini, % member

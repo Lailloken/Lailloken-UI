@@ -3,6 +3,9 @@
 	local
 	global vars, settings, db
 
+	If !FileExist("ini\hotkeys.ini")
+		IniWrite, % "", ini\hotkeys.ini, settings
+
 	settings.hotkeys := {}, ini := IniBatchRead("ini\hotkeys.ini")
 	settings.hotkeys.rebound_alt := !Blank(check := ini.settings["advanced item-info rebound"]) ? check : 0
 	settings.hotkeys.item_descriptions := !Blank(check := ini.hotkeys["item-descriptions key"]) ? check : ""
@@ -56,7 +59,7 @@ HotkeysESC()
 	global vars, settings
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
-		CloneframesSettingsRefresh()
+		CloneframesSettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
 	Else If WinExist("ahk_id " vars.hwnd.stash_index.main)
 		Stash_PriceIndex("destroy")
 	Else If WinExist("ahk_id " vars.hwnd.stash.main)
@@ -483,15 +486,11 @@ RButton::IteminfoGearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.genera
 WheelUp::
 WheelDown::CloneframesSettingsApply(vars.general.cMouse, A_ThisHotkey)
 
-#If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via f-keys
+#If vars.hwnd.cloneframe_borders.main && (vars.general.wMouse != vars.hwnd.settings.main) && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via clicks
 
-F1::
-F2::
-F3::CloneframesSnap(A_ThisHotkey)
-
-F1 UP::
-F2 UP::
-F3 UP::vars.cloneframes.last := ""
+LButton::
+RButton::
+MButton::CloneframesSnap(A_ThisHotkey)
 
 #If WinActive("ahk_id "vars.hwnd.snip.main) ;moving the snip-widget via arrow keys
 

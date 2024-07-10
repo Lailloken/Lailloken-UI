@@ -6,10 +6,9 @@
 	settings.features.maptracker := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini\config.ini", "Features", "enable map tracker", 0)
 
 	If !FileExist("ini\map tracker.ini")
-	{
 		IniWrite, % "", ini\map tracker.ini, settings
+	If !FileExist("ini\map tracker log.ini")
 		IniWrite, % "", ini\map tracker log.ini, blank
-	}
 
 	If !IsObject(settings.maptracker)
 		settings.maptracker := {}
@@ -189,7 +188,6 @@ MaptrackerDateSelect()
 	WinSet, TransColor, 800080
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Font, % "s"settings.maptracker.fSize2 + 2 " cWhite", % vars.system.font
-	;Gui, %GUI_name%: Add, Pic, % "BackgroundTrans w" wLogs " h" hLogs, % "img\GUI\square_black.png"
 
 	hwnd_old := vars.hwnd.maptracker_dates.main, vars.hwnd.maptracker_dates := {"main": maptracker_dates, "toggle": toggle}, column := []
 

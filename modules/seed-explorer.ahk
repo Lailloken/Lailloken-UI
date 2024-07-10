@@ -102,7 +102,7 @@ Legion(cHWND := "")
 			WinActivate, ahk_group poe_window
 			WinWaitActive, ahk_group poe_window
 			If vars.legion.nodes.HasKey(control)
-				Clipboard := "^("StrReplace(control, " ", "\s") ")"
+				Clipboard := "^(" StrReplace(StrReplace(control, "ash frost and storm", "ash, frost and storm"), " ", "\s") ")"
 			Else
 			{
 				For index, val in LLK_HasVal(vars.legion.data.3, vars.legion.decoder_invert[control],,, 1)
@@ -197,8 +197,12 @@ LegionGUI()
 	If vars.legion.socket
 	{
 		Gui, %GUI_name%: Font, % "underline bold"
-		Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_notables")
+		Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth, % LangTrans("seed_notables")
 		Gui, %GUI_name%: Font, % "norm"
+
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd x+" settings.legion.fWidth/2, % "HBitmap:*" vars.pics.global.help
+		vars.hwnd.help_tooltips["seed-explorer_legion notables socket"] := hwnd
+
 		mods := {}
 		For index, node in db.legion.sockets[vars.legion.socket].nodes
 			text := db.legion.jewels[vars.legion.jewel]["_decoder"][vars.legion.data.3[vars.legion.nodes[node]]], mods[text] := mods[text] ? mods[text] + 1 : 1
@@ -212,7 +216,9 @@ LegionGUI()
 	}
 
 	Gui, %GUI_name%: Add, Text, % "x0 y0 Border BackgroundTrans w"vars.legion.width " h"vars.monitor.h - vars.legion.width + 1
-	Gui, %GUI_name%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", img\GUI\legion_treemap.jpg
+	If !vars.pics.legion.treemap
+		vars.pics.legion.treemap := LLK_ImageCache("img\GUI\legion_treemap.jpg")
+	Gui, %GUI_name%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", % "HBitmap:*" vars.pics.legion.treemap
 	vars.hwnd.legion.treemap := hwnd
 
 	Gui, %GUI_name%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % LangTrans("global_font") " "
@@ -224,8 +230,11 @@ LegionGUI()
 	vars.hwnd.legion.font_plus := hwnd
 
 	Gui, %GUI_name%: Font, % "underline bold"
-	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
+	Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
 	Gui, %GUI_name%: Font, % "norm"
+
+	Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd x+" settings.legion.fWidth/2, % "HBitmap:*" vars.pics.global.help
+	vars.hwnd.help_tooltips["seed-explorer_" (vars.legion.socket ? "socket" : "legion notables")] := hwnd
 
 	If !vars.legion.socket
 	{
@@ -370,6 +379,9 @@ LegionTree()
 	Gui, %GUI_name%: Font, % "s"vars.legion.fSize_tree " cWhite bold", % vars.system.font
 	hwnd_old := vars.hwnd.legion_tree.main, vars.hwnd.legion_tree := {"main": tree}
 
+	Gui, %GUI_name%: Add, Pic, % "x" settings.legion.fWidth//2 " y" settings.legion.fWidth//2 " HWNDhwnd h" settings.legion.fHeight " w-1", % "HBitmap:*" vars.pics.global.help
+	vars.hwnd.help_tooltips["seed-explorer_tree"] := hwnd
+
 	For socket, val in db.legion.sockets
 	{
 		hAqua := 0, hYellow := 0, mods := {}
@@ -381,10 +393,15 @@ LegionTree()
 			hAqua += settings.legion.highlights[mod] ? count : 0
 		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center cYellow w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % hYellow ? hYellow : ""
 		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center cAqua w"vars.legion.fHeight_tree*1.8 " x"val.x * vars.legion.width*2 " y+-"vars.legion.fHeight_tree*0.2, % hAqua ? hAqua : ""
-		Gui, %GUI_name%: Add, Pic, % "BackgroundTrans gLegion HWNDhwnd h"vars.legion.fHeight_tree*1.8 " w-1 x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2, % "img\GUI\legion_socket"(socket = vars.legion.socket ? 1 : 0) ".jpg"
+		If !vars.pics.legion.socket1
+			vars.pics.legion.socket1 := LLK_ImageCache("img\GUI\legion_socket1.jpg"), vars.pics.legion.socket0 := LLK_ImageCache("img\GUI\legion_socket0.jpg")
+		Gui, %GUI_name%: Add, Pic, % "BackgroundTrans gLegion HWNDhwnd h"vars.legion.fHeight_tree*1.8 " w-1 x"val.x * vars.legion.width*2 " y"val.y * vars.legion.width*2
+		, % "HBitmap:*" vars.pics.legion["socket" (socket = vars.legion.socket ? 1 : 0)]
 		vars.hwnd.legion_tree["socket_"socket] := hwnd
 	}
-	Gui, %GUI_name%: Add, Pic, % "x0 y0 Border HWNDhwnd w"vars.legion.width*2 - 3 " h-1", img\GUI\legion_treemap.jpg
+	If !vars.pics.legion.treemap
+		vars.pics.legion.treemap := LLK_ImageCache("img\GUI\legion_treemap.jpg")
+	Gui, %GUI_name%: Add, Pic, % "x0 y0 Border HWNDhwnd w"vars.legion.width*2 - 3 " h-1", % "HBitmap:*" vars.pics.legion.treemap
 	vars.hwnd.legion_tree.map := hwnd
 	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x " y" vars.monitor.y + vars.monitor.h - vars.legion.width*2
 	LLK_Overlay(tree, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.legion.wait := 0

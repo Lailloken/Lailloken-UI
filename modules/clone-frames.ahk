@@ -15,10 +15,7 @@
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
 		For cloneframe in vars.cloneframes.list
-		{
 			Gui, % StrReplace(cloneframe, " ", "_") ": Destroy"
-			vars.hwnd.Delete(cloneframe)
-		}
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
@@ -273,17 +270,17 @@ CloneframesSnap(hotkey)
 	local
 	global vars, settings
 
-	If vars.cloneframes.last
-		Return
+	;If vars.cloneframes.last
+	;	Return
 	name := vars.cloneframes.editing, vars.cloneframes.last := A_TickCount
 
 	Switch hotkey
 	{
-		Case "F1":
+		Case "LButton":
 			;vars.cloneframes.list[name].xSource := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].ySource := vars.general.yMouse - vars.monitor.y
 			GuiControl,, % vars.hwnd.settings.xSource, % vars.general.xMouse - vars.monitor.x
 			GuiControl,, % vars.hwnd.settings.ySource, % vars.general.yMouse - vars.monitor.y
-		Case "F2":
+		Case "RButton":
 			If (vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource <= 0) || (vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource <= 0) ;prevent negative widths/heights
 			{
 				LLK_ToolTip(LangTrans("m_clone_errorborders"),,,,, "red")
@@ -293,9 +290,10 @@ CloneframesSnap(hotkey)
 			;vars.cloneframes.list[name].height := vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
 			GuiControl,, % vars.hwnd.settings.width, % vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
 			GuiControl,, % vars.hwnd.settings.height, % vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
-		Case "F3":
+		Case "MButton":
 			;vars.cloneframes.list[name].xTarget := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].yTarget := vars.general.yMouse - vars.monitor.y
 			GuiControl,, % vars.hwnd.settings.xTarget, % vars.general.xMouse - vars.monitor.x
 			GuiControl,, % vars.hwnd.settings.yTarget, % vars.general.yMouse - vars.monitor.y
 	}
+	KeyWait, %hotkey%
 }

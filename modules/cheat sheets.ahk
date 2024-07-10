@@ -926,7 +926,7 @@ CheatsheetMenu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.c
 
 		Gui, %GUI_name%: Font, underline
 		Gui, %GUI_name%: Add, Text, % "y+"settings.general.fHeight//2 " Section xs", % LangTrans("cheat_manage")
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", img\GUI\help.png
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd0", % "HBitmap:*" vars.pics.global.help
 		Gui, %GUI_name%: Font, norm
 		Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd1 Center w"settings.general.fWidth*2, % "00"
 		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 " Border gCheatsheetMenu2 HWNDhwnd", % " " LangTrans("global_paste") " "

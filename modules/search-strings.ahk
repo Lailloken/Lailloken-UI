@@ -142,7 +142,7 @@ StringMenu(name)
 	Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd x"settings.general.fWidth/2, % LangTrans("global_newentry")
 	WinGetPos,, yPos,,, ahk_id %hwnd%
 	Gui, %GUI_name%: Font, % "norm s"settings.general.fSize - 2
-	Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd0", img\GUI\help.png
+	Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd0", % "HBitmap:*" vars.pics.global.help
 	Gui, %GUI_name%: Add, Edit, % "xs w"settings.general.fWidth*15 " cBlack HWNDhwnd",
 	vars.hwnd.help_tooltips["searchstrings_config entry-about"] := hwnd0, vars.hwnd.searchstrings_menu.name := hwnd
 	WinGetPos, xPos,, width,, ahk_id %hwnd%
@@ -157,7 +157,7 @@ StringMenu(name)
 			Gui, %GUI_name%: Font, % "bold underline s"settings.general.fSize
 			Gui, %GUI_name%: Add, Text, % "Section xs y+"settings.general.fHeight*0.8 " Center BackgroundTrans", % LangTrans("global_savedentry")
 			Gui, %GUI_name%: Font, norm
-			Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd", img\GUI\help.png
+			Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 			WinGetPos, xPos,, width, height, ahk_id %hwnd%
 			vars.hwnd.help_tooltips["searchstrings_config entry-list"] := hwnd, xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max, added := 0, header := 1
 		}
