@@ -185,7 +185,7 @@ Settings_cheatsheets()
 	vars.hwnd.help_tooltips["settings_cheatsheets types"] := hwnd0, vars.hwnd.settings.type := hwnd, vars.hwnd.help_tooltips["settings_cheatsheets types|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Text, % "ys hp Border gSettings_cheatsheets2 HWNDhwnd", % " " LangTrans("global_add") " "
-	vars.hwnd.settings.add := hwnd, handle := "", count := 0
+	vars.hwnd.settings.add := hwnd, handle := ""
 
 	For cheatsheet in vars.cheatsheets.list
 	{
@@ -198,7 +198,6 @@ Settings_cheatsheets()
 
 		If !IsNumber(vars.cheatsheets.list[cheatsheet].enable)
 			vars.cheatsheets.list[cheatsheet].enable := LLK_IniRead("cheat-sheets\"cheatsheet "\info.ini", "general", "enable", 1)
-		count += vars.cheatsheets.list[cheatsheet].enable
 		color := !vars.cheatsheets.list[cheatsheet].enable ? " cGray" : !FileExist("cheat-sheets\"cheatsheet "\[check].*") ? " cRed" : "", handle .= "|"
 		Gui, %GUI%: Add, Text, % "xs Section border HWNDhwnd y+"settings.general.fSize*0.4 color (vars.cheatsheets.list[cheatsheet].enable ? " gSettings_cheatsheets2" : ""), % " " LangTrans("global_calibrate") " "
 		vars.hwnd.settings["calibrate_"cheatsheet] := hwnd, vars.hwnd.help_tooltips["settings_cheatsheets calibrate"handle] := (color = " cGray") ? "" : hwnd
@@ -215,8 +214,6 @@ Settings_cheatsheets()
 		Gui, %GUI%: Add, Checkbox, % "ys gSettings_cheatsheets2 HWNDhwnd c"(!vars.cheatsheets.list[cheatsheet].enable ? "Gray" : "White") " Checked"vars.cheatsheets.list[cheatsheet].enable, % cheatsheet
 		vars.hwnd.settings["enable_"cheatsheet] := vars.hwnd.help_tooltips["settings_cheatsheets toggle"handle] := hwnd
 	}
-	GuiControl, % "+c" (!count ? "Gray" : "White"), % vars.hwnd.settings["cheat-sheets"]
-	GuiControl, % "movedraw", % vars.hwnd.settings["cheat-sheets"]
 }
 
 Settings_cheatsheets2(cHWND)
@@ -2225,7 +2222,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 			|| (WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")) && InStr("item-info, map-info", val)
 				continue
 			color := (val = "updater" && IsNumber(vars.update.1) && vars.update.1 < 0) ? " cRed" : (val = "updater" && IsNumber(vars.update.1) && vars.update.1 > 0) ? " cLime" : ""
-			color := feature_check[val] && !settings.features[feature_check[val]] || (val = "clone-frames") && !vars.cloneframes.enabled || (val = "cheat-sheets") && !vars.cheatsheets.enabled || (val = "search-strings") && !vars.searchstrings.enabled ? " cGray" : color, color := feature_check2[val] && (settings.general.lang_client = "unknown") ? " cGray" : color
+			color := feature_check[val] && !settings.features[feature_check[val]] || (val = "clone-frames") && !vars.cloneframes.enabled || (val = "search-strings") && !vars.searchstrings.enabled ? " cGray" : color, color := feature_check2[val] && (settings.general.lang_client = "unknown") ? " cGray" : color
 			color := (val = "donations") ? " cCCCC00" : color
 			Gui, %GUI_name%: Add, Text, % "Section xs y+-1 wp BackgroundTrans Border gSettings_menu HWNDhwnd 0x200 h"settings.general.fHeight*1.4 color, % " " LangTrans("ms_" val) " "
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
