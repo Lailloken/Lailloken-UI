@@ -192,7 +192,7 @@ GeartrackerGUI(mode := "")
 
 		Gui, %GUI_name%: Add, Text, % "Section"(Blank(settings.general.character) || !vars.log.level ? " cRed" : ""), % LangTrans("lvltracker_gearlist") " " (Blank(settings.general.character) ? "unknown" : settings.general.character) " (" vars.log.level ")"
 		Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize - 2
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd0", img\GUI\help.png
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd0", % "HBitmap:*" vars.pics.global.help
 		Gui, %GUI_name%: Add, Checkbox, % "xs Section gGeartracker HWNDhwnd checked"vars.leveltracker.gearfilter, % LangTrans("lvltracker_gear5levels")
 		vars.hwnd.geartracker.filter := hwnd, vars.hwnd.help_tooltips["geartracker_about"] := hwnd0
 		ControlGetPos, x0, y0, w0, h0,, % "ahk_id "hwnd
@@ -957,7 +957,7 @@ LeveltrackerScreencapMenu()
 	Gui, %GUI_name%: Font, % "bold underline s"settings.general.fSize
 	Gui, %GUI_name%: Add, Text, % "xs Section HWNDanchor x"settings.general.fWidth/2, % LangTrans("global_skilltree")
 	Gui, %GUI_name%: Font, norm
-	Gui, %GUI_name%: Add, Picture, % "ys hp w-1 HWNDhwnd", img\GUI\help.png
+	Gui, %GUI_name%: Add, Picture, % "ys hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 	vars.hwnd.help_tooltips["leveltracker_skilltree-cap about"] := hwnd
 
 	Loop, % files + 1
@@ -1004,7 +1004,7 @@ LeveltrackerScreencapMenu()
 
 	Gui, %GUI_name%: Font, bold underline
 	Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.general.fHeight*0.8, % LangTrans("global_ascendancy")
-	Gui, %GUI_name%: Add, Picture, % "ys hp w-1 HWNDhwnd69", img\GUI\help.png
+	Gui, %GUI_name%: Add, Picture, % "ys hp w-1 HWNDhwnd69", % "HBitmap:*" vars.pics.global.help
 	Gui, %GUI_name%: Font, norm
 	Loop 5
 	{
@@ -1180,7 +1180,9 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 				If InStr(part, "(img:")
 				{
 					img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1)
-					Gui, %GUI_name_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(InStr(step, "(hint)") ? 0 : settings.leveltracker.fWidth/2)) " BackgroundTrans "(InStr(step, "(hint)") ? "hp-2" : "h" settings.leveltracker.fHeight - 2) " w-1", % "img\GUI\leveling tracker\"img ".png"
+					If !vars.pics.leveltracker[img]
+						vars.pics.leveltracker[img] := LLK_ImageCache("img\GUI\leveling tracker\" img ".png")
+					Gui, %GUI_name_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(InStr(step, "(hint)") ? 0 : settings.leveltracker.fWidth/2)) " BackgroundTrans "(InStr(step, "(hint)") ? "hp-2" : "h" settings.leveltracker.fHeight - 2) " w-1", % "HBitmap:*" vars.pics.leveltracker[img]
 				}
 				Else
 				{
@@ -1205,7 +1207,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 				Loop, Files, img\GUI\leveling tracker\hints\*.jpg
 					If InStr(step, StrReplace(A_LoopFileName, ".jpg"))
 					{
-						Gui, %GUI_name_main%: Add, Picture, % "ys hp w-1 x+" settings.leveltracker.fWidth, img\GUI\help.png
+						Gui, %GUI_name_main%: Add, Picture, % "ys hp w-1 x+" settings.leveltracker.fWidth, % "HBitmap:*" vars.pics.global.help
 						Break
 					}
 		}

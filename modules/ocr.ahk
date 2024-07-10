@@ -3,6 +3,13 @@
 	local
 	global vars, settings, db, Json
 
+	If !FileExist("ini\ocr.ini")
+		IniWrite, % "", ini\ocr.ini, settings
+	If !FileExist("ini\ocr - altars.ini")
+		IniWrite, % "", ini\ocr - altars.ini, settings
+	If !FileExist("ini\ocr - vaal areas.ini")
+		IniWrite, % "", ini\ocr - vaal areas.ini, settings
+
 	ini := IniBatchRead("ini\ocr.ini"), settings.OCR := {"profile": 1} ;in case profiles are desired in the future
 	settings.OCR.allow := (!Blank(check := ini.settings["allow ocr"]) ? check : 0) * (vars.client.h > 720 ? 1 : 0)
 	settings.OCR.hotkey := !Blank(check := ini.settings["hotkey"]) ? check : ""
