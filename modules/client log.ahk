@@ -193,7 +193,6 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 						parse := !parse ? A_Index : parse, level .= A_LoopField
 				}
 				level0 := SubStr(level0, parse), level0 := SubStr(level0, InStr(level0, " ") + 1), character_class := LLK_StringCase(SubStr(level0, 1, InStr(level0, " ") - 1))
-				whois := 1
 			}
 
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
