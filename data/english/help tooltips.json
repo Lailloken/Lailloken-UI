@@ -921,7 +921,7 @@
   "maptrackernotes": {
     "help": [
       "type in custom notes and press <enter>: include \"X#\" before the note to limit it to X runs",
-      "omni-click items to add them to the notes:\nmap fragments are highlighted yellow and limited to 4",
+      "omni-click items to add them to the notes:\nmap-device items are highlighted yellow and limited to 4",
       "long-click a note to remove it, or the header to clear everything"
     ]
   },
