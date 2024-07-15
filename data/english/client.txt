@@ -56,7 +56,7 @@
 ;## these are some global system-settings that are dependant on the target language
 		system_font			=	"Fontin SmallCaps"		;## except for Fontin SmallCaps, the specified font-type has to be installed on the system
 		system_fullstop			=	"."				;## the type of punctuation mark the language uses at the end of a sentence (e.g. Japanese uses a different fullstop)
-		system_parenthesis		=	"("				;## the level-up message in the game's client.txt log-file "CHARACTER (CLASS) is now Level X" uses a different parenthesis in Japanese at least
+		system_parenthesis		=	"(#)"				;## the level-up message in the game's client.txt log-file "CHARACTER (CLASS) is now Level X" uses a different parenthesis in Japanese at least
 		system_poedb_lang		=	"us"				;## which language to use on poedb (available: tw, cn, kr, us, jp, ru, po, th, fr, de, es)
 		system_poedb_lang		=	"modifiers"			;## it's the localized name of this section on poeDB: https://poedb.tw/us/Modifiers
 
@@ -114,7 +114,8 @@
 ;## REMINDERS: case-sensitivity, match text in chat-window
 		log_location			=	"0"				;## certain languages may highlight location-names with characters that need to be removed (e.g. German: 'Hohenpforte')
 		log_enter			=	"You have entered"		;## as mentioned earlier, this key may need placeholders depending on the target language
-		log_level			=	"is now level"
+		log_level			=	"is now level"			;## when your character levels up
+		log_whois			=	"is a level # in the"		;## using the /whois in-game command, e.g. "Lailloken is a level 69 Champion in the Standard League..."
 		log_slain			=	"has been slain"		;## when your character dies
 		log_suicide			=	"has committed suicide"		;## when your character dies from self-damage
 		log_killed			=	"You have killed # monsters"	;## when activating the "/kills" command
@@ -203,10 +204,6 @@
 ;## NOTE: it's possible that there's a difference in the ALT-CTRL-C text and the easier-to-find text (e.g. German tooltips display "ss" whenever the ALT-CTRL-C text contains "ß"), so be aware of that if the target language has such variations
 
 
-;## these are some item-names the tool requires to identify what kind of item was clicked
-		items_voidstone			=	"Voidstone"
-
-
 ;## these strings are displayed in the in-game tooltip when hovering over an item
 		items_unidentified		=	"Unidentified"
 		items_unmodifiable		=	"Unmodifiable"						;## example: memories (atlas item), sanctum relics
@@ -283,6 +280,7 @@
 		items_currency			=	"Currency"
 ;## -----------------------------------------------------------------------------------
 		items_class			=	"Item Class:"			;## important: every string in the following lines has to match the one in the "Item Class: XYZ" line in the clipboard-info
+		items_map fragments		=	"Map Fragments"
 		items_heist brooches		=	"Heist Brooches"
 		items_heist cloaks		=	"Heist Cloaks"
 		items_heist gear		=	"Heist Gear"

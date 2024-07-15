@@ -34,12 +34,21 @@
     ],
     "active character": [
       "type in your character name and press <enter>",
-      "specifying it here enables optional features such as level tracking and e-exp calculations"
+      "used for optional features such as level tracking, e-exp calculations, and map-tracker logging"
     ],
     "active character status": [
       "red: no name specified",
       "yellow: char not found / waiting for level-up",
       "green: char found, tracking active"
+    ],
+    "ascendancy": [
+      "the game only logs ascendancies when a character levels up",
+      "this status will be out of date if you have recently (re)specced but not leveled up yet",
+      "click this label to use the \"/whois\" in-game command and force the game to log your ascendancy"
+    ],
+    "active build": [
+      "type in a name/description of your build and press <enter>",
+      "used in the map-tracker feature to log which build was played"
     ],
     "force resolution": [
       "you can force the client to run with a custom resolution not available by default",
@@ -333,6 +342,11 @@
     "maptracker rename": [
       "tags and renames boss maps for easier searching",
       "example: <boss: elder> instead of <absence of value and meaning>"
+    ],
+    "maptracker character": [
+      "your character's name, class, and level will be logged",
+      "optional: name/description of the build can also be logged",
+      "you have to specify this info in the <general> section of the settings"
     ],
     "maptracker side-content": [
       "side-areas you enter and the time spent inside will be logged",
@@ -836,7 +850,7 @@
       "numbers are clickable for searching:\nclick to paste \"<tier>\" into the search, r-click to paste \"!<tier>\", double-(r-)click to search immediately"
     ],
     "logviewer search run": [
-      "supported inputs:\n\"x\" (exact time), \"x-y\" (between x and y), or \"x+\" (x or longer)",
+      "supported inputs:\n\"x\" (exact time), \"x-y\" (between x and y), \"x+\" (x or longer)",
       "if x/y don't include any colons, they will be treated as seconds, otherwise as (hh:)mm:ss"
     ],
     "logviewer header run": [
@@ -847,20 +861,20 @@
       "you have to specify your character's name in the <general> section of the settings first"
     ],
     "logviewer search deaths": [
-      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), \"x+\" (x or higher)"
     ],
     "logviewer header deaths": [
       "number of deaths in a run",
       "header is clickable for searching:\nclick to paste \"1+\" into the search, r-click to paste \"0\", double-(r-)click to search immediately"
     ],
     "logviewer search portals": [
-      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), \"x+\" (x or higher)"
     ],
     "logviewer header portals": [
       "number of portals used in a run"
     ],
     "logviewer search kills": [
-      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), or \"x+\" (x or higher)"
+      "supported inputs:\n\"x\" (exact value), \"x-y\" (between x and y), \"x+\" (x or higher)"
     ],
     "logviewer header kills": [
       "monsters killed in a run (optional, has to be enabled first): uses the in-game /kills command",
@@ -875,7 +889,7 @@
     ],
     "logviewer search mapinfo": [
       "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)",
-      "you can search for mods and also general rolls, e.g. \"100q\" for 100% quantity\n(for general rolls, it will always search for <x and above>)"
+      "you can search for mods and also general rolls, e.g. \"100q\" for 100% quantity\n(for general rolls, it will always search for \"x and above\")"
     ],
     "logviewer header mapinfo": [
       "mods rolled on a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list of logged mods",
@@ -886,6 +900,13 @@
     ],
     "logviewer header notes": [
       "custom notes for runs (adding notes during/before the run is optional and has to be enabled first):\nright-click cells in this column to add/edit notes after the run, click highlighted cells to view them",
+      "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
+    ],
+    "logviewer search character": [
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)\n\"x\" (exact level), \"x-y\" (between x and y), \"x+\" (x or higher)"
+    ],
+    "logviewer header character": [
+      "information about the character (and build) played in the run:\nclick highlighted cells in this column to view this information",
       "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
     ],
     "logviewer search content": [
@@ -900,7 +921,7 @@
   "maptrackernotes": {
     "help": [
       "type in custom notes and press <enter>: include \"X#\" before the note to limit it to X runs",
-      "omni-click map-device items to add them as notes",
+      "omni-click items to add them to the notes:\nmap fragments are highlighted yellow and limited to 4",
       "long-click a note to remove it, or the header to clear everything"
     ]
   },

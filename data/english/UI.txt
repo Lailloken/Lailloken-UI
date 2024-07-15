@@ -368,6 +368,7 @@
 		maptracker_loot1		=	"loot"
 		maptracker_mapinfo		=	"mods"			;## as in map mods
 		maptracker_notes		=	"notes"
+		maptracker_character		=	"character"
 		maptracker_content		=	"content"		;## refers to map-content (league-mechanics, side-areas, etc.)
 		maptracker_search		=	"search:"
 
@@ -520,7 +521,8 @@
 		m_general_kill			=	"exit x minutes after closing the game:"
 		m_general_browser		=	"browser features"
 		m_general_capslock		=	"capslock-toggling"		;## by default, AHK will toggle capslock back and forth whenever it sends key-strokes
-		m_general_character		=	"active character:"
+		m_general_character		=	"current char:"
+		m_general_build			=	"current build:"
 		m_general_level			=	"lvl"
 		m_general_client		=	"game-client settings:"
 		m_general_language		=	"language:"
@@ -721,6 +723,7 @@
 		m_maptracker_notes		=	"notes"						;## option to add notes to map runs
 		m_maptracker_sidearea		=	"side-areas"
 		m_maptracker_rename		=	"tag && rename boss maps"			;## adds a "boss:"-tag to logged map-runs
+		m_maptracker_character		=	"character/build info"
 		m_maptracker_content		=	"track atlas mechanics"
 		m_maptracker_dialogue		=	"–> dialogue tracking:"				;## tracking is done via in-game dialogue in the chat-box
 		m_maptracker_screen		=	"–> screen tracking:"				;## tracking is done via screen-reading
