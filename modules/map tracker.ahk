@@ -1728,7 +1728,7 @@ MaptrackerSave(mode := 0)
 				outer := A_Index
 				Loop, % vars.maptracker.notes[outer].Count()
 					If (vars.maptracker.notes[outer][A_Index] = "_remove_")
-						vars.maptracker.notes[outer].RemoveAt(A_Index)
+						vars.maptracker.notes[outer].Delete(A_Index)
 			}
 			If !note_count ;if there aren't any notes left, clear the notes-array
 				vars.maptracker.notes := ""
