@@ -30,7 +30,7 @@
 
 		If !settings.general.lang_client
 			check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-		start := A_TickCount
+
 		If !Blank(settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"))
 		{
 			check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
@@ -109,6 +109,9 @@ LogLoop(mode := 0)
 						Break
 					}
 		}
+
+		If character_class && WinExist("ahk_id " vars.hwnd.settings.main) && (vars.settings.active = "general")
+			Settings_menu("general",, 0)
 	}
 
 	If mode
@@ -190,6 +193,7 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 						parse := !parse ? A_Index : parse, level .= A_LoopField
 				}
 				level0 := SubStr(level0, parse), level0 := SubStr(level0, InStr(level0, " ") + 1), character_class := LLK_StringCase(SubStr(level0, 1, InStr(level0, " ") - 1))
+				whois := 1
 			}
 
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main

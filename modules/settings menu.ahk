@@ -823,7 +823,6 @@ Settings_general2(cHWND := "")
 			SendInput, ^{a}^{v}{Enter}
 			Sleep, 100
 			Clipboard := ""
-			Settings_menu("general",, 0)
 			char_wait := 0
 		Case "build":
 			input := LLK_ControlGet(cHWND)
