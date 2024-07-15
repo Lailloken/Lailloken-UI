@@ -594,6 +594,7 @@ Init_general()
 	settings.general.trans := 230
 	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
 	settings.general.character := ini.settings["active character"]
+	settings.general.build := !Blank(settings.general.character) ? ini.settings["active build"] : ""
 	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0
 	settings.general.dev_env := settings.general.dev * (!Blank(check := ini.settings["dev env"]) ? check : 0)
 	settings.general.xButton := !Blank(check := ini.UI["button xcoord"]) ? check : 0
@@ -606,6 +607,7 @@ Init_general()
 	If (settings.general.fSize < 6)
 		settings.general.fSize := 6
 	LLK_FontDimensions(settings.general.fSize, font_height, font_width), settings.general.fHeight := font_height, settings.general.fWidth := font_width
+	LLK_FontDimensions(settings.general.fSize - 4, font_height, font_width), settings.general.fHeight2 := font_height, settings.general.fWidth2 := font_width
 	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
 
 	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
