@@ -24,6 +24,7 @@
 	LLK_FontDimensions(settings.maptracker.fSize2, height, width), settings.maptracker.fWidth2 := width, settings.maptracker.fHeight2 := height
 	settings.maptracker.rename := !Blank(check := ini.settings["rename boss maps"]) ? check : 1
 	settings.maptracker.sidecontent := !Blank(check := ini.settings["track side-areas"]) ? check : 0
+	settings.maptracker.character := !Blank(check := ini.settings["log character info"]) ? check : 0
 	settings.maptracker.mechanics := !Blank(check := ini.settings["track league mechanics"]) ? check : 0
 	settings.maptracker.page_entries := !Blank(check := ini.settings["entries per page"]) ? check : 0
 	settings.maptracker.portal_reminder := !Blank(check := ini.settings["portal-scroll reminder"]) ? check : 0
@@ -98,6 +99,11 @@ Maptracker(cHWND := "", hotkey := "")
 			MaptrackerNoteEdit("edit")
 			Return
 		}
+		If (check = "character")
+		{
+			LLK_ToolTip(settings.general.character "`n" vars.log.character_class " (" vars.log.level ")" (settings.general.build ? "`n" settings.general.build : ""), 2,,,,,,,, 1)
+			Return
+		}
 		If (hotkey = 2)
 			Return
 		If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2)
@@ -133,7 +139,7 @@ Maptracker(cHWND := "", hotkey := "")
 	}
 }
 
-MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content
+MaptrackerCheck(mode := 0) ;checks if player is in a map or map-related content: 0 to only check for maps, 1 to check for side-areas, 2 to check both
 {
 	local
 	global vars, settings
@@ -452,24 +458,29 @@ MaptrackerFilter(object) ;checks a run's characteristics based on the current se
 		}
 		Else If excludes.Count() && LLK_PatternMatch(object[search], "", excludes,,, 0)
 			Return
-		Else If (val = "yes") && InStr("loot,mapinfo,notes,content", search)
+		Else If (val = "yes") && InStr("loot,mapinfo,notes,content,character", search)
 		{
 			If object[search]
 				Continue
 			Else Return
 		}
-		Else If (val = "no") && InStr("loot,mapinfo,notes,content", search)
+		Else If (val = "no") && InStr("loot,mapinfo,notes,content,character", search)
 		{
 			If !object[search]
 				Continue
 			Else Return
 		}
 		Else
+		{
+			If (search = "character") && InStr((parse := StrReplace(object.character, "(n)", "`n")), "(")
+				level := SubStr(parse, InStr(parse, "(") + 1), level := SubStr(level, 1, InStr(level, ")") - 1)
+			Else level := 0
 			Loop, Parse, val, `,, %A_Space%
 			{
 				If Blank(A_LoopField)
 					Continue
 				keyword := A_LoopField
+
 				If (search = "mapinfo") && IsNumber(SubStr(keyword, 1, -1)) && LLK_HasVal(vars.lang.maps_stats, SubStr(keyword, 0))
 				{
 					If Blank(object.mapinfo)
@@ -482,9 +493,13 @@ MaptrackerFilter(object) ;checks a run's characteristics based on the current se
 					If (stats[SubStr(keyword, 0)] < SubStr(keyword, 1, -1))
 						Return
 				}
+				Else If (search = "character") && ((IsNumber(A_LoopField) && level = A_LoopField) || (IsNumber(pMinimum := SubStr(A_LoopField, 1, -1)) && (SubStr(A_LoopField, 0) = "+") && level >= pMinimum)
+				|| (InStr(A_LoopField, "-") && IsNumber(pLower := SubStr(A_LoopField, 1, InStr(A_LoopField, "-") - 1)) && IsNumber(pUpper := SubStr(A_LoopField, InStr(A_LoopField, "-") + 1)) && LLK_IsBetween(level, pLower, pUpper)))
+					Continue
 				Else If !RegExMatch(object[search], "i)" A_LoopField)
 					Return
 			}
+		}
 	}
 	Return 1
 }
@@ -500,7 +515,7 @@ MaptrackerGUI(mode := 0)
 	wait := 1, toggle := !toggle, GUI_name := "maptracker" toggle
 	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDmaptracker" (vars.maptracker.pause ? " +E0x20" : "")
 	Gui, %GUI_name%: Color, Black
-	Gui, %GUI_name%: Margin, % settings.maptracker.fWidth/2, % settings.maptracker.fWidth/4
+	Gui, %GUI_name%: Margin, % settings.maptracker.fWidth/2, 0
 	Gui, %GUI_name%: Font, % "s"settings.maptracker.fSize . (vars.maptracker.pause ? " c" settings.maptracker.colors.date_unselected : " cWhite"), % vars.system.font
 	hwnd_old := vars.hwnd.maptracker.main, vars.hwnd.maptracker := {"main": maptracker}
 
@@ -516,15 +531,24 @@ MaptrackerGUI(mode := 0)
 		If !vars.pics.maptracker.notes0
 			For index, tag in ["", "0"]
 				vars.pics.maptracker["notes" tag] := LLK_ImageCache("img\GUI\mapping tracker\notes" tag ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (IsObject(vars.maptracker.notes) ? "" : "0")]
+		Gui, %GUI_name%: Add, Pic, % "ys y0 h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (IsObject(vars.maptracker.notes) ? "" : "0")]
 		vars.hwnd.maptracker.notes := hwnd
+	}
+
+	If settings.maptracker.character
+	{
+		If !vars.pics.maptracker.character
+			vars.pics.maptracker.character := LLK_ImageCache("img\GUI\mapping tracker\character.png"), vars.pics.maptracker.character0 := LLK_ImageCache("img\GUI\mapping tracker\character0.png"), 
+		Gui, %GUI_name%: Add, Pic, % "ys y0 HWNDhwnd h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
+		If vars.log.level
+			vars.hwnd.maptracker.character := hwnd
 	}
 
 	For index, content in vars.maptracker.map.content
 	{
 		If !vars.pics.maptracker["content_" content]
 			vars.pics.maptracker["content_" content] := LLK_ImageCache("img\GUI\mapping tracker\" content ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
+		Gui, %GUI_name%: Add, Pic, % "ys y0 h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
 	}
 
 	If mode
@@ -716,7 +740,7 @@ MaptrackerLogs(mode := "")
 	, ["map", "left", [LangTrans("maptracker_map"), "777777777777777777777777777777777777777"]], ["tier", "right", [LangTrans("maptracker_tier"), "77"]]
 	, ["run", "right", [LangTrans("maptracker_run"), "7:77:77"]], ["e-exp", "right", [LangTrans("maptracker_e-exp"), "77.7%"]], ["deaths", "right", [".", "77"]]
 	, ["portals", "right", [".", "77"]], ["kills", "right", [".", "777777"]], ["loot", "center", [".", "77777777"]], ["mapinfo", "center", [".", "77777777"]]
-	, ["notes", "center", [".", "77777777"]], ["content", "center", ["content"]]], columns := {}, combined_runs := 0
+	, ["notes", "center", [".", "77777777"]], ["character", "center", [".", "77777777"]] , ["content", "center", ["content"]]], columns := {}, combined_runs := 0
 
 	For date, array in entries
 	{
@@ -727,13 +751,13 @@ MaptrackerLogs(mode := "")
 
 	For index, val in table
 	{
-		header := val.1, icon := InStr(" deaths, portals, kills, loot, mapinfo, notes,", " " val.1 ",") ? 1 : 0, index_sum := 0, date_check := 1
+		header := val.1, icon := InStr(" deaths, portals, kills, loot, mapinfo, notes, character,", " " val.1 ",") ? 1 : 0, index_sum := 0, date_check := 1
 		;If !date_check && (header = "time") && (vars.maptracker.active_date != LangTrans("global_none"))
 		;	date_check := IsNumber(StrReplace(vars.maptracker.active_date, "/")) && (StrLen(StrReplace(vars.maptracker.active_date, "/")) < 7) || !IsNumber(StrReplace(vars.maptracker.active_date, "/")) ? 1 : 0, val.3 := !date_check ? [LangTrans("maptracker_time"), "77:77"] : val.3.Clone()
 
-		gLabel := InStr(" deaths, kills, loot, mapinfo, notes, content,", " " val.1 ",") ? " gMaptrackerLogsFilter" : ""
+		gLabel := InStr(" deaths, kills, loot, mapinfo, notes, character, content,", " " val.1 ",") ? " gMaptrackerLogsFilter" : ""
 		LLK_PanelDimensions(val.3, settings.maptracker.fSize2, width, height,, 4), LLK_FontDimensions(settings.maptracker.fSize2 + 4, font_height, font_width)
-		width := (width < hFont) ? hFont : width * (header = "content" ? 3 : 1), header_tooltips := ["map", "e-exp", "deaths", "portals", "kills", "loot", "mapinfo", "notes", "content", "tier", "run"]
+		width := (width < hFont) ? hFont : width * (header = "content" ? 3 : 1), header_tooltips := ["map", "e-exp", "deaths", "portals", "kills", "loot", "mapinfo", "notes", "character", "content", "tier", "run"]
 		If (header = "#")
 		{
 			Gui, %GUI_name%: Font, % "s" settings.maptracker.fSize2
@@ -804,10 +828,10 @@ MaptrackerLogs(mode := "")
 						Continue
 					vars.maptracker.max_lines := index_page += 1
 					runs := combined_runs + 1, color := (header = "#") && (keywords || active_date != "all") ? " cLime" : ""
-					text := InStr(" loot, content, mapinfo, notes,", " "val.1 ",") ? "" : (header = "#") ? runs - index_sum - 1 : (val.2 = "left" ? " " : "") . (Blank(content[val.1]) ? (header = "e-exp") ? "" : 0 : content[val.1]) . (val.2 = "right" ? " " : "")
+					text := InStr(" loot, content, mapinfo, notes, character,", " "val.1 ",") ? "" : (header = "#") ? runs - index_sum - 1 : (val.2 = "left" ? " " : "") . (Blank(content[val.1]) ? (header = "e-exp") ? "" : 0 : content[val.1]) . (val.2 = "right" ? " " : "")
 					text := (header = "time") ? SubStr(text, 1, 5) . " " : (header = "run") ? FormatSeconds(text, 0) " " : text
 					text := (header = "time" && date_check) ? StrReplace(date, "/", "-") ", " text : text
-					gLabel1 := (InStr(" loot, mapinfo,", " "val.1 ",") && content[val.1] || InStr(" map, notes,", " " header ",") ? " gMaptrackerLogs2" : (header = "tier") ? " gMaptrackerLogsFilter" : "")
+					gLabel1 := (InStr(" loot, mapinfo, character,", " "val.1 ",") && content[val.1] || InStr(" map, notes,", " " header ",") ? " gMaptrackerLogs2" : (header = "tier") ? " gMaptrackerLogsFilter" : "")
 					Gui, %GUI_name%: Add, Text, % "xs Border 0x200 BackgroundTrans HWNDhwnd0 "val.2 " w"width . gLabel1 . color " h" hFont, % text
 					If (header = "map")
 					{
@@ -825,7 +849,7 @@ MaptrackerLogs(mode := "")
 							Gui, %GUI_name%: Add, Pic, % (A_Index = 1 ? "xp+"settings.maptracker.fWidth2/4 + 1 " yp+" 1 + settings.maptracker.fHeight2 * 0.1 " h" settings.maptracker.fHeight2 * 1.3 : "x+"settings.maptracker.fWidth2/4 " yp hp") " w-1 HWNDicon gMaptrackerLogsFilter BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" A_LoopField]
 							vars.hwnd.maptracker_logs["content_" A_LoopField . icon_handle] := icon, icon_handle .= "|"
 						}
-					If InStr(" loot, mapinfo, notes,", " "val.1 ",")
+					If InStr(" loot, mapinfo, notes, character,", " "val.1 ",")
 						Gui, %GUI_name%: Add, Progress, % "xp yp w"width " hp Border BackgroundBlack c" settings.maptracker.colors.date_unselected " Range0-1", % content[val.1] && (content[val.1] != "¢¢¢") ? 1 : 0
 				}
 		}
@@ -925,6 +949,8 @@ MaptrackerLogs2(cHWND)
 					MaptrackerNoteEdit("", [x, y, "map tracker log", control])
 				}
 			}
+			Else If InStr(check, "character_")
+				MaptrackerLogsTooltip(control, "character", cHWND)
 			Else If InStr(check, "map_")
 			{
 				If (vars.system.click = 1)
@@ -972,7 +998,7 @@ MaptrackerLogsCSV()
 	global vars, settings, json
 
 	active_date := vars.maptracker.active_date, leagues := vars.maptracker.leagues, entries := {}
-	For key, array in vars.maptracker.entries
+	For key, array in vars.maptracker.entries_copy
 	{
 		date_check := LLK_HasVal(vars.maptracker.leagues, StrReplace(active_date, "/"),,,, 1)
 		If InStr(key, active_date) || (active_date = "all") || date_check && LLK_IsBetween(active_date, leagues[date_check][2], leagues[date_check][3])
@@ -987,22 +1013,32 @@ MaptrackerLogsCSV()
 
 	file := "map logs (" StrReplace(active_date, "/", "-") ").csv"
 	;append := """date, time"",map,tier/level,run,e-exp,deaths,portals,kills,loot,map info,content"
-	append := """" LangTrans("maptracker_time", 2) """," LangTrans("maptracker_map") "," LangTrans("maptracker_tier", 2) "," LangTrans("maptracker_run") "," LangTrans("maptracker_e-exp") "," LangTrans("maptracker_deaths") "," LangTrans("maptracker_portals") "," LangTrans("maptracker_kills1") "," LangTrans("maptracker_loot1") "," LangTrans("ms_map-info") "," LangTrans("maptracker_content")
+	append := """" LangTrans("maptracker_time", 2) """," LangTrans("maptracker_map") "," LangTrans("maptracker_tier", 2) "," LangTrans("maptracker_run") "," LangTrans("maptracker_e-exp") "," LangTrans("maptracker_deaths") "," LangTrans("maptracker_portals") "," LangTrans("maptracker_kills1") "," LangTrans("maptracker_loot1") "," LangTrans("ms_map-info") "," LangTrans("maptracker_notes") "," LangTrans("maptracker_character") "," LangTrans("maptracker_content")
+
 	For date, val in entries
 	{
 		date := """" StrReplace(date, "/", "-") """", val.map := """" val.map """", val.run := """" FormatSeconds(val.run) ".00""", val.loot := """" (!val.loot ? "" : StrReplace(val.loot, "; ", "`r`n")) """"
-		val.mapinfo := """" StrReplace(val.mapinfo, "; ", "`r`n") """"
+		val.mapinfo := """" StrReplace(val.mapinfo, "; ", "`r`n") """", val.notes := StrReplace(StrReplace(StrReplace(val.notes, "(n)", "`r`n"), "¢", "`r`n"), "§", "`r`n"), val.character := StrReplace(val.character, "(n)", "`r`n")
+
+		Loop, Parse, % val.notes, `n, `r
+		{
+			If (A_Index = 1)
+				val.notes := ""
+			If Blank(A_LoopField)
+				Continue
+			val.notes .= (Blank(val.notes) ? "" : "`r`n") A_LoopField
+		}
 		Loop, Parse, % val.content, `;, % A_Space
 		{
 			If (A_Index = 1)
 				val.content := ""
 			val.content .= (!val.content ? "" : "`r`n") (LangTrans("mechanic_" A_LoopField) ? LangTrans("mechanic_" A_LoopField) : (A_LoopField = 0) ? "" : A_LoopField)
 		}
-		append .= "`n" date "," val.map "," val.tier "," val.run "," val["e-exp"] "," val.deaths "," val.portals "," val.kills "," val.loot "," val.mapinfo ",""" val.content """"
+		append .= "`n" date "," val.map "," val.tier "," val.run "," val["e-exp"] "," val.deaths "," val.portals "," val.kills "," val.loot "," val.mapinfo ",""" val.notes """,""" val.character """,""" val.content """"
 	}
 
 	For search, val in vars.maptracker.keywords
-		append .= (A_Index = 1 ? "`n`nsearch-filter:" : "") "`n" search ": " val
+		append .= (A_Index = 1 ? "`n`nsearch-filter:" : "") "`n""" search ": " val """"
 
 	If !FileExist("exports\")
 	{
@@ -1114,6 +1150,8 @@ MaptrackerLogsLoad()
 		{
 			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), val := (SubStr(val, 1, 1) = """") ? SubStr(val, 2, -1) : val
 			val := (key = "tier" && SubStr(val, 1, 1) = "0") ? SubStr(val, 2) : val
+			If (key = "mapinfo") && (SubStr(val, 2, 1) = "m")
+				val := StrReplace(val, "m", "x",, 1)
 			Loop, Parse, val, `;, %A_Space% ;parse side-content info
 			{
 				If !A_LoopField || (key != "content")
@@ -1150,6 +1188,13 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 				For run, object in array
 				{
 					runs += 1, key := (column = "time") ? SubStr(object[column], 1, 2) ":00" : object[column]
+					If (column = "content") && Blank(key)
+						key := "none"
+					Else If (column = "character") && !Blank(key)
+						key := StrReplace(key, "(n)", "`n"), replace := SubStr(key, InStr(key, "(") - 1), replace := SubStr(replace, 1, InStr(replace, ")"))
+						, key := StrReplace(StrReplace(key, replace,, 1), "`n", "(n)"), key := StrReplace(key, "(n)", " (",, 1), key := InStr(key, "(n)") ? StrReplace(key, "(n)", ")(n)") : key ")"
+					Else If Blank(key)
+						Continue
 					If Blank(totals[key])
 						totals[key] := 0
 					totals[key] += 1
@@ -1168,12 +1213,16 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 			count := SubStr(A_LoopField, 1, InStr(A_LoopField, "x") - 1)
 			percent := Format("{:0.2f}", count/runs*100), text := A_Index, percent := (InStr(percent, ".") >= 4) ? SubStr(percent, 1, InStr(percent, ".") - 1) : percent
 			key := SubStr(A_LoopField, InStr(A_LoopField, " ") + 1)
+			If (column = "mapinfo")
+				replace := SubStr(key, 1, InStr(key, ";") - 1), key := StrReplace(key, replace, StrReplace(replace, "|", ";"))
+			Else If (column = "character")
+				key := StrReplace(key, "(n)", "`n")
 			If !key && (column != "content")
 				Continue
 			sum += count * key
-			If InStr("content ,loot ,notes ,mapinfo ", column " ")
+			If InStr("content ,loot ,notes ,mapinfo ,character ", column " ")
 			{
-				Loop, Parse, % (column = "notes") ? StrReplace(key, "(n)", "`n") : key, % (column = "notes") ? "§¢" : ";" . (column = "mapinfo" ? "|" : ""), %A_Space%
+				Loop, Parse, % (column = "notes") ? StrReplace(key, "(n)", "`n") : key, % (column = "notes") ? "§¢" : ";", %A_Space%
 				{
 					key_content := !A_LoopField ? (column = "content" ? LangTrans("global_none") : "") : (column = "mapinfo" && InStr(A_LoopField, ":")) ? SubStr(A_LoopField, 1, InStr(A_LoopField, ":") -1) : A_LoopField, count_content := 0
 					If (column = "mapinfo") && IsNumber(SubStr(A_LoopField, 1, -1)) ;currently unused: list occurrence of 1-20, 21-40, 41-60%... quant, rarity, pack-size
@@ -1198,12 +1247,8 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 					sum_content[key_content] += count * (count_content ? count_content : 1)
 				}
 			}
-			If InStr("time ,map ,tier ", column " ")
-			{
-				boxes.Push(count), boxes1.Push(percent), boxes2.Push(key)
-				;If (boxes.Count() = vars.maptracker.max_lines)
-				;	Break
-			}
+			If InStr("time ,map ,tier ,character ", column " ")
+				boxes.Push(count), boxes1.Push(percent), boxes2.Push((column = "character") ? StrReplace(key, "`n", " `n ") : key)
 		}
 		If InStr("deaths,portals,kills,run", column)
 			boxes.Push((column = "run") ? FormatSeconds(sum, 0) : sum), boxes1.Push((column = "run") ? FormatSeconds(Round(sum/runs), 0) : Format("{:0.2f}", sum/runs))
@@ -1218,8 +1263,6 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 				percent := Format("{:0.2f}", count/runs * (column = "loot" ? 1 : 100)), text := A_Index, key := SubStr(A_LoopField, InStr(A_LoopField, " ") + 1)
 				percent := (InStr(percent, ".") >= 4) ? SubStr(percent, 1, InStr(percent, ".") - 1) : percent
 				boxes.Push(count), boxes1.Push(percent), boxes2.Push(StrReplace(key, "`n", " `n "))
-				;If (boxes.Count() = vars.maptracker.max_lines)
-				;	Break
 			}
 		}
 		text := (boxes.Count() > 1) ? "." : ""
@@ -1227,9 +1270,9 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 	Else
 	{
 		pDate := SubStr(ini_section, 1, InStr(ini_section, " ") - 1), pTime := SubStr(ini_section, InStr(ini_section, " ") + 1), pCheck := LLK_HasVal(vars.maptracker.entries_copy[pDate], pTime,,,, 1)
-		text := StrReplace(vars.maptracker.entries_copy[pDate][pCheck][ini_key], (ini_key = "notes") ? "(n)" : "; ", "`n")
+		text := StrReplace(vars.maptracker.entries_copy[pDate][pCheck][ini_key], InStr("notes, character", ini_key) ? "(n)" : "; ", "`n")
 		If (ini_key = "mapinfo")
-			text := StrReplace(StrReplace(text, "`n- ", "¢"), "`n", "`n   ")
+			text := StrReplace(StrReplace(text, "`n- ", "¢"), "`n", "`n   "), text := StrReplace(text, "p | ", "`n")
 		Else If (ini_key = "notes")
 			text := StrReplace(text, "§", "¢")
 	}
@@ -1255,7 +1298,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 
 		For index, text in boxes
 		{
-			If (column = "notes") && (ini_section = "avgsum")
+			If (column = "notes" || column = "character") && (ini_section = "avgsum")
 				LLK_PanelDimensions([boxes2[index]], settings.maptracker.fSize2, wRow, hRow)
 			style := (ini_section = "avgsum") ? " 0x200" (index = 1 ? " Center" : " Right") : (ini_key = "mapinfo" && index = 1) ? " Center" : ""
 			Gui, maptracker_tooltip: Add, Text, % "Section HWNDhwnd" (index = 1 ? "" : " xs y+-1") . style " Border w" width . (hRow ? " h" hRow : ""), % " " text " "
@@ -1435,21 +1478,11 @@ MaptrackerNoteAdd(cHWND := "")
 		If (A_Index = 3)
 			item := A_LoopField
 
-	If LangMatch(Clipboard, [LangTrans("items_voidstone"), " (enchant)"], 0)
-	{
-		info := SubStr(Clipboard, InStr(Clipboard, "---`r`n",,, 2) + 5), info := SubStr(info, 1, InStr(info, "`r`n---") - 1), info := SubStr(info, 1, InStr(info, "`r",, 0) - 1), info := StrReplace(info, "`r")
-		info := "`n" StrReplace(info, " (enchant)"), item .= ":"
-	}
-	Else If LangMatch(item, [LangTrans("items_voidstone")], 0)
-	{
-		LLK_ToolTip(LangTrans("global_match"),,,,, "red")
-		Return
-	}
-	add := item (!Blank(info) ? info : ""), LLK_ToolTip(LangTrans("global_success"), 0.5,,,, "Lime")
-	MaptrackerNoteEdit(,, [add])
+	add := (InStr(Clipboard, LangTrans("items_class") " " LangTrans("items_map fragments")) ? "" : "1#") item, LLK_ToolTip(LangTrans("global_success"), 0.5,,,, "Lime")
+	MaptrackerNoteEdit(,, [add, InStr(Clipboard, LangTrans("items_class") " " LangTrans("items_map fragments"))])
 }
 
-MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, ini-file, section]
+MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, ini-file, section]
 {
 	local
 	global vars, settings
@@ -1467,7 +1500,7 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 					notes.tracker[index0][index] := note
 		Return
 	}
-	Else If IsNumber(SubStr(check, 1, 1)) ;long-clicking an entry in the panel which are arranged in arrays within an array: [[user-notes], [items], [voidstones]]
+	Else If IsNumber(SubStr(check, 1, 1)) ;long-clicking an entry in the panel which are arranged in arrays within an array: [[user-notes], [items], [scarabs]]
 	{
 		If !LLK_Progress(vars.hwnd.maptrackernotes_edit[check "_bar"], "LButton") ;long-clicking prevents annoying misclicks
 			Return
@@ -1483,19 +1516,13 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 		array0 := [vars.general.xMouse, vars.general.yMouse]
 	Else If IsObject(add) ;omni-clicking an item while the note-editor is open
 	{
-		If InStr(add.1, LangTrans("items_voidstone") ":")
+		If add.2
 		{
-			notes_check := LLK_HasVal(notes[category].3, SubStr(add.1, 1, InStr(add.1, ":") - 1), 1)
-			If notes_check
-				notes[category].3[notes_check] := add.1
-			Else notes[category].3.Push(add.1)
+			notes[category].3.InsertAt(1, add.1)
+			If (notes[category].3.Count() > 4)
+				notes[category].3.Pop()
 		}
-		Else
-		{
-			notes[category].2.InsertAt(1, add.1)
-			If (notes[category].2.Count() > 4)
-				notes[category].2.Pop()
-		}
+		Else notes[category].2.InsertAt(1, add.1)
 	}
 	Else If (check = "save") ;hitting ENTER when the edit-field is focused
 	{
@@ -1551,20 +1578,24 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 
 	For key, array in notes[category]
 		For index, note in array
-			notes_copy.Push(InStr(note, LangTrans("items_voidstone") ":") && (category = "tracker") ? SubStr(note, 1, InStr(note, ":") - 1) : note)
+			notes_copy.Push(note)
 	LLK_PanelDimensions(notes_copy, settings.maptracker.fSize2, width, height)
 
 	If (category = "tracker")
 		vars.maptracker.notes := ""
 
-	Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans Center HWNDhwnd Border w" width . (notes_copy.Count() > 1 ? " gMaptrackerNoteEdit" : ""), % LangTrans("m_maptracker_notes") ":"
+	Gui, %GUI_name%: Add, Pic, % "Section x0 y0 Border BackgroundTrans h" height - 2 " w-1", % "HBitmap:*" vars.pics.global.help
+	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border HWNDhwnd00 BackgroundBlack", 0
+	vars.hwnd.help_tooltips["maptrackernotes_help"] := hwnd00
+	Gui, %GUI_name%: Add, Text, % "xp yp BackgroundTrans Center HWNDhwnd Border w" width . (notes_copy.Count() > 1 ? " gMaptrackerNoteEdit" : ""), % LangTrans("m_maptracker_notes") ":"
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd0 Disabled BackgroundBlack cRed Range0-500", 0
 	vars.hwnd.maptrackernotes_edit.0 := hwnd, vars.hwnd.maptrackernotes_edit.0_bar := hwnd0
+
 	For index0, array in notes[category]
 		For index, note in array
 		{
-			note_copy := InStr(note, LangTrans("items_voidstone") ":") && (category = "tracker") ? SubStr(note, 1, InStr(note, ":") - 1) : note
-			Gui, %GUI_name%: Add, Text, % "xs y+-1 BackgroundTrans Section Border HWNDhwnd gMaptrackerNoteEdit w" width, % " " StrReplace(note_copy, "`n", " `n ")
+			color := (index0 = 3) ? " cCCCC00" : ""
+			Gui, %GUI_name%: Add, Text, % "xs y+-1 BackgroundTrans Section Border HWNDhwnd gMaptrackerNoteEdit w" width . color, % " " StrReplace(note, "`n", " `n ")
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd0 Disabled BackgroundBlack cRed Range0-500", 0
 			notes_added := 1, vars.hwnd.maptrackernotes_edit[index0 "_" index] := hwnd, vars.hwnd.maptrackernotes_edit[index0 "_" index "_bar"] := hwnd0
 			If (category = "tracker")
@@ -1577,10 +1608,8 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 
 	Gui, %GUI_name%: Font, % "s"settings.maptracker.fSize2 - 4
 	Gui, %GUI_name%: Add, Edit, % "Section xs y+-1 HWNDhwnd Lowercase cBlack -Wrap r1 w" width . (add.1 || remove || input ? "" : " Disabled")
-	Gui, %GUI_name%: Add, Pic, % "Section ys x+-1 Border BackgroundTrans hp-2 w-1", % "HBitmap:*" vars.pics.global.help
-	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border HWNDhwnd00 BackgroundBlack", 0
 	Gui, %GUI_name%: Add, Button, % "xp yp wp hp Default Hidden Center HWNDhwnd0 gMaptrackerNoteEdit", ok
-	vars.hwnd.maptrackernotes_edit.notes := hwnd, vars.hwnd.maptrackernotes_edit.save := hwnd0, vars.hwnd.help_tooltips["maptrackernotes_help"] := hwnd00
+	vars.hwnd.maptrackernotes_edit.notes := hwnd, vars.hwnd.maptrackernotes_edit.save := hwnd0
 
 	If vars.hwnd.maptracker_logs.main && WinActive("ahk_id " vars.hwnd.maptracker_logs.main)
 	{
@@ -1592,9 +1621,9 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array = [xPos, yPos, i
 	WinGetPos,,, w, h, ahk_id %maptracker_edit%
 	If (category = "logs")
 		xPos := xTarget, yPos := (yTarget > vars.monitor.y + vars.monitor.h / 2) ? yTarget - h : yTarget
-	Else xPos := panelPos.x, yPos := panelPos.y + (panelPos.y < vars.monitor.y + vars.monitor.h/2 ? panelPos.h - 1 : -h)
+	Else xPos := PanelPos.x - (PanelPos.w > w ? 0 : w - PanelPos.w), yPos := panelPos.y + (panelPos.y < vars.monitor.y + vars.monitor.h/2 ? panelPos.h - 1 : -h)
 
-	xPos := (xPos + w >= vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : xPos
+	xPos := (w > PanelPos.w) && (xPos - (w - PanelPos.w) < vars.monitor.x) ? vars.monitor.x : xPos
 	yPos := (yPos + h >= vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
@@ -1674,8 +1703,6 @@ MaptrackerSave(mode := 0)
 				If InStr(note, "#") && IsNumber(SubStr(note, 1, InStr(note, "#") - 1))
 					run_count := SubStr(note, 1, InStr(note, "#") - 1)
 				note_count := Blank(note_count) ? 0 : note_count
-				If InStr(note, LangTrans("items_voidstone") ":`n")
-					note := SubStr(note, InStr(note, ":`n") + 2)
 				note := StrReplace(SubStr(note, run_count ? StrLen(run_count) + 2 : 1), "`n", "(n)")
 				While (SubStr(note, 1, 1) = " ")
 					note := SubStr(note, 2)
@@ -1707,10 +1734,15 @@ MaptrackerSave(mode := 0)
 				vars.maptracker.notes := ""
 			MaptrackerNoteEdit("refresh"), MaptrackerGUI()
 		}
-		IniWrite, % "map=" map.name "`ntier=" map.tier "`nrun=" map.time "`nportals=" map.portals "`ndeaths=" map.deaths "`nkills=" map.kills "`ncontent=" (!content ? 0 : content) "`nloot=" (!loot ? 0 : loot) "`nmapinfo=" vars.maptracker.map.mapinfo "`ne-exp="map.experience (map.experience ? "%" : "") "`nnotes=""" (settings.maptracker.notes ? notes : "") """", ini\map tracker log.ini, % map.date_time
+
+		If settings.maptracker.character && vars.log.level
+			character := settings.general.character "(n)" vars.log.character_class " (" vars.log.level ")" (settings.general.build ? "(n)" settings.general.build : "")
+		IniWrite, % "map=" map.name "`ntier=" map.tier "`nrun=" map.time "`nportals=" map.portals "`ndeaths=" map.deaths "`nkills=" map.kills "`ncontent=" (!content ? 0 : content) "`nloot=" (!loot ? 0 : loot)
+		. "`nmapinfo=" vars.maptracker.map.mapinfo "`ne-exp="map.experience (map.experience ? "%" : "") "`nnotes=""" (settings.maptracker.notes ? notes : "") """`ncharacter=""" character """"
+		, ini\map tracker log.ini, % map.date_time
 		If IsObject(vars.maptracker.entries)
 		{
-			object := {"content": !content ? 0 : content, "deaths": map.deaths, "e-exp": Blank(map.experience) ? "" : map.experience "%", "kills": map.kills, "loot": !loot ? 0 : loot, "map": map.name, "mapinfo": vars.maptracker.map.mapinfo, "notes": settings.maptracker.notes ? StrReplace(notes, "(n)", "`n") : "", "portals": map.portals, "run": map.time, "tier": map.tier + 0, "time": SubStr(map.date_time, InStr(map.date_time, " ") + 1)}
+			object := {"content": !content ? 0 : content, "deaths": map.deaths, "e-exp": Blank(map.experience) ? "" : map.experience "%", "kills": map.kills, "loot": !loot ? 0 : loot, "map": map.name, "mapinfo": vars.maptracker.map.mapinfo, "notes": settings.maptracker.notes ? StrReplace(notes, "(n)", "`n") : "", "portals": map.portals, "run": map.time, "tier": map.tier + 0, "time": SubStr(map.date_time, InStr(map.date_time, " ") + 1), "character" : StrReplace(character, "(n)", "`n")}
 			If !IsObject(vars.maptracker.entries[SubStr(map.date_time, 1, InStr(map.date_time, " ") - 1)])
 				vars.maptracker.entries[SubStr(map.date_time, 1, InStr(map.date_time, " ") - 1)] := []
 			vars.maptracker.entries[SubStr(map.date_time, 1, InStr(map.date_time, " ") - 1)].InsertAt(1, object)

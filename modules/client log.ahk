@@ -8,8 +8,12 @@
 	Else ;when specifying "active character" in the settings menu
 	{
 		If !Blank(settings.general.character)
+		{
 			log_file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := log_file.Read(), log_file.Close()
-		If Blank(settings.general.character) || !(check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1))
+			check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
+			check1 := InStr(log_content, " " settings.general.character " " LangTrans("log_whois"),, 0, 1), check := Max(check, check1)
+		}
+		Else
 		{
 			vars.log.level := 0
 			Return
@@ -20,26 +24,32 @@
 		vars.log.level := ""
 	Else
 	{
-		vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time"
+		vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class"
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
 			vars.log[A_LoopField] := ""
 
 		If !settings.general.lang_client
 			check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-
-		settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"), check := Blank(settings.general.character) ? 0 : InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
+		start := A_TickCount
+		If !Blank(settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"))
+		{
+			check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
+			check1 := InStr(log_content, " " settings.general.character " " LangTrans("log_whois"),, 0, 1), check := Max(check, check1)
+		}
+		Else check := 0
 	}
 
 	If check
-		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1), LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
+		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1)
+		, LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 
 	If mode
 	{
-		vars.log.level := level ? level : 0
+		vars.log.level := level ? level : 0, vars.log.character_class := character_class
 		Return
 	}
 	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
-	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
+	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
@@ -66,7 +76,7 @@ LogLoop(mode := 0)
 	log_content := vars.log.file.Read(), level0 := vars.log.level
 	If !Blank(log_content)
 	{
-		LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time)
+		LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		{
 			If !Blank(%A_LoopField%)
@@ -136,7 +146,7 @@ LogLoop(mode := 0)
 	}
 }
 
-LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel, ByRef areatier, ByRef act, ByRef level, ByRef date_time)
+LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel, ByRef areatier, ByRef act, ByRef level, ByRef date_time, ByRef character_class)
 {
 	local
 	global vars, settings, db
@@ -160,9 +170,28 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 		If LangMatch(A_LoopField, vars.lang.log_enter)
 			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_enter.1)), areaname := LLK_StringCase(LangTrim(parse, vars.lang.log_enter, LangTrans("log_location")))
 
-		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ") && LangMatch(A_LoopField, vars.lang.log_level)
+		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ")
 		{
-			level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := LangTrim(level, vars.lang.log_level)
+			If LangMatch(A_LoopField, vars.lang.log_level)
+			{
+				level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := LangTrim(level, vars.lang.log_level)
+				If InStr(A_LoopField, settings.general.character " " LangTrans("system_parenthesis"))
+					character_class := SubStr(A_LoopField, InStr(A_LoopField, LangTrans("system_parenthesis")) + 1)
+					, character_class := LLK_StringCase(SubStr(character_class, 1, InStr(character_class, LangTrans("system_parenthesis", 2)) - 1))
+			}
+			Else If LangMatch(A_LoopField, vars.lang.log_whois)
+			{
+				level0 := SubStr(A_LoopField, InStr(A_LoopField, settings.general.character)), parse := ""
+				Loop, Parse, level0
+				{
+					If (A_Index = 1)
+						level := ""
+					If IsNumber(A_LoopField)
+						parse := !parse ? A_Index : parse, level .= A_LoopField
+				}
+				level0 := SubStr(level0, parse), level0 := SubStr(level0, InStr(level0, " ") + 1), character_class := LLK_StringCase(SubStr(level0, 1, InStr(level0, " ") - 1))
+			}
+
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				GeartrackerGUI("refresh")
 		}

@@ -107,7 +107,8 @@
 			tab0 := (check := LLK_HasVal(exceptions, name,,,, 1)) ? check : (tab = "breach") ? "fragments" : InStr(tab, "currency") || (tab = "ultimatum") ? "currency" : tab
 			prices := IsObject(vars.stash[tab][name].prices) ? vars.stash[tab][name].prices.Clone() : StrSplit(!Blank(check := ini[tab0][name]) ? check : "0, 0, 0", ",", A_Space, 3)
 			trend := IsObject(vars.stash[tab][name].trend) ? vars.stash[tab][name].trend.Clone() : StrSplit(!Blank(check := ini[tab0][name "_trend"]) ? check : "0, 0, 0, 0, 0, 0, 0", ",", A_Space)
-			vars.stash[tab][name] := {"coords": [xCoord, yCoord], "exchange": array1.4, "prices": prices, "source": ["ninja"], "trend": trend}
+			source := IsObject(vars.stash[tab][name].source) ? vars.stash[tab][name].source.Clone() : ["ninja"]
+			vars.stash[tab][name] := {"coords": [xCoord, yCoord], "exchange": array1.4, "prices": prices, "source": source, "trend": trend}
 		}
 	}
 	vars.stash.currency1["chaos orb"].prices := [1, 1/vars.stash.exalt, 1/vars.stash.divine]
@@ -389,6 +390,8 @@ Stash_PriceFetchTrade(array)
 			currency := offer.exchange.currency, price := offer.exchange.amount, amount := offer.item.amount, stock := offer.item.stock, price_norm := price/amount
 			If (index = 1)
 				max_stock := 0
+			If (amount > vars.stash.max_stack * 60) && (price = 1)
+				Continue
 			If !IsObject(stocks[currency])
 				stocks[currency] := {}
 			If !IsObject(listings[currency])

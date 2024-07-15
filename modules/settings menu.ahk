@@ -585,18 +585,33 @@ Settings_general()
 
 	If vars.log.file_location
 	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c"(settings.general.lang_client = "unknown" ? "Gray" : vars.log.level ? "Lime" : settings.general.character ? "Yellow" : "Red"), % LangTrans("m_general_character") " "
+		dimensions := [LangTrans("m_general_character") " ", vars.log.level ? LangTrans("m_general_build") " " : ""]
+		LLK_PanelDimensions(dimensions, settings.general.fSize, wChar, hChar,,, 0), wName := settings.general.fWidth2 * 16
+		color := (settings.general.lang_client = "unknown" ? "Gray" : vars.log.level ? "Lime" : settings.general.character ? "Yellow" : "Red")
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c" color " w" wChar, % LangTrans("m_general_character") " "
 		vars.hwnd.settings.character_text := hwnd
 		If (settings.general.lang_client != "unknown")
 			vars.hwnd.help_tooltips["settings_active character status"] := hwnd
 		Else vars.hwnd.help_tooltips["settings_lang incompatible"] := hwnd
 
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack wp r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : ""), % LLK_StringCase(settings.general.character)
-		If vars.log.level
-			Gui, %GUI%: Add, Text, % "ys x+-1 hp 0x200 Center Border", % " " LangTrans("m_general_level") " " vars.log.level " "
-		Gui, %GUI%: Font, % "s"settings.general.fSize
+		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName, % LLK_StringCase(settings.general.character)
 		vars.hwnd.settings.character := hwnd
+		If vars.log.level
+		{
+			Gui, %GUI%: Add, Text, % "ys x+-1 HWNDhwnd0 gSettings_general2 Border hp 0x200 Center", % " " vars.log.character_class " (" vars.log.level ") "
+			ControlGetPos,,, wInfo, hInfo,, ahk_id %hwnd0%
+			vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_ascendancy"] := hwnd0
+			If settings.features.maptracker && settings.maptracker.character
+			{
+				Gui, %GUI%: Font, % "s"settings.general.fSize
+				Gui, %GUI%: Add, Text, % "Section xs w" wChar, % LangTrans("m_general_build") " "
+				Gui, %GUI%: Font, % "s"settings.general.fSize - 4
+				Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd0" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName + wInfo - 1, % settings.general.build
+				vars.hwnd.settings.build := hwnd0, vars.hwnd.help_tooltips["settings_active build"] := hwnd0
+			}
+		}
+		Gui, %GUI%: Font, % "s"settings.general.fSize
 		If (settings.general.lang_client != "unknown")
 		{
 			vars.hwnd.help_tooltips["settings_active character"] := hwnd
@@ -790,20 +805,55 @@ Settings_general2(cHWND := "")
 			Reload
 			ExitApp
 		Case "character":
-			GuiControl, +cRed, % vars.hwnd.settings.character
-			GuiControl, movedraw, % vars.hwnd.settings.character
-		Case "save_character":
+			input := LLK_ControlGet(cHWND)
+			GuiControl, % "+c" (input = settings.general.character ? "Black" : "Red"), % cHWND
+			GuiControl, % "movedraw", % cHWND
+		Case "ascendancy":
 			If char_wait
 				Return
-			char_wait := 1, parse := LLK_StringCase(LLK_ControlGet(vars.hwnd.settings.character)), parse := InStr(parse, " (") ? SubStr(parse, 1, InStr(parse, " (") - 1) : parse
+			char_wait := 1
+			KeyWait, LButton
+			KeyWait, RButton
+			WinActivate, % "ahk_id " vars.hwnd.poe_client
+			WinWaitActive, % "ahk_id " vars.hwnd.poe_client
+			Clipboard := "/whois " settings.general.character
+			ClipWait, 0.1
+			SendInput, {Enter}
+			Sleep, 100
+			SendInput, ^{a}^{v}{Enter}
+			Sleep, 100
+			Clipboard := ""
+			Settings_menu("general",, 0)
+			char_wait := 0
+		Case "build":
+			input := LLK_ControlGet(cHWND)
+			GuiControl, % "+c" (input = settings.general.build ? "Black" : "Red"), % cHWND
+			GuiControl, % "movedraw", % cHWND
+		Case "save_character":
+			ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.settings.main
+			ControlGet, hwnd, HWND,, % hwnd
+			If !InStr(vars.hwnd.settings.character "," vars.hwnd.settings.build, hwnd) || char_wait
+				Return
+			parse := LLK_StringCase(LLK_ControlGet(hwnd)), parse := InStr(parse, " (") ? SubStr(parse, 1, InStr(parse, " (") - 1) : parse
 			While (SubStr(parse, 1, 1) = " ")
 				parse := SubStr(parse, 2)
 			While (SubStr(parse, 0) = " ")
 				parse := SubStr(parse, 1, -1)
-			settings.general.character := parse
-			GuiControl, text, % vars.hwnd.settings.character, % parse
-			GuiControl, +disabled, % vars.hwnd.settings.character
-			IniWrite, % settings.general.character, ini\config.ini, Settings, active character
+			GuiControl,, % hwnd, % parse
+			key := LLK_HasVal(vars.hwnd.settings, hwnd)
+			If (parse = settings.general[key])
+				Return
+			IniWrite, % (settings.general[key] := parse), ini\config.ini, Settings, active %key%
+			If (key = "character")
+			{
+				char_wait := 1
+				GuiControl, +disabled, % hwnd
+			}
+			Else
+			{
+				GuiControl, +cWhite, % hwnd
+				Return
+			}
 			Init_log("refresh")
 			If WinExist("ahk_id " vars.hwnd.geartracker.main)
 				GeartrackerGUI()
@@ -815,6 +865,8 @@ Settings_general2(cHWND := "")
 				GuiControl, text, % vars.hwnd.leveltracker.experience, % StrReplace(exp, (exp = "100%") ? "" : "100%")
 				GuiControl, % "+c" (InStr(exp, "100%") ? "Lime" : "Red"), % vars.hwnd.leveltracker.experience
 			}
+			If settings.features.maptracker && settings.maptracker.character
+				MaptrackerGUI()
 			Settings_menu("general"), char_wait := 0
 		Case "language":
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.language), ini\config.ini, settings, language
@@ -891,6 +943,7 @@ Settings_general2(cHWND := "")
 					Sleep 150
 				}
 				LLK_FontDimensions(settings.general.fSize, font_height, font_width), settings.general.fheight := font_height, settings.general.fwidth := font_width
+				LLK_FontDimensions(settings.general.fSize - 4, font_height, font_width), settings.general.fheight2 := font_height, settings.general.fwidth2 := font_width
 				IniWrite, % settings.general.fSize, ini\config.ini, Settings, font-size
 				Init_GUI()
 				Settings_menu("general")
@@ -1961,6 +2014,8 @@ Settings_maptracker()
 	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % LangTrans("m_maptracker_rename")
 	vars.hwnd.settings.rename := vars.hwnd.help_tooltips["settings_maptracker rename"] := hwnd
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.character, % LangTrans("m_maptracker_character")
+	vars.hwnd.settings.character := vars.hwnd.help_tooltips["settings_maptracker character"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mechanics, % LangTrans("m_maptracker_content")
 	vars.hwnd.settings.mechanics := vars.hwnd.help_tooltips["settings_maptracker mechanics"] := hwnd
 	If settings.maptracker.mechanics
@@ -2076,6 +2131,10 @@ Settings_maptracker2(cHWND)
 		Case "rename":
 			settings.maptracker.rename := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.rename, ini\map tracker.ini, settings, rename boss maps
+		Case "character":
+			settings.maptracker.character := LLK_ControlGet(cHWND)
+			IniWrite, % settings.maptracker.character, ini\map tracker.ini, settings, log character info
+			MaptrackerGUI()
 		Case "mechanics":
 			settings.maptracker.mechanics := LLK_ControlGet(cHWND)
 			IniWrite, % settings.maptracker.mechanics, ini\map tracker.ini, settings, track league mechanics
