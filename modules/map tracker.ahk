@@ -524,14 +524,16 @@ MaptrackerGUI(mode := 0)
 	Gui, %GUI_name%: Add, Text, % "Section x" settings.maptracker.fWidth/2 " y0 0x200 h" Ceil(settings.maptracker.fHeight * 1.25) " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? "not tracking" : (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "")
 	vars.hwnd.maptracker.save := hwnd
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled range0-500 BackgroundBlack cGreen HWNDhwnd", 0
-	vars.hwnd.maptracker.delbar := hwnd
+	vars.hwnd.maptracker.delbar := hwnd, count := 0
 
 	If settings.maptracker.notes
 	{
 		If !vars.pics.maptracker.notes0
 			For index, tag in ["", "0"]
 				vars.pics.maptracker["notes" tag] := LLK_ImageCache("img\GUI\mapping tracker\notes" tag ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (IsObject(vars.maptracker.notes) ? "" : "0")]
+		Loop 3
+			count += vars.maptracker.notes[A_Index].Count()
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (count ? "" : "0")]
 		vars.hwnd.maptracker.notes := hwnd
 	}
 
