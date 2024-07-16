@@ -1497,7 +1497,7 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, 
 		If IsObject(vars.maptracker.notes)
 			For index0, array in vars.maptracker.notes
 				For index, note in array
-					notes.tracker[index0][index] := note
+					notes.tracker[index0].Push(note)
 		Return
 	}
 	Else If IsNumber(SubStr(check, 1, 1)) ;long-clicking an entry in the panel which are arranged in arrays within an array: [[user-notes], [items], [scarabs]]
