@@ -496,7 +496,7 @@ MaptrackerFilter(object) ;checks a run's characteristics based on the current se
 				Else If (search = "character") && ((IsNumber(A_LoopField) && level = A_LoopField) || (IsNumber(pMinimum := SubStr(A_LoopField, 1, -1)) && (SubStr(A_LoopField, 0) = "+") && level >= pMinimum)
 				|| (InStr(A_LoopField, "-") && IsNumber(pLower := SubStr(A_LoopField, 1, InStr(A_LoopField, "-") - 1)) && IsNumber(pUpper := SubStr(A_LoopField, InStr(A_LoopField, "-") + 1)) && LLK_IsBetween(level, pLower, pUpper)))
 					Continue
-				Else If !RegExMatch(object[search], "i)" A_LoopField)
+				Else If !RegExMatch(object[search], "i)" StrReplace(A_LoopField, " ", "."))
 					Return
 			}
 		}
@@ -521,7 +521,7 @@ MaptrackerGUI(mode := 0)
 
 	Gui, %GUI_name%: Add, Progress, % "x0 y0 BackgroundWhite HWNDhwnd w" settings.maptracker.fWidth * 0.6 " h" settings.maptracker.fWidth * 0.6, 0
 	vars.hwnd.maptracker.drag := hwnd
-	Gui, %GUI_name%: Add, Text, % "Section x" settings.maptracker.fWidth/2 " y" settings.maptracker.fWidth/4 " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? "not tracking" : (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "")
+	Gui, %GUI_name%: Add, Text, % "Section x" settings.maptracker.fWidth/2 " y0 0x200 h" Ceil(settings.maptracker.fHeight * 1.25) " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? "not tracking" : (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "")
 	vars.hwnd.maptracker.save := hwnd
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled range0-500 BackgroundBlack cGreen HWNDhwnd", 0
 	vars.hwnd.maptracker.delbar := hwnd
@@ -531,7 +531,7 @@ MaptrackerGUI(mode := 0)
 		If !vars.pics.maptracker.notes0
 			For index, tag in ["", "0"]
 				vars.pics.maptracker["notes" tag] := LLK_ImageCache("img\GUI\mapping tracker\notes" tag ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys y0 h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (IsObject(vars.maptracker.notes) ? "" : "0")]
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (IsObject(vars.maptracker.notes) ? "" : "0")]
 		vars.hwnd.maptracker.notes := hwnd
 	}
 
@@ -539,7 +539,7 @@ MaptrackerGUI(mode := 0)
 	{
 		If !vars.pics.maptracker.character
 			vars.pics.maptracker.character := LLK_ImageCache("img\GUI\mapping tracker\character.png"), vars.pics.maptracker.character0 := LLK_ImageCache("img\GUI\mapping tracker\character0.png"), 
-		Gui, %GUI_name%: Add, Pic, % "ys y0 HWNDhwnd h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
+		Gui, %GUI_name%: Add, Pic, % "ys HWNDhwnd hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
 		If vars.log.level
 			vars.hwnd.maptracker.character := hwnd
 	}
@@ -548,7 +548,7 @@ MaptrackerGUI(mode := 0)
 	{
 		If !vars.pics.maptracker["content_" content]
 			vars.pics.maptracker["content_" content] := LLK_ImageCache("img\GUI\mapping tracker\" content ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys y0 h" settings.maptracker.fWidth//2 + settings.maptracker.fHeight " w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
+		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
 	}
 
 	If mode
@@ -1494,17 +1494,17 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, 
 	If (cHWND = "refresh") ;notes tagged with "#" are limited to X map runs, so the static arrays inside this function need to be refreshed each time notes "expire" after saving a run
 	{
 		notes.tracker := [[], [], []]
-		If IsObject(vars.maptracker.notes)
-			For index0, array in vars.maptracker.notes
-				For index, note in array
-					notes.tracker[index0].Push(note)
+		For index0, array in vars.maptracker.notes
+			For index, note in array
+				notes.tracker[index0].Push(note)
+		vars.maptracker.notes := notes.tracker.Clone()
 		Return
 	}
 	Else If IsNumber(SubStr(check, 1, 1)) ;long-clicking an entry in the panel which are arranged in arrays within an array: [[user-notes], [items], [scarabs]]
 	{
 		If !LLK_Progress(vars.hwnd.maptrackernotes_edit[check "_bar"], "LButton") ;long-clicking prevents annoying misclicks
 			Return
-		If (check = 0)
+		If (check = 0) ;the "notes" header is stored as "0" in the HWND object
 			notes[category] := [[], [], []]
 		Else notes[category][SubStr(check, 1, 1)].RemoveAt(SubStr(check, InStr(check, "_") + 1)) ;else remove note X.Y
 		remove := 1
