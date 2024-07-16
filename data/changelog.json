@@ -1,5 +1,12 @@
 [
   [
+	["1.54.2", 15402],
+	"fix: adjusting certain stash-ninja settings led to exchange prices being reset",
+	"fix: notes weren't included and searches weren't applied in map-tracker exports",
+	"map-tracker: added <character/build info> as new log data",
+	"map-tracker: improved how items are added to notes"
+  ],
+  [
 	["1.54.1", 15401],
 	"fix: autohotkey bug caused ini-files to be misconfigured (you may have to update manually, check the full changelog)",
 	"fix: pinned mods in the map-info settings didn't work correctly",
