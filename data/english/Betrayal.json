@@ -162,7 +162,7 @@
   "janus": {
     "rewards": {
       "fortification": [
-        "currency shards",
+        "domination scarabs",
         "quality currency"
       ],
       "intervention": [
@@ -291,11 +291,11 @@
       ],
       "research": [
         "gem exp (mil):\n20 / 70 / 200 / 2x 200",
-        "support gems"
+        "domination scarabs"
       ],
       "transportation": [
         "trapped chest: gem",
-        "skill gems"
+        "skill/support gems"
       ]
     }
   },

@@ -3,16 +3,16 @@
     "clear",
     "sepia",
     "amber",
-    "verdant",
+    "verd",
     "teal",
     "azure",
-    "indigo",
+    "indi",
     "violet",
-    "crimson",
+    "crim",
     "black",
-    "opalescent",
+    "opal",
     "silver",
-    "golden"
+    "gold"
   ],
   "amulets": {
     "Acrimony": "1, 10, 10",
