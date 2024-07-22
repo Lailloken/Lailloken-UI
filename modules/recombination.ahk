@@ -189,7 +189,7 @@ Recombination_GUI(cHWND := "")
 	item1 := vars.recombination.item1, item2 := vars.recombination.item2, desired := vars.recombination.desired, width := vars.recombination.wMods, height := vars.recombination.hMods
 	mismatch := (!Blank(item2.class) && (item1.class != item2.class))
 	mismatch_affixes := (!Blank(item2.class) && (item1.mod_counts.prefixes != item2.mod_counts.prefixes || item1.mod_counts.suffixes != item2.mod_counts.suffixes))
-	LLK_PanelDimensions(["10000/10000 (100%) " LangTrans("global_success")], settings.general.fSize, wChance, hChance)
+	LLK_PanelDimensions(["10000/10000 (100.00%)"], settings.general.fSize, wChance, hChance,,, 0)
 
 	For index, val in settings.recombination.colors
 	{
@@ -204,7 +204,7 @@ Recombination_GUI(cHWND := "")
 			Continue
 		If (A_Index = 2)
 		{
-			Gui, %GUI_name%: Add, Pic, % "ys x+0 HWNDhwnd hp w-1", % "HBitmap:*" vars.pics.global.help
+			Gui, %GUI_name%: Add, Pic, % "ys x+0 HWNDhwnd h" settings.general.fHeight " w-1", % "HBitmap:*" vars.pics.global.help
 			vars.hwnd.help_tooltips["recombination_basics"] := hwnd
 		}
 		style := " ys x+0 y" settings.general.fWidth, outer := A_Index
@@ -228,7 +228,7 @@ Recombination_GUI(cHWND := "")
 		If !mismatch && !mismatch_affixes && (item%index%.Count() || (A_Index = 2))
 		{
 			Gui, %GUI_name%: Font, % "underline s" settings.general.fSize
-			Gui, %GUI_name%: Add, Text, % "xs ", % LangTrans("recomb_" affixes[A_Index])
+			Gui, %GUI_name%: Add, Text, % "xs w" width, % LangTrans("recomb_" affixes[A_Index])
 			Gui, %GUI_name%: Font, % "norm s" settings.general.fSize - 2
 			added := {}
 			Loop 2
@@ -285,30 +285,34 @@ Recombination_Simulate()
 				If !unique_mods.HasKey(v)
 					unique_mods[v] := 1
 
-			Random, rng, 1, rolls[%affix%.Count()]
-			For key, val in odds[%affix%.Count()]
+			If %affix%.Count()
 			{
-				If !IsNumber(key)
-					Continue
-				If (rng <= val)
+				Random, rng, 1, rolls[Min(6, %affix%.Count())]
+				For key, val in odds[Min(6, %affix%.Count())]
 				{
-					mod_count := Min(key, unique_mods.Count(), item1.mod_counts[affix])
-					Break
+					If !IsNumber(key)
+						Continue
+					If (rng <= val)
+					{
+						mod_count := Min(key, unique_mods.Count(), item1.mod_counts[affix])
+						Break
+					}
 				}
+				If IsNumber(mod_count) && (mod_count < desired[affix].Count())
+					Continue 2
+				While IsNumber(mod_count) && (mods.Count() < mod_count)
+				{
+					Random, rng, 1, %affix%.Count()
+					If !mods.HasKey(%affix%[rng])
+						mods[%affix%[rng]] := 1
+				}
+				For key, mod in desired[affix]
+					If !mods.HasKey(key)
+						Continue 3
 			}
-			If (mod_count < desired[affix].Count())
-				Continue 2
-			While (mods.Count() < mod_count)
-			{
-				Random, rng, 1, %affix%.Count()
-				If !mods.HasKey(%affix%[rng])
-					mods[%affix%[rng]] := 1
-			}
-			For key, mod in desired[affix]
-				If !mods.HasKey(key)
-					Continue 3
+			Else Continue
 		}
 		hits += 1
 	}
-	Return hits "/10000 (" Round((hits/10000) * 100, 2) "%) " LangTrans("global_success") 
+	Return hits "/10000 (" Round((hits/10000) * 100, 2) "%)"
 }
