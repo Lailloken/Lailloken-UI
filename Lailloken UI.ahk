@@ -50,12 +50,12 @@ If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
 Init_iteminfo()
 Init_legion()
 Init_mapinfo()
-Init_necropolis()
 Init_OCR()
 Init_searchstrings()
 Init_leveltracker()
 Init_maptracker()
 Init_qol()
+Init_recombination()
 Init_stash()
 Init_hotkeys()
 Resolution_check()
@@ -100,10 +100,10 @@ Return
 #Include modules\leveling tracker.ahk
 #Include modules\map-info.ahk
 #Include modules\map tracker.ahk
-#Include modules\necropolis.ahk
 #Include modules\ocr.ahk
 #Include modules\omni-key.ahk
 #Include modules\qol tools.ahk
+#Include modules\recombination.ahk
 #Include modules\screen-checks.ahk
 #Include modules\search-strings.ahk
 #Include modules\seed-explorer.ahk
@@ -254,7 +254,7 @@ HelpToolTip(HWND_key)
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	If (check = "donation")
 		check := "settings", donation := 1
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion"}
+	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
 	If (check = "lab" && InStr(control, "square"))
@@ -298,7 +298,7 @@ HelpToolTip(HWND_key)
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
 	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
-	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (check = "maptracker" ? height - 1 : 0) : yPos)
+	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker, recombination", check) ? yWin - (InStr("maptracker, recombination", check) ? height - 1 : 0) : yPos)
 	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
@@ -641,6 +641,7 @@ Init_vars()
 	vars.mapinfo := {}
 	vars.hwnd := {"help_tooltips": {}}
 	vars.help := Json.Load(LLK_FileRead("data\english\help tooltips.json",, "65001"))
+	vars.recombination := {"classes": ["shield", "sword", "quiver", "bow", "claw", "dagger", "mace", "ring", "amulet", "helmet", "glove", "boot", "belt", "wand", "staves", "axe", "sceptre", "body"]}
 	vars.snip := {}
 	Loop, Files, data\alt_font*
 		alt_font := A_LoopFileName
@@ -662,7 +663,7 @@ Loop()
 	If !WinExist("ahk_group poe_window")
 		vars.client.closed := 1, vars.hwnd.poe_client := ""
 
-	If !WinExist("ahk_group poe_window") && (A_TickCount >= vars.general.runcheck + settings.general.kill[2]* 60000) && settings.general.kill[1] && !vars.alarm.timestamp
+	If !WinExist("ahk_group poe_window") && (A_TickCount >= vars.general.runcheck + settings.general.kill[2]* 60000) && settings.general.kill[1]
 		ExitApp
 
 	If WinExist("ahk_group poe_window")
@@ -773,7 +774,7 @@ Loop_main()
 	MouseHover()
 	IteminfoOverlays()
 
-	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && (vars.general.wMouse != vars.hwnd.necropolis.main) && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
+	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
 		WinActivate, % "ahk_id " vars.general.wMouse
 
 	If !vars.general.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
@@ -846,7 +847,7 @@ Loop_main()
 		remove_tooltips := ""
 	}
 
-	If !vars.general.gui_hide && (WinActive("ahk_group poe_ahk_window") || (settings.general.dev && WinActive("ahk_exe code.exe"))) && !vars.client.closed && !WinActive("ahk_id "vars.hwnd.leveltracker_screencap.main) && !WinActive("ahk_id "vars.hwnd.snip.main) && !WinActive("ahk_id "vars.hwnd.cheatsheet_menu.main) && !WinActive("ahk_id "vars.hwnd.searchstrings_menu.main) && !WinActive("ahk_id "vars.hwnd.notepad.main) && !(vars.general.inactive && WinActive("ahk_id "vars.hwnd.settings.main))
+	If !vars.general.gui_hide && (WinActive("ahk_group poe_ahk_window") || (settings.general.dev && WinActive("ahk_exe code.exe"))) && !vars.client.closed && !WinActive("ahk_id "vars.hwnd.leveltracker_screencap.main) && !WinActive("ahk_id "vars.hwnd.snip.main) && !WinActive("ahk_id "vars.hwnd.cheatsheet_menu.main) && !WinActive("ahk_id "vars.hwnd.searchstrings_menu.main) && !WinActive("ahk_id "vars.hwnd.notepad.main) && !WinActive("ahk_id " vars.hwnd.alarm.main) && !(vars.general.inactive && WinActive("ahk_id "vars.hwnd.settings.main))
 	{
 		If vars.general.inactive
 		{
@@ -1533,6 +1534,11 @@ LLK_FileCheck()
 			FileDelete, data\%val%
 			FileRemoveDir, data\%val%, 1
 		}
+	For index, val in ["necropolis.ahk"]
+		If FileExist("modules\" val)
+			FileDelete, modules\%val%
+	If FileExist("data\english\necropolis.json")
+		FileDelete, data\english\necropolis.json
 	If FileExist("ini\altars.ini")
 		FileMove, ini\altars.ini, ini\ocr - altars.ini, 1
 	If !FileExist("data\") || !FileExist("data\global\") || !FileExist("data\english\") || !FileExist("data\english\UI.txt") || !FileExist("data\english\client.txt")
