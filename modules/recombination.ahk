@@ -266,7 +266,8 @@ Recombination_Simulate()
 {
 	local
 	global vars, settings
-	static odds := [{"0": 333, "1": 999, "range": 999}, {"1": 666, "2": 999, "range": 999}, {"1": 300, "2": 800, "3": 1000, "range": 1000}, {"1": 100, "2": 650, "3": 1000, "range": 1000}, {"2": 500, "3": 1000, "range": 1000}, {"2": 300, "3": 1000, "range": 1000}]
+	static rolls := [999, 999, 1000, 1000, 1000, 1000]
+	, odds := [{"0": 333, "1": 999}, {"1": 666, "2": 999}, {"1": 300, "2": 800, "3": 1000}, {"1": 100, "2": 650, "3": 1000}, {"2": 500, "3": 1000}, {"2": 300, "3": 1000}]
 
 	item1 := vars.recombination.item1, item2 := vars.recombination.item2, desired := vars.recombination.desired, hits := 0
 	Loop 10000
@@ -284,7 +285,7 @@ Recombination_Simulate()
 				If !unique_mods.HasKey(v)
 					unique_mods[v] := 1
 
-			Random, rng, 1, odds[%affix%.Count()].range
+			Random, rng, 1, rolls[%affix%.Count()]
 			For key, val in odds[%affix%.Count()]
 			{
 				If !IsNumber(key)
