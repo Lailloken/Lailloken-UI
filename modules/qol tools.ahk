@@ -130,7 +130,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDalarm_set", LLK-UI: alarm set
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
-			Gui, alarm_set: Font, % "s" settings.alarm.fSize - 4 " cWhite", % vars.system.font
+			Gui, alarm_set: Font, % "s" Max(6, settings.alarm.fSize * 0.7) " cWhite", % vars.system.font
 			vars.hwnd.alarm.alarm_set := alarm_set
 
 			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd Center r1 w" vars.alarm.wTimers
