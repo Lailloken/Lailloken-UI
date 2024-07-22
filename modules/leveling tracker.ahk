@@ -36,7 +36,7 @@
 	settings.leveltracker.hotkeys := !Blank(check := ini.settings["enable page hotkeys"]) ? check : vars.client.stream
 	settings.leveltracker.hotkey_1 := !Blank(check := ini.settings["hotkey 1"]) ? check : "F3"
 	settings.leveltracker.hotkey_2 := !Blank(check := ini.settings["hotkey 2"]) ? check : "F4"
-	settings.leveltracker.fSize := !Blank(check := ini.settings["font_size"]) ? check : settings.general.fSize
+	settings.leveltracker.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
 	LLK_FontDimensions(settings.leveltracker.fSize, font_height, font_width), settings.leveltracker.fHeight := font_height, settings.leveltracker.fWidth := font_width
 	settings.leveltracker.pob := !Blank(check := ini.settings["enable pob-screencap"]) ? check : 0
 	settings.leveltracker.trans := !Blank(check := ini.settings["transparency"]) ? check : 5
@@ -620,7 +620,7 @@ LeveltrackerImport(profile := "")
 					continue
 
 				attr := (gems[gemID].primary_attribute = "none") ? "none" : SubStr(gems[gemID].primary_attribute, 1, 3), type := InStr(gems[gemID].name, "support") || InStr(gems[gemID].name, "arcanist brand") ? "supp" : "skill"
-				If (attr = "none")
+				If (attr = "none") || (gems[gemID].name = "convocation")
 					build_gems_none .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 				Else build_gems_%type%_%attr% .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
 
@@ -1290,10 +1290,9 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 
 	width -= 2, height -= 2, height_total := height + hControls + 2
 	xPos := Blank(settings.leveltracker.xCoord) ? vars.client.xc - width / 2 : settings.leveltracker.xCoord, xPos := (xPos >= vars.monitor.w / 2) ? xPos - width : xPos
+	xPos := (xPos >= vars.monitor.w) ? vars.monitor.w - width : xPos
 	yPos := Blank(settings.leveltracker.yCoord) ? vars.client.y - vars.monitor.y + vars.client.h + 1 : settings.leveltracker.yCoord, yPos := (yPos >= vars.monitor.h / 2) ? yPos - height_total : yPos
-	;Msgbox, % xPos ", " yPos "`n" vars.client.xc
-	;vars.monitor.x + settings.leveltracker.xCoord - (settings.leveltracker.xCoord >= vars.monitor.x + vars.monitor.w / 2 ? width/2 : 0)
-	;yPos := Blank(settings.leveltracker.yCoord) ? vars.client.y + vars.client.h - height - hControls + (settings.leveltracker.timer ? 1 : 0) : vars.monitor.y + settings.leveltracker.yCoord - (settings.leveltracker.yCoord >= vars.monitor.y + vars.monitor.h / 2 ? height : 0)
+	yPos := (yPos >= vars.monitor.h) ? vars.monitor.h - height_total + 1 : yPos
 
 	Gui, %GUI_name_controls2%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos + height + 1
 	Gui, %GUI_name_controls1%: Show, % (vars.leveltracker.fade ? "Hide" : "NA") " x" vars.monitor.x + xPos " y" vars.monitor.y + yPos + height + 1
@@ -1554,7 +1553,7 @@ LeveltrackerStrings()
 
 	For key, val in vars.leveltracker.guide.gems
 	{
-		regex := StrReplace(db.leveltracker.regex[val].1, " ", "."), regex := !regex ? val : regex
+		regex := StrReplace(db.leveltracker.regex[val].1, " ", "."), regex := !regex ? StrReplace(val, " ", ".") : regex
 		If !Blank(LLK_HasVal(vars.leveltracker.guide.group1, "fixture_of_fate", 1))
 		{
 			attr := attr_check[db.leveltracker.regex[val].2], type := InStr(val, " support") ? "_supp" : ""

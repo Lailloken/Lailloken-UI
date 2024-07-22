@@ -31,12 +31,11 @@
 
 	vars.pixelsearch.variation := 0, vars.pixelsearch.list := {"gamescreen": 1, "inventory": 1}
 	vars.imagesearch := {}
-	vars.imagesearch.search := ["skilltree", "necro_lantern", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
-	vars.imagesearch.list := {"betrayal": 1, "necro_lantern": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
+	vars.imagesearch.search := ["skilltree", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
+	vars.imagesearch.list := {"betrayal": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
 	vars.imagesearch.checks := {"betrayal": {"x": vars.client.w - Round((1/72) * vars.client.h) * 2 , "y": Round((1/72) * vars.client.h), "w": Round((1/72) * vars.client.h), "h": Round((1/72) * vars.client.h)}
 		, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
-		, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}
-		, "necro_lantern": ""}
+		, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}}
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
@@ -93,7 +92,7 @@ Screenchecks_ImageRecalibrate(mode := "", check := "")
 	If mode
 		Return
 
-	If (check && vars.system.click = 1) && !InStr(check, "necro_")
+	If (check && vars.system.click = 1)
 	{
 		pBitmap := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1), checks := vars.imagesearch.checks
 		If settings.general.blackbars
@@ -162,7 +161,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 	For key, val in vars.imagesearch.search
 		vars.imagesearch[val].check := 0 ;reset results for all checks
 	check := 0
-	For index, val in ["betrayal", "leveltracker", "necropolis", "maptracker"]
+	For index, val in ["betrayal", "leveltracker", "maptracker"]
 		check += (val = "maptracker") ? settings.features.maptracker * settings.maptracker.loot : settings.features[val]
 	If !check
 		Return
@@ -173,15 +172,13 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 		If name ;if parameter was passed to function, override val
 			val := name
 
-		If (val != name) && ((settings.features[val] = 0) || InStr(val, "necro_") && !settings.features.necropolis || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
+		If (val != name) && ((settings.features[val] = 0) || (val = "skilltree" && !settings.features.leveltracker) || (val = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)))
 			continue ;skip check if the connected feature is not enabled
 
 		If InStr(A_Gui, "settings_menu") ;when testing a screen-check via the settings, check the whole screenshot
 			x1 := 0, y1 := 0, x2 := 0, y2 := 0, settings_menu := 1
 		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
-		Else If (val = "necro_lantern")
-			x1 := settings.general.oGamescreen + vars.client.w // 2 - Round(vars.client.h * 0.215), y1 := 0, x2 := settings.general.oGamescreen + vars.client.w//2 + Round(vars.client.h * 0.215), y2 := vars.client.h // 2
 		Else x1 := vars.imagesearch[val].x1, y1 := vars.imagesearch[val].y1, x2 := vars.imagesearch[val].x2, y2 := vars.imagesearch[val].y2
 
 		pNeedle := Gdip_CreateBitmapFromFile("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;load the reference image
@@ -190,7 +187,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 			Gdip_GetImageDimension(pNeedle, width, height)
 			vars.imagesearch[val].check := 1, vars.imagesearch[val].found := StrSplit(LIST, ",")
 			vars.imagesearch[val].found.1 -= settings.general.oGamescreen, vars.imagesearch[val].found.3 := width, vars.imagesearch[val].found.4 := height
-			If (!InStr(val, "necro") || settings_menu) && (SubStr(LIST, 1, InStr(LIST, ",") - 1) != vars.imagesearch[val].x1 || SubStr(LIST, InStr(LIST, ",") + 1) != vars.imagesearch[val].y1) ;if the coordinates are different from those saved in the ini, update them
+			If settings_menu && (SubStr(LIST, 1, InStr(LIST, ",") - 1) != vars.imagesearch[val].x1 || SubStr(LIST, InStr(LIST, ",") + 1) != vars.imagesearch[val].y1) ;if the coordinates are different from those saved in the ini, update them
 			{
 				coords := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height)
 				IniWrite, % coords, % "ini\screen checks ("vars.client.h "p).ini", % val, last coordinates
@@ -206,9 +203,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 				}
 			}
 			Gdip_DisposeImage(pNeedle)
-			If (val != "necro_lantern") ;for the necropolis lantern, don't dispose of the image but make a copy of the pointer
-				Gdip_DisposeImage(pHaystack)
-			Else vars.imagesearch[val].pHaystack := pHaystack
+			Gdip_DisposeImage(pHaystack)
 			Return 1
 		}
 		Else Gdip_DisposeImage(pNeedle)

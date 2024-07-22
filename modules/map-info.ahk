@@ -488,16 +488,6 @@ MapinfoParse(mode := 1)
 			}
 	}
 
-	/*
-	If !item.itembase
-	{
-		For key, val in db.mapinfo.localization
-			If InStr(item.name, key (LLK_PatternMatch(key, "", ["Invitation", "Logbook", "Contract", "Blueprint"]) ? "" : " Map"), 1)
-				name := val, name_copy := key
-	}
-	Else name := db.mapinfo.localization[LLK_StringRemove(item.itembase, " Map,Maven's ")], name_copy := LLK_StringRemove(item.itembase, " Map,Maven's ")
-	*/
-
 	If !item.itembase_copy
 	{
 		name := item.name_copy, passes := 0

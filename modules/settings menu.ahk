@@ -528,7 +528,7 @@ Settings_donations()
 			vars.settings.donations := JSON.load(donations_new), live_list := 1
 	}
 
-	last_update := A_TickCount, dimensions := [], rearrange := []
+	last_update := A_TickCount, dimensions := ["`n"], rearrange := []
 	For key, val in vars.settings.donations
 		If !val.0
 			new_key := LLK_PanelDimensions([key], settings.general.fSize, width0, height0,,,, 1), dimensions.Push(new_key), rearrange.Push([key, new_key])
@@ -2228,7 +2228,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "item-info", "map-info", "mapping tracker", "minor qol tools", "necropolis", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "item-info", "map-info", "mapping tracker", "minor qol tools", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -2269,7 +2269,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
 	ControlGetPos, x, y,,,, ahk_id %hwnd%
 	vars.hwnd.settings.general := hwnd, vars.settings.xSelection := x, vars.settings.ySelection := y + vars.settings.line1, vars.settings.wSelection := section_width, vars.hwnd.settings["background_general"] := hwnd1
-	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo", "necropolis": "necropolis", "tldr-tooltips": "OCR", "stash-ninja": "stash"}
+	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo", "tldr-tooltips": "OCR", "stash-ninja": "stash"}
 	feature_check2 := {"item-info": 1, "mapping tracker": 1, "map-info": 1}
 
 	If !vars.general.buggy_resolutions.HasKey(vars.client.h) && !vars.general.safe_mode
@@ -2386,8 +2386,6 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 			Settings_mapinfo()
 		Case "minor qol tools":
 			Settings_qol()
-		Case "necropolis":
-			Settings_necropolis()
 		Case "screen-checks":
 			Settings_screenchecks()
 		Case "search-strings":
@@ -2409,148 +2407,6 @@ Settings_menuClose()
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
 	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings"), vars.settings.mapinfo_search := ""
 	WinActivate, ahk_group poe_window
-}
-
-Settings_necropolis()
-{
-	local
-	global vars, settings
-
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
-	Gui, %GUI%: Add, Link, % "Section HWNDhwnd x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Necropolis">wiki page</a>
-
-	If (vars.client.h <= 720) ;&& !settings.general.dev
-	{
-		ControlGetPos, x,, w,,, ahk_id %hwnd%
-		Gui, %GUI%: Add, Text, % "xs Section cRed w" w*4 " y+" vars.settings.spacing, % LangTrans("m_ocr_unsupported")
-		Return
-	}
-
-	If (settings.general.lang_client != "english") && !vars.client.stream
-	{
-		Settings_unsupported()
-		Return
-	}
-
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_necropolis2 HWNDhwnd Checked" settings.features.necropolis " y+"vars.settings.spacing . (!settings.OCR.allow ? " cRed" : ""), % LangTrans("m_necro_enable")
-	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_necro " (settings.OCR.allow ? "enable" : "compatibility")] := hwnd
-
-	If !settings.features.necropolis
-		Return
-
-	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("global_general")
-	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd2 gSettings_necropolis2 Checked" settings.necropolis.debug, % LangTrans("m_ocr_debug")
-	vars.hwnd.settings.debug := vars.hwnd.help_tooltips["settings_ocr debug"] := hwnd2
-
-	Gui, %GUI%: Font, underline bold
-	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_ui")
-	Gui, %GUI%: Font, norm
-
-	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_opacity")
-	Gui, %GUI%: Add, Text, % "ys gSettings_necropolis2 HWNDhwndminus Center Border w" settings.general.fWidth * 2, % "–"
-	Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwndreset Center Border", % " " LangTrans("global_reset") " "
-	Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwndplus Center Border w" settings.general.fWidth * 2, % "+"
-	vars.hwnd.settings["opac_minus"] := hwndminus, vars.hwnd.settings["opac_reset"] := hwndreset, vars.hwnd.settings["opac_plus"] := hwndplus
-
-	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("m_necro_offset")
-	Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", % "HBitmap:*" vars.pics.global.help
-	vars.hwnd.help_tooltips["settings_necro offsets"] := hwnd
-	LLK_PanelDimensions([LangTrans("global_width"), LangTrans("global_height")], settings.general.fSize, w1, h1), LLK_PanelDimensions([LangTrans("global_axis", 1), LangTrans("global_axis", 2)], settings.general.fSize, w2, h2), wControl := Max(w1, w2)
-	For index, array in [["w", "width"], ["h", "height"], ["g", "gap"], ["x", "axis"], ["y", "axis"]]
-	{
-		Gui, %GUI%: Add, Text, % (InStr("14", index) ? "xs Section" : "ys") " gSettings_necropolis2 HWNDhwndminus Center Border w" settings.general.fWidth * 2, % "–"
-		Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwndreset Center Border" (index != 3 ? " w" wControl : ""), % " " LangTrans("global_" array.2, (array.2 = "axis") ? (index = 4 ? 1 : 2) : 1) " "
-		;Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwndreset Center Border w" settings.general.fWidth * 2, % "r"
-		Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwndplus Center Border w" settings.general.fWidth * 2, % "+"
-		vars.hwnd.settings[array.1 "minus"] := hwndminus, vars.hwnd.settings[array.1 "reset"] := hwndreset, vars.hwnd.settings[array.1 "plus"] := hwndplus
-	}
-
-	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("m_iteminfo_highlight")
-	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
-	vars.hwnd.help_tooltips["settings_necro colors"] := hwnd
-	For index, color in settings.necropolis.colors
-	{
-		Gui, %GUI%: Add, Text, % (index = 0 ? "xs Section" : "ys") " Border Center w" settings.general.fWidth * 2, % (index = 0 ? "s" : index)
-		Gui, %GUI%: Add, Text, % "ys x+-1 gSettings_necropolis2 HWNDhwnd Border BackgroundTrans Center w" settings.general.fWidth * 3, % " "
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd1 c" color, 100
-		vars.hwnd.settings["color_" index] := hwnd, vars.hwnd.settings["color_" index "_panel"] := hwnd1
-	}
-}
-
-Settings_necropolis2(cHWND)
-{
-	local
-	global vars, settings
-	static in_progress := 0
-
-	If in_progress
-		Return
-
-	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), in_progress := 1
-	Switch check
-	{
-		Case "enable":
-		If !settings.OCR.allow
-		{
-			GuiControl,, % cHWND, 0
-			compat_text := OCR_("compat"), in_progress := 0
-			Return
-		}
-		settings.features.necropolis := LLK_ControlGet(cHWND)
-		IniWrite, % settings.features.necropolis, ini\config.ini, features, enable necropolis
-		If WinExist("ahk_id " vars.hwnd.necropolis.main)
-			Necropolis_Close()
-		Settings_menu("necropolis")
-
-		Case "debug":
-		settings.necropolis.debug := LLK_ControlGet(cHWND)
-		IniWrite, % settings.necropolis.debug, ini\necropolis.ini, settings, enable debug
-
-		Default:
-		If !WinExist("ahk_id " vars.hwnd.necropolis.main)
-			LLK_ToolTip(LangTrans("m_necro_nowindow"), 2,,,, "red")
-		Else If vars.necropolis.debug
-			Sleep 1
-		Else
-		{
-			If InStr(check, "opac_")
-			{
-				If (control = "reset")
-					settings.necropolis.opac := 50
-				Else settings.necropolis.opac += (control = "minus") ? (settings.necropolis.opac >= 50 ? -25 : 0) : (settings.necropolis.opac <= 230 ? 25 : 0)
-				IniWrite, % settings.necropolis.opac, ini\necropolis.ini, UI, opacity
-				If WinExist("ahk_id " vars.hwnd.necropolis.main)
-					Necropolis_("refresh")
-			}
-			Else If InStr(check, "color_")
-			{
-				color := (vars.system.click = 1) ? RGB_Picker(settings.necropolis.colors[control]) : settings.necropolis.dColors[control]
-				If !Blank(color)
-				{
-					settings.necropolis.colors[control] := color
-					IniWrite, % color, ini\necropolis.ini, UI, % "color " control
-					GuiControl, % "+c" color, % vars.hwnd.settings["color_" control "_panel"]
-					If WinExist("ahk_id " vars.hwnd.necropolis.main)
-						Necropolis_("refresh")
-				}
-			}
-			Else If InStr(check, "plus") || InStr(check, "minus") || InStr(check, "reset")
-			{
-				parse := {"g": "Gap", "x": "Xpos", "y": "Ypos", "w": "Width", "h": "Height"}
-				setting := parse[StrReplace(StrReplace(StrReplace(check, "reset"), "minus"), "plus")]
-				If InStr(check, "reset")
-					settings.necropolis["o" setting] := 0
-				Else settings.necropolis["o" setting] += InStr(check, "minus") ? -1 : 1
-				IniWrite, % settings.necropolis["o" setting], ini\necropolis.ini, UI, % setting " offset"
-				If WinExist("ahk_id " vars.hwnd.necropolis.main)
-					Necropolis_("refresh")
-			}
-			Else LLK_ToolTip("no action: " check)
-		}
-	}
-	in_progress := 0
 }
 
 Settings_OCR()
@@ -2895,7 +2751,7 @@ Settings_qol2(cHWND)
 			If WinExist("ahk_id " vars.hwnd.notepad.main)
 				Notepad("save"), Notepad()
 		}
-		If (control = "alarm") && WinExist("ahk_id " vars.hwnd.alarm.main)
+		If (control = "alarm") && vars.alarm.toggle
 			Alarm()
 	}
 	Else If InStr(check, "font_")
@@ -2921,6 +2777,8 @@ Settings_qol2(cHWND)
 		If (control1 = "notepad") && vars.hwnd.notepad_widgets.Count()
 			For key, val in vars.hwnd.notepad_widgets
 				NotepadWidget(key)
+		If (control1 = "alarm") && vars.alarm.toggle
+			Alarm()
 	}
 	Else If InStr(check, "opac_")
 	{
@@ -2995,7 +2853,7 @@ Settings_screenchecks()
 
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || InStr(key, "necro_") && !settings.features.necropolis || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
 			Continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
@@ -3113,7 +2971,7 @@ Settings_ScreenChecksValid()
 
 	For key, val in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || InStr(key, "necro_") && !settings.features.necropolis || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
 			continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && !Blank(vars.imagesearch[key].x1) ? 1 : 0
 	}

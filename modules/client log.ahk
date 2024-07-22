@@ -63,8 +63,14 @@ LogLoop(mode := 0)
 	static button_color
 
 	Critical
-	If settings.qol.alarm && !vars.alarm.drag && vars.alarm.timestamp && (vars.alarm.timestamp <= A_Now || vars.alarm.toggle)
-		Alarm()
+	If settings.qol.alarm && !vars.alarm.drag
+	{
+		For timestamp, timer in vars.alarm.timers
+			If IsNumber(StrReplace(timestamp, "|")) && (timestamp <= A_Now)
+				expired := "expired"
+		If (expired || vars.alarm.toggle) && !WinExist("ahk_id " vars.hwnd.alarm.alarm_set)
+			Alarm("", "", vars.alarm.toggle ? "" : expired)
+	}
 
 	guide := vars.leveltracker.guide ;short-cut variable
 	If !WinActive("ahk_group poe_ahk_window") || !vars.log.file_location || !WinExist("ahk_group poe_window")

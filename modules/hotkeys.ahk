@@ -60,6 +60,13 @@ HotkeysESC()
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
+	Else If WinExist("ahk_id " vars.hwnd.recombination.main)
+		LLK_Overlay(vars.hwnd.recombination.main, "destroy"), vars.recombination.item1 := vars.recombination.item2 := vars.recombination.desired := vars.hwnd.recombination.main := ""
+	Else If vars.hwnd.alarm.alarm_set && WinExist("ahk_id " vars.hwnd.alarm.alarm_set)
+	{
+		Gui, alarm_set: Destroy
+		vars.hwnd.alarm.alarm_set := ""
+	}
 	Else If WinExist("ahk_id " vars.hwnd.stash_index.main)
 		Stash_PriceIndex("destroy")
 	Else If WinExist("ahk_id " vars.hwnd.stash.main)
@@ -83,8 +90,6 @@ HotkeysESC()
 	}
 	Else If vars.snipping_tool.GUI
 		vars.snipping_tool := {"GUI": 0}
-	Else If WinExist("ahk_id " vars.hwnd.necropolis.main)
-		Necropolis_Close()
 	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 		OCR_Close()
 	Else If WinExist("LLK-UI: notepad reminder")
@@ -250,8 +255,7 @@ HotkeysTab()
 	If InStr(active, "alarm")
 	{
 		vars.alarm.toggle := 0
-		If !vars.alarm.timestamp || (vars.alarm.timestamp > A_Now)
-			LLK_Overlay(vars.hwnd.alarm.main, "destroy")
+		LLK_Overlay(vars.hwnd.alarm.main, "destroy")
 	}
 	If InStr(active, "notepad")
 	{
@@ -274,7 +278,9 @@ HotkeysTab()
 		vars.maptracker.toggle := 0, LLK_Overlay(vars.hwnd.maptracker.main, "hide")
 	If InStr(active, " lab") && WinExist("ahk_id "vars.hwnd.lab.main)
 		LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
-	If active
+	If vars.hwnd.alarm.alarm_set && WinExist("ahk_id " vars.hwnd.alarm.alarm_set)
+		WinActivate, % "ahk_id " vars.hwnd.alarm.alarm_set
+	Else If active
 		WinActivate, ahk_group poe_window
 }
 
@@ -320,22 +326,6 @@ MButton::Stash_PricePicker("reset")
 *3::
 *4::
 *5::OCR_Highlight(A_ThisHotkey)
-
-#If !vars.necropolis.debug && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.necropolis.main) && WinActive("ahk_group poe_ahk_window") ;hovering over the necropolis overlay
-*Space::
-*1::
-*2::
-*3::
-*4::
-*5::Necropolis_Highlight(vars.general.cMouse, A_ThisHotkey)
-*MButton::
-*RButton::Return
-
-#If vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1_enter, vars.necropolis.x2_enter) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1_enter, vars.necropolis.y2_enter)
-*~LButton::Necropolis_Close()
-
-#If !vars.necropolis.debug && vars.necropolis.GUI && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.necropolis.x1, vars.necropolis.x2) && LLK_IsBetween(vars.general.yMouse, vars.necropolis.y1, vars.necropolis.y2)
-*LButton::Necropolis_Click()
 
 #If vars.snipping_tool.GUI && WinActive("ahk_id " vars.hwnd.snipping_tool.main)
 *W::
@@ -407,8 +397,8 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.alarm.main) && !Blank(LLK_HasVal(vars.hwnd.alarm, vars.general.cMouse)) ;hovering the alarm-timer and clicking
 
-*LButton::Alarm(1)
-*RButton::Alarm(2)
+*LButton::Alarm(1, vars.general.cMouse)
+*RButton::Alarm(2, vars.general.cMouse)
 
 #If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.settings.main) && InStr(LLK_HasVal(vars.hwnd.settings, vars.general.cMouse), "mapmod_")) ;ranking map-mods
 
