@@ -68,7 +68,6 @@
 		ms_mapping tracker		=	"map-tracker"
 		ms_map-info			=	"map-info"
 		ms_minor qol tools		=	"minor qol tools"
-		ms_necropolis			=	"necropolis"
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
 		ms_stash-ninja			=	"stash-ninja"
@@ -145,7 +144,6 @@
 		global_ultrawide		=	"Are there black bars on the sides of the client?"
 		global_credits			=	"credits"
 		global_none			=	"none"
-		global_necro_lantern		=	"necro: lantern"
 		global_axis			=	"x-axis"
 		global_axis			=	"y-axis"
 		global_width			=	"width"
@@ -764,16 +762,6 @@
 		m_mapinfo_modsearch		=	"mod search:"
 		m_mapinfo_roll_highlight	=	"highlight map rolls"
 
-
-
-;#####################################################
-;## settings menu: necropolis
-;#####################################################
-
-;## these strings are displayed/required in the "necropolis" section of the settings menu
-		m_necro_enable			=	"enable lantern highlighting (experimental)"
-		m_necro_offset			=	"overlay offsets:"
-		m_necro_nowindow		=	"open the overlay;before changing settings"
 
 
 ;#####################################################
