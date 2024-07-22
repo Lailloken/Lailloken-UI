@@ -1,1758 +1,1798 @@
 {
-  "_IMPORTANT": [
-    "these regex strings have to be used like this: ^regex$",
-    "also, these are rather conservative to avoid false highlighting after league launch"
-  ],
   "Absolution": [
-    "abs.*ion",
+    "",
     "1"
   ],
   "Added Chaos Damage Support": [
-    "add.*ch.*rt",
+    "",
     "3"
   ],
   "Added Cold Damage Support": [
-    "add.*co.*rt",
+    "",
     "2"
   ],
   "Added Fire Damage Support": [
-    "added.f.*rt",
+    "",
     "1"
   ],
   "Added Lightning Damage Support": [
-    "added.l.*rt",
+    "",
     "3"
   ],
   "Additional Accuracy Support": [
-    "addi.*rt",
+    "",
     "2"
   ],
   "Advanced Traps Support": [
-    "adv.*rt",
+    "",
     "2"
   ],
   "Alchemist's Mark": [
-    "alc.*ark",
+    "",
     "2"
   ],
   "Ambush": [
-    "ambush",
+    "",
     "2"
   ],
   "Ancestral Call Support": [
-    "anc.*rt",
+    "",
     "1"
   ],
   "Ancestral Cry": [
-    "anc.*cry",
+    "",
     "1"
   ],
   "Ancestral Protector": [
-    "anc.*tor",
+    "",
     "1"
   ],
   "Ancestral Warchief": [
-    "anc.*ief",
+    "",
     "1"
   ],
   "Anger": [
-    "anger",
+    "",
     "1"
   ],
   "Animate Guardian": [
-    "ani.*ian",
+    "",
     "1"
   ],
   "Animate Weapon": [
-    "ani.*pon",
+    "",
     "2"
   ],
   "Arc": [
-    "arc",
+    "",
     "3"
   ],
   "Arcane Cloak": [
-    "arc.*oak",
+    "",
     "3"
   ],
   "Arcane Surge Support": [
-    "arcane.*rt",
+    "",
     "3"
   ],
   "Arcanist Brand": [
-    "arc.*and",
+    "",
     "3"
   ],
   "Archmage Support": [
-    "arch.*rt",
+    "",
     "3"
   ],
   "Arctic Armour": [
-    "arc.*our",
+    "",
     "2"
   ],
   "Armageddon Brand": [
-    "arm.*and",
+    "",
     "3"
   ],
   "Arrogance Support": [
-    "arrog.*rt",
+    "",
     "1"
   ],
   "Arrow Nova Support": [
-    "arrow.*rt",
+    "",
     "2"
   ],
   "Artillery Ballista": [
-    "art.*sta",
+    "",
     "2"
   ],
   "Assassin's Mark": [
-    "ass.*ark",
+    "",
     "3"
   ],
+  "Autoexertion": [
+    "",
+    "1"
+  ],
   "Automation": [
-    "aut.*ion",
+    "",
     "3"
   ],
   "Ball Lightning": [
-    "bal.*ing",
+    "",
     "3"
   ],
   "Ballista Totem Support": [
-    "bal.*rt",
+    "",
     "1"
   ],
   "Bane": [
-    "bane",
+    "",
     "3"
   ],
   "Barrage": [
-    "barrage",
+    "",
     "2"
   ],
   "Barrage Support": [
-    "bar.*rt",
+    "",
     "2"
   ],
   "Battlemage's Cry": [
-    "bat.*cry",
+    "",
     "1"
   ],
   "Bear Trap": [
-    "bea.*rap",
+    "",
     "2"
   ],
   "Behead Support": [
-    "beh.*rt",
+    "",
     "1"
   ],
   "Berserk": [
-    "berserk",
+    "",
     "1"
   ],
   "Blade Blast": [
-    "bla.*ast",
+    "",
     "2"
   ],
   "Blade Flurry": [
-    "bla.*rry",
+    "",
     "2"
   ],
   "Blade Trap": [
-    "bla.*rap",
+    "",
     "2"
   ],
   "Blade Vortex": [
-    "bla.*tex",
+    "",
     "2"
   ],
   "Bladefall": [
-    "bla.*all",
+    "",
     "2"
   ],
   "Bladestorm": [
-    "bla.*orm",
+    "",
     "1"
   ],
   "Blasphemy Support": [
-    "blasp.*rt",
+    "",
     "3"
   ],
   "Blast Rain": [
-    "bla.*ain",
+    "",
     "2"
   ],
   "Blastchain Mine Support": [
-    "blast.*rt",
+    "",
     "3"
   ],
   "Blazing Salvo": [
-    "bla.*lvo",
+    "",
     "3"
   ],
   "Blight": [
-    "blight",
+    "",
     "3"
   ],
   "Blind Support": [
-    "bli.*rt",
+    "",
     "2"
   ],
   "Blink Arrow": [
-    "bli.*row",
+    "",
     "2"
   ],
   "Blood and Sand": [
-    "blo.*and",
+    "",
     "1"
   ],
   "Blood Rage": [
-    "blo.*age",
+    "",
     "2"
   ],
   "Bloodlust Support": [
-    "bloodl.*rt",
+    "",
     "1"
   ],
   "Bloodthirst Support": [
-    "bloodt.*rt",
+    "",
     "1"
   ],
   "Bodyswap": [
-    "bodyswap",
+    "",
     "3"
   ],
   "Bone Offering": [
-    "bon.*ing",
+    "",
     "3"
   ],
   "Bonechill Support": [
-    "bon.*rt",
+    "",
     "3"
   ],
   "Boneshatter": [
-    "bon.*ter",
+    "",
     "1"
   ],
   "Brand Recall": [
-    "bra.*all",
+    "",
     "3"
   ],
   "Brutality Support": [
-    "bru.*rt",
+    "",
     "1"
   ],
   "Burning Arrow": [
-    "bur.*row",
+    "",
     "2"
   ],
   "Burning Damage Support": [
-    "bur.*rt",
+    "",
     "1"
   ],
   "Call to Arms": [
-    "cal.*rms",
+    "",
     "1"
   ],
   "Cast On Critical Strike Support": [
-    "cas.*cr.*rt",
+    "",
     "2"
   ],
   "Cast on Death Support": [
-    "cas.*de.*rt",
+    "",
     "2"
   ],
   "Cast on Melee Kill Support": [
-    "cas.*me.*rt",
+    "",
     "1"
   ],
   "Cast when Damage Taken Support": [
-    "cas.*da.*rt",
+    "",
     "1"
   ],
   "Cast when Stunned Support": [
-    "cas.*tu.*rt",
+    "",
     "3"
   ],
   "Cast while Channelling Support": [
-    "cas.*hi.*rt",
+    "",
     "3"
   ],
   "Caustic Arrow": [
-    "cau.*row",
+    "",
     "2"
   ],
   "Chain Hook": [
-    "cha.*ook",
+    "",
     "1"
   ],
   "Chain Support": [
-    "chai.*rt",
+    "",
     "2"
   ],
   "Chance to Bleed Support": [
-    "cha.*.b.*rt",
+    "",
     "1"
   ],
   "Chance to Flee Support": [
-    "cha.*.f.*rt",
+    "",
     "2"
   ],
   "Chance to Poison Support": [
-    "cha.*oi.*rt",
+    "",
     "2"
   ],
   "Charged Dash": [
-    "cha.*ash",
+    "",
     "2"
   ],
   "Charged Mines Support": [
-    "cha.*.m.*rt",
+    "",
     "3"
   ],
   "Charged Traps Support": [
-    "cha.*tr.*rt",
+    "",
     "2"
   ],
   "Clarity": [
-    "clarity",
+    "",
     "3"
   ],
   "Cleave": [
-    "cleave",
+    "",
     "1"
   ],
   "Close Combat Support": [
-    "clo.*rt",
+    "",
     "2"
   ],
   "Cluster Traps Support": [
-    "clu.*rt",
+    "",
     "2"
   ],
   "Cobra Lash": [
-    "cob.*ash",
+    "",
     "2"
   ],
   "Cold Penetration Support": [
-    "cold.p.*rt",
+    "",
     "2"
   ],
   "Cold Snap": [
-    "col.*nap",
+    "",
     "3"
   ],
   "Cold to Fire Support": [
-    "cold.t.*rt",
+    "",
     "1"
   ],
   "Combustion Support": [
-    "com.*rt",
+    "",
     "3"
   ],
   "Concentrated Effect Support": [
-    "conc.*rt",
+    "",
     "3"
   ],
   "Conductivity": [
-    "con.*ity",
+    "",
     "3"
   ],
   "Consecrated Path": [
-    "con.*ath",
+    "",
     "1"
   ],
   "Contagion": [
-    "cont.*ion",
+    "",
     "3"
   ],
   "Controlled Blaze Support": [
-    "con.*.b.*rt",
+    "",
     "1"
   ],
   "Controlled Destruction Support": [
-    "con.*de.*rt",
+    "",
     "3"
   ],
   "Conversion Trap": [
-    "con.*rap",
+    "",
     "3"
   ],
   "Convocation": [
-    "conv.*ion",
+    "",
     "3"
   ],
   "Corrupting Cry Support": [
-    "cor.*rt",
+    "",
     "1"
   ],
   "Corrupting Fever": [
-    "cor.*ver",
+    "",
     "1"
   ],
   "Crackling Lance": [
-    "cra.*nce",
+    "",
     "3"
   ],
   "Creeping Frost": [
-    "cre.*ost",
+    "",
     "3"
   ],
   "Cremation": [
-    "cre.*ion",
+    "",
     "2"
   ],
   "Critical Strike Affliction Support": [
-    "cri.*st.*rt",
+    "",
     "2"
   ],
   "Cruelty Support": [
-    "cru.*rt",
+    "",
+    "1"
+  ],
+  "Crushing Fist": [
+    "",
     "1"
   ],
   "Culling Strike Support": [
-    "cul.*rt",
+    "",
     "2"
   ],
   "Cursed Ground Support": [
-    "cur.*rt",
+    "",
     "3"
   ],
   "Cyclone": [
-    "cyclone",
+    "",
     "2"
   ],
   "Damage on Full Life Support": [
-    "dam.*rt",
+    "",
     "1"
   ],
   "Dark Pact": [
-    "dar.*act",
+    "",
     "3"
   ],
   "Dash": [
-    "dash",
+    "",
     "2"
   ],
   "Deadly Ailments Support": [
-    "dea.*rt",
+    "",
     "2"
   ],
   "Decay Support": [
-    "dec.*rt",
+    "",
     "3"
   ],
   "Decoy Totem": [
-    "dec.*tem",
+    "",
     "1"
   ],
   "Defiance Banner": [
-    "def.*ner",
+    "",
     "1"
   ],
   "Desecrate": [
-    "des.*ate",
+    "",
     "2"
   ],
   "Despair": [
-    "despair",
+    "",
     "3"
   ],
   "Destructive Link": [
-    "des.*ink",
+    "",
     "3"
   ],
   "Determination": [
-    "det.*ion",
+    "",
     "1"
   ],
   "Detonate Dead": [
-    "det.*ead",
+    "",
     "2"
   ],
   "Detonate Mines": [
-    "det.*nes",
+    "",
     "0"
   ],
   "Devour Support": [
-    "dev.*rt",
+    "",
     "3"
   ],
   "Devouring Totem": [
-    "dev.*tem",
+    "",
     "1"
   ],
   "Discharge": [
-    "dis.*rge",
+    "",
     "3"
   ],
   "Discipline": [
-    "dis.*ine",
+    "",
     "3"
   ],
   "Divine Blessing Support": [
-    "div.*rt",
+    "",
     "1"
   ],
   "Divine Ire": [
-    "div.*ire",
+    "",
+    "3"
+  ],
+  "Divine Retribution": [
+    "",
     "3"
   ],
   "Dominating Blow": [
-    "dom.*low",
+    "",
     "1"
   ],
   "Double Strike": [
-    "dou.*ike",
+    "",
     "2"
   ],
   "Dread Banner": [
-    "dre.*ner",
+    "",
     "1"
   ],
   "Dual Strike": [
-    "dua.*ike",
+    "",
     "2"
   ],
   "Earthbreaker Support": [
-    "ear.*rt",
+    "",
     "1"
   ],
   "Earthquake": [
-    "ear.*ake",
+    "",
     "1"
   ],
   "Earthshatter": [
-    "ear.*ter",
+    "",
     "1"
   ],
   "Efficacy Support": [
-    "eff.*rt",
+    "",
     "3"
   ],
   "Elemental Army Support": [
-    "ele.*ar.*rt",
+    "",
     "3"
   ],
   "Elemental Damage with Attacks Support": [
-    "ele.*.d.*rt",
+    "",
     "1"
   ],
   "Elemental Focus Support": [
-    "ele.*fo.*rt",
+    "",
     "3"
   ],
   "Elemental Hit": [
-    "ele.*hit",
+    "",
     "2"
   ],
   "Elemental Proliferation Support": [
-    "ele.*pr.*rt",
+    "",
     "3"
   ],
   "Elemental Weakness": [
-    "ele.*ess",
+    "",
     "3"
   ],
   "Endurance Charge on Melee Stun Support": [
-    "end.*rt",
+    "",
     "1"
   ],
   "Enduring Cry": [
-    "end.*cry",
+    "",
     "1"
   ],
   "Energy Blade": [
-    "ene.*ade",
+    "",
     "3"
   ],
   "Energy Leech Support": [
-    "ener.*rt",
+    "",
     "3"
   ],
   "Enfeeble": [
-    "enfeeble",
+    "",
     "3"
   ],
   "Ensnaring Arrow": [
-    "ens.*row",
+    "",
     "2"
   ],
   "Essence Drain": [
-    "ess.*ain",
+    "",
     "3"
   ],
   "Eternal Blessing Support": [
-    "ete.*rt",
+    "",
     "1"
   ],
   "Ethereal Knives": [
-    "eth.*ves",
+    "",
     "2"
   ],
+  "Eviscerate": [
+    "",
+    "1"
+  ],
+  "Expert Retaliation Support": [
+    "",
+    "1"
+  ],
   "Explosive Arrow": [
-    "exp.*row",
+    "",
     "2"
   ],
   "Explosive Concoction": [
-    "explos.*ion",
+    "",
     "2"
   ],
   "Explosive Trap": [
-    "exp.*rap",
+    "",
     "2"
   ],
   "Exsanguinate": [
-    "exs.*ate",
+    "",
     "1"
   ],
   "Eye of Winter": [
-    "eye.*ter",
+    "",
     "3"
   ],
   "Faster Attacks Support": [
-    "fas.*at.*rt",
+    "",
     "2"
   ],
   "Faster Casting Support": [
-    "fas.*ca.*rt",
+    "",
     "3"
   ],
   "Faster Projectiles Support": [
-    "fas.*pr.*rt",
+    "",
     "2"
   ],
   "Feeding Frenzy Support": [
-    "fee.*rt",
+    "",
     "3"
   ],
   "Fire Penetration Support": [
-    "fire.p.*rt",
+    "",
     "1"
   ],
   "Fire Trap": [
-    "fir.*rap",
+    "",
     "2"
   ],
   "Fireball": [
-    "fireball",
+    "",
     "3"
   ],
   "Firestorm": [
-    "fir.*orm",
+    "",
     "3"
   ],
   "Fist of War Support": [
-    "fis.*rt",
+    "",
     "1"
   ],
   "Flame Dash": [
-    "fla.*ash",
+    "",
     "3"
   ],
   "Flame Link": [
-    "fla.*ink",
+    "",
     "1"
   ],
   "Flame Surge": [
-    "fla.*rge",
+    "",
     "3"
   ],
   "Flame Wall": [
-    "fla.*all",
+    "",
     "3"
   ],
   "Flameblast": [
-    "fla.*ast",
+    "",
     "3"
   ],
   "Flamethrower Trap": [
-    "fla.*rap",
+    "",
     "2"
   ],
   "Flamewood Support": [
-    "fla.*rt",
+    "",
     "1"
   ],
   "Flammability": [
-    "fla.*ity",
+    "",
     "3"
   ],
   "Flesh and Stone": [
-    "fle.*one",
+    "",
     "1"
   ],
   "Flesh Offering": [
-    "fle.*ing",
+    "",
     "3"
   ],
   "Flicker Strike": [
-    "fli.*ike",
+    "",
     "2"
   ],
   "Focused Ballista Support": [
-    "foc.*rt",
+    "",
     "2"
   ],
   "Forbidden Rite": [
-    "for.*ite",
+    "",
     "3"
   ],
   "Fork Support": [
-    "fork.*rt",
+    "",
     "2"
   ],
   "Fortify Support": [
-    "fort.*rt",
+    "",
     "1"
   ],
   "Freezing Pulse": [
-    "fre.*lse",
+    "",
     "3"
   ],
   "Frenzy": [
-    "frenzy",
+    "",
     "2"
   ],
   "Fresh Meat Support": [
-    "fre.*rt",
+    "",
     "3"
   ],
   "Frigid Bond Support": [
-    "fri.*rt",
+    "",
     "3"
   ],
   "Frost Blades": [
-    "fro.*des",
+    "",
     "2"
   ],
   "Frost Bomb": [
-    "fro.*omb",
+    "",
     "3"
   ],
   "Frost Shield": [
-    "fro.*eld",
+    "",
     "3"
   ],
   "Frost Wall": [
-    "fro.*all",
+    "",
     "3"
   ],
   "Frostbite": [
-    "fro.*ite",
+    "",
     "3"
   ],
   "Frostblink": [
-    "fro.*ink",
+    "",
     "3"
   ],
   "Frostbolt": [
-    "fro.*olt",
+    "",
     "3"
   ],
   "Frozen Legion": [
-    "fro.*ion",
+    "",
     "1"
   ],
   "Galvanic Arrow": [
-    "gal.*row",
+    "",
     "2"
   ],
   "Galvanic Field": [
-    "gal.*eld",
+    "",
     "3"
   ],
   "General's Cry": [
-    "gen.*cry",
+    "",
     "1"
   ],
   "Generosity Support": [
-    "genero.*rt",
+    "",
     "1"
   ],
   "Glacial Cascade": [
-    "gla.*ade",
+    "",
     "3"
   ],
   "Glacial Hammer": [
-    "gla.*mer",
+    "",
     "1"
   ],
+  "Glacial Shield Swipe": [
+    "",
+    "2"
+  ],
   "Grace": [
-    "grace",
+    "",
     "2"
   ],
   "Greater Multiple Projectiles Support": [
-    "gre.*.m.*rt",
+    "",
     "2"
   ],
   "Greater Volley Support": [
-    "gre.*.v.*rt",
+    "",
     "2"
   ],
   "Ground Slam": [
-    "gro.*lam",
+    "",
     "1"
   ],
   "Guardian's Blessing Support": [
-    "gua.*rt",
+    "",
     "1"
   ],
   "Haste": [
-    "haste",
+    "",
     "2"
   ],
   "Hatred": [
-    "hatred",
+    "",
     "2"
   ],
   "Heavy Strike": [
-    "hea.*ike",
+    "",
     "1"
   ],
   "Herald of Agony": [
-    "her.*ony",
+    "",
     "2"
   ],
   "Herald of Ash": [
-    "her.*ash",
+    "",
     "1"
   ],
   "Herald of Ice": [
-    "her.*ice",
+    "",
     "2"
   ],
   "Herald of Purity": [
-    "her.*ity",
+    "",
     "1"
   ],
   "Herald of Thunder": [
-    "her.*der",
+    "",
     "3"
   ],
   "Hex Bloom Support": [
-    "hex.b.*rt",
+    "",
     "3"
   ],
   "Hexblast": [
-    "hexblast",
+    "",
     "3"
   ],
   "Hextouch Support": [
-    "hext.*rt",
+    "",
     "3"
   ],
   "High-Impact Mine Support": [
-    "hig.*rt",
+    "",
     "3"
   ],
   "Holy Flame Totem": [
-    "hol.*tem",
+    "",
     "1"
   ],
   "Hydrosphere": [
-    "hyd.*ere",
+    "",
     "3"
   ],
   "Hypothermia Support": [
-    "hyp.*rt",
+    "",
     "2"
   ],
   "Ice Bite Support": [
-    "ice.*rt",
+    "",
     "2"
   ],
   "Ice Crash": [
-    "ice.*ash",
+    "",
     "1"
   ],
   "Ice Nova": [
-    "ice.nova",
+    "",
     "3"
   ],
   "Ice Shot": [
-    "ice.shot",
+    "",
     "2"
   ],
   "Ice Spear": [
-    "ice.*ear",
+    "",
     "3"
   ],
   "Ice Trap": [
-    "ice.trap",
+    "",
     "2"
   ],
   "Icicle Mine": [
-    "ici.*ine",
+    "",
     "3"
   ],
   "Ignite Proliferation Support": [
-    "ign.*rt",
+    "",
     "3"
   ],
   "Immolate Support": [
-    "imm.*rt",
+    "",
     "3"
   ],
   "Immortal Call": [
-    "imm.*all",
+    "",
     "1"
   ],
   "Impale Support": [
-    "impa.*rt",
+    "",
     "2"
   ],
   "Impending Doom Support": [
-    "impe.*rt",
+    "",
     "3"
   ],
   "Incinerate": [
-    "inc.*ate",
+    "",
     "3"
   ],
   "Increased Area of Effect Support": [
-    "inc.*ar.*rt",
+    "",
     "3"
   ],
   "Increased Critical Damage Support": [
-    "inc.*da.*rt",
+    "",
     "3"
   ],
   "Increased Critical Strikes Support": [
-    "inc.*st.*rt",
+    "",
     "3"
   ],
   "Increased Duration Support": [
-    "inc.*du.*rt",
+    "",
     "1"
   ],
   "Infernal Blow": [
-    "inf.*low",
+    "",
     "1"
   ],
   "Infernal Cry": [
-    "inf.*cry",
+    "",
     "1"
   ],
   "Infernal Legion Support": [
-    "infe.*rt",
+    "",
     "3"
   ],
   "Infused Channelling Support": [
-    "infu.*rt",
+    "",
     "3"
   ],
   "Innervate Support": [
-    "inn.*rt",
+    "",
     "3"
   ],
   "Inspiration Support": [
-    "ins.*rt",
+    "",
     "1"
   ],
   "Intensify Support": [
-    "inte.*rt",
+    "",
     "3"
   ],
   "Intimidating Cry": [
-    "int.*cry",
+    "",
     "1"
   ],
   "Intuitive Link": [
-    "int.*ink",
+    "",
     "2"
   ],
   "Iron Grip Support": [
-    "iron.g.*rt",
+    "",
     "1"
   ],
   "Iron Will Support": [
-    "iron.w.*rt",
+    "",
     "1"
   ],
   "Item Rarity Support": [
-    "ite.*rt",
+    "",
     "3"
   ],
   "Kinetic Blast": [
-    "kin.*ast",
+    "",
     "3"
   ],
   "Kinetic Bolt": [
-    "kin.*olt",
+    "",
     "3"
   ],
   "Knockback Support": [
-    "kno.*rt",
+    "",
     "1"
   ],
   "Lacerate": [
-    "lacerate",
+    "",
     "2"
   ],
   "Lancing Steel": [
-    "lan.*eel",
+    "",
     "2"
   ],
   "Leap Slam": [
-    "lea.*lam",
+    "",
     "1"
   ],
   "Less Duration Support": [
-    "less.d.*rt",
+    "",
     "1"
   ],
   "Lesser Multiple Projectiles Support": [
-    "lesse.*rt",
+    "",
     "2"
   ],
   "Life Gain on Hit Support": [
-    "life.g.*rt",
+    "",
     "1"
   ],
   "Life Leech Support": [
-    "life.l.*rt",
+    "",
     "1"
   ],
   "Lifetap Support": [
-    "lifet.*rt",
+    "",
     "1"
   ],
   "Lightning Arrow": [
-    "lig.*row",
+    "",
     "2"
   ],
   "Lightning Conduit": [
-    "lig.*uit",
+    "",
     "3"
   ],
   "Lightning Penetration Support": [
-    "lig.*pe.*rt",
+    "",
     "3"
   ],
   "Lightning Spire Trap": [
-    "lig.*.s.*rap",
+    "",
     "3"
   ],
   "Lightning Strike": [
-    "lig.*ike",
+    "",
     "2"
   ],
   "Lightning Tendrils": [
-    "lig.*ils",
+    "",
     "3"
   ],
   "Lightning Trap": [
-    "lightning.trap",
+    "",
     "3"
   ],
   "Lightning Warp": [
-    "lig.*arp",
+    "",
     "3"
   ],
   "Locus Mine Support": [
-    "loc.*rt",
+    "",
     "2"
   ],
   "Maim Support": [
-    "mai.*rt",
+    "",
     "1"
   ],
   "Malevolence": [
-    "mal.*nce",
+    "",
     "3"
   ],
   "Mana Leech Support": [
-    "mana.l.*rt",
+    "",
     "2"
   ],
   "Manabond": [
-    "manabond",
+    "",
     "3"
   ],
   "Manaforged Arrows Support": [
-    "manaf.*rt",
+    "",
     "2"
   ],
   "Mark On Hit Support": [
-    "mar.*rt",
+    "",
     "2"
   ],
   "Meat Shield Support": [
-    "mea.*rt",
+    "",
     "3"
   ],
   "Melee Physical Damage Support": [
-    "melee.p.*rt",
+    "",
     "1"
   ],
   "Melee Splash Support": [
-    "melee.s.*rt",
+    "",
     "1"
   ],
   "Minefield Support": [
-    "mine.*rt",
+    "",
     "3"
   ],
   "Minion Damage Support": [
-    "min.*da.*rt",
+    "",
     "3"
   ],
   "Minion Life Support": [
-    "min.*li.*rt",
+    "",
     "3"
   ],
   "Minion Speed Support": [
-    "min.*sp.*rt",
+    "",
     "3"
   ],
   "Mirage Archer Support": [
-    "mir.*rt",
+    "",
     "2"
   ],
   "Mirror Arrow": [
-    "mir.*row",
+    "",
     "2"
   ],
   "Molten Shell": [
-    "mol.*ell",
+    "",
     "1"
   ],
   "Molten Strike": [
-    "mol.*ike",
+    "",
     "1"
   ],
   "Momentum Support": [
-    "mom.*rt",
+    "",
     "2"
   ],
+  "More Duration Support": [
+    "",
+    "3"
+  ],
   "Multiple Totems Support": [
-    "mul.*to.*rt",
+    "",
     "1"
   ],
   "Multiple Traps Support": [
-    "mul.*ra.*rt",
+    "",
     "2"
   ],
   "Multistrike Support": [
-    "multis.*rt",
+    "",
     "1"
   ],
   "Nightblade Support": [
-    "nig.*rt",
+    "",
     "2"
   ],
   "Orb of Storms": [
-    "orb.*rms",
+    "",
     "3"
   ],
   "Overcharge Support": [
-    "ove.*rt",
+    "",
     "3"
   ],
+  "Overexertion Support": [
+    "",
+    "1"
+  ],
   "Penance Brand": [
-    "pen.*and",
+    "",
     "3"
   ],
   "Perforate": [
-    "per.*ate",
+    "",
     "1"
   ],
   "Pestilent Strike": [
-    "pes.*ike",
+    "",
     "2"
   ],
   "Petrified Blood": [
-    "pet.*ood",
+    "",
     "1"
   ],
   "Phase Run": [
-    "pha.*run",
+    "",
     "2"
   ],
   "Physical to Lightning Support": [
-    "phy.*.t.*rt",
+    "",
     "3"
   ],
   "Pierce Support": [
-    "pie.*rt",
+    "",
     "2"
   ],
   "Pinpoint Support": [
-    "pin.*rt",
+    "",
     "3"
   ],
   "Plague Bearer": [
-    "pla.*rer",
+    "",
     "2"
   ],
   "Poacher's Mark": [
-    "poa.*ark",
+    "",
     "2"
   ],
   "Point Blank Support": [
-    "poi.*rt",
+    "",
     "2"
   ],
   "Poisonous Concoction": [
-    "poi.*ion",
+    "",
     "2"
   ],
   "Power Charge On Critical Support": [
-    "pow.*rt",
+    "",
     "3"
   ],
   "Power Siphon": [
-    "pow.*hon",
+    "",
     "3"
   ],
   "Precision": [
-    "pre.*ion",
+    "",
     "2"
   ],
   "Predator Support": [
-    "pre.*rt",
+    "",
     "3"
   ],
   "Pride": [
-    "pride",
+    "",
     "1"
   ],
   "Prismatic Burst Support": [
-    "pri.*rt",
+    "",
     "3"
   ],
   "Protective Link": [
-    "pro.*ink",
+    "",
     "1"
   ],
   "Pulverise Support": [
-    "pul.*rt",
+    "",
     "1"
   ],
   "Puncture": [
-    "puncture",
+    "",
     "2"
   ],
   "Punishment": [
-    "pun.*ent",
+    "",
     "1"
   ],
   "Purifying Flame": [
-    "pur.*ame",
+    "",
     "3"
   ],
   "Purity of Elements": [
-    "pur.*nts",
+    "",
     "3"
   ],
   "Purity of Fire": [
-    "pur.*ire",
+    "",
     "1"
   ],
   "Purity of Ice": [
-    "pur.*ice",
+    "",
     "2"
   ],
   "Purity of Lightning": [
-    "pur.*ing",
+    "",
     "3"
   ],
   "Pyroclast Mine": [
-    "pyr.*ine",
+    "",
     "3"
   ],
   "Rage Support": [
-    "rag.*rt",
+    "",
     "1"
   ],
   "Rage Vortex": [
-    "rag.*tex",
+    "",
     "1"
   ],
   "Rain of Arrows": [
-    "rai.*ows",
+    "",
     "2"
   ],
   "Raise Spectre": [
-    "rai.*tre",
+    "",
     "3"
   ],
   "Raise Zombie": [
-    "rai.*bie",
+    "",
     "3"
   ],
   "Rallying Cry": [
-    "ral.*cry",
+    "",
     "1"
   ],
   "Reap": [
-    "reap",
+    "",
     "1"
   ],
   "Reave": [
-    "reave",
+    "",
     "2"
   ],
   "Reckoning": [
-    "rec.*ing",
+    "",
     "1"
   ],
   "Rejuvenation Totem": [
-    "rej.*tem",
+    "",
     "1"
   ],
   "Returning Projectiles Support": [
-    "ret.*rt",
+    "",
     "2"
   ],
   "Righteous Fire": [
-    "rig.*ire",
+    "",
     "3"
   ],
   "Riposte": [
-    "riposte",
+    "",
     "2"
   ],
   "Rolling Magma": [
-    "rol.*gma",
+    "",
     "3"
   ],
+  "Rupture Support": [
+    "",
+    "2"
+  ],
   "Ruthless Support": [
-    "rut.*rt",
+    "",
     "1"
   ],
   "Sacred Wisps Support": [
-    "sacre.*rt",
+    "",
     "3"
   ],
   "Sacrifice Support": [
-    "sacri.*rt",
+    "",
     "3"
   ],
   "Sadism Support": [
-    "sad.*rt",
+    "",
     "2"
   ],
   "Scorching Ray": [
-    "sco.*ray",
+    "",
     "3"
   ],
   "Scourge Arrow": [
-    "sco.*row",
+    "",
     "2"
   ],
   "Searing Bond": [
-    "sea.*ond",
+    "",
     "1"
   ],
   "Second Wind Support": [
-    "sec.*rt",
+    "",
     "2"
   ],
   "Seismic Cry": [
-    "sei.*cry",
+    "",
     "1"
   ],
   "Seismic Trap": [
-    "sei.*rap",
+    "",
     "2"
   ],
   "Shattering Steel": [
-    "sha.*eel",
+    "",
     "2"
   ],
   "Shield Charge": [
-    "shi.*rge",
+    "",
     "1"
   ],
   "Shield Crush": [
-    "shi.*ush",
+    "",
     "1"
   ],
   "Shock Nova": [
-    "sho.*ova",
+    "",
     "3"
   ],
   "Shockwave Support": [
-    "sho.*rt",
+    "",
     "1"
   ],
   "Shockwave Totem": [
-    "sho.*tem",
+    "",
     "1"
   ],
   "Shrapnel Ballista": [
-    "shr.*sta",
+    "",
     "2"
   ],
   "Siege Ballista": [
-    "sie.*sta",
+    "",
     "2"
   ],
   "Sigil of Power": [
-    "sig.*wer",
+    "",
     "3"
   ],
   "Siphoning Trap": [
-    "sip.*rap",
+    "",
     "3"
   ],
   "Slower Projectiles Support": [
-    "slo.*rt",
+    "",
     "2"
   ],
   "Smite": [
-    "smite",
+    "",
     "1"
   ],
   "Smoke Mine": [
-    "smo.*ine",
+    "",
     "2"
   ],
   "Snipe": [
-    "snipe",
+    "",
     "2"
   ],
   "Sniper's Mark": [
-    "sni.*ark",
+    "",
     "2"
   ],
   "Soul Link": [
-    "sou.*ink",
+    "",
     "3"
   ],
   "Soulrend": [
-    "soulrend",
+    "",
     "3"
   ],
   "Spark": [
-    "spark",
+    "",
     "3"
   ],
   "Spectral Helix": [
-    "spe.*lix",
+    "",
     "2"
   ],
   "Spectral Shield Throw": [
-    "spe.*.s.*row",
+    "",
     "2"
   ],
   "Spectral Throw": [
-    "spectral.t.*row",
+    "",
     "2"
   ],
   "Spell Cascade Support": [
-    "spell.c.*rt",
+    "",
     "3"
   ],
   "Spell Echo Support": [
-    "spell.e.*rt",
+    "",
     "3"
   ],
   "Spell Totem Support": [
-    "spell.t.*rt",
+    "",
     "1"
   ],
   "Spellblade Support": [
-    "spellb.*rt",
+    "",
     "3"
   ],
   "Spellslinger": [
-    "spe.*ger",
+    "",
     "3"
   ],
   "Spirit Offering": [
-    "spi.*ing",
+    "",
     "3"
   ],
   "Split Arrow": [
-    "spl.*row",
+    "",
     "2"
   ],
   "Splitting Steel": [
-    "spl.*eel",
+    "",
     "2"
   ],
   "Static Strike": [
-    "sta.*ike",
+    "",
     "1"
   ],
   "Steelskin": [
-    "ste.*kin",
+    "",
     "1"
   ],
   "Storm Brand": [
-    "sto.*and",
+    "",
     "3"
   ],
   "Storm Burst": [
-    "sto.*rst",
+    "",
     "3"
   ],
   "Storm Call": [
-    "sto.*all",
+    "",
     "3"
   ],
   "Storm Rain": [
-    "sto.*ain",
+    "",
     "2"
   ],
   "Stormbind": [
-    "sto.*ind",
+    "",
     "3"
   ],
   "Stormblast Mine": [
-    "sto.*ine",
+    "",
     "3"
   ],
   "Stun Support": [
-    "stu.*rt",
+    "",
     "1"
   ],
   "Summon Carrion Golem": [
-    "sum.*ca.*lem",
+    "",
     "3"
   ],
   "Summon Chaos Golem": [
-    "sum.*ch.*lem",
+    "",
     "3"
   ],
   "Summon Flame Golem": [
-    "sum.*.f.*lem",
+    "",
     "1"
   ],
   "Summon Holy Relic": [
-    "sum.*lic",
+    "",
     "3"
   ],
   "Summon Ice Golem": [
-    "sum.*ic.*lem",
+    "",
     "2"
   ],
   "Summon Lightning Golem": [
-    "sum.*li.*lem",
+    "",
     "3"
   ],
   "Summon Phantasm Support": [
-    "sum.*rt",
+    "",
     "3"
   ],
   "Summon Raging Spirit": [
-    "sum.*rit",
+    "",
     "3"
   ],
   "Summon Reaper": [
-    "sum.*per",
+    "",
     "3"
   ],
   "Summon Skeletons": [
-    "sum.*ons",
+    "",
     "3"
   ],
   "Summon Skitterbots": [
-    "sum.*ots",
+    "",
     "3"
   ],
   "Summon Stone Golem": [
-    "sum.*st.*lem",
+    "",
     "1"
   ],
   "Sunder": [
-    "sunder",
+    "",
     "1"
   ],
   "Sweep": [
-    "sweep",
+    "",
     "1"
   ],
   "Swift Affliction Support": [
-    "swi.*af.*rt",
+    "",
     "2"
   ],
   "Swift Assembly Support": [
-    "swi.*as.*rt",
+    "",
     "2"
   ],
   "Swiftbrand Support": [
-    "swiftb.*rt",
+    "",
     "3"
   ],
+  "Swordstorm": [
+    "",
+    "1"
+  ],
   "Tectonic Slam": [
-    "tec.*lam",
+    "",
     "1"
   ],
   "Tempest Shield": [
-    "tem.*eld",
+    "",
     "3"
   ],
   "Temporal Chains": [
-    "tem.*ins",
+    "",
     "2"
   ],
   "Temporal Rift": [
-    "tem.*ift",
+    "",
     "2"
   ],
   "Tornado": [
-    "tornado",
+    "",
     "2"
   ],
   "Tornado Shot": [
-    "tor.*hot",
+    "",
     "2"
   ],
   "Toxic Rain": [
-    "tox.*ain",
+    "",
     "2"
   ],
   "Trap and Mine Damage Support": [
-    "trap.a.*rt",
+    "",
     "2"
   ],
   "Trap Support": [
-    "trap.s.*rt",
+    "",
     "2"
   ],
   "Trauma Support": [
-    "trau.*rt",
+    "",
     "1"
   ],
   "Trinity Support": [
-    "tri.*rt",
+    "",
     "3"
   ],
   "Unbound Ailments Support": [
-    "unb.*rt",
+    "",
     "3"
   ],
   "Unearth": [
-    "unearth",
+    "",
     "2"
   ],
   "Unleash Support": [
-    "unl.*rt",
+    "",
     "3"
   ],
   "Urgent Orders Support": [
-    "urg.*rt",
+    "",
     "1"
   ],
   "Vampiric Link": [
-    "vam.*ink",
+    "",
     "2"
   ],
   "Vengeance": [
-    "ven.*nce",
+    "",
+    "1"
+  ],
+  "Vengeful Cry": [
+    "",
     "1"
   ],
   "Venom Gyre": [
-    "ven.*yre",
+    "",
     "2"
   ],
   "Vicious Projectiles Support": [
-    "vic.*rt",
+    "",
     "2"
   ],
   "Vigilant Strike": [
-    "vig.*ike",
+    "",
     "1"
   ],
   "Vile Toxins Support": [
-    "vil.*rt",
+    "",
     "2"
   ],
   "Viper Strike": [
-    "vip.*ike",
+    "",
     "2"
   ],
   "Vitality": [
-    "vitality",
+    "",
     "1"
   ],
   "Void Manipulation Support": [
-    "voi.*rt",
+    "",
     "2"
   ],
   "Void Sphere": [
-    "voi.*ere",
+    "",
     "3"
   ],
   "Volatile Dead": [
-    "vol.*ead",
+    "",
     "2"
   ],
   "Volatility Support": [
-    "vola.*rt",
+    "",
     "1"
   ],
   "Volcanic Fissure": [
-    "vol.*ure",
+    "",
     "1"
   ],
   "Volley Support": [
-    "voll.*rt",
+    "",
     "2"
   ],
   "Voltaxic Burst": [
-    "vol.*rst",
+    "",
     "3"
   ],
   "Vortex": [
-    "vortex",
+    "",
     "3"
   ],
   "Vulnerability": [
-    "vul.*ity",
+    "",
     "1"
   ],
   "War Banner": [
-    "war.*ner",
+    "",
     "1"
   ],
   "Warlord's Mark": [
-    "war.*ark",
+    "",
     "1"
   ],
   "Wave of Conviction": [
-    "wav.*ion",
+    "",
     "3"
   ],
   "Whirling Blades": [
-    "whi.*des",
+    "",
     "2"
   ],
   "Wild Strike": [
-    "wil.*ike",
+    "",
     "2"
   ],
   "Winter Orb": [
-    "win.*orb",
+    "",
     "3"
   ],
   "Wintertide Brand": [
-    "win.*and",
+    "",
     "3"
   ],
   "Wither": [
-    "wither",
+    "",
     "3"
   ],
   "Withering Step": [
-    "wit.*tep",
+    "",
     "2"
   ],
   "Withering Touch Support": [
-    "wit.*rt",
+    "",
     "2"
   ],
   "Wrath": [
-    "wrath",
+    "",
     "3"
   ],
   "Zealotry": [
-    "zealotry",
+    "",
     "3"
   ]
 }
