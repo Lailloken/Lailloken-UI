@@ -290,17 +290,15 @@ Recombination_Simulate()
 				Random, rng, 1, rolls[Min(6, %affix%.Count())]
 				For key, val in odds[Min(6, %affix%.Count())]
 				{
-					If !IsNumber(key)
-						Continue
 					If (rng <= val)
 					{
 						mod_count := Min(key, unique_mods.Count(), item1.mod_counts[affix])
 						Break
 					}
 				}
-				If IsNumber(mod_count) && (mod_count < desired[affix].Count())
+				If (mod_count < desired[affix].Count())
 					Continue 2
-				While IsNumber(mod_count) && (mods.Count() < mod_count)
+				While (mods.Count() < mod_count)
 				{
 					Random, rng, 1, %affix%.Count()
 					If !mods.HasKey(%affix%[rng])
