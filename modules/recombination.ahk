@@ -76,7 +76,7 @@ Recombination_()
 			If InStr("prefixes, suffixes", key)
 				For index, val in array
 					dimensions.Push(val)
-	global json
+
 	LLK_PanelDimensions(dimensions, settings.general.fSize, width, height)
 	vars.recombination.wMods := width, vars.recombination.hMods := height
 	Recombination_GUI()
@@ -107,7 +107,7 @@ Recombination_GUI(cHWND := "")
 					modified += (input != vars.recombination["item" item_no][affix][mod_slot])
 				}
 			GuiControl, % (modified ? "+cRed +gRecombination_GUI" : "+cWhite -g"), % vars.hwnd.recombination.chance
-			GuiControl, % "Text", % vars.hwnd.recombination.chance, % modified ? LangTrans("global_refresh") : vars.recombination.chance
+			GuiControl, % "Text", % vars.hwnd.recombination.chance, % modified ? LangTrans("recomb_refresh") : vars.recombination.chance
 			GuiControl, % "movedraw", % vars.hwnd.recombination.chance
 			GuiControl, % (modified ? "+" : "-") "Hidden", % vars.hwnd.recombination.rerun
 			GuiControl, % "movedraw", % vars.hwnd.recombination.rerun
@@ -260,8 +260,6 @@ Recombination_GUI(cHWND := "")
 	Gui, %GUI_name%: Show, % "NA x" vars.client.x + vars.client.w - vars.recombination.wInventory - w " y" vars.client.y + Floor(vars.client.h * (47/48)) - h
 	LLK_Overlay(recombination, "show", 1, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	vars.recombination.wait := 0
-	global json
-	Clipboard := json.dump(vars.recombination)
 }
 
 Recombination_Simulate()
@@ -271,7 +269,6 @@ Recombination_Simulate()
 	static odds := [{"0": 333, "1": 999, "range": 999}, {"1": 666, "2": 999, "range": 999}, {"1": 300, "2": 800, "3": 1000, "range": 1000}, {"1": 100, "2": 650, "3": 1000, "range": 1000}, {"2": 500, "3": 1000, "range": 1000}, {"2": 300, "3": 1000, "range": 1000}]
 
 	item1 := vars.recombination.item1, item2 := vars.recombination.item2, desired := vars.recombination.desired, hits := 0
-	global json
 	Loop 10000
 	{
 		For index, affix in ["prefixes", "suffixes"]

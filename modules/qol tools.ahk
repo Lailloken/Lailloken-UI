@@ -62,13 +62,13 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			input1 := LLK_ControlGet(vars.hwnd.alarm.edit1)
 			Loop, Parse, input1, µ, % " |;,."
 				input1 := A_LoopField
-			If !Blank(input1) && (LLK_PatternMatch(input1, "", ["[", "]", "="]) || InStr(LangTrans("global_name"), input1))
+			If !Blank(input1) && (LLK_PatternMatch(input1, "", ["[", "]", "="]))
 				error := 1
 		}
 		Else input1 := vars.alarm.override
 
 		WinGetPos, x, y, w, h, % "ahk_id " vars.hwnd.alarm.edit
-		Loop, Parse, input, :
+		Loop, Parse, % (input := StrReplace(input, " ", ":")), % ":"
 		{
 			If Blank(A_LoopField) || (A_Index > 3) || !IsNumber(A_LoopField)
 				error := 1

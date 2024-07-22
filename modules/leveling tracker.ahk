@@ -1290,7 +1290,7 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 
 	width -= 2, height -= 2, height_total := height + hControls + 2
 	xPos := Blank(settings.leveltracker.xCoord) ? vars.client.xc - width / 2 : settings.leveltracker.xCoord, xPos := (xPos >= vars.monitor.w / 2) ? xPos - width : xPos
-	xPos := (xPos >= vars.monitor.w) ? vars.monitor.w - width : xPos
+	xPos := (xPos >= vars.monitor.w) ? vars.monitor.w - width - 2 : xPos
 	yPos := Blank(settings.leveltracker.yCoord) ? vars.client.y - vars.monitor.y + vars.client.h + 1 : settings.leveltracker.yCoord, yPos := (yPos >= vars.monitor.h / 2) ? yPos - height_total : yPos
 	yPos := (yPos >= vars.monitor.h) ? vars.monitor.h - height_total + 1 : yPos
 
