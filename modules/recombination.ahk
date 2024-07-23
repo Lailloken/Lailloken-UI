@@ -70,7 +70,7 @@ Recombination_()
 
 	If (vars.recombination.item1.prefixes.Count() + vars.recombination.item1.suffixes.Count())
 		vars.recombination.item2 := vars.recombination.item1.Clone()
-	vars.recombination.item1 := item.Clone(), dimensions := ["`n"]
+	vars.recombination.item1 := item.Clone(), dimensions := ["to cold and chaos resistances`n"]
 	Loop 2
 		For key, array in vars.recombination["item" A_Index]
 			If InStr("prefixes, suffixes", key)
