@@ -391,10 +391,13 @@ HorizonsTooltip(mode := "")
 		Gui, %GUI_name%: Add, Text, xs, % LLK_StringCase(db.mapinfo.maps[mode])
 	Else If LLK_IsType(mode, "number") || (mode = "shaper")
 	{
-		Gui, %GUI_name%: Font, underline bold
-		Gui, %GUI_name%: Add, Text, xs, horizons:
-		Gui, %GUI_name%: Font, norm
-		Gui, %GUI_name%: Add, Text, xs, % (mode = "shaper") ? "forge of the phoenix`nlair of the hydra`nmaze of the minotaur`npit of the chimera" : LLK_StringCase(db.mapinfo.maps[mode])
+		If (mode != 17)
+		{
+			Gui, %GUI_name%: Font, underline bold
+			Gui, %GUI_name%: Add, Text, xs, horizons:
+			Gui, %GUI_name%: Font, norm
+			Gui, %GUI_name%: Add, Text, xs, % (mode = "shaper") ? "forge of the phoenix`nlair of the hydra`nmaze of the minotaur`npit of the chimera" : LLK_StringCase(db.mapinfo.maps[mode])
+		}
 		If vars.log.level
 		{
 			Gui, %GUI_name%: Font, underline bold

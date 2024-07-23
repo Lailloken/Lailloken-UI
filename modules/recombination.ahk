@@ -62,11 +62,11 @@ Recombination_()
 	}
 	If !(item.prefixes.Count() + item.suffixes.Count())
 	{
-		LLK_ToolTip(LangTrans("global_errorname", 2),,,,, "Red")
+		LLK_ToolTip(LangTrans("global_errorname", 2),,,,, settings.recombination.colors.2)
 		Return
 	}
 	Else If !A_Gui
-		LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, "Lime")
+		LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, settings.recombination.colors.1)
 
 	If (vars.recombination.item1.prefixes.Count() + vars.recombination.item1.suffixes.Count())
 		vars.recombination.item2 := vars.recombination.item1.Clone()
@@ -106,7 +106,7 @@ Recombination_GUI(cHWND := "")
 					item_no := SubStr(control, 1, 1), affix := (SubStr(control, 2, 1) = 1) ? "prefixes" : "suffixes", mod_slot := SubStr(control, 3, 1)
 					modified += (input != vars.recombination["item" item_no][affix][mod_slot])
 				}
-			GuiControl, % (modified ? "+cRed +gRecombination_GUI" : "+cWhite -g"), % vars.hwnd.recombination.chance
+			GuiControl, % (modified ? "+c" settings.recombination.colors.2 " +gRecombination_GUI" : "+cWhite -g"), % vars.hwnd.recombination.chance
 			GuiControl, % "Text", % vars.hwnd.recombination.chance, % modified ? LangTrans("recomb_refresh") : vars.recombination.chance
 			GuiControl, % "movedraw", % vars.hwnd.recombination.chance
 			GuiControl, % (modified ? "+" : "-") "Hidden", % vars.hwnd.recombination.rerun
