@@ -1,5 +1,13 @@
 [
   [
+	["1.54.3", 15403],
+	"early 3.25 release: stuff needs testing, please provide feedback",
+	"fix: act-tracker font-size and panel position",
+	"re-introduced recombination simulator",
+	"alarm/countdown timer: support for multiple timers",
+	"necropolis lantern feature removed"
+  ],
+  [
 	["1.54.2", 15402],
 	"fix: adjusting certain stash-ninja settings led to exchange prices being reset",
 	"fix: notes weren't included and searches weren't applied in map-tracker exports",
