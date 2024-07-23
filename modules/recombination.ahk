@@ -70,14 +70,8 @@ Recombination_()
 
 	If (vars.recombination.item1.prefixes.Count() + vars.recombination.item1.suffixes.Count())
 		vars.recombination.item2 := vars.recombination.item1.Clone()
-	vars.recombination.item1 := item.Clone(), dimensions := ["to cold and chaos resistances`n"]
-	Loop 2
-		For key, array in vars.recombination["item" A_Index]
-			If InStr("prefixes, suffixes", key)
-				For index, val in array
-					dimensions.Push(val)
-
-	LLK_PanelDimensions(dimensions, settings.general.fSize, width, height)
+	vars.recombination.item1 := item.Clone()
+	LLK_PanelDimensions(["7777777777777777777777777777777777777777777"], settings.general.fSize, width, height)
 	vars.recombination.wMods := width, vars.recombination.hMods := height
 	Recombination_GUI()
 }
@@ -216,7 +210,7 @@ Recombination_GUI(cHWND := "")
 		{
 			Loop, % item%outer%.mod_counts[val]
 			{
-				Gui, %GUI_name%: Add, Edit, % "xs cBlack Lowercase HWNDhwnd gRecombination_GUI R2 w" width . (mismatch || mismatch_affixes || !item2.Count() ? " Disabled" : ""), % item%outer%[val][A_Index]
+				Gui, %GUI_name%: Add, Edit, % "xs cBlack Lowercase HWNDhwnd gRecombination_GUI -Wrap R2 w" width . (mismatch || mismatch_affixes || !item2.Count() ? " Disabled" : ""), % item%outer%[val][A_Index]
 				vars.hwnd.recombination["edit_" outer . index . A_Index] := hwnd
 			}
 			If (index = 1)
