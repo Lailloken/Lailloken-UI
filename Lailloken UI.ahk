@@ -696,13 +696,23 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0, stashhover := {}, priceindex_count := 0
+	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}
 
 	Critical
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
 	{
 		vars.cloneframes.editing := ""
 		Init_cloneframes()
+	}
+
+	If vars.hwnd.recombination.main && WinActive("ahk_id " vars.hwnd.recombination.main) && (vars.general.wMouse = vars.hwnd.poe_client)
+	{
+		tick_recombination += 1
+		If (tick_recombination >= 3)
+		{
+			WinActivate, % "ahk_id " vars.hwnd.poe_client
+			tick_recombination := 0
+		}
 	}
 
 	If vars.hwnd.stash_index.main && WinExist("ahk_id " vars.hwnd.stash_index.main) && !WinActive("ahk_id " vars.hwnd.stash_index.main) && !WinActive("ahk_id " vars.hwnd.stash_picker.main)
