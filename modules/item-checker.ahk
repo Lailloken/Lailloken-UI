@@ -348,7 +348,7 @@ Iteminfo2_stats()
 			}
 		}
 	}
-	item_quality := 0
+	item_quality := defense_increased := 0
 
 	Loop, parse, clip, `n, `r ;parse quality and defense-stats
 	{
@@ -366,7 +366,7 @@ Iteminfo2_stats()
 		If stat_augmented
 		{
 			If !InStr(clip, LangTrans("mods_qual_enchant")) ;check if quality actually affects defense-stat
-				defense_increased += item_quality
+				stat_value /= (1 + item_quality/100)
 			Loop, Parse, % SubStr(clip, InStr(clip, LangTrans("items_ilevel"))), `n, `r ;parse flat and % increases
 			{
 				number := "", text := ""
@@ -487,7 +487,7 @@ Iteminfo3_mods()
 	clip2 := SubStr(clip, InStr(clip, LangTrans("items_ilevel"))) ;lower part of the in-game item-info
 	item.ilvl := SubStr(clip2, 1, InStr(clip2, "`r`n") - 1), item.ilvl := SubStr(item.ilvl, InStr(item.ilvl, ":") + 2)
 	clip2 := SubStr(clip2, InStr(clip2, "--`r`n") + 4)
-	item.implicits := [], item.implicits2 := []
+	item.implicits := [], item.implicits2 := [], item.anoint := ""
 	clip2 := LLK_StringCase(StrReplace(clip2, "`r`n", "|")) ;group lines that belong to a mod together
 	itemcheck_parse := "(-.)|[]%" ;characters that indicate numerical values/strings
 	loop := 0 ;count affixes
@@ -526,7 +526,7 @@ Iteminfo3_mods()
 		{
 			item.implicits.Push(StrReplace(A_LoopField, " (enchant)"))
 			If !settings.iteminfo.compare ;if item-comparison is turned off (comparison and base-info are mutually exclusive)
-				item.anoint := db.anoints.amulets[StrReplace(LangTrim(A_LoopField, vars.lang.mods_blight_enchant), " (enchant)")]
+				item.anoint .= (Blank(item.anoint) ? "" : ",") db.anoints.amulets[StrReplace(LangTrim(A_LoopField, vars.lang.mods_blight_enchant), " (enchant)")]
 		}
 
 		If db.anoints.rings[StrReplace(A_LoopField, " (enchant)")]
@@ -886,8 +886,8 @@ Iteminfo4_GUI()
 				}
 				Else If (item.anoint != "") ;for anointed items
 				{
-					width := UI.wSegment
-					filler_width := (item.rarity != LangTrans("items_unique")) ? (UI.segments - loop_count*2.5 + 1) * UI.wSegment : (UI.segments - loop_count*2.5 + 2.5) * UI.wSegment
+					width := UI.wSegment * 0.5, loop_count += 1
+					filler_width := (item.rarity != LangTrans("items_unique")) ? (UI.segments - loop_count*1.25 + 1) * UI.wSegment : (UI.segments - loop_count*1.25 + 2.5) * UI.wSegment
 				}
 				Else ;for generic base-type information
 				{
@@ -922,7 +922,9 @@ Iteminfo4_GUI()
 					filler := 1
 
 					If (item.anoint != "") ;add oil-name to cell and determine highlight-color
-						%A_LoopField%_text := db.anoints._oils[A_LoopField], color := (14 - A_LoopField >= 6) ? settings.iteminfo.colors_tier.6 : settings.iteminfo.colors_tier[14 - A_LoopField]
+						%A_LoopField%_text := db.anoints._oils[A_LoopField]
+						, rank := 14 - A_LoopField, rank := (rank >= 6) ? 6 : rank
+						, color := (rank = 0) ? "White" : settings.iteminfo.colors_tier[rank]
 					Else color := (item.stats[A_LoopField].base_best = item.stats[A_LoopField].class_best) ? settings.iteminfo.colors_tier.1 : "404040"
 
 					If (%A_LoopField%_difference != "")
@@ -963,7 +965,7 @@ Iteminfo4_GUI()
 						Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack", 0
 					}
 
-					color1 := InStr("Black, 404040", color) ? "White" : "Black"
+					color1 := (color = "White") ? "Red" : InStr("Black, 404040", color) ? "White" : "Black"
 					Gui, %GUI_name%: Add, Text, % style " Border Center BackgroundTrans c"color1 " h"UI.hSegment, % %A_LoopField%_text
 					Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border range0-100 BackgroundBlack c"color, % !settings.iteminfo.compare && (item.anoint = "") ? item.stats[A_LoopField].relative : 100
 				}

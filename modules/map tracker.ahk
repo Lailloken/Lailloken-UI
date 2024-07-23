@@ -47,7 +47,7 @@
 	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
 		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}
-	,	vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20250101]]
+	,	vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20240722], ["settlers", 20240726, 20250101]]
 
 	For mechanic in vars.maptracker.mechanics
 		settings.maptracker[mechanic] := !Blank(check := ini.mechanics[mechanic]) ? check : 0
@@ -1274,7 +1274,7 @@ MaptrackerLogsTooltip(ini_section, ini_key, cHWND)
 		pDate := SubStr(ini_section, 1, InStr(ini_section, " ") - 1), pTime := SubStr(ini_section, InStr(ini_section, " ") + 1), pCheck := LLK_HasVal(vars.maptracker.entries_copy[pDate], pTime,,,, 1)
 		text := StrReplace(vars.maptracker.entries_copy[pDate][pCheck][ini_key], InStr("notes, character", ini_key) ? "(n)" : "; ", "`n")
 		If (ini_key = "mapinfo")
-			text := StrReplace(StrReplace(text, "`n- ", "¢"), "`n", "`n   "), text := StrReplace(text, "p | ", "`n")
+			text := StrReplace(StrReplace(text, "`n- ", "¢"), "`n", "`n   "), text := StrReplace(text, "p | ", "p`n")
 		Else If (ini_key = "notes")
 			text := StrReplace(text, "§", "¢")
 	}
@@ -1518,6 +1518,8 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, 
 		array0 := [vars.general.xMouse, vars.general.yMouse]
 	Else If IsObject(add) ;omni-clicking an item while the note-editor is open
 	{
+		If (category = "logs") && InStr(add.1, "#") && IsNumber(SubStr(add.1, 1, InStr(add.1, "#") - 1))
+			add.1 := SubStr(add.1, InStr(add.1, "#") + 1)
 		If add.2
 		{
 			notes[category].3.InsertAt(1, add.1)

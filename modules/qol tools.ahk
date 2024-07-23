@@ -12,11 +12,25 @@
 
 	settings.alarm := {"fSize": !Blank(check := ini.alarm["font-size"]) ? check : settings.general.fSize}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
+	settings.alarm.fSize2 := settings.alarm.fSize - 4
+	LLK_FontDimensions(settings.alarm.fSize2, font_height, font_width), settings.alarm.fHeight2 := font_height, settings.alarm.fWidth2 := font_width
 	settings.alarm.color := !Blank(check := ini.alarm["font-color"]) ? check : "FFFFFF"
 	settings.alarm.color1 := !Blank(check := ini.alarm["background color"]) ? check : "000000"
 	settings.alarm.xPos := !Blank(check := ini.alarm["x-coordinate"]) ? check : ""
 	settings.alarm.yPos := !Blank(check := ini.alarm["y-coordinate"]) ? check : ""
-	vars.alarm := {"timestamp": !Blank(check := ini.alarm["timestamp"]) ? check : ""}, vars.alarm.timestamp := (vars.alarm.timestamp < A_Now) ? "" : vars.alarm.timestamp
+	settings.alarm.orientation := !Blank(check := ini.alarm.orientation) ? check : "horizontal"
+	vars.alarm := {"timers": {}, "ini": {}}
+	For timer, timestamp in ini["alarm - timers"]
+	{
+		If (timestamp > A_Now)
+		{
+			timestamp .= "|"
+			While vars.alarm.timers.HasKey(timestamp)
+				timestamp .= "|"
+			vars.alarm.timers[timestamp] := timer
+		}
+		Else vars.alarm.timers["xyz|" timer] := timer
+	}
 
 	If InStr(vars.log.areaID, "labyrinth_")
 		Lab("init")
@@ -31,17 +45,30 @@
 	vars.notepad := {"toggle": 0}, vars.notepad_widgets := {}, vars.hwnd.notepad_widgets := {}
 }
 
-Alarm(click := 0)
+Alarm(hotkey := 1, cHWND := "", mode := "")
 {
 	local
 	global vars, settings
-	static toggle := 0
+	static toggle := 0, tick := 0
+
+	mode := (mode = "expired") ? mode : "", tick += 1
 
 	If (A_Gui = "alarm_set")
 	{
-		time := A_Now, input := LLK_ControlGet(vars.hwnd.alarm.edit), input := !input ? 0 : input, sections := [], units := ["seconds", "minutes", "hours"]
+		time := A_Now, sections := [], units := ["seconds", "minutes", "hours"]
+		input := LLK_ControlGet(vars.hwnd.alarm.edit), input := !input ? 0 : input
+		If Blank(vars.alarm.override)
+		{
+			input1 := LLK_ControlGet(vars.hwnd.alarm.edit1)
+			Loop, Parse, input1, µ, % " |;,."
+				input1 := A_LoopField
+			If !Blank(input1) && (LLK_PatternMatch(input1, "", ["[", "]", "="]))
+				error := 1
+		}
+		Else input1 := vars.alarm.override
+
 		WinGetPos, x, y, w, h, % "ahk_id " vars.hwnd.alarm.edit
-		Loop, Parse, input, :
+		Loop, Parse, % (input := StrReplace(input, " ", ":")), % ":"
 		{
 			If Blank(A_LoopField) || (A_Index > 3) || !IsNumber(A_LoopField)
 				error := 1
@@ -49,102 +76,227 @@ Alarm(click := 0)
 		}
 		If !InStr(input, ":") && !IsNumber(input) || error
 		{
-			LLK_ToolTip(LangTrans("global_error"),, x, y + h,, "red")
+			LLK_ToolTip(LangTrans("global_errorname", 2),, x, y + h,, "red")
 			Return
 		}
 		For index, section in sections
 			EnvAdd, time, section, % units[index]
-		vars.alarm.timestamp := time, x := y := w := h := ""
-		IniWrite, % time, ini\qol tools.ini, alarm, timestamp
+		time .= "|"
+		While vars.alarm.timers.HasKey(time)
+			time .= "|"
+		If !Blank(input1) && (check := LLK_HasVal(vars.alarm.timers, input1))
+			vars.alarm.timers.Delete(check)
+		vars.alarm.timers[time] := input1, x := y := w := h := ""
+		If !Blank(input1)
+			IniWrite, % StrReplace(time, "|"), ini\qol tools.ini, alarm - timers, % input1
+		Gui, alarm_set: Destroy
+		vars.hwnd.alarm.alarm_set := ""
 		WinActivate, ahk_group poe_window
+		Return
 	}
-
-	start := A_TickCount, vars.alarm.drag := 1
-	If (click = 1)
-		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.alarm.main
-	While (click = 1) && GetKeyState("LButton", "P")
+	Else If !Blank(cHWND)
 	{
-		If (A_TickCount >= start + 500)
+		check := LLK_HasVal(vars.hwnd.alarm, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+		If (check = "drag")
 		{
-			If !transform
+			start := A_TickCount, vars.alarm.drag := 1
+			WinGetPos,,, w, h, % "ahk_id "vars.hwnd.alarm.main
+			While GetKeyState("LButton", "P")
+				If (A_TickCount >= start + 500)
+				{
+					If !transform
+					{
+						Gui, % GuiName(vars.hwnd.alarm.main) ": +E0x20"
+						transform := 1
+					}
+					LLK_Drag(w, h, x, y,, "alarm" toggle, 1)
+					Sleep 1
+				}
+			vars.general.drag := 0
+			If WinExist("ahk_id "vars.hwnd.alarm.main)
+				Gui, % GuiName(vars.hwnd.alarm.main) ": -E0x20"
+			If !Blank(y)
 			{
-				Gui, % GuiName(vars.hwnd.alarm.main) ": +E0x20"
-				transform := 1
+				settings.alarm.xPos := x, settings.alarm.yPos := y
+				IniWrite, % x, ini\qol tools.ini, alarm, x-coordinate
+				IniWrite, % y, ini\qol tools.ini, alarm, y-coordinate
 			}
-			LLK_Drag(w, h, x, y,, "alarm" toggle, 1)
-			Sleep 1
-		}
-	}
-	vars.general.drag := 0
-	If WinExist("ahk_id "vars.hwnd.alarm.main)
-		Gui, % GuiName(vars.hwnd.alarm.main) ": -E0x20"
-	If !Blank(y)
-	{
-		settings.alarm.xPos := x, settings.alarm.yPos := y
-		IniWrite, % x, ini\qol tools.ini, alarm, x-coordinate
-		IniWrite, % y, ini\qol tools.ini, alarm, y-coordinate
-	}
-	Else If (click = 2)
-	{
-		KeyWait, RButton
-		vars.alarm.timestamp := ""
-		IniDelete, ini\qol tools.ini, alarm, timestamp
-		If !vars.alarm.toggle
-		{
-			LLK_Overlay(vars.hwnd.alarm.main, "destroy")
+			vars.alarm.drag := 0
 			Return
 		}
-	}
-	Else If (click = 1)
-	{
-		KeyWait, LButton
-		WinActivate, ahk_group poe_window
-		If (vars.alarm.timestamp && vars.alarm.timestamp < A_Now)
-			vars.alarm.timestamp := A_Now
-		Else If !vars.alarm.timestamp
+		Else If (check = "new") || (cHWND = "start")
 		{
-			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDalarm_set", LLK-UI: alarm set
+			KeyWait, LButton
+			Gui, alarm_set: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow HWNDalarm_set", LLK-UI: alarm set
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
-			Gui, alarm_set: Font, % "s" settings.alarm.fSize//2 " cWhite", % vars.system.font
+			Gui, alarm_set: Font, % "s" Max(6, settings.alarm.fSize * 0.7) " cWhite", % vars.system.font
 			vars.hwnd.alarm.alarm_set := alarm_set
 
-			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd r1 w"vars.alarm.wPanel - 2,
-			vars.hwnd.alarm.edit := hwnd
-			Gui, alarm_set: Add, Button, % "xp yp hp wp Hidden Default gAlarm cBlack HWNDhwnd", OK
-			;ControlFocus,, ahk_id %hwnd%
-			Gui, alarm_set: Show, % "x"vars.alarm.xPanel " y"vars.alarm.yPanel
-			While WinActive("ahk_id "alarm_set)
-				Sleep 10
-			Gui, alarm_set: Destroy
+			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd Center r1 w" vars.alarm.wTimers
+			If !(cHWND = "start")
+			{
+				Gui, alarm_set: Add, Edit, % "Section xs y+-1 cBlack Center Limit HWNDhwnd1 r1 w" vars.alarm.wTimers
+				vars.alarm.override := ""
+			}
+			vars.hwnd.alarm.edit := hwnd, vars.hwnd.alarm.edit1 := hwnd1
+			Gui, alarm_set: Add, Button, % "xp yp hp wp Hidden Default gAlarm cBlack", OK
+			If (cHWND = "start")
+			{
+				WinGetPos, xEdit, yEdit, wEdit, hEdit,% "ahk_id " vars.hwnd.alarm["timer_" vars.alarm.override]
+				Gui, alarm_set: Show, % "x" xEdit " y" yEdit
+			}
+			Else Gui, alarm_set: Show, % "x" vars.alarm.xPanel + vars.alarm.wPanel//2 - vars.alarm.wTimers//2 " y"vars.alarm.yPanel
+			ControlFocus,, ahk_id %hwnd%
+			Return
+		}
+		Else If InStr(check, "name_")
+		{
+			vars.alarm.drag := 1
+			If LLK_Progress(cHWND, "RButton")
+			{
+				pCheck := LLK_HasVal(vars.alarm.timers, control)
+				vars.alarm.timers.Delete(pCheck)
+				IniDelete, ini\qol tools.ini, alarm - timers, % control
+				KeyWait, RButton
+			}
+			Else
+			{
+				vars.alarm.drag := 0
+				Return
+			}
+			mode := vars.alarm.toggle ? "" : "expired"
+		}
+		Else If InStr(check, "timer_")
+		{
+			vars.alarm.drag := 1, pCheck := LLK_HasVal(vars.alarm.timers, control)
+			If (hotkey = 2)
+			{
+				KeyWait, RButton
+				If (SubStr(control, 0) != "|")
+				{
+					vars.alarm.timers.Delete(pCheck)
+					vars.alarm.timers["xyz|" control] := control
+					IniWrite, % "", ini\qol tools.ini, alarm - timers, % control
+				}
+				Else vars.alarm.timers.Delete(control)
+			}
+			Else If (hotkey = 1)
+			{
+				KeyWait, LButton
+				If !InStr(pCheck, "xyz|")
+				{
+					If (pCheck > A_Now)
+					{
+						vars.alarm.drag := 0
+						Return
+					}
+					If (SubStr(control, 0) != "|")
+						vars.alarm.timers.Delete(pCheck)
+					Else vars.alarm.timers.Delete(control)
+
+					time := A_Now "|"
+					While vars.alarm.timers.HasKey(time)
+						time .= "|"
+					If (SubStr(control, 0) != "|")
+					{
+						vars.alarm.timers[time] := control
+						IniWrite, % "", ini\qol tools.ini, alarm - timers, % control
+					}
+					Else vars.alarm.timers[time] := ""
+				}
+				Else If InStr(pCheck, "xyz|")
+				{
+					vars.alarm.override := control
+					Alarm("", "start"), vars.alarm.drag := 0
+					Return
+				}
+			}
+			vars.alarm.drag := 0
+			mode := vars.alarm.toggle ? "" : "expired"
+		}
+		Else If (check = "orientation")
+		{
+			settings.alarm.orientation := (settings.alarm.orientation = "horizontal") ? "vertical" : "horizontal"
+			IniWrite, % settings.alarm.orientation, ini\qol tools.ini, alarm, orientation
+			Alarm()
+		}
+		Else LLK_ToolTip("no action")
+	}
+
+	toggle := !toggle, GUI_name := "alarm" toggle, vars.alarm.override := ""
+	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDalarm"
+	Gui, %GUI_name%: Color, Purple
+	WinSet, TransColor, % "Purple"
+	Gui, %GUI_name%: Margin, % 0, 0
+	Gui, %GUI_name%: Font, % "s" settings.alarm.fSize " c" settings.alarm.color, % vars.system.font
+	hwnd_old := vars.hwnd.alarm.main, alarm_set := vars.hwnd.alarm.alarm_set, vars.hwnd.alarm := {"main": alarm, "alarm_set": alarm_set}, orientation := settings.alarm.orientation
+	LLK_PanelDimensions(["77:77:77"], settings.alarm.fSize, wTimers, hTimers), added := 0, section := (orientation = "horizontal" ? "ys x+" settings.alarm.fWidth//2 : "xs y+" settings.alarm.fWidth//2), section2 := (section = "ys") ? "xs y+" settings.alarm.fWidth//2 : "ys x+" settings.alarm.fWidth//2
+	vars.alarm.wTimers := wTimers
+
+	If Blank(mode)
+	{
+		Gui, %GUI_name%: Add, Text, % "Border BackgroundTrans w" settings.alarm.fHeight//3 " h" settings.alarm.fHeight//3, % ""
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd0 BackgroundWhite", 0
+		Gui, %GUI_name%: Add, Text, % "Section xp yp Border BackgroundTrans Center w" (orientation = "horizontal" ? settings.alarm.fHeight : wTimers//2), % "+"
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Background" settings.alarm.color1, 0
+		vars.hwnd.alarm.drag := hwnd0, vars.hwnd.alarm.new := hwnd
+
+		If (orientation = "vertical")
+		{
+			Gui, %GUI_name%: Add, Text, % "ys x+0 Border BackgroundTrans Center w" (orientation = "horizontal" ? settings.alarm.fHeight : wTimers//2), % ">"
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Background" settings.alarm.color1, 0
+			vars.hwnd.alarm.orientation := hwnd
 		}
 	}
 
-	toggle := !toggle, GUI_name := "alarm" toggle
-	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDalarm"(vars.alarm.toggle || vars.alarm.timestamp <= A_Now ? "" : " +E0x20")
-	Gui, %GUI_name%: Color, % settings.alarm.color1
-	Gui, %GUI_name%: Margin, % 0, 0
-	Gui, %GUI_name%: Font, % "s" settings.alarm.fSize " c"settings.alarm.color, % vars.system.font
-	hwnd_old := vars.hwnd.alarm.main, vars.hwnd.alarm := {"main": alarm}
-
-	If vars.alarm.timestamp
+	For timestamp, description in vars.alarm.timers
 	{
-		timer := vars.alarm.timestamp
+		timestamp0 := timestamp, timestamp := StrReplace(timestamp, "|")
+		If (mode = "expired") && (timestamp > A_Now)
+			Continue
+		timer := timestamp
 		EnvSub, timer, A_Now, seconds
+		color := " c" settings.alarm["color" (timestamp < A_Now ? "1" : "")], color1 := settings.alarm["color" (timestamp < A_Now ? "" : "1")]
+		If (mode = "expired") && Mod(tick, 2)
+			buffer := SubStr(color, 3), color := " c" color1, color1 := buffer
+		Gui, %GUI_name%: Add, Text, % ((A_Index != 1 || Blank(mode)) && (Blank(mode) || mode = "expired") ? section : "") " Section Border BackgroundTrans Center w" wTimers . color, % FormatSeconds(Abs(timer), 0)
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd0 Background" color1, 0
+		If !Blank(description)
+		{
+			Gui, %GUI_name%: Font, % "s" Max(6, settings.alarm.fSize * 0.7)
+			Gui, %GUI_name%: Add, Text, % "xs y+-1 Border BackgroundTrans Center wp", % description
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Vertical Range0-500 Background" settings.alarm.color1 " c" settings.alarm.color, 0
+			Gui, %GUI_name%: Font, % "s" settings.alarm.fSize
+			vars.hwnd.alarm["name_" description] := hwnd
+		}
+		Else description := timestamp0
+		vars.hwnd.alarm["timer_" description] := hwnd0
 	}
 
-	Gui, %GUI_name%: Add, Text, % "Center HWNDhwnd", % (IsNumber(vars.alarm.timestamp) && (vars.alarm.timestamp < A_Now) ? " +" : " ") FormatSeconds(Abs(timer), 0) " "
-	vars.hwnd.alarm.timer := hwnd
+	If Blank(mode) && (orientation = "horizontal")
+	{
+		Gui, %GUI_name%: Font, % "s" settings.alarm.fSize * 0.7
+		Gui, %GUI_name%: Add, Text, % section " Section Border BackgroundTrans Center 0x200 w" settings.alarm.fHeight " h" settings.alarm.fHeight, % "v"
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Background" settings.alarm.color1, 0
+		Gui, %GUI_name%: Font, % "s" settings.alarm.fSize
+		vars.hwnd.alarm.orientation := hwnd
+	}
 
 	Gui, %GUI_name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %alarm%
-	vars.alarm.wPanel := w, vars.alarm.hPanel := h
-	xPos := Blank(settings.alarm.xPos) ? vars.client.xc - w / 2 + 1 : settings.alarm.xPos, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
-	yPos := Blank(settings.alarm.yPos) ? vars.client.y - vars.monitor.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
-	Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
-	WinGetPos, x, y,,, ahk_id %alarm%
-	vars.alarm.xPanel := x, vars.alarm.yPanel := y
-	LLK_Overlay(alarm, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.alarm.drag := 0
+	If (w < 25)
+		Gui, %GUI_name%: Destroy
+	Else
+	{
+		xPos := Blank(settings.alarm.xPos) ? vars.client.xc - w / 2 + 1 : settings.alarm.xPos, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
+		yPos := Blank(settings.alarm.yPos) ? vars.client.y - vars.monitor.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+		Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
+		WinGetPos, x, y, w, h, ahk_id %alarm%
+		vars.alarm.xPanel := x, vars.alarm.yPanel := y, vars.alarm.wPanel := w, vars.alarm.hPanel := h
+		LLK_Overlay(alarm, "show",, GUI_name)
+	}
+	LLK_Overlay(hwnd_old, "destroy"), vars.alarm.drag := 0
 }
 
 EssenceTooltip(cHWND)
@@ -239,10 +391,13 @@ HorizonsTooltip(mode := "")
 		Gui, %GUI_name%: Add, Text, xs, % LLK_StringCase(db.mapinfo.maps[mode])
 	Else If LLK_IsType(mode, "number") || (mode = "shaper")
 	{
-		Gui, %GUI_name%: Font, underline bold
-		Gui, %GUI_name%: Add, Text, xs, horizons:
-		Gui, %GUI_name%: Font, norm
-		Gui, %GUI_name%: Add, Text, xs, % (mode = "shaper") ? "forge of the phoenix`nlair of the hydra`nmaze of the minotaur`npit of the chimera" : LLK_StringCase(db.mapinfo.maps[mode])
+		If (mode != 17)
+		{
+			Gui, %GUI_name%: Font, underline bold
+			Gui, %GUI_name%: Add, Text, xs, horizons:
+			Gui, %GUI_name%: Font, norm
+			Gui, %GUI_name%: Add, Text, xs, % (mode = "shaper") ? "forge of the phoenix`nlair of the hydra`nmaze of the minotaur`npit of the chimera" : LLK_StringCase(db.mapinfo.maps[mode])
+		}
 		If vars.log.level
 		{
 			Gui, %GUI_name%: Font, underline bold

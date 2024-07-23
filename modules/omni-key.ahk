@@ -77,10 +77,6 @@
 				LLK_ToolTip(!note ? LangTrans("lvltracker_gemnotes") : note, note? 0 : 2,,, "gem_notes")
 			Case "geartracker":
 				GeartrackerAdd()
-			Case "recombinators_blank":
-
-			Case "recombinators_add":
-
 			Case "legion":
 				LegionParse(), LegionGUI()
 			Case "context_menu":
@@ -100,6 +96,8 @@
 			Case "mapinfo":
 				If MapinfoParse()
 					MapinfoGUI()
+			Case "recombination":
+				Recombination_()
 		}
 	}
 	Else If (ThisHotkey_copy != settings.hotkeys.omnikey2) ;prevent item-only omni-key from executing non-item features
@@ -156,12 +154,6 @@ Omnikey2()
 		If settings.features.leveltracker && vars.imagesearch.skilltree.check
 		{
 			LeveltrackerSkilltree(), OmniRelease()
-			Return
-		}
-
-		If settings.features.necropolis && vars.imagesearch.necro_lantern.check
-		{
-			Necropolis_(), OmniRelease()
 			Return
 		}
 
@@ -226,6 +218,8 @@ OmniContext(mode := 0)
 	While (!settings.features.stash || GetKeyState("ALT", "P")) && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1)
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
+	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
+		Return "recombination"
 	If WinExist("ahk_id "vars.hwnd.legion.main) && (item.itembase = "Timeless Jewel")
 		Return "legion"
 	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = LangTrans("items_gem"))
@@ -271,10 +265,6 @@ OmniContext(mode := 0)
 			Return "iteminfo"
 	If WinExist("ahk_id " vars.hwnd.geartracker.main)
 		Return "geartracker"
-	If InStr(item.name, "recombinator") || InStr(item.name, "power core")
-		Return "recombinators_blank"
-	If WinExist("ahk_id " hwnd_recombinator_window)
-		Return "recombinators_add"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"]) || LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"])
 	|| (item.rarity = LangTrans("items_unique"))
 		Return "context_menu"
@@ -288,7 +278,7 @@ OmniContextMenu()
 	Loop 2
 	{
 		Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd0
-		Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fHeight/8
+		Gui, omni_context: Margin, % settings.general.fWidth, % settings.general.fWidth//2
 		Gui, omni_context: Color, Black
 		;WinSet, Transparent, % settings.general.trans
 		Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
@@ -322,7 +312,11 @@ OmniContextMenu()
 				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd2" style, % "craft of exile"
 				ControlGetPos,,, w4,,, % "ahk_id " hwnd2
 			}
-			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1, vars.hwnd.omni_context.craftofexile := hwnd2, width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width
+			If LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
+				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd3 " style, % "recombination"
+			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1
+			vars.hwnd.omni_context.craftofexile := hwnd2, vars.hwnd.omni_context.recombination := hwnd3
+			width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width
 		}
 
 		If InStr(item.name, "to the goddess")
@@ -440,6 +434,8 @@ OmniContextMenuPick(cHWND)
 			ToolTip_Mouse("chromatics", 1)
 		}
 	}
+	Else If (check = "recombination")
+		Recombination_()
 	Gui, omni_context: Destroy
 }
 

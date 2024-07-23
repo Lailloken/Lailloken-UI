@@ -400,7 +400,8 @@
       "the map-info panel is a separate feature and has to be enabled"
     ],
     "maptracker notes": [
-      "adds an icon to the tracker panel to log custom notes for individual map runs"
+      "adds an icon to the tracker panel to log custom notes for individual map runs",
+      "also enables you easily log items with a single click, e.g. map-device items used, special drops found in a run, etc."
     ],
     "maptracker color unselected": [
       "used for highlighted cells in the log-viewer, and for non-league dates in the date selection",
@@ -453,24 +454,6 @@
       "below, you can customize the tiering of specific map mods",
       "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
       "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
-    ],
-    "necro enable": [
-      "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting"
-    ],
-    "necro compatibility": [
-      "screen-reading feature that scans the necropolis lantern ui and enables mod highlighting",
-      "a compatibility test has to be done before this feature can be enabled",
-      "open the character-stats screen, then click this checkbox to open the windows snipping tool",
-      "use it to snip 4 to 5 lines of text from the character-stats"
-    ],
-    "necro offsets": [
-      "the overlay's position aligns with the <necro: lantern> screen-check, and its size scales with the game's resolution",
-      "adjust the offsets below to fine-tune its position and size (center buttons = reset)",
-      "adjust the opacity first if you're having issues with finding the right offsets"
-    ],
-    "necro colors": [
-      "customize the colors used to highlight different mods: the text panels show the corresponding hotkey (s = space)",
-      "click the colored panels to open the palette, right-click to reset to the default color"
     ],
     "alarm enable": [
       "small timer widget with alarm and stopwatch functionality",
@@ -966,12 +949,6 @@
       "-> click <cal> to let the tool calibrate, OR right-click to manually calibrate",
       "-> follow the instructions in <test>"
     ],
-    "necro_lantern": [
-      "(/bold)(/underline)instructions:",
-      "-> open the lantern ui for a zone",
-      "-> click <cal> to open the snipping tool, then clip the marked area shown in the img",
-      "-> follow the instructions in <test>"
-    ],
     "skilltree": [
       "(/bold)(/underline)instructions:",
       "-> open the skilltree",
@@ -983,6 +960,27 @@
       "-> open the stash",
       "-> click <cal> to let the tool calibrate, OR right-click to manually calibrate",
       "-> follow the instructions in <test>"
+    ]
+  },
+  "recombination": {
+    "color 1": [
+      "represents <everything is ok>",
+      "click: customize\nr-click: reset to default"
+    ],
+    "color 2": [
+      "represents <something is wrong>",
+      "click: customize\nr-click: reset to default"
+    ],
+    "color 3": [
+      "represents <pay attention>",
+      "click: customize\nr-click: reset to default"
+    ],
+    "basics": [
+      "general rules:",
+      "one of the two items will be randomly chosen as the final base, and its characteristics will be inherited: influences, tags (mirrored, corrupted, split), quality, implicits, enchants, anoints",
+      "you can manipulate the odds by bench-crafting additional mods onto the item(s)",
+      "note: the simulated results only show the likelihood of desired mods appearing, without taking mod-tiers into account (it's 50/50 which one makes it through)",
+      "limitations: influence-mods cannot be transferred to non-influenced bases, fractured mods cannot be transferred to synth or influenced bases (the simulation doesn't support that, yet)"
     ]
   },
   "searchstrings": {

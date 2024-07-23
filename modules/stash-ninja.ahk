@@ -17,8 +17,8 @@
 	{
 		settings.stash := {"indexes": 15}, ini := IniBatchRead("ini\stash-ninja.ini")
 		settings.stash.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
-		settings.stash.leagues := [["necro", "Necropolis"], ["hc necro", "Hardcore Necropolis"], ["standard", "Standard"]]
-		settings.stash.league := !Blank(check := ini.settings["league"]) ? check : settings.stash.leagues.1.2
+		settings.stash.leagues := [["standard", "Standard"]]
+		settings.stash.league := !Blank(check := ini.settings["league"]) && LLK_HasVal(settings.stash.leagues, check,,,, 1) ? check : settings.stash.leagues.1.2
 		settings.stash.history := !Blank(check := ini.settings["enable price history"]) ? check : 1
 		settings.stash.show_exalt := !Blank(check := ini.settings["show exalt conversion"]) ? check : 0
 		settings.stash.bulk_trade := !Blank(check := ini.settings["show bulk-sale suggestions"]) ? check : 1

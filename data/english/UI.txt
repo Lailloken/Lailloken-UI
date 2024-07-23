@@ -68,7 +68,6 @@
 		ms_mapping tracker		=	"map-tracker"
 		ms_map-info			=	"map-info"
 		ms_minor qol tools		=	"minor qol tools"
-		ms_necropolis			=	"necropolis"
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
 		ms_stash-ninja			=	"stash-ninja"
@@ -145,7 +144,6 @@
 		global_ultrawide		=	"Are there black bars on the sides of the client?"
 		global_credits			=	"credits"
 		global_none			=	"none"
-		global_necro_lantern		=	"necro: lantern"
 		global_axis			=	"x-axis"
 		global_axis			=	"y-axis"
 		global_width			=	"width"
@@ -164,6 +162,8 @@
 		global_confirm			=	"confirm"
 		global_mouse			=	"l#m#r"		;## left, middle, right mouse-button
 		global_coordinates		=	"coordinates"
+		global_time			=	"time"
+		global_refresh			=	"refresh"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -436,6 +436,20 @@
 		omnikey_labimport		=	"right-click <lab compass file>"			;## there's a link underneath each lab-layout image on poelab.com
 		omnikey_labimport		=	"click <copy link address>"				;## when right-clicking a link in your browser
 		omnikey_poedb			=	"modifiers"						;## it's the name of this section on poeDB, displayed at the top: https://poedb.tw/us/Modifiers
+
+
+
+;#####################################################
+;## recombination
+;#####################################################
+
+;## these strings are displayed/required when using the recombination feature
+		recomb_prefixes			=	"desired prefixes"
+		recomb_suffixes			=	"desired suffixes"
+		recomb_simulation		=	"simulation:"
+		recomb_desired			=	"too many desired affixes"
+		recomb_rerun			=	"re-run"
+		recomb_refresh			=	"click to refresh"
 
 
 
@@ -751,16 +765,6 @@
 
 
 ;#####################################################
-;## settings menu: necropolis
-;#####################################################
-
-;## these strings are displayed/required in the "necropolis" section of the settings menu
-		m_necro_enable			=	"enable lantern highlighting (experimental)"
-		m_necro_offset			=	"overlay offsets:"
-		m_necro_nowindow		=	"open the overlay;before changing settings"
-
-
-;#####################################################
 ;## settings menu: minor qol tools
 ;#####################################################
 
@@ -856,7 +860,6 @@
 		m_updater_github		=	"github links:"
 		m_updater_github		=	"main page"
 		m_updater_github		=	"releases"
-		m_updater_refresh		=	"refresh"
 		m_updater_changelog		=	"full changelog"
 		m_updater_skip			=	"skip"
 		m_updater_failed		=	"update failed:"

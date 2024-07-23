@@ -242,7 +242,9 @@
 
 ;## these strings are displayed in the in-game tooltip when hovering over an item and holding the hotkey for advanced item descriptions (usually ALT)
 		items_prefix			=	"Prefix Modifier"
+		items_prefix_allowed		=	"Prefix Modifier# allowed"		;## implicit that modifies affix-counts (it's important to place the placeholder in a way that matches singular and plural forms)
 		items_suffix			=	"Suffix Modifier"
+		items_suffix_allowed		=	"Suffix Modifier# allowed"
 		items_affix			=	""#""					;## in my limited testing, I only found Japanese to use something other than quotation marks (「#」)
 		items_uniquemod			=	"Unique Modifier"
 		items_implicit			=	"Implicit Modifier"
