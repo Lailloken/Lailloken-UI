@@ -164,8 +164,6 @@ Recombination_GUI(cHWND := "")
 						vars.recombination["item" item_no][affix][mod_slot] := [input]
 					}
 				}
-			global json
-			clipboard := json.dump(vars.recombination)
 			remove_prefixes := [], remove_suffixes := []
 			For index, affix in ["prefixes", "suffixes"]
 			{
@@ -291,8 +289,6 @@ Recombination_GUI(cHWND := "")
 			}
 		}
 	}
-	global json ;##################################################################################################################
-	Clipboard := json.dump(vars.recombination)
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos, x, y, w, h, ahk_id %recombination%
 	Gui, %GUI_name%: Show, % "NA x" vars.client.x + vars.client.w - vars.recombination.wInventory - w " y" vars.client.y + Floor(vars.client.h * (47/48)) - h
