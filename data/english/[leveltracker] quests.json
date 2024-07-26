@@ -865,15 +865,6 @@
           }
         },
         "vendor": {
-          "Metadata/Items/Gems/SkillGemMeleeTotem": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Scion",
-              "Templar"
-            ],
-            "npc": "Nessa"
-          },
           "Metadata/Items/Gems/SkillGemAnimateWeapon": {
             "classes": [
               "Scion",
@@ -915,6 +906,15 @@
               "Scion",
               "Shadow",
               "Witch"
+            ],
+            "npc": "Nessa"
+          },
+          "Metadata/Items/Gems/SkillGemVengeance": {
+            "classes": [
+              "Marauder",
+              "Duelist",
+              "Templar",
+              "Scion"
             ],
             "npc": "Nessa"
           },
@@ -981,15 +981,6 @@
             ],
             "npc": "Nessa"
           },
-          "Metadata/Items/Gems/SkillGemMoltenShell": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Scion",
-              "Templar"
-            ],
-            "npc": "Nessa"
-          },
           "Metadata/Items/Gems/SkillGemOrbOfStorms": {
             "classes": [
               "Scion",
@@ -1007,14 +998,6 @@
             ],
             "npc": "Nessa"
           },
-          "Metadata/Items/Gems/SkillGemReckoning": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Templar"
-            ],
-            "npc": "Nessa"
-          },
           "Metadata/Items/Gems/SkillGemRejuvenationTotem": {
             "classes": [
               "Duelist",
@@ -1024,13 +1007,8 @@
             ],
             "npc": "Nessa"
           },
-          "Metadata/Items/Gems/SkillGemRiposte": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Ranger",
-              "Shadow"
-            ],
+          "Metadata/Items/Gems/SkillGemShieldCharge": {
+            "classes": [],
             "npc": "Nessa"
           },
           "Metadata/Items/Gems/SkillGemShrapnelBallista": {
@@ -1127,7 +1105,12 @@
             "npc": "Nessa"
           },
           "Metadata/Items/Gems/SkillGemSteelskin": {
-            "classes": [],
+            "classes": [
+              "Templar",
+              "Marauder",
+              "Duelist",
+              "Scion"
+            ],
             "npc": "Nessa"
           }
         }
@@ -1444,15 +1427,6 @@
               "Witch",
               "Templar",
               "Shadow",
-              "Scion"
-            ],
-            "npc": "Nessa"
-          },
-          "Metadata/Items/Gems/SupportGemEarthbreaker": {
-            "classes": [
-              "Marauder",
-              "Templar",
-              "Duelist",
               "Scion"
             ],
             "npc": "Nessa"
@@ -1837,14 +1811,6 @@
           },
           "Metadata/Items/Gems/SkillGemPrecision": {
             "classes": [],
-            "npc": "Nessa"
-          },
-          "Metadata/Items/Gems/SkillGemShieldCharge": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Templar"
-            ],
             "npc": "Nessa"
           },
           "Metadata/Items/Gems/SkillGemIceSiphonTrap": {
@@ -2938,6 +2904,15 @@
             ],
             "npc": "Yeena"
           },
+          "Metadata/Items/Gems/SkillGemRiposte": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Ranger",
+              "Scion"
+            ],
+            "npc": "Yeena"
+          },
           "Metadata/Items/Gems/SkillGemHeraldOfAgony": {
             "classes": [
               "Duelist",
@@ -2967,6 +2942,15 @@
           },
           "Metadata/Items/Gems/SkillGemHeraldOfThunder": {
             "classes": [],
+            "npc": "Yeena"
+          },
+          "Metadata/Items/Gems/SkillGemMoltenShell": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Scion",
+              "Templar"
+            ],
             "npc": "Yeena"
           },
           "Metadata/Items/Gems/SkillGemPoachersMark": {
@@ -3002,6 +2986,14 @@
               "Scion",
               "Shadow",
               "Witch"
+            ],
+            "npc": "Yeena"
+          },
+          "Metadata/Items/Gems/SkillGemReckoning": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Scion"
             ],
             "npc": "Yeena"
           },
@@ -3885,6 +3877,15 @@
             ],
             "npc": "Clarissa"
           },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Scion",
+              "Templar"
+            ],
+            "npc": "Clarissa"
+          },
           "Metadata/Items/Gems/SkillGemAutomation": {
             "classes": [],
             "npc": "Clarissa"
@@ -3907,26 +3908,11 @@
             ],
             "npc": "Clarissa"
           },
-          "Metadata/Items/Gems/SkillGemCallToArms": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Scion",
-              "Templar"
-            ],
-            "npc": "Clarissa"
-          },
           "Metadata/Items/Gems/SkillGemConductivity": {
             "classes": [
               "Scion",
               "Shadow",
               "Templar",
-              "Witch"
-            ],
-            "npc": "Clarissa"
-          },
-          "Metadata/Items/Gems/SkillGemConvocation": {
-            "classes": [
               "Witch"
             ],
             "npc": "Clarissa"
@@ -4154,14 +4140,6 @@
               "Scion",
               "Shadow",
               "Ranger"
-            ],
-            "npc": "Clarissa"
-          },
-          "Metadata/Items/Gems/SkillGemVengeance": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Templar"
             ],
             "npc": "Clarissa"
           },
@@ -4540,15 +4518,6 @@
           }
         },
         "vendor": {
-          "Metadata/Items/Gems/SkillGemAncestralWarchief": {
-            "classes": [
-              "Duelist",
-              "Marauder",
-              "Scion",
-              "Templar"
-            ],
-            "npc": "Clarissa"
-          },
           "Metadata/Items/Gems/SkillGemAnimateArmour": {
             "classes": [],
             "npc": "Clarissa"
@@ -5295,14 +5264,6 @@
             "classes": [],
             "npc": "Siosa"
           },
-          "Metadata/Items/Gems/SkillGemMeleeTotem": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SkillGemAncestralWarchief": {
-            "classes": [],
-            "npc": "Siosa"
-          },
           "Metadata/Items/Gems/SkillGemAnger": {
             "classes": [],
             "npc": "Siosa"
@@ -5352,6 +5313,10 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SkillGemCriticalWeakness": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -5475,10 +5440,6 @@
             "classes": [],
             "npc": "Siosa"
           },
-          "Metadata/Items/Gems/SkillGemCallToArms": {
-            "classes": [],
-            "npc": "Siosa"
-          },
           "Metadata/Items/Gems/SkillGemPoisonArrow": {
             "classes": [],
             "npc": "Siosa"
@@ -5571,7 +5532,7 @@
             "classes": [],
             "npc": "Siosa"
           },
-          "Metadata/Items/Gems/SkillGemConvocation": {
+          "Metadata/Items/Gems/SkillGemConvocationNew": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -5600,6 +5561,10 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SupportGemCruelty": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SkillGemVengeance": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -5655,6 +5620,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemDetonateMines": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SupportGemDevour": {
             "classes": [],
             "npc": "Siosa"
@@ -5668,10 +5637,6 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SkillGemDiscipline": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SupportGemDivineBlessing": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -5692,10 +5657,6 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SkillGemDualStrike": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SupportGemEarthbreaker": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -5931,6 +5892,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemRiposte": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SkillGemGrace": {
             "classes": [],
             "npc": "Siosa"
@@ -6036,10 +6001,6 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SupportGemIncreasedCriticalStrikes": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SupportGemIncreasedDuration": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -6227,6 +6188,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SupportGemIncreasedDuration": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SupportGemMultiTrap": {
             "classes": [],
             "npc": "Siosa"
@@ -6375,19 +6340,11 @@
             "classes": [],
             "npc": "Siosa"
           },
-          "Metadata/Items/Gems/SkillGemReckoning": {
-            "classes": [],
-            "npc": "Siosa"
-          },
           "Metadata/Items/Gems/SkillGemRejuvenationTotem": {
             "classes": [],
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SkillGemRighteousFire": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SkillGemRiposte": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -6611,6 +6568,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemReckoning": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SkillGemTectonicSlam": {
             "classes": [],
             "npc": "Siosa"
@@ -6652,10 +6613,6 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SupportGemUrgentOrders": {
-            "classes": [],
-            "npc": "Siosa"
-          },
-          "Metadata/Items/Gems/SkillGemVengeance": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -8133,14 +8090,6 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SkillGemMeleeTotem": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
-          "Metadata/Items/Gems/SkillGemAncestralWarchief": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
           "Metadata/Items/Gems/SkillGemAnger": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8190,6 +8139,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemCriticalWeakness": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SkillGemCallToArms": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -8333,10 +8286,6 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SkillGemCallToArms": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
           "Metadata/Items/Gems/SupportGemCastOnCrit": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8445,7 +8394,7 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SkillGemConvocation": {
+          "Metadata/Items/Gems/SkillGemConvocationNew": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -8474,6 +8423,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SupportGemCruelty": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SkillGemVengeance": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -8553,10 +8506,6 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SupportGemDivineBlessing": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
           "Metadata/Items/Gems/SkillGemDivineTempest": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8574,10 +8523,6 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemDualStrike": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
-          "Metadata/Items/Gems/SupportGemEarthbreaker": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -8821,6 +8766,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SkillGemRiposte": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SkillGemGrace": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8962,10 +8911,6 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SupportGemIncreasedCriticalStrikes": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
-          "Metadata/Items/Gems/SupportGemIncreasedDuration": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -9157,6 +9102,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SupportGemIncreasedDuration": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SupportGemMultiTotem": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -9305,10 +9254,6 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
-          "Metadata/Items/Gems/SkillGemReckoning": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
           "Metadata/Items/Gems/SkillGemRejuvenationTotem": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -9318,10 +9263,6 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemRighteousFire": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
-          "Metadata/Items/Gems/SkillGemRiposte": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -9585,6 +9526,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SkillGemReckoning": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SkillGemTectonicSlam": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -9642,10 +9587,6 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemVampiricLink": {
-            "classes": [],
-            "npc": "Lilly Roth"
-          },
-          "Metadata/Items/Gems/SkillGemVengeance": {
             "classes": [],
             "npc": "Lilly Roth"
           },

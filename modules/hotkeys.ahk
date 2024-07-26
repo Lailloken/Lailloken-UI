@@ -16,7 +16,12 @@
 	settings.hotkeys.omniblock := !Blank(check := ini.hotkeys["block omnikey's native function"]) ? check : 0
 	settings.hotkeys.omnikey := !Blank(check := ini.hotkeys["omni-hotkey"]) ? check : "MButton"
 	settings.hotkeys.omnikey2 := !Blank(check := ini.hotkeys["omni-hotkey2"]) ? check : ""
+	settings.hotkeys.emergencykey := !Blank(check := ini.hotkeys["emergency hotkey"]) ? check : "space"
 
+	Hotkey, If,
+	Hotkey, % "LWin & " settings.hotkeys.emergencykey, LLK_Restart, On
+	Hotkey, % "RWin & " settings.hotkeys.emergencykey, LLK_Restart, On
+ 
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
 	settings.hotkeys.tab := !Blank(check := ini.hotkeys["tab replacement"]) ? check : "tab"
@@ -49,8 +54,10 @@
 	Loop, Parse, % "abcdefghijklmnopqrstuvwxyz"
 		Hotkey, % "*" A_LoopField, HorizonsTooltip, On
 
-	Loop, Parse, % "*~!+#^"
-		settings.hotkeys.tab := StrReplace(settings.hotkeys.tab, A_LoopField), settings.hotkeys.omnikey := StrReplace(settings.hotkeys.omnikey, A_LoopField), settings.hotkeys.omnikey2 := StrReplace(settings.hotkeys.omnikey2, A_LoopField)
+	For index, val in ["tab", "omnikey", "omnikey2"]
+		If (StrLen(settings.hotkeys[val]) > 1)
+			Loop, Parse, % "*~!+#^"
+				settings.hotkeys[val] := StrReplace(settings.hotkeys[val], A_LoopField)
 }
 
 HotkeysESC()
@@ -250,7 +257,7 @@ HotkeysTab()
 	}
 	Else KeyWait, % settings.hotkeys.tab
 
-	If InStr(active, "LLK-panel")
+	If InStr(active, "LLK-panel") && settings.general.hide_toolbar
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")
 	{
@@ -572,8 +579,3 @@ Return
 ESC::HotkeysESC()
 
 #If
-
-RWin & Space::
-LWin & Space::
-Reload
-ExitApp

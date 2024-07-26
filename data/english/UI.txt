@@ -164,6 +164,7 @@
 		global_coordinates		=	"coordinates"
 		global_time			=	"time"
 		global_refresh			=	"refresh"
+		global_settings			=	"settings"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -444,8 +445,8 @@
 ;#####################################################
 
 ;## these strings are displayed/required when using the recombination feature
-		recomb_prefixes			=	"desired prefixes"
-		recomb_suffixes			=	"desired suffixes"
+		recomb_prefixes			=	"desired prefixes:"
+		recomb_suffixes			=	"desired suffixes:"
 		recomb_simulation		=	"simulation:"
 		recomb_desired			=	"too many desired affixes"
 		recomb_rerun			=	"re-run"

@@ -287,6 +287,32 @@
 		items_heist cloaks		=	"Heist Cloaks"
 		items_heist gear		=	"Heist Gear"
 		items_heist tools		=	"Heist Tools"
+;## ----------------------------------------------------------------------------------- ;## the following strings come in groups of three
+		items_shaper			=	"Shaper Item"			;## the first string is found at the very end of an item's copied data
+		items_shaper_prefix		=	"The Shaper's"			;## the second string is found in every prefix
+		items_shaper_suffix		=	"of Shaping"			;## the third string is found in every suffix
+
+		items_elder			=	"Elder Item"
+		items_elder_prefix		=	"The Elder's"
+		items_elder_suffix		=	"of the Elder"
+
+		items_crusader			=	"Crusader Item"
+		items_crusader_prefix		=	"Crusader's"
+		items_crusader_suffix		=	"of the Crusade"
+
+		items_redeemer			=	"Redeemer Item"
+		items_redeemer_prefix		=	"Redeemer's"
+		items_redeemer_suffix		=	"of Redemption"
+
+		items_hunter			=	"Hunter Item"
+		items_hunter_prefix		=	"Hunter's"
+		items_hunter_suffix		=	"of the Hunt"
+
+		items_warlord			=	"Warlord Item"
+		items_warlord_prefix		=	"Warlord's"
+		items_warlord_suffix		=	"of the Conquest"
+
+		items_synthesis			=	"Synthesised Item"
 
 
 ;## these are mod-related strings, e.g. "+X to Armour", "+X to maximum Energy Shield"

@@ -1,5 +1,9 @@
 [
   [
+	["1.54.4", 15404],
+	"some league-launch announcements: read full changelog"
+  ],
+  [
 	["1.54.3", 15403],
 	"early 3.25 release: stuff needs testing, please provide feedback",
 	"fix: act-tracker font-size and panel position",

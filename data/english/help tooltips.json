@@ -319,7 +319,7 @@
       "optional: type in a description/name for the guide in this slot (so guides don't get mixed up)"
     ],
     "leveltracker layouts": [
-      "hold tab to activate an overlay with zone-layouts (guide overlay shows # zl)",
+      "hold tab to overlay images with possible zone-layouts (guide-panel shows # zl)",
       "while active, hold middle-mouse to view an info-panel with explanations",
       "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
     ],
@@ -456,13 +456,16 @@
       "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
     ],
     "alarm enable": [
-      "small timer widget with alarm and stopwatch functionality",
-      "hold tab to display the widget, then click it to enter a time, or drag to move it",
-      "leave the input-field empty to use the timer as a stopwatch",
-      "right-click the widget to stop a running timer, left-click it in stopwatch mode to restart from 0:00"
+      "timer-widget with alarm/countdown and stopwatch functionality",
+      "hidden by default, hold tab to display it",
+      "+ adds a new timer: type in a time (top), a name (bot), and press <enter>",
+      "click an existing timer to start it, right-click to stop it",
+      "leave time blank to start stopwatch: click xx:xx to loop",
+      "leave name blank for single-use timer",
+      "hold r-click on a name to remove a timer"
     ],
     "notepad enable": [
-      "notepad tool with individual tabs and floating widgets that can be used as sticky-notes"
+      "notepad tool with individual tabs, and floating widgets that can be used as sticky-notes"
     ],
     "notepad default color": [
       "specify the colors for new tabs",
@@ -976,11 +979,12 @@
       "click: customize\nr-click: reset to default"
     ],
     "basics": [
-      "general rules:",
+      "info: this feature is based on how the mechanic worked in sentinel league, and it's yet to be confirmed if it still works that way(/bold)(/underline)",
+      "general recombination rules:",
       "one of the two items will be randomly chosen as the final base, and its characteristics will be inherited: influences, tags (mirrored, corrupted, split), quality, implicits, enchants, anoints",
-      "you can manipulate the odds by bench-crafting additional mods onto the item(s)",
+      "you can manipulate the odds by bench-crafting additional mods onto the item(s)\n(that's why the mods below are loaded into edit-fields)",
       "note: the simulated results only show the likelihood of desired mods appearing, without taking mod-tiers into account (it's 50/50 which one makes it through)",
-      "limitations: influence-mods cannot be transferred to non-influenced bases, fractured mods cannot be transferred to synth or influenced bases (the simulation doesn't support that, yet)"
+      "influence-mods cannot be transferred to bases that don't have the required influence, fractured mods cannot be transferred to synth or influenced bases"
     ]
   },
   "searchstrings": {

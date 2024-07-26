@@ -9,6 +9,9 @@
 	If !FileExist("ini\stash-ninja.ini")
 		IniWrite, % "", ini\stash-ninja.ini, settings
 
+	If !settings.general.dev
+		Return
+
 	If Blank(settings.features.stash)
 		settings.features.stash := LLK_IniRead("ini\config.ini", "features", "enable stash-ninja", 0)
 	If IsObject(settings.stash)

@@ -531,7 +531,7 @@ Settings_donations()
 	last_update := A_TickCount, dimensions := ["`n"], rearrange := []
 	For key, val in vars.settings.donations
 		If !val.0
-			new_key := LLK_PanelDimensions([key], settings.general.fSize, width0, height0,,,, 1), dimensions.Push(new_key), rearrange.Push([key, new_key])
+			new_key := LLK_PanelDimensions([StrReplace(key, "|")], settings.general.fSize, width0, height0,,,, 1), dimensions.Push(new_key), rearrange.Push([key, new_key])
 		Else dimensions.Push(key)
 
 	For index, val in rearrange
@@ -549,7 +549,7 @@ Settings_donations()
 	For key, val in vars.settings.donations
 	{
 		pos := (A_Index = 1) || !Mod(A_Index - 1, columns) ? "xs Section" (A_Index = 1 ? " y+" vars.settings.spacing : "") : "ys"
-		Gui, %GUI%: Add, Text, % pos " Center Border HWNDhwnd BackgroundTrans w" width " h" height " c" patterns[val.1].1 . (!InStr(key, "`n") ? " 0x200" : ""), % key
+		Gui, %GUI%: Add, Text, % pos " Center Border HWNDhwnd BackgroundTrans w" width " h" height " c" patterns[val.1].1 . (!InStr(key, "`n") ? " 0x200" : ""), % StrReplace(key, "|")
 		Gui, %GUI%: Add, Progress, % "xp+3 yp+3 wp-6 hp-6 Disabled HWNDhwnd Background" patterns[val.1].2, 0
 		Gui, %GUI%: Add, Progress, % "xp-3 yp-3 wp+6 hp+6 Disabled Background" patterns[val.1].1, 0
 		vars.hwnd.help_tooltips["donation_" key] := hwnd
@@ -1052,8 +1052,11 @@ Settings_hotkeys()
 	vars.hwnd.help_tooltips["settings_hotkeys tab"] := hwnd0, vars.hwnd.settings.tab := hwnd, vars.hwnd.help_tooltips["settings_hotkeys tab|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.tabblock, % LangTrans("m_hotkeys_keyblock")
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 cAqua", % LangTrans("m_hotkeys_emergency") " win + space"
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 cAqua", % LangTrans("m_hotkeys_emergency") " win + "
 	vars.hwnd.help_tooltips["settings_hotkeys restart"] := hwnd0, vars.hwnd.settings.tabblock := hwnd, vars.hwnd.help_tooltips["settings_hotkeys omniblock|"] := hwnd
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	Gui, %GUI%: Add, Edit, % "ys x+0 hp HWNDhwnd gSettings_hotkeys2 cBlack w" settings.general.fWidth * 6, % settings.hotkeys.emergencykey
+	vars.hwnd.settings.emergencykey := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize + 4
 	Gui, %GUI%: Add, Text, % "xs Border gSettings_hotkeys2 Hidden cRed Section HWNDhwnd y+"vars.settings.spacing, % " " LangTrans("global_restart") " "
 	vars.hwnd.settings.apply := hwnd
@@ -1079,8 +1082,12 @@ Settings_hotkeys2(cHWND)
 		Case "rebound_c":
 			settings.hotkeys.rebound_c := LLK_ControlGet(cHWND)
 			Settings_menu("hotkeys", 1)
+		Case "emergencykey":
+			input := LLK_ControlGet(cHWND)
+			GuiControl, % "+c" (input != settings.hotkeys.emergencykey ? "Red" : "Black"), % cHWND
+			GuiControl, % "movedraw", % cHWND
 		Case "apply":
-			Loop, Parse, % "item_descriptions, omnikey, omnikey2, tab", `,, % A_Space
+			Loop, Parse, % "item_descriptions, omnikey, omnikey2, tab, emergencykey", `,, % A_Space
 			{
 				If (A_LoopField != "item_descriptions")
 				{
@@ -1091,7 +1098,7 @@ Settings_hotkeys2(cHWND)
 						Loop, Parse, % "+!^#"
 							hotkey := StrReplace(hotkey, A_LoopField)
 
-					If LLK_ControlGet(vars.hwnd.settings[A_LoopField]) && (!GetKeyVK(hotkey) || (hotkey = ""))
+					If !Blank(LLK_ControlGet(vars.hwnd.settings[A_LoopField])) && (!GetKeyVK(hotkey) || (hotkey = ""))
 					{
 						WinGetPos, x, y, w,, % "ahk_id "vars.hwnd.settings[A_LoopField]
 						LLK_ToolTip(LangTrans("m_hotkeys_error"),, x + w, y,, "red")
@@ -1099,12 +1106,12 @@ Settings_hotkeys2(cHWND)
 					}
 				}
 
-				If keycheck.HasKey(hotkey)
+				If (A_LoopField != "emergencykey") && keycheck.HasKey(hotkey)
 				{
 					LLK_ToolTip(LangTrans("m_hotkeys_error", 2), 1.5,,,, "red")
 					Return
 				}
-				If hotkey
+				If (A_LoopField != "emergencykey") && !Blank(hotkey)
 					keycheck[hotkey] := 1
 			}
 			If LLK_ControlGet(vars.hwnd.settings.rebound_alt) && !LLK_ControlGet(vars.hwnd.settings.item_descriptions)
@@ -1128,6 +1135,7 @@ Settings_hotkeys2(cHWND)
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.tab), ini\hotkeys.ini, hotkeys, tab replacement
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.tabblock), ini\hotkeys.ini, hotkeys, block tab-key's native function
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.movekey), ini\hotkeys.ini, hotkeys, move-key
+			IniWrite, % LLK_ControlGet(vars.hwnd.settings.emergencykey), ini\hotkeys.ini, hotkeys, emergency hotkey
 			IniWrite, hotkeys, ini\config.ini, versions, reload settings
 			KeyWait, LButton
 			Reload
@@ -1706,7 +1714,7 @@ Settings_leveltracker2(cHWND := "")
 				LeveltrackerProgress(1)
 		}
 	}
-	Else If InStr(check, "reset")
+	Else If InStr(check, "reset") && !InStr(check, "font")
 	{
 		If LLK_Progress(vars.hwnd.settings["resetbar" (IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")], "LButton")
 			LeveltrackerProgressReset(IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")
@@ -2636,6 +2644,7 @@ Settings_qol()
 	Gui, %GUI%: Add, Text, % "xs HWNDhwnd1 y+"vars.settings.spacing " Section", % LangTrans("m_qol_alarm")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Checkbox, % "ys x+"settings.general.fWidth " gSettings_qol2 HWNDhwnd Checked"settings.qol.alarm, % LangTrans("global_enable")
+	Gui, %GUI%: Add, Text, % "ys wp BackgroundTrans"
 	vars.hwnd.help_tooltips["settings_alarm enable"] := hwnd1, vars.hwnd.settings.enable_alarm := vars.hwnd.help_tooltips["settings_alarm enable|"] := hwnd
 
 	If settings.qol.alarm
@@ -3113,6 +3122,12 @@ Settings_stash()
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Stash‐Ninja">wiki page</a>
+
+	If !settings.general.dev
+	{
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd cYellow y+" vars.settings.spacing, % "unavailable until next update"
+		Return
+	}
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 y+" vars.settings.spacing " Checked" settings.features.stash, % LangTrans("m_stash_enable")
 	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_stash enable"] := hwnd
