@@ -16,15 +16,11 @@
 	settings.hotkeys.omniblock := !Blank(check := ini.hotkeys["block omnikey's native function"]) ? check : 0
 	settings.hotkeys.omnikey := !Blank(check := ini.hotkeys["omni-hotkey"]) ? check : "MButton"
 	settings.hotkeys.omnikey2 := !Blank(check := ini.hotkeys["omni-hotkey2"]) ? check : ""
-	settings.hotkeys.emergency := !Blank(check := ini.settings["enable emergency hotkey"]) ? check : 1
 	settings.hotkeys.emergencykey := !Blank(check := ini.hotkeys["emergency hotkey"]) ? check : "space"
 
-	If settings.hotkeys.emergency
-	{
-		Hotkey, If,
-		Hotkey, % "LWin & " settings.hotkeys.emergencykey, LLK_Restart, On
-		Hotkey, % "RWin & " settings.hotkeys.emergencykey, LLK_Restart, On
-	}
+	Hotkey, If,
+	Hotkey, % "LWin & " settings.hotkeys.emergencykey, LLK_Restart, On
+	Hotkey, % "RWin & " settings.hotkeys.emergencykey, LLK_Restart, On
  
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
