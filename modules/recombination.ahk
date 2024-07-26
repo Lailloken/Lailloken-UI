@@ -27,7 +27,7 @@ Recombination_()
 		vars.recombination.wStash := Floor(vars.client.h * (37/60)), vars.recombination.wInventory := Floor(vars.client.h * 0.6155)
 	If !IsObject(vars.recombination.influences)
 	{
-		vars.recombination.influences := {"shaper": "", "elder": "", "crusader": "", "redeemer": "", "hunter": "", "warlord": "", "synthesis": ""}
+		vars.recombination.influences := {"shaper": "", "elder": "", "crusader": "", "redeemer": "", "hunter": "", "warlord": "", "synthesis": "", "eater": "", "exarch": ""}
 		For key in vars.recombination.influences
 			vars.recombination.influences[key] := {"item": LangTrans("items_" key), "affixes": [LangTrans("items_" key "_prefix"), LangTrans("items_" key "_suffix")]}
 	}

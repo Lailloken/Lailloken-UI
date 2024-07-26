@@ -14,12 +14,12 @@
 		Return
 	}
 
-	ThisHotkey_copy := StrReplace(A_ThisHotkey, "*~"), guide := vars.leveltracker.guide
+	ThisHotkey_copy := StrReplace(StrReplace(A_ThisHotkey, "~"), "*"), guide := vars.leveltracker.guide
 
 	Loop, Parse, % "!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
 	If Blank(ThisHotkey_copy)
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(A_ThisHotkey, "*~")
+		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
 
 	Clipboard := ""
 	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id " vars.hwnd.poe_client)
@@ -120,11 +120,11 @@ Omnikey2()
 	If !IsObject(vars.omnikey)
 		vars.omnikey := {}
 
-	guide := vars.leveltracker.guide, ThisHotkey_copy := StrReplace(A_ThisHotkey, "*~")
+	guide := vars.leveltracker.guide, ThisHotkey_copy := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
 	Loop, Parse, % "!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
 	If Blank(ThisHotkey_copy)
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(A_ThisHotkey, "*~")
+		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
 
 	If settings.features.cheatsheets && GetKeyState(settings.cheatsheets.modifier, "P")
 	{

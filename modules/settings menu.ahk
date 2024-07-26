@@ -1135,7 +1135,6 @@ Settings_hotkeys2(cHWND)
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.tab), ini\hotkeys.ini, hotkeys, tab replacement
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.tabblock), ini\hotkeys.ini, hotkeys, block tab-key's native function
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.movekey), ini\hotkeys.ini, hotkeys, move-key
-			IniWrite, % LLK_ControlGet(vars.hwnd.settings.emergency), ini\hotkeys.ini, settings, enable emergency hotkey
 			IniWrite, % LLK_ControlGet(vars.hwnd.settings.emergencykey), ini\hotkeys.ini, hotkeys, emergency hotkey
 			IniWrite, hotkeys, ini\config.ini, versions, reload settings
 			KeyWait, LButton
