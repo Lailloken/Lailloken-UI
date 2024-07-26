@@ -464,7 +464,10 @@ Init_client()
 	;determine native resolution of the active monitor
 	WinGet, minmax, MinMax, ahk_group poe_window
 	If (minmax = -1)
+	{
 		WinRestore, ahk_group poe_window
+		Sleep, 2000
+	}
 	WinGetPos, x, y, w, h, ahk_group poe_window
 	Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 	WinSet, Trans, 0
@@ -1929,6 +1932,12 @@ LLK_TrimDecimals(string)
 			Break
 	}
 	Return string
+}
+
+LLK_Restart()
+{
+	Reload
+	ExitApp
 }
 
 WinGet(command, win_title)
