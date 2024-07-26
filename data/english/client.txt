@@ -312,9 +312,6 @@
 		items_warlord_prefix		=	"Warlord's"
 		items_warlord_suffix		=	"of the Conquest"
 
-		items_eater			=	"Searing Exarch Item"
-		items_exarch			=	"Eater of Worlds Item"
-
 		items_synthesis			=	"Synthesised Item"
 
 
