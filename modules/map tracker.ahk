@@ -1523,7 +1523,7 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, 
 		If add.2
 		{
 			notes[category].3.InsertAt(1, add.1)
-			If (notes[category].3.Count() > 4)
+			If (notes[category].3.Count() > 5)
 				notes[category].3.Pop()
 		}
 		Else notes[category].2.InsertAt(1, add.1)

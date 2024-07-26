@@ -14,10 +14,12 @@
 		Return
 	}
 
-	ThisHotkey_copy := A_ThisHotkey, guide := vars.leveltracker.guide
+	ThisHotkey_copy := StrReplace(A_ThisHotkey, "*~"), guide := vars.leveltracker.guide
 
-	Loop, Parse, % "*,~,!,+,#,^, UP", `,
+	Loop, Parse, % "!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
+	If Blank(ThisHotkey_copy)
+		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(A_ThisHotkey, "*~")
 
 	Clipboard := ""
 	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id " vars.hwnd.poe_client)
@@ -118,9 +120,11 @@ Omnikey2()
 	If !IsObject(vars.omnikey)
 		vars.omnikey := {}
 
-	guide := vars.leveltracker.guide, ThisHotkey_copy := A_ThisHotkey
-	Loop, Parse, % "*,~,!,+,#,^, UP", `,
+	guide := vars.leveltracker.guide, ThisHotkey_copy := StrReplace(A_ThisHotkey, "*~")
+	Loop, Parse, % "!,+,#,^, UP", `,
 		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
+	If Blank(ThisHotkey_copy)
+		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(A_ThisHotkey, "*~")
 
 	If settings.features.cheatsheets && GetKeyState(settings.cheatsheets.modifier, "P")
 	{
@@ -215,7 +219,7 @@ OmniContext(mode := 0)
 	Loop, Parse, % "*~!+#^"
 		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
 
-	While (!settings.features.stash || GetKeyState("ALT", "P")) && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1)
+	While (!settings.features.stash || GetKeyState("ALT", "P")) && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
 	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
@@ -248,7 +252,7 @@ OmniContext(mode := 0)
 		If settings.features.mapinfo
 			Return "mapinfo"
 	}
-	If settings.features.stash
+	If settings.features.stash && !GetKeyState("ALT", "P")
 	{
 		check := LLK_HasKey(vars.stash, item.name,,,, 1), start := A_TickCount
 		While check && (Blank(item.itembase) || item.name = item.itembase) && GetKeyState(ThisHotkey_copy, "P")

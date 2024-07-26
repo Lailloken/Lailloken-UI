@@ -657,7 +657,7 @@ LeveltrackerImport(profile := "")
 							Case "quest_text":
 								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
 							Case "generic":
-								ss_text .= """" ss_parts.value """ "
+								ss_text .= (ss_parts.value = "/passives" ? """" ss_parts.value """" : ss_parts.value) " "
 							Default:
 								If settings.general.dev
 									MsgBox, % "unknown type: " ss_parts.type
@@ -769,6 +769,9 @@ LeveltrackerImport(profile := "")
 	guide_text := StrReplace(guide_text, "enter (img:arena) arena:doedre's_despair , kill doedre `n"), guide_text := StrReplace(guide_text, "enter (img:arena) arena:maligaro's_misery , kill maligaro `n")
 	guide_text := StrReplace(guide_text, "enter (img:arena) arena:shavronne's_sorrow , kill shavronne `n", "kill doedre , (color:FF8111)maligaro , (color:FF8111)shavronne`n")
 	guide_text := StrReplace(guide_text, "talk to sin, enter (img:arena)", "enter (img:arena)"), guide_text := StrReplace(guide_text, "activate the (img:craft) `ntalk", "activate the (img:craft) , talk")
+	guide_text := StrReplace(guide_text, "for_quicksilver flask", "for_quicksilver flask (qsf)")
+	guide_text := StrReplace(guide_text, "Vendor_Quicksilver Flask +_Orb of Augmentation +_Normal_Boots", "vendor:_qsf +_aug +_boots //_qsf +_aug +_ms_boots")
+	guide_text := StrReplace(guide_text, "(hint)_______Vendor_Quicksilver Flask +_Orb of Augmentation +_Movement_Speed_Boots `n")
 	StringLower, guide_text, guide_text
 	If !FileExist("ini\leveling guide" profile ".ini")
 		IniWrite, % "", ini\leveling guide%profile%.ini, Steps

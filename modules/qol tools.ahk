@@ -290,7 +290,9 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 	Else
 	{
 		xPos := Blank(settings.alarm.xPos) ? vars.client.xc - w / 2 + 1 : settings.alarm.xPos, xPos := (xPos >= vars.monitor.w / 2) ? xPos - w + 1 : xPos
+		xPos := (xPos >= vars.monitor.w) ? vars.monitor.w - w : xPos
 		yPos := Blank(settings.alarm.yPos) ? vars.client.y - vars.monitor.y : settings.alarm.yPos, yPos := (yPos >= vars.monitor.h / 2) ? yPos - h + 1 : yPos
+		yPos := (yPos >= vars.monitor.h) ? vars.monitor.h - h : yPos
 		Gui, %GUI_name%: Show, % "NA x" vars.monitor.x + xPos " y" vars.monitor.y + yPos
 		WinGetPos, x, y, w, h, ahk_id %alarm%
 		vars.alarm.xPanel := x, vars.alarm.yPanel := y, vars.alarm.wPanel := w, vars.alarm.hPanel := h
