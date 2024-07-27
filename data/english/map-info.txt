@@ -535,6 +535,11 @@ type	=	area
 text	=	corr. drops: %
 ID	=	088
 
+[chance for rare monsters to fracture on death]
+type	=	monsters
+text	=	rares fracture: %
+ID	=	089
+
 [players are cursed with vulnerability|players are cursed with temporal chains|players are cursed with elemental weakness]
 type	=	player
 text	=	vuln | chains | ele weak

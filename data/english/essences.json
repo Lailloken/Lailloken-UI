@@ -20,7 +20,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -40,7 +40,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -60,7 +60,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -80,7 +80,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -100,7 +100,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -120,7 +120,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -165,8 +165,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -189,8 +189,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -213,8 +213,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -237,8 +237,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -263,8 +263,8 @@
   "contempt": [
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -283,8 +283,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -303,8 +303,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -323,8 +323,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -345,8 +345,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -367,8 +367,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -389,8 +389,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "other armour",
         "quiver",
@@ -569,8 +569,8 @@
       [
         "wand",
         "bow",
-        "other 1h weapon",
-        "2h melee weapon",
+        "other 1h-weapon",
+        "2h-melee weapon",
         "body armour",
         "helmet",
         "shield",
@@ -599,8 +599,8 @@
       [
         "wand",
         "bow",
-        "other 1h weapon",
-        "2h melee weapon",
+        "other 1h-weapon",
+        "2h-melee weapon",
         "body armour",
         "helmet",
         "shield",
@@ -629,8 +629,8 @@
       [
         "wand",
         "bow",
-        "other 1h weapon",
-        "2h melee weapon",
+        "other 1h-weapon",
+        "2h-melee weapon",
         "body armour",
         "helmet",
         "shield",
@@ -691,8 +691,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "belt",
@@ -709,8 +709,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "belt",
@@ -727,8 +727,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "belt",
@@ -755,8 +755,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -777,8 +777,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -799,8 +799,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -821,8 +821,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -843,8 +843,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -865,8 +865,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "helmet",
         "other armour",
@@ -890,7 +890,10 @@
     [
       [
         "weapon",
-        "armour",
+        "gloves",
+        "boots",
+        "helmet",
+        "other armour",
         "quiver",
         "belt",
         "other jewellery"
@@ -898,6 +901,9 @@
       [
         "(0.5-0.7)% of physical attack damage leeched as life",
         "(5-14) to maximum life",
+        "(5-14) to maximum life",
+        "(5-14) to maximum life",
+        "(10-24) to maximum life",
         "(0.5-0.7)% of physical attack damage leeched as life",
         "(8-11)% increased flask life recovery rate",
         "regenerate (1-2) life per second"
@@ -906,7 +912,10 @@
     [
       [
         "weapon",
-        "armour",
+        "gloves",
+        "boots",
+        "helmet",
+        "other armour",
         "quiver",
         "belt",
         "other jewellery"
@@ -914,6 +923,9 @@
       [
         "(0.6-0.8)% of physical attack damage leeched as life",
         "(15-30) to maximum life",
+        "(15-30) to maximum life",
+        "(15-30) to maximum life",
+        "(40-54) to maximum life",
         "(0.6-0.8)% of physical attack damage leeched as life",
         "(12-15)% increased flask life recovery rate",
         "regenerate (2.1-8) life per second"
@@ -922,7 +934,10 @@
     [
       [
         "weapon",
-        "armour",
+        "gloves",
+        "boots",
+        "helmet",
+        "other armour",
         "quiver",
         "belt",
         "other jewellery"
@@ -930,6 +945,9 @@
       [
         "(0.7-0.9)% of physical attack damage leeched as life",
         "(31-45) to maximum life",
+        "(31-45) to maximum life",
+        "(31-45) to maximum life",
+        "(70-84) to maximum life",
         "(0.7-0.9)% of physical attack damage leeched as life",
         "(16-19)% increased flask life recovery rate",
         "regenerate (8.1-16) life per second"
@@ -940,6 +958,8 @@
         "weapon",
         "gloves",
         "boots",
+        "helmet",
+        "shield",
         "other armour",
         "quiver",
         "belt",
@@ -947,9 +967,11 @@
       ],
       [
         "(0.8-1)% of physical attack damage leeched as life",
-        "(60-69) to maximum life",
-        "(60-69) to maximum life",
-        "(70-79) to maximum life",
+        "(46-60) to maximum life",
+        "(46-60) to maximum life",
+        "(46-60) to maximum life",
+        "(85-99) to maximum life",
+        "(100-114) to maximum life",
         "(0.8-1)% of physical attack damage leeched as life",
         "(20-23)% increased flask life recovery rate",
         "regenerate (16.1-24) life per second"
@@ -958,7 +980,8 @@
     [
       [
         "weapon",
-        "body armour",
+        "gloves",
+        "boots",
         "helmet",
         "shield",
         "other armour",
@@ -968,10 +991,11 @@
       ],
       [
         "(0.9-1.1)% of physical attack damage leeched as life",
-        "(90-99) to maximum life",
-        "(80-89) to maximum life",
-        "(90-99) to maximum life",
-        "(70-79) to maximum life",
+        "(61-75) to maximum life",
+        "(61-75) to maximum life",
+        "(61-75) to maximum life",
+        "(100-114) to maximum life",
+        "(130-144) to maximum life",
         "(0.9-1.1)% of physical attack damage leeched as life",
         "(24-27)% increased flask life recovery rate",
         "regenerate (24.1-32) life per second"
@@ -980,7 +1004,8 @@
     [
       [
         "weapon",
-        "body armour",
+        "gloves",
+        "boots",
         "helmet",
         "shield",
         "other armour",
@@ -990,10 +1015,11 @@
       ],
       [
         "(1-1.2)% of physical attack damage leeched as life",
-        "(110-119) to maximum life",
-        "(90-99) to maximum life",
-        "(100-109) to maximum life",
-        "(80-89) to maximum life",
+        "(76-90) to maximum life",
+        "(76-90) to maximum life",
+        "(76-90) to maximum life",
+        "(115-129) to maximum life",
+        "(145-159) to maximum life",
         "(1-1.2)% of physical attack damage leeched as life",
         "(28-31)% increased flask life recovery rate",
         "regenerate (32.1-48) life per second"
@@ -1002,7 +1028,8 @@
     [
       [
         "weapon",
-        "body armour",
+        "gloves",
+        "boots",
         "helmet",
         "shield",
         "other armour",
@@ -1012,10 +1039,11 @@
       ],
       [
         "(1.1-1.3)% of physical attack damage leeched as life",
-        "(120-126) to maximum life",
-        "(100-106) to maximum life",
-        "(110-116) to maximum life",
-        "(90-96) to maximum life",
+        "(91-105) to maximum life",
+        "(91-105) to maximum life",
+        "(91-105) to maximum life",
+        "(130-144) to maximum life",
+        "(160-174) to maximum life",
         "(1.1-1.3)% of physical attack damage leeched as life",
         "(32-35)% increased flask life recovery rate",
         "regenerate (48.1-64) life per second"
@@ -1026,7 +1054,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1046,7 +1074,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1066,7 +1094,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1086,7 +1114,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1106,7 +1134,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1126,7 +1154,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1146,7 +1174,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -1205,7 +1233,7 @@
         "(20-24)% increased critical strike chance",
         "(15-17)% increased global critical strike chance",
         "(16-20)% chance to avoid elemental ailments",
-        "(6-7)% chance to block",
+        "(52-57)% increased chance to block",
         "(3-4)% increased mana reservation efficiency of skills",
         "(25-29)% increased global critical strike chance",
         "(25-29)% increased global critical strike chance",
@@ -1229,7 +1257,7 @@
         "(25-29)% increased critical strike chance",
         "(18-20)% increased global critical strike chance",
         "(21-25)% chance to avoid elemental ailments",
-        "(8-9)% chance to block",
+        "(58-63)% increased chance to block",
         "(5-6)% increased mana reservation efficiency of skills",
         "(30-34)% increased global critical strike chance",
         "(30-34)% increased global critical strike chance",
@@ -1253,7 +1281,7 @@
         "(30-34)% increased critical strike chance",
         "(21-23)% increased global critical strike chance",
         "(26-30)% chance to avoid elemental ailments",
-        "(10-11)% chance to block",
+        "(64-69)% increased chance to block",
         "(7-8)% increased mana reservation efficiency of skills",
         "(35-38)% increased global critical strike chance",
         "(35-38)% increased global critical strike chance",
@@ -1277,7 +1305,7 @@
         "(35-38)% increased critical strike chance",
         "(24-26)% increased global critical strike chance",
         "(31-35)% chance to avoid elemental ailments",
-        "(12-13)% chance to block",
+        "(70-75)% increased chance to block",
         "(9-10)% increased mana reservation efficiency of skills",
         "(39-42)% increased global critical strike chance",
         "(39-42)% increased global critical strike chance",
@@ -1321,8 +1349,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "shield",
         "other armour",
         "quiver",
@@ -1341,8 +1369,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "shield",
         "other armour",
         "quiver",
@@ -1361,8 +1389,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "shield",
         "other armour",
         "quiver",
@@ -1399,8 +1427,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1411,8 +1439,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1423,8 +1451,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1435,8 +1463,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1447,8 +1475,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1503,9 +1531,9 @@
         "belt"
       ],
       [
-        "(80-99)% increased critical strike chance for spells",
+        "(80-99)% increased spell critical strike chance",
         "(31-39)% increased stun threshold",
-        "(80-99)% increased critical strike chance for spells",
+        "(80-99)% increased spell critical strike chance",
         "(23-26)% chance to avoid being stunned",
         "(25-29)% to global critical strike multiplier",
         "(25-29)% to global critical strike multiplier",
@@ -1525,9 +1553,9 @@
         "belt"
       ],
       [
-        "(100-109)% increased critical strike chance for spells",
+        "(100-109)% increased spell critical strike chance",
         "(40-45)% increased stun threshold",
-        "(100-109)% increased critical strike chance for spells",
+        "(100-109)% increased spell critical strike chance",
         "(27-30)% chance to avoid being stunned",
         "(30-34)% to global critical strike multiplier",
         "(30-34)% to global critical strike multiplier",
@@ -1547,9 +1575,9 @@
         "belt"
       ],
       [
-        "(110-119)% increased critical strike chance for spells",
+        "(110-119)% increased spell critical strike chance",
         "(46-60)% increased stun threshold",
-        "(110-119)% increased critical strike chance for spells",
+        "(110-119)% increased spell critical strike chance",
         "(31-44)% chance to avoid being stunned",
         "(35-41)% to global critical strike multiplier",
         "(35-41)% to global critical strike multiplier",
@@ -1569,8 +1597,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1581,8 +1609,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1593,8 +1621,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1605,8 +1633,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1617,8 +1645,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1629,8 +1657,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1667,8 +1695,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1679,8 +1707,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1691,8 +1719,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1703,8 +1731,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "other item"
       ],
       [
@@ -1733,8 +1761,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1757,8 +1785,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1781,8 +1809,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1805,8 +1833,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1829,8 +1857,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1863,8 +1891,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1887,8 +1915,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1911,8 +1939,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1935,8 +1963,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1959,8 +1987,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -1983,8 +2011,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "body armour",
         "shield",
@@ -2009,8 +2037,8 @@
   "woe": [
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "amulet",
@@ -2029,8 +2057,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "amulet",
@@ -2049,8 +2077,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "armour",
         "quiver",
         "amulet",
@@ -2069,8 +2097,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "gloves",
         "boots",
         "shield",
@@ -2095,8 +2123,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "body armour",
         "helmet",
         "shield",
@@ -2121,8 +2149,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "body armour",
         "helmet",
         "shield",
@@ -2147,8 +2175,8 @@
     ],
     [
       [
-        "1h weapon",
-        "2h weapon",
+        "1h-weapon",
+        "2h-weapon",
         "body armour",
         "helmet",
         "shield",
@@ -2192,7 +2220,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -2212,7 +2240,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -2232,7 +2260,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -2252,7 +2280,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
@@ -2272,7 +2300,7 @@
     [
       [
         "bow",
-        "2h melee weapon",
+        "2h-melee weapon",
         "other weapon",
         "armour",
         "quiver",
