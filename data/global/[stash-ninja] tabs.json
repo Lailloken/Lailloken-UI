@@ -91,10 +91,16 @@
       "golden-oil"
     ],
     [
-      "722",
+      "680",
       "0",
       "reflective",
       "reflective-oil"
+    ],
+    [
+      "764",
+      "0",
+      "prismatic",
+      "prismatic-oil"
     ]
   ],
   "breach": [
@@ -450,6 +456,12 @@
       "chrome"
     ],
     [
+      "630",
+      "0",
+      "stacked deck",
+      "stacked-deck"
+    ],
+    [
       "706",
       "0",
       "harbinger's orb",
@@ -570,8 +582,14 @@
       "tab_currency2"
     ],
     [
-      "153",
+      "62",
       "255",
+      "maven's chisel of procurement",
+      "mavens-chisel-of-procurement"
+    ],
+    [
+      "153",
+      "0",
       "lesser eldritch ichor",
       "lesser-eldritch-ichor"
     ],
@@ -612,8 +630,14 @@
       "crusaders-exalted-orb"
     ],
     [
-      "153",
+      "62",
       "334",
+      "maven's chisel of proliferation",
+      "mavens-chisel-of-proliferation"
+    ],
+    [
+      "153",
+      "0",
       "grand eldritch ichor",
       "grand-eldritch-ichor"
     ],
@@ -654,8 +678,14 @@
       "warlords-exalted-orb"
     ],
     [
-      "153",
+      "62",
       "415",
+      "maven's chisel of scarabs",
+      "mavens-chisel-of-scarabs"
+    ],
+    [
+      "153",
+      "0",
       "lesser eldritch ember",
       "lesser-eldritch-ember"
     ],
@@ -696,8 +726,14 @@
       "awakeners-orb"
     ],
     [
-      "153",
+      "62",
       "498",
+      "maven's chisel of avarice",
+      "mavens-chisel-of-avarice"
+    ],
+    [
+      "153",
+      "0",
       "grand eldritch ember",
       "grand-eldritch-ember"
     ],
@@ -718,6 +754,12 @@
       "0",
       "eldritch orb of annulment",
       "eldritch-orb-of-annulment"
+    ],
+    [
+      "62",
+      "577",
+      "maven's chisel of divination",
+      "mavens-chisel-of-divination"
     ],
     [
       "194",
@@ -936,8 +978,8 @@
     [
       "0",
       "0",
-      "perfect",
-      "perfect-fossil"
+      "opulent",
+      "opulent-fossil"
     ],
     [
       "320",
@@ -2058,20 +2100,20 @@
     [
       "183",
       "247",
-      "reliquary scarab",
-      "reliquary-scarab"
+      "titanic scarab",
+      "titanic-scarab"
     ],
     [
       "0",
       "0",
-      "of overlords",
-      "reliquary-scarab-of-overlords"
+      "of treasures",
+      "titanic-scarab-of-treasures"
     ],
     [
       "0",
       "0",
-      "of vision",
-      "reliquary-scarab-of-vision"
+      "of legend",
+      "titanic-scarab-of-legend"
     ],
     [
       "365",
@@ -2082,32 +2124,32 @@
     [
       "0",
       "0",
-      "of greed",
-      "sulphite-scarab-of-greed"
-    ],
-    [
-      "0",
-      "0",
       "of fumes",
       "sulphite-scarab-of-fumes"
     ],
     [
+      "0",
+      "0",
+      "of greed",
+      "sulphite-scarab-of-greed"
+    ],
+    [
       "549",
       "0",
-      "divination scarab",
-      "divination-scarab"
+      "divination scarab of the cloister",
+      "divination-scarab-of-the-cloister"
     ],
     [
       "0",
       "0",
-      "of curation",
-      "divination-scarab-of-curation"
+      "divination scarab of plenty",
+      "divination-scarab-of-plenty"
     ],
     [
       "0",
       "0",
-      "of completion",
-      "divination-scarab-of-completion"
+      "divination scarab of pilfering",
+      "divination-scarab-of-pilfering"
     ],
     [
       "183",
@@ -2136,8 +2178,8 @@
     [
       "0",
       "0",
-      "ritual scarab of recognition",
-      "ritual-scarab-of-recognition"
+      "ritual scarab of wisps",
+      "ritual-scarab-of-wisps"
     ],
     [
       "0",
@@ -2196,8 +2238,8 @@
     [
       "0",
       "0",
-      "of discernment",
-      "harbinger-scarab-of-discernment"
+      "of obelisks",
+      "harbinger-scarab-of-obelisks"
     ],
     [
       "0",
@@ -2244,14 +2286,14 @@
     [
       "0",
       "0",
-      "of abnormality",
-      "domination-scarab-of-abnormality"
+      "of apparitions",
+      "domination-scarab-of-apparitions"
     ],
     [
       "0",
       "0",
-      "of teachings",
-      "domination-scarab-of-teachings"
+      "of evolution",
+      "domination-scarab-of-evolution"
     ],
     [
       "0",
@@ -2322,44 +2364,44 @@
     [
       "0",
       "0",
-      "of release",
-      "torment-scarab-of-release"
-    ],
-    [
-      "0",
-      "0",
       "of possession",
       "torment-scarab-of-possession"
     ],
     [
+      "0",
+      "0",
+      "of release",
+      "torment-scarab-of-release"
+    ],
+    [
       "160",
       "535",
-      "cartography scarab",
-      "cartography-scarab"
+      "cartography scarab of escalation",
+      "cartography-scarab-of-escalation"
     ],
     [
       "0",
       "0",
-      "of ascension",
-      "cartography-scarab-of-ascension"
+      "cartography scarab of risk",
+      "cartography-scarab-of-risk"
     ],
     [
       "0",
       "0",
-      "of singularity",
-      "cartography-scarab-of-singularity"
-    ],
-    [
-      "0",
-      "0",
-      "of corruption",
+      "cartography scarab of corruption",
       "cartography-scarab-of-corruption"
     ],
     [
       "0",
       "0",
-      "of duplication",
-      "cartography-scarab-of-duplication"
+      "cartography scarab of the multitude",
+      "cartography-scarab-of-the-multitude"
+    ],
+    [
+      "0",
+      "0",
+      "cartography scarab of singularity",
+      "cartography-scarab-of-singularity"
     ],
     [
       "468",
@@ -2376,12 +2418,6 @@
     [
       "0",
       "0",
-      "of corruption",
-      "beyond-scarab-of-corruption"
-    ],
-    [
-      "0",
-      "0",
       "of resurgence",
       "beyond-scarab-of-resurgence"
     ],
@@ -2390,6 +2426,12 @@
       "0",
       "of the invasion",
       "beyond-scarab-of-the-invasion"
+    ],
+    [
+      "0",
+      "0",
+      "of corruption",
+      "beyond-scarab-of-corruption"
     ],
     [
       "160",
@@ -2472,14 +2514,14 @@
     [
       "0",
       "0",
-      "of the skald",
-      "expedition-scarab-of-the-skald"
+      "of archaeology",
+      "expedition-scarab-of-archaeology"
     ],
     [
       "0",
       "0",
-      "of archaeology",
-      "expedition-scarab-of-archaeology"
+      "of the skald",
+      "expedition-scarab-of-the-skald"
     ],
     [
       "468",
@@ -2532,14 +2574,14 @@
     [
       "0",
       "0",
-      "of the sekhema",
-      "legion-scarab-of-the-sekhema"
+      "of eternal conflict",
+      "legion-scarab-of-eternal-conflict"
     ],
     [
       "0",
       "0",
-      "of eternal conflict",
-      "legion-scarab-of-eternal-conflict"
+      "of the sekhema",
+      "legion-scarab-of-the-sekhema"
     ],
     [
       "468",
@@ -2550,14 +2592,8 @@
     [
       "0",
       "0",
-      "of bounty",
-      "blight-scarab-of-bounty"
-    ],
-    [
-      "0",
-      "0",
-      "of oils",
-      "blight-scarab-of-oils"
+      "of the blightheart",
+      "blight-scarab-of-the-blightheart"
     ],
     [
       "0",
@@ -2570,6 +2606,12 @@
       "0",
       "of invigoration",
       "blight-scarab-of-invigoration"
+    ],
+    [
+      "0",
+      "0",
+      "of bounty",
+      "blight-scarab-of-bounty"
     ],
     [
       "160",
@@ -2586,12 +2628,6 @@
     [
       "0",
       "0",
-      "of emptiness",
-      "abyss-scarab-of-emptiness"
-    ],
-    [
-      "0",
-      "0",
       "of edifice",
       "abyss-scarab-of-edifice"
     ],
@@ -2600,6 +2636,12 @@
       "0",
       "of profound depth",
       "abyss-scarab-of-profound-depth"
+    ],
+    [
+      "0",
+      "0",
+      "of emptiness",
+      "abyss-scarab-of-emptiness"
     ],
     [
       "468",
@@ -2640,23 +2682,17 @@
     [
       "0",
       "0",
-      "of the dreamer",
-      "breach-scarab-of-the-dreamer"
-    ],
-    [
-      "0",
-      "0",
       "of lordship",
       "breach-scarab-of-lordship"
     ],
     [
-      "448",
+      "0",
       "0",
       "of splintering",
       "breach-scarab-of-splintering"
     ],
     [
-      "0",
+      "448",
       "0",
       "of snares",
       "breach-scarab-of-snares"
@@ -2666,6 +2702,12 @@
       "0",
       "of resonant cascade",
       "breach-scarab-of-resonant-cascade"
+    ],
+    [
+      "0",
+      "0",
+      "of the dreamer",
+      "breach-scarab-of-the-dreamer"
     ],
     [
       "176",
@@ -2682,8 +2724,8 @@
     [
       "287",
       "0",
-      "mysterious scarab",
-      "mysterious-scarab"
+      "scarab of divinity",
+      "scarab-of-divinity"
     ],
     [
       "0",
@@ -2722,7 +2764,7 @@
       "horned-scarab-of-tradition"
     ],
     [
-      "203",
+      "176",
       "944",
       "scarab of stability",
       "scarab-of-stability"
@@ -2737,7 +2779,13 @@
       "0",
       "0",
       "scarab of radiant storms",
-      "scarab-of-radiant-stroms"
+      "scarab-of-radiant-storms"
+    ],
+    [
+      "0",
+      "0",
+      "scarab of bisection",
+      "scarab-of-bisection"
     ],
     [
       "553",

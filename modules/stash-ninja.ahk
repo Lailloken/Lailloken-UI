@@ -9,9 +9,6 @@
 	If !FileExist("ini\stash-ninja.ini")
 		IniWrite, % "", ini\stash-ninja.ini, settings
 
-	If !settings.general.dev
-		Return
-
 	If Blank(settings.features.stash)
 		settings.features.stash := LLK_IniRead("ini\config.ini", "features", "enable stash-ninja", 0)
 	If IsObject(settings.stash)
@@ -20,7 +17,7 @@
 	{
 		settings.stash := {"indexes": 15}, ini := IniBatchRead("ini\stash-ninja.ini")
 		settings.stash.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
-		settings.stash.leagues := [["standard", "Standard"]]
+		settings.stash.leagues := [["settlers", "Settlers"], ["hc settlers", "Hardcore Settlers"], ["standard", "Standard"]]
 		settings.stash.league := !Blank(check := ini.settings["league"]) && LLK_HasVal(settings.stash.leagues, check,,,, 1) ? check : settings.stash.leagues.1.2
 		settings.stash.history := !Blank(check := ini.settings["enable price history"]) ? check : 1
 		settings.stash.show_exalt := !Blank(check := ini.settings["show exalt conversion"]) ? check : 0

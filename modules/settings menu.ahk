@@ -3123,12 +3123,6 @@ Settings_stash()
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Stash‐Ninja">wiki page</a>
 
-	If !settings.general.dev
-	{
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd cYellow y+" vars.settings.spacing, % "unavailable until next update"
-		Return
-	}
-
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 y+" vars.settings.spacing " Checked" settings.features.stash, % LangTrans("m_stash_enable")
 	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_stash enable"] := hwnd
 
