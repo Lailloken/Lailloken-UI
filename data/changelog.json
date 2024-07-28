@@ -2,7 +2,8 @@
   [
 	["1.54.4", 15404],
 	"some league-launch announcements: read full changelog",
-	"hotfix 1: updated & re-enabled stash-ninja, updated essence tooltips, added new t17 fracture map-mod"
+	"hotfix 1: updated & re-enabled stash-ninja, updated essence tooltips, added new t17 fracture map-mod",
+	"hotfix 2: lab-trials were treated as maps and bricked the current log"
   ],
   [
 	["1.54.3", 15403],
