@@ -1268,7 +1268,7 @@ Iteminfo4_GUI()
 			Else If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && (tier = 1 || tier = "#") ;if the mod is desired and t1 or untiered, apply white background and red text (Neversink's t1 color-scheme)
 				color := "White", color_t := "Red"
 			Else If (item.class = "base jewels") ;for base/generic jewel mods, use shades of gray (lighter shade = lower weight/probability)
-				color := IsNumber(tier) ? 119-tier*2 . 119-tier*2 . 119-tier*2 : "Black", color_t := "White"
+				color := IsNumber(tier) ? 119-tier*2 . 119-tier*2 . 119-tier*2 : "Black", color_t := (tier < 10) ? "Red" : "White"
 			Else color := InStr("c#", tier) ? tColors.0 : (tier >= 6) ? tColors.6 : IsNumber(tier) ? tColors[tier] : "Black"
 
 			label := IteminfoModgroupCheck(name, 1) ? IteminfoModgroupCheck(name, 1) : IteminfoModCheck(mod, item.type), label := InStr(A_LoopField, " (crafted)") ? "mastercraft" : label ;check for suitable icon

@@ -589,7 +589,7 @@ MaptrackerKills()
 	KeyWait, LButton
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
-	SendInput, {Enter}^{a}^{v}{Enter}
+	SendInput, {Enter}^{v}{Enter}
 	vars.maptracker.refresh_kills_last := A_TickCount
 	Sleep, 100
 	LogLoop(1)

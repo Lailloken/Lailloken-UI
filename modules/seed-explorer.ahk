@@ -150,7 +150,7 @@ LegionGUI()
 		{
 			If (A_Index = 1)
 				vars.legion.nodes := {}, vars.legion.nodes_invert := []
-			vars.legion.nodes[A_LoopField] := A_Index, vars.legion.nodes_invert.Push(A_LoopField)
+			vars.legion.nodes[StrReplace(A_LoopField, "ash frost and storm", "ash, frost and storm")] := A_Index, vars.legion.nodes_invert.Push(StrReplace(A_LoopField, "ash frost and storm", "ash, frost and storm"))
 		}
 	toggle := !toggle, GUI_name := "legion" toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDlegion"

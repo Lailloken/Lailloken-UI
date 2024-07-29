@@ -1,5 +1,11 @@
 [
   [
+	["1.54.5", 15405],
+	"item-info: added support for new item bases, recalibrated base-info percentages",
+	"item-info: updated item-mod data to 3.25 (ilvl and gem weights)",
+	"seed-explorer: updated for 3.25"
+  ],
+  [
 	["1.54.4", 15404],
 	"some league-launch announcements: read full changelog",
 	"hotfix 1: updated & re-enabled stash-ninja, updated essence tooltips, added new t17 fracture map-mod",
