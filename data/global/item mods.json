@@ -2219,7 +2219,7 @@
       "affix": "of Guarding",
       "level": "1",
       "texts": [
-        "+2% Chance to Block Attack Damage if you were Damaged by a Hit Recently"
+        "% Chance to Block Attack Damage if you were Damaged by a Hit Recently"
       ],
       "type": "Suffix"
     },
@@ -4434,7 +4434,7 @@
       "affix": "of Instinct",
       "level": "1",
       "texts": [
-        "+2% Chance to Block Spell Damage if you were Damaged by a Hit Recently"
+        "% Chance to Block Spell Damage if you were Damaged by a Hit Recently"
       ],
       "type": "Suffix"
     },
@@ -5953,7 +5953,7 @@
         "default"
       ],
       "texts": [
-        "+1% Chance to Block Attack Damage while Dual Wielding"
+        "% Chance to Block Attack Damage while Dual Wielding"
       ],
       "type": "Prefix",
       "weights": [
@@ -5966,7 +5966,7 @@
         "default"
       ],
       "texts": [
-        "+1% Chance to Block Attack Damage while holding a Shield"
+        "% Chance to Block Attack Damage while holding a Shield"
       ],
       "type": "Prefix",
       "weights": [
@@ -5979,7 +5979,7 @@
         "not_dex"
       ],
       "texts": [
-        "+1% Chance to Block Attack Damage while wielding a Staff"
+        "% Chance to Block Attack Damage while wielding a Staff"
       ],
       "type": "Prefix",
       "weights": [
@@ -6620,7 +6620,7 @@
         "default"
       ],
       "texts": [
-        "+1% Chance to Block Spell Damage while Dual Wielding"
+        "% Chance to Block Spell Damage while Dual Wielding"
       ],
       "type": "Prefix",
       "weights": [
@@ -6965,19 +6965,6 @@
         "500"
       ]
     },
-    "ItemRarityJewel": {
-      "affix": "of Raiding",
-      "tags": [
-        "default"
-      ],
-      "texts": [
-        "% increased Rarity of Items found"
-      ],
-      "type": "Suffix",
-      "weights": [
-        "150"
-      ]
-    },
     "JewelChaosNonAilmentDamageOverTimeMultiplier2": {
       "affix": "of Atrophy",
       "tags": [
@@ -7235,6 +7222,51 @@
       "type": "Prefix",
       "weights": [
         "250"
+      ]
+    },
+    "MaximumColdResistanceJewel": {
+      "affix": "of the Kraken",
+      "tags": [
+        "not_dex",
+        "default"
+      ],
+      "texts": [
+        "% to maximum Cold Resistance"
+      ],
+      "type": "Suffix",
+      "weights": [
+        "60",
+        "100"
+      ]
+    },
+    "MaximumFireResistanceJewel": {
+      "affix": "of the Phoenix",
+      "tags": [
+        "not_str",
+        "default"
+      ],
+      "texts": [
+        "% to maximum Fire Resistance"
+      ],
+      "type": "Suffix",
+      "weights": [
+        "60",
+        "100"
+      ]
+    },
+    "MaximumLightningResistanceJewel": {
+      "affix": "of the Leviathan",
+      "tags": [
+        "not_int",
+        "default"
+      ],
+      "texts": [
+        "% to maximum Lightning Resistance"
+      ],
+      "type": "Suffix",
+      "weights": [
+        "60",
+        "100"
       ]
     },
     "MeleeCritChanceJewel": {
@@ -7586,7 +7618,7 @@
         "default"
       ],
       "texts": [
-        "+1% Chance to Block Spell Damage while holding a Shield"
+        "% Chance to Block Spell Damage while holding a Shield"
       ],
       "type": "Prefix",
       "weights": [
@@ -7641,7 +7673,7 @@
         "default"
       ],
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix",
       "weights": [
@@ -7719,7 +7751,7 @@
         "not_dex"
       ],
       "texts": [
-        "+1% Chance to Block Spell Damage while wielding a Staff"
+        "% Chance to Block Spell Damage while wielding a Staff"
       ],
       "type": "Prefix",
       "weights": [
@@ -11375,7 +11407,7 @@
       "affix": "Notable",
       "level": "68",
       "texts": [
-        "1 Added Passive Skill is Rapid Infusion"
+        "1 Added Passive Skill is Unrestrained Focus"
       ],
       "type": "Prefix"
     },
@@ -12244,30 +12276,6 @@
       ],
       "type": "Suffix"
     },
-    "FlaskBuffAttackSpeedWhileHealing1": {
-      "affix": "of the Falcon",
-      "level": "12",
-      "texts": [
-        "% increased Attack Speed during Effect"
-      ],
-      "type": "Suffix"
-    },
-    "FlaskBuffAttackSpeedWhileHealing2_____": {
-      "affix": "of the Eagle",
-      "level": "62",
-      "texts": [
-        "% increased Attack Speed during Effect"
-      ],
-      "type": "Suffix"
-    },
-    "FlaskBuffAttackSpeedWhileHealing3_": {
-      "affix": "of the Dove",
-      "level": "82",
-      "texts": [
-        "% increased Attack Speed during Effect"
-      ],
-      "type": "Suffix"
-    },
     "FlaskBuffAvoidChillFreeze1_": {
       "affix": "of the Orca",
       "level": "4",
@@ -12430,30 +12438,6 @@
       "level": "80",
       "texts": [
         "% Chance to Avoid being Stunned during Effect"
-      ],
-      "type": "Suffix"
-    },
-    "FlaskBuffCastSpeedWhileHealing1": {
-      "affix": "of the Albatross",
-      "level": "12",
-      "texts": [
-        "% increased Cast Speed during Effect"
-      ],
-      "type": "Suffix"
-    },
-    "FlaskBuffCastSpeedWhileHealing2": {
-      "affix": "of the Hummingbird",
-      "level": "62",
-      "texts": [
-        "% increased Cast Speed during Effect"
-      ],
-      "type": "Suffix"
-    },
-    "FlaskBuffCastSpeedWhileHealing3": {
-      "affix": "of the Horsefly",
-      "level": "82",
-      "texts": [
-        "% increased Cast Speed during Effect"
       ],
       "type": "Suffix"
     },
@@ -14206,8 +14190,7 @@
       "level": "2",
       "texts": [
         "Adds ",
-        " to ",
-        " Cold Damage to Attacks"
+        " to 3 Cold Damage to Attacks"
       ],
       "type": "Prefix"
     },
@@ -15058,62 +15041,6 @@
       ],
       "type": "Suffix"
     },
-    "AdditionalBlockChance1": {
-      "affix": "of Intercepting",
-      "level": "10",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance2": {
-      "affix": "of Walling",
-      "level": "25",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance3": {
-      "affix": "of Blocking",
-      "level": "40",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance4_": {
-      "affix": "of the Stalwart",
-      "level": "55",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance5": {
-      "affix": "of the Buttress",
-      "level": "66",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance6": {
-      "affix": "of the Sentinel",
-      "level": "77",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
-    "AdditionalBlockChance7": {
-      "affix": "of the Citadel",
-      "level": "86",
-      "texts": [
-        "% Chance to Block"
-      ],
-      "type": "Suffix"
-    },
     "AdditionalBlockChancePerEnduranceChargeUber1_": {
       "affix": "of the Elder",
       "level": "68",
@@ -15838,8 +15765,8 @@
       "affix": "of the Hunt",
       "level": "68",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15847,8 +15774,8 @@
       "affix": "of the Hunt",
       "level": "75",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15856,8 +15783,8 @@
       "affix": "of the Hunt",
       "level": "68",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15865,8 +15792,8 @@
       "affix": "of the Hunt",
       "level": "71",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15874,8 +15801,8 @@
       "affix": "of the Hunt",
       "level": "68",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15883,8 +15810,8 @@
       "affix": "of the Hunt",
       "level": "71",
       "texts": [
-        "Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15892,8 +15819,8 @@
       "affix": "of the Hunt",
       "level": "68",
       "texts": [
-        "Hits with this Weapon Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits with this Weapon have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15901,8 +15828,8 @@
       "affix": "of the Hunt",
       "level": "71",
       "texts": [
-        "Hits with this Weapon Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits with this Weapon have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15910,8 +15837,8 @@
       "affix": "of the Hunt",
       "level": "68",
       "texts": [
-        "Hits with this Weapon Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits with this Weapon have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -15919,8 +15846,8 @@
       "affix": "of the Hunt",
       "level": "71",
       "texts": [
-        "Hits with this Weapon Overwhelm ",
-        "% Physical Damage Reduction"
+        "Hits with this Weapon have ",
+        "% chance to ignore Enemy Physical Damage Reduction"
       ],
       "type": "Suffix"
     },
@@ -16492,33 +16419,6 @@
       ],
       "type": "Suffix"
     },
-    "BleedDamage1_": {
-      "affix": "of Bloodletting",
-      "level": "20",
-      "texts": [
-        "Attacks have 20% chance to cause Bleeding",
-        "% increased Damage with Bleeding"
-      ],
-      "type": "Suffix"
-    },
-    "BleedDamage2": {
-      "affix": "of Haemophilia",
-      "level": "40",
-      "texts": [
-        "Attacks have 25% chance to cause Bleeding",
-        "% increased Damage with Bleeding"
-      ],
-      "type": "Suffix"
-    },
-    "BleedDamage3": {
-      "affix": "of Exsanguination",
-      "level": "60",
-      "texts": [
-        "Attacks have 30% chance to cause Bleeding",
-        "% increased Damage with Bleeding"
-      ],
-      "type": "Suffix"
-    },
     "BleedDamageAndDurationInfluence1__": {
       "affix": "of the Conquest",
       "level": "68",
@@ -16833,30 +16733,6 @@
       "level": "80",
       "texts": [
         "% Chance to Block Attack Damage while Dual Wielding"
-      ],
-      "type": "Suffix"
-    },
-    "BurnDamage1_": {
-      "affix": "of Burning",
-      "level": "20",
-      "texts": [
-        "% increased Burning Damage"
-      ],
-      "type": "Suffix"
-    },
-    "BurnDamage2": {
-      "affix": "of Combusting",
-      "level": "40",
-      "texts": [
-        "% increased Burning Damage"
-      ],
-      "type": "Suffix"
-    },
-    "BurnDamage3": {
-      "affix": "of Conflagrating",
-      "level": "60",
-      "texts": [
-        "% increased Burning Damage"
       ],
       "type": "Suffix"
     },
@@ -18864,7 +18740,7 @@
       "level": "68",
       "texts": [
         "Socketed Gems are Supported by Level 18 Increased Critical Strikes",
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -18873,7 +18749,7 @@
       "level": "75",
       "texts": [
         "Socketed Gems are Supported by Level 20 Increased Critical Strikes",
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -18881,7 +18757,7 @@
       "affix": "of Shaping",
       "level": "68",
       "texts": [
-        "% increased Critical Strike Chance for Spells",
+        "% increased Spell Critical Strike Chance",
         "10% chance to gain a Power Charge on Critical Strike"
       ],
       "type": "Suffix"
@@ -18890,7 +18766,7 @@
       "affix": "of Shaping",
       "level": "75",
       "texts": [
-        "% increased Critical Strike Chance for Spells",
+        "% increased Spell Critical Strike Chance",
         "10% chance to gain a Power Charge on Critical Strike"
       ],
       "type": "Suffix"
@@ -22451,54 +22327,6 @@
       ],
       "type": "Suffix"
     },
-    "GainLifeOnBlock1": {
-      "affix": "of Repairing",
-      "level": "11",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
-    "GainLifeOnBlock2_": {
-      "affix": "of Resurgence",
-      "level": "22",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
-    "GainLifeOnBlock3": {
-      "affix": "of Renewal",
-      "level": "36",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
-    "GainLifeOnBlock4": {
-      "affix": "of Revival",
-      "level": "48",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
-    "GainLifeOnBlock5": {
-      "affix": "of Rebounding",
-      "level": "60",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
-    "GainLifeOnBlock6_": {
-      "affix": "of Revitalization",
-      "level": "75",
-      "texts": [
-        " Life gained when you Block"
-      ],
-      "type": "Suffix"
-    },
     "GainRandomChargeOnBlockInfluence1": {
       "affix": "of the Hunt",
       "level": "68",
@@ -23894,7 +23722,7 @@
       "affix": "of the Elder",
       "level": "68",
       "texts": [
-        "Socketed Gems are Supported by Level 15 Increased Duration",
+        "Socketed Gems are Supported by Level 15 More Duration",
         "% increased Skill Effect Duration"
       ],
       "type": "Suffix"
@@ -24860,22 +24688,6 @@
       "level": "82",
       "texts": [
         " to Intelligence"
-      ],
-      "type": "Suffix"
-    },
-    "ItemFoundQuantityIncreaseUber1": {
-      "affix": "of Shaping",
-      "level": "75",
-      "texts": [
-        "% increased Quantity of Items found"
-      ],
-      "type": "Suffix"
-    },
-    "ItemFoundQuantityIncreaseUber2": {
-      "affix": "of Shaping",
-      "level": "85",
-      "texts": [
-        "% increased Quantity of Items found"
       ],
       "type": "Suffix"
     },
@@ -28201,6 +28013,62 @@
         "20% increased Attack Speed if you've Killed Recently"
       ],
       "type": "Suffix"
+    },
+    "LocalIncreasedBlockPercentage1": {
+      "affix": "Steadfast",
+      "level": "2",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage2": {
+      "affix": "Unrelenting",
+      "level": "15",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage3": {
+      "affix": "Adamant",
+      "level": "35",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage4": {
+      "affix": "Warded",
+      "level": "48",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage5": {
+      "affix": "Unwavering",
+      "level": "61",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage6": {
+      "affix": "Enduring",
+      "level": "77",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
+    },
+    "LocalIncreasedBlockPercentage7": {
+      "affix": "Unyielding",
+      "level": "86",
+      "texts": [
+        "% increased Chance to Block"
+      ],
+      "type": "Prefix"
     },
     "LocalIncreasedEnergyShield1": {
       "affix": "Shining",
@@ -33739,33 +33607,6 @@
       ],
       "type": "Prefix"
     },
-    "PoisonDamage1": {
-      "affix": "of Poison",
-      "level": "20",
-      "texts": [
-        "% increased Damage with Poison",
-        "20% chance to Poison on Hit"
-      ],
-      "type": "Suffix"
-    },
-    "PoisonDamage2": {
-      "affix": "of Venom",
-      "level": "40",
-      "texts": [
-        "% increased Damage with Poison",
-        "25% chance to Poison on Hit"
-      ],
-      "type": "Suffix"
-    },
-    "PoisonDamage3": {
-      "affix": "of Virulence",
-      "level": "60",
-      "texts": [
-        "% increased Damage with Poison",
-        "30% chance to Poison on Hit"
-      ],
-      "type": "Suffix"
-    },
     "PoisonDamageAndDurationInfluence1_": {
       "affix": "of the Hunt",
       "level": "68",
@@ -34632,6 +34473,54 @@
         "Remove Shock when you use a Flask"
       ],
       "type": "Suffix"
+    },
+    "ShieldSpellBlockPercentage1": {
+      "affix": "Mystic",
+      "level": "16",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
+    },
+    "ShieldSpellBlockPercentage2": {
+      "affix": "Clairvoyant",
+      "level": "28",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
+    },
+    "ShieldSpellBlockPercentage3": {
+      "affix": "Enigmatic",
+      "level": "40",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
+    },
+    "ShieldSpellBlockPercentage4": {
+      "affix": "Enlightened",
+      "level": "55",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
+    },
+    "ShieldSpellBlockPercentage5": {
+      "affix": "Seer's",
+      "level": "66",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
+    },
+    "ShieldSpellBlockPercentage6": {
+      "affix": "Oracle's",
+      "level": "77",
+      "texts": [
+        "% Chance to Block Spell Damage"
+      ],
+      "type": "Prefix"
     },
     "ShockChanceAndEffectInfluence1": {
       "affix": "of Redemption",
@@ -36209,38 +36098,6 @@
       ],
       "type": "Suffix"
     },
-    "SpellBlockPercentage1__": {
-      "affix": "of the Barrier",
-      "level": "30",
-      "texts": [
-        "% Chance to Block Spell Damage"
-      ],
-      "type": "Suffix"
-    },
-    "SpellBlockPercentage2": {
-      "affix": "of the Bulwark",
-      "level": "52",
-      "texts": [
-        "% Chance to Block Spell Damage"
-      ],
-      "type": "Suffix"
-    },
-    "SpellBlockPercentage3_": {
-      "affix": "of the Barricade",
-      "level": "71",
-      "texts": [
-        "% Chance to Block Spell Damage"
-      ],
-      "type": "Suffix"
-    },
-    "SpellBlockPercentage4_": {
-      "affix": "of the Bastion",
-      "level": "84",
-      "texts": [
-        "% Chance to Block Spell Damage"
-      ],
-      "type": "Suffix"
-    },
     "SpellBlockPercentInfluence1": {
       "affix": "of the Crusade",
       "level": "68",
@@ -36270,7 +36127,7 @@
       "affix": "of Menace",
       "level": "11",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -36278,7 +36135,7 @@
       "affix": "of Havoc",
       "level": "21",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -36286,7 +36143,7 @@
       "affix": "of Disaster",
       "level": "28",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -36294,7 +36151,7 @@
       "affix": "of Calamity",
       "level": "41",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -36302,7 +36159,7 @@
       "affix": "of Ruin",
       "level": "59",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -36310,7 +36167,7 @@
       "affix": "of Unmaking",
       "level": "76",
       "texts": [
-        "% increased Critical Strike Chance for Spells"
+        "% increased Spell Critical Strike Chance"
       ],
       "type": "Suffix"
     },
@@ -37712,30 +37569,6 @@
       "texts": [
         "Socketed Gems are Supported by Level 20 Advanced Traps",
         "% increased Trap Throwing Speed"
-      ],
-      "type": "Suffix"
-    },
-    "TwoHandBurnDamage1": {
-      "affix": "of Burning",
-      "level": "20",
-      "texts": [
-        "% increased Burning Damage"
-      ],
-      "type": "Suffix"
-    },
-    "TwoHandBurnDamage2": {
-      "affix": "of Combusting",
-      "level": "40",
-      "texts": [
-        "% increased Burning Damage"
-      ],
-      "type": "Suffix"
-    },
-    "TwoHandBurnDamage3": {
-      "affix": "of Conflagrating",
-      "level": "60",
-      "texts": [
-        "% increased Burning Damage"
       ],
       "type": "Suffix"
     },
