@@ -385,7 +385,7 @@
       "strength of blood": [
         "kaom",
         "life recovery from non-instant leech is not applied",
-        "1% less damage taken for every 2% life recovery per second from leech"
+        "2% additional physical damage reduction for every 3% life recovery per second from leech"
       ],
       "superiority": [
         "12% increased effect of non-curse auras from your skills"
