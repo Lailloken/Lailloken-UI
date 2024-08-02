@@ -480,9 +480,9 @@ type	=	area
 text	=	rogue exiles: +
 ID	=	078
 
-[# more magic monsters]
+[# increased magic monsters]
 type	=	monsters
-text	=	more magic: %
+text	=	magic: +%
 ID	=	079
 
 [area contains two unique bosses]
