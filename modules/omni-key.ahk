@@ -14,31 +14,27 @@
 		Return
 	}
 
-	ThisHotkey_copy := StrReplace(StrReplace(A_ThisHotkey, "~"), "*"), guide := vars.leveltracker.guide
-
-	Loop, Parse, % "!,+,#,^, UP", `,
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
-	If Blank(ThisHotkey_copy)
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
-
-	Clipboard := ""
+	guide := vars.leveltracker.guide, Clipboard := ""
 	If (vars.general.wMouse = vars.hwnd.poe_client) && !WinActive("ahk_id " vars.hwnd.poe_client)
 	{
 		WinActivate, % "ahk_id " vars.hwnd.poe_client
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
 	}
 
-	If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
+	If vars.pixelsearch.inventory.check
 	{
-		MaptrackerNoteAdd(), OmniRelease()
-		Return
+		If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
+		{
+			MaptrackerNoteAdd(), OmniRelease()
+			Return
+		}
+
+		If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
+			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
+		Else SendInput !^{c}
+
+		ClipWait, 0.1
 	}
-
-	If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
-		SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
-	Else SendInput !^{c}
-
-	ClipWait, 0.1
 
 	If Clipboard
 	{
@@ -54,7 +50,7 @@
 		Switch OmniContext()
 		{
 			Case "essences":
-				While GetKeyState(vars.omnikey.hotkey, "P")
+				While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 				{
 					If (A_TickCount >= essence_last + 100)
 						EssenceTooltip(vars.general.cMouse), essence_last := A_TickCount
@@ -85,15 +81,18 @@
 				OmniContextMenu()
 			Case "horizons":
 				HorizonsTooltip("a")
-				KeyWait, % ThisHotkey_copy
+				KeyWait, % vars.omnikey.hotkey
+				KeyWait, % vars.omnikey.hotkey2
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "horizons_map":
 				HorizonsTooltip(vars.omnikey.item.tier)
-				KeyWait, % ThisHotkey_copy
+				KeyWait, % vars.omnikey.hotkey
+				KeyWait, % vars.omnikey.hotkey2
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "horizons_shaper":
 				HorizonsTooltip("shaper")
-				KeyWait, % ThisHotkey_copy
+				KeyWait, % vars.omnikey.hotkey
+				KeyWait, % vars.omnikey.hotkey2
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "mapinfo":
 				If MapinfoParse()
@@ -102,7 +101,7 @@
 				Recombination_()
 		}
 	}
-	Else If (ThisHotkey_copy != settings.hotkeys.omnikey2) ;prevent item-only omni-key from executing non-item features
+	Else If Blank(vars.omnikey.hotkey2) || !Blank(vars.omnikey.hotkey2) && !InStr(A_ThisHotkey, vars.omnikey.hotkey2) ;prevent item-only omni-key from executing non-item features
 		Omnikey2()
 	OmniRelease()
 }
@@ -115,17 +114,11 @@ Omnikey2()
 	If vars.omnikey.last2
 		Return
 	vars.omnikey.last2 := A_TickCount
-
 	StringScroll("ESC") ;close searchstring-scrolling
 	If !IsObject(vars.omnikey)
 		vars.omnikey := {}
 
-	guide := vars.leveltracker.guide, ThisHotkey_copy := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
-	Loop, Parse, % "!,+,#,^, UP", `,
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(ThisHotkey_copy, A_LoopField)
-	If Blank(ThisHotkey_copy)
-		ThisHotkey_copy := vars.omnikey.hotkey := StrReplace(StrReplace(A_ThisHotkey, "~"), "*")
-
+	guide := vars.leveltracker.guide
 	If settings.features.cheatsheets && GetKeyState(settings.cheatsheets.modifier, "P")
 	{
 		vars.cheatsheets.pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
@@ -135,7 +128,7 @@ Omnikey2()
 				continue
 			If CheatsheetSearch(cheatsheet)
 			{
-				CheatsheetActivate(cheatsheet, ThisHotkey_copy)
+				CheatsheetActivate(cheatsheet)
 				Break
 			}
 		}
@@ -164,12 +157,11 @@ Omnikey2()
 		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1") || vars.client.stream) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
 		{
 			start := A_TickCount
-			While GetKeyState(ThisHotkey_copy, "P")
+			While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 			{
 				If (A_TickCount >= start + 100)
 				{
 					StringContextMenu("exile-leveling")
-					KeyWait, % ThisHotkey_copy
 					OmniRelease()
 					Return
 				}
@@ -203,6 +195,7 @@ OmniRelease()
 	global vars, settings
 
 	KeyWait, % vars.omnikey.hotkey
+	KeyWait, % vars.omnikey.hotkey2
 	If IsObject(vars.omnikey)
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
 }
@@ -214,12 +207,9 @@ OmniContext(mode := 0)
 
 	If mode
 		Iteminfo(2)
-	ThisHotkey_copy := A_ThisHotkey, clip := !mode ? vars.omnikey.clipboard : Clipboard, item := vars.omnikey.item
+	clip := !mode ? vars.omnikey.clipboard : Clipboard, item := vars.omnikey.item
 
-	Loop, Parse, % "*~!+#^"
-		ThisHotkey_copy := StrReplace(ThisHotkey_copy, A_LoopField)
-
-	While (!settings.features.stash || GetKeyState("ALT", "P")) && GetKeyState(ThisHotkey_copy, "P") && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
+	While (!settings.features.stash || GetKeyState("ALT", "P")) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
 	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
@@ -230,17 +220,17 @@ OmniContext(mode := 0)
 		Return "gemnotepad"
 	If settings.features.leveltracker && vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
 		Return "gemnotes"
-	While settings.features.leveltracker && vars.hwnd.leveltracker.main && GetKeyState(ThisHotkey_copy, "P") && (item.rarity = LangTrans("items_gem"))
+	While settings.features.leveltracker && vars.hwnd.leveltracker.main && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = LangTrans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
 	If !settings.features.stash && (item.name = "Orb of Horizons")
-		While GetKeyState(ThisHotkey_copy, "P")
+		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
 	&& (item.rarity != LangTrans("items_unique"))
 	{
-		While GetKeyState(ThisHotkey_copy, "P") && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
+		While (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
 			If (A_TickCount >= vars.omnikey.start + 200)
 			{
 				If LLK_PatternMatch(vars.omnikey.clipboard, "", ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"])
@@ -255,7 +245,7 @@ OmniContext(mode := 0)
 	If settings.features.stash && !GetKeyState("ALT", "P")
 	{
 		check := LLK_HasKey(vars.stash, item.name,,,, 1), start := A_TickCount
-		While check && (Blank(item.itembase) || item.name = item.itembase) && GetKeyState(ThisHotkey_copy, "P")
+		While check && (Blank(item.itembase) || item.name = item.itembase) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P"))
 			If (A_TickCount >= start + 150)
 			{
 				Stash_(check)
@@ -264,7 +254,7 @@ OmniContext(mode := 0)
 	}
 	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
 		Return "iteminfo"
-	While GetKeyState(ThisHotkey_copy, "P")
+	While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "iteminfo"
 	If WinExist("ahk_id " vars.hwnd.geartracker.main)

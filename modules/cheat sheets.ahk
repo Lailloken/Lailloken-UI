@@ -70,10 +70,10 @@
 	}
 }
 
-CheatsheetActivate(name, hotkey)
+CheatsheetActivate(name, hotkey := "")
 {
 	local
-	global vars
+	global vars, settings
 
 	type := vars.cheatsheets.list[name].type, activation := vars.cheatsheets.list[name].activation
 	vars.cheatsheets.active := {"name": name, "type": type, "toggle": GetKeyState("alt", "P") + GetKeyState("ctrl", "P") + GetKeyState("shift", "P")}
@@ -84,7 +84,7 @@ CheatsheetActivate(name, hotkey)
 			CheatsheetImage(name)
 			If (activation = "hold") && (vars.cheatsheets.active.toggle < 2)
 			{
-				While GetKeyState(hotkey, "P") ;key-release cannot be placed in the function itself because it may be called multiple times via hotkeys (unlike app-based and advanced sheets)
+				While !Blank(hotkey) && GetKeyState(hotkey, "P") || GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P") ;key-release cannot be placed in the function itself because it may be called multiple times via hotkeys (unlike app-based and advanced sheets)
 					Sleep 50
 				CheatsheetClose()
 			}
@@ -144,7 +144,7 @@ CheatsheetAdd(name, type)
 	Settings_menu("cheat-sheets")
 }
 
-CheatsheetAdvanced(name, hotkey)
+CheatsheetAdvanced(name, hotkey := "")
 {
 	local
 	global vars, settings
@@ -160,7 +160,7 @@ CheatsheetAdvanced(name, hotkey)
 	{
 		pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
 		LLK_ToolTip(LangTrans("global_scan"), 10, vars.general.xMouse + vars.client.w/100, vars.general.yMouse, "cheatsheet")
-		While GetKeyState(hotkey, "P") && (variation <= 75)
+		While (hotkey && GetKeyState(hotkey, "P") || GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (variation <= 75)
 		{
 			Loop, Files, % "cheat-sheets\" name "\[check] *.bmp"
 			{
@@ -245,7 +245,10 @@ CheatsheetAdvanced(name, hotkey)
 
 	If (vars.cheatsheets.list[name].activation = "hold") && (vars.cheatsheets.active.toggle < 2)
 	{
-		KeyWait, % hotkey
+		If hotkey
+			KeyWait, % hotkey
+		KeyWait, % vars.omnikey.hotkey
+		KeyWait, % vars.omnikey.hotkey2
 		If InStr(A_Gui, "cheatsheet_menu")
 			KeyWait, LButton
 		LLK_Overlay(vars.hwnd.cheatsheet.main, "hide")
@@ -253,7 +256,7 @@ CheatsheetAdvanced(name, hotkey)
 	}
 }
 
-CheatsheetApp(name, hotkey)
+CheatsheetApp(name, hotkey := "")
 {
 	local
 	global vars, settings
@@ -282,7 +285,10 @@ CheatsheetApp(name, hotkey)
 		WinActivate, % vars.cheatsheets.list[name].title
 		If (vars.cheatsheets.list[name].activation = "hold") && (vars.cheatsheets.active.toggle < 2)
 		{
-			KeyWait, % hotkey
+			If hotkey
+				KeyWait, % hotkey
+			KeyWait, % vars.omnikey.hotkey
+			KeyWait, % vars.omnikey.hotkey2
 			WinActivate, ahk_group poe_window
 			;WinSet, Bottom,, % cheatsheets_apptitle_%parse%
 			WinMinimize, % vars.cheatsheets.list[name].title
@@ -399,7 +405,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 	local
 	global vars, settings
 
-	ignore := ["Up", "Down", "Left", "Right", "F1", "F2", "F3", "RButton", "Space", settings.hotkeys.tab]
+	ignore := ["Up", "Down", "Left", "Right", "F1", "F2", "F3", "RButton", "Space", vars.hotkeys.tab]
 	If !name
 		name := vars.cheatsheets.active.name
 	Loop, Files, % "cheat-sheets\"name "\[*"
@@ -478,7 +484,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			vars.cheatsheets[name].include.1 += index
 			vars.cheatsheets[name].include.1 := (vars.cheatsheets[name].include.1 < 10) ? "0" vars.cheatsheets[name].include.1 : vars.cheatsheets[name].include.1
 		}
-		Else If (hotkey = settings.hotkeys.tab)
+		Else If (hotkey = vars.hotkeys.tab)
 		{
 			If !has_00
 				Return
@@ -522,7 +528,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		}
 	}
 
-	If hotkey && !Blank((LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
+	If hotkey && (!Blank(LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
 	&& !FileExist("cheat-sheets\"name "\[0"hotkey "]*.*"))
 		Return
 	Else If LLK_IsType(hotkey, "alnum") && has_00
@@ -1386,12 +1392,12 @@ CheatsheetTAB()
 
 	If FileExist("cheat-sheets\"vars.cheatsheets.active.name "\[00].*")
 	{
-		CheatsheetImage("", settings.hotkeys.tab)
-		KeyWait, % A_ThisHotkey
+		CheatsheetImage("", vars.hotkeys.tab)
+		KeyWait, % vars.hotkeys.tab
 		vars.cheatsheets[vars.cheatsheets.active.name].include := []
 		For key, val in vars.cheatsheets[vars.cheatsheets.active.name].include0
 			vars.cheatsheets[vars.cheatsheets.active.name].include.Push(val)
 		CheatsheetImage()
 	}
-	KeyWait, % A_ThisHotkey
+	KeyWait, % vars.hotkeys.tab
 }

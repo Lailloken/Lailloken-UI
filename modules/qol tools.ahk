@@ -438,9 +438,9 @@ Lab(mode := "", override := 0)
 
 	If (mode = "link")
 	{
-		If GetKeyState(settings.hotkeys.tab, "P")
-			LLK_ToolTip(LangTrans("global_releasekey") " " settings.hotkeys.tab, 0,,, "poelab")
-		KeyWait, % settings.hotkeys.tab
+		If GetKeyState(vars.hotkeys.tab, "P")
+			LLK_ToolTip(LangTrans("global_releasekey") " " vars.hotkeys.tab, 0,,, "poelab")
+		KeyWait, % vars.hotkeys.tab
 		LLK_Overlay(vars.hwnd["tooltippoelab"], "destroy"), LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
 		Run, % "https://www.poelab.com/"
 		If settings.features.browser
@@ -545,7 +545,7 @@ Lab(mode := "", override := 0)
 	vars.lab.exits := {"numbers": [], "names": []}
 	For dir, number in vars.lab.compass.rooms[vars.lab.room.1].exits
 		vars.lab.exits.numbers.Push(number), vars.lab.exits.names.Push(vars.lab.compass.rooms[number].name)
-	If mode && InStr("progress,init,backtrack", mode) && !GetKeyState(settings.hotkeys.tab, "P")
+	If mode && InStr("progress,init,backtrack", mode) && !GetKeyState(vars.hotkeys.tab, "P")
 		Return
 
 	toggle := !toggle, GUI_name := "lab_overlay" toggle

@@ -43,7 +43,7 @@
 	}
 	settings.maptracker.xCoord := !Blank(check := ini.settings["x-coordinate"]) ? check : ""
 	settings.maptracker.yCoord := !Blank(check := ini.settings["y-coordinate"]) ? check : ""
-	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300", "league 4": "330066"}
+	settings.maptracker.dColors := {"date_unselected": "404040", "date_selected": "606060", "league 1": "330000", "league 2": "001933", "league 3": "003300", "league 4": "330066", "league 5": "009999", "league 6": "99004C", "league 7": "666600"}
 	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
 		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}
@@ -231,8 +231,9 @@ MaptrackerDateSelect()
 				If !run_count_league
 					Continue
 
+				pLeagues += 1
 				Gui, %GUI_name%: Add, Text, % "xs" (!league_count ? " Section" (allButton ? " y+-1" : "") : " y+-1") " Border BackgroundTrans" (active_date = array.1 ? " cLime" : "") . " w" wColumn, % " " array.1 " (" run_count_league ")"
-				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Border Range0-500 cRed Background" settings.maptracker.colors["league " index], 0
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Border Range0-500 cRed Background" settings.maptracker.colors["league " pLeagues], 0
 				vars.hwnd.maptracker_dates[array.1] := hwnd, league_count .= "|"
 				ControlGetPos,,,, hRow,, ahk_id %hwnd%
 			}
@@ -585,7 +586,7 @@ MaptrackerKills()
 		Return
 
 	Clipboard := "/kills"
-	KeyWait, % settings.hotkeys.omnikey
+	KeyWait, % vars.omnikey.hotkey
 	KeyWait, LButton
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window
@@ -1352,8 +1353,6 @@ MaptrackerLoot(mode := "")
 	}
 
 	Clipboard := ""
-	;If settings.hotkeys.rebound_alt && settings.hotkeys.item_descriptions
-	;	SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
 	SendInput, ^{c}
 	ClipWait, 0.1
 	If !Clipboard
@@ -1632,7 +1631,7 @@ MaptrackerNoteEdit(cHWND := "", array0 := "", add := "") ;array0 = [xPos, yPos, 
 
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(maptracker_edit, "show", 1, GUI_name), LLK_Overlay(hwnd_old, "destroy")
-	KeyWait, % settings.hotkeys.tab
+	KeyWait, % vars.hotkeys.tab
 	ControlFocus,, ahk_id %hwnd0%
 	GuiControl, -Disabled, % hwnd
 	If (category = "tracker")

@@ -61,10 +61,10 @@
 	Gui, LLK_panel: Show, % (hide ? "hide" : "NA") " x"vars.monitor.x + xPos " y"vars.monitor.y + yPos
 	LLK_Overlay(vars.hwnd.LLK_panel.main, hide ? "hide" : "show",, "LLK_panel"), vars.toolbar := {"x": vars.monitor.x + xPos, "y": vars.monitor.y + yPos, "x2": vars.monitor.x + xPos + w, "y2": vars.monitor.y + yPos + h}
 
-	If (mode = "refresh") || GetKeyState(settings.hotkeys.tab, "P")
+	If (mode = "refresh") || GetKeyState(vars.hotkeys.tab, "P")
 	{
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
-		If hide && !GetKeyState(settings.hotkeys.tab, "P")
+		If hide && !GetKeyState(vars.hotkeys.tab, "P")
 		{
 			vars.toolbar.drag := 1
 			SetTimer, GuiToolbarHide, -1000
@@ -151,10 +151,10 @@ GuiToolbarButtons(cHWND, hotkey)
 	{
 		If LLK_Progress(vars.hwnd.LLK_panel.restart_bar, "LButton")
 		{
-			If GetKeyState(settings.hotkeys.tab, "P")
+			If GetKeyState(vars.hotkeys.tab, "P")
 			{
-				LLK_ToolTip(LangTrans("global_releasekey") " " settings.hotkeys.tab, 10000)
-				KeyWait, % settings.hotkeys.tab
+				LLK_ToolTip(LangTrans("global_releasekey") " " vars.hotkeys.tab, 10000)
+				KeyWait, % vars.hotkeys.tab
 			}
 			KeyWait, LButton
 			Reload
@@ -165,10 +165,10 @@ GuiToolbarButtons(cHWND, hotkey)
 	{
 		If LLK_Progress(vars.hwnd.LLK_panel.close_bar, "LButton")
 		{
-			If GetKeyState(settings.hotkeys.tab, "P")
+			If GetKeyState(vars.hotkeys.tab, "P")
 			{
-				LLK_ToolTip(LangTrans("global_releasekey") " "  settings.hotkeys.tab, 10000)
-				KeyWait, % settings.hotkeys.tab
+				LLK_ToolTip(LangTrans("global_releasekey") " "  vars.hotkeys.tab, 10000)
+				KeyWait, % vars.hotkeys.tab
 			}
 			ExitApp
 		}

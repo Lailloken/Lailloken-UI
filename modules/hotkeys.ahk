@@ -6,6 +6,9 @@
 	If !FileExist("ini\hotkeys.ini")
 		IniWrite, % "", ini\hotkeys.ini, settings
 
+	If !IsObject(vars.hotkeys)
+		vars.hotkeys := {}
+
 	settings.hotkeys := {}, ini := IniBatchRead("ini\hotkeys.ini")
 	settings.hotkeys.rebound_alt := !Blank(check := ini.settings["advanced item-info rebound"]) ? check : 0
 	settings.hotkeys.item_descriptions := !Blank(check := ini.hotkeys["item-descriptions key"]) ? check : ""
@@ -14,8 +17,8 @@
 	settings.hotkeys.rebound_c := !Blank(check := ini.settings["c-key rebound"]) ? check : 0
 	settings.hotkeys.movekey := !Blank(check := ini.hotkeys["move-key"]) ? check : "lbutton"
 	settings.hotkeys.omniblock := !Blank(check := ini.hotkeys["block omnikey's native function"]) ? check : 0
-	settings.hotkeys.omnikey := !Blank(check := ini.hotkeys["omni-hotkey"]) ? check : "MButton"
-	settings.hotkeys.omnikey2 := !Blank(check := ini.hotkeys["omni-hotkey2"]) ? check : ""
+	settings.hotkeys.omnikey := vars.omnikey.hotkey := !Blank(check := ini.hotkeys["omni-hotkey"]) ? check : "MButton"
+	settings.hotkeys.omnikey2 := vars.omnikey.hotkey2 := !Blank(check := ini.hotkeys["omni-hotkey2"]) ? check : ""
 	settings.hotkeys.emergencykey := !Blank(check := ini.hotkeys["emergency hotkey"]) ? check : "space"
 
 	Hotkey, If,
@@ -24,8 +27,12 @@
  
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
-	settings.hotkeys.tab := !Blank(check := ini.hotkeys["tab replacement"]) ? check : "tab"
+	settings.hotkeys.tab := vars.hotkeys.tab := !Blank(check := ini.hotkeys["tab replacement"]) ? check : "tab"
 	settings.hotkeys.tabblock := (settings.hotkeys.tab = "capslock") ? 1 : !Blank(check := ini.hotkeys["block tab-key's native function"]) ? check : 0
+
+	If (StrLen(vars.hotkeys.tab) > 1)
+		Loop, Parse, % "!+#^"
+			vars.hotkeys.tab := StrReplace(vars.hotkeys.tab, A_LoopField)
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
 	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
@@ -44,6 +51,11 @@
 		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 
+	For index, val in ["", 2]
+		If (StrLen(vars.omnikey["hotkey" val]) > 1)
+			Loop, Parse, % "+!^#"
+				vars.omnikey["hotkey" val] := StrReplace(vars.omnikey["hotkey" val], A_LoopField)
+
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
 	Hotkey, % settings.hotkeys.tab, CheatsheetTAB, On
 
@@ -53,11 +65,6 @@
 	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
 	Loop, Parse, % "abcdefghijklmnopqrstuvwxyz"
 		Hotkey, % "*" A_LoopField, HorizonsTooltip, On
-
-	For index, val in ["tab", "omnikey", "omnikey2"]
-		If (StrLen(settings.hotkeys[val]) > 1)
-			Loop, Parse, % "*~!+#^"
-				settings.hotkeys[val] := StrReplace(settings.hotkeys[val], A_LoopField)
 }
 
 HotkeysESC()
@@ -184,11 +191,11 @@ HotkeysTab()
 			SendInput, {DEL}{ENTER}
 		}
 		stash_toggle := !stash_toggle
-		KeyWait, % settings.hotkeys.tab
+		KeyWait, % vars.hotkeys.tab
 		Return
 	}
 
-	While settings.general.hide_toolbar && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.general.hide_toolbar && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " LLK-panel"
@@ -196,14 +203,14 @@ HotkeysTab()
 			Break
 		}
 
-	While settings.qol.alarm && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.qol.alarm && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " alarm", vars.alarm.toggle := 1, Alarm()
 			Break
 		}
 
-	While settings.qol.notepad && vars.hwnd.notepad_widgets.Count() && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.qol.notepad && vars.hwnd.notepad_widgets.Count() && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " notepad", vars.notepad.toggle := 1
@@ -218,14 +225,14 @@ HotkeysTab()
 	If vars.hwnd.leveltracker.main
 		leveltracker_check := LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 
-	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(settings.hotkeys.tab, "P")
+	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " leveltracker", vars.leveltracker.overlays := 1, LeveltrackerZoneLayouts(), LeveltrackerHints()
 			Break
 		}
 	map := vars.mapinfo.active_map
-	While settings.features.mapinfo && settings.mapinfo.tabtoggle && map.name && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.features.mapinfo && settings.mapinfo.tabtoggle && map.name && GetKeyState(vars.hotkeys.tab, "P")
 	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(map.english, "invitation") && LLK_PatternMatch(vars.log.areaID, "", ["MavenHub", "PrimordialBoss"]))
 		If (A_TickCount >= start + 200)
 		{
@@ -233,7 +240,7 @@ HotkeysTab()
 			Break
 		}
 
-	While settings.features.maptracker && !vars.maptracker.pause && MaptrackerCheck(2) && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.features.maptracker && !vars.maptracker.pause && MaptrackerCheck(2) && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			vars.maptracker.toggle := 1, active .= " maptracker", MaptrackerGUI()
@@ -242,7 +249,7 @@ HotkeysTab()
 			Break
 		}
 
-	While settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials") && GetKeyState(settings.hotkeys.tab, "P")
+	While settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials") && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " lab", vars.lab.toggle := 1, Lab()
@@ -251,11 +258,11 @@ HotkeysTab()
 
 	If !settings.hotkeys.tabblock && !active
 	{
-		SendInput, % "{" settings.hotkeys.tab " DOWN}"
-		KeyWait, % settings.hotkeys.tab
-		SendInput, % "{" settings.hotkeys.tab " UP}"
+		SendInput, % "{" vars.hotkeys.tab " DOWN}"
+		KeyWait, % vars.hotkeys.tab
+		SendInput, % "{" vars.hotkeys.tab " UP}"
 	}
-	Else KeyWait, % settings.hotkeys.tab
+	Else KeyWait, % vars.hotkeys.tab
 
 	If InStr(active, "LLK-panel") && settings.general.hide_toolbar
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")

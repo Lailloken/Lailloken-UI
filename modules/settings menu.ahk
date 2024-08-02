@@ -1980,7 +1980,7 @@ Settings_mapinfo2(cHWND)
 			}
 			Else LLK_ToolTip("no action")
 			If WinExist("ahk_id "vars.hwnd.mapinfo.main)
-				MapinfoParse(0), MapinfoGUI(GetKeyState(settings.hotkeys.tab, "P") ? 2 : 0)
+				MapinfoParse(0), MapinfoGUI(GetKeyState(vars.hotkeys.tab, "P") ? 2 : 0)
 	}
 }
 
@@ -2241,8 +2241,11 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
 
-	If !Blank(LLK_HasVal(vars.hwnd.settings, section)) ;instead of using the first parameter for section/cHWND depending on context, get the section name from the control's text
+	If !Blank(LLK_HasVal(vars.hwnd.settings, section))
 		section := LLK_HasVal(vars.hwnd.settings, section) ? LLK_HasVal(vars.hwnd.settings, section) : section
+
+	If (mode != 1) && (vars.settings.active = "hotkeys") && (section != "hotkeys")
+		Init_hotkeys()
 
 	vars.settings.xMargin := settings.general.fWidth*0.75, vars.settings.yMargin := settings.general.fHeight*0.15, vars.settings.line1 := settings.general.fHeight/4
 	vars.settings.spacing := settings.general.fHeight*0.8, vars.settings.wait := 1
@@ -2412,6 +2415,8 @@ Settings_menuClose()
 	global vars, settings
 
 	KeyWait, LButton
+	If (vars.settings.active = "hotkeys")
+		Init_hotkeys()
 	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
 	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings"), vars.settings.mapinfo_search := ""
 	WinActivate, ahk_group poe_window
@@ -2820,8 +2825,6 @@ Settings_screenchecks()
 
 	For key in vars.pixelsearch.list
 	{
-		If (key = "inventory") && !(settings.iteminfo.compare || settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder || settings.features.mapinfo && settings.mapinfo.trigger || settings.iteminfo.trigger)
-			continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks pixel-info"handle] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd"(Blank(vars.pixelsearch[key].color1) ? " cRed" : ""), % " " LangTrans("global_calibrate") " "
@@ -2972,11 +2975,7 @@ Settings_ScreenChecksValid()
 
 	valid := 1
 	For key, val in vars.pixelsearch.list
-	{
-		If (key = "inventory" && !(settings.iteminfo.compare || settings.iteminfo.trigger || settings.mapinfo.trigger))
-			continue
 		valid *= vars.pixelsearch[key].color1 ? 1 : 0
-	}
 
 	For key, val in vars.imagesearch.list
 	{
