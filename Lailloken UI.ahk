@@ -4,7 +4,7 @@
 #InstallKeybdHook
 #InstallMouseHook
 #Hotstring NoMouse
-#Hotstring EndChars `n
+#UseHook
 #MaxThreads 255
 #MaxMem 1024
 #Include %A_ScriptDir%
@@ -826,7 +826,7 @@ Loop_main()
 	{
 		If vars.general.wMouse && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
-		Else If !vars.toolbar.drag && !GetKeyState(settings.hotkeys.tab, "P") && WinExist("ahk_id " vars.hwnd.LLK_panel.main) && !(LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2))
+		Else If !vars.toolbar.drag && !GetKeyState(vars.hotkeys.tab, "P") && WinExist("ahk_id " vars.hwnd.LLK_panel.main) && !(LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2))
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	}
 

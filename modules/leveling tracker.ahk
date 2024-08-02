@@ -495,7 +495,7 @@ LeveltrackerHints()
 		yPos := (Blank(settings.leveltracker.yCoord) || settings.leveltracker.yCoord >= vars.monitor.h / 2) ? vars.leveltracker.coords.y1 - h + 1 : vars.leveltracker.coords.y2 - 1
 		Gui, leveltracker_hints: Show, % "NA x" vars.monitor.x + vars.leveltracker.coords.x1 " y" yPos
 	}
-	KeyWait, % settings.hotkeys.tab
+	KeyWait, % vars.hotkeys.tab
 	Gui, leveltracker_hints: Destroy
 }
 

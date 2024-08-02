@@ -37,7 +37,7 @@
 	settings.iteminfo.dColors_tier[0] := "3399ff"
 	settings.iteminfo.colors_tier := [], settings.iteminfo.colors_ilvl := []
 	settings.iteminfo.dColors_ilvl := ["ffffff", "00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "ff00ff"]
-	settings.iteminfo.ilevels := ["83", "78", "73", "68", "64", "60", "56", "52"]
+	settings.iteminfo.ilevels := ["80", "70", "60", "50", "40", "30", "20", "10"]
 
 	Loop 8 ;load custom colors
 	{
@@ -302,8 +302,11 @@ Iteminfo2_stats()
 					item.ilvl_max := subtype_val.HasKey("_ilvl_max") ? subtype_val["_ilvl_max"] : item.ilvl_max ;get sub-type-specific max ilvl, e.g. cluster jewels = 84
 					If (item.type = "defense") ;get defense-stats (min/max values, combined, block)
 					{
+						item.tags := subtype_val[item.itembase]._tags.Clone()
 						For defense_stat, defense_value in subtype_val[item.itembase]
 						{
+							If InStr(defense_stat, "tag")
+								Continue
 							If (defense_stat = "block")
 							{
 								block := 1
@@ -326,11 +329,14 @@ Iteminfo2_stats()
 							item.stats.block := {"base_best": base_best_block, "class_best": class_best_block, "relative": item_block_rel}
 						}
 					}
+					Else item.tags := subtype_val._tags.Clone()
 
 					If (item.type = "attack") ;get offense-stats (avg. flat phys, speed, crit)
 					{
 						For attack_stat, attack_value in subtype_val
 						{
+							If InStr(attack_stat, "_")
+								Continue
 							base_best_%attack_stat% := attack_value
 							class_best_%attack_stat% := class_val._best[attack_stat]
 							item_%attack_stat%_rel := Format("{:0.0f}", base_best_%attack_stat%/class_best_%attack_stat%*100)
@@ -1159,11 +1165,18 @@ Iteminfo4_GUI()
 			{
 				If (val.affix = name) && (val.type = affix_type)
 				{
-					For index, text in val.texts ;to avoid ambiguity, also check if the mod-texts match
-					{
+					For index, text in val.texts ; to avoid ambiguity, also check if the mod-texts match
 						If !InStr(mod, text)
 							Continue 2
-					}
+
+					tag_check := 0
+					For index, tag in item.tags ; to avoid ambiguity, also check if the tags match
+						If LLK_HasVal(val.tags, tag, 1)
+							tag_check += 1
+
+					If !tag_check
+						Continue
+
 					ilvl := val.level
 					Break
 				}
@@ -1182,7 +1195,7 @@ Iteminfo4_GUI()
 						If !InStr(mod, text)
 							Continue 2
 					}
-					tags := db.item_bases.jewels[item.itembase].tags ;tags also need to be checked because those influence the weights in some cases
+					tags := db.item_bases.jewels[item.itembase]._tags ;tags also need to be checked because those influence the weights in some cases
 					For index, tag in tags
 					{
 						If !Blank(LLK_HasVal(val.tags, tag))
@@ -2110,7 +2123,7 @@ IteminfoHighlightApply(cHWND) ;apply (un)desired highlighting to a mod by clicki
 	global vars, settings
 
 	hotkey := A_ThisHotkey, check := LLK_HasVal(vars.hwnd.iteminfo, cHWND), start := A_TickCount, mode := InStr(A_ThisHotkey, "LButton") ? 1 : 2
-	Loop, Parse, % "*^!+"
+	Loop, Parse, % "*^!+~"
 		hotkey := StrReplace(hotkey, A_LoopField)
 	While GetKeyState(hotkey, "P") && !InStr(check, "implicit_")
 		If (A_TickCount >= start + 250)
