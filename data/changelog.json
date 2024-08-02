@@ -1,5 +1,11 @@
 [
   [
+	["1.54.6", 15406],
+	"omni-key consistency improvements (inventory pixel-check is now mandatory)",
+	"fixes: cheat-sheets, item-info class-specific highlighting, map-info magic monsters",
+	"item-info: improved ilvl detection for mods, changed highlighting"
+  ],
+  [
 	["1.54.5", 15405],
 	"item-info: added support for new item bases, recalibrated base-info percentages",
 	"item-info: updated item-mod data to 3.25 (ilvl and gem weights)",
