@@ -495,7 +495,7 @@ Init_client()
 		}
 
 		If (vars.client.fullscreen = "true")
-			WinMove, ahk_group poe_window,, % vars.monitor.x, % vars.monitor.y, % vars.client.customres.1, % vars.client.customres.2
+			WinMove, ahk_group poe_window,, % vars.monitor.x, % vars.monitor.y, % (vars.client.customres.1 := vars.monitor.w), % vars.client.customres.2
 		Else
 		{
 			WinSet, Style, % (vars.client.borderless ? "-" : "+") "0x40000", ahk_group poe_window ;add resize-borders
