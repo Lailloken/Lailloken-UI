@@ -7,7 +7,7 @@
 		IniWrite, % "", ini\hotkeys.ini, settings
 
 	If !IsObject(vars.hotkeys)
-		vars.hotkeys := {}
+		vars.hotkeys := {"scan_codes": {"00A": 9, "00B": 0}}
 
 	settings.hotkeys := {}, ini := IniBatchRead("ini\hotkeys.ini")
 	settings.hotkeys.rebound_alt := !Blank(check := ini.settings["advanced item-info rebound"]) ? check : 0
@@ -165,6 +165,20 @@ HotkeysESC()
 	}
 }
 
+HotkeysRemoveModifiers(hotkey)
+{
+	local
+	global vars, settings
+
+	hotkey0 := hotkey
+	Loop, Parse, % "~*#+!^"
+		hotkey := StrReplace(hotkey, A_LoopField)
+
+	If Blank(hotkey)
+		hotkey := hotkey0
+	Return hotkey
+}
+
 HotkeysTab()
 {
 	local
@@ -312,11 +326,11 @@ WheelDown::Stash_PricePicker("-")
 MButton::Stash_PricePicker("reset")
 
 #If WinActive("ahk_id " vars.hwnd.poe_client) && WinExist("ahk_id " vars.hwnd.stash.main)
-*1::
-*2::
-*3::
-*4::
-*5::
+*SC002::
+*SC003::
+*SC004::
+*SC005::
+*SC006::
 ~+LButton::
 ~*RButton::Stash_Hotkeys()
 
@@ -335,11 +349,11 @@ MButton::Stash_PricePicker("reset")
 #If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ocr_tooltip.main) ;hovering over the ocr tooltip
 *LButton::OCR_Close()
 *Space::
-*1::
-*2::
-*3::
-*4::
-*5::OCR_Highlight(A_ThisHotkey)
+*SC002::
+*SC003::
+*SC004::
+*SC005::
+*SC006::OCR_Highlight(A_ThisHotkey)
 
 #If vars.snipping_tool.GUI && WinActive("ahk_id " vars.hwnd.snipping_tool.main)
 *W::
@@ -416,10 +430,10 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 #If (vars.system.timeout = 0) && ((vars.general.wMouse = vars.hwnd.mapinfo.main) && !Blank(LLK_HasVal(vars.hwnd.mapinfo, vars.general.cMouse)) || (vars.general.wMouse = vars.hwnd.settings.main) && InStr(LLK_HasVal(vars.hwnd.settings, vars.general.cMouse), "mapmod_")) ;ranking map-mods
 
-*1::
-*2::
-*3::
-*4::
+*SC002::
+*SC003::
+*SC004::
+*SC005::
 *Space::MapinfoRank(A_ThisHotkey)
 
 #If (vars.system.timeout = 0) && settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
@@ -515,17 +529,17 @@ Return
 
 #If vars.general.wMouse && vars.hwnd.cheatsheet.main && (vars.general.wMouse = vars.hwnd.cheatsheet.main) && (vars.cheatsheets.active.type = "advanced") ;ranking things in advanced cheatsheets
 
-1::
-2::
-3::
-4::
+*SC002::
+*SC003::
+*SC004::
+*SC005::
 Space::CheatsheetRank()
 
 #If vars.general.wMouse && vars.hwnd.betrayal_info.main && (vars.general.wMouse = vars.hwnd.betrayal_info.main) ;ranking betrayal rewards
 
-1::
-2::
-3::
+SC002::
+SC003::
+SC004::
 Space::BetrayalRank(A_ThisHotkey)
 
 #If (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;image-cheatsheet hotkeys
@@ -539,16 +553,16 @@ F2::
 F3::
 RButton::
 Space::
-1::
-2::
-3::
-4::
-5::
-6::
-7::
-8::
-9::
-0::
+SC002::
+SC003::
+SC004::
+SC005::
+SC006::
+SC007::
+SC008::
+SC009::
+SC00A::
+SC00B::
 a::
 b::
 c::
@@ -576,7 +590,6 @@ x::
 y::
 z::
 CheatsheetImage("", A_ThisHotkey)
-KeyWait, % A_ThisHotkey
 Return
 
 #IfWinActive ahk_group poe_window

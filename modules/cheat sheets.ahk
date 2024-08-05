@@ -406,6 +406,11 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 	global vars, settings
 
 	ignore := ["Up", "Down", "Left", "Right", "F1", "F2", "F3", "RButton", "Space", vars.hotkeys.tab]
+	hotkey0 := HotkeysRemoveModifiers(hotkey)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (pCheck := SubStr(hotkey0, 3))
+		hotkey := IsNumber(pCheck) ? pCheck - 1 : vars.hotkeys.scan_codes[pCheck]
+	Else hotkey := hotkey0
+
 	If !name
 		name := vars.cheatsheets.active.name
 	Loop, Files, % "cheat-sheets\"name "\[*"
@@ -418,12 +423,9 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		LLK_ToolTip(LangTrans("cheat_nofiles"), 2,,,, "red")
 		vars.cheatsheets[name].include := []
 		cheatsheets_loaded_images := ""
+		KeyWait, % hotkey0
 		Return
 	}
-
-	If (StrLen(hotkey) > 1)
-		Loop, Parse, % "*~!+#^"
-			hotkey := StrReplace(hotkey, A_LoopField)
 
 	If (hotkey = 0)
 		hotkey := 10
@@ -454,11 +456,13 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			If has_00
 			{
 				LLK_ToolTip(LangTrans("lvltracker_flip") "`n" LangTrans("lvltracker_flip", 2), 2, x, y,, "Yellow")
+				KeyWait, % hotkey0
 				Return
 			}
 			If !IsNumber(vars.cheatsheets[name].include.1)
 			{
 				LLK_ToolTip(LangTrans("lvltracker_flip") "`n" LangTrans("lvltracker_flip", 3), 2, x, y,, "Yellow")
+				KeyWait, % hotkey0
 				Return
 			}
 			start := A_TickCount, key := 1, index := 1
@@ -487,7 +491,10 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		Else If (hotkey = vars.hotkeys.tab)
 		{
 			If !has_00
+			{
+				KeyWait, % hotkey0
 				Return
+			}
 			vars.cheatsheets[name].include0 := []
 			For key, index in vars.cheatsheets[name].include
 				vars.cheatsheets[name].include0.Push(index)
@@ -530,7 +537,10 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 
 	If hotkey && (!Blank(LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
 	&& !FileExist("cheat-sheets\"name "\[0"hotkey "]*.*"))
+	{
+		KeyWait, % hotkey0
 		Return
+	}
 	Else If LLK_IsType(hotkey, "alnum") && has_00
 		vars.cheatsheets[name].include.Push((hotkey < 10) ? "0" hotkey : hotkey)
 	Else If LLK_IsType(hotkey, "alnum") && !has_00
@@ -569,7 +579,10 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 			}
 		}
 		If !file
+		{
+			KeyWait, % hotkey0
 			Return
+		}
 
 		If (index = "00")
 			style := (vars.cheatsheets.list[name].header = "top") ? "xs" : "ys"
@@ -578,6 +591,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		If (pBitmap <= 0)
 		{
 			MsgBox, % LangTrans("cheat_loaderror") " " file
+			KeyWait, % hotkey0
 			Return
 		}
 		Gdip_GetImageDimensions(pBitmap, width, height)
@@ -638,6 +652,7 @@ CheatsheetImage(name := "", hotkey := "") ;'hotkey' parameter used when overlay 
 		LLK_Overlay(vars.hwnd.cheatsheet.main, "show",, "cheatsheet")
 		vars.cheatsheets.active.type := "image"
 	}
+	KeyWait, % hotkey0
 }
 
 CheatsheetInfo(name)
@@ -739,7 +754,17 @@ CheatsheetMenu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' G
 		CheatsheetMenuPaste(control)
 	Else If InStr(check, "snip_") ;clicking a snip button to initiate screen-capping for an index-slot
 	{
-		pBitmap := SnippingTool((control = "00") || FileExist("cheat-sheets\"name "\[00]*") ? 1 : 0)
+		If (control = "00") || FileExist("cheat-sheets\"name "\[00]*")
+			pBitmap := SnippingTool(1)
+		Else
+		{
+			Clipboard := ""
+			SendInput, #+{s}
+			WinWait, ahk_group snipping_tools,, 2
+			WinWaitNotActive, ahk_group snipping_tools
+			ClipWait, 0.1
+			pBitmap := Gdip_CreateBitmapFromClipboard()
+		}
 		If (pBitmap <= 0)
 			Return
 		FileDelete, % "cheat-sheets\"name "\["control "]*"
@@ -1319,7 +1344,13 @@ CheatsheetRank()
 	local
 	global vars, settings
 
-	check := LLK_HasVal(vars.hwnd.cheatsheet, vars.general.cMouse), name := vars.cheatsheets.active.name, control := StrReplace(check, "panel"), rank := (A_ThisHotkey = "space") ? 0 : A_ThisHotkey, entry := vars.cheatsheets.entry
+	check := LLK_HasVal(vars.hwnd.cheatsheet, vars.general.cMouse), name := vars.cheatsheets.active.name, control := StrReplace(check, "panel"), entry := vars.cheatsheets.entry
+	hotkey0 := HotkeysRemoveModifiers(A_ThisHotkey)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (pCheck := SubStr(hotkey0, 3))
+		hotkey := IsNumber(pCheck) ? pCheck - 1 : vars.hotkeys.scan_codes[pCheck]
+	Else hotkey := hotkey0
+	rank := (hotkey = "space") ? 0 : hotkey
+
 	If InStr(check, "panel")
 	{
 		vars.cheatsheets.list[name].entries[entry].ranks[control] := rank
@@ -1327,6 +1358,7 @@ CheatsheetRank()
 		GuiControl, % "+c"settings.cheatsheets.colors[rank], % vars.general.cMouse
 		GuiControl, % "movedraw", % vars.general.cMouse
 	}
+	KeyWait, % hotkey0
 }
 
 CheatsheetSearch(name)
