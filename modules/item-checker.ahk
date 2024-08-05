@@ -2369,7 +2369,7 @@ IteminfoTrigger(mode := 0) ;handles shift-clicks on items and currency for the s
 		If (last + 500 > A_TickCount)
 			Return
 		last := A_TickCount
-		Sleep 200
+		Sleep 350
 		If settings.hotkeys.rebound_alt && settings.hotkeys.item_descriptions
 			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
 		Else SendInput, !^{c}

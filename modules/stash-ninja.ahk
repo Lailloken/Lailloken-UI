@@ -254,12 +254,12 @@ Stash_Hotkeys()
 	global vars, settings
 	static in_progress
 
-	hotkey := A_ThisHotkey, tab := vars.stash.active
 	If vars.stash.wait || in_progress
 		Return
-	in_progress := 1
-	Loop, Parse, % "~+!#*^"
-		hotkey := StrReplace(hotkey, A_LoopField)
+	in_progress := 1, tab := vars.stash.active, hotkey0 := HotkeysRemoveModifiers(A_ThisHotkey)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
+		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
+	Else hotkey := hotkey0
 
 	If IsNumber(hotkey) && !Blank(settings.stash[tab].limits[hotkey].3) && (hotkey != settings.stash[tab].profile)
 		settings.stash[tab].profile := hotkey, Stash_("refresh")
@@ -280,7 +280,7 @@ Stash_Hotkeys()
 			Sleep 1
 		LLK_Overlay(vars.hwnd.stash.main, "show")
 	}
-	KeyWait, % hotkey
+	KeyWait, % hotkey0
 	in_progress := 0
 }
 

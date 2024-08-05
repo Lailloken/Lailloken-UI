@@ -271,7 +271,12 @@ BetrayalRank(rank)
 	local
 	global vars, settings
 
-	rank := (rank = "Space") ? 0 : rank, color := settings.betrayal.colors[rank]
+	hotkey0 := HotkeysRemoveModifiers(rank)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (pCheck := SubStr(hotkey0, 3))
+		hotkey := IsNumber(pCheck) ? pCheck - 1 : vars.hotkeys.scan_codes[pCheck]
+	Else hotkey := hotkey0
+
+	rank := (hotkey = "Space") ? 0 : hotkey, color := settings.betrayal.colors[rank]
 	If vars.betrayal.divisions.HasKey(StrReplace(LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse), "_"))
 	{
 		division := StrReplace(LLK_HasVal(vars.hwnd.betrayal_info, vars.general.cMouse), "_")
@@ -286,7 +291,7 @@ BetrayalRank(rank)
 		If !WinActive("ahk_id " vars.hwnd.settings.main)
 			BetrayalPrioview()
 	}
-	KeyWait, % A_ThisHotkey
+	KeyWait, % hotkey0
 }
 
 BetrayalRefreshRanks()

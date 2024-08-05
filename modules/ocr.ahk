@@ -528,13 +528,13 @@ OCR_Highlight(hotkey)
 	local
 	global vars, settings
 
-	Loop, Parse, hotkey
-		hotkey := (A_Index = 1) ? "" : hotkey, hotkey .= LLK_IsType(A_LoopField, "alnum") ? A_LoopField : ""
-	If (hotkey = "Space")
-		hotkey := 0
 	If !vars.general.cMouse || Blank(LLK_HasVal(vars.hwnd.ocr_tooltip, vars.general.cMouse))
 		Return
 
+	hotkey0 := HotkeysRemoveModifiers(hotkey)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
+		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
+	Else hotkey := 0
 	cHWND := vars.general.cMouse, check := LLK_HasVal(vars.hwnd.ocr_tooltip, vars.general.cMouse), category := StrReplace(SubStr(check, 1, InStr(check, "_") - 1), ":")
 	mod := (vars.hwnd.ocr_tooltip.type = "altars") ? SubStr(check, InStr(check, "_") + 1) : check, text_cHWND := vars.hwnd.ocr_tooltip[check "_text"]
 	GuiControl, % "+c" settings.OCR.colors[hotkey].2, % cHWND
@@ -544,6 +544,7 @@ OCR_Highlight(hotkey)
 
 	If vars.hwnd.ocr_tooltip.type
 		IniWrite, % hotkey, % "ini\ocr - " vars.hwnd.ocr_tooltip.type ".ini", % "profile " settings.OCR.profile (vars.hwnd.ocr_tooltip.type = "altars" ? " " category : ""), % mod
+	KeyWait, % hotkey0
 }
 
 OCR_RegexCheck(array, insert_index, insert_val, newline := 0) ;takes an array with blanks derived from an ambiguous regex match, inserts a new value into a chosen blank, and returns the new regex string

@@ -564,15 +564,14 @@ MapinfoRank(hotkey)
 
 	search := (vars.general.wMouse = vars.hwnd.settings.main) ? 1 : 0
 	check := LLK_HasVal(!search ? vars.hwnd.mapinfo : vars.hwnd.settings, vars.general.cMouse), control := SubStr(check, InStr(check, "_") + 1)
-	Loop, Parse, hotkey
-		If IsNumber(A_LoopField)
-		{
-			hotkey := A_LoopField
-			Break
-		}
 
 	If !check
 		Return
+
+	hotkey0 := HotkeysRemoveModifiers(hotkey)
+	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
+		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
+	Else hotkey := hotkey0
 
 	If IsNumber(hotkey)
 		IniWrite, % (settings.mapinfo.IDs[control].rank := hotkey), ini\map info.ini, % control, rank
@@ -580,5 +579,5 @@ MapinfoRank(hotkey)
 	If !search
 		MapinfoParse(0), MapinfoGUI(0)
 	Else Settings_menu("map-info",, 0)
-	KeyWait, % hotkey
+	KeyWait, % hotkey0
 }
