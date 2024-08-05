@@ -1,5 +1,10 @@
 [
   [
+	["1.54.7", 15407],
+	"added support for non-standard keyboard/number layouts (e.g. azerty)",
+	"minor fixes and improvements"
+  ],
+  [
 	["1.54.6", 15406],
 	"omni-key consistency improvements (inventory pixel-check is now mandatory)",
 	"fixes: cheat-sheets, item-info class-specific highlighting, map-info magic monsters",
