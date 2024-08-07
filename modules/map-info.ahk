@@ -227,7 +227,7 @@ MapinfoGUI(mode := 1)
 		}
 	}
 
-	rolls := ["mods", "quantity", "pack size", "rarity", "maps", "scarabs", "currency"]
+	rolls := ["mods", "quantity", "rarity", "pack size", "maps", "scarabs", "currency"]
 	If (map.mods + map.quantity > 0)
 	{
 		;Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans x1 y" yControl + hControl " Section HWNDhwnd Center w" width + settings.mapinfo.fHeight*2 - 3, % summary
@@ -386,6 +386,9 @@ MapinfoParse(mode := 1)
 		error := [LangTrans("m_general_language", 3) ":`n" LLK_StringCase(LangTrans("items_normal") " && " LangTrans("items_unique")), 1.5, "Red"]
 	Else If item.unid
 		error := [LangTrans("m_general_language", 3) ":`n" LLK_StringCase(LangTrans("items_unidentified")), 1.5, "Red"]
+	Else If InStr(clip, LangTrans("items_mapreward"))
+		error := [LangTrans("m_general_language", 3) ":`nvaldo maps", 1.5, "Red"]
+
 	If error
 	{
 		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map.cancel := 1

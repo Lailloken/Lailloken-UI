@@ -220,6 +220,7 @@
 		items_ele_dmg			=	"Elemental Damage:"
 		items_chaos_dmg			=	"Chaos Damage:"
 		items_maptier			=	"Map Tier:"
+		items_mapreward			=	"Reward:"						;## T17 valdo maps have specific rewards
 		items_mapquantity		=	"Item Quantity:"
 		items_maprarity			=	"Item Rarity:"
 		items_mappacksize		=	"Monster Pack Size:"
