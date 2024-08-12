@@ -20,7 +20,7 @@
 	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable item-levels"]) ? check : 0
 	settings.iteminfo.itembase := !Blank(check := ini.settings["enable base-info"]) ? check : 1
 	settings.iteminfo.override := !Blank(check := ini.settings["enable blacklist-override"]) ? check : 0
-	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
+	settings.iteminfo.compare := (settings.general.lang_client != "english") || !settings.features.pixelchecks ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
 
 	settings.iteminfo.rules := {}
 	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["weapon res override"]) ? check : 0
@@ -418,7 +418,9 @@ Iteminfo2_stats()
 				item_combined_rel := item.stats.combined.relative := Format("{:0.0f}", item_combined/class_best_combined*100) ;how close is the combined keyue to the combined best-in-class?
 			}
 		}
-		item.base_percent := Format("{:0.0f}", (stat_value - base_min_%natural_defense_stat%)/(base_best_%natural_defense_stat% - base_min_%natural_defense_stat%)*100) ;base-percentile as calculated on trade
+		If (base_min_%natural_defense_stat% = base_best_%natural_defense_stat%)
+			item.base_percent := 100
+		Else item.base_percent := Format("{:0.0f}", (stat_value - base_min_%natural_defense_stat%)/(base_best_%natural_defense_stat% - base_min_%natural_defense_stat%)*100) ;base-percentile as calculated on trade
 	}
 
 	If (item.quality >= 25)
@@ -721,7 +723,7 @@ Iteminfo4_GUI()
 				Continue
 			}
 			dps_added += 1, style := (dps_added = 1) ? "xs Section" : "ys"
-			text := (item.dps.chaos = A_LoopField) ? Format("{:0.1f}", item.dps.chaos) : (item.dps.ele = A_LoopField) ? Format("{:0.1f}", item.dps.ele) : Format("{:0.1f}", item.dps.phys) ;text for the cell
+			text := (item.dps.chaos = A_LoopField) ? Format("{:0.1f}", item.dps.chaos) : (item.dps.ele = A_LoopField) ? Format((item.dps.ele < 1000) ? "{:0.1f}" : "{:0.0f}", item.dps.ele) : Format("{:0.1f}", item.dps.phys) ;text for the cell
 			label := (item.dps.chaos = A_LoopField) ? "chaos" : (item.dps.ele = A_LoopField) ? "allres" : "phys" ;icon for the cell
 			If !filler
 			{
@@ -2345,7 +2347,7 @@ IteminfoOverlays() ;show update buttons for specific gear-slots underneath the c
 	local
 	global vars, settings
 
-	If settings.iteminfo.compare
+	If settings.iteminfo.compare && settings.features.pixelchecks
 		For slot, val in vars.iteminfo.compare.slots
 		{
 			If vars.pixelsearch.inventory.check && LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")

@@ -81,6 +81,13 @@ HotkeysESC()
 		Gui, alarm_set: Destroy
 		vars.hwnd.alarm.alarm_set := ""
 	}
+	Else If WinExist("ahk_id " vars.hwnd.sanctum_debug)
+		Gui, sanctum_debug: Destroy
+	Else If WinExist("ahk_id " vars.hwnd.sanctum.main)
+	{
+		If !vars.sanctum.scanning
+			Sanctum_("close")
+	}
 	Else If WinExist("ahk_id " vars.hwnd.stash_index.main)
 		Stash_PriceIndex("destroy")
 	Else If WinExist("ahk_id " vars.hwnd.stash.main)
@@ -209,6 +216,15 @@ HotkeysTab()
 		Return
 	}
 
+	While settings.features.sanctum && InStr(vars.log.areaID, "sanctum") && !InStr(vars.log.areaID, "fellshrine") && GetKeyState(vars.hotkeys.tab, "P")
+		If (A_TickCount >= start + 200)
+		{
+			active .= " sanctum", vars.sanctum.lock := 0
+			If !WinExist("ahk_id " vars.hwnd.sanctum.main)
+				Sanctum_()
+			Break
+		}
+
 	While settings.general.hide_toolbar && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
@@ -278,6 +294,8 @@ HotkeysTab()
 	}
 	Else KeyWait, % vars.hotkeys.tab
 
+	If InStr(active, "sanctum") && !vars.sanctum.lock && !vars.sanctum.scanning
+		Sanctum_("close")
 	If InStr(active, "LLK-panel") && settings.general.hide_toolbar
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")
@@ -319,6 +337,13 @@ HotkeysTab()
 
 #If WinActive("ahk_group poe_ahk_window") && InStr(vars.stash.hover, "tab_")
 *~LButton::Stash_(StrReplace(vars.stash.hover, "tab_"))
+
+#If vars.sanctum.active && !vars.sanctum.lock && WinExist("ahk_id " vars.hwnd.sanctum.main)
+*Space::Sanctum_("lock")
+
+#If vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.main) && (vars.general.wMouse = vars.hwnd.sanctum.main) && vars.general.cMouse && (check := LLK_HasVal(vars.hwnd.sanctum, vars.general.cMouse))
+*LButton::Sanctum_Mark(SubStr(check, InStr(check, "_") + 1), 1)
+*RButton::Sanctum_Mark(SubStr(check, InStr(check, "_") + 1), 2)
 
 #If vars.hwnd.stash_picker.main && vars.general.cMouse && WinExist("ahk_id " vars.hwnd.stash_picker.main) && LLK_PatternMatch(LLK_HasVal(vars.hwnd.stash_picker, vars.general.cMouse), "", ["confirm_", "bulk"])
 WheelUp::Stash_PricePicker("+")
@@ -472,7 +497,7 @@ Return
 ~+LButton UP::IteminfoTrigger(1)
 +RButton::IteminfoMarker()
 
-#If vars.pixelsearch.inventory.check && (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
+#If (vars.pixelsearch.inventory.check || !settings.features.pixelchecks) && (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
 
 ~+RButton UP::IteminfoTrigger()
 
