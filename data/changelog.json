@@ -1,6 +1,7 @@
 [
   [
 	["1.54.7", 15407],
+	"hotfix 2: omni-key compatibility fix, item-info base-percentile fix for new hybrid gloves",
 	"hotfix 1: highlighting thresholds for rarity and pack-size were swapped around (map-info)",
 	"added support for non-standard keyboard/number layouts (e.g. azerty)",
 	"minor fixes and improvements"

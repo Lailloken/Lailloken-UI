@@ -21,8 +21,14 @@
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
 	}
 
+	If !settings.features.pixelchecks
+		Screenchecks_PixelSearch("inventory")
+
 	If vars.pixelsearch.inventory.check
 	{
+		If !settings.features.pixelchecks
+			vars.pixelsearch.inventory.check := 0
+
 		If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		{
 			MaptrackerNoteAdd(), OmniRelease()
