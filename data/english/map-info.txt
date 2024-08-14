@@ -540,6 +540,11 @@ type	=	monsters
 text	=	rares fracture: %
 ID	=	089
 
+[Players have # reduced Maximum total Life, Mana and Energy Shield Recovery per second from Leech]
+type	=	player
+text	=	reduced leech: %
+ID	=	090
+
 [players are cursed with vulnerability|players are cursed with temporal chains|players are cursed with elemental weakness]
 type	=	player
 text	=	vuln | chains | ele weak
