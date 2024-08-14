@@ -56,12 +56,13 @@ Init_leveltracker()
 Init_maptracker()
 Init_qol()
 Init_recombination()
+Init_sanctum()
 Init_stash()
 Init_hotkeys()
 Resolution_check()
 
 SetTimer, Loop, 1000
-SetTimer, Loop_main, 100
+SetTimer, Loop_main, 50
 
 vars.system.timeout := 0
 If !settings.general.dev
@@ -104,6 +105,7 @@ Return
 #Include modules\omni-key.ahk
 #Include modules\qol tools.ahk
 #Include modules\recombination.ahk
+#Include modules\sanctum.ahk
 #Include modules\screen-checks.ahk
 #Include modules\search-strings.ahk
 #Include modules\seed-explorer.ahk
@@ -572,7 +574,7 @@ Init_general()
 	local
 	global vars, settings
 
-	ini := IniBatchRead("ini\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15304
+	ini := IniBatchRead("ini\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15407
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
@@ -612,6 +614,7 @@ Init_general()
 	LLK_FontDimensions(settings.general.fSize, font_height, font_width), settings.general.fHeight := font_height, settings.general.fWidth := font_width
 	LLK_FontDimensions(settings.general.fSize - 4, font_height, font_width), settings.general.fHeight2 := font_height, settings.general.fWidth2 := font_width
 	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
+	settings.features.sanctum := !Blank(check := ini.features["enable sanctum planner"]) ? check : 0
 
 	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
 
@@ -699,9 +702,15 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}
+	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}, tick := 0, tick_sanctum := 0
 
 	Critical
+	tick += 1
+
+	MouseHover()
+	If Mod(tick, 2)
+		Return
+
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
 	{
 		vars.cloneframes.editing := ""
@@ -784,7 +793,6 @@ Loop_main()
 			vars.hwnd.Delete("omni_context"), LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy"), CloneframesHide()
 		}
 	}
-	MouseHover()
 	IteminfoOverlays()
 
 	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
@@ -879,6 +887,7 @@ Loop_main()
 		If (vars.cloneframes.enabled
 		&& ((settings.cloneframes.pixelchecks && vars.pixelsearch.gamescreen.check) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
 		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
+		&& !vars.sanctum.active
 		|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
 			CloneframesShow()
 		Else CloneframesHide()
@@ -1058,7 +1067,8 @@ SnippingTool(mode := 0)
 		SnipGuiClose()
 
 	vars.general.gui_hide := 1, LLK_Overlay("hide")
-	Gui, %A_Gui%: Hide
+	If A_Gui
+		Gui, %A_Gui%: Hide
 
 	If mode
 	{
@@ -1071,7 +1081,8 @@ SnippingTool(mode := 0)
 	Else pBitmap := Screenchecks_ImageRecalibrate()
 
 	vars.general.gui_hide := 0, LLK_Overlay("show")
-	Gui, %A_Gui%: Show, NA
+	If A_Gui
+		Gui, %A_Gui%: Show, NA
 	If (pBitmap <= 0)
 	{
 		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red")
