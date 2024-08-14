@@ -68,6 +68,7 @@
 		ms_mapping tracker		=	"map-tracker"
 		ms_map-info			=	"map-info"
 		ms_minor qol tools		=	"minor qol tools"
+		ms_sanctum			=	"sanctum planner"
 		ms_screen-checks		=	"screen-checks"
 		ms_search-strings		=	"search-strings"
 		ms_stash-ninja			=	"stash-ninja"
@@ -90,6 +91,7 @@
 		global_delete			=	"delete"
 		global_delete			=	"del"
 		global_scan			=	"scanning..."
+		global_scan			=	"scan"
 		global_match			=	"no match"
 		global_match			=	"not specific enough"
 		global_window			=	"settings menu"
@@ -455,6 +457,56 @@
 
 
 ;#####################################################
+;## sanctum planner
+;#####################################################
+
+;## these strings are displayed/required when using the sanctum planner
+		sanctum_calibrate		=	"calibrate;paths"
+		sanctum_calibrate		=	"calibrate;rooms"
+
+		sanctum_floors			=	"sanctum archives"
+		sanctum_floors			=	"sanctum vaults"
+		sanctum_floors			=	"sanctum cathedral"
+		sanctum_floors			=	"sanctum necropolis"
+
+		sanctum_rooms_1			=	"mini-boss"
+		sanctum_rooms_2			=	"find exit"
+		sanctum_rooms_3			=	"clear room"
+		sanctum_rooms_4			=	"exit traps"
+		sanctum_rooms_5			=	"battle arena"
+
+		sanctum_rooms_1_1		=	"scriptorium"
+		sanctum_rooms_1_2		=	"reliquary"
+		sanctum_rooms_1_3		=	"sanctum bellum"
+		sanctum_rooms_1_4		=	"mausoleum"
+
+		sanctum_rooms_2_1		=	"abandoned library"
+		sanctum_rooms_2_2		=	"decrepit cellar"
+		sanctum_rooms_2_3		=	"halls of worship"
+		sanctum_rooms_2_4		=	"undercroft"
+
+		sanctum_rooms_3_1		=	"chambers of inscription"
+		sanctum_rooms_3_2		=	"derelict caverns"
+		sanctum_rooms_3_3		=	"unholy lair"
+		sanctum_rooms_3_4		=	"lost catacombs"
+
+		sanctum_rooms_4_1		=	"holy trials"
+		sanctum_rooms_4_2		=	"gauntlet"
+		sanctum_rooms_4_3		=	"crucible"
+		sanctum_rooms_4_4		=	"entombment"
+
+		sanctum_rooms_5_1		=	"templar annals"
+		sanctum_rooms_5_2		=	"battlegrounds"
+		sanctum_rooms_5_3		=	"infernum"
+		sanctum_rooms_5_4		=	"desecrated crypt"
+
+		sanctum_info			=	"ben. fountain (150c):;+1 boon;"	;## semicolon at the end to make it three lines
+		sanctum_info			=	"rad. fountain (5c):;+1 boon, -1 affl, +200 insp;rerolls afflicted rooms"
+
+
+
+
+;#####################################################
 ;## screen-checks
 ;#####################################################
 
@@ -775,6 +827,16 @@
 		m_qol_widget			=	"widget opacity:"
 		m_qol_widgetcolor		=	"default widget colors:"
 		m_qol_lab			=	"lab overlay:"
+
+
+
+;#####################################################
+;## settings menu: sanctum planner
+;#####################################################
+
+;## these strings are displayed/required in the "sanctum planner" section of the settings menu
+		m_sanctum_enable		=	"enable the sanctum planner overlay (beta)"
+		m_sanctum_cheatsheets		=	"show cheat-sheet"
 
 
 

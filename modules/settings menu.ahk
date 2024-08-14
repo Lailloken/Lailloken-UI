@@ -337,7 +337,7 @@ Settings_cloneframes()
 	global vars, settings
 
 	Init_cloneframes()
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
 
 	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") && settings.features.pixelchecks || vars.log.file_location
@@ -543,7 +543,7 @@ Settings_donations()
 
 	LLK_PanelDimensions(dimensions, settings.general.fSize - 2, width, height), LLK_PanelDimensions([placeholder], settings.general.fSize, wPlaceholder, hPlaceholder,,, 0)
 	columns := wPlaceholder//width
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Text, % "Section x" x_anchor " y" vars.settings.yselection, special thanks to these people for donating:
 	Gui, %GUI%: Font, % "s" settings.general.fSize - 2
 	For key, val in vars.settings.donations
@@ -978,7 +978,7 @@ Settings_hotkeys()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
 	Gui, %GUI%: Add, Link, % "ys x+"settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
 
@@ -1442,7 +1442,7 @@ Settings_leveltracker()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Act‐Tracker">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_leveltracker2 HWNDhwnd Checked"settings.features.leveltracker, % LangTrans("m_lvltracker_enable")
@@ -1767,7 +1767,7 @@ Settings_mapinfo()
 	local
 	global vars, settings, db
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map-info-panel">wiki page</a>
 
 	If (settings.general.lang_client = "unknown")
@@ -1992,7 +1992,7 @@ Settings_maptracker()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Map‐Tracker">wiki page</a>
 
 	If (settings.general.lang_client = "unknown")
@@ -2239,7 +2239,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 
 	If !IsObject(vars.settings)
 	{
-		vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "item-info", "map-info", "mapping tracker", "minor qol tools", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []} ;list of sections in the settings menu
+		vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "item-info", "map-info", "mapping tracker", "minor qol tools", "sanctum", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []} ;list of sections in the settings menu
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(LangTrans("ms_" val))
 	}
@@ -2283,7 +2283,8 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
 	ControlGetPos, x, y,,,, ahk_id %hwnd%
 	vars.hwnd.settings.general := hwnd, vars.settings.xSelection := x, vars.settings.ySelection := y + vars.settings.line1, vars.settings.wSelection := section_width, vars.hwnd.settings["background_general"] := hwnd1
-	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo", "tldr-tooltips": "OCR", "stash-ninja": "stash"}
+	vars.settings.x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo", "tldr-tooltips": "OCR", "sanctum": "sanctum", "stash-ninja": "stash"}
 	feature_check2 := {"item-info": 1, "mapping tracker": 1, "map-info": 1}
 
 	If !vars.general.buggy_resolutions.HasKey(vars.client.h) && !vars.general.safe_mode
@@ -2400,6 +2401,8 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 			Settings_mapinfo()
 		Case "minor qol tools":
 			Settings_qol()
+		Case "sanctum":
+			Settings_sanctum()
 		Case "screen-checks":
 			Settings_screenchecks()
 		Case "search-strings":
@@ -2430,7 +2433,7 @@ Settings_OCR()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/TLDR‐Tooltips">wiki page</a>
 	Gui, %GUI%: Add, Link, % "ys x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/KeyList.htm">ahk: list of keys</a>
 	Gui, %GUI%: Add, Link, % "ys HWNDhwnd x+" settings.general.fWidth, <a href="https://www.autohotkey.com/docs/v1/Hotkeys.htm">ahk: formatting</a>
@@ -2813,6 +2816,79 @@ Settings_qol2(cHWND)
 	Else LLK_ToolTip("no action")
 }
 
+Settings_sanctum()
+{
+	local
+	global vars, settings
+
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
+	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Sanctum-Planner">wiki page</a>
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_sanctum2 y+" vars.settings.spacing " Checked" settings.features.sanctum, % LangTrans("m_sanctum_enable")
+	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_sanctum enable"] := hwnd
+
+	If !settings.features.sanctum
+		Return
+
+	Gui, %GUI%: Font, underline bold
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_general")
+	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_sanctum2 Checked" settings.sanctum.cheatsheet, % LangTrans("m_sanctum_cheatsheets")
+	vars.hwnd.settings.cheatsheet := vars.hwnd.help_tooltips["settings_sanctum cheatsheet"] := hwnd
+
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "xs Section y+" vars.settings.spacing, % LangTrans("global_ui")
+	Gui, %GUI%: Font, norm
+
+	Gui, %GUI%: Add, Text, % "xs Section", % LangTrans("global_font")
+	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border gSettings_sanctum2 HWNDhwnd w"settings.general.fWidth*2, % "–"
+	vars.hwnd.help_tooltips["settings_font-size"] := hwnd0, vars.hwnd.settings.font_minus := vars.hwnd.help_tooltips["settings_font-size|"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_sanctum2 HWNDhwnd w"settings.general.fWidth*3, % settings.sanctum.fSize
+	vars.hwnd.settings.font_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_sanctum2 HWNDhwnd w"settings.general.fWidth*2, % "+"
+	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
+}
+
+Settings_sanctum2(cHWND := "")
+{
+	local
+	global vars, settings
+
+	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
+	If (check = "enable")
+	{
+		IniWrite, % (settings.features.sanctum := LLK_ControlGet(cHWND)), ini\config.ini, features, enable sanctum planner
+		Settings_menu("sanctum")
+	}
+	Else If (check = "cheatsheet")
+	{
+		IniWrite, % (settings.sanctum.cheatsheet := LLK_ControlGet(cHWND)), ini\sanctum.ini, settings, enable cheat-sheet
+		vars.hwnd.sanctum.uptodate := 0
+		If WinExist("ahk_id " vars.hwnd.sanctum.second)
+			Sanctum_()
+	}
+	Else If InStr(check, "font_")
+	{
+		While GetKeyState("LButton", "P")
+		{
+			If (control = "reset")
+				settings.sanctum.fSize := settings.general.fSize
+			Else settings.sanctum.fSize += (control = "plus") ? 1 : (settings.sanctum.fSize > 6 ? -1 : 0)
+			GuiControl, Text, % vars.hwnd.settings.font_reset, % settings.sanctum.fSize
+			Sleep 200
+		}
+		IniWrite, % settings.sanctum.fSize, ini\sanctum.ini, settings, font-size
+		vars.hwnd.sanctum.uptodate := 0
+		If WinExist("ahk_id " vars.hwnd.sanctum.second)
+			Sanctum_()
+	}
+	Else LLK_ToolTip("no action")
+
+	If !settings.features.sanctum && WinExist("ahk_id " vars.hwnd.sanctum.second)
+		LLK_Overlay(vars.hwnd.sanctum.main, "destroy"), LLK_Overlay(vars.hwnd.sanctum.second, "destroy"), vars.sanctum.lock := vars.sanctum.active := vars.hwnd.sanctum := vars.sanctum.scanning := ""
+}
+
 Settings_screenchecks()
 {
 	local
@@ -3122,7 +3198,7 @@ Settings_stash()
 	local
 	global vars, settings
 
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Stash‐Ninja">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 y+" vars.settings.spacing " Checked" settings.features.stash, % LangTrans("m_stash_enable")
@@ -3514,7 +3590,7 @@ Settings_updater()
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
-			If (val.1.2 < 15200) || added[major]
+			If (val.1.2 < 15300) || added[major]
 				Continue
 			added[major] := 1, version_match := InStr(selected, major) ? 1 : 0
 			Gui, %GUI%: Add, Text, % "Section xs", % major

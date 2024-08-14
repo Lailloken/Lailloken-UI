@@ -506,6 +506,14 @@
       "do not choose keys used for chatting in order to prevent accidentally activating the feature",
       "check the links above if you want to use special keys/combinations"
     ],
+    "sanctum enable": [
+      "provides tools to analyze sanctum floors and highlight specific rooms and paths to plan ahead",
+      "hold tab during a sanctum run to show the overlay, it will hide upon release",
+      "press space while holding tab to lock the overlay so it doesn't automatically hide"
+    ],
+    "sanctum cheatsheet": [
+      "shows an additional panel that lists the different room types and their objectives, as well as special fountain characteristics"
+    ],
     "screenchecks pixel-about": [
       "the script continually checks the screen for certain ui elements",
       "this enables context sensitivity and automatic overlay toggling",

@@ -92,8 +92,8 @@ LogLoop(mode := 0)
 		}
 		If !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
 			LeveltrackerProgress()
-		If settings.qol.alarm && vars.alarm.timestamp && (areaID = "1_1_1") ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
-			vars.alarm.timestamp := A_Now
+		If settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
+			vars.alarm.timers.Delete(check), vars.alarm.timers[A_Now "|"] := "oni"
 
 		If settings.qol.lab && InStr(areaID, "labyrinth_airlock") ;entering Aspirants' Plaza: reset previous lab-progress (if there is any)
 			Lab("init")
