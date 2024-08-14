@@ -3590,7 +3590,7 @@ Settings_updater()
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
-			If (val.1.2 < 15200) || added[major]
+			If (val.1.2 < 15300) || added[major]
 				Continue
 			added[major] := 1, version_match := InStr(selected, major) ? 1 : 0
 			Gui, %GUI%: Add, Text, % "Section xs", % major
