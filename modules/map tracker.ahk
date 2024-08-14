@@ -1667,11 +1667,14 @@ MaptrackerReminder()
 	global vars, settings
 
 	ignore := ["vaal area", "abyssal depths", "lab trial", "maven", "harvest", "delirium", "baran", "veritania", "al-hezmin", "drox", "purifier", "enslaver", "eradicator", "constrictor"]
+
 	For index, mechanic in vars.maptracker.map.content
 	{
 		For index0, mechanic0 in ignore
 			If InStr(mechanic, mechanic0)
 				Continue 2
+		If (vars.mapinfo.active_map.tag = mechanic) ; don't show reminder in maps that are exclusive to mechanics, e.g. blight(-ravaged) maps
+			Continue
 		mechanics += 1
 	}
 
