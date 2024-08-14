@@ -702,7 +702,7 @@ Loop_main()
 {
 	local
 	global vars, settings
-	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}, tick := 0, tick_sanctum := 0
+	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}, tick := 0
 
 	Critical
 	tick += 1
