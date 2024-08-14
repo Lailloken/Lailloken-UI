@@ -1,5 +1,11 @@
 [
   [
+	["1.55.0", 15500],
+	"new beta feature: sanctum planner",
+	"map-info: added support for new T17 leech mod",
+	"item-info: updated unique drop-tiers"
+  ],
+  [
 	["1.54.7", 15407],
 	"hotfix 2: omni-key compatibility fix, item-info base-percentile fix for new hybrid gloves",
 	"hotfix 1: highlighting thresholds for rarity and pack-size were swapped around (map-info)",
@@ -102,161 +108,5 @@
 	"map-info: added support for t17 drop-multipliers",
 	"map-info: mod highlighting now customizable in settings menu",
 	"map-info: re-worded/consolidated certain map mods"
-  ],
-  [
-	["1.52.7", 15207],
-	"hotfix 1: fixed missing t17 mods, added support for t17 changes in 3.24.1",
-	"item-info: exclude non-numeric mod-rolls (e.g. forbidden shako, dragonfang's flight)",
-	"leveling tracker: fix certain progress resets affecting the wrong guide slot",
-	"necropolis lantern: fix certain mods, improve dragging",
-	"tldr-tooltips: support for vaal side areas, fix exarch armor mod"
-  ],
-  [
-	["1.52.6", 15206],
-	"hotfix 1: updated lantern mod-list was missing",
-	"hotfix 2: lantern highlighting improved, no need for 2nd screen-check",
-	"hotfix 2: item-info fix for <global unique> being displayed as <0000 unique>",
-	"hotfix 2: guide overlay will no longer un-hide when moving through lab",
-	"fixes: specifying <active character> would sometimes not work immediately, minimum area-level for 100% exp could be negative",
-	"leveling tracker: added guide management to add multiple guides and switch between them",
-	"necropolis: screen-check has to be updated, fixed some mods, added support for recently-added mods",
-	"notepad: added support for color-coding individual strings in widgets",
-	"screen-checks: replaced windows snipping tool with custom tool"
-  ],
-  [
-	["1.52.5", 15205],
-	"hotfix 1: fixed bug with hint-images on multi-monitors (leveling tracker)",
-	"hotfix 1: added support for 3.24 exile-leveling guides",
-	"hotfix 2: added support for t17 maps, changed some mod labels (map-info)",
-	"fix: horizons-tooltips always showed 100% e-exp when used in town/hideout",
-	"item-info: updated unique drop-tiers",
-	"new experimental feature: necropolis lantern highlighting"
-  ],
-  [
-	["1.52.4", 15204],
-	"hotfix 1: regex fix for sacrifice and sacred wisps (leveltracker)",
-	"hotfix 1: add missing necropolis league color, and support for portal scroll hotkey (maptracker)",
-	"hotfix 2: add support for reworded/new map mods (map-info)",
-	"hotfix 2: add support for new eldritch altars (tldr-tooltips)",
-	"necropolis (3.24) updates: betrayal-info, horizon-tooltips, item-info",
-	"GENERAL REMINDER: SCREEN-CHECKS MAY NEED RECALIBRATION AFTER MAJOR GAME PATCHES. IF THE OMNI-KEY DOESN'T WORK ANYMORE, TEST THE CHECKS AND RECALIBRATE IF NECESSARY",
-	"leveling tracker: changed effective exp panel, improved gem-regex",
-	"fix: leveling tracker doesn't stay hidden after campaign completion",
-	"fix: tldr-tooltips would also screen-cap overlays that potentially cover text"
-  ],
-  [
-	["1.52.3", 15203],
-	"general: added an option to black out the screen area between game client and screen edges",
-	"updater: improved version handling for potential hotfixes",
-	"added an experimental feature, tldr-tooltips, to summarize and highlight certain mods/info on screen"
-  ],
-	[
-	["1.52.2", 15202],
-	"fix: centered overlays were misplaced on multi-monitor setups",
-	"fix: the script didn't recognize a certain version of the windows snipping tool",
-	"notepad: any tab can be turned into a grouped widget, and more than one can exist",
-	"maptracker: added new date selection, and column summaries",
-	"maptracker: added notes for individual map runs, and a search-filter"
-  ],
-  [
-	["1.52.1", 15201],
-	"certain movable ui elements can now snap to the center of the game client",
-	"added a color palette for easier color customization",
-	"leveling tracker: overlay is now movable, timer attached to main overlay",
-	"mapping tracker: panel is movable",
-	"additional color customization for timer and notepad widgets"
-  ],
-  [
-	["1.52.0", 15200],
-	"combined llk-ui panel and feature-buttons into a toolbar",
-	"updater: faster updates, easier version-switching and roll-backs",
-	"notepad: added a new quick-note feature",
-	"item-info: added unique drop-tiers and roll-percentages",
-	"fixes: gui-related issues, item-info, map-info, mapping tracker, gear tracker"
-  ],
-  [
-	["1.51.2", 15102],
-	"language-detection tweaks for client.txt files with many error-messages or crashes"
-  ],
-	[
-	["1.51.1", 15101],
-	"regex fixes: ball lightning, storm rain"
-  ],
-  [
-	["1.51.0", 15100],
-	"3.23 updates",
-	"item-info fixes",
-	"leveling tracker tweaks",
-	"mapping tracker tweaks/fixes",
-	"omni-key context-menu tweaks",
-	"full community-translation support"
-  ],
-  [
-	["1.50.9", 15009],
-	"v1.50 now out of beta",
-	"item-info: rune dagger fix",
-	"leveling tracker: timer ui fix",
-	"map-info: large font-size fix"
-  ],
-  [
-	["1.50.8", 15008],
-	"mapping tracker: sanctum support",
-	"general: preliminary support for community translations"
-  ],
-  [
-	["1.50.7", 15007],
-	"item-info: jewel-weight fix",
-	"mapping tracker: improved tracking accuracy",
-	"map-info: decimal values fix",
-	"leveling tracker: gem reminder-notes"
-  ],
-  [
-	["1.50.6", 15006],
-	"multi-monitor tweaks/fixes",
-	"clone-frames: auto-toggling in Rogue Harbor"
-  ],
-  [
-	["1.50.5", 15005],
-	"leveling tracker: update e-exp on level up",
-	"lab overlay: improved tracking, added override"
-  ],
-  [
-	["1.50.4.1", 15004.01],
-	"leveling tracker: fixed repeated error-message when closing guide in epilogue"
-  ],
-  [
-	["1.50.4", 15004],
-	"various multi-monitor fixes when playing on secondary monitor",
-	"calibration fixes for older windows versions"
-  ],
-  [
-	["1.50.3", 15003],
-	"3.22 legion jewels",
-	"3.22 amulet anoints",
-	"leveltracker: re-added hint images"
-  ],
-  [
-	["1.50.2.1", 15002.01],
-	"3.22 atlas data",
-	"3.22 gem data"
-  ],
-  [
-	["1.50.2", 15002],
-	"this is not the 3.22 update",
-	"clone-frames: tweaked setup",
-	"betrayal-info: ruthless support",
-	"mapping tracker: added new mechanics",
-	"leveling tracker: support for exile-leveling hints"
-  ],
-  [
-	["1.50.1", 15001],
-	"UPDATER BRICKED: UPDATE MANUALLY",
-	"reworked the updater",
-	"mapping tracker && map-info: heist bugfixes and tweaks",
-	"added essence tooltip: hold omni-key on essences, hover over gear-types"
-  ],
-  [
-    ["1.50.0", 15000],
-	"complete project rework with focus on ui and ux"
   ]
 ]
