@@ -638,7 +638,7 @@
   },
   "Metadata/Items/Gems/SupportGemIncreasedDuration": {
     "id": "Metadata/Items/Gems/SupportGemIncreasedDuration",
-    "name": "Increased Duration Support",
+    "name": "More Duration Support",
     "primary_attribute": "strength",
     "required_level": 31,
     "is_support": true
@@ -731,7 +731,7 @@
     "id": "Metadata/Items/Gems/SkillGemVaalMoltenShell",
     "name": "Vaal Molten Shell",
     "primary_attribute": "strength",
-    "required_level": 4,
+    "required_level": 16,
     "is_support": false
   },
   "Metadata/Items/Gems/SkillGemPowerSiphon": {
@@ -1646,16 +1646,23 @@
   },
   "Metadata/Items/Gems/SkillGemRiposte": {
     "id": "Metadata/Items/Gems/SkillGemRiposte",
-    "name": "Riposte",
+    "name": "Glacial Shield Swipe",
     "primary_attribute": "dexterity",
-    "required_level": 4,
+    "required_level": 16,
     "is_support": false
   },
   "Metadata/Items/Gems/SkillGemReckoning": {
     "id": "Metadata/Items/Gems/SkillGemReckoning",
-    "name": "Reckoning",
+    "name": "Swordstorm",
     "primary_attribute": "strength",
-    "required_level": 4,
+    "required_level": 16,
+    "is_support": false
+  },
+  "Metadata/Items/Gems/SkillGemEviscerate": {
+    "id": "Metadata/Items/Gems/SkillGemEviscerate",
+    "name": "Eviscerate",
+    "primary_attribute": "strength",
+    "required_level": 16,
     "is_support": false
   },
   "Metadata/Items/Gems/SkillGemStaticStrike": {
@@ -1674,7 +1681,21 @@
   },
   "Metadata/Items/Gems/SkillGemVengeance": {
     "id": "Metadata/Items/Gems/SkillGemVengeance",
-    "name": "Vengeance",
+    "name": "Crushing Fist",
+    "primary_attribute": "strength",
+    "required_level": 4,
+    "is_support": false
+  },
+  "Metadata/Items/Gems/SkillGemDivineRetribution": {
+    "id": "Metadata/Items/Gems/SkillGemDivineRetribution",
+    "name": "Divine Retribution",
+    "primary_attribute": "intelligence",
+    "required_level": 16,
+    "is_support": false
+  },
+  "Metadata/Items/Gems/SkillGemVengefulCry": {
+    "id": "Metadata/Items/Gems/SkillGemVengefulCry",
+    "name": "Vengeful Cry",
     "primary_attribute": "strength",
     "required_level": 24,
     "is_support": false
@@ -1944,20 +1965,6 @@
     "primary_attribute": "dexterity",
     "required_level": 38,
     "is_support": true
-  },
-  "Metadata/Items/Gems/SkillGemMeleeTotem": {
-    "id": "Metadata/Items/Gems/SkillGemMeleeTotem",
-    "name": "Ancestral Protector",
-    "primary_attribute": "strength",
-    "required_level": 4,
-    "is_support": false
-  },
-  "Metadata/Items/Gems/SkillGemAncestralWarchief": {
-    "id": "Metadata/Items/Gems/SkillGemAncestralWarchief",
-    "name": "Ancestral Warchief",
-    "primary_attribute": "strength",
-    "required_level": 28,
-    "is_support": false
   },
   "Metadata/Items/Gems/SkillGemSunder": {
     "id": "Metadata/Items/Gems/SkillGemSunder",
@@ -2252,13 +2259,6 @@
     "primary_attribute": "intelligence",
     "required_level": 31,
     "is_support": true
-  },
-  "Metadata/Items/Gems/SkillGemVaalAncestralWarchief": {
-    "id": "Metadata/Items/Gems/SkillGemVaalAncestralWarchief",
-    "name": "Vaal Ancestral Warchief",
-    "primary_attribute": "strength",
-    "required_level": 28,
-    "is_support": false
   },
   "Metadata/Items/Gems/SkillGemConsecratedPath": {
     "id": "Metadata/Items/Gems/SkillGemConsecratedPath",
@@ -3268,13 +3268,6 @@
     "required_level": 24,
     "is_support": false
   },
-  "Metadata/Items/Gems/SupportGemEarthbreaker": {
-    "id": "Metadata/Items/Gems/SupportGemEarthbreaker",
-    "name": "Earthbreaker Support",
-    "primary_attribute": "strength",
-    "required_level": 8,
-    "is_support": true
-  },
   "Metadata/Items/Gems/SkillGemAbsolution": {
     "id": "Metadata/Items/Gems/SkillGemAbsolution",
     "name": "Absolution",
@@ -3746,7 +3739,7 @@
   },
   "Metadata/Items/Gems/SkillGemCallToArms": {
     "id": "Metadata/Items/Gems/SkillGemCallToArms",
-    "name": "Call to Arms",
+    "name": "Autoexertion",
     "primary_attribute": "strength",
     "required_level": 24,
     "is_support": false
@@ -3756,6 +3749,27 @@
     "name": "Sacred Wisps Support",
     "primary_attribute": "intelligence",
     "required_level": 18,
+    "is_support": true
+  },
+  "Metadata/Items/Gems/SupportGemOverexertion": {
+    "id": "Metadata/Items/Gems/SupportGemOverexertion",
+    "name": "Overexertion Support",
+    "primary_attribute": "strength",
+    "required_level": 38,
+    "is_support": true
+  },
+  "Metadata/Items/Gems/SupportGemExpertRetaliation": {
+    "id": "Metadata/Items/Gems/SupportGemExpertRetaliation",
+    "name": "Expert Retaliation Support",
+    "primary_attribute": "strength",
+    "required_level": 31,
+    "is_support": true
+  },
+  "Metadata/Items/Gems/SupportGemRupture": {
+    "id": "Metadata/Items/Gems/SupportGemRupture",
+    "name": "Rupture Support",
+    "primary_attribute": "dexterity",
+    "required_level": 38,
     "is_support": true
   }
 }

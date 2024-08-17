@@ -1029,7 +1029,8 @@
     "connection_ids": [
       "2_8_3",
       "2_8_6",
-      "2_8_4"
+      "2_8_4",
+      "2_8_14"
     ],
     "crafting_recipes": [
       "Flask Duration - Rank 1"
@@ -1045,7 +1046,8 @@
     "parent_town_area_id": "2_8_town",
     "connection_ids": [
       "2_8_8",
-      "2_8_10"
+      "2_8_10",
+      "2_8_14"
     ],
     "crafting_recipes": []
   },
@@ -1104,6 +1106,21 @@
     "parent_town_area_id": "2_8_town",
     "connection_ids": [
       "2_8_5"
+    ],
+    "crafting_recipes": []
+  },
+  "2_8_14": {
+    "id": "2_8_14",
+    "name": "The Hidden Underbelly",
+    "map_name": null,
+    "act": 8,
+    "has_waypoint": false,
+    "is_town_area": false,
+    "parent_town_area_id": "2_8_town",
+    "connection_ids": [
+      "2_8_9",
+      "2_8_5",
+      "2_8_11"
     ],
     "crafting_recipes": []
   },
@@ -1179,6 +1196,22 @@
       "2_8_11",
       "2_8_11",
       "2_9_1"
+    ],
+    "crafting_recipes": []
+  },
+  "2_8_11": {
+    "id": "2_8_11",
+    "name": "The Solaris Concourse",
+    "map_name": "The Solaris Concourse",
+    "act": 8,
+    "has_waypoint": true,
+    "is_town_area": false,
+    "parent_town_area_id": "2_8_town",
+    "connection_ids": [
+      "2_8_12_1",
+      "2_8_13",
+      "2_8_13",
+      "2_8_14"
     ],
     "crafting_recipes": []
   },
@@ -1287,21 +1320,6 @@
     "crafting_recipes": [
       "Minions - Rank 1"
     ]
-  },
-  "2_8_11": {
-    "id": "2_8_11",
-    "name": "The Solaris Concourse",
-    "map_name": "The Solaris Concourse",
-    "act": 8,
-    "has_waypoint": true,
-    "is_town_area": false,
-    "parent_town_area_id": "2_8_town",
-    "connection_ids": [
-      "2_8_12_1",
-      "2_8_13",
-      "2_8_13"
-    ],
-    "crafting_recipes": []
   },
   "2_9_1": {
     "id": "2_9_1",
@@ -1859,7 +1877,9 @@
     "connection_ids": [
       "2_9_8"
     ],
-    "crafting_recipes": []
+    "crafting_recipes": [
+      "Trigger a Socketed Spell when you Use a Skill"
+    ]
   },
   "2_9_10_1": {
     "id": "2_9_10_1",
