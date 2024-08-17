@@ -1,6 +1,7 @@
 [
   [
 	["1.55.0", 15500],
+	"hotfix 1: support for latest exile-leveling guides",
 	"new beta feature: sanctum planner",
 	"map-info: added support for new t17 leech mod",
 	"item-info: updated unique drop-tiers"

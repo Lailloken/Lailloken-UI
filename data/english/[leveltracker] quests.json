@@ -796,13 +796,6 @@
               "Templar"
             ]
           },
-          "Metadata/Items/Gems/SkillGemMeleeTotem": {
-            "classes": [
-              "Templar",
-              "Marauder",
-              "Duelist"
-            ]
-          },
           "Metadata/Items/Gems/SkillGemVigilantStrike": {
             "classes": [
               "Templar",
@@ -818,9 +811,15 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Gems/SkillGemMoltenShell": {
+          "Metadata/Items/Gems/SkillGemSteelskin": {
             "classes": [
               "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemVengeance": {
+            "classes": [
+              "Marauder",
+              "Duelist"
             ]
           },
           "Metadata/Items/Gems/SkillGemProjectileWeakness": {
@@ -850,12 +849,6 @@
               "Ranger",
               "Shadow",
               "Scion"
-            ]
-          },
-          "Metadata/Items/Gems/SkillGemRiposte": {
-            "classes": [
-              "Ranger",
-              "Shadow"
             ]
           },
           "Metadata/Items/Gems/SkillGemShrapnelBallista": {
@@ -1078,7 +1071,7 @@
               "Scion"
             ]
           },
-          "Metadata/Items/Gems/SkillGemSteelskin": {
+          "Metadata/Items/Gems/SkillGemShieldCharge": {
             "classes": [
               "Templar",
               "Marauder",
@@ -1660,11 +1653,6 @@
               "Marauder",
               "Duelist",
               "Scion"
-            ]
-          },
-          "Metadata/Items/Gems/SkillGemShieldCharge": {
-            "classes": [
-              "Marauder"
             ]
           },
           "Metadata/Items/Gems/SkillGemEnduringCry": {
@@ -2673,6 +2661,11 @@
               "Templar"
             ]
           },
+          "Metadata/Items/Gems/SkillGemDivineRetribution": {
+            "classes": [
+              "Templar"
+            ]
+          },
           "Metadata/Items/Gems/SkillGemWarlordsMark": {
             "classes": [
               "Marauder",
@@ -2696,6 +2689,17 @@
               "Marauder",
               "Duelist",
               "Scion"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemMoltenShell": {
+            "classes": [
+              "Marauder"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemEviscerate": {
+            "classes": [
+              "Marauder",
+              "Duelist"
             ]
           },
           "Metadata/Items/Gems/SkillGemPoachersMark": {
@@ -2724,6 +2728,16 @@
             ]
           },
           "Metadata/Items/Gems/SkillGemDefianceBanner": {
+            "classes": [
+              "Duelist"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemReckoning": {
+            "classes": [
+              "Duelist"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemRiposte": {
             "classes": [
               "Duelist"
             ]
@@ -2861,12 +2875,29 @@
             ],
             "npc": "Yeena"
           },
+          "Metadata/Items/Gems/SkillGemDivineRetribution": {
+            "classes": [
+              "Templar",
+              "Witch",
+              "Scion"
+            ],
+            "npc": "Yeena"
+          },
           "Metadata/Items/Gems/SkillGemEnsnaringArrow": {
             "classes": [
               "Duelist",
               "Ranger",
               "Scion",
               "Shadow"
+            ],
+            "npc": "Yeena"
+          },
+          "Metadata/Items/Gems/SkillGemEviscerate": {
+            "classes": [
+              "Marauder",
+              "Duelist",
+              "Templar",
+              "Scion"
             ],
             "npc": "Yeena"
           },
@@ -3789,11 +3820,6 @@
               "Marauder"
             ]
           },
-          "Metadata/Items/Gems/SkillGemVengeance": {
-            "classes": [
-              "Marauder"
-            ]
-          },
           "Metadata/Items/Gems/SkillGemPride": {
             "classes": [
               "Marauder",
@@ -3815,6 +3841,11 @@
               "Marauder",
               "Duelist",
               "Scion"
+            ]
+          },
+          "Metadata/Items/Gems/SkillGemVengefulCry": {
+            "classes": [
+              "Marauder"
             ]
           },
           "Metadata/Items/Gems/SkillGemHatred": {
@@ -4143,6 +4174,14 @@
             ],
             "npc": "Clarissa"
           },
+          "Metadata/Items/Gems/SkillGemVengefulCry": {
+            "classes": [
+              "Duelist",
+              "Marauder",
+              "Scion"
+            ],
+            "npc": "Clarissa"
+          },
           "Metadata/Items/Gems/SkillGemNewVulnerability": {
             "classes": [
               "Duelist",
@@ -4393,11 +4432,6 @@
             ]
           },
           "Metadata/Items/Gems/SkillGemEarthquake": {
-            "classes": [
-              "Marauder"
-            ]
-          },
-          "Metadata/Items/Gems/SkillGemAncestralWarchief": {
             "classes": [
               "Marauder"
             ]
@@ -5095,11 +5129,6 @@
               "Duelist"
             ]
           },
-          "Metadata/Items/Gems/SupportGemDivineBlessing": {
-            "classes": [
-              "Templar"
-            ]
-          },
           "Metadata/Items/Gems/SupportGemSwiftbrand": {
             "classes": [
               "Templar"
@@ -5166,6 +5195,11 @@
             "classes": [
               "Duelist",
               "Ranger"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemExpertRetaliation": {
+            "classes": [
+              "Duelist"
             ]
           },
           "Metadata/Items/Gems/SupportGemFork": {
@@ -5644,6 +5678,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemDivineRetribution": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SkillGemDominatingBlow": {
             "classes": [],
             "npc": "Siosa"
@@ -5725,6 +5763,14 @@
             "npc": "Siosa"
           },
           "Metadata/Items/Gems/SkillGemEtherealKnives": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SkillGemEviscerate": {
+            "classes": [],
+            "npc": "Siosa"
+          },
+          "Metadata/Items/Gems/SupportGemExpertRetaliation": {
             "classes": [],
             "npc": "Siosa"
           },
@@ -6616,6 +6662,10 @@
             "classes": [],
             "npc": "Siosa"
           },
+          "Metadata/Items/Gems/SkillGemVengefulCry": {
+            "classes": [],
+            "npc": "Siosa"
+          },
           "Metadata/Items/Gems/SkillGemVenomGyre": {
             "classes": [],
             "npc": "Siosa"
@@ -6941,6 +6991,11 @@
               "Duelist"
             ]
           },
+          "Metadata/Items/Gems/SupportGemOverexertion": {
+            "classes": [
+              "Marauder"
+            ]
+          },
           "Metadata/Items/Gems/SupportGemGreaterVolley": {
             "classes": [
               "Duelist",
@@ -6968,6 +7023,11 @@
               "Ranger",
               "Shadow",
               "Scion"
+            ]
+          },
+          "Metadata/Items/Gems/SupportGemRupture": {
+            "classes": [
+              "Ranger"
             ]
           },
           "Metadata/Items/Gems/SupportGemVileToxins": {
@@ -7170,8 +7230,27 @@
             "classes": [],
             "npc": "Petarus and Vanja"
           },
+          "Metadata/Items/Gems/SupportGemOverexertion": {
+            "classes": [
+              "Marauder",
+              "Templar",
+              "Duelist",
+              "Scion"
+            ],
+            "npc": "Petarus and Vanja"
+          },
           "Metadata/Items/Gems/SupportGemReturningProjectiles": {
             "classes": [],
+            "npc": "Petarus and Vanja"
+          },
+          "Metadata/Items/Gems/SupportGemRupture": {
+            "classes": [
+              "Ranger",
+              "Marauder",
+              "Templar",
+              "Duelist",
+              "Scion"
+            ],
             "npc": "Petarus and Vanja"
           },
           "Metadata/Items/Gems/SupportGemMulticast": {
@@ -8510,6 +8589,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SkillGemDivineRetribution": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SkillGemDominatingBlow": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -8587,6 +8670,14 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemEtherealKnives": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SkillGemEviscerate": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SupportGemExpertRetaliation": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -9122,6 +9213,10 @@
             "classes": [],
             "npc": "Lilly Roth"
           },
+          "Metadata/Items/Gems/SupportGemOverexertion": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
           "Metadata/Items/Gems/SkillGemPenanceBrand": {
             "classes": [],
             "npc": "Lilly Roth"
@@ -9267,6 +9362,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemMagmaOrb": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SupportGemRupture": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -9587,6 +9686,10 @@
             "npc": "Lilly Roth"
           },
           "Metadata/Items/Gems/SkillGemVampiricLink": {
+            "classes": [],
+            "npc": "Lilly Roth"
+          },
+          "Metadata/Items/Gems/SkillGemVengefulCry": {
             "classes": [],
             "npc": "Lilly Roth"
           },
@@ -10700,16 +10803,16 @@
       "atlas": {
         "quest_npc": "Commander Kirac",
         "quest": {
-          "Metadata/Items/Maps/MapWorldsCrimsonTownship": {
+          "Metadata/Items/Maps/MapWorldsSiege": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsShipyard": {
+          "Metadata/Items/Maps/MapWorldsGardens": {
             "classes": []
           },
           "Metadata/Items/Maps/MapWorldsBoneCrypt": {
             "classes": []
           },
-          "Metadata/Items/Maps/MapWorldsDesertSpring": {
+          "Metadata/Items/Maps/MapWorldsScriptorium": {
             "classes": []
           }
         },
