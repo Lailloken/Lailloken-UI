@@ -80,7 +80,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ### [Recombination Simulator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombination-Simulator): in-game overlay that simulates outcomes in a few clicks
-| random example 1 | random example 2 |
+| example 1: single mod transfer | example 2: runic + zeffre + archmage's wand |
 |---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_002.png)
 <br>
