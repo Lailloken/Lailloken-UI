@@ -1,5 +1,9 @@
 [
   [
+	["1.55.1", 15501],
+	"recombination simulator updated for 3.25 (needs feedback)"
+  ],
+  [
 	["1.55.0", 15500],
 	"hotfix 1: support for latest exile-leveling guides",
 	"new beta feature: sanctum planner",
