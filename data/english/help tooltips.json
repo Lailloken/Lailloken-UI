@@ -976,24 +976,34 @@
   },
   "recombination": {
     "color 1": [
-      "represents <everything is ok>",
-      "click: customize\nr-click: reset to default"
+      "click: customize   |   r-click: reset to default",
+      "used to highlight characteristics that match"
     ],
     "color 2": [
-      "represents <something is wrong>",
-      "click: customize\nr-click: reset to default"
+      "click: customize   |   r-click: reset to default",
+      "used to highlight incompatibilities that prevent simulation"
     ],
     "color 3": [
-      "represents <pay attention>",
-      "click: customize\nr-click: reset to default"
+      "click: customize   |   r-click: reset to default",
+      "used to highlight things that require attention because they influence the outcome"
     ],
     "basics": [
-      "info: this feature is based on how the mechanic worked in sentinel league, and it's yet to be confirmed if it still works that way(/bold)(/underline)",
-      "general recombination rules:",
-      "one of the two items will be randomly chosen as the final base, and its characteristics will be inherited: influences, tags (mirrored, corrupted, split), quality, implicits, enchants, anoints",
-      "you can manipulate the odds by bench-crafting additional mods onto the item(s)\n(that's why the mods below are loaded into edit-fields)",
-      "note: the simulated results only show the likelihood of desired mods appearing, without taking mod-tiers into account (it's 50/50 which one makes it through)",
-      "influence-mods cannot be transferred to bases that don't have the required influence, fractured mods cannot be transferred to synth or influenced bases"
+      "one item will be randomly chosen as the final base and retains its influences, tags (e.g. corrupted, split), quality, implicits, enchants, anoints",
+      "you can manipulate odds by crafting/editing mods",
+      "influence-mods cannot be moved to bases that don't have the required influence,\nfractured mods cannot be moved from the original base",
+      "(/underline)(/bold)note: mod-weighting hasn't been figured out yet, so results become less accurate the more non-exclusive mods are present in each affix-group (e.g. when combining random loot as opposed to target-crafting the inputs)"
+    ],
+    "exclusive": [
+      "whether or not a mod is \"exclusive\" (i.e. part of a specific group and therefore affected by restrictions)",
+      "only a single exclusive mod can be recombined onto the final item",
+      "examples: breach, incursion, essence, bestiary, betrayal, delve, most bench prefixes, some bench suffixes, elevated mods",
+      "exceptions: crafted life & resists"
+    ],
+    "nnn": [
+      "whether or not a mod is \"non-native, natural\" (i.e. restricted to specific bases)",
+      "these mods can only be recombined if the final base meets specific requirements",
+      "examples: influenced, attribute/defense-specific, and fractured mods",
+      "(/underline)note: loading new items into the panel will automatically reset/recheck if mods are nnn"
     ]
   },
   "searchstrings": {
