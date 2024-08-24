@@ -79,6 +79,12 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_001.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/stashninja_003.jpg) |
 <br>
 
+### [Recombination Simulator](https://github.com/Lailloken/Lailloken-UI/wiki/Recombination-Simulator): in-game overlay that simulates outcomes in a few clicks
+| example 1: single mod transfer | example 2: runic + zeffre + archmage's wand |
+|---|---|
+| ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_002.png)
+<br>
+
 ### [Sanctum Planner](https://github.com/Lailloken/Lailloken-UI/wiki/Sanctum-Planner): floor scanner & interactive planner/analysis overlay
 | potential reach for every room | available pathing to "desired" rooms | how to avoid bad rooms & which rooms will be blocked off |
 |---|---|---|
@@ -100,12 +106,6 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 | tooltip for rolling maps | re-check mods on demand in maps | search/pin mods for quick access when switching builds |
 |---|---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/mapinfo_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/mapinfo_002.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/mapinfo_003.png) |
-<br>
-
-### [Recombination Simulator (pre-release, needs confirmation)](https://github.com/Lailloken/Lailloken-UI/wiki/Recombination-Simulator): simulates outcomes in a few clicks
-| random example 1 | random example 2 |
-|---|---|
-| ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/recombination_002.png)
 <br>
 
 ### [Search-strings](https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings): customizable, single-hotkey menu for every individual in-game search  
