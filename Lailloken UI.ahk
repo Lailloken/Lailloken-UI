@@ -27,7 +27,9 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {}
+vars := {"logging": FileExist("data\log.txt")}
+LLK_Log("--- tool launched ---")
+
 If FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
 	IniIntegrityCheck()
 ini := IniBatchRead("ini\config.ini")
@@ -37,34 +39,35 @@ If ini.versions["apply update"]
 	IniDelete, ini\config.ini, versions, apply update
 }
 Else If ini.settings["update auto-check"]
-	UpdateCheck()
+	LLK_Log("checking for updates"), UpdateCheck()
 Init_vars()
 Startup()
-Init_screenchecks()
-Init_general()
-Init_betrayal()
-Init_cheatsheets()
-Init_cloneframes()
+Init_screenchecks(), LLK_Log("initialized screenchecks settings")
+Init_general(), LLK_Log("initialized general settings")
+Init_betrayal(), LLK_Log("initialized betrayal settings")
+Init_cheatsheets(), LLK_Log("initialized cheat-sheet settings")
+Init_cloneframes(), LLK_Log("initialized clone-frames settings")
 If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
-	Init_geforce()
-Init_iteminfo()
-Init_legion()
-Init_mapinfo()
-Init_OCR()
-Init_searchstrings()
-Init_leveltracker()
-Init_maptracker()
-Init_qol()
-Init_recombination()
-Init_sanctum()
-Init_stash()
-Init_hotkeys()
+	Init_geforce(), LLK_Log("initialized geforce now settings")
+Init_iteminfo(), LLK_Log("initialized item-info settings")
+Init_legion(), LLK_Log("initialized seed-explorer settings")
+Init_mapinfo(), LLK_Log("initialized map-info settings")
+Init_OCR(), LLK_Log("initialized ocr settings")
+Init_searchstrings(), LLK_Log("initialized search-strings settings")
+Init_leveltracker(), LLK_Log("initialized act-tracker settings")
+Init_maptracker(), LLK_Log("initialized map-tracker settings")
+Init_qol(), LLK_Log("initialized minor qol settings")
+Init_recombination(), LLK_Log("initialized recombination settings")
+Init_sanctum(), LLK_Log("initialized sanctum planner settings")
+Init_stash(), LLK_Log("initialized stash-ninja settings")
+Init_hotkeys(), LLK_Log("initialized hotkey settings")
 Resolution_check()
 
 SetTimer, Loop, 1000
 SetTimer, Loop_main, 50
 
 vars.system.timeout := 0
+LLK_Log("waiting for focus on client-window...")
 If !settings.general.dev
 	WinWaitActive, ahk_group poe_window
 Else
@@ -72,8 +75,9 @@ Else
 	WinWaitActive, ahk_group poe_ahk_window
 	SoundBeep, 100
 }
+LLK_Log("client is focused")
 
-Init_GUI()
+Init_GUI(), LLK_Log("GUIs initialized")
 SetTimer, LogLoop, 1000
 
 If (check := ini.versions["reload settings"])
@@ -87,6 +91,7 @@ If vars.ini_integrity
 	Reload
 	ExitApp
 }
+LLK_Log("+++ tool is running +++")
 Return
 
 #Include modules\betrayal-info.ahk
@@ -368,6 +373,8 @@ IniIntegrityCheck()
 	local
 	global vars
 
+	LLK_Log("starting ini integrity-check")
+
 	If !FileExist("ini backup\")
 		FileCopyDir, ini, ini backup, 1
 	Loop, Files, ini\*.ini
@@ -394,6 +401,8 @@ IniIntegrityCheck()
 	IniWrite, % A_Now, ini\file check.ini, check, timestamp
 	If vars.ini_integrity
 		IniWrite, % StrReplace(vars.ini_integrity, "`t"), ini\file check.ini, errors
+
+	LLK_Log("finished ini integrity-check")
 }
 
 Init_client()
@@ -406,6 +415,7 @@ Init_client()
 
 	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
 	{
+		LLK_Log("game-client is local client")
 		;load client-config location and double-check
 		ini := IniBatchRead("ini\config.ini")
 		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile\production_Config.ini"
@@ -427,6 +437,7 @@ Init_client()
 		}
 		Else IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
 		vars.system.config := poe_config_file, vars.client.stream := 0
+		LLK_Log("found game's config-file")
 
 		;check the contents of the client-config
 		FileRead, poe_config_check, % poe_config_file
@@ -450,6 +461,7 @@ Init_client()
 			IniDelete, ini\config.ini, Settings, PoE config-file
 			LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of borderless fullscreen", 1)
 		}
+		LLK_Log("recognized current window settings")
 
 		;check if client's window settings have changed since the previous session
 		If ini.settings.fullscreen && (ini.settings.fullscreen != vars.client.fullscreen)
@@ -478,6 +490,7 @@ Init_client()
 	Gui, Test: Destroy
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native, "xc": xScreenOffset_monitor + width_native / 2, "yc": yScreenOffSet_monitor + height_native / 2}
+	LLK_Log("measured monitor resolution and position: " width_native "x" height_native ", " xScreenOffset_monitor ", " yScreenOffSet_monitor)
 
 	If !vars.client.stream
 	{
@@ -506,6 +519,7 @@ Init_client()
 				WinMove, ahk_group poe_window,,,, % vars.client.customres.1 + 2* vars.system.xborder, % vars.client.customres.2 + vars.system.caption + 2* vars.system.yborder
 			Else WinMove, ahk_group poe_window,,,, % vars.client.customres.1, % vars.client.customres.2
 		}
+		LLK_Log("applied custom resolution")
 	}
 
 	WinGetPos, x, y, w, h, ahk_group poe_window
@@ -516,6 +530,7 @@ Init_client()
 	{
 		WinMove, ahk_group poe_window,, % xTarget, % yTarget
 		WinGetPos, x, y, w, h, ahk_group poe_window
+		LLK_Log("repositioned game-client")
 	}
 	vars.client.x := vars.client.x0 := x, vars.client.y := vars.client.y0 := y
 	vars.client.w := vars.client.w0 := w, vars.client.h := vars.client.h0 := h
@@ -527,6 +542,7 @@ Init_client()
 		vars.client.h0 := vars.client.h := vars.client.h - vars.system.caption - 2* vars.system.yborder
 		vars.client.x0 := vars.client.x += vars.system.xborder
 		vars.client.y0 := vars.client.y += vars.system.caption + vars.system.yborder
+		LLK_Log("applied offsets for windowed mode")
 	}
 	vars.client.xc := vars.client.x - vars.monitor.x + vars.client.w/2, vars.client.yc := vars.client.y - vars.monitor.y + vars.client.h/2 ;client's horizontal and vertical centers (RELATIVE TO monitor.x and monitor.y)
 	settings.general.FillerAvailable := (vars.client.fullscreen = "false" && vars.client.borderless || vars.client.fullscreen = "true" && vars.client.h < vars.monitor.h) ? 1 : 0
@@ -659,6 +675,8 @@ Init_vars()
 		version := Json.Load(LLK_FileRead("data\versions.json")), version := version._release.1 . (version.hotfix ? "." (version.hotfix < 10 ? "0" : "") version.hotfix : "")
 		vars.updater := {"version": [version, UpdateParseVersion(version)]}
 	}
+
+	LLK_Log("initialized global objects")
 }
 
 Loop()
@@ -1136,6 +1154,7 @@ Startup()
 		MsgBox, 48, gdiplus error!, Gdiplus failed to start. Please ensure you have gdiplus on your system
 		ExitApp
 	}
+	LLK_Log("initialized GDI+")
 
 	;get widths/heights of window-borders to correctly offset overlays in windowed mode
 	SysGet, xborder, 32
@@ -1157,6 +1176,8 @@ Startup()
 	If settings.general.dev
 		GroupAdd, poe_ahk_window, ahk_exe code.exe ;treat VS Code's window as a client
 
+	LLK_Log("set up window-groups, measured window-borders: " xborder ", " yborder ", " caption)
+
 	If !LLK_FileCheck() ;check if important files are missing
 		LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 
@@ -1169,6 +1190,8 @@ Startup()
 	}
 
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
+
+	LLK_Log("waiting for valid game-clients...")
 	While !WinExist("ahk_group poe_window") ;wait for game-client window
 	{
 		If settings.general.kill.1 && (A_TickCount >= vars.general.runcheck + settings.general.kill.2* 60000) ;kill script after X minutes
@@ -1180,6 +1203,7 @@ Startup()
 	;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
 	If WinExist("ahk_group poe_window") && win_not_exist
 		sleep 4000
+	LLK_Log("found game-client")
 
 	Init_client()
 	Init_lang()
@@ -1192,10 +1216,11 @@ Startup()
 	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt")
 		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
 	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\kakaoclient.txt"
+	LLK_Log("game's log-file: " poe_log_file)
 
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info
-		vars.log.file_location := poe_log_file, Init_log()
-	Else vars.log.file_location := 0
+		vars.log.file_location := poe_log_file, LLK_Log("found game's log-file"), Init_log(), LLK_Log("accessed required information from log-file")
+	Else vars.log.file_location := 0, LLK_Log("couldn't find game's log-file")
 
 	GuiClientFiller()
 }
@@ -1289,6 +1314,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	global vars, settings, Json
 
 	vars.update := [0], update := vars.update
+
 	If !FileExist("update\")
 		FileCreateDir, update\
 	update.1 := !FileExist("update\") ? -2 : update.1
@@ -1366,6 +1392,9 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		vars.updater.target_version := [LLK_IniRead("ini\config.ini", "versions", "apply update")]
 		Loop, Parse, % vars.updater.target_version.1, % "."
 			vars.updater.target_version.2 .= (A_Index = 3) ? (A_LoopField < 10 ? "0" : "") A_LoopField : A_LoopField
+
+		LLK_Log("starting update to " vars.updater.target_version.1)
+
 		If !FileExist("update\update_" vars.updater.target_version.2 ".zip")
 			UrlDownloadToFile, % "https://github.com/Lailloken/Lailloken-UI/archive/refs/tags/v" vars.updater.target_version.1 ".zip", % "update\update_" vars.updater.target_version.2 ".zip"
 		If ErrorLevel || !FileExist("update\update_" vars.updater.target_version.2 ".zip")
@@ -1394,6 +1423,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		{
 			FileDelete, data\version_check.json
 			IniDelete, ini\config.ini, versions, apply update
+			LLK_Log("finished update to " vars.updater.target_version.1)
 			Reload
 			ExitApp
 		}
@@ -1402,6 +1432,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 			SetTimer, UpdateDownload, Delete
 			Gui, update_download: Destroy
 			IniWrite, updater, ini\config.ini, versions, reload settings
+			LLK_Log("failed update to " vars.updater.target_version.1)
 			Return
 		}
 	}
@@ -1705,6 +1736,18 @@ LLK_IsType(character, type)
 		Return 1
 	Else If character is %type%
 		Return 1
+}
+
+LLK_Log(message)
+{
+	local
+	global vars
+
+	If !vars.logging
+		Return
+
+	FormatTime, logstamp, A_Now, yyyy-MM-dd`, HH:mm:ss
+	FileAppend, % (InStr(message, "---") ? "`r`n" : "") "[" logstamp "] " message "`r`n", data\log.txt
 }
 
 LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")

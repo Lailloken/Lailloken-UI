@@ -990,14 +990,16 @@
     "basics": [
       "one item will be randomly chosen as the final base and retains its influences, tags (e.g. corrupted, split), quality, implicits, enchants, anoints",
       "you can manipulate odds by crafting/editing mods",
-      "influence-mods cannot be moved to bases that don't have the required influence,\nfractured mods cannot be moved from the original base",
+      "influence-mods cannot be moved to bases that don't have the required influence,\nfractured mods cannot be moved from the original base and only add to the general affix pool there",
       "(/underline)(/bold)note: mod-weighting hasn't been figured out yet, so results become less accurate the more non-exclusive mods are present in each affix-group (e.g. when combining random loot as opposed to target-crafting the inputs)"
     ],
     "exclusive": [
       "whether or not a mod is \"exclusive\" (i.e. part of a specific group and therefore affected by restrictions)",
       "only a single exclusive mod can be recombined onto the final item",
-      "examples: breach, incursion, essence, bestiary, betrayal, delve, most bench prefixes, some bench suffixes, elevated mods",
-      "exceptions: crafted life & resists"
+      "examples: breach, incursion, essence, bestiary, betrayal & veiled, delve, named bench-crafts (tora's, chosen, of the order, etc.) & metamods, elevated mods"
+    ],
+    "lock": [
+      "locks the item-slot so it won't be automatically overwritten or cleared when loading items or closing the panel"
     ],
     "nnn": [
       "whether or not a mod is \"non-native, natural\" (i.e. restricted to specific bases)",

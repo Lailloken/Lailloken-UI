@@ -658,6 +658,8 @@ LeveltrackerImport(profile := "")
 								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
 							Case "generic":
 								ss_text .= (ss_parts.value = "/passives" ? """" ss_parts.value """" : ss_parts.value) " "
+							Case "arena":
+								ss_text .= " (img:arena) arena:" StrReplace(ss_parts.value, " ", "_") " "
 							Default:
 								If settings.general.dev
 									MsgBox, % "unknown type: " ss_parts.type
@@ -772,6 +774,7 @@ LeveltrackerImport(profile := "")
 	guide_text := StrReplace(guide_text, "for_quicksilver flask", "for_quicksilver flask (qsf)")
 	guide_text := StrReplace(guide_text, "Vendor_Quicksilver Flask +_Orb of Augmentation +_Normal_Boots", "vendor:_qsf +_aug +_boots //_qsf +_aug +_ms_boots")
 	guide_text := StrReplace(guide_text, "(hint)_______Vendor_Quicksilver Flask +_Orb of Augmentation +_Movement_Speed_Boots `n")
+	guide_text := StrReplace(guide_text, "at_the_fork_in_the_road_with_wagons,_go_the_route_with_1_wagon,_not_2", "at_the_fork,_follow_the_single_wagon")
 	StringLower, guide_text, guide_text
 	If !FileExist("ini\leveling guide" profile ".ini")
 		IniWrite, % "", ini\leveling guide%profile%.ini, Steps

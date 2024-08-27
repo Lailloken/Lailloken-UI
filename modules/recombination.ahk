@@ -22,7 +22,7 @@ Recombination_()
 
 	If !IsObject(vars.recombination.item1)
 		vars.recombination.item1 := {}, vars.recombination.item2 := {}
-	vars.recombination.desired := {"itembase": 0, "prefixes": {}, "suffixes": {}}, vars.recombination.desired_mods := 0
+
 	If Blank(vars.recombination.wStash)
 		vars.recombination.wStash := Floor(vars.client.h * (37/60)), vars.recombination.wInventory := Floor(vars.client.h * 0.6155)
 	If !IsObject(vars.recombination.influences)
@@ -37,6 +37,7 @@ Recombination_()
 	clip := StrReplace(clip, " (crafted)"), clip := StrReplace(clip, " — " LangTrans("items_unscalable"))
 	item := {"name": LLK_StringCase(vars.omnikey.item.name), "itembase": LLK_StringCase(vars.omnikey.item.itembase), "class": LLK_StringCase(vars.omnikey.item.class), "prefixes": [], "suffixes": []
 	, "mod_counts": {"prefixes": 3, "suffixes": 3}, "influences": {}, "attributes": vars.omnikey.item.attributes}
+	item1 := vars.recombination.item1, item2 := vars.recombination.item2
 
 	Loop, Parse, % vars.omnikey.clipboard, `n, `r
 		If LangMatch(A_LoopField, vars.lang.items_prefix_allowed)
@@ -75,23 +76,42 @@ Recombination_()
 			mod := A_LoopField
 		item[type].Push({"text": LLK_StringCase(mod), "affix": affix_name, "fractured": fractured ? 1 : 0, "influence": affix_name ? LLK_HasVal(vars.recombination.influences, affix_name,,,, 1) : "", "crafted": InStr(A_LoopField, "crafted") ? 1 : 0})
 	}
-	If !(item.prefixes.Count() + item.suffixes.Count())
-	{
-		LLK_ToolTip(LangTrans("global_errorname", 2),,,,, settings.recombination.colors.2)
-		Return
-	}
-	Else If !A_Gui
-		LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, settings.recombination.colors.1)
 
-	If (vars.recombination.item1.prefixes.Count() + vars.recombination.item1.suffixes.Count())
+	If !(item1.locked * item2.locked)
 	{
-		vars.recombination.item2 := vars.recombination.item1.Clone()
-		For index, affix in ["prefixes", "suffixes"]
-			For index, mod in vars.recombination.item2[affix]
-				vars.recombination.item2[affix][index].Delete("nnn")
+		If !(item.prefixes.Count() + item.suffixes.Count())
+		{
+			LLK_ToolTip(LangTrans("global_errorname", 2),,,,, settings.recombination.colors.2)
+			Return
+		}
+		Else If !A_Gui
+			LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, settings.recombination.colors.1)
+
+		If !IsObject(vars.recombination.desired)
+			vars.recombination.desired := {"itembase": 0, "prefixes": {}, "suffixes": {}}, vars.recombination.desired_mods := 0
+
+		If item1.locked
+			vars.recombination.item2 := item.Clone()
+		Else If (item1.prefixes.Count() + item1.suffixes.Count())
+		{
+			If !item2.locked
+				vars.recombination.item2 := vars.recombination.item1.Clone()
+		}
+		Else If !item2.locked
+			vars.recombination.item2 := item.Clone(), vars.recombination.item2.name := "dummy item", vars.recombination.item2.prefixes := [], vars.recombination.item2.suffixes := []
+
+		If !item1.locked
+			vars.recombination.item1 := item.Clone()
+
+		For item_no in [1, 2] ; reset state of NNN and fractured for every mod
+			For index, affix in ["prefixes", "suffixes"]
+				For index, mod in vars.recombination["item" item_no][affix]
+				{
+					vars.recombination["item" item_no][affix][index].Delete("nnn")
+					If vars.recombination["item" item_no][affix][index].fractured
+						vars.recombination["item" item_no][affix][index].fractured := item_no
+				}
 	}
-	Else vars.recombination.item2 := item.Clone(), vars.recombination.item2.name := "dummy item", vars.recombination.item2.prefixes := [], vars.recombination.item2.suffixes := []
-	vars.recombination.item1 := item.Clone()
 	Recombination_GUI()
 }
 
@@ -107,7 +127,7 @@ Recombination_CheckMod(mod, type := 0) ; checks if a mod is "exclusive" or "non-
 	If !type
 	{
 		If mod.affix
-		&& (InStr(mod.affix, "elevated ") || (mod.affix = "of crafting")
+		&& (InStr(mod.affix, "elevated ") || (mod.affix = "of crafting") || InStr(mod.affix, "veiled")
 		|| InStr("chosen, of the order, essences, of the essence, subterranean, of the underground, suffixed, of prefixes, of spellcraft, of weaponcraft", mod.affix))
 			Return 1
 		Else If mod.crafted && (RegExMatch(mod.text, "i)^to maximum life$") || RegExMatch(obect.text, "i)^to.*resistance$"))
@@ -124,7 +144,7 @@ Recombination_CheckMod(mod, type := 0) ; checks if a mod is "exclusive" or "non-
 		|| item%other%.attributes && !mod.crafted ; attribute/defense-related restrictions
 			&& (RegExMatch(mod.text, "i)armour|strength|life.regeneration") && !InStr(item%other%.attributes, "str")
 				|| RegExMatch(mod.text, "i)evasion|suppress|dexterity") && !InStr(item%other%.attributes, "dex")
-				|| RegexMatch(mod.text, "i)energy.shield|intelligence") && !InStr(item%other%.attributes, "int"))
+				|| RegexMatch(mod.text, "i)energy.shield|intelligence|mana") && !InStr(item%other%.attributes, "int"))
 		|| mod.fractured
 		Return 1
 	}
@@ -182,11 +202,28 @@ Recombination_GUI(cHWND := "")
 		{
 			other := (control = 1) ? 2 : 1, input := LLK_ControlGet(cHWND)
 			GuiControl,, % vars.hwnd.recombination["desiredbase_" other], 0
+			GuiControl, +cWhite, % vars.hwnd.recombination["desiredbase_" other]
+			GuiControl, movedraw, % vars.hwnd.recombination["desiredbase_" other]
+			GuiControl, % "+c" (input ? settings.recombination.colors.3 : "White"), % cHWND
+			GuiControl, movedraw, % cHWND
 			vars.recombination.desired.itembase := input ? control : 0
+		}
+		Else If InStr(check, "lock_")
+		{
+			input := LLK_ControlGet(cHWND), item%control%.locked := input
+			GuiControl, % "+c" (input ? settings.recombination.colors.3 : "White"), % cHWND
+			GuiControl, % "movedraw", % cHWND
 		}
 		Else If InStr(check, "exclusive_") || InStr(check, "nnn_")
 		{
-			input := LLK_ControlGet(cHWND), type := InStr(check, "nnn_") ? "nnn" : "exclusive"
+			input := LLK_ControlGet(cHWND), type := InStr(check, "nnn_") ? "nnn" : "exclusive", other := (item_no = 1) ? 2 : 1
+			fractured := item%item_no%[affix][mod_slot].fractured, influence := item%item_no%[affix][mod_slot].influence
+			If (type = "nnn") && (fractured || influence && !item%other%.influences[influence])
+			{
+				LLK_ToolTip("mod is " (fractured ? "fractured" : "influenced"), 1.5,,,, "Red")
+				GuiControl,, % cHWND, 1
+				Return
+			}
 			GuiControl, % "+c" (input ? settings.recombination.colors.3 : "White"), % cHWND
 			GuiControl, % "movedraw", % cHWND
 			item%item_no%[affix][mod_slot][type] := input ? item_no : 0
@@ -209,7 +246,7 @@ Recombination_GUI(cHWND := "")
 				Else vars.recombination.desired[affix].Delete(mod)
 			}
 		}
-		Else If (check = "chance")
+		Else If (check = "chance") ; clicking "refresh"
 		{
 			For key, val in vars.hwnd.recombination
 				If InStr(key, "edit_")
@@ -227,21 +264,6 @@ Recombination_GUI(cHWND := "")
 					If (input != vars.recombination["item" item_no][affix][mod_slot].text)
 						vars.recombination["item" item_no][affix][mod_slot] := {"text": input}
 				}
-			remove_prefixes := [], remove_suffixes := []
-			For index, affix in ["prefixes", "suffixes"]
-			{
-				Loop 2
-					Loop, % (length := vars.recombination["item" (outer := A_Index)][affix].Length() + 1)
-						If (length - A_Index > 0) && Blank(vars.recombination["item" outer][affix][length - A_Index].text)
-							vars.recombination["item" outer][affix].RemoveAt(length - A_Index)
-
-				For key in vars.recombination.desired[affix]
-					If !LLK_HasVal(vars.recombination.item1, key,,,, 1) && !LLK_HasVal(vars.recombination.item2, key,,,, 1)
-						remove_%affix%.Push(key)
-
-				For index, val in remove_%affix%
-					vars.recombination.desired[affix].Delete(val)
-			}
 		}
 		Else If InStr(check, "font_")
 		{
@@ -270,6 +292,23 @@ Recombination_GUI(cHWND := "")
 
 		If (check != "chance") && !InStr(check, "color_") && !InStr(check, "font_")
 			Return
+	}
+
+	; clean up left-over (desired) mods
+	remove_prefixes := [], remove_suffixes := []
+	For index, affix in ["prefixes", "suffixes"]
+	{
+		For item in [1, 2]
+			Loop, % (count := vars.recombination["item" item][affix].Count())
+				If Blank(vars.recombination["item" item][affix][count - A_Index + 1].text)
+					vars.recombination["item" item][affix].RemoveAt(count - A_Index + 1)
+
+		For key in vars.recombination.desired[affix]
+			If !LLK_HasVal(vars.recombination.item1, key,,,, 1) && !LLK_HasVal(vars.recombination.item2, key,,,, 1)
+				remove_%affix%.Push(key)
+
+		For index, val in remove_%affix%
+			vars.recombination.desired[affix].Delete(val)
 	}
 
 	toggle := !toggle, GUI_name := "recombination" toggle, vars.recombination.wait := 1
@@ -308,13 +347,22 @@ Recombination_GUI(cHWND := "")
 		style := (A_Index = 1 ? "xp" : "ys x+0") " y" settings.recombination.fWidth, outer := A_Index
 		Gui, %GUI_name%: Add, Text, % "Section " style " Center w" width + wNNN " h" settings.recombination.fHeight, % item%A_Index%.name
 		color := mismatch ? " c" settings.recombination.colors.2 : (!Blank(item2.itembase) && (item1.itembase != item2.itembase)) ? " c" settings.recombination.colors.3 : " c" settings.recombination.colors.1
-		Gui, %GUI_name%: Add, Text, % "xs y+0 Center wp h" settings.recombination.fHeight . color, % item%A_Index%.itembase (!Blank(item2.itembase) && !mismatch ? (item1.itembase != item2.itembase ? " (50%)" : "") : "")
+		Gui, %GUI_name%: Add, Text, % "xs y+0 Center wp hp" color, % item%A_Index%.itembase (!Blank(item2.itembase) && !mismatch ? (item1.itembase != item2.itembase ? " (50%)" : "") : "")
+
+		influences := "", other := (A_Index = 1) ? 2 : 1
+		For key in item%A_Index%.influences
+			influences .= (!influences ? "" : ", ") key
+		If influences || item%other%.influences.Count()
+			Gui, %GUI_name%: Add, Text, % "xs y+0 Center wp hp", % influences
 		Gui, %GUI_name%: Font, % "s" settings.recombination.fSize - 2
 		If !mismatch && !mismatch_affixes
 		{
-			Gui, %GUI_name%: Add, Checkbox, % "xs HWNDhwnd gRecombination_GUI Checked" (desired.itembase = outer) . (mismatch || mismatch_affixes ? " Hidden" : ""), % "desired final base"
+			Gui, %GUI_name%: Add, Checkbox, % "xs Section HWNDhwnd gRecombination_GUI Checked" (desired.itembase = outer ? "1 c" settings.recombination.colors.3 : "0") . (mismatch || mismatch_affixes ? " Hidden" : ""), % "desired final base"
+			Gui, %GUI_name%: Add, Checkbox, % "ys HWNDhwnd_lock gRecombination_GUI Checked" (item%outer%.locked ? "1 c" settings.recombination.colors.3 : "0"), % "lock item-slot"
 			vars.hwnd.recombination["desiredbase_" A_Index] := hwnd
 		}
+		Else Gui, %GUI_name%: Add, Checkbox, % "xs HWNDhwnd_lock gRecombination_GUI Checked" (item%outer%.locked ? "1 c" settings.recombination.colors.3 : "0"), % "lock item-slot"
+		vars.hwnd.recombination["lock_" A_Index] := vars.hwnd.help_tooltips["recombination_lock" (A_Index = 2 ? "|" : "")] := hwnd_lock
 
 		For index, val in (affixes := ["prefixes", "suffixes"])
 		{
@@ -424,16 +472,22 @@ Recombination_Simulate()
 	static rolls := [1000, 999, 1000, 1000, 1000, 1000]
 	, odds := [{"0": 410, "1": 1000}, {"1": 666, "2": 999}, {"1": 390, "2": 900, "3": 1000}, {"1": 110, "2": 690, "3": 1000}, {"2": 430, "3": 1000}, {"2": 280, "3": 1000}]
 
-	item1 := vars.recombination.item1, item2 := vars.recombination.item2, desired := vars.recombination.desired, hits := 0
+	item1 := vars.recombination.item1, item2 := vars.recombination.item2, desired := vars.recombination.desired, hits := 0, item1_nnn := item2_nnn := 0
 	For index, affix in ["prefixes", "suffixes"] ; throw mods into affix pools
 	{
-		%affix% := [], fractures_%affix% := 0, item1_nnn := item2_nnn := 0
+		%affix%_1 := [], %affix%_2 := []
 		For item_no in [1, 2]
 			For iMod, vMod in item%item_no%[affix]
-				%affix%.Push(vMod), fractures_%affix% += vMod.fractured ? 1 : 0, item%item_no%_nnn += (vMod.nnn && vMod.nnn != item_no) ? 1 : 0
-		unique_mods_%affix% := {}
-		For i, v in %affix% ; count number of unique mods
-			unique_mods_%affix%[v.text] := 1
+			{
+				If !vMod.fractured || (vMod.fractured = 1)
+					%affix%_1.Push(vMod), item1_nnn += (vMod.nnn && vMod.nnn != 1) ? 1 : 0
+				If !vMod.fractured || (vMod.fractured = 2)
+					%affix%_2.Push(vMod), item2_nnn += (vMod.nnn && vMod.nnn != 2) ? 1 : 0
+			}
+		unique_mods_%affix%_1 := {}, unique_mods_%affix%_2 := {}
+		For item_no in [1, 2]
+			For i, v in %affix%_%item_no% ; count number of unique mods
+				unique_mods_%affix%_%item_no%[v.text] := 1
 	}
 
 	Loop 10000 ; simulate X times
@@ -445,12 +499,12 @@ Recombination_Simulate()
 			Continue
 		exclusive_picked := 0
 		For index, affix in (!order ? ["prefixes", "suffixes"] : ["suffixes", "prefixes"])
-			If %affix%.Count()
+			If %affix%_%item%.Count()
 			{
-				unique_mods := unique_mods_%affix%.Count()
+				unique_mods := unique_mods_%affix%_%item%.Count()
 				other_type := (affix = "prefixes") ? "suffixes" : "prefixes", other_item := (item = 1) ? 2 : 1
-				Random, rng, 1, rolls[Min(6, Max(1, %affix%.Count() - fractures_%affix%))] ; this roll determines the final affix-#
-				For key, val in odds[Min(6, Max(1, %affix%.Count() - fractures_%affix%))] ; get final affix-# from table
+				Random, rng, 1, rolls[Min(6, %affix%_%item%.Count())] ; this roll determines the final affix-#
+				For key, val in odds[Min(6, %affix%_%item%.Count())] ; get final affix-# from table
 					If (rng <= val)
 					{
 						mod_count := Min(key, unique_mods, item1.mod_counts[affix]) ; reduce final affix-# if there aren't enough unique mods to roll, or if affix-# is restricted (heist)
@@ -458,11 +512,11 @@ Recombination_Simulate()
 					}
 
 				If (item1.prefixes.Count() = 1 && !item1.suffixes.Count() && item2.suffixes.Count() = 1 && !item2.prefixes.Count()
-				|| item1.suffixes.Count() = 1 && !item1.prefixes.Count() && item2.prefixes.Count() = 1 && !item2.suffixes.Count())
+					|| item1.suffixes.Count() = 1 && !item1.prefixes.Count() && item2.prefixes.Count() = 1 && !item2.suffixes.Count())
 				&& (index = 1 && item%other_item%_nnn || index = 2 && !mods.Count()) && !item%item%_nnn ; prevent 0/0 items if input is 1/0 + 0/1
 					mod_count := 1
 
-				mods := {}, mod_pool := %affix%.Clone()
+				mods := {}, mod_pool := %affix%_%item%.Clone()
 				If (mod_count < desired[affix].Count()) ; if final number of affixes is already below desired count, the outcome counts as failed
 					Continue 2
 				While (mods.Count() < mod_count) && (mods.Count() < unique_mods) ; populate available affix-slots with mods from pool until final count is reached
@@ -496,6 +550,8 @@ Recombination_Simulate()
 					If !mods[key]
 						Continue 3
 			}
+			Else If !%affix%_%item%.Count() && desired[affix].Count()
+				Continue 2
 			Else Continue
 		hits += 1 ; item turned out as desired
 	}

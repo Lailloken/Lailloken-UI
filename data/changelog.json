@@ -1,5 +1,11 @@
 [
   [
+	["1.55.2", 15502],
+	"recombination: added item-slot locking, improved mod detection, updated fractured behavior",
+	"act-tracker: fixed a hint in act 9",
+	"item-info: updated unique drop-tiers"
+  ],
+  [
 	["1.55.1", 15501],
 	"hotfix 1: loot-tracking in the map-tracker couldn't be set up while stash-ninja was disabled",
 	"hotfix 1: potential fix for error-messages during loot-tracking",
