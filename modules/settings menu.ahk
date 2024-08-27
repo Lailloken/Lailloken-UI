@@ -2929,7 +2929,7 @@ Settings_screenchecks()
 	count := 0
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
 			Continue
 		count += 1
 	}
@@ -2944,7 +2944,7 @@ Settings_screenchecks()
 
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
 			Continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
@@ -3058,7 +3058,7 @@ Settings_ScreenChecksValid()
 
 	For key, val in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
 			continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\"key ".bmp") && !Blank(vars.imagesearch[key].x1) ? 1 : 0
 	}

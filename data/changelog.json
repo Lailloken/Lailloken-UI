@@ -1,6 +1,8 @@
 [
   [
 	["1.55.1", 15501],
+	"hotfix 1: loot-tracking in the map-tracker couldn't be set up while stash-ninja was disabled",
+	"hotfix 1: potential fix for error-messages during loot-tracking",
 	"recombination simulator updated for 3.25 (needs feedback)"
   ],
   [
