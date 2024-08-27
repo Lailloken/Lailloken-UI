@@ -1776,10 +1776,10 @@ MaptrackerTimer()
 		mapname_add := {"heist": LangTrans("maps_heist"), "expedition": LangTrans("maps_logbook"), "affliction": LangTrans("maps_delirium")}
 	}
 
-	If !(settings.maptracker.hide && vars.maptracker.pause) && !MaptrackerCheck(2) && !WinExist("ahk_id "vars.hwnd.maptracker.main) && !WinExist("ahk_id " vars.hwnd.maptracker_logs.main) && !WinExist("ahk_id " vars.hwnd.recombination.main)
+	If !(settings.maptracker.hide && vars.maptracker.pause) && !MaptrackerCheck(2) && !WinExist("ahk_id "vars.hwnd.maptracker.main) && !WinExist("ahk_id " vars.hwnd.maptracker_logs.main) && !vars.hwnd.recombination.main
 	&& (WinActive("ahk_group poe_window") || WinActive("ahk_id "vars.hwnd.maptracker_logs.main) || vars.settings.active = "mapping tracker") || vars.maptracker.toggle ;when in hideout or holding down TAB, show tracker GUI
 		MaptrackerGUI(), inactive := 0
-	Else If WinExist("ahk_id "vars.hwnd.maptracker.main) && (MaptrackerCheck(2) && !vars.maptracker.toggle && !vars.maptracker.pause || settings.maptracker.hide && vars.maptracker.pause || WinExist("ahk_id " vars.hwnd.maptracker_logs.main) || WinExist("ahk_id " vars.hwnd.recombination.main)) ;else hide it
+	Else If WinExist("ahk_id "vars.hwnd.maptracker.main) && (MaptrackerCheck(2) && !vars.maptracker.toggle && !vars.maptracker.pause || settings.maptracker.hide && vars.maptracker.pause || WinExist("ahk_id " vars.hwnd.maptracker_logs.main) || vars.hwnd.recombination.main) ;else hide it
 		inactive += 1
 	Else inactive := 0
 	If WinExist("ahk_id "vars.hwnd.maptracker.main) && (inactive = 2)
@@ -1788,14 +1788,14 @@ MaptrackerTimer()
 	If MaptrackerCheck() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
 		vars.maptracker.refresh_kills := 2
 
-	If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause ;flash the tracker as a reminder to update the kill-count
+	If MaptrackerTowncheck() && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause && GuiName(vars.hwnd.maptracker.main) ;flash the tracker as a reminder to update the kill-count
 	{
 		Gui, % GuiName(vars.hwnd.maptracker.main) ": Color", % (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
 		Gui, % GuiName(vars.hwnd.maptracker.main) ": -E0x20"
 		vars.maptracker.color := (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
 		GuiControl, % "+Background" vars.maptracker.color, % vars.hwnd.maptracker.delbar
 	}
-	Else If (!MaptrackerTowncheck() || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
+	Else If (!MaptrackerTowncheck() || (vars.maptracker.refresh_kills > 2)) && (vars.maptracker.color = "Maroon") && WinExist("ahk_id "vars.hwnd.maptracker.main) && GuiName(vars.hwnd.maptracker.main) ;reset the tracker to black after updating the kill-count
 	{
 		Gui, % GuiName(vars.hwnd.maptracker.main) ": Color", Black
 		vars.maptracker.color := "Black"
