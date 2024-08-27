@@ -75,7 +75,13 @@ HotkeysESC()
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		CloneframesSettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
 	Else If WinExist("ahk_id " vars.hwnd.recombination.main)
-		LLK_Overlay(vars.hwnd.recombination.main, "destroy"), vars.recombination.item1 := vars.recombination.item2 := vars.recombination.desired := vars.hwnd.recombination.main := ""
+	{
+		LLK_Overlay(vars.hwnd.recombination.main, "destroy"), vars.hwnd.recombination.main := ""
+		If !vars.recombination.item1.locked
+			vars.recombination.item1 := {}
+		If !vars.recombination.item2.locked
+			vars.recombination.item2 := {}
+	}
 	Else If vars.hwnd.alarm.alarm_set && WinExist("ahk_id " vars.hwnd.alarm.alarm_set)
 	{
 		Gui, alarm_set: Destroy
