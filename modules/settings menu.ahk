@@ -2944,7 +2944,7 @@ Settings_screenchecks()
 
 	For key in vars.imagesearch.list
 	{
-		If (settings.features[key] = 0) || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot))
+		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
 			Continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " LangTrans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks image-info"handle] := hwnd
