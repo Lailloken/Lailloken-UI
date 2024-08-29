@@ -26,7 +26,7 @@
 	"minor fixes and improvements"
   ],
   [
-	["1.54.6", 15406],
+	["1.54.6", 15406, 1],
 	"omni-key consistency improvements (inventory pixel-check is now mandatory)",
 	"fixes: cheat-sheets, item-info class-specific highlighting, map-info magic monsters",
 	"item-info: improved ilvl detection for mods, changed highlighting"
