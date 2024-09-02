@@ -327,7 +327,7 @@ Stash_Hotkeys(mode := "")
 	{
 		If settings.stash[tab].bookmarking && (GetKeyState("Shift", "P") || GetKeyState("Control", "P")) && (settings.stash[tab].bookmark != hotkey)
 			settings.stash[tab].bookmark := hotkey, Stash_("refresh")
-		Else If !Blank(settings.stash[tab].limits[hotkey].3) && (hotkey != settings.stash[tab].profile)
+		Else If !Blank(settings.stash[tab].limits[hotkey].3) && !(GetKeyState("Shift", "P") || GetKeyState("Control", "P")) && (hotkey != settings.stash[tab].profile)
 			settings.stash[tab].profile := hotkey, Stash_("refresh")
 	}
 	Else If settings.stash[tab].bookmarking && InStr("space, lalt", hotkey) && vars.stash.hover && !InStr(vars.stash.hover, "tab_")
