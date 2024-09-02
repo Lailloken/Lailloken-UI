@@ -3372,8 +3372,8 @@ Settings_stash2(cHWND)
 			Else
 			{
 				Hotkey, IfWinActive, ahk_group poe_window
-				Hotkey, % settings.stash.hotkey, Stash_Selection, Off
-				Hotkey, % (settings.stash.hotkey := input0), Stash_Selection, On
+				Hotkey, % "~" settings.stash.hotkey, Stash_Selection, Off
+				Hotkey, % "~" (settings.stash.hotkey := input0), Stash_Selection, On
 				IniWrite, % """" input0 """", ini\stash-ninja.ini, settings, hotkey
 				GuiControl, +cBlack, % vars.hwnd.settings.hotkey
 				GuiControl, movedraw, % vars.hwnd.settings.hotkey
