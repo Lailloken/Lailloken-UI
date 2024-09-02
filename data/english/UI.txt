@@ -167,6 +167,8 @@
 		global_time			=	"time"
 		global_refresh			=	"refresh"
 		global_settings			=	"settings"
+		global_regex			=	"copy regex"
+		global_clipboard		=	"copied to clipboard"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -566,6 +568,7 @@
 		stash_solo			=	"solo"				;## as in a single person/thing/reason
 		stash_sell			=	"sell"
 		stash_sell			=	"for"				;## these two belong together, i.e. "sell X for Y"
+		stash_bookmark			=	"bookmark-profile"
 
 
 ;#####################################################
@@ -890,6 +893,7 @@
 		m_stash_bulk			=	"enable bulk-sale management"
 		m_stash_margins			=	"margins (%):"
 		m_stash_active			=	"active tab:"
+		m_stash_bookmarking		=	"enable bookmarking"
 
 
 
