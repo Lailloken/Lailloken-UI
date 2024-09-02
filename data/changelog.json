@@ -1,5 +1,9 @@
 [
   [
+	["1.55.3", 15503],
+	"stash-ninja: added bookmarking to permanently highlight specific items"
+  ],
+  [
 	["1.55.2", 15502],
 	"recombination: added item-slot locking, improved mod detection, updated fractured behavior",
 	"act-tracker: fixed a hint in act 9",
