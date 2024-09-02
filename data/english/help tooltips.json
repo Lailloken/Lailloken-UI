@@ -603,6 +603,9 @@
     "stash color tag2": [
       "this is what price tags with exchange-prices look like"
     ],
+    "stash color tag3": [
+      "this is what bookmarked price tags look like"
+    ],
     "stash enable": [
       "stash feature that highlights items in specific stash tabs according to rough market prices",
       "long-press the omni-key (default: middle mouse-button) while hovering over an item in a tab to activate the feature",
@@ -647,6 +650,12 @@
       "the overlay's position has to be offset if this specific tab is in a stash folder",
       "check this box if this tab is in a folder"
     ],
+    "stash bookmarking": [
+      "adds a bookmark-list next to the price-profile panel",
+      "press space while hovering over an item to add 1x to the current list, or press alt to remove 1x",
+      "bookmarked items will always be highlighted on the grid, regardless of active price-profile",
+      "each tab has 5 separate lists: hold control or shift, and press number-keys to switch"
+    ],
     "stash limits": [
       "you can configure up to 5 price-range profiles for each individual tab",
       "input-box structure:\nprofile # | max value\nunit: c, e, d, % | min value        ",
@@ -664,7 +673,8 @@
     "update versions": [
       "the list below shows the available versions to switch between or reinstall",
       "each line represents a major version and has buttons to select the minor version",
-      "hover over a button to see that version's summarized changelog"
+      "versions with important changes are highlighted in orange",
+      "hover over a button to see a summarized changelog, click it to prepare the download"
     ],
     "update full changelog": [
       "opens the github page with the detailed changelog of the selected version"

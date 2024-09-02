@@ -28,14 +28,15 @@
 		settings.stash.index_stock := !Blank(check := ini.settings["show stock in index"]) ? check : 1
 		settings.stash.rate_limits := {"timestamp": ""}
 		settings.stash.colors := [!Blank(check := ini.UI["text color"]) ? check : "000000", !Blank(check1 := ini.UI["background color"]) ? check1 : "00FF00"
-							, !Blank(check2 := ini.UI["text color2"]) ? check2 : "000000", !Blank(check3 := ini.UI["background color2"]) ? check3 : "FF8000"]
+							, !Blank(check2 := ini.UI["text color2"]) ? check2 : "000000", !Blank(check3 := ini.UI["background color2"]) ? check3 : "FF8000"
+							, !Blank(check4 := ini.UI["text color3"]) ? check4 : "000000", !Blank(check5 := ini.UI["background color3"]) ? check5 : "00FFFF"]
 		settings.stash.cBars := ["404060", "C16100", "606060"]
 
 		If vars.client.stream
 		{
 			settings.stash.hotkey := !Blank(check := ini.settings.hotkey) ? check : "F2"
 			Hotkey, IfWinActive, ahk_group poe_window
-			Hotkey, % settings.stash.hotkey, Stash_Selection, On
+			Hotkey, % "~" settings.stash.hotkey, Stash_Selection, On
 		}
 	}
 	settings.stash.fSize2 := settings.stash.fSize - 3, LLK_FontDimensions(settings.stash.fSize, height, width), LLK_FontDimensions(settings.stash.fSize2, height2, width2)
@@ -56,7 +57,7 @@
 		For tab, array in json_data
 		{
 			If !oCheck
-				iTab := ini[tab], settings.stash[tab] := {"gap": !Blank(check := iTab.gap) ? check : vars.stash.tabs[tab].2, "limits0": [], "limits": [], "profile": Blank(check1 := backup[tab].profile) ? 1 : check1, "in_folder": !Blank(check3 := iTab["tab is in folder"]) ? check3 : 0}, vars.stash[tab] := {}
+				iTab := ini[tab], settings.stash[tab] := {"gap": !Blank(check := iTab.gap) ? check : vars.stash.tabs[tab].2, "limits0": [], "limits": [], "profile": Blank(check1 := backup[tab].profile) ? 1 : check1, "in_folder": !Blank(check3 := iTab["tab is in folder"]) ? check3 : 0, "bookmark": Blank(check4 := backup[tab].bookmark) ? 1 : check4, "bookmarks": backup[tab].bookmarks.Count() ? backup[tab].bookmarks.Clone() : [], "bookmarking": !Blank(check5 := iTab.bookmarking) ? check5 : 0}, vars.stash[tab] := {}
 			Loop 5
 			{
 				If !oCheck
@@ -65,6 +66,7 @@
 					ini2 := !Blank(check := iTab["limit " A_Index " top"]) ? (check = "null" ? "" : check) : dLimits[A_Index].2
 					ini3 := !Blank(check := iTab["limit " A_Index " cur"]) ? (check = "null" ? "" : check) : dLimits[A_Index].3
 					settings.stash[tab].limits0[A_Index] := [ini1, ini2, ini3]
+					settings.stash[tab].bookmarks.Push(IsObject(check := json.load(iTab["bookmarks " A_Index])) ? check : {})
 				}
 				settings.stash[tab].limits[A_Index] := settings.stash[tab].limits0[A_Index].Clone()
 				If (A_Index < 5) && settings.stash.bulk_trade && settings.stash.min_trade && settings.stash.autoprofiles
@@ -152,7 +154,7 @@ Stash_(mode, test := 0)
 	Gui, %GUI_name%: Color, Purple
 	WinSet, TransColor, Purple
 	Gui, %GUI_name%: Margin, 0, 0
-	tab := (mode = "refresh") ? vars.stash.active : mode, profile := settings.stash[tab].profile, vars.stash.active := tab
+	tab := (mode = "refresh") ? vars.stash.active : mode, profile := settings.stash[tab].profile, vars.stash.active := tab, vars.stash.regex := ""
 
 	If test
 		settings.stash[tab].profile := profile := "test"
@@ -167,9 +169,12 @@ Stash_(mode, test := 0)
 	lBot := settings.stash[tab].limits[profile].1, lTop := settings.stash[tab].limits[profile].2, lType := settings.stash[tab].limits[profile].3
 	lBot := Blank(lBot) ? (lType = 4) ? -999 : 0 : lBot, lTop := Blank(lTop) ? 999999 : lTop
 	count := added := 0, width := Floor(vars.client.h * (37/60)), height := vars.client.h, currencies := ["chaos", "exalt", "divine", "percent"], vars.stash.wait := 1, vars.stash.enter := 0
+	bookmark_profile := settings.stash[tab].bookmark
 
 	For item, val in vars.stash[tab]
-		If IsObject(val) && (!Blank(lType) && LLK_IsBetween((lType = 4) ? val.trend[val.trend.MaxIndex()] : Round(val.prices[lType], 2), lBot, lTop) || test || InStr(item, "tab_"))
+		If IsObject(val)
+		&& (!Blank(lType) && LLK_IsBetween((lType = 4) ? val.trend[val.trend.MaxIndex()] : Round(val.prices[lType], 2), lBot, lTop) || test || InStr(item, "tab_")
+			|| settings.stash[tab].bookmarking && settings.stash[tab].bookmarks[bookmark_profile][item])
 		{
 			colors := settings.stash.colors.Clone(), hidden := (vars.stash.hover && item != vars.stash.hover && !InStr(vars.stash.hover, "tab_")) ? 1 : 0
 			If InStr(item, "tab_")
@@ -183,10 +188,11 @@ Stash_(mode, test := 0)
 			Else
 			{
 				price := Round(val.prices[lType], (val.prices[lType] > 1000) ? 0 : (val.prices[lType] > 10) ? 1 : 2), trade := val.source.2[lType]
+				cBookmarked := (settings.stash[tab].bookmarking && settings.stash[tab].bookmarks[bookmark_profile][item])
 				exception1 := LLK_PatternMatch(item, "", ["potent", "powerful", "prime"]) ? 1 : 0, exception2 := LLK_PatternMatch(item, "", ["powerful", "prime"]) ? 1 : 0
-				Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border Right c" colors[trade ? 3 : 1] " x" val.coords.1 " y" val.coords.2 + (exception1 ? vars.client.h * (1/12) : dBox) - settings.stash.fHeight2
+				Gui, %GUI_name%: Add, Text, % "BackgroundTrans Border Right c" colors[cBookmarked ? 5 : trade ? 3 : 1] " x" val.coords.1 " y" val.coords.2 + (exception1 ? vars.client.h * (1/12) : dBox) - settings.stash.fHeight2
 				. " w" (exception2 ? vars.client.h * (1/12) : dBox) . (hidden ? " Hidden" : ""), % (test ? A_Index : (lType = 4) ? val.trend[val.trend.MaxIndex()] : price) " "
-				Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp HWNDhwnd Border BackgroundBlack c" colors[trade ? 4 : 2] . (hidden ? " Hidden" : ""), 100
+				Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp HWNDhwnd Border BackgroundBlack c" colors[cBookmarked ? 6 : trade ? 4 : 2] . (hidden ? " Hidden" : ""), 100
 				vars.hwnd.stash[item] := hwnd
 				If (vars.stash.hover = item)
 				{
@@ -196,18 +202,65 @@ Stash_(mode, test := 0)
 			}
 		}
 
+	If settings.stash[tab].bookmarking
+	{
+		Gui, %GUI_name%: Font, % "bold s" settings.stash.fSize
+		Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans Center Border x0 y" vars.client.h * 0.8 - width//10 - settings.stash.fHeight " w" width//2, % LangTrans("stash_bookmark") " " bookmark_profile
+		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack", 0
+		Gui, %GUI_name%: Font, % "norm s" settings.stash.fSize2
+		price_dimensions := [], price_list := {}, price_total := 0
+		For item, val in settings.stash[tab].bookmarks[bookmark_profile]
+			price_text := Round(lType = 4 ? vars.stash[tab][item].trend[vars.stash[tab][item].trend.MaxIndex()] : val * vars.stash[tab][item].prices[lType], 2)
+			, price_dimensions.Push(price_text), price_list[item] := price_text, price_total += price_text
+		
+		If price_dimensions.Count()
+			price_dimensions.Push(price_total := Round(lType = 4 ? price_total / price_list.Count() : price_total, 2)), LLK_PanelDimensions(price_dimensions, settings.stash.fSize2, wPrices, hPrices)
+
+		For item, val in settings.stash[tab].bookmarks[bookmark_profile]
+		{
+			color := (item = vars.stash.hover) ? " c" settings.stash.colors.5 : "", color2 := (item = vars.stash.hover) ? settings.stash.colors.6 : "Black"
+			regex0 := InStr(item, " of ") ? ".*" SubStr(item, InStr(item, " of ") + 4) : item, regex .= (!regex ? "" : "|") . StrReplace(regex0, " ", ".")
+			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "" : "y+-1 ") "xs Section BackgroundTrans Border w" width//2 - wPrices + 1 " h" settings.stash.fHeight2 . color, % " " val "x " item 
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Background" color2, 0
+
+			Gui, %GUI_name%: Add, Text, % "ys x+-1 hp BackgroundTrans Border Right w" wPrices, % price_list[item] " "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled BackgroundBlack", 0
+			ControlGetPos,, yLast,, hLast,, ahk_id %hwnd%
+			If (yLast + hLast + settings.stash.fHeight2 >= vars.client.h)
+			{
+				full := 1
+				Break
+			}
+		}
+
+		If !full && price_total && (price_list.Count() > 1)
+		{
+			Gui, %GUI_name%: Add, Text, % "xp y+-1 hp BackgroundTrans Border Right w" wPrices, % price_total " "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack", 0
+
+			LLK_PanelDimensions([LangTrans("global_regex")], settings.stash.fSize2, wRegex, hRegex)
+			Gui, %GUI_name%: Add, Text, % "xp-" wRegex - 1 " yp BackgroundTrans HWNDhwnd Border Center", % " " LangTrans("global_regex") " "
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack", 0
+
+			ControlGetPos, xRegex, yRegex, wRegex, hRegex,, ahk_id %hwnd%
+			vars.stash.regex := {"x": xRegex, "y": yRegex, "w": wRegex, "h": hRegex, "string": "^(" regex ")$"}
+		}
+	}
+
 	For outer in ["", ""]
 		For index, limit in settings.stash[tab].limits
 		{
 			count += (outer = 1 && !Blank(limit.3)) ? 1 : 0
 			If (outer = 1) || Blank(limit.3)
 				Continue
-			style := !added ? "x" width//2 - (count/2) * settings.stash.fWidth * 6 " y" vars.client.h * 0.8 - settings.stash.fWidth * 6 - settings.stash.fHeight : "ys"
+			If settings.stash[tab].bookmarking
+				style := !added ? "x" width//2 " y" vars.client.h * 0.8 - width//10 - settings.stash.fHeight : "ys"
+			Else style := !added ? "x" width//2 - (count/2) * width//10 " y" vars.client.h * 0.8 - width//10 - settings.stash.fHeight : "ys"
 			color1 := (index = profile) ? " c" settings.stash.colors.1 : "", color2 := (index = profile) ? settings.stash.colors.2 : "Black"
 			Gui, %GUI_name%: Font, % "bold s" settings.stash.fSize
-			Gui, %GUI_name%: Add, Text, % "Section " style " Center BackgroundTrans Border w" settings.stash.fWidth * 6 . color1, % index
+			Gui, %GUI_name%: Add, Text, % "Section " style " Center BackgroundTrans Border w" width//10 . color1, % index
 			Gui, %GUI_name%: Add, Progress, % " Disabled cBlack xp yp wp hp Border BackgroundBlack c" color2, 100
-			Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans wp Center Border HWNDhwnd h" settings.stash.fWidth * 6, % " "
+			Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans wp Center Border HWNDhwnd h" width//10, % " "
 			ControlGetPos, x, y, w, h,, ahk_id %hwnd%
 			Gui, %GUI_name%: Font, % "norm s" settings.stash.fSize2
 			If !Blank(limit.2)
@@ -248,10 +301,10 @@ Stash_Close()
 		Settings_menu("stash-ninja")
 }
 
-Stash_Hotkeys()
+Stash_Hotkeys(mode := "")
 {
 	local
-	global vars, settings
+	global vars, settings, Json
 	static in_progress
 
 	If vars.stash.wait || in_progress
@@ -261,15 +314,57 @@ Stash_Hotkeys()
 		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
 	Else hotkey := hotkey0
 
-	If IsNumber(hotkey) && !Blank(settings.stash[tab].limits[hotkey].3) && (hotkey != settings.stash[tab].profile)
-		settings.stash[tab].profile := hotkey, Stash_("refresh")
+	If (mode = "regex")
+	{
+		Clipboard := vars.stash.regex.string, LLK_ToolTip(LangTrans("global_clipboard"), 1,,,, "Lime")
+		KeyWait, % hotkey0
+		Sleep 100
+		in_progress := 0
+		Return
+	}
+
+	If IsNumber(hotkey)
+	{
+		If settings.stash[tab].bookmarking && (GetKeyState("Shift", "P") || GetKeyState("Control", "P")) && (settings.stash[tab].bookmark != hotkey)
+			settings.stash[tab].bookmark := hotkey, Stash_("refresh")
+		Else If !Blank(settings.stash[tab].limits[hotkey].3) && !(GetKeyState("Shift", "P") || GetKeyState("Control", "P")) && (hotkey != settings.stash[tab].profile)
+			settings.stash[tab].profile := hotkey, Stash_("refresh")
+	}
+	Else If settings.stash[tab].bookmarking && InStr("space, lalt", hotkey) && vars.stash.hover && !InStr(vars.stash.hover, "tab_")
+	{
+		bookmark_profile := settings.stash[tab].bookmark
+		If !vars.stash.hover || (hotkey = "lalt") && !settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover]
+		{
+			KeyWait, % hotkey0
+			Sleep 100
+			in_progress := 0
+			Return
+		}
+
+		If (hotkey = "lalt")
+		{
+			If (settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover] < 2)
+				settings.stash[tab].bookmarks[bookmark_profile].Delete(vars.stash.hover)
+			Else settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover] -= 1
+		}
+		Else
+		{
+			If !settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover]
+				settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover] := 1
+			Else settings.stash[tab].bookmarks[bookmark_profile][vars.stash.hover] += 1
+		}
+		IniWrite, % """" json.dump(settings.stash[tab].bookmarks[bookmark_profile]) """", ini\stash-ninja.ini, % tab, % "bookmarks " bookmark_profile
+		Stash_("refresh")
+	}
 	Else If InStr(hotkey, "Button") && vars.stash.hover
 	{
 		Clipboard := ""
 		SendInput, ^{c}
-		ClipWait, 0.05
+		ClipWait, 0.1
 		If !vars.client.stream && (!Clipboard || InStr(hotkey, "LButton") && (InStr(Clipboard, LangTrans("items_stack") " 1/") || !InStr(Clipboard, LangTrans("items_stack"))))
 		{
+			KeyWait, % hotkey0
+			Sleep 100
 			in_progress := 0
 			Return
 		}
@@ -281,6 +376,7 @@ Stash_Hotkeys()
 		LLK_Overlay(vars.hwnd.stash.main, "show")
 	}
 	KeyWait, % hotkey0
+	Sleep 100
 	in_progress := 0
 }
 
@@ -335,6 +431,7 @@ Stash_PriceFetch(tab)
 					IniWrite, % """" trend """", data\global\[stash-ninja] prices.ini, % tab, % name "_trend"
 			}
 			Else ini_dump .= "`n" name "=""" price """", ini_dump .= !Blank(trend) ? "`n" name "_trend=""" trend """" : ""
+
 			If (check := LLK_HasKey(vars.stash, name,,,, 1))
 			{
 				If (vars.stash[check][name].source.1 = "trade")

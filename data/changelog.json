@@ -1,5 +1,9 @@
 [
   [
+	["1.55.3", 15503],
+	"stash-ninja: added bookmarking to permanently highlight specific items"
+  ],
+  [
 	["1.55.2", 15502],
 	"recombination: added item-slot locking, improved mod detection, updated fractured behavior",
 	"act-tracker: fixed a hint in act 9",
@@ -26,8 +30,8 @@
 	"minor fixes and improvements"
   ],
   [
-	["1.54.6", 15406],
-	"omni-key consistency improvements (inventory pixel-check is now mandatory)",
+	["1.54.6", 15406, 1],
+	"omni-key consistency improvements (inventory pixel-check is now mandatory)(/highlight)",
 	"fixes: cheat-sheets, item-info class-specific highlighting, map-info magic monsters",
 	"item-info: improved ilvl detection for mods, changed highlighting"
   ],
