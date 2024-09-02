@@ -288,9 +288,9 @@ HelpToolTip(HWND_key)
 			For index, text in val
 				If (index > 1)
 				{
-					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(text, "&", "&&")
+					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(text, "&", "&&"), "(/highlight)")
 					Gui, %GUI_name%: Add, Text, % (index = 2 ? "x0 y0" : "xs") " Section Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth, % StrReplace(text, "&", "&&")
+					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth . (InStr(text, "(/highlight)") ? " cFF8000" : ""), % StrReplace(StrReplace(text, "&", "&&"), "(/highlight)")
 				}
 		}
 	Else
