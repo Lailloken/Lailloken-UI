@@ -512,7 +512,8 @@ Return
 ~+LButton UP::IteminfoTrigger(1)
 +RButton::IteminfoMarker()
 
-#If (vars.pixelsearch.inventory.check || !settings.features.pixelchecks) && (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-right-clicking currency to shift-click items after
+#If (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) && Screenchecks_PixelSearch("inventory")
+;shift-right-clicking currency to shift-click items after
 
 ~+RButton UP::IteminfoTrigger()
 

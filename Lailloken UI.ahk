@@ -813,7 +813,7 @@ Loop_main()
 	}
 	IteminfoOverlays()
 
-	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
+	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && !WinExist("ahk_id " vars.hwnd.betrayal_setup.main) && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
 		WinActivate, % "ahk_id " vars.general.wMouse
 
 	If !vars.general.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
@@ -894,16 +894,10 @@ Loop_main()
 			LLK_Overlay("show")
 		}
 
-		If settings.features.pixelchecks
-		{
-			For key in vars.pixelsearch.list
-				Screenchecks_PixelSearch(key)
-		}
-
 		LeveltrackerFade()
 		location := vars.log.areaID ;short-cut variable
 		If (vars.cloneframes.enabled
-		&& ((settings.cloneframes.pixelchecks && vars.pixelsearch.gamescreen.check) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
+		&& ((settings.cloneframes.pixelchecks && Screenchecks_PixelSearch("gamescreen")) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
 		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 		&& !vars.sanctum.active
 		|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings

@@ -131,22 +131,35 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
 			Gui, alarm_set: Font, % "s" Max(6, settings.alarm.fSize * 0.7) " cWhite", % vars.system.font
-			vars.hwnd.alarm.alarm_set := alarm_set
+			vars.hwnd.alarm.alarm_set := alarm_set, LLK_PanelDimensions([LangTrans("global_name"), LangTrans("global_time")], Max(6, settings.alarm.fSize * 0.7), wText, hText)
 
-			Gui, alarm_set: Add, Edit, % "Section cBlack HWNDhwnd Center r1 w" vars.alarm.wTimers
+			Gui, alarm_set: Add, Edit, % "r1 Hidden w" vars.alarm.wTimers
+			Gui, alarm_set: Add, Text, % "xp yp hp Section Right Border 0x200 w" wText, % LangTrans("global_time") " "
+			Gui, alarm_set: Add, Edit, % "ys x+-1 cBlack HWNDhwnd Center r1 w" vars.alarm.wTimers
 			If !(cHWND = "start")
 			{
-				Gui, alarm_set: Add, Edit, % "Section xs y+-1 cBlack Center Limit HWNDhwnd1 r1 w" vars.alarm.wTimers
+				Gui, alarm_set: Add, Text, % "Section hp xs y+-1 Right Border 0x200 w" wText, % LangTrans("global_name") " "
+				Gui, alarm_set: Add, Edit, % "ys x+-1 cBlack Center Limit HWNDhwnd1 r1 w" vars.alarm.wTimers
 				vars.alarm.override := ""
 			}
 			vars.hwnd.alarm.edit := hwnd, vars.hwnd.alarm.edit1 := hwnd1
 			Gui, alarm_set: Add, Button, % "xp yp hp wp Hidden Default gAlarm cBlack", OK
+
 			If (cHWND = "start")
 			{
-				WinGetPos, xEdit, yEdit, wEdit, hEdit,% "ahk_id " vars.hwnd.alarm["timer_" vars.alarm.override]
-				Gui, alarm_set: Show, % "x" xEdit " y" yEdit
+				WinGetPos, xEdit, yEdit, wEdit, hEdit, % "ahk_id " vars.hwnd.alarm["timer_" vars.alarm.override]
+				xPos := xEdit - wText + 1, yPos := yEdit
 			}
-			Else Gui, alarm_set: Show, % "x" vars.alarm.xPanel + vars.alarm.wPanel//2 - vars.alarm.wTimers//2 " y"vars.alarm.yPanel
+			Else xPos := vars.alarm.xPanel + vars.alarm.wPanel//2 - wText, yPos := vars.alarm.yPanel
+
+			Gui, alarm_set: Add, Text, % "Section xs y+-1 Center Border gAlarm 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2), % LangTrans("global_start")
+			Gui, alarm_set: Add, Text, % "ys Center Border gHotkeysESC 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2) " x+" (Mod(wText + vars.alarm.wTimers - 1, 2) ? -1 : 0), % LangTrans("global_cancel")
+			Gui, alarm_set: Show, % "NA x10000 y10000"
+
+			WinGetPos, xWin, yWin, wWin, hWin, ahk_id %alarm_set%
+			xPos := (xPos < vars.monitor.x) ? vars.monitor.x : (xPos + wWin >= vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - wWin : xPos
+			yPos := (yPos + hWin >= vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - hWin : yPos
+			Gui, alarm_set: Show, % "x" xPos " y" yPos
 			ControlFocus,, ahk_id %hwnd%
 			Return
 		}

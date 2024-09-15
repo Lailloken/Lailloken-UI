@@ -21,14 +21,8 @@
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
 	}
 
-	If !settings.features.pixelchecks
-		Screenchecks_PixelSearch("inventory")
-
-	If vars.pixelsearch.inventory.check
+	If Screenchecks_PixelSearch("inventory")
 	{
-		If !settings.features.pixelchecks
-			vars.pixelsearch.inventory.check := 0
-
 		If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		{
 			MaptrackerNoteAdd(), OmniRelease()
@@ -37,7 +31,7 @@
 
 		If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
 			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
-		Else SendInput !^{c}
+		Else SendInput, !^{c}
 
 		ClipWait, 0.1
 	}
@@ -142,10 +136,7 @@ Omnikey2()
 		Return
 	}
 
-	If !settings.features.pixelchecks
-		Screenchecks_PixelSearch("gamescreen")
-
-	If !vars.pixelsearch.gamescreen.check
+	If !Screenchecks_PixelSearch("gamescreen")
 	{
 		Screenchecks_ImageSearch()
 		If settings.features.betrayal && vars.imagesearch.betrayal.check

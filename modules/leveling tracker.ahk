@@ -1085,16 +1085,13 @@ LeveltrackerProgress(mode := 0) ;advances the guide and redraws the overlay
 	For raw_index, step in guide.text_raw
 	{
 		guide.group1.Push(step)
-		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to"))
-		&& !InStr(step, "arena:") ;&& !InStr(step, "the warden's_chambers") && !InStr(step, "sewer_outlet") && !InStr(step, "resurrection_site") && !InStr(step, "the_black_core")
+		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to")) && InStr(step, "areaid")
 		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the")
 		{
 			Loop
-			{
 				If InStr(guide.text_raw[raw_index + A_Index], "(hint)")
 					guide.group1.Push(guide.text_raw[raw_index + A_Index])
 				Else Break
-			}
 			Break
 		}
 	}
