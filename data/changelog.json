@@ -1,5 +1,11 @@
 [
   [
+	["1.55.4", 15504],
+	"betrayal-info: geforce now screen-cap fix",
+	"act-tracker: improved import for custom guides",
+	"alarm-timer: streamlining and improvements"
+  ],
+  [
 	["1.55.3", 15503],
 	"stash-ninja: added bookmarking to permanently highlight specific items"
   ],
