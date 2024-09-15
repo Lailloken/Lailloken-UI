@@ -20,7 +20,7 @@
 	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable item-levels"]) ? check : 0
 	settings.iteminfo.itembase := !Blank(check := ini.settings["enable base-info"]) ? check : 1
 	settings.iteminfo.override := !Blank(check := ini.settings["enable blacklist-override"]) ? check : 0
-	settings.iteminfo.compare := (settings.general.lang_client != "english") || !settings.features.pixelchecks ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
+	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
 
 	settings.iteminfo.rules := {}
 	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["weapon res override"]) ? check : 0
@@ -2347,14 +2347,14 @@ IteminfoOverlays() ;show update buttons for specific gear-slots underneath the c
 	local
 	global vars, settings
 
-	If settings.iteminfo.compare && settings.features.pixelchecks
+	If settings.iteminfo.compare
 		For slot, val in vars.iteminfo.compare.slots
 		{
-			If vars.pixelsearch.inventory.check && LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")
+			If LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login") && Screenchecks_PixelSearch("inventory")
 			&& !WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) && (vars.general.wMouse != vars.hwnd.iteminfo.main) && (vars.general.wMouse != vars.hwnd.omni_context.main) && WinActive("ahk_group poe_window")
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "show",, "iteminfo_button_" slot)
 			Else If WinExist("ahk_id " vars.hwnd.iteminfo_comparison[slot])
-			&& (!vars.pixelsearch.inventory.check || !(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2)) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window"))
+			&& (!(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2)) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window") || !Screenchecks_PixelSearch("inventory"))
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "hide")
 		}
 }

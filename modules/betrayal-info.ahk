@@ -102,16 +102,11 @@ BetrayalCalibrate(cHWND := "")
 		Gui, betrayal_setup: Show, NA x10000 y10000
 		WinGetPos,,, w, h, % "ahk_id " vars.hwnd.betrayal_setup.main
 		Gui, betrayal_setup: Show, % "x" vars.monitor.x + vars.client.xc - w//2 " y" vars.monitor.y + vars.client.yc - h//2
-		Loop ;use this kind of loop instead of a hard-coded hotkey to close this setup-window
-		{
-			If !WinActive("ahk_id "vars.hwnd.betrayal_setup.main) || GetKeyState("ESC", "P")
-			{
-				If IsObject(vars.hwnd.betrayal_setup)
-					LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_abort"),,,,, "red")
-				Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_success"),,,,, "lime")
-				Break
-			}
-		}
+		While WinActive("ahk_id " vars.hwnd.betrayal_setup.main) ;use this kind of loop instead of a hard-coded hotkey to close this setup-window
+			Sleep 100
+		If IsObject(vars.hwnd.betrayal_setup)
+			LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_abort"),,,,, "red")
+		Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_success"),,,,, "lime")
 	}
 	DeleteObject(hbmBetrayal), Gdip_DisposeImage(pBetrayal)
 	vars.hwnd.Delete("betrayal_setup")

@@ -17,14 +17,12 @@
 	}
 	Else settings.general.oGamescreen := 0
 
-	settings.features.pixelchecks := LLK_IniRead("ini\config.ini", "Settings", "background pixel-checks", 1) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
 	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates")
 	If InStr(parse, ",")
 		vars.pixelsearch.gamescreen := {"x1": SubStr(parse, 1, InStr(parse, ",") - 1), "y1": SubStr(parse, InStr(parse, ",") + 1)}
 
 	ini := IniBatchRead("ini\screen checks (" vars.client.h "p).ini")
 	vars.pixelsearch.gamescreen.color1 := ini.gamescreen["color 1"]
-	vars.pixelsearch.gamescreen.check := 0
 	vars.pixelsearch.inventory := {"x1": 0, "x2": 0, "x3": 6, "y1": 0, "y2": 6, "y3": 0, "check": 0}
 	Loop 3
 		vars.pixelsearch.inventory["color" A_Index] := ini.inventory["color " A_Index]
@@ -300,6 +298,5 @@ Screenchecks_PixelSearch(name) ;performing pixel-checks
 		If !pixel_check
 			break
 	}
-	vars.pixelsearch[name].check := pixel_check ? 1 : 0 ;global variable that is checked in the main loop
-	Return vars.pixelsearch[name].check
+	Return pixel_check
 }

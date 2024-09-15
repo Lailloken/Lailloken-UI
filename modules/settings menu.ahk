@@ -340,7 +340,7 @@ Settings_cloneframes()
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y"vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
 
-	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") && settings.features.pixelchecks || vars.log.file_location
+	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") || vars.log.file_location
 	{
 		Gui, %GUI%: Font, underline bold
 		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % LangTrans("m_clone_toggle")
@@ -349,7 +349,7 @@ Settings_cloneframes()
 		vars.hwnd.help_tooltips["settings_cloneframes toggle-info"] := hwnd
 	}
 
-	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") && settings.features.pixelchecks
+	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR")
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, % LangTrans("m_clone_gamescreen")
 		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
@@ -1195,11 +1195,8 @@ Settings_iteminfo()
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.trigger, % LangTrans("m_iteminfo_shift")
 	vars.hwnd.settings.trigger := hwnd, vars.hwnd.help_tooltips["settings_iteminfo shift-click"] := hwnd
 
-	If settings.features.pixelchecks
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.compare (settings.general.lang_client != "english" ? " cGray" : ""), % LangTrans("m_iteminfo_league")
-		vars.hwnd.settings.compare := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo league-start" : "lang unavailable") ] := hwnd
-	}
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.compare (settings.general.lang_client != "english" ? " cGray" : ""), % LangTrans("m_iteminfo_league")
+	vars.hwnd.settings.compare := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo league-start" : "lang unavailable") ] := hwnd
 
 	If !settings.iteminfo.compare
 	{
@@ -2504,6 +2501,7 @@ Settings_OCR()
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border BackgroundBlack HWNDhwnd11 c" array.2, 100
 		vars.hwnd.settings["color_" index "1"] := hwnd00, vars.hwnd.settings["color_" index "_panel1"] := hwnd01, vars.hwnd.settings["color_" index "_text1"] := hwndtext
 		vars.hwnd.settings["color_" index "2"] := hwnd10, vars.hwnd.settings["color_" index "_panel2"] := hwnd11, vars.hwnd.settings["color_" index "_text2"] := hwndback
+		vars.hwnd.help_tooltips["settings_generic color double" handle] := hwnd01, vars.hwnd.help_tooltips["settings_generic color double1" handle] := hwnd11, handle .= "|"
 	}
 }
 
@@ -2913,8 +2911,6 @@ Settings_screenchecks()
 		Gui, %GUI%: Add, Text, % "ys", % LangTrans((key = "inventory" ? "global_" : "m_screen_") key)
 	}
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Checkbox, % "hp xs Section gSettings_screenchecks2 HWNDhwnd Checked" settings.features.pixelchecks, % LangTrans("m_screen_pixel", 2)
-	vars.hwnd.settings.pixelchecks := vars.hwnd.help_tooltips["settings_screenchecks pixel-background"] := hwnd
 
 	If vars.client.stream
 	{
@@ -2980,9 +2976,6 @@ Settings_screenchecks2(cHWND := "")
 
 	Switch check
 	{
-		Case "pixelchecks":
-			IniWrite, % LLK_ControlGet(cHWND), ini\config.ini, settings, background pixel-checks
-			settings.features.pixelchecks := LLK_ControlGet(cHWND)
 		Case "folder":
 			If FileExist("img\Recognition ("vars.client.h "p)\GUI")
 				Run, % "explore img\Recognition ("vars.client.h "p)\GUI\"
