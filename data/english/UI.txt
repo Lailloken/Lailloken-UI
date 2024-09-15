@@ -164,11 +164,13 @@
 		global_confirm			=	"confirm"
 		global_mouse			=	"l#m#r"		;## left, middle, right mouse-button
 		global_coordinates		=	"coordinates"
-		global_time			=	"time"
+		global_time			=	"time:"
 		global_refresh			=	"refresh"
 		global_settings			=	"settings"
 		global_regex			=	"copy regex"
 		global_clipboard		=	"copied to clipboard"
+		global_start			=	"start"
+		global_cancel			=	"cancel"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -244,7 +246,7 @@
 		betrayal_fortification		=	"fortification"
 		betrayal_research		=	"research"
 		betrayal_intervention		=	"intervention"
-		betrayal_abort			=	"press esc, or go back to the game to abort"
+		betrayal_abort			=	"go back to the game to abort"
 
 
 
