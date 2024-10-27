@@ -7,9 +7,9 @@
 		IniWrite, % "", % "ini" vars.poe_version "\qol tools.ini", settings
 
 	ini := IniBatchRead("ini" vars.poe_version "\qol tools.ini")
-	settings.qol := {	"alarm": !Blank(check := ini.features.alarm) ? check : 0
-	,				"notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0
-	,				"lab": (settings.general.lang_client = "unknown") ? 0 : !Blank(check2 := ini.features.lab) ? check2 : 0}
+	settings.qol := {"alarm": !Blank(check := ini.features.alarm) ? check : 0
+		, "notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0
+		, "lab": (settings.general.lang_client = "unknown") ? 0 : !Blank(check2 := ini.features.lab) ? check2 : 0}
 
 	settings.alarm := {"fSize": !Blank(check := ini.alarm["font-size"]) ? check : settings.general.fSize}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
