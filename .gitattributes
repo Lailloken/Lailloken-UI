@@ -2,3 +2,4 @@
 *.md export-ignore
 img/readme/ export-ignore
 data/global/?legion?* export-ignore
+data/global/?leveltracker?*tree*.json export-ignore

@@ -3,19 +3,19 @@
 	local
 	global vars, settings
 
-	If !FileExist("ini\recombination.ini")
-		IniWrite, % "", ini\recombination.ini, settings
+	If !FileExist("ini" vars.poe_version "\recombination.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\recombination.ini", settings
 	If !IsObject(settings.recombination)
 		settings.recombination := {}
 
-	ini := IniBatchRead("ini\recombination.ini")
+	ini := IniBatchRead("ini" vars.poe_version "\recombination.ini")
 	dcolors := settings.recombination.dcolors := ["00FF00", "FF0000", "FF8000"]
 	settings.recombination.colors := [!Blank(check1 := ini.settings.color1) ? check1 : dColors.1, !Blank(check2 := ini.settings.color2) ? check2 : dColors.2, !Blank(check3 := ini.settings.color3) ? check3 : dColors.3]
 	settings.recombination.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
 	LLK_FontDimensions(settings.recombination.fSize, font_height, font_width), settings.recombination.fWidth := font_width, settings.recombination.fHeight := font_height
 }
 
-Recombination_()
+Recombination()
 {
 	local
 	global vars, settings
@@ -29,20 +29,20 @@ Recombination_()
 	{
 		vars.recombination.influences := {"shaper": "", "elder": "", "crusader": "", "redeemer": "", "hunter": "", "warlord": "", "synthesis": ""}
 		For key in vars.recombination.influences
-			vars.recombination.influences[key] := {"item": LangTrans("items_" key), "affixes": [LangTrans("items_" key "_prefix"), LangTrans("items_" key "_suffix")]}
+			vars.recombination.influences[key] := {"item": Lang_Trans("items_" key), "affixes": [Lang_Trans("items_" key "_prefix"), Lang_Trans("items_" key "_suffix")]}
 	}
 
 	influences := vars.recombination.influences
-	clip := SubStr(vars.omnikey.clipboard, InStr(vars.omnikey.clipboard, LangTrans("items_ilevel"))), clip := StrReplace(clip, "`r`n", ";")
-	clip := StrReplace(clip, " (crafted)"), clip := StrReplace(clip, " — " LangTrans("items_unscalable"))
-	item := {"name": LLK_StringCase(vars.omnikey.item.name), "itembase": LLK_StringCase(vars.omnikey.item.itembase), "class": LLK_StringCase(vars.omnikey.item.class), "prefixes": [], "suffixes": []
-	, "mod_counts": {"prefixes": 3, "suffixes": 3}, "influences": {}, "attributes": vars.omnikey.item.attributes}
+	clip := SubStr(vars.omnikey.clipboard, InStr(vars.omnikey.clipboard, Lang_Trans("items_ilevel"))), clip := StrReplace(clip, "`r`n", ";")
+	clip := StrReplace(clip, " (crafted)"), clip := StrReplace(clip, " — " Lang_Trans("items_unscalable"))
+	item := {"name": LLK_StringCase(vars.omnikey.item.name), "itembase": LLK_StringCase(vars.omnikey.item.itembase),"class": LLK_StringCase(vars.omnikey.item.class)
+		, "prefixes": [], "suffixes": [], "mod_counts": {"prefixes": 3, "suffixes": 3}, "influences": {}, "attributes": vars.omnikey.item.attributes}
 	item1 := vars.recombination.item1, item2 := vars.recombination.item2
 
 	Loop, Parse, % vars.omnikey.clipboard, `n, `r
-		If LangMatch(A_LoopField, vars.lang.items_prefix_allowed)
+		If Lang_Match(A_LoopField, vars.lang.items_prefix_allowed)
 			item.mod_counts.prefixes += SubStr(A_LoopField, 1, 2)
-		Else If LangMatch(A_LoopField, vars.lang.items_suffix_allowed)
+		Else If Lang_Match(A_LoopField, vars.lang.items_suffix_allowed)
 			item.mod_counts.suffixes += SubStr(A_LoopField, 1, 2)
 
 	For key, object in influences
@@ -51,9 +51,9 @@ Recombination_()
 
 	Loop, Parse, clip, `;, %A_Space%
 	{
-		If InStr(A_LoopField, LangTrans("items_implicit")) || !LLK_PatternMatch(A_LoopField, "", [LangTrans("items_prefix"), LangTrans("items_suffix")])
+		If InStr(A_LoopField, Lang_Trans("items_implicit")) || !LLK_PatternMatch(A_LoopField, "", [Lang_Trans("items_prefix"), Lang_Trans("items_suffix")])
 			Continue
-		mod := "", type := InStr(A_LoopField, LangTrans("items_prefix")) ? "prefixes" : "suffixes", fractured := InStr(A_LoopField, "(fractured)")
+		mod := "", type := InStr(A_LoopField, Lang_Trans("items_prefix")) ? "prefixes" : "suffixes", fractured := InStr(A_LoopField, "(fractured)")
 		Loop, Parse, % StrReplace(A_LoopField, " (fractured)"), `n, %A_Space%
 		{
 			affix := ""
@@ -81,11 +81,11 @@ Recombination_()
 	{
 		If !(item.prefixes.Count() + item.suffixes.Count())
 		{
-			LLK_ToolTip(LangTrans("global_errorname", 2),,,,, settings.recombination.colors.2)
+			LLK_ToolTip(Lang_Trans("global_errorname", 2),,,,, settings.recombination.colors.2)
 			Return
 		}
 		Else If !A_Gui
-			LLK_ToolTip(LangTrans("lvltracker_gearadd"), 1,,,, settings.recombination.colors.1)
+			LLK_ToolTip(Lang_Trans("lvltracker_gearadd"), 1,,,, settings.recombination.colors.1)
 
 		If !IsObject(vars.recombination.desired)
 			vars.recombination.desired := {"itembase": 0, "prefixes": {}, "suffixes": {}}, vars.recombination.desired_mods := 0
@@ -177,7 +177,7 @@ Recombination_GUI(cHWND := "")
 					modified += (input != vars.recombination["item" item_no][affix][mod_slot].text)
 				}
 			GuiControl, % (modified ? "+c" settings.recombination.colors.2 " +gRecombination_GUI" : "+cWhite -g"), % vars.hwnd.recombination.chance
-			GuiControl, % "Text", % vars.hwnd.recombination.chance, % modified ? LangTrans("recomb_refresh") : vars.recombination.chance
+			GuiControl, % "Text", % vars.hwnd.recombination.chance, % modified ? Lang_Trans("recomb_refresh") : vars.recombination.chance
 			GuiControl, % "movedraw", % vars.hwnd.recombination.chance
 			GuiControl, % (modified || !vars.recombination.desired_mods ? "+" : "-") "Hidden", % vars.hwnd.recombination.rerun
 			GuiControl, % "movedraw", % vars.hwnd.recombination.rerun
@@ -238,7 +238,7 @@ Recombination_GUI(cHWND := "")
 					If (vars.recombination.desired[affix].Count() = Min(3, vars.recombination.item1.mod_counts[affix]))
 					{
 						GuiControl,, % cHWND, 0
-						LLK_ToolTip(LangTrans("recomb_desired"), 1.5,,,, "Red")
+						LLK_ToolTip(Lang_Trans("recomb_desired"), 1.5,,,, "Red")
 						Return
 					}
 					vars.recombination.desired[affix][mod] := 1
@@ -404,7 +404,7 @@ Recombination_GUI(cHWND := "")
 		If !mismatch && !mismatch_affixes && (item%index%.Count() || (A_Index = 2))
 		{
 			Gui, %GUI_name%: Font, % "underline"
-			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd w" width, % LangTrans("recomb_" affixes[A_Index])
+			Gui, %GUI_name%: Add, Text, % "xs HWNDhwnd w" width, % Lang_Trans("recomb_" affixes[A_Index])
 			ControlGetPos,, yLast,, hLast,, ahk_id %hwnd%
 			yMax := (yLast + hLast > yMax) ? yLast + hLast : yMax
 			Gui, %GUI_name%: Font, % "norm s" settings.recombination.fSize - 2
@@ -429,22 +429,22 @@ Recombination_GUI(cHWND := "")
 			{
 				Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans wp h" settings.recombination.fWidth, % ""
 				Gui, %GUI_name%: Font, underline
-				Gui, %GUI_name%: Add, Text, % "Section xs y" yMax + settings.recombination.fWidth, % LangTrans("recomb_simulation")
+				Gui, %GUI_name%: Add, Text, % "Section xs y" yMax + settings.recombination.fWidth, % Lang_Trans("recomb_simulation")
 				Gui, %GUI_name%: Font, norm
-				Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth//2 " Border gRecombination_GUI HWNDhwnd0" (desired_mods ? "" : " Hidden"), % " " LangTrans("recomb_rerun") " "
+				Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth//2 " Border gRecombination_GUI HWNDhwnd0" (desired_mods ? "" : " Hidden"), % " " Lang_Trans("recomb_rerun") " "
 				Gui, %GUI_name%: Add, Text, % "xs Section HWNDhwnd w" wChance, % (desired.prefixes.Count() + desired.suffixes.Count() > 0) ? (vars.recombination.chance := Recombination_Simulate()) : ""
 				vars.hwnd.recombination.rerun := hwnd0, vars.hwnd.recombination.chance := hwnd
 
 				Gui, %GUI_name%: Font, underline
-				Gui, %GUI_name%: Add, Text, % "Section x" settings.recombination.fWidth " y" yMax + settings.recombination.fWidth, % LangTrans("global_settings") ":"
+				Gui, %GUI_name%: Add, Text, % "Section x" settings.recombination.fWidth " y" yMax + settings.recombination.fWidth, % Lang_Trans("global_settings") ":"
 				Gui, %GUI_name%: Font, norm
-				Gui, %GUI_name%: Add, Text, % "Section xs", % LangTrans("global_font")
+				Gui, %GUI_name%: Add, Text, % "Section xs", % Lang_Trans("global_font")
 				Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth/2 " Center Border gRecombination_GUI HWNDhwnd0 w"settings.recombination.fWidth*2, % "–"
 				Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth/4 " Center Border gRecombination_GUI HWNDhwnd1 w"settings.recombination.fWidth*3, % settings.recombination.fSize
 				Gui, %GUI_name%: Add, Text, % "ys x+"settings.recombination.fWidth/4 " Center Border gRecombination_GUI HWNDhwnd2 w"settings.recombination.fWidth*2, % "+"
 				vars.hwnd.recombination.font_minus := hwnd0, vars.hwnd.recombination.font_reset := hwnd1, vars.hwnd.recombination.font_plus := hwnd2
 
-				Gui, %GUI_name%: Add, Text, % "ys", % LangTrans("global_color", 2) ":"
+				Gui, %GUI_name%: Add, Text, % "ys", % Lang_Trans("global_color", 2) ":"
 				For index, val in settings.recombination.colors
 				{
 					Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth/(A_Index = 1 ? 2 : 4) " BackgroundTrans Border HWNDhwnd gRecombination_GUI w" settings.recombination.fHeight " h" settings.recombination.fHeight, % ""

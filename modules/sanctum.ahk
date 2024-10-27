@@ -3,15 +3,18 @@
 	local
 	global vars, settings, JSON
 
-	If !FileExist("ini\sanctum.ini")
-		IniWrite, % "", ini\sanctum.ini, settings
+	If vars.poe_version
+		Return
+
+	If !FileExist("ini" vars.poe_version "\sanctum.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\sanctum.ini", settings
 
 	If !IsObject(vars.sanctum)
 	{
 		vars.sanctum := {"pixels": {}, "targets": {}, "avoid": {}, "avoids": {}, "blocks": {}, "info": {}, "rooms": [{}, {}, {}, {}]}
 		For outer in [1, 2, 3, 4]
 			For inner in [1, 2, 3, 4, 5]
-				vars.sanctum.rooms[outer][LangTrans("sanctum_rooms_" inner "_" outer) ":`n" LangTrans("sanctum_rooms_" inner)] := 1
+				vars.sanctum.rooms[outer][Lang_Trans("sanctum_rooms_" inner "_" outer) ":`n" Lang_Trans("sanctum_rooms_" inner)] := 1
 		For key, array in vars.lang
 			If (key = "sanctum_info")
 				For index, val in array
@@ -21,7 +24,7 @@
 	If !IsObject(settings.sanctum)
 		settings.sanctum := {}
 
-	ini := IniBatchRead("ini\sanctum.ini")
+	ini := IniBatchRead("ini" vars.poe_version "\sanctum.ini")
 	settings.sanctum.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
 	settings.sanctum.cheatsheet := !Blank(check := ini.settings["enable cheat-sheet"]) ? check : 0
 	vars.sanctum.pixels.path := !Blank(check := ini.data["pixels path"]) ? json.load(check) : {}
@@ -44,7 +47,7 @@
 		vars.sanctum.row1.Push(Floor(hSnip * val))
 }
 
-Sanctum_(cHWND := "", hotkey := 0)
+Sanctum(cHWND := "", hotkey := 0)
 {
 	local
 	global vars, settings
@@ -124,7 +127,7 @@ Sanctum_(cHWND := "", hotkey := 0)
 				IniDelete, ini\sanctum.ini, data, % "pixels " control
 				GuiControl, +BackgroundMaroon, % vars.hwnd.sanctum["cal_" control "2"]
 			}
-			Sanctum_("lock")
+			Sanctum("lock")
 			Return
 		}
 		Else
@@ -190,11 +193,11 @@ Sanctum_(cHWND := "", hotkey := 0)
 		vars.hwnd.sanctum.scanned_img := hwnd
 	}
 
-	LLK_PanelDimensions([LangTrans("global_scan", 2), LangTrans("sanctum_calibrate"), LangTrans("sanctum_calibrate", 2)], settings.sanctum.fSize, wButtons, hButtons)
-	For index, val in [LangTrans("global_scan", 2), LangTrans("sanctum_calibrate"), LangTrans("sanctum_calibrate", 2)]
+	LLK_PanelDimensions([Lang_Trans("global_scan", 2), Lang_Trans("sanctum_calibrate"), Lang_Trans("sanctum_calibrate", 2)], settings.sanctum.fSize, wButtons, hButtons)
+	For index, val in [Lang_Trans("global_scan", 2), Lang_Trans("sanctum_calibrate"), Lang_Trans("sanctum_calibrate", 2)]
 	{
 		style := (index = 1) ? "Section x" xSnip + wSnip - 1 " y" ySnip + hSnip - (hButtons * 3 - 2) : "xs y+-1", style .= !InStr(val, "`n") ? " 0x200" : ""
-		Gui, %GUI_name2%: Add, Text, % style " Border BackgroundTrans Center gSanctum_ w" wButtons " h" hButtons " HWNDhwnd" index . (check != "scan" ? " Hidden" : ""), % " " StrReplace(val, "`n", " `n ") " "
+		Gui, %GUI_name2%: Add, Text, % style " Border BackgroundTrans Center gSanctum w" wButtons " h" hButtons " HWNDhwnd" index . (check != "scan" ? " Hidden" : ""), % " " StrReplace(val, "`n", " `n ") " "
 		color := (index = 1 && (!grid.Count() || !correct_floor)) || (index = 2 && !vars.sanctum.pixels.path.Count()) || (index = 3 && !vars.sanctum.pixels.room.Count()) ? "Maroon" : "Black"
 		style := (index = 1) ? " Range0-7" : " Range0-500"
 		Gui, %GUI_name2%: Add, Progress, % "xp yp wp hp Disabled Background" color " cGreen HWNDhwnd" index "2" style . (check != "scan" ? " Hidden" : ""), 0
@@ -234,7 +237,7 @@ Sanctum_(cHWND := "", hotkey := 0)
 	Gui, %GUI_name2%: Show, % "NA x" vars.client.x " y" vars.client.y
 	LLK_Overlay(vars.hwnd.sanctum.second, "show", 1, GUI_name2), LLK_Overlay(hwnd_old2, "destroy")
 	If error
-		LLK_ToolTip(LangTrans("global_fail"), 1,,,, "Red")
+		LLK_ToolTip(Lang_Trans("global_fail"), 1,,,, "Red")
 	vars.sanctum.active := 1, vars.hwnd.sanctum.uptodate := 1
 }
 
@@ -247,7 +250,7 @@ Sanctum_Calibrate(mode)
 	If (pSnip <= 0)
 		Return
 	Gdip_GetImageDimensions(pSnip, wSnip, hSnip)
-	
+
 	Loop, % wSnip
 	{
 		x_coord := A_Index - 1
@@ -267,7 +270,7 @@ Sanctum_Calibrate(mode)
 	Loop, Parse, pixel_count, `n, % " `r"
 		If (mode = "path") || (mode = "room" && A_Index < 11)
 			vars.sanctum.pixels[mode][SubStr(A_LoopField, InStr(A_LoopField, " x ") + 3)] := 1
-	
+
 	If vars.sanctum.pixels[mode].Count()
 	{
 		IniWrite, % """" json.dump(vars.sanctum.pixels[mode]) """", ini\sanctum.ini, data, % "pixels " mode
@@ -428,7 +431,7 @@ Sanctum_Scan(mode := "")
 			}
 			Continue
 		}
-		
+
 		x_coord := vColumn + wBox * 0.4 - 1, yMin := 100000
 		Loop, % wBox/5
 		{
@@ -453,7 +456,7 @@ Sanctum_Scan(mode := "")
 				If !IsObject(grid[iColumn])
 					grid[iColumn] := []
 				first_row := !first_row ? iRow : first_row, grid[iColumn].Push({"x": vColumn, "y": vRow, "entries": {}, "exits": {}})
-				
+
 				Gdip_SetPixel(pCrop, vColumn + wBox/2, vRow + hBox/2, "4294901760")
 				Loop, % wBox//4
 					Gdip_SetPixel(pCrop, vColumn + wBox/2 - A_Index, vRow + hBox/2, "4294901760"), Gdip_SetPixel(pCrop, vColumn + wBox/2 + A_Index, vRow + hBox/2, "4294901760")
@@ -466,7 +469,7 @@ Sanctum_Scan(mode := "")
 			Break
 		}
 	}
-	
+
 	If !error
 		For iColumn, vColumn in columns
 		{

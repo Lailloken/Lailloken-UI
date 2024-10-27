@@ -3,15 +3,18 @@
 	local
 	global vars, settings, db, Json
 
-	If !FileExist("ini\ocr.ini")
-		IniWrite, % "", ini\ocr.ini, settings
-	If !FileExist("ini\ocr - altars.ini")
-		IniWrite, % "", ini\ocr - altars.ini, settings
-	If !FileExist("ini\ocr - vaal areas.ini")
-		IniWrite, % "", ini\ocr - vaal areas.ini, settings
+	If vars.poe_version
+		Return
 
-	ini := IniBatchRead("ini\ocr.ini"), settings.OCR := {"profile": 1} ;in case profiles are desired in the future
-	settings.OCR.allow := (!Blank(check := ini.settings["allow ocr"]) ? check : 0) * (vars.client.h > 720 ? 1 : 0)
+	If !FileExist("ini" vars.poe_version "\ocr.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\ocr.ini", settings
+	If !FileExist("ini" vars.poe_version "\ocr - altars.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\ocr - altars.ini", settings
+	If !FileExist("ini" vars.poe_version "\ocr - vaal areas.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\ocr - vaal areas.ini", settings
+
+	ini := IniBatchRead("ini" vars.poe_version "\ocr.ini"), settings.OCR := {"profile": 1} ;in case profiles are desired in the future
+	settings.OCR.allow := vars.poe_version ? 0 : (!Blank(check := ini.settings["allow ocr"]) ? check : 0) * (vars.client.h > 720 ? 1 : 0)
 	settings.OCR.hotkey := !Blank(check := ini.settings["hotkey"]) ? check : ""
 	settings.OCR.hotkey_single := settings.OCR.hotkey
 	If (StrLen(settings.OCR.hotkey) > 1)
@@ -31,11 +34,11 @@
 			settings.OCR.colors[index] := StrSplit(check, ",")
 		Else settings.OCR.colors[index] := color.Clone()
 
-	settings.features.OCR := LLK_IniRead("ini\config.ini", "Features", "enable ocr", 0) * settings.OCR.allow
+	settings.features.OCR := LLK_IniRead("ini" vars.poe_version "\config.ini", "Features", "enable ocr", 0) * settings.OCR.allow
 	If settings.features.OCR && !Blank(settings.OCR.hotkey)
 	{
 		Hotkey, IfWinActive, ahk_group poe_ahk_window
-		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR_
+		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR
 	}
 
 	If IsObject(db.altars)
@@ -73,7 +76,7 @@
 				db.vaalareas_dictionary.Push(A_LoopField)
 }
 
-OCR_(mode := "GUI")
+OCR(mode := "GUI")
 {
 	local
 	global vars, settings
@@ -92,7 +95,6 @@ OCR_(mode := "GUI")
 		vars.OCR.in_progress := 0
 		Return
 	}
-
 
 	If (mode != "compat")
 	{
@@ -116,7 +118,7 @@ OCR_(mode := "GUI")
 		Gdip_GetImageDimensions(pBitmap, w, h)
 		If (w >= vars.client.w || h >= vars.client.h)
 		{
-			LLK_ToolTip(LangTrans("m_ocr_error", 2), 2, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "red", settings.general.fSize * 2,,, 1)
+			LLK_ToolTip(Lang_Trans("m_ocr_error", 2), 2, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "red", settings.general.fSize * 2,,, 1)
 			Gdip_DisposeImage(pBitmap)
 			vars.OCR.in_progress := 0
 			Return
@@ -172,7 +174,7 @@ OCR_(mode := "GUI")
 	pEffect := Gdip_CreateEffect(5, 0, 35), Gdip_BitmapApplyEffect(pBitmap, pEffect), Gdip_DisposeEffect(pEffect)
 	;pEffect := Gdip_CreateEffect(2, 0, 100), Gdip_BitmapApplyEffect(pBitmap, pEffect), Gdip_DisposeEffect(pEffect)
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap), pIRandomAccessStream := HBitmapToRandomAccessStream(hBitmap), Gdip_DisposeImage(pBitmap)
-	text := ocr(pIRandomAccessStream), ObjRelease(pIRandomAccessStream), text := LLK_StringCase(text)
+	text := ocr_uwp(pIRandomAccessStream), ObjRelease(pIRandomAccessStream), text := LLK_StringCase(text)
 
 	vars.OCR.text_check := {}
 	If (mode = "compat")
@@ -201,14 +203,14 @@ OCR_(mode := "GUI")
 		{
 			vars.OCR.debug := 1
 			Gui, compat_test: Font, % "s" settings.general.fSize - 4
-			Gui, compat_test: Add, Edit, % "ys Section cBlack", % !Blank(text) ? text : LangTrans("ocr_notext")
+			Gui, compat_test: Add, Edit, % "ys Section cBlack", % !Blank(text) ? text : Lang_Trans("ocr_notext")
 			Gui, compat_test: Font, % "s" settings.general.fSize
-			Gui, compat_test: Add, Text, % "xs HWNDhwnd", % "client-res: " vars.client.w "x" vars.client.h " " LangTrans("omnikey_escape")
+			Gui, compat_test: Add, Text, % "xs HWNDhwnd", % "client-res: " vars.client.w "x" vars.client.h " " Lang_Trans("omnikey_escape")
 			ControlFocus,, ahk_id %hwnd%
 		}
 		Else
 		{
-			Gui, compat_test: Add, Text, % "xs wp", % LangTrans("m_ocr_compatibility", 2)
+			Gui, compat_test: Add, Text, % "xs wp", % Lang_Trans("m_ocr_compatibility", 2)
 			Gui, compat_test: Add, Edit, % "xs wp cBlack wp HWNDhwnd0 gSettings_OCR2",
 			Gui, compat_test: Add, Text, % "xs wp HWNDhwnd1 cLime", % ""
 			If (vars.system.click = 2)
@@ -226,12 +228,12 @@ OCR_(mode := "GUI")
 
 	If Blank(text) && !debug
 	{
-		OCR_Error(LangTrans("ocr_notext"))
+		OCR_Error(Lang_Trans("ocr_notext"))
 		Return
 	}
 	Else If (mode = "compat") && (vars.OCR.text_check.Count() < 8)
 	{
-		LLK_ToolTip(LangTrans("m_ocr_error"), 2.5,,,, "red")
+		LLK_ToolTip(Lang_Trans("m_ocr_error"), 2.5,,,, "red")
 		Return
 	}
 	Else If (mode = "compat") || debug
@@ -239,13 +241,11 @@ OCR_(mode := "GUI")
 	Else
 	{
 		vars.OCR.text := text
-		If InStr(text, LangTrans("items_mapquantity"))
+		If InStr(text, Lang_Trans("items_mapquantity"))
 			OCR_VaalAreas()
 		Else If InStr(text, ":",,, 2)
 			OCR_Altars()
-		;Else If InStr(text, " essence of ")
-		;	OCR_Essences()
-		Else OCR_Error(LangTrans("ocr_nousecase"))
+		Else OCR_Error(Lang_Trans("ocr_nousecase"))
 	}
 }
 
@@ -288,7 +288,7 @@ OCR_Altars()
 					regex_array_copy[index] := ""
 				Else regex .= (!regex ? "" : ".*") val
 
-			regex_results := LLK_HasRegex(header_lookup, regex, 1)
+			regex_results := OCR_HasRegex(header_lookup, regex, 1)
 			If (regex_results.Count() > 1)
 			{
 				regex := ""
@@ -299,7 +299,7 @@ OCR_Altars()
 						blank_regex := ""
 						Loop, Parse, % regex_array[index]
 						{
-							If LLK_HasRegex(header_lookup, OCR_RegexCheck(regex_array_copy, index, blank_regex . A_LoopField), 1)
+							If OCR_HasRegex(header_lookup, OCR_RegexCheck(regex_array_copy, index, blank_regex . A_LoopField), 1)
 								blank_regex .= A_LoopField
 							Else blank_regex .= (SubStr(blank_regex, -1) = ".*") ? "" : ".*"
 						}
@@ -307,7 +307,7 @@ OCR_Altars()
 							regex .= (!regex || SubStr(regex, -1) = ".*" ? "" : ".*") regex_array_copy[index] := blank_regex
 					}
 				}
-				regex_results := LLK_HasRegex(header_lookup, regex, 1)
+				regex_results := OCR_HasRegex(header_lookup, regex, 1)
 			}
 			If (regex_results.Count() = 1) && (key != header_check[regex_results.1])
 				key := header_check[regex_results.1], header += 1, parsed_text[header].Push(key ":")
@@ -356,7 +356,7 @@ OCR_Altars()
 				Else regex .= (regex = "i)") ? vRegex : ".*" vRegex
 			}
 
-			If (LLK_HasRegex(mod_lookup, regex, 1).Count() = 1)
+			If (OCR_HasRegex(mod_lookup, regex, 1).Count() = 1)
 				regex_all := regex
 			Else If (LLK_HasVal(regex_array_copy, 0,,, 1).Count() < regex_array_copy.Count()//2)
 			{
@@ -367,7 +367,7 @@ OCR_Altars()
 						blank_regex := ""
 						Loop, Parse, % regex_array[iRegex]
 						{
-							If LLK_HasRegex(mod_lookup, OCR_RegexCheck(regex_array_copy, iRegex, blank_regex . A_LoopField), 1)
+							If OCR_HasRegex(mod_lookup, OCR_RegexCheck(regex_array_copy, iRegex, blank_regex . A_LoopField), 1)
 								blank_regex .= A_LoopField
 							Else blank_regex .= (SubStr(blank_regex, -1) = ".*") ? "" : ".*"
 						}
@@ -379,7 +379,7 @@ OCR_Altars()
 					If vRegex
 						regex_all .= (regex_all = "i)" ? "" : ".*") vRegex
 			}
-			If (regex_all != "i)") && (regex_result := LLK_HasRegex(mod_lookup, regex_all, 1))
+			If (regex_all != "i)") && (regex_result := OCR_HasRegex(mod_lookup, regex_all, 1))
 				parsed_mods.Push(regex_result.Count() > 1 ? "???" : mod_lookup[regex_result.1])
 		}
 
@@ -410,7 +410,7 @@ OCR_Altars()
 	}
 
 	If (panels.1.Count() < 3) || (panels.2.Count() < 3) || !LLK_HasVal(panels, ":", 1,,, 1)
-		OCR_Error(LangTrans("ocr_erroraltar"))
+		OCR_Error(Lang_Trans("ocr_erroraltar"))
 	Else
 	{
 		LLK_PanelDimensions(panels.1, settings.OCR.fSize, w1, h1), LLK_PanelDimensions(panels.2, settings.OCR.fSize, w2, h2)
@@ -437,7 +437,7 @@ OCR_Altars()
 		xPos := (xPos < vars.client.x) ? vars.client.x : (xPos + wWin >= vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - wWin : xPos
 		yPos := (yPos < vars.client.y) ? vars.client.y : (yPos + hWin >= vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - hWin : yPos
 		Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
-		LLK_Overlay(hwnd_altars, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.OCR.last := "altars"
+		LLK_Overlay(hwnd_altars, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy"), vars.OCR.last := "_altars"
 	}
 }
 
@@ -494,9 +494,9 @@ OCR_FilterInput(text) ;WIP, currently not in use
 		parsed.Push(loopfield_copy)
 	}
 
-	lookup := {"altars": ["map boss gains:", "eldritch minions gain:", "player gains:"], "vaalareas": [LangTrans("items_mapquantity")]}
+	lookup := {"altars": ["map boss gains:", "eldritch minions gain:", "player gains:"], "vaalareas": [Lang_Trans("items_mapquantity")]}
 	dictionary := {"altars": ["map", "boss", "gains", "eldritch", "minions", "gain", "player"], "vaalareas": []}
-	Loop, Parse, % LangTrans("items_mapquantity"), % A_Space, % ":"
+	Loop, Parse, % Lang_Trans("items_mapquantity"), % A_Space, % ":"
 		dictionary.vaalareas.Push(A_LoopField)
 	For index, text in parsed
 	{
@@ -512,7 +512,7 @@ OCR_FilterInput(text) ;WIP, currently not in use
 				Else regex .= (InStr(".*i)", SubStr(regex, -1)) ? "" : ".*") word
 
 			For k, array in lookup
-				results += (check := LLK_HasRegex(array, regex, 1).Count()) ? check : 0, usecase0 := check ? k : usecase0
+				results += (check := OCR_HasRegex(array, regex, 1).Count()) ? check : 0, usecase0 := check ? k : usecase0
 			If (results = 1)
 			{
 				usecase := usecase0
@@ -523,6 +523,25 @@ OCR_FilterInput(text) ;WIP, currently not in use
 	MsgBox, % usecase
 }
 
+OCR_HasRegex(object, regex, all_results := 0, check_key := 0)
+{
+	local
+
+	If !IsObject(object)
+		Return
+	parse := []
+	For key, val in object
+		If RegExMatch(!check_key ? val : key, regex)
+		{
+			If !all_results
+				Return key
+			Else parse.Push(key)
+		}
+
+	If all_results && parse.Count()
+		Return parse
+}
+
 OCR_Highlight(hotkey)
 {
 	local
@@ -531,7 +550,7 @@ OCR_Highlight(hotkey)
 	If !vars.general.cMouse || Blank(LLK_HasVal(vars.hwnd.ocr_tooltip, vars.general.cMouse))
 		Return
 
-	hotkey0 := HotkeysRemoveModifiers(hotkey)
+	hotkey0 := Hotkeys_RemoveModifiers(hotkey)
 	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
 		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
 	Else hotkey := 0
@@ -601,7 +620,7 @@ OCR_VaalAreas()
 					regex := ""
 					Loop, Parse, % regex_array[index]
 					{
-						check := LLK_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, index, regex . A_LoopField), 1, 1)
+						check := OCR_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, index, regex . A_LoopField), 1, 1)
 						regex .= check.Count() ? A_LoopField : (SubStr(regex, -1) = ".*" ? "" : ".*")
 						If (check.Count() = 1)
 						{
@@ -610,7 +629,7 @@ OCR_VaalAreas()
 						}
 					}
 				}
-			If ((check := LLK_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, 0, ""), 1, 1)).Count() = 1) && !LLK_HasVal(lines[db.vaalareas[check.1].2], (line1 := db.vaalareas[check.1].1))
+			If ((check := OCR_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, 0, ""), 1, 1)).Count() = 1) && !LLK_HasVal(lines[db.vaalareas[check.1].2], (line1 := db.vaalareas[check.1].1))
 			{
 				If InStr(line1, "corr. packs") && !extra_pack
 				{
@@ -639,7 +658,7 @@ OCR_VaalAreas()
 	{
 		If (key = "z_unclear")
 			key := "unclear"
-		categories.Push(LangTrans("ocr_vaal" key))
+		categories.Push(Lang_Trans("ocr_vaal" key))
 		If val.Count()
 			LLK_PanelDimensions(val, settings.OCR.fSize, w%key%, h%key%), wPanels := (w%key% > wPanels) ? w%key% : wPanels
 	}
@@ -664,7 +683,7 @@ OCR_VaalAreas()
 				line := StrReplace(line, "`n", ";"), vars.hwnd.ocr_tooltip[line] := hwnd1, vars.hwnd.ocr_tooltip[line "_text"] := hwnd
 		}
 		ControlGetPos, xControl1, yControl1, wControl1, hControl1,, ahk_id %hwnd%
-		Gui, %GUI_name%: Add, Text, % "x0 y" yControl " w" wCategories " h" yControl1 + hControl1 - yControl " Border BackgroundTrans Right 0x200", % LangTrans("ocr_vaal" key) " "
+		Gui, %GUI_name%: Add, Text, % "x0 y" yControl " w" wCategories " h" yControl1 + hControl1 - yControl " Border BackgroundTrans Right 0x200", % Lang_Trans("ocr_vaal" key) " "
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack Border", 0
 	}
 	Gui, %GUI_name%: Show, NA x10000 y10000

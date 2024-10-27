@@ -3,15 +3,15 @@
 	local
 	global vars, settings, Json, db
 
-	lang := LLK_IniRead("ini\config.ini", "settings", "language", "english"), settings.general.lang := !FileExist("data\" lang "\UI.txt") ? "english" : lang
+	lang := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "language", "english"), settings.general.lang := !FileExist("data\" lang "\UI.txt") ? "english" : lang
 	If (lang != "english") ;load English help-tooltips into secondary object as a fallback (in case a translation is not up-to-date and missing certain tooltip-texts)
 		vars.help := Json.Load(LLK_FileRead("data\" (!FileExist("data\" lang "\help tooltips.json") ? "english" : lang) "\help tooltips.json",, "65001")), vars.help2 := Json.Load(LLK_FileRead("data\english\help tooltips.json",, "65001"))
 	Loop 2
-		vars["lang" (A_Index = 1 ? "" : 2)] := LangLoad((A_Index = 1 ? lang : "english") "\UI.txt")
-	vars.help.settings["lang translators"] := vars.lang.translator.Clone(), vars.system.font := LangTrans("system_font")
+		vars["lang" (A_Index = 1 ? "" : 2)] := Lang_Load((A_Index = 1 ? lang : "english") "\UI.txt")
+	vars.help.settings["lang translators"] := vars.lang.translator.Clone(), vars.system.font := Lang_Trans("system_font")
 }
 
-LangClient(log_chunk) ;finds out which language the client is running
+Lang_Client(log_chunk) ;finds out which language the client is running
 {
 	local
 	global vars, settings, json
@@ -56,7 +56,7 @@ LangClient(log_chunk) ;finds out which language the client is running
 			If lang_reset ;without this reset, this function would merely find the last valid language (instead of the actual current language)
 				settings.general.lang_client := lang_client := "unknown"
 			For key, val in lang_check
-				If LangMatch(A_LoopField, val)
+				If Lang_Match(A_LoopField, val)
 					lang_client := key, lang_reset := 0
 		}
 
@@ -65,14 +65,14 @@ LangClient(log_chunk) ;finds out which language the client is running
 
 	If lang_client && (lang_client != "unknown") ;if the current client-language is supported, load the client-related strings
 	{
-		lang_parse := LangLoad(lang_client "\client.txt")
+		lang_parse := Lang_Load(lang_client "\client.txt")
 		For key, val in lang_parse
 			vars.lang[key] := val.Clone()
-		vars.system.font := LangTrans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
+		vars.system.font := Lang_Trans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
 	}
 }
 
-LangMatch(text, array, case := 1)
+Lang_Match(text, array, case := 1)
 {
 	local
 	global vars, settings
@@ -89,7 +89,7 @@ LangMatch(text, array, case := 1)
 	Return check
 }
 
-LangTrim(text, array, omit := "")
+Lang_Trim(text, array, omit := "")
 {
 	local
 	global vars, settings
@@ -103,7 +103,7 @@ LangTrim(text, array, omit := "")
 	Return text
 }
 
-LangLoad(file)
+Lang_Load(file)
 {
 	local
 	global vars
@@ -145,7 +145,7 @@ LangLoad(file)
 	Return array
 }
 
-LangTrans(key, index := 1, insert := "")
+Lang_Trans(key, index := 1, insert := "")
 {
 	local
 	global vars

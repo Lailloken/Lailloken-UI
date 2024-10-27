@@ -68,7 +68,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 <br>
 
 ### [Act-Tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Act%E2%80%90Tracker): campaign-related QoL features
-| \*automatic [exile-leveling](https://heartofphos.github.io/exile-leveling/) overlay | quick-access skilltree overlays | search-strings for every gem in a build |
+| \*automatic [exile-leveling](https://heartofphos.github.io/exile-leveling/) overlay | quick-access PoB skill-tree schematics | quick-access PoB gem setups |
 |---|---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_003.jpg) |
 <br>
@@ -167,6 +167,10 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 - [GDI+ Library for AutoHotkey](https://github.com/marius-sucan/AHK-GDIp-Library-Compilation), [GDI+ ImageSearch](https://github.com/MasterFocus/AutoHotkey/blob/master/Functions/Gdip_ImageSearch/Gdip_ImageSearch.ahk), [OCR with UWP API](https://www.autohotkey.com/boards/viewtopic.php?t=72674) enable advanced screen/image-related features
 
 - [AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON) enables processing JSON databases
+
+- [base64 decode for AutoHotkey](https://github.com/jNizM/AHK_Scripts/blob/master/src/encoding_decoding/base64.ahk) enables decoding PoB-exports
+
+- [zlib wrapper for AutoHotkey](https://www.autohotkey.com/board/topic/63343-zlib/) enables decompressing and processing PoB-exports
 <br>
 
 ### (Temporarily-)retired / Legacy Features:

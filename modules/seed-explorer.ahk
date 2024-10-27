@@ -3,8 +3,11 @@
 	local
 	global vars, settings, db, Json
 
-	If !FileExist("ini\seed-explorer.ini")
-		IniWrite, % "", ini\seed-explorer.ini, settings
+	If vars.poe_version
+		Return
+
+	If !FileExist("ini" vars.poe_version "\seed-explorer.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\seed-explorer.ini", settings
 
 	If !mode
 	{
@@ -15,20 +18,20 @@
 		If FileExist("data\global\[legion] version.txt")
 		{
 			version := StrReplace(StrReplace(LLK_FileRead("data\global\[legion] version.txt"), "`r"), "`n")
-			IniWrite, % version, ini\seed-explorer.ini, settings, version
+			IniWrite, % version, % "ini" vars.poe_version "\seed-explorer.ini", settings, version
 			FileDelete, % "data\global\[legion] version.txt"
 		}
 		If FileExist("data\global\[legion] version_check.txt")
 			FileDelete, % "data\global\[legion] version_check.txt"
 
-		ini := IniBatchRead("ini\seed-explorer.ini")
+		ini := IniBatchRead("ini" vars.poe_version "\seed-explorer.ini")
 		settings.legion := {"fSize": !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize, "profile": !Blank(check1 := ini.settings["profile"]) ? check1 : 1}
 		settings.legion.version := !Blank(check := ini.settings.version) ? check : 0
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height
 		vars.legion := {}
 	}
 	settings.legion.highlights := {}
-	Loop, Parse, % LLK_IniRead("ini\seed-explorer.ini", "highlights profile "settings.legion.profile), `n
+	Loop, Parse, % LLK_IniRead("ini" vars.poe_version "\seed-explorer.ini", "highlights profile "settings.legion.profile), `n
 		key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.legion.highlights[key] := val
 }
 
@@ -45,19 +48,19 @@ Legion(cHWND := "")
 			IniDelete, ini\seed-explorer.ini, highlights profile %control%
 			If (control = settings.legion.profile)
 				settings.legion.highlights := {}
-			LegionGUI()
+			Legion_GUI()
 			KeyWait, RButton
 			Return
 		}
 		Else If (vars.system.click = 2)
 			Return
 		IniWrite, % control, ini\seed-explorer.ini, settings, profile
-		settings.legion.profile := control, Init_legion("highlights"), LegionGUI()
+		settings.legion.profile := control, Init_legion("highlights"), Legion_GUI()
 	}
 	Else If (check = "import")
 	{
-		If LegionParse()
-			LegionGUI()
+		If Legion_Parse()
+			Legion_GUI()
 	}
 	Else If (check = "trade")
 	{
@@ -88,7 +91,7 @@ Legion(cHWND := "")
 		}
 		LLK_FontDimensions(settings.legion.fSize, height, width), settings.legion.fWidth := width, settings.legion.fHeight := height, vars.legion.fSize_tree := ""
 		IniWrite, % settings.legion.fSize, ini\seed-explorer.ini, settings, font-size
-		LegionGUI()
+		Legion_GUI()
 	}
 	Else If InStr(check, "mod_")
 	{
@@ -98,7 +101,7 @@ Legion(cHWND := "")
 			KeyWait, LButton
 			If !vars.legion.socket
 				Return
-			vars.legion.selection := control, LegionGUI()
+			vars.legion.selection := control, Legion_GUI()
 			WinActivate, ahk_group poe_window
 			WinWaitActive, ahk_group poe_window
 			If vars.legion.nodes.HasKey(control)
@@ -111,7 +114,7 @@ Legion(cHWND := "")
 						db_clone := db.legion.notables.Clone()
 						Loop, Parse, % "mine", `;
 							db_clone.Push(A_LoopField)
-						check := CreateRegex(vars.legion.nodes_invert[val], db_clone)
+						check := Legion_CreateRegex(vars.legion.nodes_invert[val], db_clone)
 						regex_string .= check ? StrReplace(check, " ", "\s") "|" : ""
 					}
 				Clipboard := SubStr(regex_string, 1, -1) ")"
@@ -122,15 +125,15 @@ Legion(cHWND := "")
 		{
 			settings.legion.highlights[control] := settings.legion.highlights[control] ? 0 : 1
 			IniWrite, % settings.legion.highlights[control], ini\seed-explorer.ini, % "highlights profile "settings.legion.profile, % control
-			LegionGUI()
+			Legion_GUI()
 		}
 	}
 	Else If InStr(check, "socket_")
-		vars.legion.socket := (vars.legion.socket != control) ? control : "", vars.legion.selection := "", LegionGUI()
+		vars.legion.socket := (vars.legion.socket != control) ? control : "", vars.legion.selection := "", Legion_GUI()
 	Else LLK_ToolTip("no action")
 }
 
-LegionClose()
+Legion_Close()
 {
 	local
 	global vars
@@ -138,7 +141,24 @@ LegionClose()
 	LLK_Overlay(vars.hwnd.legion.main, "destroy"), vars.hwnd.legion.main := "", LLK_Overlay(vars.hwnd.legion_tree.main, "destroy"), LLK_Overlay(vars.hwnd.legion.tooltip, "destroy")
 }
 
-LegionGUI()
+Legion_CreateRegex(string, database)
+{
+	local
+
+	If Blank(string) || !IsObject(database) || (StrLen(string) < 4)
+		Return 0
+	While (A_Index <= StrLen(string))
+	{
+		check := SubStr(string, 1, A_Index), matches := 0
+		For index, val in database
+			matches += StrMatch(val, check) ? 1 : 0
+		If (matches < 2)
+			Return check
+	}
+	Return string
+}
+
+Legion_GUI()
 {
 	local
 	global vars, settings, db
@@ -159,7 +179,7 @@ LegionGUI()
 	Gui, %GUI_name%: Font, % "s"settings.legion.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.legion.main, vars.hwnd.legion := {"main": legion, "tooltips": {}, "tooltips2": {}}
 
-	Gui, %GUI_name%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % LangTrans("seed_profile")
+	Gui, %GUI_name%: Add, Text, % "x"settings.legion.fWidth/2 " y"settings.legion.fWidth/2 " Section HWNDhwnd", % Lang_Trans("seed_profile")
 	ControlGetPos, xAnchor, yAnchor, wAnchor, hAnchor,, ahk_id %hwnd%
 	Loop 5
 	{
@@ -169,23 +189,23 @@ LegionGUI()
 	}
 
 	file_check := !FileExist("data\global\[legion]*") ? 0 : 1
-	Gui, %GUI_name%: Add, Text, % "xs Border HWNDhwnd0 BackgroundTrans gLegionUpdate y+"settings.legion.fWidth/2 (file_check ? "" : " cRed"), % " " (!file_check ? LangTrans("seed_download") : LangTrans("seed_update")) " "
+	Gui, %GUI_name%: Add, Text, % "xs Border HWNDhwnd0 BackgroundTrans gLegion_Update y+"settings.legion.fWidth/2 (file_check ? "" : " cRed"), % " " (!file_check ? Lang_Trans("seed_download") : Lang_Trans("seed_update")) " "
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack cGreen Range0-5 HWNDhwnd", 0
 	vars.hwnd.legion.update := hwnd0, vars.hwnd.legion.update_bar := vars.hwnd.help_tooltips["seed-explorer_" (file_check ? "update" : "download")] := hwnd
 
 	Gui, %GUI_name%: Font, % "underline bold"
-	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % LangTrans("seed_jewel")
+	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth/2, % Lang_Trans("seed_jewel")
 	Gui, %GUI_name%: Font, % "norm"
-	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("global_type") " " vars.legion.jewel
-	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("seed_seed") " " vars.legion.seed
-	Gui, %GUI_name%: Add, Text, % "xs y+0", % LangTrans("seed_conqueror") " " vars.legion.leader
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % Lang_Trans("global_type") " " vars.legion.jewel
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % Lang_Trans("seed_seed") " " vars.legion.seed
+	Gui, %GUI_name%: Add, Text, % "xs y+0", % Lang_Trans("seed_conqueror") " " vars.legion.leader
 
-	Gui, %GUI_name%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " " LangTrans("global_import") " "
-	Gui, %GUI_name%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " " LangTrans("seed_trade") " "
+	Gui, %GUI_name%: Add, Text, % "xs Center Border HWNDhwndimport gLegion", % " " Lang_Trans("global_import") " "
+	Gui, %GUI_name%: Add, Text, % "x+"settings.legion.fWidth/2 " yp Center Border HWNDhwndtrade gLegion", % " " Lang_Trans("seed_trade") " "
 	vars.hwnd.legion.import := vars.hwnd.help_tooltips["seed-explorer_import"] := hwndimport, vars.hwnd.legion.trade := vars.hwnd.help_tooltips["seed-explorer_trade"] := hwndtrade
 
 	Gui, %GUI_name%: Font, % "underline bold"
-	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth, % LangTrans("seed_keystones")
+	Gui, %GUI_name%: Add, Text, % "xs y+"settings.legion.fWidth, % Lang_Trans("seed_keystones")
 	Gui, %GUI_name%: Font, % "norm"
 	For keystone, val in db.legion.jewels[vars.legion.jewel]
 		If !InStr(keystone, "decoder")
@@ -197,7 +217,7 @@ LegionGUI()
 	If vars.legion.socket
 	{
 		Gui, %GUI_name%: Font, % "underline bold"
-		Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth, % LangTrans("seed_notables")
+		Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth, % Lang_Trans("seed_notables")
 		Gui, %GUI_name%: Font, % "norm"
 
 		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd x+" settings.legion.fWidth/2, % "HBitmap:*" vars.pics.global.help
@@ -221,7 +241,7 @@ LegionGUI()
 	Gui, %GUI_name%: Add, Pic, % "xp y+-1 Border HWNDhwnd w"vars.legion.width - 2 " h-1", % "HBitmap:*" vars.pics.legion.treemap
 	vars.hwnd.legion.treemap := hwnd
 
-	Gui, %GUI_name%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % LangTrans("global_font") " "
+	Gui, %GUI_name%: Add, Text, % "Section x"xAnchor + vars.legion.width " y"yAnchor, % Lang_Trans("global_font") " "
 	Gui, %GUI_name%: Add, Text, % "ys x+0 Center Border gLegion HWNDhwnd w"settings.legion.fWidth*2, % "–"
 	vars.hwnd.legion.font_minus := hwnd
 	Gui, %GUI_name%: Add, Text, % "ys x+"settings.legion.fWidth/4 " Center Border gLegion HWNDhwnd w"settings.legion.fWidth*3, % settings.legion.fSize
@@ -230,7 +250,7 @@ LegionGUI()
 	vars.hwnd.legion.font_plus := hwnd
 
 	Gui, %GUI_name%: Font, % "underline bold"
-	Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth/2, % vars.legion.socket ? LangTrans("seed_notables", 2) : LangTrans("seed_notables", 3)
+	Gui, %GUI_name%: Add, Text, % "xs Section y+"settings.legion.fWidth/2, % vars.legion.socket ? Lang_Trans("seed_notables", 2) : Lang_Trans("seed_notables", 3)
 	Gui, %GUI_name%: Font, % "norm"
 
 	Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd x+" settings.legion.fWidth/2, % "HBitmap:*" vars.pics.global.help
@@ -261,15 +281,15 @@ LegionGUI()
 
 	Gui, %GUI_name%: Show, % "NA x10000 y10000 h"vars.monitor.h
 	If InStr(A_Gui, "tree")
-		Gui, % GuiName(vars.hwnd.legion_tree.main) ": +Owner" GUI_name
+		Gui, % Gui_Name(vars.hwnd.legion_tree.main) ": +Owner" GUI_name
 	Gui, %GUI_name%: Show, % "Hide x"vars.monitor.x " y"vars.monitor.y
 	LLK_Overlay(legion, "show", 0, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If InStr(A_Gui, "tree")
-		LegionTree()
+		Legion_Tree()
 	vars.legion.wait := 0
 }
 
-LegionHover()
+Legion_Hover()
 {
 	local
 	global vars, settings, db
@@ -280,7 +300,7 @@ LegionHover()
 	ControlGetPos,, y,, h,, % "ahk_id "vars.general.cMouse
 	check := LLK_HasVal(vars.hwnd.legion.tooltips, vars.general.cMouse), check2 := !check ? StrReplace(LLK_HasVal(vars.hwnd.legion.tooltips2, vars.general.cMouse), "_") : "0"
 	If (vars.general.cMouse = vars.hwnd.legion.treemap) && !WinExist("ahk_id "vars.hwnd.legion_tree.main)
-		LegionTree()
+		Legion_Tree()
 	Else If WinExist("ahk_id "vars.hwnd.legion_tree.main) && (vars.general.wMouse != vars.hwnd.legion_tree.main)
 		LLK_Overlay(vars.hwnd.legion_tree.main, "destroy")
 
@@ -306,7 +326,7 @@ LegionHover()
 	}
 }
 
-LegionParse()
+Legion_Parse()
 {
 	local
 	global vars, settings, db
@@ -321,7 +341,7 @@ LegionParse()
 
 	If !check
 	{
-		LLK_ToolTip(LangTrans("lvltracker_importerror", 2), 1.5,,,, "red")
+		LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
 		Return 0
 	}
 
@@ -362,7 +382,7 @@ LegionParse()
 		Return 1
 }
 
-LegionTree()
+Legion_Tree()
 {
 	local
 	global vars, settings, db
@@ -373,7 +393,7 @@ LegionTree()
 		vars.legion.fSize_tree := LLK_FontSizeGet(vars.legion.width/20, width), LLK_FontDimensions(vars.legion.fSize_tree, fHeight, fWidth), vars.legion.fWidth_tree := fWidth, vars.legion.fHeight_tree := fHeight
 
 	toggle := !toggle, GUI_name := "tree" toggle
-	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner" GuiName(vars.hwnd.legion.main)
+	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner" Gui_Name(vars.hwnd.legion.main)
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, 0, 0
 	Gui, %GUI_name%: Font, % "s"vars.legion.fSize_tree " cWhite bold", % vars.system.font
@@ -408,7 +428,7 @@ LegionTree()
 	Gui, %GUI_name%: -Owner
 }
 
-LegionUpdate()
+Legion_Update()
 {
 	local
 	global vars, settings
@@ -421,7 +441,7 @@ LegionUpdate()
 	Try version_check := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/global/%5Blegion%5D%20version.txt")
 	If Blank(version_check) || InStr(version_check, "404: not found")
 	{
-		LLK_ToolTip(LangTrans("global_error") ": version-check", 2,,,, "Red")
+		LLK_ToolTip(Lang_Trans("global_error") ": version-check", 2,,,, "Red")
 		Return
 	}
 	version_online := StrReplace(StrReplace(version_check, "`n"), "`r")
@@ -430,7 +450,7 @@ LegionUpdate()
 	{
 		update := (version_online > settings.legion.version) ? 1 : 0
 		If !update
-			LLK_ToolTip(LangTrans("seed_uptodate"),,,,, "Lime")
+			LLK_ToolTip(Lang_Trans("seed_uptodate"),,,,, "Lime")
 	}
 
 	If (count != 5) || update
@@ -455,8 +475,8 @@ LegionUpdate()
 		If !error
 		{
 			IniWrite, % (settings.legion.version := version_online), ini\seed-explorer.ini, settings, version
-			vars.legion := {}, LegionParse(), LegionGUI(), LLK_ToolTip(LangTrans("global_success"), 1,,,, "Lime")
+			vars.legion := {}, Legion_Parse(), Legion_GUI(), LLK_ToolTip(Lang_Trans("global_success"), 1,,,, "Lime")
 		}
-		Else LLK_ToolTip(LangTrans("global_error"), 2,,, "Red")
+		Else LLK_ToolTip(Lang_Trans("global_error"), 2,,, "Red")
 	}
 }

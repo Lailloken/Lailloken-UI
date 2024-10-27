@@ -27,18 +27,17 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {"logging": FileExist("data\log.txt")}
-LLK_Log("--- tool launched ---")
+vars := {"logging": FileExist("data\log.txt"), "poe_version": WinExist("Path of Exile 2 test test") ? " 2" : ""}
+LLK_Log("--- tool launched" (vars.poe_version ? " (PoE 2)" : "") " ---")
 
-If FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
+If !vars.poe_version && FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
 	IniIntegrityCheck()
-ini := IniBatchRead("ini\config.ini")
-If ini.versions["apply update"]
+If LLK_IniRead("ini\config.ini", "versions", "apply update")
 {
 	UpdateCheck(2)
-	IniDelete, ini\config.ini, versions, apply update
+	IniDelete, % "ini\config.ini", versions, apply update
 }
-Else If ini.settings["update auto-check"]
+Else If LLK_IniRead("ini\config.ini", "versions", "update auto-check")
 	LLK_Log("checking for updates"), UpdateCheck()
 Init_vars()
 Startup()
@@ -78,12 +77,12 @@ Else
 LLK_Log("client is focused")
 
 Init_GUI(), LLK_Log("GUIs initialized")
-SetTimer, LogLoop, 1000
+SetTimer, Log_Loop, 1000
 
-If (check := ini.versions["reload settings"])
+If (check := LLK_IniRead("ini" vars.poe_version "\config.ini", "versions", "reload settings"))
 {
 	Settings_menu(check,, 0)
-	IniDelete, ini\config.ini, Versions, reload settings
+	IniDelete, % "ini" vars.poe_version "\config.ini", Versions, reload settings
 }
 If vars.ini_integrity
 {
@@ -123,32 +122,6 @@ Blank(var)
 		Return 1
 }
 
-CreateRegex(string, database)
-{
-	local
-
-	If Blank(string) || !IsObject(database) || (StrLen(string) < 4)
-		Return 0
-	While (A_Index <= StrLen(string))
-	{
-		check := SubStr(string, 1, A_Index), matches := 0
-		For index, val in database
-			matches += StrMatch(val, check) ? 1 : 0
-		If (matches < 2)
-			Return check
-	}
-	Return string
-}
-
-DummyGUI(hwnd) ;used for A_Gui checks: "If (A_Gui = hwnd)" doesn't work reliably if the hwnd is blank, so this function returns -1 instead
-{
-	local
-
-	If Blank(hwnd)
-		Return -1
-	Else Return hwnd
-}
-
 Exit()
 {
 	local
@@ -159,14 +132,14 @@ Exit()
 
 	If (vars.system.timeout != 0) ;script exited before completing startup routines: return here to prevent storing corrupt/incomplete data in ini-files
 		Return
-	If IsObject(vars.betrayal.board) && (vars.betrayal.board0 != Json.Dump(vars.betrayal.board))
+	If !vars.poe_version && IsObject(vars.betrayal.board) && (vars.betrayal.board0 != Json.Dump(vars.betrayal.board))
 		IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	timer := vars.leveltracker.timer
-	If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
+	If !vars.poe_version && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
 		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 
-	If vars.maptracker.map.date_time
-		MaptrackerSave()
+	If !vars.poe_version && vars.maptracker.map.date_time
+		Maptracker_Save()
 }
 
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
@@ -183,130 +156,6 @@ FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of s
 	While !leading_zeroes && InStr("0:", SubStr(time, 1, 1)) && (StrLen(time) > 4) ;remove leading 0s and colons
 		time := SubStr(time, 2)
 	return time
-}
-
-LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
-{
-	local
-
-	If !IsObject(object) || Blank(value)
-		Return
-	parse := []
-	For key, val in object
-	{
-		If (key = value) || InStr && InStr(key, value, case_sensitive) || recurse && IsObject(val) && LLK_HasKey(val, value, InStr, case_sensitive, all_results, recurse)
-		{
-			If !all_results
-				Return key
-			Else parse.Push(key)
-		}
-	}
-
-	If all_results
-		Return (parse.Count() ? parse : "")
-	Return
-}
-
-LLK_HasRegex(object, regex, all_results := 0, check_key := 0)
-{
-	local
-
-	If !IsObject(object)
-		Return
-	parse := []
-	For key, val in object
-		If RegExMatch(!check_key ? val : key, regex)
-		{
-			If !all_results
-				Return key
-			Else parse.Push(key)
-		}
-
-	If all_results && parse.Count()
-		Return parse
-}
-
-LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0, check_decimals := 0) ; check_decimals is a band-aid fix for very specific use-cases where X and X.000[...] need to be distinguished
-{
-	local
-
-	If !IsObject(object) || Blank(value)
-		Return
-	parse := []
-	For key, val in object
-		If (val = value) && !check_decimals || (val = value) && InStr(val, ".") && InStr(value, ".") && check_decimals || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse, check_decimals)
-		{
-			If !all_results
-				Return key
-			Else parse.Push(key)
-		}
-
-	If all_results && parse.Count()
-		Return parse
-	Return
-}
-
-HelpToolTip(HWND_key)
-{
-	local
-	global vars, settings
-	static toggle := 0
-
-	WinGetPos,, y,, h, % "ahk_id "vars.hwnd.help_tooltips[HWND_key]
-	If Blank(y) || Blank(h)
-	{
-		MouseGetPos, x, y
-		h := settings.general.fHeight
-	}
-	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
-	If (check = "donation")
-		check := "settings", donation := 1
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
-	If (check != "settings")
-		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]].main
-	If (check = "lab" && InStr(control, "square"))
-		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name], vars.help.lab[control].1 .= (vars.help.lab[control].1 = vars.lab.room.2) ? " (" LangTrans("lab_movemarker") ")" : ""
-	database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
-
-	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
-	If !tooltip_width
-		Return
-
-	toggle := !toggle, GUI_name := "help_tooltip" toggle
-	Gui, %GUI_name%: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDtooltip
-	Gui, %GUI_name%: Color, 202020
-	Gui, %GUI_name%: Margin, 0, 0
-	Gui, %GUI_name%: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
-	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
-
-	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
-	If InStr(control, "update changelog")
-		For index0, val in vars.updater.changelog
-		{
-			If !InStr(control, val.1.1)
-				Continue
-			For index, text in val
-				If (index > 1)
-				{
-					Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(text, "&", "&&"), "(/highlight)")
-					Gui, %GUI_name%: Add, Text, % (index = 2 ? "x0 y0" : "xs") " Section Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-					Gui, %GUI_name%: Add, Text, % "HWNDhwnd xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth . (InStr(text, "(/highlight)") ? " cFF8000" : ""), % StrReplace(StrReplace(text, "&", "&&"), "(/highlight)")
-				}
-		}
-	Else
-		For index, text in (donation ? database[control].2 : database[check][control])
-		{
-			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
-			Gui, %GUI_name%: Font, % font
-			Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
-			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %GUI_name%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
-		}
-	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
-	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
-	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (InStr("maptracker", check) ? height - 1 : 0) : yPos)
-	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
 HTTPtoVar(URL, mode := "URL", currency := "") ; taken from the AHK-wiki, adapted to also fetch data from bulk-exchange
@@ -339,86 +188,23 @@ HTTPtoVar(URL, mode := "URL", currency := "") ; taken from the AHK-wiki, adapted
 	Return (mode = "URL" ? whr.ResponseText : array)
 }
 
-IniBatchRead(file, section := "", encoding := "1200")
-{
-	local
-
-	ini := {}, file := Blank(section) ? LLK_FileRead(file, 1, encoding) : LLK_IniRead(file, section)
-	If !Blank(section)
-		ini[section] := {}
-	If Blank(section) && !InStr(file, "[") && !InStr(file, "]") || !Blank(section) && (file = " " || file = "")
-		Return ini
-
-	Loop, Parse, file, `n, `r
-	{
-		If Blank(A_LoopField)
-			Continue
-		If (SubStr(A_LoopField, 1, 1) = "[")
-		{
-			section := SubStr(A_LoopField, 2, -1), ini[section] := {}
-			Continue
-		}
-		If InStr(A_LoopField, "=")
-			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-		Else key := A_LoopField, val := ""
-
-		val := (SubStr(val, 1, 1) = """" && SubStr(val, 0, 1) = """") ? SubStr(val, 2, -1) : val
-		ini[section][key] := val
-	}
-	Return ini
-}
-
-IniIntegrityCheck()
-{
-	local
-	global vars
-
-	LLK_Log("starting ini integrity-check")
-
-	If !FileExist("ini backup\")
-		FileCopyDir, ini, ini backup, 1
-	Loop, Files, ini\*.ini
-	{
-		If InStr(A_LoopFileName, " backup")
-			Continue
-		FileRead, check, *P1200 %A_LoopFilePath%
-		If !InStr(check, "[") || !InStr(check, "]")
-		{
-			FileRead, check, *P65001 %A_LoopFilePath%
-			If (StrLen(check) > 0) && (!InStr(check, "[") || !InStr(check, "]"))
-			{
-				FileMove, % A_LoopFilePath, % StrReplace(A_LoopFilePath, ".ini", " backup.ini"), 1
-				vars.ini_integrity .= (Blank(vars.ini_integrity) ? "" : "`n") "`t" StrReplace(A_LoopFilePath, ".ini", " backup.ini") " -> " A_LoopFilePath
-			}
-			Else
-			{
-				FileDelete, % A_LoopFilePath
-				If InStr(check, "[") && InStr(check, "]")
-					FileAppend, % check, % A_LoopFilePath, CP1200
-			}
-		}
-	}
-	IniWrite, % A_Now, ini\file check.ini, check, timestamp
-	If vars.ini_integrity
-		IniWrite, % StrReplace(vars.ini_integrity, "`t"), ini\file check.ini, errors
-
-	LLK_Log("finished ini integrity-check")
-}
-
 Init_client()
 {
 	local
 	global vars, settings
 
-	If !FileExist("ini\config.ini")
-		IniWrite, % "", ini\config.ini, settings
+	If !FileExist("ini\config.ini") ;ini\config.ini is required regardless of which PoE-version is being played
+		IniWrite, % "", % "ini\config.ini", settings
+
+	If !FileExist("ini" vars.poe_version "\config.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\config.ini", settings
 
 	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
 	{
 		LLK_Log("game-client is local client")
 		;load client-config location and double-check
-		ini := IniBatchRead("ini\config.ini")
-		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile\production_Config.ini"
+		ini := IniBatchRead("ini" vars.poe_version "\config.ini")
+		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile" vars.poe_version "\production_Config.ini"
 		If !FileExist(poe_config_file)
 		{
 			FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the 'production_Config.ini' file which is stored in the same folder as loot-filters, config files (*.ini)
@@ -433,9 +219,9 @@ Init_client()
 				Reload
 				ExitApp
 			}
-			IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
+			IniWrite, "%poe_config_file%", % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 		}
-		Else IniWrite, "%poe_config_file%", ini\config.ini, Settings, PoE config-file
+		Else IniWrite, "%poe_config_file%", % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 		vars.system.config := poe_config_file, vars.client.stream := 0
 		LLK_Log("found game's config-file")
 
@@ -448,7 +234,7 @@ Init_client()
 		exclusive_fullscreen := InStr(poe_config_check, "`nfullscreen=true") ? "true" : InStr(poe_config_check, "fullscreen=false") ? "false" : ""
 		If (exclusive_fullscreen = "")
 		{
-			IniDelete, ini\config.ini, Settings, PoE config-file
+			IniDelete, % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 			LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of exclusive fullscreen", 1)
 		}
 		Else If (exclusive_fullscreen = "true")
@@ -458,7 +244,7 @@ Init_client()
 		vars.client.fullscreen := InStr(poe_config_check, "borderless_windowed_fullscreen=true") ? "true" : InStr(poe_config_check, "borderless_windowed_fullscreen=false") ? "false" : ""
 		If (vars.client.fullscreen = "")
 		{
-			IniDelete, ini\config.ini, Settings, PoE config-file
+			IniDelete, % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 			LLK_Error("Cannot read the PoE config-file.`n`nThe script will restart and reset the first-time setup. If you still get this error repeatedly, please report the issue.`n`nError-message (for reporting): Cannot read state of borderless fullscreen", 1)
 		}
 		LLK_Log("recognized current window settings")
@@ -466,10 +252,10 @@ Init_client()
 		;check if client's window settings have changed since the previous session
 		If ini.settings.fullscreen && (ini.settings.fullscreen != vars.client.fullscreen)
 		{
-			IniWrite, % vars.client.fullscreen, ini\config.ini, Settings, fullscreen
-			IniWrite, 0, ini\config.ini, Settings, remove window-borders
-			IniDelete, ini\config.ini, Settings, custom-resolution
-			IniDelete, ini\config.ini, Settings, custom-width
+			IniWrite, % vars.client.fullscreen, % "ini" vars.poe_version "\config.ini", Settings, fullscreen
+			IniWrite, 0, % "ini" vars.poe_version "\config.ini", Settings, remove window-borders
+			IniDelete, % "ini" vars.poe_version "\config.ini", Settings, custom-resolution
+			IniDelete, % "ini" vars.poe_version "\config.ini", Settings, custom-width
 			ini.settings["custom-width"] := ini.settings["custom-resolution"] := "", ini.settings["remove window-borders"] := 0
 		}
 	}
@@ -503,8 +289,8 @@ Init_client()
 		If (vars.client.customres.1 > vars.monitor.w) || (vars.client.customres.2 > vars.monitor.h) ;check resolution in case of manual .ini edit
 		{
 			MsgBox, Incorrect settings for forced resolution detected.`nThe script will reset the settings and restart.
-			IniWrite, % vars.monitor.h, ini\config.ini, Settings, custom-resolution
-			IniWrite, % vars.monitor.w, ini\config.ini, Settings, custom-width
+			IniWrite, % vars.monitor.h, % "ini" vars.poe_version "\config.ini", Settings, custom-resolution
+			IniWrite, % vars.monitor.w, % "ini" vars.poe_version "\config.ini", Settings, custom-width
 			Reload
 			ExitApp
 		}
@@ -560,8 +346,8 @@ Init_client()
 
 	If (!IsNumber(vars.client.customres.1) || !IsNumber(vars.client.customres.2)) && vars.general.supported_resolutions.HasKey(vars.client.h)
 	{
-		IniWrite, % vars.client.w, ini\config.ini, settings, custom-width
-		IniWrite, % vars.client.h, ini\config.ini, settings, custom-resolution
+		IniWrite, % vars.client.w, % "ini" vars.poe_version "\config.ini", settings, custom-width
+		IniWrite, % vars.client.h, % "ini" vars.poe_version "\config.ini", settings, custom-resolution
 	}
 
 	If vars.general.supported_resolutions.HasKey(vars.client.h)
@@ -579,10 +365,10 @@ Init_geforce()
 	local
 	global vars, settings
 
-	If !FileExist("ini\geforce now.ini")
-		IniWrite, % "", ini\geforce now.ini, settings
-	vars.pixelsearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "pixel-check variation", 10)
-	vars.imagesearch.variation := LLK_IniRead("ini\geforce now.ini", "Settings", "image-check variation", 25)
+	If !FileExist("ini" vars.poe_version "\geforce now.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\geforce now.ini", settings
+	vars.pixelsearch.variation := LLK_IniRead("ini" vars.poe_version "\geforce now.ini", "Settings", "pixel-check variation", 10)
+	vars.imagesearch.variation := LLK_IniRead("ini" vars.poe_version "\geforce now.ini", "Settings", "image-check variation", 25)
 }
 
 Init_general()
@@ -590,13 +376,13 @@ Init_general()
 	local
 	global vars, settings
 
-	ini := IniBatchRead("ini\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15407
+	ini := IniBatchRead("ini" vars.poe_version "\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15407
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
 	}
-	ini_version := !Blank(check := ini.versions.ini) ? check : 0
+	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini") ;ini-version is stored here regardless of which PoE-version is being played
 	If !ini_version
 		IniWrite, % new_version, ini\config.ini, versions, ini
 
@@ -632,7 +418,7 @@ Init_general()
 	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
 	settings.features.sanctum := !Blank(check := ini.features["enable sanctum planner"]) ? check : 0
 
-	settings.updater := {"update_check": !Blank(check := ini.settings["update auto-check"]) ? check : 0}
+	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
 
 	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
 }
@@ -644,9 +430,9 @@ Init_vars()
 
 	db := {}
 	;read databases for item-info tooltip
-	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods.json"))
-	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases.json", 1))
-	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers.json"))
+	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
+	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases" vars.poe_version ".json", 1))
+	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers" vars.poe_version ".json"))
 
 	settings := {}
 	settings.features := {}
@@ -677,6 +463,293 @@ Init_vars()
 	}
 
 	LLK_Log("initialized global objects")
+}
+
+IniBatchRead(file, section := "", encoding := "1200")
+{
+	local
+
+	ini := {}, file := Blank(section) ? LLK_FileRead(file, 1, encoding) : LLK_IniRead(file, section)
+	If !Blank(section)
+		ini[section] := {}
+	If Blank(section) && !InStr(file, "[") && !InStr(file, "]") || !Blank(section) && (file = " " || file = "")
+		Return ini
+
+	Loop, Parse, file, `n, `r
+	{
+		If Blank(A_LoopField)
+			Continue
+		If (SubStr(A_LoopField, 1, 1) = "[")
+		{
+			section := SubStr(A_LoopField, 2, -1), ini[section] := {}
+			Continue
+		}
+		If InStr(A_LoopField, "=")
+			key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1), val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+		Else key := A_LoopField, val := ""
+
+		val := (SubStr(val, 1, 1) = """" && SubStr(val, 0, 1) = """") ? SubStr(val, 2, -1) : val
+		ini[section][key] := val
+	}
+	Return ini
+}
+
+IniIntegrityCheck()
+{
+	local
+	global vars
+
+	LLK_Log("starting ini integrity-check")
+
+	If !FileExist("ini" vars.poe_version " backup\")
+		FileCopyDir, % "ini" vars.poe_version, % "ini" vars.poe_version " backup", 1
+	Loop, Files, % "ini" vars.poe_version "\*.ini"
+	{
+		If InStr(A_LoopFileName, " backup")
+			Continue
+		FileRead, check, *P1200 %A_LoopFilePath%
+		If !InStr(check, "[") || !InStr(check, "]")
+		{
+			FileRead, check, *P65001 %A_LoopFilePath%
+			If (StrLen(check) > 0) && (!InStr(check, "[") || !InStr(check, "]"))
+			{
+				FileMove, % A_LoopFilePath, % StrReplace(A_LoopFilePath, ".ini", " backup.ini"), 1
+				vars.ini_integrity .= (Blank(vars.ini_integrity) ? "" : "`n") "`t" StrReplace(A_LoopFilePath, ".ini", " backup.ini") " -> " A_LoopFilePath
+			}
+			Else
+			{
+				FileDelete, % A_LoopFilePath
+				If InStr(check, "[") && InStr(check, "]")
+					FileAppend, % check, % A_LoopFilePath, CP1200
+			}
+		}
+	}
+	IniWrite, % A_Now, % "ini" vars.poe_version "\file check.ini", check, timestamp
+	If vars.ini_integrity
+		IniWrite, % StrReplace(vars.ini_integrity, "`t"), % "ini" vars.poe_version "\file check.ini", errors
+
+	LLK_Log("finished ini integrity-check")
+}
+
+LLK_ArraySort(array)
+{
+	local
+
+	parse := {}, parse2 := []
+	For index, val in array
+		parse[val] := 1
+
+	For key in parse
+		parse2.Push(key)
+
+	Return parse2
+}
+
+LLK_Error(ErrorMessage, restart := 0)
+{
+	MsgBox, % ErrorMessage
+	If restart
+		Reload
+	ExitApp
+}
+
+LLK_FileCheck()
+{
+	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
+		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
+		{
+			FileDelete, data\%val%
+			FileRemoveDir, data\%val%, 1
+		}
+	For index, val in ["necropolis.ahk"]
+		If FileExist("modules\" val)
+			FileDelete, modules\%val%
+	If FileExist("data\english\necropolis.json")
+		FileDelete, data\english\necropolis.json
+	If FileExist("ini\altars.ini")
+		FileMove, ini\altars.ini, ini\ocr - altars.ini, 1
+	If !FileExist("data\") || !FileExist("data\global\") || !FileExist("data\english\") || !FileExist("data\english\UI.txt") || !FileExist("data\english\client.txt")
+		Return 0
+	Else Return 1
+}
+
+LLK_FilePermissionError(issue, folder)
+{
+	local
+
+	MsgBox, % Lang_Trans("m_permission_error1", (issue = "create") ? 1 : 2) " " folder "`n`n" Lang_Trans("m_permission_error1", 3) "`n" Lang_Trans("m_permission_error1", 4) "`n`n" Lang_Trans("m_permission_error1", 5) "`n`n" Lang_Trans("m_permission_error1", 6)
+}
+
+LLK_FileRead(file, keep_case := 0, encoding := "65001")
+{
+	local
+
+	FileRead, read, % (!Blank(encoding) ? "*P" encoding " " : "") file
+	If !keep_case
+		StringLower, read, read
+	Return read
+}
+
+LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0)
+{
+	local
+
+	If !IsObject(object) || Blank(value)
+		Return
+	parse := []
+	For key, val in object
+	{
+		If (key = value) || InStr && InStr(key, value, case_sensitive) || recurse && IsObject(val) && LLK_HasKey(val, value, InStr, case_sensitive, all_results, recurse)
+		{
+			If !all_results
+				Return key
+			Else parse.Push(key)
+		}
+	}
+
+	If all_results
+		Return (parse.Count() ? parse : "")
+	Return
+}
+
+LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0, check_decimals := 0) ; check_decimals is a band-aid fix for very specific use-cases where X and X.000[...] need to be distinguished
+{
+	local
+
+	If !IsObject(object) || Blank(value)
+		Return
+	parse := []
+	For key, val in object
+		If (val = value) && !check_decimals || (val = value) && InStr(val, ".") && InStr(value, ".") && check_decimals || InStr && InStr(val, value, case_sensitive) || recurse && IsObject(val) && LLK_HasVal(val, value, InStr, case_sensitive, all_results, recurse, check_decimals)
+		{
+			If !all_results
+				Return key
+			Else parse.Push(key)
+		}
+
+	If all_results && parse.Count()
+		Return parse
+	Return
+}
+
+LLK_IniRead(file, section := "", key := "", default := "")
+{
+	IniRead, iniread, % file, % section, % key, % Blank(default) ? A_Space : default
+	iniread := (iniread = " ") ? "" : iniread 	;work-around for situations where A_Space is taken literally instead of "blank" (blank return is hard-coded as %A_Space%, so % "" doesn't work)
+	If !Blank(default) && Blank(iniread)		;IniRead's 'default' is only used if the key cannot be found in the ini-file
+		Return default 					;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
+	Else Return iniread
+}
+
+LLK_InRange(x, y, range)
+{
+	If (y >= x - range) && (y <= x + range)
+		Return 1
+	Else Return 0
+}
+
+LLK_InStrCount(string, character, delimiter := "")
+{
+	count := 0
+	Loop, Parse, string, % delimiter
+		If (A_Loopfield = character)
+			count += 1
+	Return count
+}
+
+LLK_IsBetween(var, x, y)
+{
+	If Blank(x) || Blank(y)
+		Return
+	x += 0, y += 0
+	If (x > y)
+		z := x, x := y, y := z
+	If (x <= var) && (var <= y)
+		Return 1
+	Else Return 0
+}
+
+LLK_IsType(character, type)
+{
+	If (character = "")
+		Return 0
+	If (character = " ") && (type = "alpha" || type = "alnum")
+		Return 1
+	Else If character is %type%
+		Return 1
+}
+
+LLK_Log(message)
+{
+	local
+	global vars
+
+	If !vars.logging
+		Return
+
+	FormatTime, logstamp, A_Now, yyyy-MM-dd`, HH:mm:ss
+	FileAppend, % (InStr(message, "---") ? "`r`n" : "") "[" logstamp "] " message "`r`n", data\log.txt
+}
+
+LLK_PatternMatch(text, string, object, swap := 0, value := 1, case := 1) ;swap param switches the order around, val param determines if values or keys of the object are used
+{
+	local
+
+	For index, val in object
+	{
+		val := value ? val : index
+		check := swap ? val . string : string . val
+		If InStr(text, check, case)
+		{
+			While (SubStr(val, 1, 1) = " ")
+				val := SubStr(val, 2)
+			Return InStr(val, " ") ? SubStr(val, 1, InStr(val, " ") - 1) : val
+		}
+	}
+}
+
+LLK_StringCase(string, mode := 0, title := 0)
+{
+	local
+
+	If mode
+		StringUpper, string, % string, % title ? "T" : ""
+	Else StringLower, string, % string, % title ? "T" : ""
+	Return string
+}
+
+LLK_StringRemove(string, characters)
+{
+	local
+
+	Loop, Parse, characters, `,
+	{
+		If (A_LoopField = "")
+			Continue
+		string := StrReplace(string, A_LoopField)
+	}
+	Return string
+}
+
+LLK_TrimDecimals(string)
+{
+	local
+
+	If !InStr(string, ".")
+		Return string
+	While InStr("0.", (check := SubStr(string, 0))) && !Blank(check)
+	{
+		string := SubStr(string, 1, -1)
+		If (check = ".")
+			Break
+	}
+	Return string
+}
+
+LLK_Restart()
+{
+	Reload
+	ExitApp
 }
 
 Loop()
@@ -726,6 +799,8 @@ Loop_main()
 	tick += 1
 
 	MouseHover()
+	If vars.leveltracker.skilltree_schematics.GUI && vars.leveltracker.skilltree_schematics.offsets
+		Gui, skilltree_schematics: Show, % "NA x" (vars.leveltracker.skilltree_schematics.xPos := vars.general.xMouse - vars.leveltracker.skilltree_schematics.offsets.1) " y" (vars.leveltracker.skilltree_schematics.yPos := vars.general.yMouse - vars.leveltracker.skilltree_schematics.offsets.2)
 	If Mod(tick, 2)
 		Return
 
@@ -734,6 +809,10 @@ Loop_main()
 		vars.cloneframes.editing := ""
 		Init_cloneframes()
 	}
+
+	If vars.hwnd.leveltracker_gemlinks.main && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.leveltracker_gemlinks.main)
+	&& vars.general.cMouse && (check := LLK_HasVal(vars.hwnd.leveltracker_gemlinks, vars.general.cMouse)) && (vars.leveltracker.gemlinks.hover != SubStr(check, 0))
+		LevelTracker_PobGemLinks("", SubStr(check, 0))
 
 	If vars.hwnd.recombination.main && WinActive("ahk_id " vars.hwnd.recombination.main) && (vars.general.wMouse = vars.hwnd.poe_client)
 	{
@@ -753,25 +832,10 @@ Loop_main()
 	}
 	Else priceindex_count := 0
 
-	If vars.hwnd.settings && !vars.settings.wait
-		If (vars.settings.color != "Black") && WinActive("ahk_id " vars.hwnd.settings.main)
-		{
-			Gui, % vars.hwnd.settings.GUI_name ": Color", Black
-			vars.settings.color := "Black"
-		}
-		Else If (vars.settings.color != "202030") && !WinActive("ahk_id " vars.hwnd.settings.main)
-		{
-			Gui, % vars.hwnd.settings.GUI_name ": Color", 202030
-			vars.settings.color := "202030"
-		}
-
-	If vars.hwnd.mapinfo_modsearch.main && WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main) && !WinActive("ahk_id " vars.hwnd.mapinfo_modsearch.main)
-		LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy"), vars.hwnd.mapinfo_modsearch.main := ""
-
 	If settings.general.ClientFiller
 	{
 		If vars.hwnd.ClientFiller && !WinExist("ahk_id " vars.hwnd.ClientFiller) && !WinActive("ahk_exe code.exe") && WinActive("ahk_group poe_window")
-			GuiClientFiller("show"), ClientFiller_count := 0
+			Gui_ClientFiller("show"), ClientFiller_count := 0
 		Else If (ClientFiller_count = 3)
 			Gui, ClientFiller: Hide
 		Else If vars.hwnd.ClientFiller && WinExist("ahk_id " vars.hwnd.ClientFiller) && (!WinActive("ahk_group poe_ahk_window") || !WinExist("ahk_group poe_window")) && !WinActive("ahk_group snipping_tools")
@@ -808,15 +872,15 @@ Loop_main()
 		If (vars.general.inactive = 3)
 		{
 			Gui, omni_context: Destroy
-			vars.hwnd.Delete("omni_context"), LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy"), CloneframesHide()
+			vars.hwnd.Delete("omni_context"), LLK_Overlay("hide"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy"), Cloneframes_Hide()
 		}
 	}
-	IteminfoOverlays()
+	Iteminfo_Overlays()
 
 	If vars.client.stream && !vars.general.drag && !WinExist("LLK-UI: notepad reminder") && !WinExist("LLK-UI: alarm set") && !WinExist("ahk_id " vars.hwnd.betrayal_setup.main) && WinActive("ahk_group poe_ahk_window") && vars.general.wMouse && LLK_HasVal(vars.hwnd, vars.general.wMouse,,,, 1) && !WinActive("ahk_id " vars.general.wMouse)
 		WinActivate, % "ahk_id " vars.general.wMouse
 
-	If !vars.general.drag && (vars.general.wMouse != vars.hwnd.settings.main) && WinActive("ahk_group poe_ahk_window") && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
+	If !vars.general.drag && (vars.general.wMouse != vars.hwnd.settings.main) && vars.hwnd.stash.main && !vars.stash.wait && !vars.stash.enter && (vars.stash.GUI || WinExist("ahk_id " vars.hwnd.stash.main)) && WinActive("ahk_group poe_ahk_window") && LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width) && LLK_IsBetween(vars.general.yMouse, vars.client.y, vars.client.y + vars.client.h)
 	{
 		tab := vars.stash.active
 		If !stashhover.exact || (vars.general.xMouse "," vars.general.yMouse != stashhover.exact)
@@ -834,19 +898,19 @@ Loop_main()
 				If LLK_IsBetween(vars.general.xMouse, x1, x2) && LLK_IsBetween(vars.general.yMouse, y1, y2)
 				{
 					stashhover := {"x1": x1, "x2": x2, "y1": y1, "y2": y2}
-					vars.stash.hover := item, Stash_("refresh")
+					vars.stash.hover := item, Stash("refresh")
 					Break
 				}
 			}
 			If Blank(stashhover.x1) && vars.stash.hover
-					vars.stash.hover := "", Stash_("refresh")
+					vars.stash.hover := "", Stash("refresh")
 			stashhover.exact := vars.general.xMouse "," vars.general.yMouse
 		}
 	}
 	Else If IsObject(stashhover) && !vars.hwnd.stash.main
 		stashhover := ""
 	Else If WinActive("ahk_group poe_ahk_window") && vars.stash.hover && !vars.stash.enter && !LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width)
-		vars.stash.hover := "", Stash_("refresh")
+		vars.stash.hover := "", Stash("refresh")
 
 	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
 	{
@@ -863,15 +927,14 @@ Loop_main()
 	If !Mod(tick_helptooltips, 3) || check_help
 	{
 		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square") || check = "donation" && vars.settings.donations[control].2.Count()) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
-			HelpTooltip(check_help)
+			Gui_HelpToolTip(check_help)
 		Else If (!check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 			LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
 		tick_helptooltips := 0
 	}
 
-
 	If WinExist("ahk_id "vars.hwnd.legion.main)
-		LegionHover()
+		Legion_Hover()
 	Else If !WinExist("ahk_id "vars.hwnd.legion.main) && WinExist("ahk_id "vars.hwnd.legion.tooltip)
 		LLK_Overlay(vars.hwnd.legion.tooltip, "destroy"), vars.legion.tooltip := ""
 
@@ -894,15 +957,15 @@ Loop_main()
 			LLK_Overlay("show")
 		}
 
-		LeveltrackerFade()
+		Leveltracker_Fade()
 		location := vars.log.areaID ;short-cut variable
 		If (vars.cloneframes.enabled
 		&& ((settings.cloneframes.pixelchecks && Screenchecks_PixelSearch("gamescreen")) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
 		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 		&& !vars.sanctum.active
 		|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
-			CloneframesShow()
-		Else CloneframesHide()
+			Cloneframes_Show()
+		Else Cloneframes_Hide()
 	}
 }
 
@@ -922,7 +985,7 @@ Resolution_check()
 	global vars, settings
 	poe_height := vars.client.h
 
-	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h) ;&& !vars.general.supported_resolutions.HasKey(vars.client.h + vars.system.caption + vars.system.yborder* 2)
+	If vars.general.buggy_resolutions.HasKey(vars.client.h) || !vars.general.supported_resolutions.HasKey(vars.client.h)
 	{
 		If vars.general.buggy_resolutions.HasKey(poe_height)
 		{
@@ -963,74 +1026,6 @@ Resolution_check()
 	}
 }
 
-RGB_Picker(current_rgb := "")
-{
-	local
-	global vars, settings
-	static palette
-
-	If !palette
-	{
-		palette := []
-		palette.Push(["330000", "660000", "990000", "CC0000", "FF0000", "FF3333", "FF6666", "FF9999", "FFCCCC"])
-		palette.Push(["331900", "663300", "994C00", "CC6600", "FF8000", "FF9933", "FFB266", "FFCC99", "FFE5CC"])
-		palette.Push(["333300", "666600", "999900", "CCCC00", "FFFF00", "FFFF33", "FFFF66", "FFFF99", "FFFFCC"])
-		palette.Push(["193300", "336600", "4C9900", "66CC00", "80FF00", "99FF33", "B2FF66", "CCFF99", "E5FFCC"])
-		palette.Push(["003300", "006600", "009900", "00CC00", "00FF00", "33FF33", "66FF66", "99FF99", "CCFFCC"])
-		palette.Push(["003319", "006633", "00994C", "00CC66", "00FF80", "33FF99", "66FFB2", "99FFCC", "CCFFE5"])
-		palette.Push(["003333", "006666", "009999", "00CCCC", "00FFFF", "33FFFF", "66FFFF", "99FFFF", "CCFFFF"])
-		palette.Push(["001933", "003366", "004C99", "0066CC", "0080FF", "3399FF", "66B2FF", "99CCFF", "CCE5FF"])
-		palette.Push(["000033", "000066", "000099", "0000CC", "0000FF", "3333FF", "6666FF", "9999FF", "CCCCFF"])
-		palette.Push(["190033", "330066", "4C0099", "6600CC", "7F00FF", "9933FF", "B266FF", "CC99FF", "E5CCFF"])
-		palette.Push(["330033", "660066", "990099", "CC00CC", "FF00FF", "FF33FF", "FF66FF", "FF99FF", "FFCCFF"])
-		palette.Push(["330019", "660033", "99004C", "CC0066", "FF007F", "FF3399", "FF66B2", "FF99CC", "FFCCE5"])
-		palette.Push(["000000", "202020", "404040", "606060", "808080", "A0A0A0", "C0C0C0", "E0E0E0", "FFFFFF"])
-	}
-	hwnd_GUI := {}
-	Gui, RGB_palette: New, -Caption -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Border HWNDhwnd +E0x02000000 +E0x00080000 HWNDhwnd_palette
-	Gui, RGB_palette: Color, Black
-	Gui, RGB_palette: Font, % "s" settings.general.fSize, % vars.system.font
-	Gui, RGB_palette: Margin, % settings.general.fWidth, % settings.general.fWidth
-	For index0, val0 in palette
-		For index, val in val0
-		{
-			style := (A_Index = 1) ? "Section " (index0 != 1 ? "ys x+-1" : "") : "xs y+" (LLK_IsBetween(index, 5, 6) ? settings.general.fWidth / 5 : -1), columns := index0
-			If (current_rgb = val)
-			{
-				Gui, RGB_palette: Add, Text, % style " Center 0x200 BackgroundTrans w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " c" (index >= 5 ? "Black" : "White"), X
-				style := "xp yp"
-			}
-			Gui, RGB_palette: Add, Progress, % style " Disabled BackgroundBlack c" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " HWNDhwnd", 100
-			hwnd_GUI[hwnd] := val
-		}
-	Gui, RGB_palette: Show, % "NA x10000 y10000"
-	WinGetPos,,, w, h, ahk_id %hwnd_palette%
-	xPos := vars.general.xMouse - (vars.general.xMouse - vars.monitor.x + w >= vars.monitor.w ? w - settings.general.fWidth : settings.general.fWidth)
-	yPos := vars.general.yMouse - (vars.general.yMouse - vars.monitor.y + h >= vars.monitor.h ? h - settings.general.fWidth : settings.general.fWidth)
-	KeyWait, LButton
-	Gui, RGB_palette: Show, % "x" xPos " y" yPos
-	While (vars.general.wMouse != hwnd_palette) && !timeout
-	{
-		If !start
-			start := A_TickCount
-		If (A_TickCount >= start + 1000) && (vars.general.wMouse != hwnd_palette)
-			timeout := 1
-		Sleep 10
-	}
-	While Blank(picked_rgb) && (vars.general.wMouse = hwnd_palette)
-	{
-		If hwnd_GUI.HasKey(vars.general.cMouse) && (hover_last != vars.general.cMouse)
-			hover_last := vars.general.cMouse
-		Else hover_last := ""
-		If GetKeyState("LButton", "P")
-			picked_rgb := hwnd_GUI[hover_last]
-		Sleep 10
-	}
-	KeyWait, LButton
-	Gui, RGB_palette: Destroy
-	Return picked_rgb
-}
-
 RightClick()
 {
 	local
@@ -1055,91 +1050,12 @@ SnipGuiClose()
 	vars.hwnd.Delete("snip")
 }
 
-SnippingTool(mode := 0)
-{
-	local
-	global vars, settings
-
-	KeyWait, LButton
-	If mode && !WinExist("ahk_id " vars.hwnd.snip.main)
-	{
-		Gui, snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd, Lailloken UI: snipping widget
-		Gui, snip: Color, Aqua
-		WinSet, trans, 100
-		vars.hwnd.snip := {"main": hwnd}
-
-		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
-		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
-		If vars.snip.w
-			Gui, snip: Show, % "x" vars.snip.x " y" vars.snip.y " w" vars.snip.w - vars.system.xBorder*2 " h" vars.snip.h - vars.system.caption - vars.system.yBorder*2
-		Else Gui, snip: Show, % "x" vars.monitor.x + vars.client.xc - settings.general.fWidth * 16 " y" vars.monitor.y + vars.client.yc - settings.general.fHeight * 6 " w"settings.general.fWidth*31 " h"settings.general.fHeight*11
-		Return 0
-	}
-	Else If !mode && WinExist("ahk_id " vars.hwnd.snip.main)
-		SnipGuiClose()
-
-	vars.general.gui_hide := 1, LLK_Overlay("hide")
-	If A_Gui
-		Gui, %A_Gui%: Hide
-
-	If mode
-	{
-		WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
-		Gui, snip: Hide
-		sleep 100
-		pBitmap := Gdip_BitmapFromScreen(x + vars.system.xborder "|" y + vars.system.yborder + vars.system.caption "|" w - vars.system.xborder*2 "|" h - vars.system.yborder*2 - vars.system.caption)
-		Gui, snip: Show
-	}
-	Else pBitmap := Screenchecks_ImageRecalibrate()
-
-	vars.general.gui_hide := 0, LLK_Overlay("show")
-	If A_Gui
-		Gui, %A_Gui%: Show, NA
-	If (pBitmap <= 0)
-	{
-		LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red")
-		Return 0
-	}
-	If WinExist("ahk_id "vars.hwnd.snip.main)
-		WinActivate, % "ahk_id "vars.hwnd.snip.main
-
-	Return pBitmap
-}
-
-SnippingToolMove()
-{
-	local
-	global vars, settings
-
-	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
-	Switch A_ThisHotkey
-	{
-		Case "*up":
-			If GetKeyState("Alt", "P")
-				h -= GetKeyState("Ctrl", "P") ? 10 : 1
-			Else y -= GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "*down":
-			If GetKeyState("Alt", "P")
-				h += GetKeyState("Ctrl", "P") ? 10 : 1
-			Else y += GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "*left":
-			If GetKeyState("Alt", "P")
-				w -= GetKeyState("Ctrl", "P") ? 10 : 1
-			Else x -= GetKeyState("Ctrl", "P") ? 10 : 1
-		Case "*right":
-			If GetKeyState("Alt", "P")
-				w += GetKeyState("Ctrl", "P") ? 10 : 1
-			Else x += GetKeyState("Ctrl", "P") ? 10 : 1
-	}
-	WinMove, % "ahk_id "vars.hwnd.snip.main,, %x%, %y%, %w%, %h%
-}
-
 Startup()
 {
 	local
 	global vars, settings
 
-	ini := IniBatchRead("ini\config.ini", "settings")
+	ini := IniBatchRead("ini" vars.poe_version "\config.ini", "settings")
 	settings.general := {"kill": [!Blank(check := ini.settings["kill script"]) ? check : 1, !Blank(check1 := ini.settings["kill script"]) ? check1 : 1]}
 	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0, settings.general.capslock := !Blank(check := ini.settings["enable capslock-toggling"]) ? check : 1
 	SetStoreCapsLockMode, % settings.general.capslock ;for people who have something bound to CapsLock
@@ -1160,10 +1076,14 @@ Startup()
 	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
 	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, snipping_tools, ahk_exe SnippingTool.exe
-	GroupAdd, poe_window, ahk_class POEWindowClass
+	If !vars.poe_version
+		GroupAdd, poe_window, ahk_class POEWindowClass
+	Else GroupAdd, poe_window, Path of Exile 2 test test
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_window, ahk_exe boosteroid.exe
-	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
+	If !vars.poe_version
+		GroupAdd, poe_ahk_window, ahk_class POEWindowClass
+	Else GroupAdd, poe_ahk_window, Path of Exile 2 test test
 	GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
 	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
 	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
@@ -1175,7 +1095,10 @@ Startup()
 	If !LLK_FileCheck() ;check if important files are missing
 		LLK_Error("Critical files are missing. Make sure you have installed the script correctly.")
 
-	Loop, Parse, % "ini, exports, img\GUI\skill-tree, cheat-sheets", `,, %A_Space%
+	If !FileExist("ini\") ;ini-folder is required regardless of which PoE-version is being played
+		FileCreateDir, ini\
+
+	Loop, Parse, % "ini" vars.poe_version ", exports, img\GUI\skill-tree, cheat-sheets" vars.poe_version, `,, %A_Space%
 	{
 		If !FileExist(A_LoopField "\") ;create folder
 			FileCreateDir, % A_LoopField "\"
@@ -1191,12 +1114,12 @@ Startup()
 		If settings.general.kill.1 && (A_TickCount >= vars.general.runcheck + settings.general.kill.2* 60000) ;kill script after X minutes
 			ExitApp
 		win_not_exist := 1
-		sleep, 100
+		Sleep, 100
 	}
 
 	;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
 	If WinExist("ahk_group poe_window") && win_not_exist
-		sleep 4000
+		Sleep, 4000
 	LLK_Log("found game-client")
 
 	Init_client()
@@ -1207,16 +1130,16 @@ Startup()
 
 	;get the location of the client.txt file
 	WinGet, poe_log_file, ProcessPath, ahk_group poe_window
-	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt")
-		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\client.txt"
-	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",,,LLK_InStrCount(poe_log_file, "\"))) "logs\kakaoclient.txt"
+	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\client.txt")
+		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\client.txt"
+	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\kakaoclient.txt"
 	LLK_Log("game's log-file: " poe_log_file)
 
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info
 		vars.log.file_location := poe_log_file, LLK_Log("found game's log-file"), Init_log(), LLK_Log("accessed required information from log-file")
 	Else vars.log.file_location := 0, LLK_Log("couldn't find game's log-file")
 
-	GuiClientFiller()
+	Gui_ClientFiller()
 }
 
 StrMatch(string, check, match_length := 0)
@@ -1225,81 +1148,6 @@ StrMatch(string, check, match_length := 0)
 
 	If (SubStr(string, 1, StrLen(check)) = check) && (match_length && StrLen(string) = StrLen(check) || !match_length)
 		Return 1
-}
-
-ToolTip_Mouse(mode := "", timeout := 0)
-{
-	local
-	global vars, settings
-	static name, start
-
-	If mode
-	{
-		If (mode = "reset")
-			name := "", start := ""
-		Else
-		{
-			vars.tooltip_mouse := {"name": mode, "timeout": timeout}
-			SetTimer, ToolTip_Mouse, 10
-		}
-		Return
-	}
-
-	Switch vars.tooltip_mouse.name
-	{
-		Case "chromatics":
-			text := LangTrans("omnikey_chromes") . "`n" . LangTrans("omnikey_escape")
-			If GetKeyState("Space", "P") ;GetKeyState("Ctrl", "P") && GetKeyState("v", "P")
-			{
-				SetTimer, ToolTip_Mouse, Delete
-				KeyWait, Space
-				Sleep, 100
-				SendInput, % "^{a}{BS}" vars.omnikey.item.sockets "{TAB}" vars.omnikey.item.str "{TAB}" vars.omnikey.item.dex "{TAB}" vars.omnikey.item.int "{TAB}{TAB}"
-				vars.tooltip_mouse := ""
-			}
-		Case "cluster":
-			text := LangTrans("omnikey_clustersearch") . "`n" . LangTrans("omnikey_escape")
-			If GetKeyState("Control", "P") && GetKeyState("F", "P")
-			{
-				SetTimer, ToolTip_Mouse, Delete
-				Clipboard := vars.omnikey.item.cluster_enchant
-				KeyWait, F
-				Sleep, 100
-				SendInput, ^{a}^{v}
-				Sleep, 100
-				vars.tooltip_mouse := ""
-			}
-		Case "searchstring":
-			text := LangTrans("omnikey_scroll") . " " . (InStr(vars.searchstrings.clipboard, ";") ? "" : vars.searchstrings.active.3 "/" vars.searchstrings.active.4) . "`n" . LangTrans("omnikey_escape")
-		Case "killtracker":
-			text := LangTrans("maptracker_kills")
-		Case "lab":
-			text := "-> " . LangTrans("omnikey_labimport") . "`n-> " . LangTrans("omnikey_labimport", 2) . "`n-> " . LangTrans("omnikey_labimport", 3) . "`n-> " . LangTrans("omnikey_labimport", 4) . "`n-> " . LangTrans("omnikey_labimport", 5) . "`n" . LangTrans("omnikey_escape")
-	}
-
-	If vars.tooltip_mouse.timeout && WinActive("ahk_group poe_window") && IsNumber(start) && (A_TickCount >= start + 1000) || GetKeyState("ESC", "P") && (name != "killtracker") || !vars.tooltip_mouse
-	{
-		Gui, tooltip_mouse: Destroy
-		vars.hwnd.Delete("tooltip_mouse"), name := "", start := "", vars.tooltip_mouse := ""
-		SetTimer, ToolTip_Mouse, Delete
-		Return
-	}
-
-	If vars.hwnd.tooltip_mouse.main && !WinExist("ahk_id " vars.hwnd.tooltip_mouse.main) || (name != vars.tooltip_mouse.name)
-	{
-		start := A_TickCount
-		Gui, tooltip_mouse: New, % "-DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border HWNDhwnd +E0x02000000 +E0x00080000"
-		Gui, tooltip_mouse: Color, Black
-		Gui, tooltip_mouse: Margin, % settings.general.fwidth / 2, 0
-		WinSet, Transparent, 255
-		Gui, tooltip_mouse: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
-		Gui, tooltip_mouse: Add, Text, % "HWNDhwnd1"(vars.tooltip_mouse.name = "searchstring" ? " w"settings.general.fWidth*14 : ""), % text
-		vars.hwnd.tooltip_mouse := {"main": hwnd, "text": hwnd1}
-	}
-
-	name := vars.tooltip_mouse.name
-	MouseGetPos, xPos, yPos
-	Gui, tooltip_mouse: Show, % "NA x"xPos + settings.general.fWidth*3 " y"yPos
 }
 
 UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this function was called via the timer or during script-start
@@ -1324,7 +1172,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	If (update.1 < 0)
 	{
 		If InStr("2", timer)
-			IniWrite, updater, ini\config.ini, versions, reload settings
+			IniWrite, updater, % "ini" vars.poe_version "\config.ini", versions, reload settings
 		Return
 	}
 	versions_local := Json.Load(LLK_FileRead("data\versions.json")) ;load local versions
@@ -1343,14 +1191,14 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	If (update.1 = -4)
 	{
 		If InStr("2", timer)
-			IniWrite, updater, ini\config.ini, versions, reload settings
+			IniWrite, updater, % "ini" vars.poe_version "\config.ini", versions, reload settings
 		Return
 	}
 	versions_live := Json.Load(version_check) ;load version-list into object
 	If versions_live.HasKey("hotfix")
 		versions_live._release.1 .= "." . (versions_live.hotfix < 10 ? "0" : "") . versions_live.hotfix
 	vars.updater := {"version": [versions_local._release.1, UpdateParseVersion(versions_local._release.1)], "latest": [versions_live._release.1, UpdateParseVersion(versions_live._release.1)]}
-	vars.updater.skip := LLK_IniRead("ini\config.ini", "versions", "skip", 0)
+	vars.updater.skip := LLK_IniRead("ini" vars.poe_version "\config.ini", "versions", "skip", 0)
 
 	Try changelog_check := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/" (settings.general.dev_env ? "dev" : "main") "/data/changelog.json")
 	If (SubStr(changelog_check, 1, 1) . SubStr(changelog_check, 0) = "[]")
@@ -1416,7 +1264,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		If (vars.update.1 >= 0)
 		{
 			FileDelete, data\version_check.json
-			IniDelete, ini\config.ini, versions, apply update
+			IniDelete, % "ini\config.ini", versions, apply update
 			LLK_Log("finished update to " vars.updater.target_version.1)
 			Reload
 			ExitApp
@@ -1425,7 +1273,7 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		{
 			SetTimer, UpdateDownload, Delete
 			Gui, update_download: Destroy
-			IniWrite, updater, ini\config.ini, versions, reload settings
+			IniWrite, updater, % "ini" vars.poe_version "\config.ini", versions, reload settings
 			LLK_Log("failed update to " vars.updater.target_version.1)
 			Return
 		}
@@ -1466,532 +1314,4 @@ UpdateParseVersion(string)
 	}
 	string .= InStr(string, "(hotfix") ? ")" : ""
 	Return string
-}
-
-LLK_ArraySort(array)
-{
-	local
-
-	parse := {}, parse2 := []
-	For index, val in array
-		parse[val] := 1
-
-	For key in parse
-		parse2.Push(key)
-
-	Return parse2
-}
-
-LLK_CheckClipImages()
-{
-	local
-
-	check := 0
-	Loop, Parse, Clipboard, `n, `r
-		check += InStr(".jpg.png.bmp", SubStr(A_LoopField, -3)) ? 0 : 1
-
-	If !check
-		Return 1
-}
-
-LLK_ControlGet(cHWND, GUI_name := "", subcommand := "")
-{
-	local
-
-	If GUI_name
-		GUI_name := GUI_name ": "
-	GuiControlGet, parse, % GUI_name subcommand, % cHWND
-	Return parse
-}
-
-LLK_ControlGetPos(cHWND, return_val)
-{
-	local
-
-	ControlGetPos, x, y, width, height,, ahk_id %cHWND%
-	Switch return_val
-	{
-		Case "x":
-			Return x
-		Case "y":
-			Return y
-		Case "w":
-			Return width
-		Case "h":
-			Return height
-	}
-}
-
-LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center := 0) ; raw parameter: 1 for GUIs with a static size that require raw coordinates
-{
-	local
-	global vars, settings
-
-	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1, vars.general.drag := 1
-	MouseGetPos, xPos, yPos
-	xMouse := xPos, yMouse := yPos
-	If !gui_name
-		gui_name := A_Gui
-
-	If !gui_name
-	{
-		LLK_ToolTip("missing gui-name",,,,, "red")
-		sleep 1000
-		Return
-	}
-
-	xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
-	xPos -= vars.monitor.x, yPos -= vars.monitor.y
-	If (xPos >= vars.monitor.w)
-		xPos := vars.monitor.w - 1
-
-	If (xPos >= vars.monitor.w / 2) && !raw
-		xTarget := xPos - width + 1
-	Else xTarget := xPos
-
-	If (yPos >= vars.monitor.h)
-		yPos := vars.monitor.h - 1
-
-	If (yPos >= vars.monitor.h / 2) && !raw
-		yTarget := yPos - height + 1
-	Else yTarget := yPos
-
-	If raw && (xTarget + width > vars.monitor.w)
-		xTarget := vars.monitor.w - width, xPos := xTarget
-	If raw && (yTarget + height > vars.monitor.h)
-		yTarget := vars.monitor.h - height, yPos := yTarget
-
-	If center && LLK_IsBetween(xMouse, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
-		xPos := "", xTarget := vars.client.xc - width/2 + 1
-
-	Gui, %gui_name%: Show, % (vars.client.stream ? "" : "NA ") "x" vars.monitor.x + xTarget " y" vars.monitor.y + yTarget
-}
-
-LLK_Error(ErrorMessage, restart := 0)
-{
-	MsgBox, % ErrorMessage
-	If restart
-		Reload
-	ExitApp
-}
-
-LLK_FileCheck()
-{
-	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
-		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
-		{
-			FileDelete, data\%val%
-			FileRemoveDir, data\%val%, 1
-		}
-	For index, val in ["necropolis.ahk"]
-		If FileExist("modules\" val)
-			FileDelete, modules\%val%
-	If FileExist("data\english\necropolis.json")
-		FileDelete, data\english\necropolis.json
-	If FileExist("ini\altars.ini")
-		FileMove, ini\altars.ini, ini\ocr - altars.ini, 1
-	If !FileExist("data\") || !FileExist("data\global\") || !FileExist("data\english\") || !FileExist("data\english\UI.txt") || !FileExist("data\english\client.txt")
-		Return 0
-	Else Return 1
-}
-
-LLK_FilePermissionError(issue, folder)
-{
-	local
-
-	MsgBox, % LangTrans("m_permission_error1", (issue = "create") ? 1 : 2) " " folder "`n`n" LangTrans("m_permission_error1", 3) "`n" LangTrans("m_permission_error1", 4) "`n`n" LangTrans("m_permission_error1", 5) "`n`n" LangTrans("m_permission_error1", 6)
-}
-
-LLK_FileRead(file, keep_case := 0, encoding := "65001")
-{
-	local
-
-	FileRead, read, % (!Blank(encoding) ? "*P" encoding " " : "") file
-	If !keep_case
-		StringLower, read, read
-	Return read
-}
-
-LLK_FindHWND(object, HWND)
-{
-	local
-
-	For key, val in object
-	{
-		If IsObject(val)
-		{
-			result := LLK_FindHWND(val, HWND)
-			If result
-				Return [key, result]
-		}
-		Else If (val = HWND)
-			Return key
-	}
-	Return
-}
-
-LLK_FontDefault()
-{
-	local
-	global vars, settings
-
-	Return LLK_IniRead("data\Resolutions.ini", vars.monitor.h "p", "font", 16)
-}
-
-LLK_FontDimensions(size, ByRef font_height_x, ByRef font_width_x)
-{
-	local
-	global vars
-
-	Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border
-	Gui, font_size: Margin, 0, 0
-	Gui, font_size: Color, Black
-	Gui, font_size: Font, % "cWhite s"size, % vars.system.font
-	Gui, font_size: Add, Text, % "Border HWNDhwnd", % "7"
-	GuiControlGet, font_check_, Pos, % hwnd
-	font_height_x := font_check_h
-	font_width_x := font_check_w
-	Gui, font_size: Destroy
-}
-
-LLK_FontSizeGet(height, ByRef font_width) ;returns a font-size that's about the height passed to the function
-{
-	local
-	global vars
-
-	Gui, font_size: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
-	Gui, font_size: Margin, 0, 0
-	Gui, font_size: Color, Black
-	Loop
-	{
-		Gui, font_size: Font, % "cWhite s"A_Index, % vars.system.font
-		Gui, font_size: Add, Text, % "Border HWNDhwnd", % "7"
-		ControlGetPos,,, font_width, font_height,, % "ahk_id "hwnd
-		check += (font_height > height) ? 1 : 0
-		If check
-		{
-			Gui, font_size: Destroy ;it would be technically correct to return A_Index - 1 (i.e. the last index where font_height was still lower than height), but there is a lot of leeway with font-heights ;cont
-			Return A_Index + 2 ;because every text exclusively uses lower-case letters
-		}
-	}
-}
-
-LLK_ImageCache(file)
-{
-	local
-	global vars, settings
-
-	pBitmap := Gdip_CreateBitmapFromFile(file), pHBM := Gdip_CreateHBITMAPFromBitmap(pBitmap, 0), Gdip_DisposeImage(pBitmap)
-	Return pHBM
-}
-
-LLK_IniRead(file, section := "", key := "", default := "")
-{
-	IniRead, iniread, % file, % section, % key, % Blank(default) ? A_Space : default
-	iniread := (iniread = " ") ? "" : iniread ;work-around for situations where A_Space is taken literally instead of "blank" (blank return is hard-coded as %A_Space%, so % "" doesn't work)
-	If !Blank(default) && Blank(iniread)	;IniRead's 'default' is only used if the key cannot be found in the ini-file
-		Return default 				;if the key in the ini-file is blank, the target-variable will also be blank (instead of storing 'default')
-	Else Return iniread
-}
-
-LLK_InRange(x, y, range)
-{
-	If (y >= x - range) && (y <= x + range)
-		Return 1
-	Else Return 0
-}
-
-LLK_InStrCount(string, character, delimiter := "")
-{
-	count := 0
-	Loop, Parse, string, % delimiter
-		If (A_Loopfield = character)
-			count += 1
-	Return count
-}
-
-LLK_IsBetween(var, x, y)
-{
-	If Blank(x) || Blank(y)
-		Return
-	x += 0, y += 0
-	If (x > y)
-		z := x, x := y, y := z
-	If (x <= var) && (var <= y)
-		Return 1
-	Else Return 0
-}
-
-LLK_IsType(character, type)
-{
-	If (character = "")
-		Return 0
-	If (character = " ") && (type = "alpha" || type = "alnum")
-		Return 1
-	Else If character is %type%
-		Return 1
-}
-
-LLK_Log(message)
-{
-	local
-	global vars
-
-	If !vars.logging
-		Return
-
-	FormatTime, logstamp, A_Now, yyyy-MM-dd`, HH:mm:ss
-	FileAppend, % (InStr(message, "---") ? "`r`n" : "") "[" logstamp "] " message "`r`n", data\log.txt
-}
-
-LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
-{
-	local
-	global vars, settings
-
-	If Blank(guiHWND)
-		Return
-
-	If !Blank(gui_name0)
-		vars.GUI.Push({"name": gui_name0, "hwnd": guiHWND, "show": 0, "dummy": ""})
-
-	For index, val in vars.GUI
-		If !Blank(LLK_HasVal(val, guiHWND))
-		{
-			gui_name := val.name, gui_index := index
-			Break
-		}
-
-	If !InStr("showhide", guiHWND) && (Blank(gui_name) || Blank(gui_index))
-		Return
-
-	If (guiHWND = "hide")
-	{
-		For index, val in vars.GUI
-		{
-			If (val.hwnd = vars.hwnd.settings.main) && (vars.settings.active = "betrayal-info") || !WinExist("ahk_id " val.hwnd) || InStr(vars.hwnd.cheatsheet_menu.main "," vars.hwnd.searchstrings_menu.main "," vars.hwnd.leveltracker_screencap.main "," vars.hwnd.notepad.main, val.hwnd)
-				Continue
-			Gui, % val.name ": Hide"
-		}
-	}
-	Else If (guiHWND = "show")
-	{
-		For index, val in vars.GUI
-		{
-			ControlGetPos, x,,,,, % "ahk_id " val.dummy
-			If !val.show || Blank(x)
-				Continue
-			Gui, % val.name ": Show", NA
-		}
-	}
-	Else If (mode = "show") || (mode = "hide") && !Blank(gui_name0)
-	{
-		If !vars.GUI[gui_index].dummy
-		{
-			Gui, %gui_name%: Add, Text, Hidden x0 y0 HWNDhwnd, % "" ;add a dummy text-control to the GUI with which to check later on if it has been destroyed already (via ControlGetPos)
-			vars.GUI[gui_index].dummy := hwnd, vars.GUI[gui_index].show := (mode = "show") ? 1 : 0
-		}
-		Else vars.GUI[gui_index].show := 1
-		Gui, %gui_name%: Show, % (mode = "show" ? (NA ? "NA" : "") : "Hide")
-	}
-	Else If (mode = "hide")
-	{
-		If WinExist("ahk_id " guiHWND)
-			Gui, %gui_name%: Hide
-		vars.GUI[gui_index].show := 0
-	}
-	Else If (mode = "destroy")
-	{
-		If vars.GUI[gui_index].dummy
-			ControlGetPos, x,,,,, % "ahk_id " vars.GUI[gui_index].dummy
-		If WinExist("ahk_id " guiHWND) || !Blank(x)
-			Gui, %gui_name%: Destroy
-	}
-	Else If (mode = "check")
-	{
-		If vars.GUI[gui_index].dummy
-			ControlGetPos, x,,,,, % "ahk_id " vars.GUI[gui_index].dummy
-		Return x
-	}
-
-	For index, val in vars.GUI ;check for GUIs that have already been destroyed
-	{
-		ControlGetPos, x,,,,, % "ahk_id " val.dummy
-		If Blank(x)
-			remove .= index ";"
-	}
-	Loop, Parse, remove, `;
-		If IsNumber(A_LoopField)
-			vars.GUI.RemoveAt(A_LoopField)
-}
-
-LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", header_offset := 0, margins := 1, min_width := 0)
-{
-	local
-	global vars
-
-	Gui, panel_dimensions: New, -DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow
-	Gui, panel_dimensions: Margin, 0, 0
-	Gui, panel_dimensions: Color, Black
-	Gui, panel_dimensions: Font, % "s"fSize + header_offset " cWhite", % vars.system.font
-	width := min_width ? 9999 : 0, height := 0, string := array.1
-
-	If min_width
-	{
-		array := []
-		Loop, % Max(LLK_InStrCount(string, " "), 1)
-		{
-			outer := A_Index, new_string := ""
-			Loop, Parse, string, %A_Space%
-				new_string .= A_LoopField . (outer = A_Index ? "`n" : " ")
-			If (SubStr(new_string, 0) = "`n")
-				new_string := SubStr(new_string, 1, -1)
-			array.Push(new_string)
-		}
-	}
-
-	For index, val in array
-	{
-		font := InStr(val, "(/bold)") ? "bold" : "", font .= InStr(val, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
-		Gui, panel_dimensions: Font, % font
-		val := StrReplace(StrReplace(StrReplace(val, "&&", "&"), "(/bold)"), "(/underline)"), val := StrReplace(val, "&", "&&")
-		Gui, panel_dimensions: Add, Text, % align " HWNDhwnd Border", % header_offset && (index = 1) ? " " val : margins ? " " StrReplace(val, "`n", " `n ") " " : val
-		Gui, panel_dimensions: Font, % "norm s"fSize
-		WinGetPos,,, w, h, ahk_id %hwnd%
-		height := (h > height) ? h : height
-		width := (min_width && w < width || !min_width && w > width) ? w : width
-		min_string := (w = width) ? val : min_string
-	}
-
-	Gui, panel_dimensions: Destroy
-	;width := Format("{:0.0f}", width* 1.25)
-	If min_width
-		Return min_string
-	While Mod(width, 2)
-		width += 1
-	While Mod(height, 2)
-		height += 1
-}
-
-LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress bar, key = key that is held down to fill the progress bar, HWND_control = HWND of the button (to undo clipping)
-{
-	local
-
-	start := A_TickCount
-	While GetKeyState(key, "P")
-	{
-		GuiControl,, %HWND_bar%, % A_TickCount - start
-		If (A_TickCount >= start + 600)
-		{
-			GuiControl,, %HWND_bar%, 0 ;reset the progress bar to 0
-			If HWND_control
-				GuiControl, movedraw, %HWND_control% ;redraw the button that was held down (otherwise the progress bar will remain on top of it)
-			Return 1
-		}
-		Sleep 20
-	}
-	GuiControl,, %HWND_bar%, 0
-	If HWND_control
-		GuiControl, movedraw, %HWND_control%
-	Return 0
-}
-
-LLK_StringCase(string, mode := 0, title := 0)
-{
-	local
-
-	If mode
-		StringUpper, string, % string, % title ? "T" : ""
-	Else StringLower, string, % string, % title ? "T" : ""
-	Return string
-}
-
-LLK_StringRemove(string, characters)
-{
-	local
-
-	Loop, Parse, characters, `,
-	{
-		If (A_LoopField = "")
-			Continue
-		string := StrReplace(string, A_LoopField)
-	}
-	Return string
-}
-
-LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "White", size := "", align := "", trans := "", center := 0, background := "")
-{
-	local
-	global vars, settings
-
-	If !name
-		name := 1
-
-	vars.tooltip.wait := 1
-
-	If !size
-		size := settings.general.fSize
-
-	If Blank(trans)
-		trans := 255
-
-	If align
-		align := " " align
-
-	xPos := InStr(x, "+") || InStr(x, "+-") ? vars.general.xMouse + StrReplace(x, "+") : (x != "") ? x : vars.general.xMouse
-	yPos := InStr(y, "+") || InStr(y, "+-") ? vars.general.yMouse + StrReplace(y, "+") : (y != "") ? y : vars.general.yMouse
-
-	Gui, tooltip%name%: New, % "-DPIScale +E0x20 +LastFound +AlwaysOnTop +ToolWindow -Caption +Border +E0x02000000 +E0x00080000 HWNDhwnd"
-	Gui, tooltip%name%: Color, % Blank(background) ? "Black" : background
-	Gui, tooltip%name%: Margin, % settings.general.fwidth / 2, 0
-	WinSet, Transparent, % trans
-	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
-	vars.hwnd["tooltip" name] := hwnd
-
-	Gui, tooltip%name%: Add, Text, % "c"color align, % message
-	Gui, tooltip%name%: Show, % "NA x10000 y10000"
-	WinGetPos,,, w, h, ahk_id %hwnd%
-
-	If center
-		xPos -= w//2
-
-	xPos := (xPos + w > vars.monitor.x + vars.monitor.w) ? vars.monitor.x + vars.monitor.w - w : (xPos < vars.monitor.x ? vars.monitor.x : xPos)
-	If IsNumber(y)
-		yPos := (yPos + h > vars.monitor.y + vars.monitor.h) ? vars.monitor.y + vars.monitor.h - h : yPos
-	Else yPos := (yPos - h < vars.monitor.y) ? vars.monitor.y + h : yPos
-
-	Gui, tooltip%name%: Show, % "NA x"xPos " y"yPos - (y = "" || InStr(y, "+") || InStr(y, "-") ? h : 0)
-	LLK_Overlay(hwnd, "show",, "tooltip" name)
-	If duration
-		vars.tooltip[hwnd] := A_TickCount + duration*1000
-	vars.tooltip.wait := 0
-}
-
-LLK_TrimDecimals(string)
-{
-	local
-
-	If !InStr(string, ".")
-		Return string
-	While InStr("0.", (check := SubStr(string, 0))) && !Blank(check)
-	{
-		string := SubStr(string, 1, -1)
-		If (check = ".")
-			Break
-	}
-	Return string
-}
-
-LLK_Restart()
-{
-	Reload
-	ExitApp
-}
-
-WinGet(command, win_title)
-{
-	local
-
-	WinGet, out, %command%, %win_title%
-	Return out
 }

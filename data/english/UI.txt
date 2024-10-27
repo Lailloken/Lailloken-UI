@@ -171,6 +171,7 @@
 		global_clipboard		=	"copied to clipboard"
 		global_start			=	"start"
 		global_cancel			=	"cancel"
+		global_downloading		=	"downloading..."
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -312,7 +313,7 @@
 ;## these strings are displayed/required when using the leveling tracker / act-tracker
 		lvltracker_header		=	"skilltree configuration"
 		lvltracker_deleteall		=	"del all"
-		lvltracker_gemnotes		=	"no notes;for this gem"
+		lvltracker_gemnotes		=	"not included in pob"
 		lvltracker_gearlist		=	"char (lvl):"					;## displayed at the top of the geartracker: "char (lvl): Lailloken (69)"
 		lvltracker_gearadd		=	"item added"
 		lvltracker_gearadd		=	"item already added"
@@ -338,6 +339,9 @@
 		lvltracker_timermessage		=	"run started"
 		lvltracker_timermessage		=	"timer resumed"
 		lvltracker_timermessage		=	"timer paused"
+		lvltracker_treeerror		=	"skill-tree version;is incompatible"
+		lvltracker_treenone		=	"imported pob doesn't;have usable tree(s)"
+		lvltracker_treeascendancy	=	"slot empty"
 
 
 ;#####################################################
@@ -773,12 +777,14 @@
 		m_lvltracker_hints		=	"hints"
 		m_lvltracker_hotkeys		=	"enable page-switching via hotkeys"
 		m_lvltracker_skilltree		=	"skill-tree overlay settings:"
+		m_lvltracker_pobmanual	=	"use screen-caps instead of schematics"
 		m_lvltracker_pob		=	"pob: middle-click opens screen-cap menu"
 		m_lvltracker_screencap		=	"screen-cap menu"
 		m_lvltracker_guide		=	"guides:"
 		m_lvltracker_generate		=	"open exile-leveling"
 		m_lvltracker_reset		=	"reset"
 		m_lvltracker_incompatible	=	"incompatible guide-data,;update required"
+		m_lvltracker_treeclear		=	"delete data"
 
 
 

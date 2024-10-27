@@ -262,7 +262,7 @@
       "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
       "it consists of total time (left), act # (middle), current act time (right)",
       "click < act # > to pause/resume the timer, hold right-click to reset it for a new run",
-      "how to reset: create a new character, enter twilight strand, hold right-click on < act # >, then click it to start the new run"
+      "how to reset: create a new character, enter twilight strand, hold right-click on <act#>, then click it to start the new run"
     ],
     "leveltracker timer-pause": [
       "automatically pauses the timer in hideouts, and resumes it when you leave"
@@ -287,8 +287,19 @@
       "slightly moves the guide-overlay up so it doesn't cover the exp-bar"
     ],
     "leveltracker skilltree-info": [
-      "while the skilltree is on screen, hold the omni-key to show overlays with skilltree images",
+      "while the skill-tree is on screen, tap the tab-key to show overlays with skill-tree schematics",
       "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
+    ],
+    "leveltracker skilltree-info manual": [
+      "while the skill-tree is on screen, hold the omni-key to show overlays with skill-tree screenshots",
+      "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
+    ],
+    "leveltracker skilltree clear": [
+      "long-click to delete the skill-tree files used to render schematics: they will be re-downloaded the next time they are needed",
+      "deleting them is only required if the schematics are outdated or otherwise incorrect"
+    ],
+    "leveltracker pob manual": [
+      "the overlay will use manual screen-caps instead of schematics generated via pob's data"
     ],
     "leveltracker pob": [
       "m-mouse in pob will open the screen-cap menu",
@@ -316,7 +327,10 @@
       "hold to reset the progress in this guide slot and start over"
     ],
     "leveltracker profile name": [
-      "optional: type in a description/name for the guide in this slot (so guides don't get mixed up)"
+      "optional: type in a description/name for the guide in this slot"
+    ],
+    "leveltracker pob preview": [
+      "long-click to check available pob data"
     ],
     "leveltracker layouts": [
       "hold tab to overlay images with possible zone-layouts (guide-panel shows # zl)",
@@ -815,6 +829,14 @@
     ],
     "skilltree-cap caption": [
       "type in a caption and press <enter>"
+    ]
+  },
+  "leveltrackerschematics": {
+    "how-to": [
+      "press <q> or <e> to switch between individual skill-trees",
+      "hold <w> to show an overview of the whole tree",
+      "hold number-keys <1> through <4> to show the individual ascendancy-trees",
+      "press <space> to move the tree's starting point (white circle) to the cursor's position"
     ]
   },
   "maptracker": {

@@ -1,5 +1,10 @@
 [
   [
+	["1.55.5", 15505],
+	"basic preparations for poe 2 support",
+	"act-tracker: pob skill-tree and gem-link integrations"
+  ],
+  [
 	["1.55.4", 15504],
 	"betrayal-info: geforce now screen-cap fix",
 	"act-tracker: improved import for custom guides",
