@@ -10,8 +10,8 @@
 		If !Blank(settings.general.character)
 		{
 			log_file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := log_file.Read(), log_file.Close()
-			check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
-			check1 := InStr(log_content, " " settings.general.character " " LangTrans("log_whois"),, 0, 1), check := Max(check, check1)
+			check := InStr(log_content, " " settings.general.character " " Lang_Trans("system_parenthesis"),, 0, 1)
+			check1 := InStr(log_content, " " settings.general.character " " Lang_Trans("log_whois"),, 0, 1), check := Max(check, check1)
 		}
 		Else
 		{
@@ -29,19 +29,19 @@
 			vars.log[A_LoopField] := ""
 
 		If !settings.general.lang_client
-			check := InStr(log_content, " Generating level ", 1, 0, 10), LangClient(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
+			check := InStr(log_content, " Generating level ", 1, 0, 10), Lang_Client(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
 
-		If !Blank(settings.general.character := LLK_IniRead("ini\config.ini", "settings", "active character"))
+		If !Blank(settings.general.character := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "active character"))
 		{
-			check := InStr(log_content, " " settings.general.character " " LangTrans("system_parenthesis"),, 0, 1)
-			check1 := InStr(log_content, " " settings.general.character " " LangTrans("log_whois"),, 0, 1), check := Max(check, check1)
+			check := InStr(log_content, " " settings.general.character " " Lang_Trans("system_parenthesis"),, 0, 1)
+			check1 := InStr(log_content, " " settings.general.character " " Lang_Trans("log_whois"),, 0, 1), check := Max(check, check1)
 		}
 		Else check := 0
 	}
 
 	If check
 		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1)
-		, LogParse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
+		, Log_Parse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 
 	If mode
 	{
@@ -49,14 +49,14 @@
 		Return
 	}
 	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
-	LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
+	Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
 	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
 }
 
-LogLoop(mode := 0)
+Log_Loop(mode := 0)
 {
 	local
 	global vars, settings
@@ -77,12 +77,12 @@ LogLoop(mode := 0)
 		Return
 
 	If IsObject(vars.maptracker)
-		vars.maptracker.hideout := MaptrackerTowncheck() ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
+		vars.maptracker.hideout := Maptracker_Towncheck() ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
 
 	log_content := vars.log.file.Read(), level0 := vars.log.level
 	If !Blank(log_content)
 	{
-		LogParse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
+		Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		{
 			If !Blank(%A_LoopField%)
@@ -91,7 +91,7 @@ LogLoop(mode := 0)
 				vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
 		}
 		If !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
-			LeveltrackerProgress()
+			Leveltracker_Progress()
 		If settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
 			vars.alarm.timers.Delete(check), vars.alarm.timers[A_Now "|"] := "oni"
 
@@ -137,11 +137,11 @@ LogLoop(mode := 0)
 			If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, parse)) && (parse != vars.log.areaname)
 				vars.mapinfo.categories[A_Index] := ""
 		}
-		vars.mapinfo.active_map.name := LangTrans("maps_logbook") ": " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1
+		vars.mapinfo.active_map.name := Lang_Trans("maps_logbook") ": " vars.log.areaname, vars.mapinfo.active_map.expedition_filter := 1
 	}
 
-	MaptrackerTimer()
-	LeveltrackerTimer()
+	Maptracker_Timer()
+	Leveltracker_Timer()
 
 	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && (vars.leveltracker.gear_ready != vars.leveltracker.gear_counter)
 	{
@@ -155,7 +155,7 @@ LogLoop(mode := 0)
 	}
 }
 
-LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel, ByRef areatier, ByRef act, ByRef level, ByRef date_time, ByRef character_class)
+Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel, ByRef areatier, ByRef act, ByRef level, ByRef date_time, ByRef character_class)
 {
 	local
 	global vars, settings, db
@@ -176,19 +176,19 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.") || InStr(A_LoopField, "*****")
 			areaID := "login"
 
-		If LangMatch(A_LoopField, vars.lang.log_enter)
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_enter.1)), areaname := LLK_StringCase(LangTrim(parse, vars.lang.log_enter, LangTrans("log_location")))
+		If Lang_Match(A_LoopField, vars.lang.log_enter)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_enter.1)), areaname := LLK_StringCase(Lang_Trim(parse, vars.lang.log_enter, Lang_Trans("log_location")))
 
 		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ")
 		{
-			If LangMatch(A_LoopField, vars.lang.log_level)
+			If Lang_Match(A_LoopField, vars.lang.log_level)
 			{
-				level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := LangTrim(level, vars.lang.log_level)
-				If InStr(A_LoopField, settings.general.character " " LangTrans("system_parenthesis"))
-					character_class := SubStr(A_LoopField, InStr(A_LoopField, LangTrans("system_parenthesis")) + 1)
-					, character_class := LLK_StringCase(SubStr(character_class, 1, InStr(character_class, LangTrans("system_parenthesis", 2)) - 1))
+				level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := Lang_Trim(level, vars.lang.log_level)
+				If InStr(A_LoopField, settings.general.character " " Lang_Trans("system_parenthesis"))
+					character_class := SubStr(A_LoopField, InStr(A_LoopField, Lang_Trans("system_parenthesis")) + 1)
+					, character_class := LLK_StringCase(SubStr(character_class, 1, InStr(character_class, Lang_Trans("system_parenthesis", 2)) - 1))
 			}
-			Else If LangMatch(A_LoopField, vars.lang.log_whois)
+			Else If Lang_Match(A_LoopField, vars.lang.log_whois)
 			{
 				level0 := SubStr(A_LoopField, InStr(A_LoopField, settings.general.character)), parse := ""
 				Loop, Parse, level0
@@ -202,24 +202,24 @@ LogParse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel,
 			}
 
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
-				GeartrackerGUI("refresh")
+				Geartracker_GUI("refresh")
 		}
 
-		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (LangMatch(A_LoopField, vars.lang.log_slain) || LangMatch(A_LoopField, vars.lang.log_suicide))
+		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (Lang_Match(A_LoopField, vars.lang.log_slain) || Lang_Match(A_LoopField, vars.lang.log_suicide))
 			vars.maptracker.map.deaths += 1
 
-		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && LangMatch(A_LoopField, vars.lang.log_killed)
+		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && Lang_Match(A_LoopField, vars.lang.log_killed)
 		{
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_killed.1)), parse := LangTrim(parse, vars.lang.log_killed)
+			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_killed.1)), parse := Lang_Trim(parse, vars.lang.log_killed)
 			Loop, Parse, parse
 				parse := (A_Index = 1) ? "" : parse, parse .= IsNumber(A_LoopField) ? A_LoopField : ""
 			If (vars.maptracker.refresh_kills = 1)
-				vars.maptracker.map.kills := [parse], LLK_ToolTip(LangTrans("maptracker_kills", 2),,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
-			Else If (vars.maptracker.refresh_kills > 1) && MaptrackerTowncheck()
-				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(LangTrans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3
+				vars.maptracker.map.kills := [parse], LLK_ToolTip(Lang_Trans("maptracker_kills", 2),,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
+			Else If (vars.maptracker.refresh_kills > 1) && Maptracker_Towncheck()
+				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(Lang_Trans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3
 		}
 
 		If settings.features.maptracker && settings.maptracker.mechanics && vars.maptracker.map.id && (vars.log.areaID = vars.maptracker.map.id)
-			MaptrackerParseDialogue(A_LoopField)
+			Maptracker_ParseDialogue(A_LoopField)
 	}
 }
