@@ -3,10 +3,16 @@
 	local
 	global vars, settings, db
 
+	If vars.leveltracker.skilltree_schematics.GUI
+	{
+		Leveltracker_PobSkilltree("close")
+		Return
+	}
+
 	If vars.omnikey.last	;when the omni-key was last pressed ;for certain hotkeys, AHK keeps firing whatever is bound to it while holding down the key
 		Return			;there is a separate function activated when releasing the omni-key that clears this variable again
 	vars.omnikey.last := A_TickCount
-	StringScroll("ESC") ;close searchstring-scrolling
+	String_Scroll("ESC") ;close searchstring-scrolling
 
 	If vars.client.stream
 	{
@@ -25,7 +31,7 @@
 	{
 		If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		{
-			MaptrackerNoteAdd(), OmniRelease()
+			Maptracker_NoteAdd(), Omni_Release()
 			Return
 		}
 
@@ -40,14 +46,14 @@
 	{
 		If (settings.general.lang_client = "unknown")
 		{
-			LLK_ToolTip(LangTrans("omnikey_language"), 3,,,, "red"), OmniRelease()
+			LLK_ToolTip(Lang_Trans("omnikey_language"), 3,,,, "red"), Omni_Release()
 			Return
 		}
 
 		vars.omnikey.start := A_TickCount, vars.omnikey.item := {} ;store data about the clicked item here
-		OmniItemInfo()
+		Omni_ItemInfo()
 
-		Switch OmniContext()
+		Switch Omni_Context()
 		{
 			Case "essences":
 				While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
@@ -64,21 +70,24 @@
 				While (SubStr(text, 1, 1) = " ") || (SubStr(text, 1, 3) = "(n)")
 					text := (SubStr(text, 1, 1) = " ") ? SubStr(text, 2) : SubStr(text, 4)
 				If InStr(LLK_IniRead("ini\qol tools.ini", "notepad", "gems"), vars.omnikey.item.name_copy)
-					LLK_ToolTip(LangTrans("notepad_addgems", 2),,,,, "red")
+					LLK_ToolTip(Lang_Trans("notepad_addgems", 2),,,,, "red")
 				Else
 				{
 					IniWrite, % LLK_StringCase(text), ini\qol tools.ini, notepad, gems
-					Notepad(), LLK_ToolTip(LangTrans("notepad_addgems"),,,,, "lime")
+					Notepad(), LLK_ToolTip(Lang_Trans("notepad_addgems"),,,,, "lime")
 				}
 			Case "gemnotes":
-				note := vars.leveltracker.guide.gem_notes[vars.omnikey.item.name]
-				LLK_ToolTip(!note ? LangTrans("lvltracker_gemnotes") : note, note? 0 : 2,,, "gem_notes")
+				MouseGetPos, xMouse, yMouse
+				LevelTracker_PobGemLinks(vars.omnikey.item.name,, xMouse - 10, yMouse)
+				KeyWait, % vars.omnikey.hotkey
+				KeyWait, % vars.omnikey.hotkey2
+				LLK_Overlay(vars.hwnd.leveltracker_gemlinks.main, "destroy"), vars.hwnd.leveltracker_gemlinks.main := ""
 			Case "geartracker":
-				GeartrackerAdd()
+				Geartracker_Add()
 			Case "legion":
-				LegionParse(), LegionGUI()
+				Legion_Parse(), Legion_GUI()
 			Case "context_menu":
-				OmniContextMenu()
+				Omni_ContextMenu()
 			Case "horizons":
 				HorizonsTooltip("a")
 				KeyWait, % vars.omnikey.hotkey
@@ -95,15 +104,15 @@
 				KeyWait, % vars.omnikey.hotkey2
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
 			Case "mapinfo":
-				If MapinfoParse()
-					MapinfoGUI()
+				If Mapinfo_Parse()
+					Mapinfo_GUI()
 			Case "recombination":
-				Recombination_()
+				Recombination()
 		}
 	}
 	Else If Blank(vars.omnikey.hotkey2) || !Blank(vars.omnikey.hotkey2) && !InStr(A_ThisHotkey, vars.omnikey.hotkey2) ;prevent item-only omni-key from executing non-item features
 		Omnikey2()
-	OmniRelease()
+	Omni_Release()
 }
 
 Omnikey2()
@@ -114,7 +123,7 @@ Omnikey2()
 	If vars.omnikey.last2
 		Return
 	vars.omnikey.last2 := A_TickCount
-	StringScroll("ESC") ;close searchstring-scrolling
+	String_Scroll("ESC") ;close searchstring-scrolling
 	If !IsObject(vars.omnikey)
 		vars.omnikey := {}
 
@@ -126,13 +135,13 @@ Omnikey2()
 		{
 			If !vars.cheatsheets.list[cheatsheet].enable
 				continue
-			If CheatsheetSearch(cheatsheet)
+			If Cheatsheet_Search(cheatsheet)
 			{
-				CheatsheetActivate(cheatsheet)
+				Cheatsheet_Activate(cheatsheet)
 				Break
 			}
 		}
-		Gdip_DisposeImage(vars.cheatsheets.pHaystack), OmniRelease()
+		Gdip_DisposeImage(vars.cheatsheets.pHaystack), Omni_Release()
 		Return
 	}
 
@@ -141,13 +150,15 @@ Omnikey2()
 		Screenchecks_ImageSearch()
 		If settings.features.betrayal && vars.imagesearch.betrayal.check
 		{
-			Betrayal(), OmniRelease()
+			Betrayal(), Omni_Release()
 			Return
 		}
 
 		If settings.features.leveltracker && vars.imagesearch.skilltree.check
 		{
-			LeveltrackerSkilltree(), OmniRelease()
+			If settings.leveltracker.pobmanual
+				Leveltracker_Skilltree()
+			Omni_Release()
 			Return
 		}
 
@@ -158,8 +169,8 @@ Omnikey2()
 			{
 				If (A_TickCount >= start + 100)
 				{
-					StringContextMenu("exile-leveling")
-					OmniRelease()
+					String_ContextMenu("exile-leveling")
+					Omni_Release()
 					Return
 				}
 			}
@@ -168,25 +179,25 @@ Omnikey2()
 		If !stash && vars.searchstrings.enabled
 		{
 			If WinExist("ahk_id "vars.hwnd.searchstrings_menu.main)
-				StringMenuSave()
+				String_MenuSave()
 			vars.searchstrings.pHaystack := Gdip_BitmapFromHWND(vars.hwnd.poe_client, 1)
 			For string, val in vars.searchstrings.list
 			{
 				If !val.enable
 					Continue
-				If StringSearch(string)
+				If String_Search(string)
 				{
-					StringContextMenu(string)
+					String_ContextMenu(string)
 					Break
 				}
 			}
 			Gdip_DisposeImage(vars.searchstrings.pHaystack)
 		}
 	}
-	OmniRelease()
+	Omni_Release()
 }
 
-OmniRelease()
+Omni_Release()
 {
 	local
 	global vars, settings
@@ -197,7 +208,7 @@ OmniRelease()
 		vars.omnikey.last := "", vars.omnikey.last2 := ""
 }
 
-OmniContext(mode := 0)
+Omni_Context(mode := 0)
 {
 	local
 	global vars, settings
@@ -213,11 +224,11 @@ OmniContext(mode := 0)
 		Return "recombination"
 	If WinExist("ahk_id "vars.hwnd.legion.main) && (item.itembase = "Timeless Jewel")
 		Return "legion"
-	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = LangTrans("items_gem"))
+	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = Lang_Trans("items_gem"))
 		Return "gemnotepad"
-	If settings.features.leveltracker && vars.hwnd.tooltipgem_notes && WinExist("ahk_id " vars.hwnd.tooltipgem_notes) && (item.rarity = LangTrans("items_gem"))
+	If settings.features.leveltracker && vars.hwnd.leveltracker_gemlinks.main && WinExist("ahk_id " vars.hwnd.leveltracker_gemlinks.main) && (item.rarity = Lang_Trans("items_gem"))
 		Return "gemnotes"
-	While settings.features.leveltracker && vars.hwnd.leveltracker.main && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = LangTrans("items_gem"))
+	While settings.features.leveltracker && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = Lang_Trans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
 	If !settings.features.stash && (item.name = "Orb of Horizons")
@@ -225,7 +236,7 @@ OmniContext(mode := 0)
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
-	&& (item.rarity != LangTrans("items_unique"))
+	&& (item.rarity != Lang_Trans("items_unique"))
 	{
 		While (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
 			If (A_TickCount >= vars.omnikey.start + 200)
@@ -245,7 +256,7 @@ OmniContext(mode := 0)
 		While check && (Blank(item.itembase) || item.name = item.itembase) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P"))
 			If (A_TickCount >= start + 150)
 			{
-				Stash_(check)
+				Stash(check)
 				Return
 			}
 	}
@@ -257,11 +268,11 @@ OmniContext(mode := 0)
 	If WinExist("ahk_id " vars.hwnd.geartracker.main)
 		Return "geartracker"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"]) || LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"])
-	|| (item.rarity = LangTrans("items_unique"))
+	|| (item.rarity = Lang_Trans("items_unique"))
 		Return "context_menu"
 }
 
-OmniContextMenu()
+Omni_ContextMenu()
 {
 	local
 	global vars, settings, db
@@ -275,14 +286,14 @@ OmniContextMenu()
 		Gui, omni_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 		vars.hwnd.omni_context := {"main": hwnd0}, vars.omni_context := {}, item := vars.omnikey.item, style := (A_Index = 2) ? " w" width : "", hwnd := ""
 
-		If !(item.unid && item.rarity = LangTrans("items_unique")) && (LLK_PatternMatch(item.name, "", ["Splinter"]) || item.itembase || !LLK_PatternMatch(item.rarity, "", [LangTrans("items_magic"), LangTrans("items_rare"), LangTrans("items_currency")]))
+		If !(item.unid && item.rarity = Lang_Trans("items_unique")) && (LLK_PatternMatch(item.name, "", ["Splinter"]) || item.itembase || !LLK_PatternMatch(item.rarity, "", [Lang_Trans("items_magic"), Lang_Trans("items_rare"), Lang_Trans("items_currency")]))
 		{
-			Gui, omni_context: Add, Text, % "Section gOmniContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase(item[item.itembase && item.rarity != LangTrans("items_unique") ? "itembase" : "name"])
+			Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase(item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"])
 			ControlGetPos,,, w1,,, % "ahk_id " hwnd
-			vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := item[item.itembase && item.rarity != LangTrans("items_unique") ? "itembase" : "name"]
+			vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"]
 		}
 
-		If (item.rarity != LangTrans("items_unique"))
+		If (item.rarity != Lang_Trans("items_unique"))
 		&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || LLK_HasVal(db.item_bases._classes, item.class) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
 		{
 			If !Blank(LLK_HasVal(db.item_bases._classes, item.class))
@@ -291,20 +302,20 @@ OmniContextMenu()
 				class := LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
 			Else If (settings.general.lang_client = "english")
 				class := item.class
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
 			ControlGetPos,,, w2,,, % "ahk_id " hwnd
 			If (class != "cluster jewels") && (!Blank(LLK_HasVal(db.item_bases._classes, item.class)) || InStr(item.class, "heist") && item.itembase)
 			{
-				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "poe.db: " LangTrans("system_poedb_lang", 2)
+				Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd1" style, % "poe.db: " Lang_Trans("system_poedb_lang", 2)
 				ControlGetPos,,, w3,,, % "ahk_id " hwnd1
 			}
 			If !item.unid && (settings.general.lang_client = "english") && !Blank(LLK_HasVal(db.item_bases._classes, item.class)) && !LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil"])
 			{
-				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd2" style, % "craft of exile"
+				Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd2" style, % "craft of exile"
 				ControlGetPos,,, w4,,, % "ahk_id " hwnd2
 			}
 			If LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
-				Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd3 " style, % "recombination"
+				Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd3 " style, % "recombination"
 			vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1
 			vars.hwnd.omni_context.craftofexile := hwnd2, vars.hwnd.omni_context.recombination := hwnd3
 			width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width
@@ -312,14 +323,14 @@ OmniContextMenu()
 
 		If InStr(item.name, "to the goddess")
 		{
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd", % "poelab.com"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd", % "poelab.com"
 			ControlGetPos,,, w5,,, % "ahk_id " hwnd
 			vars.hwnd.omni_context.poelab := hwnd
 		}
 
 		If (class = "oil")
 		{
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd", % "raelys' blight-helper"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd", % "raelys' blight-helper"
 			ControlGetPos,,, w6,,, % "ahk_id " hwnd
 			vars.hwnd.omni_context.oiltable := hwnd
 		}
@@ -327,25 +338,25 @@ OmniContextMenu()
 		If (class = "Cluster jewels")
 		{
 			cluster_type := InStr(item.itembase, "small") ? "small" : InStr(item.itembase, "medium") ? "medium" : "large"
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "poe.db: all clusters"
-			Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "poe.db: " . cluster_type . " clusters"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "poe.db: all clusters"
+			Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd1" style, % "poe.db: " . cluster_type . " clusters"
 			ControlGetPos,,, w7,,, % "ahk_id " hwnd
 			ControlGetPos,,, w8,,, % "ahk_id " hwnd1
 			vars.hwnd.omni_context.poedb := hwnd, vars.hwnd.omni_context.poedb1 := hwnd1
 		}
 
-		If !item.unid && (item.itembase = "Timeless Jewel") && InStr(vars.omnikey.clipboard, LangTrans("items_uniquemod"))
+		If !item.unid && (item.itembase = "Timeless Jewel") && InStr(vars.omnikey.clipboard, Lang_Trans("items_uniquemod"))
 		{
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "seed-explorer"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "seed-explorer"
 			ControlGetPos,,, w9,,, % "ahk_id " hwnd
-			Gui, omni_context: Add, Text, % "Section xs gOmniContextMenuPick HWNDhwnd1" style, % "vilsol's calculator"
+			Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd1" style, % "vilsol's calculator"
 			ControlGetPos,,, w10,,, % "ahk_id " hwnd
 			vars.hwnd.omni_context.seed := hwnd, vars.hwnd.omni_context.vilsol := hwnd1
 		}
 
 		If !item.unid && item.sockets
 		{
-			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmniContextMenuPick HWNDhwnd" style, % "chromatic calculator"
+			Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "chromatic calculator"
 			ControlGetPos,,, w11,,, % "ahk_id " hwnd
 			vars.hwnd.omni_context.chromatics := hwnd
 		}
@@ -364,7 +375,7 @@ OmniContextMenu()
 	Else Gui, omni_context: Destroy
 }
 
-OmniContextMenuPick(cHWND)
+Omni_ContextMenuPick(cHWND)
 {
 	local
 	global vars, settings
@@ -399,7 +410,7 @@ OmniContextMenuPick(cHWND)
 		Else If !Blank(LLK_HasVal(["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask"], item.itembase)) || InStr(item.class, "jewels") || InStr(item.class, "heist")
 			page := StrReplace(item.itembase, " ", "_")
 		Else page := StrReplace(item.class, " ", "_") . item.attributes
-		Run, % "https://poedb.tw/" . LangTrans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")
+		Run, % "https://poedb.tw/" . Lang_Trans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")
 		Clipboard := item.ilvl
 		If InStr(page, "cluster_jewel") && settings.features.browser
 		{
@@ -410,10 +421,10 @@ OmniContextMenuPick(cHWND)
 	Else If (check = "craftofexile")
 		Run, https://www.craftofexile.com/
 	Else If (check = "seed")
-		LegionParse(), LegionGUI()
+		Legion_Parse(), Legion_GUI()
 	Else If (check = "vilsol")
 	{
-		LegionParse()
+		Legion_Parse()
 		Run, % "https://vilsol.github.io/timeless-jewels/tree?jewel=" vars.legion.jewel_number "&conqueror=" LLK_StringCase(vars.legion.leader,, 1) "&seed=" vars.legion.seed "&mode=seed"
 	}
 	Else If (check = "chromatics")
@@ -426,11 +437,11 @@ OmniContextMenuPick(cHWND)
 		}
 	}
 	Else If (check = "recombination")
-		Recombination_()
+		Recombination()
 	Gui, omni_context: Destroy
 }
 
-OmniItemInfo()
+Omni_ItemInfo()
 {
 	local
 	global vars, settings, db
@@ -451,23 +462,23 @@ OmniItemInfo()
 	Loop, Parse, clip, `n, % "`r " ;store the item's class, rarity, and miscellaneous info
 	{
 		loopfield := A_LoopField
-		If InStr(A_LoopField, LangTrans("items_level"), 1) && !InStr(A_LoopField, LangTrans("items_ilevel"))
+		If InStr(A_LoopField, Lang_Trans("items_level"), 1) && !InStr(A_LoopField, Lang_Trans("items_ilevel"))
 			item.lvl_req := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), " (unmet)"), item.lvl_req := (item.lvl_req < 10) ? 0 . item.lvl_req : item.lvl_req
 
 		Loop, Parse, % "str,dex,int", `,
 			If LLK_PatternMatch(loopfield, "", vars.lang["items_" A_LoopField])
 				item[A_LoopField] := StrReplace(StrReplace(SubStr(loopfield, InStr(loopfield, ":") + 2), " (augmented)"), " (unmet)")
 
-		If InStr(A_LoopField, LangTrans("items_ilevel"))
+		If InStr(A_LoopField, Lang_Trans("items_ilevel"))
 			item.ilvl := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 
-		If InStr(A_LoopField, LangTrans("mods_cluster_passive"))
-			item.cluster_enchant := StrReplace(StrReplace(SubStr(A_LoopField, StrLen(LangTrans("mods_cluster_passive")) + 2), "+"), " (enchant)")
+		If InStr(A_LoopField, Lang_Trans("mods_cluster_passive"))
+			item.cluster_enchant := StrReplace(StrReplace(SubStr(A_LoopField, StrLen(Lang_Trans("mods_cluster_passive")) + 2), "+"), " (enchant)")
 
 		If !InStr("rings,belts,amulets", item.class) && LLK_PatternMatch(SubStr(A_LoopField, 0), "", ["R", "G", "B", "W", "A"])
 			item.sockets := StrLen(StrReplace(StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ":") + 2), " "), "-"))
 
-		If InStr(A_LoopField, LangTrans("items_maptier"))
+		If InStr(A_LoopField, Lang_Trans("items_maptier"))
 			item.tier := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
 	}
 }
