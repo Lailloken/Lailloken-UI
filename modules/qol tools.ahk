@@ -3,12 +3,13 @@
 	local
 	global vars, settings
 
-	If !FileExist("ini\qol tools.ini")
-		IniWrite, % "", ini\qol tools.ini, settings
+	If !FileExist("ini" vars.poe_version "\qol tools.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\qol tools.ini", settings
 
-	ini := IniBatchRead("ini\qol tools.ini")
-	settings.qol := {"alarm": !Blank(check := ini.features.alarm) ? check : 0, "notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0}
-	settings.qol.lab := (settings.general.lang_client = "unknown") ? 0 : !Blank(check := ini.features.lab) ? check : 0
+	ini := IniBatchRead("ini" vars.poe_version "\qol tools.ini")
+	settings.qol := {	"alarm": !Blank(check := ini.features.alarm) ? check : 0
+	,				"notepad": !Blank(check1 := ini.features.notepad) ? check1 : 0
+	,				"lab": (settings.general.lang_client = "unknown") ? 0 : !Blank(check2 := ini.features.lab) ? check2 : 0}
 
 	settings.alarm := {"fSize": !Blank(check := ini.alarm["font-size"]) ? check : settings.general.fSize}
 	LLK_FontDimensions(settings.alarm.fSize, font_height, font_width), settings.alarm.fHeight := font_height, settings.alarm.fWidth := font_width
@@ -76,7 +77,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 		}
 		If !InStr(input, ":") && !IsNumber(input) || error
 		{
-			LLK_ToolTip(LangTrans("global_errorname", 2),, x, y + h,, "red")
+			LLK_ToolTip(Lang_Trans("global_errorname", 2),, x, y + h,, "red")
 			Return
 		}
 		For index, section in sections
@@ -106,7 +107,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 				{
 					If !transform
 					{
-						Gui, % GuiName(vars.hwnd.alarm.main) ": +E0x20"
+						Gui, % Gui_Name(vars.hwnd.alarm.main) ": +E0x20"
 						transform := 1
 					}
 					LLK_Drag(w, h, x, y,, "alarm" toggle, 1)
@@ -114,7 +115,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 				}
 			vars.general.drag := 0
 			If WinExist("ahk_id "vars.hwnd.alarm.main)
-				Gui, % GuiName(vars.hwnd.alarm.main) ": -E0x20"
+				Gui, % Gui_Name(vars.hwnd.alarm.main) ": -E0x20"
 			If !Blank(y)
 			{
 				settings.alarm.xPos := x, settings.alarm.yPos := y
@@ -131,14 +132,14 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			Gui, alarm_set: Color, Black
 			Gui, alarm_set: Margin, 0, 0
 			Gui, alarm_set: Font, % "s" Max(6, settings.alarm.fSize * 0.7) " cWhite", % vars.system.font
-			vars.hwnd.alarm.alarm_set := alarm_set, LLK_PanelDimensions([LangTrans("global_name"), LangTrans("global_time")], Max(6, settings.alarm.fSize * 0.7), wText, hText)
+			vars.hwnd.alarm.alarm_set := alarm_set, LLK_PanelDimensions([Lang_Trans("global_name"), Lang_Trans("global_time")], Max(6, settings.alarm.fSize * 0.7), wText, hText)
 
 			Gui, alarm_set: Add, Edit, % "r1 Hidden w" vars.alarm.wTimers
-			Gui, alarm_set: Add, Text, % "xp yp hp Section Right Border 0x200 w" wText, % LangTrans("global_time") " "
+			Gui, alarm_set: Add, Text, % "xp yp hp Section Right Border 0x200 w" wText, % Lang_Trans("global_time") " "
 			Gui, alarm_set: Add, Edit, % "ys x+-1 cBlack HWNDhwnd Center r1 w" vars.alarm.wTimers
 			If !(cHWND = "start")
 			{
-				Gui, alarm_set: Add, Text, % "Section hp xs y+-1 Right Border 0x200 w" wText, % LangTrans("global_name") " "
+				Gui, alarm_set: Add, Text, % "Section hp xs y+-1 Right Border 0x200 w" wText, % Lang_Trans("global_name") " "
 				Gui, alarm_set: Add, Edit, % "ys x+-1 cBlack Center Limit HWNDhwnd1 r1 w" vars.alarm.wTimers
 				vars.alarm.override := ""
 			}
@@ -152,8 +153,8 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			}
 			Else xPos := vars.alarm.xPanel + vars.alarm.wPanel//2 - wText, yPos := vars.alarm.yPanel
 
-			Gui, alarm_set: Add, Text, % "Section xs y+-1 Center Border gAlarm 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2), % LangTrans("global_start")
-			Gui, alarm_set: Add, Text, % "ys Center Border gHotkeysESC 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2) " x+" (Mod(wText + vars.alarm.wTimers - 1, 2) ? -1 : 0), % LangTrans("global_cancel")
+			Gui, alarm_set: Add, Text, % "Section xs y+-1 Center Border gAlarm 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2), % Lang_Trans("global_start")
+			Gui, alarm_set: Add, Text, % "ys Center Border gHotkeys_ESC 0x200 w" Round((wText + vars.alarm.wTimers - 1) / 2) " x+" (Mod(wText + vars.alarm.wTimers - 1, 2) ? -1 : 0), % Lang_Trans("global_cancel")
 			Gui, alarm_set: Show, % "NA x10000 y10000"
 
 			WinGetPos, xWin, yWin, wWin, hWin, ahk_id %alarm_set%
@@ -392,7 +393,7 @@ HorizonsTooltip(mode := "")
 
 	If (StrLen(mode) = 1) && LLK_IsType(mode, "alpha") && !db.mapinfo.maps[mode]
 	{
-		LLK_ToolTip(LangTrans("global_errorname", 2),,,,, "red")
+		LLK_ToolTip(Lang_Trans("global_errorname", 2),,,,, "red")
 		Return
 	}
 	toggle := !toggle, GUI_name := "horizons" toggle
@@ -418,7 +419,7 @@ HorizonsTooltip(mode := "")
 			Gui, %GUI_name%: Font, underline bold
 			Gui, %GUI_name%: Add, Text, Section xs, e-exp:
 			Gui, %GUI_name%: Font, norm
-			Gui, %GUI_name%: Add, Text, ys, % LeveltrackerExperience(67 + vars.omnikey.item.tier,, "horizon")
+			Gui, %GUI_name%: Add, Text, ys, % Leveltracker_Experience(67 + vars.omnikey.item.tier,, "horizon")
 		}
 	}
 
@@ -452,7 +453,7 @@ Lab(mode := "", override := 0)
 	If (mode = "link")
 	{
 		If GetKeyState(vars.hotkeys.tab, "P")
-			LLK_ToolTip(LangTrans("global_releasekey") " " vars.hotkeys.tab, 0,,, "poelab")
+			LLK_ToolTip(Lang_Trans("global_releasekey") " " vars.hotkeys.tab, 0,,, "poelab")
 		KeyWait, % vars.hotkeys.tab
 		LLK_Overlay(vars.hwnd["tooltippoelab"], "destroy"), LLK_Overlay(vars.hwnd.lab.main, "destroy"), LLK_Overlay(vars.hwnd.lab.button, "destroy"), vars.lab.toggle := 0
 		Run, % "https://www.poelab.com/"
@@ -473,7 +474,7 @@ Lab(mode := "", override := 0)
 				pBitmap := Gdip_CreateBitmapFromClipboard()
 			If !step && (pBitmap > 0)
 			{
-				LLK_ToolTip(LangTrans("global_success"), 1.5,,,, "lime")
+				LLK_ToolTip(Lang_Trans("global_success"), 1.5,,,, "lime")
 				Clipboard := "", vars.lab := {"rooms": []}
 				FileDelete, img\lab compass.json
 				step := 1
@@ -484,14 +485,14 @@ Lab(mode := "", override := 0)
 				Try lab_compass_json := Json.Load(HTTPtoVar(Clipboard))
 				If lab_compass_json.Count()
 				{
-					LLK_ToolTip(LangTrans("global_success"), 1.5,,,, "lime")
+					LLK_ToolTip(Lang_Trans("global_success"), 1.5,,,, "lime")
 					Loop, % lab_compass_json.rooms.Count()
-						roomname := lab_compass_json.rooms[A_Index].name, lab_compass_json.rooms[A_Index].name := LangTrans("lab_" roomname) ? LangTrans("lab_" roomname) : roomname
+						roomname := lab_compass_json.rooms[A_Index].name, lab_compass_json.rooms[A_Index].name := Lang_Trans("lab_" roomname) ? Lang_Trans("lab_" roomname) : roomname
 					FileAppend, % Json.Dump(lab_compass_json), img\lab compass.json
 					vars.tooltip_mouse := ""
 					Break
 				}
-				Else LLK_ToolTip(LangTrans("global_fail"), 1.5,,,, "red")
+				Else LLK_ToolTip(Lang_Trans("global_fail"), 1.5,,,, "red")
 				Clipboard := ""
 			}
 			Sleep 250
@@ -499,7 +500,7 @@ Lab(mode := "", override := 0)
 		WinWaitActive, ahk_group poe_window
 		If !step
 		{
-			LLK_ToolTip(LangTrans("global_abort"), 1.5, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "red", settings.general.fSize + 8,,, 1), Gdip_DisposeImage(pBitmap)
+			LLK_ToolTip(Lang_Trans("global_abort"), 1.5, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "red", settings.general.fSize + 8,,, 1), Gdip_DisposeImage(pBitmap)
 			Return
 		}
 		pBitmap_copy := Gdip_CloneBitmapArea(pBitmap, 257, 42, 1175, 556,, 1), Gdip_DisposeImage(pBitmap)
@@ -578,14 +579,14 @@ Lab(mode := "", override := 0)
 	If vars.lab.outdated
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_outdated") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.date "`n" LangTrans("lab_outdated", 3) " " SubStr(A_NowUTC, 1, 4) "-" SubStr(A_NowUTC, 5, 2) "-" SubStr(A_NowUTC, 7, 2)
+		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" Lang_Trans("lab_outdated") "`n`n" Lang_Trans("lab_outdated", 2) " " vars.lab.compass.date "`n" Lang_Trans("lab_outdated", 3) " " SubStr(A_NowUTC, 1, 4) "-" SubStr(A_NowUTC, 5, 2) "-" SubStr(A_NowUTC, 7, 2)
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
 		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, % "HBitmap:*" vars.pics.lab.square_red_trans
 	}
 	Else If !InStr(vars.log.areaID, "airlock") && !Blank(vars.lab.compass.difficulty) && (difficulties[vars.log.arealevel] != vars.lab.compass.difficulty)
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" LangTrans("lab_mismatch") "`n`n" LangTrans("lab_outdated", 2) " " vars.lab.compass.difficulty "`n" LangTrans("lab_mismatch", 2) " " difficulties[vars.log.arealevel]
+		Gui, %GUI_name%: Add, Text, % "BackgroundTrans Center w"vars.lab.width " h"vars.lab.height, % "`n`n" Lang_Trans("lab_mismatch") "`n`n" Lang_Trans("lab_outdated", 2) " " vars.lab.compass.difficulty "`n" Lang_Trans("lab_mismatch", 2) " " difficulties[vars.log.arealevel]
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
 		Gui, %GUI_name%: Add, Pic, % "x0 y0 BackgroundTrans w"vars.lab.width " h"vars.lab.height, % "HBitmap:*" vars.pics.lab.square_red_trans
 		vars.lab.mismatch := 1
@@ -613,7 +614,7 @@ Lab(mode := "", override := 0)
 	Else
 	{
 		Gui, %GUI_name%: Font, % "s"LLK_FontSizeGet(vars.lab.height/8, width)
-		Gui, %GUI_name%: Add, Text, % "x0 y0 Center 0x200 w"vars.client.w * 53/128 " h"(vars.client.w * 53/128)/2.112, % LangTrans("cheat_loaderror") " img\lab.jpg"
+		Gui, %GUI_name%: Add, Text, % "x0 y0 Center 0x200 w"vars.client.w * 53/128 " h"(vars.client.w * 53/128)/2.112, % Lang_Trans("cheat_loaderror") " img\lab.jpg"
 		Gui, %GUI_name%: Font, % "s"vars.lab.custom_font
 		file_missing := 1
 	}
@@ -657,7 +658,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 			IniWrite, % """" check_text """", ini\qol tools.ini, notepad, % vars.notepad.selected_entry
 			vars.notepad.entries[vars.notepad.selected_entry] := StrReplace(check_text, "(n)", "`n")
 			If vars.hwnd.notepad_widgets.HasKey(vars.notepad.selected_entry)
-				NotepadWidget(vars.notepad.selected_entry, 5, color)
+				Notepad_Widget(vars.notepad.selected_entry, 5, color)
 		}
 		Return
 	}
@@ -671,7 +672,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 			check := LLK_InStrCount(Clipboard, "§")
 			If check && ((check != 2) || SubStr(Clipboard, 1, 1) != "§")
 			{
-				LLK_ToolTip(LangTrans("global_error") ": §",,,,, "red"), Clipboard := ""
+				LLK_ToolTip(Lang_Trans("global_error") ": §",,,,, "red"), Clipboard := ""
 				Return
 			}
 			prev_color := InStr(Clipboard, "§") && InStr(Clipboard, ": ") ? SubStr(Clipboard, InStr(Clipboard, "§") + 1, 6): "", color := LLK_StringCase(RGB_Picker(prev_color))
@@ -726,7 +727,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	}
 	Else If (A_Gui = "notepad_reminder")
 	{
-		NotepadWidget(LLK_ControlGet(hwnd_reminder_edit), -1)
+		Notepad_Widget(LLK_ControlGet(hwnd_reminder_edit), -1)
 		Gui, notepad_reminder: Destroy
 		WinActivate, ahk_group poe_window
 		Return
@@ -770,13 +771,13 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 		While (SubStr(name, 0) = " ")
 			name := SubStr(name, 1, -1)
 		Loop, Parse, name
-			error := InStr("[=]", A_LoopField) ? LangTrans("global_errorname", 5) . "[=]" : error
+			error := InStr("[=]", A_LoopField) ? Lang_Trans("global_errorname", 5) . "[=]" : error
 		If InStr(ini, "`n" name "=")
-			error := LangTrans("global_errorname", 4)
+			error := Lang_Trans("global_errorname", 4)
 		If Blank(name) || error
 		{
 			WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.notepad.name
-			LLK_ToolTip(LangTrans("global_errorname", 2) . (error ? ":`n" error : ""), error ? 2 : 1, x, y + h,, "red")
+			LLK_ToolTip(Lang_Trans("global_errorname", 2) . (error ? ":`n" error : ""), error ? 2 : 1, x, y + h,, "red")
 			Return
 		}
 		Notepad("save"), vars.notepad.selected_entry := name
@@ -788,7 +789,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 		While GetKeyState("LButton", "P")
 			If (A_TickCount >= start + 200)
 			{
-				Notepad("save"), NotepadWidget(control)
+				Notepad("save"), Notepad_Widget(control)
 				KeyWait, LButton
 				WinActivate, ahk_group poe_window
 				Return
@@ -839,7 +840,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	Gui, %GUI_name%: Add, Text, % "xs Section Hidden Border cBlack x"settings.general.fWidth/2, % "  "
 	Gui, %GUI_name%: Add, Text, % "ys x+-1 Hidden Border HWNDhwnd cBlack", % "  "
 	ControlGetPos,,, w2,,, ahk_id %hwnd%
-	Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd", % LangTrans("notepad_add") " "
+	Gui, %GUI_name%: Add, Text, % "ys x+-1 BackgroundTrans HWNDhwnd", % Lang_Trans("notepad_add") " "
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 4
 	ControlGetPos,,, w,,, ahk_id %hwnd%
 	Gui, %GUI_name%: Add, Edit, % "ys x+-1 r1 cBlack HWNDhwnd w"wBox
@@ -848,7 +849,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	vars.hwnd.notepad.add := hwnd
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize
 
-	NotepadReload(), check := 0, entry_count := 0
+	Notepad_Reload(), check := 0, entry_count := 0
 	For entry, text in vars.notepad.entries
 	{
 		If (entry = "notepad_reminder_feature")
@@ -871,7 +872,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	}
 	If (sum_height)
 	{
-		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % LangTrans("notepad_howto")
+		Gui, %GUI_name%: Add, Text, % "xs Center BackgroundTrans HWNDhwnd0 w" w + 2 * w2 - 2, % Lang_Trans("notepad_howto")
 		ControlGetPos,,,, h0,, ahk_id %hwnd0%
 		Gui, %GUI_name%: Font, % "s" settings.notepad.fSize
 		Gui, %GUI_name%: Add, Edit, % "ys x+-1 cBlack -Wrap Multi Hidden HWNDhwnd"(Blank(vars.notepad.entries[vars.notepad.selected_entry]) ? " w"wBox : ""), % vars.notepad.entries[vars.notepad.selected_entry]
@@ -900,10 +901,10 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(notepad, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 	If refresh_widget
-		NotepadWidget(control)
+		Notepad_Widget(control)
 }
 
-NotepadReload()
+Notepad_Reload()
 {
 	local
 	global vars, settings
@@ -923,7 +924,7 @@ NotepadReload()
 	}
 }
 
-NotepadWidget(tab, mode := 0, color := 0)
+Notepad_Widget(tab, mode := 0, color := 0)
 {
 	local
 	global vars, settings
@@ -943,7 +944,7 @@ NotepadWidget(tab, mode := 0, color := 0)
 	{
 		If Blank(vars.notepad.entries[tab]) && A_Gui
 		{
-			LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [StrReplace(tab, "&", "&&")]), 2,,,, "Red")
+			LLK_ToolTip(Lang_Trans("cheat_entrynotext", 1, [StrReplace(tab, "&", "&&")]), 2,,,, "Red")
 			Return
 		}
 		If (mode = 2) && GetKeyState("LButton", "P") ;prevent widget destruction while dragging
