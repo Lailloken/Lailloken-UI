@@ -9529,6 +9529,77 @@ Gdip_ErrorHandler(errCode, throwErrorMsg, additionalInfo:="") {
    Return GdipErrMsg
 }
 
+;**********************************************************************************
+;
+; Gdip_ImageSearch()
+; by MasterFocus - 02/APRIL/2013 00:30h BRT
+; Thanks to guest3456 for helping me ponder some ideas
+; Requires GDIP, Gdip_SetBitmapTransColor() and Gdip_MultiLockedBitsSearch()
+; http://www.autohotkey.com/board/topic/71100-gdip-imagesearch/
+;
+; Licensed under CC BY-SA 3.0 -> http://creativecommons.org/licenses/by-sa/3.0/
+; I waive compliance with the "Share Alike" condition of the license EXCLUSIVELY
+; for these users: tic , Rseding91 , guest3456
+;
+;==================================================================================
+;
+; This function searches for pBitmapNeedle within pBitmapHaystack
+; The returned value is the number of instances found (negative = error)
+;
+; ++ PARAMETERS ++
+;
+; pBitmapHaystack and pBitmapNeedle
+;   Self-explanatory bitmap pointers, are the only required parameters
+;
+; OutputList
+;   ByRef variable to store the list of coordinates where a match was found
+;
+; OuterX1, OuterY1, OuterX2, OuterY2
+;   Equivalent to ImageSearch's X1,Y1,X2,Y2
+;   Default: 0 for all (which searches the whole haystack area)
+;
+; Variation
+;   Just like ImageSearch, a value from 0 to 255
+;   Default: 0
+;
+; Trans
+;   Needle RGB transparent color, should be a numerical value from 0 to 0xFFFFFF
+;   Default: blank (does not use transparency)
+;
+; SearchDirection
+;   Haystack search direction
+;     Vertical preference:
+;       1 = top->left->right->bottom [default]
+;       2 = bottom->left->right->top
+;       3 = bottom->right->left->top
+;       4 = top->right->left->bottom
+;     Horizontal preference:
+;       5 = left->top->bottom->right
+;       6 = left->bottom->top->right
+;       7 = right->bottom->top->left
+;       8 = right->top->bottom->left
+;
+; Instances
+;   Maximum number of instances to find when searching (0 = find all)
+;   Default: 1 (stops after one match is found)
+;
+; LineDelim and CoordDelim
+;   Outer and inner delimiters for the list of coordinates (OutputList)
+;   Defaults: "`n" and ","
+;
+; ++ RETURN VALUES ++
+;
+; -1001 ==> invalid haystack and/or needle bitmap pointer
+; -1002 ==> invalid variation value
+; -1003 ==> X1 and Y1 cannot be negative
+; -1004 ==> unable to lock haystack bitmap bits
+; -1005 ==> unable to lock needle bitmap bits
+; any non-negative value ==> the number of instances found
+;
+;==================================================================================
+;
+;**********************************************************************************
+
 Gdip_ImageSearch(pBitmapHaystack,pBitmapNeedle,ByRef OutputList="",OuterX1=0,OuterY1=0,OuterX2=0,OuterY2=0,Variation=0,Trans="",SearchDirection=1,Instances=1,LineDelim="`n",CoordDelim=",")
 {
     ; Some validations that can be done before proceeding any further
