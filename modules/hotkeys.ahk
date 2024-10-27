@@ -3,13 +3,13 @@
 	local
 	global vars, settings, db
 
-	If !FileExist("ini\hotkeys.ini")
-		IniWrite, % "", ini\hotkeys.ini, settings
+	If !FileExist("ini" vars.poe_version "\hotkeys.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\hotkeys.ini", settings
 
 	If !IsObject(vars.hotkeys)
 		vars.hotkeys := {"scan_codes": {"00A": 9, "00B": 0}}
 
-	settings.hotkeys := {}, ini := IniBatchRead("ini\hotkeys.ini")
+	settings.hotkeys := {}, ini := IniBatchRead("ini" vars.poe_version "\hotkeys.ini")
 	settings.hotkeys.rebound_alt := !Blank(check := ini.settings["advanced item-info rebound"]) ? check : 0
 	settings.hotkeys.item_descriptions := !Blank(check := ini.hotkeys["item-descriptions key"]) ? check : ""
 	If !settings.hotkeys.item_descriptions
@@ -35,20 +35,15 @@
 			vars.hotkeys.tab := StrReplace(vars.hotkeys.tab, A_LoopField)
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
-	Hotkey, % settings.hotkeys.omnikey, MapTrackerKills, On
+	Hotkey, % settings.hotkeys.omnikey, Maptracker_Kills, On
 
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	If !settings.hotkeys.rebound_c
-	{
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey, On
-		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
-	}
 	Else
 	{
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2, Omnikey, On
-		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2 " UP", OmniRelease, On
 		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey2, On
-		;Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey " UP", OmniRelease, On
 	}
 
 	For index, val in ["", 2]
@@ -57,23 +52,25 @@
 				vars.omnikey["hotkey" val] := StrReplace(vars.omnikey["hotkey" val], A_LoopField)
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
-	Hotkey, % settings.hotkeys.tab, CheatsheetTAB, On
+	Hotkey, % settings.hotkeys.tab, Cheatsheet_TAB, On
 
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, % settings.hotkeys.tab, HotkeysTab, On
+	Hotkey, % settings.hotkeys.tab, Hotkeys_Tab, On
 
 	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
 	Loop, Parse, % "abcdefghijklmnopqrstuvwxyz"
 		Hotkey, % "*" A_LoopField, HorizonsTooltip, On
 }
 
-HotkeysESC()
+Hotkeys_ESC()
 {
 	local
 	global vars, settings
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
-		CloneframesSettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
+		Cloneframes_SettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
+	Else If vars.leveltracker.skilltree_schematics.GUI
+		Leveltracker_PobSkilltree("close")
 	Else If WinExist("ahk_id " vars.hwnd.recombination.main)
 	{
 		LLK_Overlay(vars.hwnd.recombination.main, "destroy"), vars.hwnd.recombination.main := ""
@@ -90,7 +87,7 @@ HotkeysESC()
 	Else If WinExist("ahk_id " vars.hwnd.sanctum.second)
 	{
 		If !vars.sanctum.scanning
-			Sanctum_("close")
+			Sanctum("close")
 	}
 	Else If WinExist("ahk_id " vars.hwnd.stash_index.main)
 		Stash_PriceIndex("destroy")
@@ -121,15 +118,10 @@ HotkeysESC()
 		WinActivate, ahk_group poe_window
 	Else If WinActive("ahk_id " vars.hwnd.notepad.main)
 		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
-	Else If WinExist("ahk_id "vars.hwnd.tooltipgem_notes)
-	{
-		Gui, tooltipgem_notes: Destroy
-		vars.hwnd.Delete("tooltipgem_notes")
-	}
 	Else If WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
 		Gui, maptracker_tooltip: Destroy
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
-		LegionClose()
+		Legion_Close()
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
 		Gui, alarm_set: Destroy
 	Else If WinExist("ahk_id " vars.hwnd.maptracker_dates.main)
@@ -138,17 +130,17 @@ HotkeysESC()
 		Gui, maptracker_edit: Destroy
 	Else If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		LLK_Overlay(vars.hwnd.maptrackernotes_edit.main, "destroy")
-	Else If WinExist("ahk_id "vars.hwnd.mapinfo.main) || WinExist("ahk_id " vars.hwnd.mapinfo_modsearch.main)
-		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), LLK_Overlay(vars.hwnd.mapinfo_modsearch.main, "destroy"), vars.hwnd.mapinfo_modsearch.main := ""
+	Else If WinExist("ahk_id "vars.hwnd.mapinfo.main)
+		LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 	Else If vars.maptracker.loot
-		MaptrackerGUI()
+		Maptracker_GUI()
 	Else If WinExist("ahk_id "vars.hwnd.maptracker_logs.main)
 	{
 		LLK_Overlay(vars.hwnd.maptracker_logs.main, "hide")
 		WinActivate, ahk_group poe_window
 	}
 	Else If WinExist("ahk_id "vars.hwnd.geartracker.main)
-		GeartrackerGUI("toggle")
+		Geartracker_GUI("toggle")
 	Else If WinExist("ahk_id " vars.hwnd.searchstrings_context)
 	{
 		Gui, searchstrings_context: Destroy
@@ -165,9 +157,9 @@ HotkeysESC()
 		vars.hwnd.Delete("cheatsheet_calibration")
 	}
 	Else If WinExist("ahk_id " vars.hwnd.cheatsheet.main)
-		CheatsheetClose()
+		Cheatsheet_Close()
 	Else If WinExist("ahk_id " vars.hwnd.iteminfo.main) || WinExist("ahk_id " vars.hwnd.iteminfo_markers.1)
-		IteminfoClose(1)
+		Iteminfo_Close(1)
 	Else
 	{
 		SendInput, {ESC down}
@@ -176,7 +168,7 @@ HotkeysESC()
 	}
 }
 
-HotkeysRemoveModifiers(hotkey)
+Hotkeys_RemoveModifiers(hotkey)
 {
 	local
 	global vars, settings
@@ -190,7 +182,7 @@ HotkeysRemoveModifiers(hotkey)
 	Return hotkey
 }
 
-HotkeysTab()
+Hotkeys_Tab()
 {
 	local
 	global vars, settings
@@ -220,12 +212,24 @@ HotkeysTab()
 		Return
 	}
 
+	While settings.qol.notepad && vars.hwnd.notepad_widgets.Count() && GetKeyState(vars.hotkeys.tab, "P")
+		If (A_TickCount >= start + 200)
+		{
+			active .= " notepad", vars.notepad.toggle := 1
+			For key, val in vars.hwnd.notepad_widgets
+			{
+				Gui, % Gui_Name(val) ": -E0x20"
+				WinSet, Transparent, Off, % "ahk_id "val
+			}
+			Break
+		}
+
 	While settings.features.sanctum && InStr(vars.log.areaID, "sanctum") && !InStr(vars.log.areaID, "fellshrine") && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
 			active .= " sanctum", vars.sanctum.lock := 0
 			If !WinExist("ahk_id " vars.hwnd.sanctum.second)
-				Sanctum_()
+				Sanctum()
 			Break
 		}
 
@@ -244,25 +248,13 @@ HotkeysTab()
 			Break
 		}
 
-	While settings.qol.notepad && vars.hwnd.notepad_widgets.Count() && GetKeyState(vars.hotkeys.tab, "P")
-		If (A_TickCount >= start + 200)
-		{
-			active .= " notepad", vars.notepad.toggle := 1
-			For key, val in vars.hwnd.notepad_widgets
-			{
-				Gui, % GuiName(val) ": -E0x20"
-				WinSet, Transparent, Off, % "ahk_id "val
-			}
-			Break
-		}
-
 	If vars.hwnd.leveltracker.main
 		leveltracker_check := LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 
 	While vars.leveltracker.toggle && !(settings.qol.lab && InStr(vars.log.areaID, "labyrinth") && !InStr(vars.log.areaID, "_trials_")) && leveltracker_check && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
-			active .= " leveltracker", vars.leveltracker.overlays := 1, LeveltrackerZoneLayouts(), LeveltrackerHints()
+			active .= " leveltracker", vars.leveltracker.overlays := 1, Leveltracker_ZoneLayouts(), Leveltracker_Hints()
 			Break
 		}
 	map := vars.mapinfo.active_map
@@ -270,16 +262,16 @@ HotkeysTab()
 	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(map.english, "invitation") && LLK_PatternMatch(vars.log.areaID, "", ["MavenHub", "PrimordialBoss"]))
 		If (A_TickCount >= start + 200)
 		{
-			active .= " mapinfo", vars.mapinfo.toggle := 1, MapinfoGUI(2)
+			active .= " mapinfo", vars.mapinfo.toggle := 1, Mapinfo_GUI(2)
 			Break
 		}
 
-	While settings.features.maptracker && !vars.maptracker.pause && MaptrackerCheck(2) && GetKeyState(vars.hotkeys.tab, "P")
+	While settings.features.maptracker && !vars.maptracker.pause && Maptracker_Check(2) && GetKeyState(vars.hotkeys.tab, "P")
 		If (A_TickCount >= start + 200)
 		{
-			vars.maptracker.toggle := 1, active .= " maptracker", MaptrackerGUI()
+			vars.maptracker.toggle := 1, active .= " maptracker", Maptracker_GUI()
 			If settings.maptracker.mechanics
-				SetTimer, MaptrackerMechanicsCheck, -1
+				SetTimer, Maptracker_MechanicsCheck, -1
 			Break
 		}
 
@@ -290,6 +282,14 @@ HotkeysTab()
 			Break
 		}
 
+	If !active && settings.features.leveltracker && !settings.leveltracker.pobmanual && !Screenchecks_PixelSearch("gamescreen") && Screenchecks_ImageSearch("skilltree")
+	{
+		If !vars.leveltracker.skilltree_schematics.GUI
+			Leveltracker_PobSkilltree()
+		Else Leveltracker_PobSkilltree("close")
+		Return
+	}
+
 	If !settings.hotkeys.tabblock && !active
 	{
 		SendInput, % "{" vars.hotkeys.tab " DOWN}"
@@ -298,8 +298,10 @@ HotkeysTab()
 	}
 	Else KeyWait, % vars.hotkeys.tab
 
+	If longpress
+		Leveltracker_PobSkilltree("close")
 	If InStr(active, "sanctum") && !vars.sanctum.lock && !vars.sanctum.scanning
-		Sanctum_("close")
+		Sanctum("close")
 	If InStr(active, "LLK-panel") && settings.general.hide_toolbar
 		LLK_Overlay(vars.hwnd.LLK_panel.main, "hide")
 	If InStr(active, "alarm")
@@ -312,7 +314,7 @@ HotkeysTab()
 		vars.notepad.toggle := 0
 		For key, val in vars.hwnd.notepad_widgets
 		{
-			Gui, % GuiName(val) ": +E0x20"
+			Gui, % Gui_Name(val) ": +E0x20"
 			WinSet, Transparent, % (key = "notepad_reminder_feature") ? 250 : 50 * settings.notepad.trans, % "ahk_id "val
 		}
 	}
@@ -340,18 +342,29 @@ HotkeysTab()
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
 
 #If vars.hwnd.stash.main && WinExist("ahk_id " vars.hwnd.stash.main) && InStr(vars.stash.hover, "tab_")
-*~LButton::Stash_(StrReplace(vars.stash.hover, "tab_"))
+*~LButton::Stash(StrReplace(vars.stash.hover, "tab_"))
 
 #If vars.hwnd.stash.main && WinExist("ahk_id " vars.hwnd.stash.main) && IsObject(vars.stash.regex)
 && LLK_IsBetween(vars.general.xMouse, vars.client.x + vars.stash.regex.x, vars.client.x + vars.stash.regex.x + vars.stash.regex.w)
 && LLK_IsBetween(vars.general.yMouse, vars.client.y + vars.stash.regex.y, vars.client.y + vars.stash.regex.y + vars.stash.regex.h)
 LButton::Stash_Hotkeys("regex")
 
+#If vars.leveltracker.skilltree_schematics.GUI && WinExist("ahk_id " vars.hwnd.skilltree_schematics.main)
+RButton::Leveltracker_PobSkilltree("drag")
+SC002::Leveltracker_PobSkilltree("ascendancy 1")
+SC003::Leveltracker_PobSkilltree("ascendancy 2")
+SC004::Leveltracker_PobSkilltree("ascendancy 3")
+SC005::Leveltracker_PobSkilltree("ascendancy 4")
+SC010::Leveltracker_PobSkilltree("prev")
+SC012::Leveltracker_PobSkilltree("next")
+SC011::Leveltracker_PobSkilltree("overview")
+SPACE::Leveltracker_PobSkilltree("reset")
+
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.second) && !vars.sanctum.lock ;last condition needed to make the space-key usable again after initial lock
-*Space::Sanctum_("lock")
+*Space::Sanctum("lock")
 
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.second)
-*LALT::Sanctum_("trans")
+*LALT::Sanctum("trans")
 
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.main) && (vars.general.wMouse = vars.hwnd.sanctum.main) && vars.general.cMouse && (check := LLK_HasVal(vars.hwnd.sanctum, vars.general.cMouse))
 *LButton::Sanctum_Mark(SubStr(check, InStr(check, "_") + 1), 1)
@@ -434,20 +447,20 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 
 #If (vars.system.timeout = 0) && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.LLK_panel.main)
 
-*LButton::GuiToolbarButtons(vars.general.cMouse, 1)
-*RButton::GuiToolbarButtons(vars.general.cMouse, 2)
+*LButton::Gui_ToolbarButtons(vars.general.cMouse, 1)
+*RButton::Gui_ToolbarButtons(vars.general.cMouse, 2)
 
 #If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse)) ;hovering a notepad-widget and dragging or deleting it
 
-*LButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 1)
-*RButton::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 2)
-*WheelUp::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 3)
-*WheelDown::NotepadWidget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 4)
+*LButton::Notepad_Widget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 1)
+*RButton::Notepad_Widget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 2)
+*WheelUp::Notepad_Widget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 3)
+*WheelDown::Notepad_Widget(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse), 4)
 
 #If (vars.system.timeout = 0) && vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.leveltracker_zones, vars.general.cMouse)) ;hovering the leveling-guide layouts and dragging them
 
-*LButton::LeveltrackerZoneLayouts(0, 1, vars.general.cMouse)
-*RButton::LeveltrackerZoneLayouts(0, 2, vars.general.cMouse)
+*LButton::Leveltracker_ZoneLayouts(0, 1, vars.general.cMouse)
+*RButton::Leveltracker_ZoneLayouts(0, 2, vars.general.cMouse)
 
 #If (vars.system.timeout = 0) && (vars.general.wMouse = vars.hwnd.maptracker.main) && !Blank(LLK_HasVal(vars.hwnd.maptracker, vars.general.cMouse)) ;hovering the maptracker-panel and clicking valid elements
 
@@ -474,48 +487,48 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *SC003::
 *SC004::
 *SC005::
-*Space::MapinfoRank(A_ThisHotkey)
+*Space::Mapinfo_Rank(A_ThisHotkey)
 
 #If (vars.system.timeout = 0) && settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
 
-~*^LButton::MaptrackerLoot()
-^RButton::MaptrackerLoot("back")
+~*^LButton::Maptracker_Loot()
+^RButton::Maptracker_Loot("back")
 
 #If !(vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.notepad_widgets, vars.general.wMouse))) && vars.leveltracker.overlays ;resizing zone-layout images
 
 MButton::
 WheelUp::
-WheelDown::LeveltrackerZoneLayoutsSize(A_ThisHotkey)
+WheelDown::Leveltracker_ZoneLayoutsSize(A_ThisHotkey)
 
-#If settings.leveltracker.pob && WinActive("ahk_exe Path of Building.exe") && !WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main) ;opening the screen-cap menu via m-clicking in PoB
+#If settings.leveltracker.pobmanual && settings.leveltracker.pob && WinActive("ahk_exe Path of Building.exe") && !WinExist("ahk_id " vars.hwnd.leveltracker_screencap.main) ;opening the screen-cap menu via m-clicking in PoB
 
-MButton::LeveltrackerScreencapMenu()
+MButton::Leveltracker_ScreencapMenu()
 
 #If (vars.tooltip_mouse.name = "searchstring") ;scrolling through sub-strings in search-strings
 
 ESC::
 WheelUp::
-WheelDown::StringScroll(A_ThisHotkey)
+WheelDown::String_Scroll(A_ThisHotkey)
 
 #If (vars.system.timeout = 0) && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.iteminfo.main) && WinActive("ahk_group poe_ahk_window") ;applying highlighting to item-mods in the item-info tooltip
 
 *LButton::
 *RButton::
 If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo, vars.general.cMouse)) ;this check prevents the tooltip from being clicked/activated (since the L/RButton press is not sent to the client)
-	IteminfoHighlightApply(vars.general.cMouse)
+	Iteminfo_HighlightApply(vars.general.cMouse)
 Else If vars.general.cMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo.inverted_mods, vars.general.cMouse))
-	IteminfoModInvert(vars.general.cMouse)
+	Iteminfo_ModInvert(vars.general.cMouse)
 Return
 
 #If (settings.iteminfo.trigger || settings.mapinfo.trigger) && vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) ;shift-clicking currency onto items and triggering certain features
 
-~+LButton UP::IteminfoTrigger(1)
-+RButton::IteminfoMarker()
+~+LButton UP::Iteminfo_Trigger(1)
++RButton::Iteminfo_Marker()
 
 #If (settings.iteminfo.trigger || settings.mapinfo.trigger) && !vars.general.shift_trigger && (vars.general.wMouse = vars.hwnd.poe_client) && Screenchecks_PixelSearch("inventory")
 ;shift-right-clicking currency to shift-click items after
 
-~+RButton UP::IteminfoTrigger()
+~+RButton UP::Iteminfo_Trigger()
 
 #If vars.hwnd.searchstrings_context && WinExist("ahk_id " vars.hwnd.searchstrings_context) && (vars.general.wMouse = vars.hwnd.poe_client) ;closing the search-strings context menu when clicking into the client
 
@@ -533,23 +546,23 @@ Return
 
 #If (vars.hwnd.iteminfo.main && WinExist("ahk_id " vars.hwnd.iteminfo.main) || vars.hwnd.iteminfo_markers.1 && WinExist("ahk_id " vars.hwnd.iteminfo_markers.1)) && (vars.general.wMouse = vars.hwnd.poe_client)
 ;closing the item-info tooltip and its markers when clicking into the client
-~LButton::IteminfoClose(1)
+~LButton::Iteminfo_Close(1)
 
 #If (vars.system.timeout = 0) && vars.general.wMouse && !Blank(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse)) ;long-clicking the gear-update buttons on gear-slots in the inventory to update/remove selected gear
 
 LButton::
-RButton::IteminfoGearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse))
+RButton::Iteminfo_GearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.general.wMouse))
 
 #If vars.cloneframes.editing && vars.general.cMouse && !Blank(LLK_HasVal(vars.cloneframes.scroll, vars.general.cMouse))
 
 WheelUp::
-WheelDown::CloneframesSettingsApply(vars.general.cMouse, A_ThisHotkey)
+WheelDown::Cloneframes_SettingsApply(vars.general.cMouse, A_ThisHotkey)
 
 #If vars.hwnd.cloneframe_borders.main && (vars.general.wMouse != vars.hwnd.settings.main) && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via clicks
 
 LButton::
 RButton::
-MButton::CloneframesSnap(A_ThisHotkey)
+MButton::Cloneframes_Snap(A_ThisHotkey)
 
 #If WinActive("ahk_id "vars.hwnd.snip.main) ;moving the snip-widget via arrow keys
 
@@ -574,14 +587,14 @@ Return
 *SC003::
 *SC004::
 *SC005::
-Space::CheatsheetRank()
+Space::Cheatsheet_Rank()
 
 #If vars.general.wMouse && vars.hwnd.betrayal_info.main && (vars.general.wMouse = vars.hwnd.betrayal_info.main) ;ranking betrayal rewards
 
 SC002::
 SC003::
 SC004::
-Space::BetrayalRank(A_ThisHotkey)
+Space::Betrayal_Rank(A_ThisHotkey)
 
 #If (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;image-cheatsheet hotkeys
 
@@ -630,13 +643,13 @@ w::
 x::
 y::
 z::
-CheatsheetImage("", A_ThisHotkey)
+Cheatsheet_Image("", A_ThisHotkey)
 Return
 
 #IfWinActive ahk_group poe_window
 
 #IfWinActive ahk_group poe_ahk_window
 
-ESC::HotkeysESC()
+ESC::Hotkeys_ESC()
 
 #If
