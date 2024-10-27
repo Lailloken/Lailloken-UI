@@ -3,12 +3,6 @@
 	local
 	global vars, settings, db
 
-	If vars.leveltracker.skilltree_schematics.GUI
-	{
-		Leveltracker_PobSkilltree("close")
-		Return
-	}
-
 	If vars.omnikey.last	;when the omni-key was last pressed ;for certain hotkeys, AHK keeps firing whatever is bound to it while holding down the key
 		Return			;there is a separate function activated when releasing the omni-key that clears this variable again
 	vars.omnikey.last := A_TickCount
