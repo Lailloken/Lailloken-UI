@@ -3,10 +3,10 @@
 	local
 	global vars, settings
 
-	If !FileExist("ini\clone frames.ini")
-		IniWrite, % "", ini\clone frames.ini, settings
+	If !FileExist("ini" vars.poe_version "\clone frames.ini")
+		IniWrite, % "", % "ini" vars.poe_version "\clone frames.ini", settings
 
-	settings.cloneframes := {}, ini := IniBatchRead("ini\clone frames.ini")
+	settings.cloneframes := {}, ini := IniBatchRead("ini" vars.poe_version "\clone frames.ini")
 	settings.cloneframes.pixelchecks := !Blank(check := ini.settings["enable pixel-check"]) ? check : 0
 	settings.cloneframes.hide := !Blank(check := ini.settings["hide in hideout"]) ? check : 0
 
@@ -43,7 +43,7 @@
 	vars.cloneframes.enabled -= 1, vars.cloneframes.list.settings_cloneframe.enable := 0 ;set the dummy entry to disabled
 }
 
-CloneframesHide()
+Cloneframes_Hide()
 {
 	local
 	global vars, settings
@@ -59,7 +59,7 @@ CloneframesHide()
 	}
 }
 
-CloneframesSettingsAdd()
+Cloneframes_SettingsAdd()
 {
 	local
 	global vars, settings
@@ -71,21 +71,21 @@ CloneframesSettingsAdd()
 		name := SubStr(name, 1, -1)
 
 	If vars.cloneframes.list.HasKey(name)
-		error := [LangTrans("global_errorname", 4), 1.5, "red"]
+		error := [Lang_Trans("global_errorname", 4), 1.5, "red"]
 	Else If vars.cloneframes.editing
-		error := [LangTrans("m_clone_exitedit"), 1.5, "red"]
+		error := [Lang_Trans("m_clone_exitedit"), 1.5, "red"]
 	Else If (name = "")
-		error := [LangTrans("global_errorname", 1), 1.5, "red"]
+		error := [Lang_Trans("global_errorname", 1), 1.5, "red"]
 
 	Loop, Parse, name
 		If !LLK_IsType(A_LoopField, "alnum")
 		{
-			error := [LangTrans("global_errorname", 3), 2, "red"]
+			error := [Lang_Trans("global_errorname", 3), 2, "red"]
 			Break
 		}
 
 	If InStr(name, "settings")
-		error := [LangTrans("global_errorname", 5) "settings", 2, "red"]
+		error := [Lang_Trans("global_errorname", 5) "settings", 2, "red"]
 
 	If error
 	{
@@ -100,7 +100,7 @@ CloneframesSettingsAdd()
 	Settings_menu("clone-frames")
 }
 
-CloneframesSettingsRefresh(name := "")
+Cloneframes_SettingsRefresh(name := "")
 {
 	local
 	global vars, settings
@@ -149,7 +149,7 @@ CloneframesSettingsRefresh(name := "")
 	GuiControl, movedraw, % vars.hwnd.settings.discard
 }
 
-CloneframesSettingsSave()
+Cloneframes_SettingsSave()
 {
 	local
 	global vars, settings
@@ -165,10 +165,10 @@ CloneframesSettingsSave()
 	IniWrite, % vars.cloneframes.list[name].yScale, ini\clone frames.ini, % name, scaling y-axis
 	IniWrite, % vars.cloneframes.list[name].opacity, ini\clone frames.ini, % name, opacity
 
-	CloneframesSettingsRefresh()
+	Cloneframes_SettingsRefresh()
 }
 
-CloneframesSettingsApply(cHWND, hotkey := "")
+Cloneframes_SettingsApply(cHWND, hotkey := "")
 {
 	local
 	global vars, settings
@@ -189,7 +189,7 @@ CloneframesSettingsApply(cHWND, hotkey := "")
 	Else vars.cloneframes.list[editing][check] := value
 }
 
-CloneframesShow()
+Cloneframes_Show()
 {
 	local
 	global vars, settings
@@ -265,7 +265,7 @@ CloneframesShow()
 	}
 }
 
-CloneframesSnap(hotkey)
+Cloneframes_Snap(hotkey)
 {
 	local
 	global vars, settings
@@ -283,7 +283,7 @@ CloneframesSnap(hotkey)
 		Case "RButton":
 			If (vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource <= 0) || (vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource <= 0) ;prevent negative widths/heights
 			{
-				LLK_ToolTip(LangTrans("m_clone_errorborders"),,,,, "red")
+				LLK_ToolTip(Lang_Trans("m_clone_errorborders"),,,,, "red")
 				Return
 			}
 			;vars.cloneframes.list[name].width := vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
