@@ -3,11 +3,11 @@
 	local
 	global vars, settings
 
-	If !FileExist("ini\screen checks (" vars.client.h "p).ini")
-		IniWrite, % "", % "ini\screen checks (" vars.client.h "p).ini", gamescreen
+	If !FileExist("ini" vars.poe_version "\screen checks (" vars.client.h "p).ini")
+		IniWrite, % "", % "ini" vars.poe_version "\screen checks (" vars.client.h "p).ini", gamescreen
 
 	If (vars.client.h0 / vars.client.w0 < (5/12)) ;if the client is running a resolution that's wider than 21:9, there is a potential for black bars on each side
-		settings.general.blackbars := LLK_IniRead("ini\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
+		settings.general.blackbars := LLK_IniRead("ini" vars.poe_version "\config.ini", "Settings", "black-bar compensation", 0) ;reminder: keep it in config.ini (instead of screen checks.ini) because it's not resolution-specific
 	Else settings.general.blackbars := 0
 
 	If settings.general.blackbars ;apply offsets if black-bar compensation is enabled
@@ -17,11 +17,11 @@
 	}
 	Else settings.general.oGamescreen := 0
 
-	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates")
+	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates" vars.poe_version)
 	If InStr(parse, ",")
 		vars.pixelsearch.gamescreen := {"x1": SubStr(parse, 1, InStr(parse, ",") - 1), "y1": SubStr(parse, InStr(parse, ",") + 1)}
 
-	ini := IniBatchRead("ini\screen checks (" vars.client.h "p).ini")
+	ini := IniBatchRead("ini" vars.poe_version "\screen checks (" vars.client.h "p).ini")
 	vars.pixelsearch.gamescreen.color1 := ini.gamescreen["color 1"]
 	vars.pixelsearch.inventory := {"x1": 0, "x2": 0, "x3": 6, "y1": 0, "y2": 6, "y3": 0, "check": 0}
 	Loop 3
@@ -106,7 +106,7 @@ Screenchecks_ImageRecalibrate(mode := "", check := "")
 		Gui, LLK_snip: Font, % "s" Round(settings.general.fSize * 1.5) " cAqua", % vars.system.font
 		Gui, LLK_snip: Margin, 0, 0
 		Loop 6
-			text .= (!text ? " " : "`n ") LangTrans("screen_snipinstructions", A_Index) " "
+			text .= (!text ? " " : "`n ") Lang_Trans("screen_snipinstructions", A_Index) " "
 		vars.hwnd.snipping_tool := {"main": hwnd_gui}, align := "left", LLK_PanelDimensions([text], settings.general.fSize * 2, wText, hText)
 		Gui, LLK_snip: Add, Text, % "x0 y" height//2 - hText//2 " w" width " h" hText " BackgroundTrans Left HWNDhwnd_text", % text
 		If !vars.pics.global.square_black_trans
@@ -145,7 +145,7 @@ Screenchecks_ImageRecalibrate(mode := "", check := "")
 		&& LLK_IsBetween(area.x, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y, coords.y, coords.y + coords.h)
 		&& LLK_IsBetween(area.x + area.w, coords.x, coords.x + coords.w) && LLK_IsBetween(area.y + area.h, coords.y, coords.y + coords.h)
 			pClip := Gdip_CloneBitmapArea(pBitmap, area.x - coords.x, area.y - coords.y, area.w, area.h,, 1)
-		Else LLK_ToolTip(LangTrans("global_screencap") "`n" LangTrans("global_fail"), 2,,,, "red", settings.general.fSize,,, 1)
+		Else LLK_ToolTip(Lang_Trans("global_screencap") "`n" Lang_Trans("global_fail"), 2,,,, "red", settings.general.fSize,,, 1)
 		Gdip_DisposeImage(pBitmap), DeleteObject(hBitmap), vars.snipping_tool.GUI := 0
 	}
 	Return pClip
@@ -299,4 +299,83 @@ Screenchecks_PixelSearch(name) ;performing pixel-checks
 			break
 	}
 	Return pixel_check
+}
+
+SnippingTool(mode := 0)
+{
+	local
+	global vars, settings
+
+	KeyWait, LButton
+	If mode && !WinExist("ahk_id " vars.hwnd.snip.main)
+	{
+		Gui, snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd, Lailloken UI: snipping widget
+		Gui, snip: Color, Aqua
+		WinSet, trans, 100
+		vars.hwnd.snip := {"main": hwnd}
+
+		Gui, snip: Add, Picture, % "x"settings.general.fWidth*5 " y"settings.general.fHeight*2 " h"settings.general.fHeight " w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
+		vars.hwnd.snip.help := vars.hwnd.help_tooltips["snip_about"] := hwnd
+		If vars.snip.w
+			Gui, snip: Show, % "x" vars.snip.x " y" vars.snip.y " w" vars.snip.w - vars.system.xBorder*2 " h" vars.snip.h - vars.system.caption - vars.system.yBorder*2
+		Else Gui, snip: Show, % "x" vars.monitor.x + vars.client.xc - settings.general.fWidth * 16 " y" vars.monitor.y + vars.client.yc - settings.general.fHeight * 6 " w"settings.general.fWidth*31 " h"settings.general.fHeight*11
+		Return 0
+	}
+	Else If !mode && WinExist("ahk_id " vars.hwnd.snip.main)
+		SnipGuiClose()
+
+	vars.general.gui_hide := 1, LLK_Overlay("hide")
+	If A_Gui
+		Gui, %A_Gui%: Hide
+
+	If mode
+	{
+		WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
+		Gui, snip: Hide
+		sleep 100
+		pBitmap := Gdip_BitmapFromScreen(x + vars.system.xborder "|" y + vars.system.yborder + vars.system.caption "|" w - vars.system.xborder*2 "|" h - vars.system.yborder*2 - vars.system.caption)
+		Gui, snip: Show
+	}
+	Else pBitmap := Screenchecks_ImageRecalibrate()
+
+	vars.general.gui_hide := 0, LLK_Overlay("show")
+	If A_Gui
+		Gui, %A_Gui%: Show, NA
+	If (pBitmap <= 0)
+	{
+		LLK_ToolTip(Lang_Trans("global_screencap") "`n" Lang_Trans("global_fail"), 2,,,, "red")
+		Return 0
+	}
+	If WinExist("ahk_id "vars.hwnd.snip.main)
+		WinActivate, % "ahk_id "vars.hwnd.snip.main
+
+	Return pBitmap
+}
+
+SnippingToolMove()
+{
+	local
+	global vars, settings
+
+	WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.snip.main
+	Switch A_ThisHotkey
+	{
+		Case "*up":
+			If GetKeyState("Alt", "P")
+				h -= GetKeyState("Ctrl", "P") ? 10 : 1
+			Else y -= GetKeyState("Ctrl", "P") ? 10 : 1
+		Case "*down":
+			If GetKeyState("Alt", "P")
+				h += GetKeyState("Ctrl", "P") ? 10 : 1
+			Else y += GetKeyState("Ctrl", "P") ? 10 : 1
+		Case "*left":
+			If GetKeyState("Alt", "P")
+				w -= GetKeyState("Ctrl", "P") ? 10 : 1
+			Else x -= GetKeyState("Ctrl", "P") ? 10 : 1
+		Case "*right":
+			If GetKeyState("Alt", "P")
+				w += GetKeyState("Ctrl", "P") ? 10 : 1
+			Else x += GetKeyState("Ctrl", "P") ? 10 : 1
+	}
+	WinMove, % "ahk_id "vars.hwnd.snip.main,, %x%, %y%, %w%, %h%
 }
