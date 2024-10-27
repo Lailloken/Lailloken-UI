@@ -833,10 +833,10 @@
   },
   "leveltrackerschematics": {
     "how-to": [
-      "press q or e to switch between individual skill-trees",
-      "hold w to show an overview of the whole tree",
-      "hold number-keys 1 to 4 to show the individual ascendancy-trees",
-      "press space to move the tree's starting point (white circle) to the cursor's position"
+      "press <q> or <e> to switch between individual skill-trees",
+      "hold <w> to show an overview of the whole tree",
+      "hold number-keys <1> through <4> to show the individual ascendancy-trees",
+      "press <space> to move the tree's starting point (white circle) to the cursor's position"
     ]
   },
   "maptracker": {

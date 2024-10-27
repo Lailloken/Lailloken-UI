@@ -171,6 +171,7 @@
 		global_clipboard		=	"copied to clipboard"
 		global_start			=	"start"
 		global_cancel			=	"cancel"
+		global_downloading		=	"downloading..."
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
