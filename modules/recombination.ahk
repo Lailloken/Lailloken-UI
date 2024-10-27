@@ -35,8 +35,8 @@ Recombination()
 	influences := vars.recombination.influences
 	clip := SubStr(vars.omnikey.clipboard, InStr(vars.omnikey.clipboard, Lang_Trans("items_ilevel"))), clip := StrReplace(clip, "`r`n", ";")
 	clip := StrReplace(clip, " (crafted)"), clip := StrReplace(clip, " — " Lang_Trans("items_unscalable"))
-	item := {	"name": LLK_StringCase(vars.omnikey.item.name), "itembase": LLK_StringCase(vars.omnikey.item.itembase),"class": LLK_StringCase(vars.omnikey.item.class)
-	,		"prefixes": [], "suffixes": [], "mod_counts": {"prefixes": 3, "suffixes": 3}, "influences": {}, "attributes": vars.omnikey.item.attributes}
+	item := {"name": LLK_StringCase(vars.omnikey.item.name), "itembase": LLK_StringCase(vars.omnikey.item.itembase),"class": LLK_StringCase(vars.omnikey.item.class)
+		, "prefixes": [], "suffixes": [], "mod_counts": {"prefixes": 3, "suffixes": 3}, "influences": {}, "attributes": vars.omnikey.item.attributes}
 	item1 := vars.recombination.item1, item2 := vars.recombination.item2
 
 	Loop, Parse, % vars.omnikey.clipboard, `n, `r

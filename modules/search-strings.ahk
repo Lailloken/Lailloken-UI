@@ -3,7 +3,7 @@
 	local
 	global vars, settings
 
-	If !FileExist("ini\search-strings.ini")
+	If !vars.poe_version && !FileExist("ini\search-strings.ini")
 	{
 		IniWrite, 1, ini\search-strings.ini, searches, beast crafting
 		IniWrite, % "", ini\search-strings.ini, beast crafting, last coordinates
@@ -14,10 +14,12 @@
 		IniWrite, "damping|urchin", ini\search-strings.ini, beast crafting, 00-flasks: ignite
 		IniWrite, "antitoxin|skunk", ini\search-strings.ini, beast crafting, 00-flasks: poison
 	}
+	Else If vars.poe_version && !FileExist("ini 2\search-strings.ini")
+		IniWrite, % "", ini 2\search-strings.ini, searches
 
 	If !IsObject(vars.searchstrings)
 		vars.searchstrings := {}
-	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0, ini := IniBatchRead("ini\search-strings.ini")
+	vars.searchstrings.list := {}, vars.searchstrings.enabled := 0, ini := IniBatchRead("ini" vars.poe_version "\search-strings.ini")
 	For key, val in ini.searches
 	{
 		If (settings.general.lang_client != "english" && !vars.client.stream && key = "beast crafting")
@@ -58,7 +60,7 @@
 	}
 }
 
-StringContextMenu(name := "")
+String_ContextMenu(name := "")
 {
 	local
 	global vars, settings
@@ -99,7 +101,7 @@ StringContextMenu(name := "")
 
 	If !vars.searchstrings.list[name].strings.Count()
 	{
-		LLK_ToolTip(LangTrans("cheat_entrynotext", 1, [name]), 1.5,,,, "yellow")
+		LLK_ToolTip(Lang_Trans("cheat_entrynotext", 1, [name]), 1.5,,,, "yellow")
 		Return
 	}
 	Gui, searchstrings_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
@@ -110,11 +112,11 @@ StringContextMenu(name := "")
 	vars.hwnd.searchstrings_context := hwnd, vars.searchstrings.active := [name]
 
 	For key, val in strings
-		Gui, searchstrings_context: Add, Text, % "y+"settings.general.fHeight/3 (Blank(val.0) ? " cGray" : " gStringContextMenu"), % StrReplace(key, "00-")
+		Gui, searchstrings_context: Add, Text, % "y+"settings.general.fHeight/3 (Blank(val.0) ? " cGray" : " gString_ContextMenu"), % StrReplace(key, "00-")
 	Gui, searchstrings_context: Show, % "NA x"vars.general.xMouse " y"vars.general.yMouse
 }
 
-StringMenu(name)
+String_Menu(name)
 {
 	local
 	global vars, settings
@@ -133,13 +135,13 @@ StringMenu(name)
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.searchstrings_menu.main, vars.hwnd.searchstrings_menu := {"main": searchstrings_menu}
 
-	Gui, %GUI_name%: Add, Text, % "x-1 y-1 Section Border Center gStringMenu2 HWNDhwnd", % LangTrans("search_header") " " name
+	Gui, %GUI_name%: Add, Text, % "x-1 y-1 Section Border Center gString_Menu2 HWNDhwnd", % Lang_Trans("search_header") " " name
 	vars.hwnd.searchstrings_menu.winbar := hwnd
-	Gui, %GUI_name%: Add, Text, % "ys x+-1 Border gStringMenuClose Center HWNDhwnd w"settings.general.fWidth*2, % "x"
+	Gui, %GUI_name%: Add, Text, % "ys x+-1 Border gString_MenuClose Center HWNDhwnd w"settings.general.fWidth*2, % "x"
 	vars.hwnd.searchstrings_menu.winx := hwnd
 
 	Gui, %GUI_name%: Font, % "bold underline s"settings.general.fSize
-	Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd x"settings.general.fWidth/2, % LangTrans("global_newentry")
+	Gui, %GUI_name%: Add, Text, % "Section xs HWNDhwnd x"settings.general.fWidth/2, % Lang_Trans("global_newentry")
 	WinGetPos,, yPos,,, ahk_id %hwnd%
 	Gui, %GUI_name%: Font, % "norm s"settings.general.fSize - 2
 	Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd0", % "HBitmap:*" vars.pics.global.help
@@ -155,7 +157,7 @@ StringMenu(name)
 		If !header
 		{
 			Gui, %GUI_name%: Font, % "bold underline s"settings.general.fSize
-			Gui, %GUI_name%: Add, Text, % "Section xs y+"settings.general.fHeight*0.8 " Center BackgroundTrans", % LangTrans("global_savedentry")
+			Gui, %GUI_name%: Add, Text, % "Section xs y+"settings.general.fHeight*0.8 " Center BackgroundTrans", % Lang_Trans("global_savedentry")
 			Gui, %GUI_name%: Font, norm
 			Gui, %GUI_name%: Add, Picture, % "ys BackgroundTrans hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 			WinGetPos, xPos,, width, height, ahk_id %hwnd%
@@ -165,20 +167,20 @@ StringMenu(name)
 		If !vars.searchstrings.menu.active.2
 			vars.searchstrings.menu.active.2 := key
 		style := !added ? "y+0" : "y+"settings.general.fHeight/6, added += 1
-		Gui, %GUI_name%: Add, Text, % "Section xs Border "style " Center BackgroundTrans", % " " LangTrans("global_delete", 2) " "
+		Gui, %GUI_name%: Add, Text, % "Section xs Border "style " Center BackgroundTrans", % " " Lang_Trans("global_delete", 2) " "
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp range0-500 Disabled BackgroundBlack cRed HWNDhwnd",
 		vars.hwnd.searchstrings_menu["delbar_"key] := hwnd
-		Gui, %GUI_name%: Add, Text, % "xp yp wp hp gStringMenu2 HWNDhwnd", % ""
+		Gui, %GUI_name%: Add, Text, % "xp yp wp hp gString_Menu2 HWNDhwnd", % ""
 		vars.hwnd.searchstrings_menu["del_"key] := hwnd
 		cEntry := Blank(value.1) ? " cGray" : " cWhite", cEntry := (key = vars.searchstrings.menu.active.2) ? " cFuchsia" : cEntry
-		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 cEntry " HWNDhwnd gStringMenu2", % key
+		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/2 cEntry " HWNDhwnd gString_Menu2", % key
 		vars.hwnd.searchstrings_menu["select_"key] := hwnd
 		WinGetPos, xPos,, width,, ahk_id %hwnd%
 		xPos_max := (xPos + width > xPos_max) ? xPos + width : xPos_max
 	}
 
 	;Gui, %GUI_name%: Font, % "s"settings.general.fSize
-	Gui, %GUI_name%: Add, Button, hidden x0 y0 default gStringMenu2 HWNDhwnd, ok
+	Gui, %GUI_name%: Add, Button, hidden x0 y0 default gString_Menu2 HWNDhwnd, ok
 	vars.hwnd.searchstrings_menu.add := hwnd
 	style := (Blank(active.2) ? "ReadOnly " : "cBlack ") " w"settings.general.fWidth*40
 	Gui, %GUI_name%: Add, Edit, % "x"xPos_max + settings.general.fWidth " y"yPos " r12 Border HWNDhwnd "style, % Blank(active.2) ? "" : vars.searchstrings.list[active.1].strings[active.2].0
@@ -194,13 +196,13 @@ StringMenu(name)
 	LLK_Overlay(searchstrings_menu, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
-StringMenu2(cHWND)
+String_Menu2(cHWND)
 {
 	local
 	global vars, settings
 
 	check := LLK_HasVal(vars.hwnd.searchstrings_menu, cHWND), control := SubStr(check, InStr(check, "_") + 1), active := vars.searchstrings.menu.active
-	StringMenuSave()
+	String_MenuSave()
 	If InStr(check, "del_")
 	{
 
@@ -256,21 +258,21 @@ StringMenu2(cHWND)
 	}
 
 	If InStr(check, "del_") || InStr(check, "select_") || (check = "add")
-		StringMenu(vars.searchstrings.menu.active.1)
+		String_Menu(vars.searchstrings.menu.active.1)
 }
 
-StringMenuClose()
+String_MenuClose()
 {
 	local
 	global vars, settings
 
-	StringMenuSave()
+	String_MenuSave()
 	WinActivate, ahk_group poe_window
 	LLK_Overlay(vars.hwnd.settings.main, "show"), vars.searchstrings.menu.active.2 := ""
-	Gui, % GuiName(vars.hwnd.searchstrings_menu.main) ": Destroy"
+	Gui, % Gui_Name(vars.hwnd.searchstrings_menu.main) ": Destroy"
 }
 
-StringMenuSave()
+String_MenuSave()
 {
 	local
 	global vars, settings
@@ -289,7 +291,7 @@ StringMenuSave()
 	}
 }
 
-StringScroll(hotkey)
+String_Scroll(hotkey)
 {
 	local
 	global vars, settings
@@ -324,7 +326,7 @@ StringScroll(hotkey)
 	}
 
 	If !InStr(clip, ";")
-		GuiControl, text, % vars.hwnd.tooltip_mouse.text, % LangTrans("omnikey_scroll") " " vars.searchstrings.active.3 "/" vars.searchstrings.active.4 "`n" LangTrans("omnikey_escape")
+		GuiControl, text, % vars.hwnd.tooltip_mouse.text, % Lang_Trans("omnikey_scroll") " " vars.searchstrings.active.3 "/" vars.searchstrings.active.4 "`n" Lang_Trans("omnikey_escape")
 	If index
 		vars.searchstrings.clipboard := StrReplace(vars.searchstrings.clipboard, original, ";"index ";"), Clipboard := StrReplace(vars.searchstrings.clipboard, ";")
 	Else Clipboard := (active.1 = "exile-leveling") ? vars.leveltracker.string[active.3] : vars.searchstrings.list[active.1].strings[active.2][active.3]
@@ -333,7 +335,7 @@ StringScroll(hotkey)
 	SendInput, ^{v}{Enter}
 }
 
-StringSearch(name)
+String_Search(name)
 {
 	local
 	global vars, settings
@@ -342,7 +344,7 @@ StringSearch(name)
 	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing
 	{
 		If InStr(A_Gui, "settings_menu")
-			LLK_ToolTip(LangTrans("global_calibrate", 2),,,,, "yellow")
+			LLK_ToolTip(Lang_Trans("global_calibrate", 2),,,,, "yellow")
 		Return 0
 	}
 
@@ -357,7 +359,7 @@ StringSearch(name)
 	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
 	If InStr(A_Gui, "settings_menu") && (pNeedle_searchstrings <= 0)
 	{
-		MsgBox, % LangTrans("cheat_loaderror") " " name
+		MsgBox, % Lang_Trans("cheat_loaderror") " " name
 		Return 0
 	}
 
@@ -370,11 +372,11 @@ StringSearch(name)
 		}
 		Gdip_DisposeImage(pNeedle_searchstrings) ;clear reference-img file from memory
 		If InStr(A_Gui, "settings_menu")
-			LLK_ToolTip(LangTrans("global_positive"),,,,, "lime")
+			LLK_ToolTip(Lang_Trans("global_positive"),,,,, "lime")
 		Return 1
 	}
 	Else Gdip_DisposeImage(pNeedle_searchstrings)
 	If InStr(A_Gui, "settings_menu")
-		LLK_ToolTip(LangTrans("global_negative"),,,,, "red")
+		LLK_ToolTip(Lang_Trans("global_negative"),,,,, "red")
 	Return 0
 }
