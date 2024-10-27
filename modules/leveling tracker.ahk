@@ -8,8 +8,8 @@
 
 	If !FileExist("ini" vars.poe_version "\leveling tracker.ini")
 	{
-		IniWrite, % "", ini\leveling tracker.ini, settings
-		IniWrite, % "", ini\leveling tracker.ini, UI
+		IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", settings
+		IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", UI
 	}
 
 	If !IsObject(vars.hwnd.leveltracker)
@@ -106,7 +106,7 @@
 	}
 	vars.leveltracker.skilltree := {"active": !Blank(check := ini.settings["last skilltree-image" settings.leveltracker.profile]) ? check : "00"}
 	vars.leveltracker.skilltree_schematics := {"active": !Blank(check := ini.settings["last skilltree-schematic" settings.leveltracker.profile]) ? check : "1"
-		, "scale": !Blank(check2 := ini.settings["schematic scaling"]) ? check2 : 0, "classOriginGame": InStr(check3 := ini.UI["class coordinates (" vars.client.h "p)"], ",") ? StrSplit(check3, ",") : ""}
+		, "scale": !Blank(check2 := ini.settings["schematic scaling"]) ? check2 : 0}
 
 	If !IsObject(db.leveltracker)
 		lang := settings.general.lang_client

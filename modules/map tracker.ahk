@@ -8,7 +8,7 @@
 
 	If !FileExist("ini" vars.poe_version "\map tracker.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\map tracker.ini", settings
-	If !FileExist("ini\map tracker log.ini")
+	If !FileExist("ini" vars.poe_version "\map tracker log.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\map tracker log.ini", blank
 
 	If !IsObject(settings.maptracker)
