@@ -35,7 +35,7 @@
 			string := ini["PoB" val][category]
 			If StrLen(string)
 				vars.leveltracker["pob" val][category] := InStr("{}[]", SubStr(string, 1, 1) . SubStr(string, 0)) ? json.Load(string) : string
-			Else If (category = "active tree") && !StrLen(string)
+			Else If (category = "active tree") && vars.leveltracker["pob" val].Count() && !StrLen(string)
 				vars.leveltracker["pob" val][category] := 1
 		}
 	}
@@ -1307,9 +1307,11 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 			, [10, 20, 30, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 135, 140, 150, 160, 170, 180, 190, 200, 210, 220, 225, 230, 240, 250, 260, 270, 280, 290, 300, 310, 315, 320, 330, 340, 350]]
 		angles.1.0 := 0, angles.2.0 := 0
 		radii := {"classstart": 200, "mastery": 100, "keystone": 100, "notable": 60, "normal": 40, "line": 10}
-		brush := {"white": Gdip_BrushCreateSolid(0x64ffffff), "white2": Gdip_BrushCreateSolid(0x99ffffff), "red": Gdip_BrushCreateSolid(0x64ff0000), "red2": Gdip_BrushCreateSolid(0x99ff0000)
-			, "green": Gdip_BrushCreateSolid(0x6400cc00), "green2": Gdip_BrushCreateSolid(0x9900cc00), "yellow": Gdip_BrushCreateSolid(0x64ffff00), "black": Gdip_BrushCreateSolid(0xff000000)
-			, "gray": Gdip_BrushCreateSolid(0xff606060), "blue": Gdip_BrushCreateSolid(0x640000ff)}
+		brush := {"white": Gdip_BrushCreateSolid(0x64ffffff), "white2": Gdip_BrushCreateSolid(0x99ffffff), "white3": Gdip_BrushCreateSolid(0xffffffff)
+			, "red": Gdip_BrushCreateSolid(0x64ff0000), "red2": Gdip_BrushCreateSolid(0x99ff0000), "red3": Gdip_BrushCreateSolid(0xffff0000)
+			, "green": Gdip_BrushCreateSolid(0x6400cc00), "green2": Gdip_BrushCreateSolid(0x9900cc00), "green3": Gdip_BrushCreateSolid(0xff00cc00)
+			, "blue": Gdip_BrushCreateSolid(0x640000ff), "blue2": Gdip_BrushCreateSolid(0x990000ff), "blue3": Gdip_BrushCreateSolid(0xff0000ff)
+			, "black": Gdip_BrushCreateSolid(0xff000000), "gray": Gdip_BrushCreateSolid(0xff606060)}
 	}
 
 	If (mode = "close")
@@ -1327,6 +1329,7 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 		version := SubStr(mode, InStr(mode, " ") + 1), dev := settings.general.dev
 		If !FileExist(file := "data\global\[leveltracker] tree" vars.poe_version " " version ".json")
 		{
+			LLK_ToolTip(Lang_Trans("global_downloading"), 2,,,, "Yellow")
 			Try download := HTTPtoVar("https://raw.githubusercontent.com/Lailloken/Lailloken-UI/refs/heads/" (dev ? "dev" : "main") "/data/global/%5Bleveltracker%5D%20tree" vars.poe_version "%20" version ".json")
 			If (SubStr(download, 1, 1) . SubStr(download, 0) != "{}")
 			{
@@ -1464,12 +1467,12 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 		{
 			If (mHeight > vars.monitor.h * 0.90)
 				scale := Round(vars.monitor.h * 0.90 / mHeight, 4)
-			If (mWidth * scale > vars.monitor.w / 4)
-				scale := Round(vars.monitor.w / 4 / mWidth, 4)
+			If (mWidth * scale > vars.monitor.w / 3)
+				scale := Round(vars.monitor.w / 3 / mWidth, 4)
 		}
 		For kPens, vPen in pen
 			Gdip_DeletePen(vPen)
-		pen := ""
+		wPen := Max(2, Ceil(radii.line * scale)), pen := {"white": Gdip_CreatePen(0xffffffff, wPen), "green": Gdip_CreatePen(0xff00cc00, wPen), "red": Gdip_CreatePen(0xffff0000, wPen)}
 	}
 	mWidth := Round(mWidth * scale), mHeight := Round(mHeight * scale), xOffset := x_coords.1, yOffset := y_coords.1
 
@@ -1515,7 +1518,9 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 
 			type := tree.nodes[node].isnotable || tree.nodes[node].isjewelsocket ? "notable" : tree.nodes[node].ismastery ? "mastery" : tree.nodes[node].HasKey("classstartindex") ? "classstart" : tree.nodes[node].iskeystone ? "keystone" : "normal"
 			new_node := !LLK_HasVal(ascendancy ? ascendancy_trees[ascendancy - 1] : allocated_previous, node) || (masteries[node] != masteries_previous[node]) ? 1 : 0
-			Gdip_FillEllipseC(gBitmap, brush[(outer = 1) ? "red" : tree.nodes[node].HasKey("classstartindex") ? "white" : new_node ? "green" (type = "mastery" ? 2 : "") : "white" (type = "mastery" ? 2 : "")], x, y, rNode := Ceil(radii[type] * scale), rNode)
+			pBrush := (outer = 1) ? "red" : tree.nodes[node].HasKey("classstartindex") ? "white" : new_node ? "green" : "white"
+			pBrush .= (mode = "overview") ? "3" : (type = "mastery") ? "2" : ""
+			Gdip_FillEllipseC(gBitmap, brush[pBrush], x, y, rNode := Ceil(radii[type] * scale), rNode)
 
 			If tree.nodes[node].HasKey("classstartindex")
 			{
@@ -1530,6 +1535,7 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 					rAttr := 130 * scale
 					xAttr := rAttr * cos((vAttr - 90) * 0.017453293252) + x_coord
 					yAttr := rAttr * sin((vAttr - 90) * 0.017453293252) + y_coord
+					kAttr .= (mode = "overview") ? "3" : ""
 					Gdip_FillEllipseC(gBitmap, brush[kAttr], xAttr, yAttr, radii.normal * scale, radii.normal * scale)
 				}
 				Continue
@@ -1539,7 +1545,7 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 			{
 				For iMastery, vMastery in tree.nodes[node].masteryEffects
 					If (vMastery = masteries[node])
-						Gdip_TextToGraphics(gBitmap, iMastery, "x" x - Round(rNode * 0.75) " y" y - rNode " s" Floor(rNode * 1.8))
+						Gdip_TextToGraphics(gBitmap, iMastery, "x" x - Round(rNode * 0.65) " y" y - rNode * 0.8 " s" Floor(rNode * 1.8))
 			}
 			For inner in (outer = 1 ? [1, 2] : [1])
 				For index2, connection in tree.nodes[node][(inner = 1) ? "out" : "in"]
@@ -1621,7 +1627,11 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 		KeyWait, % A_ThisHotkey
 		wait := 0
 		If (mode = "overview")
+		{
+			For kPens, vPen in pen
+				Gdip_DeletePen(vPen)
 			pen := ""
+		}
 		Leveltracker_PobSkilltree()
 		Return
 	}
