@@ -18,7 +18,7 @@
       "the script will restart upon selection"
     ],
     "toolbar hide": [
-      "permanently hides the toolbar until you hold tab or hover the cursor over its previous position"
+      "permanently hides the toolbar until you hold <tab> or hover the cursor over its previous position"
     ],
     "font-size": [
       "– and + can be held down, the middle button resets the size"
@@ -218,7 +218,7 @@
     ],
     "iteminfo shift-click": [
       "automatically refreshes the tooltip when applying currency to items via shift-click",
-      "you have to hold shift first, right click currency, and then click items",
+      "you have to hold <shift> first, right click currency, and then click items",
       "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "iteminfo league-start": [
@@ -261,8 +261,8 @@
     "leveltracker timer": [
       "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
       "it consists of total time (left), act # (middle), current act time (right)",
-      "click < act # > to pause/resume the timer, hold right-click to reset it for a new run",
-      "how to reset: create a new character, enter twilight strand, hold right-click on <act#>, then click it to start the new run"
+      "click < act # > to pause/resume the timer, hold <right-click> to reset it for a new run",
+      "how to reset: create a new character, enter twilight strand, hold <right-click> on <act#>, then click it to start the new run"
     ],
     "leveltracker timer-pause": [
       "automatically pauses the timer in hideouts, and resumes it when you leave"
@@ -287,7 +287,7 @@
       "slightly moves the guide-overlay up so it doesn't cover the exp-bar"
     ],
     "leveltracker skilltree-info": [
-      "while the skill-tree is on screen, tap the tab-key to show overlays with skill-tree schematics",
+      "while the skill-tree is on screen, press <tab> to show overlays with skill-tree schematics",
       "requires the <skilltree> image-check to be set up correctly in the <screen-checks> menu"
     ],
     "leveltracker skilltree-info manual": [
@@ -321,10 +321,16 @@
       "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
     "leveltracker import": [
-      "imports guide data from clipboard into this guide slot"
+      "imports guide data from clipboard into this guide slot",
+      "note: importing will reset the <mule> checkbox"
+    ],
+    "leveltracker mule": [
+      "the guide in this slot will be treated as a mule for slot 1",
+      "the guide will end with the final gem step and automatically switch to slot 1 (or next mule) after relogging",
+      "note: toggling this box will reset this slot's guide progress"
     ],
     "leveltracker reset": [
-      "hold to reset the progress in this guide slot and start over"
+      "long-click to reset the progress in this guide slot and start over"
     ],
     "leveltracker profile name": [
       "optional: type in a description/name for the guide in this slot"
@@ -333,14 +339,14 @@
       "long-click to check available pob data"
     ],
     "leveltracker layouts": [
-      "hold tab to overlay images with possible zone-layouts (guide-panel shows # zl)",
-      "while active, hold middle-mouse to view an info-panel with explanations",
+      "hold <tab> to overlay images with possible zone-layouts (guide-panel shows # zl)",
+      "while active, hold <middle-mouse> to view an info-panel with explanations",
       "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
     ],
     "leveltracker hints": [
       "inserts additional hints underneath specific guide-steps",
       "these are displayed in indented lines with smaller text",
-      "if a hint is marked with a book icon, you can hold tab to see an illustration"
+      "if a hint is marked with a book icon, you can hold <tab> to see an illustration"
     ],
     "leveltracker hotkeys enable": [
       "allows you to switch guide-pages via customizable hotkeys"
@@ -379,7 +385,7 @@
     ],
     "maptracker screen tracking": [
       "these mechanics will be tracked by searching the screen for specific ui elements",
-      "the screen will be checked whenever you hold tab",
+      "the screen will be checked whenever you hold <tab>",
       "requires manual calibration"
     ],
     "maptracker dialoguemechanic": [
@@ -436,11 +442,11 @@
     ],
     "mapinfo shift-click": [
       "refreshes the tooltip whenever you apply currency to maps via shift-click",
-      "you have to hold shift first, right click currency, and then click a map",
+      "you have to hold <shift> first, right click currency, and then click a map",
       "requires the <inventory> pixel-check to be set up correctly in the <screen-checks> menu"
     ],
     "mapinfo tab": [
-      "hold tab to view a compact version of the panel on the right of the screen",
+      "hold <tab> to view a compact version of the panel on the right of the screen",
       "only works in hideouts and the map that was loaded into the panel"
     ],
     "mapinfo colors": [
@@ -471,12 +477,12 @@
     ],
     "alarm enable": [
       "timer-widget with alarm/countdown and stopwatch functionality",
-      "hidden by default, hold tab to display it",
+      "hidden by default, hold <tab> to display it",
       "+ adds a new timer: type in a time (top), a name (bot), and press <enter>",
       "click an existing timer to start it, right-click to stop it",
       "leave time blank to start stopwatch: click xx:xx to loop",
       "leave name blank for single-use timer",
-      "hold r-click on a name to remove a timer"
+      "hold <right-click> on a name to remove a timer"
     ],
     "notepad enable": [
       "notepad tool with individual tabs, and floating widgets that can be used as sticky-notes"
@@ -520,7 +526,7 @@
     ],
     "sanctum enable": [
       "provides tools to analyze sanctum floors and highlight specific rooms and paths to plan ahead",
-      "hold tab during a sanctum run to show the overlay, it will hide upon release",
+      "hold <tab> during a sanctum run to show the overlay, it will hide upon release",
       "press space while holding tab to lock the overlay so it doesn't automatically hide"
     ],
     "sanctum cheatsheet": [
@@ -541,7 +547,7 @@
       "geforce now: move your character around a bit, then redo steps 1 & 2"
     ],
     "screenchecks pixel-info": [
-      "hold to see instructions"
+      "long-click to see instructions"
     ],
     "screenchecks pixel-background": [
       "important background process that enables context-sensitivity",
@@ -552,7 +558,7 @@
       "these help the omni-key interpret which feature to activate when pressed"
     ],
     "screenchecks image-info": [
-      "hold to see instructions"
+      "long-click to see instructions"
     ],
     "screenchecks image-calibration": [
       "follow the instructions from <info> before clicking this",
@@ -594,7 +600,7 @@
       "opens a menu where strings for this use-case can be added or edited"
     ],
     "searchstrings delete": [
-      "hold to delete this use-case and its strings"
+      "long-click to delete this use-case and its strings"
     ],
     "searchstrings enable": [
       "enable/disable the specific use-case"
@@ -667,7 +673,7 @@
       "adds a bookmark-list next to the price-profile panel",
       "press space while hovering over an item to add 1x to the current list, or press alt to remove 1x",
       "bookmarked items will always be highlighted on the grid, regardless of active price-profile",
-      "each tab has 5 separate lists: hold control or shift, and press number-keys to switch"
+      "each tab has 5 separate lists: hold <control> or <shift>, and press number-keys to switch"
     ],
     "stash limits": [
       "you can configure up to 5 price-range profiles for each individual tab",
@@ -693,7 +699,7 @@
       "opens the github page with the detailed changelog of the selected version"
     ],
     "update restart": [
-      "hold to update and restart",
+      "long-click to update and restart",
       "active overlays and unsaved data will be lost"
     ],
     "update manual": [
@@ -706,7 +712,7 @@
       "also opens the script folder in a separate window"
     ],
     "update skip": [
-      "hold to skip this version and no longer receive notifications",
+      "long-click to skip this version and no longer receive notifications",
       "notifications will start showing again with the next version"
     ]
   },
@@ -746,10 +752,10 @@
       "opens the clipping tool to clip images into slots"
     ],
     "menu show": [
-      "hold to see a preview of the image"
+      "long-click to see a preview of the image"
     ],
     "menu delete": [
-      "hold to delete the image in this slot"
+      "long-click to delete the image in this slot"
     ],
     "menu hotkey": [
       "type in a letter to tag the image",
@@ -757,7 +763,7 @@
       "useful if data in the sheet is alphabetical and not numerical"
     ],
     "menu preview": [
-      "hold to see a preview of the sheet"
+      "long-click to see a preview of the sheet"
     ],
     "menu entry-about": [
       "every cheat sheet has multiple entries, and each entry up to 4 notes",
@@ -765,23 +771,23 @@
       "syndicate: each member is an entry\nsanctum: each room is an entry"
     ],
     "menu entry-image": [
-      "hold to view the calibration image"
+      "long-click to view the calibration image"
     ],
     "menu entry-delete": [
-      "hold to delete this entry"
+      "long-click to delete this entry"
     ],
     "menu entry-select": [
       "click this entry to access its notes"
     ],
     "menu entry-preview": [
-      "hold to see a preview of this entry's notes"
+      "long-click to see a preview of this entry's notes"
     ],
     "menu windowtitle": [
       "title of the window you want to use as a cheat sheet",
       "it is case-sensitive but doesn't require the whole title"
     ],
     "menu exe-delete": [
-      "hold to remove the app from the launcher"
+      "long-click to remove the app from the launcher"
     ],
     "menu exe-test": [
       "click to check if the app launches correctly"
@@ -790,7 +796,7 @@
   "geartracker": {
     "about": [
       "click items on the list to highlight them in in-game searches",
-      "hold right-click to remove an item from the list",
+      "hold <right-click> to remove an item from the list",
       "hold the <clear> button to remove every highlighted item"
     ]
   },
@@ -819,13 +825,13 @@
       "opens the snipping widget, or triggers a screen-cap"
     ],
     "skilltree-cap show": [
-      "hold to view the image"
+      "long-click to view the image"
     ],
     "skilltree-cap delete": [
-      "hold to delete the image"
+      "long-click to delete the image"
     ],
     "skilltree-cap delete-all": [
-      "hold to delete all images"
+      "long-click to delete all images"
     ],
     "skilltree-cap caption": [
       "type in a caption and press <enter>"
@@ -1086,7 +1092,7 @@
     "about": [
       "resize and place this widget over an area you want to screencap",
       "use arrow keys to move/resize the widget by 1 pixel",
-      "hold alt to resize instead of moving,\nhold ctrl to move/resize by 10 pixels",
+      "hold <alt> to resize instead of moving,\nhold <ctrl> to move/resize by 10 pixels",
       "click <snip> on a specific slot to save the image into it"
     ]
   }

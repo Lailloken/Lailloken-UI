@@ -678,7 +678,7 @@ Settings_general()
 		}
 
 		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_general_display", 1) " "
-		Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % (vars.client.fullscreen = "true") ? Lang_Trans("m_general_display", 2) : !vars.client.borderless ? Lang_Trans("m_general_display", 3) : Lang_Trans("m_general_display", 4)
+		Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % Lang_Trans("m_general_display", (vars.client.fullscreen = "true") ? 2 : !vars.client.borderless ? 3 : 4)
 		vars.hwnd.settings.window_mode := hwnd
 
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % Lang_Trans("m_general_resolution")
@@ -764,22 +764,19 @@ Settings_general2(cHWND := "")
 	Switch check
 	{
 		Case "winbar":
-			start := A_TickCount
 			While GetKeyState("LButton", "P") ;dragging the window
 			{
-				If (A_TickCount >= start + 250)
+				WinGetPos, xWin, yWin, wWin, hWin, % "ahk_id " vars.hwnd.settings.main
+				MouseGetPos, xMouse, yMouse
+				While GetKeyState("LButton", "P")
 				{
-					WinGetPos,,, width, height, % "ahk_id " vars.hwnd.settings.main
-					While GetKeyState("LButton", "P")
-					{
-						LLK_Drag(width, height, xPos, yPos, 1)
-						sleep 1
-					}
-					KeyWait, LButton
-					WinGetPos, xPos, yPos, w, h, % "ahk_id " vars.hwnd.settings.main
-					vars.settings.x := xPos, vars.settings.y := yPos, vars.general.drag := 0
-					Return
+					LLK_Drag(wWin, hWin, xPos, yPos, 1,,, xMouse - xWin, yMouse - yWin)
+					sleep 1
 				}
+				KeyWait, LButton
+				WinGetPos, xPos, yPos, w, h, % "ahk_id " vars.hwnd.settings.main
+				vars.settings.x := xPos, vars.settings.y := yPos, vars.general.drag := 0
+				Return
 			}
 		Case "dev_env":
 			settings.general.dev_env := LLK_ControlGet(cHWND)
@@ -1503,19 +1500,26 @@ Settings_leveltracker()
 	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section x" x_anchor, % Lang_Trans("m_lvltracker_guide")
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Text, % "ys Border Center gSettings_leveltracker2 HWNDhwnd", % " " Lang_Trans("m_lvltracker_generate") " "
-	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd, handle := ""
+	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd, handle := "", files := []
 	Loop 3
 	{
 		file := !FileExist("ini\leveling guide" (A_Index = 1 ? "" : A_Index) ".ini") ? " cGray" : "", profile := (A_Index = 1) ? "" : A_Index
+		files.Push(file)
 		Gui, %GUI%: Add, Text, % "xs Section Border Center " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd0 w" settings.general.fWidth * 2 . (settings.leveltracker.profile = profile ? " cFuchsia" : ""), % A_Index
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1", % " " Lang_Trans("global_import") " "
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2" color, % " " Lang_Trans("m_lvltracker_reset") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd3 range0-500", 0
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*20 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
+		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*12 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		If vars.leveltracker["pob" (A_Index = 1 ? "" : A_Index)].Count()
 			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/4 " Center cLime Border gSettings_leveltracker2 HWNDhwnd5", % " pob "
+		If (A_Index > 1) && !files.1 && vars.leveltracker["PoB" A_Index].gems.Count()
+		{
+			checked := settings.leveltracker["mule" A_Index]
+			Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd6 Checked" checked . (checked ? " cLime" : ""), % "mule"
+			vars.hwnd.settings["mule" profile] := vars.hwnd.help_tooltips["settings_leveltracker mule" handle] := hwnd6
+		}
 
 		vars.hwnd.settings["profile" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
 		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" handle] := hwnd1
@@ -1737,12 +1741,13 @@ Settings_leveltracker2(cHWND := "")
 	Else If InStr(check, "import")
 	{
 		KeyWait, LButton
+		profile := SubStr(check, 0)
 		If vars.leveltracker.skilltree_schematics.GUI
 			Leveltracker_PobSkilltree("close")
-		If Leveltracker_Import(IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "")
+		If Leveltracker_Import(IsNumber(profile) ? profile : "")
 		{
 			LLK_ToolTip(Lang_Trans("global_success"),,,,, "Lime")
-			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			If (profile = settings.leveltracker.profile) && LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 				Leveltracker_Progress(1)
 		}
 	}
@@ -1766,6 +1771,25 @@ Settings_leveltracker2(cHWND := "")
 		LLK_ToolTip(text, 0,,, "pobtooltip")
 		KeyWait, LButton
 		vars.tooltip[vars.hwnd["tooltippobtooltip"]] := A_TickCount
+	}
+	Else If InStr(check, "mule")
+	{
+		input := LLK_ControlGet(cHWND), profile := SubStr(check, 0)
+		Leveltracker_ProgressReset(profile)
+		If input
+			Leveltracker_Load(profile)
+		Else
+		{
+			vars.leveltracker.guide["muled" profile] := ""
+			IniDelete, ini\leveling guide.ini, info, % "muled " profile
+		}
+		IniWrite, % (settings.leveltracker["mule" profile] := input), ini\leveling tracker.ini, settings, % "profile " profile " mule"
+		GuiControl, % "+c" (input ? "Lime" : "White"), % cHWND
+
+		If (profile = settings.leveltracker.profile)
+			Leveltracker_Load()
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			Leveltracker_Progress(1)
 	}
 	Else If InStr(check, "font_")
 	{

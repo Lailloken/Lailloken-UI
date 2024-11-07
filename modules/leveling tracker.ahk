@@ -27,7 +27,7 @@
 			IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, act %A_Index%
 	}
 
-	For index, val in ["", 2, 3]
+	For index0, val in ["", 2, 3]
 	{
 		vars.leveltracker["PoB" val] := {}
 		For index, category in ["class", "ascendancies", "gems", "trees", "active tree"]
@@ -38,6 +38,15 @@
 			Else If (category = "active tree") && vars.leveltracker["pob" val].Count() && !StrLen(string)
 				vars.leveltracker["pob" val][category] := 1
 		}
+		If (index0 > 1)
+			settings.leveltracker["mule" val] := ini.settings["profile " val " mule"] ? 1 : 0
+		Else
+			For index, inner in [2, 3]
+			{
+				ini_mule := LLK_IniRead("ini\leveling guide.ini", "info", "muled " inner)
+				If (SubStr(ini_mule, 1, 1) . SubStr(ini_mule, 0) = "{}")
+					vars.leveltracker.guide["muled" inner] := Json.Load(ini_mule)
+			}
 	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
@@ -270,9 +279,20 @@ Leveltracker(cHWND := "", hotkey := "")
 
 	If vars.leveltracker.fast ;block any input during fast-forwarding
 		Return
-	check := LLK_HasVal(vars.hwnd.leveltracker, cHWND)
+	check := LLK_HasVal(vars.hwnd.leveltracker, cHWND), profile := settings.leveltracker.profile
 	If InStr(check, "dummy")
 		Return
+
+	If (cHWND = "mule")
+	{
+		IniWrite, % (settings.leveltracker.profile := settings.leveltracker["mule" profile + 1] ? profile + 1 : ""), ini\leveling tracker.ini, settings, profile
+		Leveltracker_Load(), Init_leveltracker()
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			Leveltracker_Progress(1)
+		If (vars.settings.active = "leveling tracker")
+			Settings_menu("leveling tracker")
+		Return
+	}
 
 	If InStr("+-", cHWND) || check || InStr(A_Gui, "settings_menu")
 	{
@@ -371,8 +391,8 @@ Leveltracker(cHWND := "", hotkey := "")
 			If (hotkey = 2)
 				settings.leveltracker.xCoord := "", settings.leveltracker.yCoord := "", write := 1
 			start := A_TickCount
-			While (hotkey = 1) && GetKEyState("LButton", "P")
-				If (A_TickCount >= start + 500)
+			While (hotkey = 1) && GetKeyState("LButton", "P")
+				If (A_TickCount >= start + 250)
 				{
 					If !dummy_gui
 					{
@@ -807,47 +827,89 @@ Leveltracker_Import(profile := "")
 	guide_text := StrReplace(guide_text, "(hint)_______Vendor_Quicksilver Flask +_Orb of Augmentation +_Movement_Speed_Boots `n")
 	guide_text := StrReplace(guide_text, "at_the_fork_in_the_road_with_wagons,_go_the_route_with_1_wagon,_not_2", "at_the_fork,_follow_the_single_wagon")
 	StringLower, guide_text, guide_text
-	If !FileExist("ini\leveling guide" profile ".ini")
-		IniWrite, % "", ini\leveling guide%profile%.ini, Steps
-	Else
+
+	If FileExist("ini\leveling guide" profile ".ini")
 	{
 		IniDelete, ini\leveling guide%profile%.ini, Steps
 		IniDelete, ini\leveling guide%profile%.ini, Info
 	}
 	IniWrite, % guide_text, ini\leveling guide%profile%.ini, Steps
 
-	Settings_menu("leveling tracker")
+	If !profile
+	{
+		IniDelete, ini\leveling tracker.ini, settings, profile 2 mule
+		IniDelete, ini\leveling tracker.ini, settings, profile 3 mule
+		vars.leveltracker.guide["muled2"] := vars.leveltracker.guide["muled3"] := ""
+	}
+	Else
+	{
+		vars.leveltracker.guide["muled" profile] := ""
+		IniDelete, ini\leveling tracker.ini, settings, profile %profile% mule
+		IniDelete, ini\leveling guide.ini, info, muled %profile%
+	}
+
 	Init_leveltracker()
+	Settings_menu("leveling tracker")
 	If settings.leveltracker.geartracker
 		Geartracker_GUI("refresh")
-	If (settings.leveltracker.profile = profile)
-	{
-		Leveltracker_Load()
-		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-			Leveltracker_Progress(1)
-	}
+	Leveltracker_Load()
+	If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+		Leveltracker_Progress(1)
 	Return 1
 }
 
-Leveltracker_Load()
+Leveltracker_Load(profile := 0)
 {
 	local
-	global vars, settings
+	global vars, settings, JSON
 
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
-	vars.leveltracker.guide.import := [], vars.leveltracker.guide.progress := [] ;, vars.leveltracker.guide.gem_notes := {}
-	Loop, Parse, % LLK_IniRead("ini\leveling guide" settings.leveltracker.profile ".ini", "steps"), `n
-		vars.leveltracker.guide.import.Push(A_LoopField)
 
-	Loop, Parse, % LLK_IniRead("ini\leveling guide" settings.leveltracker.profile ".ini", "progress"), `n
+	import := [], gems := {}
+	If !profile
 	{
-		vars.leveltracker.guide.progress.Push(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1))
-		check += !InStr(A_LoopField, "=") ? 1 : 0
+		vars.leveltracker.guide.progress := []
+		Loop, Parse, % LLK_IniRead("ini\leveling guide" settings.leveltracker.profile ".ini", "progress"), `n
+		{
+			vars.leveltracker.guide.progress.Push(SubStr(A_LoopField, InStr(A_LoopField, "=") + 1))
+			check += !InStr(A_LoopField, "=") ? 1 : 0
+		}
+	}
+
+	current_profile := settings.leveltracker.profile
+	Loop, Parse, % LLK_IniRead("ini\leveling guide" (profile ? profile : settings.leveltracker.profile) ".ini", "steps" (!profile && settings.leveltracker["mule" current_profile] ? " mule" : "")), `n
+	{
+		import.Push(A_LoopField)
+		If profile && (InStr(A_LoopField, "buy gem: ") || InStr(A_LoopField, "take reward: "))
+			gem := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ")",, 0) + 1), "_", " "), gems[gem] := 1
 	}
 
 	;Loop, Parse, % LLK_IniRead("ini\leveling tracker.ini", "gem notes" settings.leveltracker.profile), `n
 	;	vars.leveltracker.guide.gem_notes[SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)] := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+
+	If profile
+	{
+		vars.leveltracker.guide["muled" profile] := gems.Clone()
+		IniWrite, % """" Json.Dump(gems) """", ini\leveling guide.ini, info, % "muled " profile
+		Loop, % (count := import.Count())
+		{
+			index := count - (A_Index - 1)
+			If !InStr(import[index], "buy gem: ") && !InStr(import[index], "take reward: ")
+				import.RemoveAt(index)
+			Else
+			{
+				import.Push("relog, switch characters")
+				Break
+			}
+		}
+		For index, step in import
+			import_dump .= (!import_dump ? "" : "`n") step
+
+		IniDelete, % "ini\leveling guide" profile ".ini", steps mule
+		IniWrite, % import_dump, % "ini\leveling guide" profile ".ini", steps mule
+	}
+	Else vars.leveltracker.guide.import := import.Clone()
 
 	If check
 		MsgBox, % "Old progress-data detected.`n`nThere is a high chance this data is incompatible with the current version of the tracker.`n`nYou should go to the settings-menu and reset your progress."
@@ -1066,13 +1128,13 @@ Leveltracker_ScreencapMenu2(cHWND)
 	Else If (check = "winbar")
 	{
 		start := A_TickCount
-		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.leveltracker_screencap.main
+		WinGetPos, xWin, yWin, wWin, hWin, % "ahk_id "vars.hwnd.leveltracker_screencap.main
+		MouseGetPos, xMouse, yMouse
 		While GetKeyState("LButton", "P")
-			If (A_TickCount >= start + 100)
-			{
-				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
-				Sleep 1
-			}
+		{
+			LLK_Drag(wWin, hWin, xPos, yPos, 1, A_Gui,, xMouse - xWin, yMouse - yWin)
+			Sleep 1
+		}
 		vars.general.drag := 0
 		Return
 	}
@@ -1101,7 +1163,8 @@ LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
 	If !gem_name && !last_gem || Blank(xPos) && Blank(last_xPos) || Blank(yPos) && Blank(last_yPos)
 		Return
 
-	pob := vars.leveltracker["pob" settings.leveltracker.profile]
+	profile := settings.leveltracker.profile, profile := settings.leveltracker["mule" profile] ? "" : profile
+	pob := vars.leveltracker["pob" profile]
 	If !IsObject(vars.leveltracker.gemlinks)
 		vars.leveltracker.gemlinks := {}
 	If gem_name
@@ -1656,10 +1719,9 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	If (mode = 1)
 		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker.png
 	For progress_index, step in guide.progress
-	{
 		If !Blank(LLK_HasVal(guide.text_raw, step))
-			guide.text_raw.Delete(LLK_HasVal(guide.text_raw, step))
-	}
+			guide.text_raw.RemoveAt(LLK_HasVal(guide.text_raw, step))
+
 	guide.group1 := []
 	For raw_index, step in guide.text_raw
 	{
@@ -1674,12 +1736,16 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 			Break
 		}
 	}
+
 	guide.target_area := ""
 	For index, val in guide.group1
 		If InStr(val, "areaid")
 			Loop, Parse, val, %A_Space%
 				If InStr(A_LoopField, "areaid")
 					guide.target_area := StrReplace(A_LoopField, "areaid")
+
+	If LLK_HasVal(guide.group1, "relog, switch characters")
+		guide.target_area := "login"
 
 	guide.group0 := [], steps := []
 	For progress_index, step in guide.progress
@@ -1746,15 +1812,25 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 			If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gems.Count() && !guide.items.Count()
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
+				If !settings.leveltracker.profile && (vars.leveltracker.guide.muled2[add] || vars.leveltracker.guide.muled3[add])
+					Continue
 				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
-				Gui, %GUI_name_main%: Add, Text, % style " cFuchsia", % "buy " (LLK_HasVal(guide.group1, "buy item", 1) ? "items" : "gems") " (highlight: hold omni-key)"
+				buy_prompt := 1
 				Continue
 			}
 			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gems.Count() || guide.items.Count())
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
+				If !settings.leveltracker.profile && (vars.leveltracker.guide.muled2[add] || vars.leveltracker.guide.muled3[add])
+					Continue
 				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
 				Continue
+			}
+
+			If (index_raw = guide.group1.Count()) && buy_prompt
+			{
+				Gui, %GUI_name_main%: Add, Text, % style " cFuchsia", % "buy " (LLK_HasVal(guide.group1, "buy item", 1) ? "items" : "gems") " (highlight: hold omni-key)"
+				buy_prompt := 0
 			}
 
 			For index, part in text_parts

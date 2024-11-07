@@ -701,13 +701,12 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	If (check = "winbar")
 	{
 		start := A_TickCount
+		WinGetPos, xWin, yWin, wWin, hWin, % "ahk_id " vars.hwnd.notepad.main
+		MouseGetPos, xMouse, yMouse
 		While GetKeyState("LButton", "P")
 		{
-			If (A_TickCount >= start + 200)
-			{
-				LLK_Drag(vars.notepad.w, vars.notepad.h, xPos, yPos, 1, "notepad" toggle, 1)
-				Sleep 1
-			}
+			LLK_Drag(wWin, hWin, xPos, yPos, 1,, 1, xMouse - xWin, yMouse - yWin)
+			Sleep 1
 		}
 		vars.general.drag := 0
 		If !Blank(yPos)
@@ -820,7 +819,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 			MouseGetPos, xMouse, yMouse
 			wBox := (xMouse - x0 < settings.general.fWidth*20) ? settings.general.fWidth*20 : (xMouse - x0 > max_width) ? max_width : xMouse - x0
 			hBox := (yMouse - y0 < settings.general.fWidth*30) ? settings.general.fWidth*30 : (yMouse - y0 > max_height) ? max_height : yMouse - y0
-			Sleep 1
+			Sleep 10
 		}
 	}
 	wBox := !wBox ? settings.notepad.fWidth*20 : wBox, hBox := !hBox ? settings.notepad.fWidth*30 : hBox
@@ -917,7 +916,7 @@ Notepad_Reload()
 		val := StrReplace(val, "(n)", "`n")
 		If LLK_HasVal(skip, key)
 			Continue
-		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(!Blank(check := ini1[key]) ? check : settings.notepad.color "|" settings.notepad.color1, "|")
+		vars.notepad.entries[key] := val, vars.notepad.settings[key] := StrSplit(!Blank(check := ini1["notepad tab settings"][key]) ? check : settings.notepad.color "|" settings.notepad.color1, "|")
 		Loop 2
 			If Blank(vars.notepad.settings[key][A_Index])
 				vars.notepad.settings[key][A_Index] := settings.notepad["color" (A_Index = 1 ? "" : "1")]

@@ -118,6 +118,9 @@ Gui_HelpToolTip(HWND_key)
 	global vars, settings
 	static toggle := 0
 
+	If vars.general.drag
+		Return
+
 	WinGetPos,, y,, h, % "ahk_id " vars.hwnd.help_tooltips[HWND_key]
 	If Blank(y) || Blank(h)
 	{
@@ -220,6 +223,7 @@ Gui_ToolbarButtons(cHWND, hotkey)
 			LLK_ToolTip(Lang_Trans("global_configwindow"), 2,,,, "yellow")
 		Else If (hotkey = 2)
 		{
+			KeyWait, RButton
 			settings.gui.oToolbar := (settings.gui.oToolbar = "horizontal") ? "vertical" : "horizontal"
 			IniWrite, % settings.gui.oToolbar, ini\config.ini, UI, toolbar-orientation
 			Init_GUI("refresh")
@@ -298,14 +302,18 @@ LLK_ControlGetPos(cHWND, return_val)
 	}
 }
 
-LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center := 0) ; raw parameter: 1 for GUIs with a static size that require raw coordinates
+LLK_Drag(width, height, ByRef xPos, ByRef yPos, top_left := 0, gui_name := "", snap := 0, xOffset := "", yOffset := "") ; top_left parameter: GUI will be aligned based on top-left corner
 {
 	local
 	global vars, settings
 
 	protect := (vars.pixelsearch.gamescreen.x1 < 8) ? 8 : vars.pixelsearch.gamescreen.x1 + 1, vars.general.drag := 1
-	MouseGetPos, xPos, yPos
-	xMouse := xPos, yMouse := yPos
+	MouseGetPos, xMouse, yMouse
+
+	If !Blank(xOffset)
+		xPos := xMouse - xOffset, yPos := yMouse - yOffset
+	Else xPos := xMouse, yPos := yMouse
+
 	If !gui_name
 		gui_name := A_Gui
 
@@ -321,23 +329,23 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, raw := 0, gui_name := "", center
 	If (xPos >= vars.monitor.w)
 		xPos := vars.monitor.w - 1
 
-	If (xPos >= vars.monitor.w / 2) && !raw
+	If (xPos >= vars.monitor.w / 2) && !top_left
 		xTarget := xPos - width + 1
 	Else xTarget := xPos
 
 	If (yPos >= vars.monitor.h)
 		yPos := vars.monitor.h - 1
 
-	If (yPos >= vars.monitor.h / 2) && !raw
+	If (yPos >= vars.monitor.h / 2) && !top_left
 		yTarget := yPos - height + 1
 	Else yTarget := yPos
 
-	If raw && (xTarget + width > vars.monitor.w)
+	If top_left && (xTarget + width > vars.monitor.w)
 		xTarget := vars.monitor.w - width, xPos := xTarget
-	If raw && (yTarget + height > vars.monitor.h)
+	If top_left && (yTarget + height > vars.monitor.h)
 		yTarget := vars.monitor.h - height, yPos := yTarget
 
-	If center && LLK_IsBetween(xMouse, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
+	If snap && LLK_IsBetween(xTarget + width/2, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
 		xPos := "", xTarget := vars.client.xc - width/2 + 1
 
 	Gui, %gui_name%: Show, % (vars.client.stream ? "" : "NA ") "x" vars.monitor.x + xTarget " y" vars.monitor.y + yTarget
