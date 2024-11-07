@@ -75,7 +75,7 @@ Maptracker(cHWND := "", hotkey := "")
 				settings.maptracker.xCoord := settings.maptracker.yCoord := "", write := 1
 			start := A_TickCount
 			While (hotkey = 1) && GetKeyState("LButton", "P")
-				If (A_TickCount >= start + 500)
+				If (A_TickCount >= start + 250)
 				{
 					If !width
 					{

@@ -246,11 +246,12 @@ String_Menu2(cHWND)
 	Else If (check = "winbar")
 	{
 		start := A_TickCount
-		WinGetPos,,, w, h, % "ahk_id "vars.hwnd.searchstrings_menu.main
+		WinGetPos, xWin, yWin, wWin, hWin, % "ahk_id "vars.hwnd.searchstrings_menu.main
+		MouseGetPos, xMouse, yMouse
 		While GetKeyState("LButton", "P")
 		{
 			If (A_TickCount >= start + 100)
-				LLK_Drag(w, h, xPos, yPos, 1, A_Gui)
+				LLK_Drag(wWin, hWin, xPos, yPos, 1, A_Gui,, xMouse - xWin, yMouse - yWin)
 			Sleep 1
 		}
 		vars.general.drag := 0

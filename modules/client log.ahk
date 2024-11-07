@@ -92,6 +92,7 @@ Log_Loop(mode := 0)
 		}
 		If !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
 			Leveltracker_Progress()
+
 		If settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
 			vars.alarm.timers.Delete(check), vars.alarm.timers[A_Now "|"] := "oni"
 
@@ -127,7 +128,7 @@ Log_Loop(mode := 0)
 		vars.lab.rooms[vars.lab.room.1].seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
-		Leveltracker("+")
+		vars.leveltracker.guide.target_area := "", Leveltracker(vars.log.areaID = "login" ? "mule" : "+")
 
 	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
