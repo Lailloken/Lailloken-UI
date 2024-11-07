@@ -340,7 +340,7 @@
 		lvltracker_timermessage		=	"timer resumed"
 		lvltracker_timermessage		=	"timer paused"
 		lvltracker_treeerror		=	"skill-tree version;is incompatible"
-		lvltracker_treenone		=	"imported pob doesn't;have usable tree(s)"
+		lvltracker_treenone		=	"imported pob doesn't;have usable trees"
 		lvltracker_treeascendancy	=	"slot empty"
 
 
