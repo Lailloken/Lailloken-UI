@@ -1,5 +1,9 @@
 [
   [
+	["1.55.6", 15506],
+	"act-tracker: added support for mule characters"
+  ],
+  [
 	["1.55.5", 15505],
 	"basic preparations for poe 2 support",
 	"act-tracker: pob skill-tree and gem-link integrations"
