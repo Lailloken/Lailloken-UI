@@ -3278,25 +3278,25 @@ Settings_stash()
 	leagues := settings.stash.leagues, vars.hwnd.settings.apply_button := hwnd
 	For index, array in leagues
 	{
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd Border Center gSettings_stash2" (index = 1 ? "" : " x+" settings.general.fWidth//2) . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
+		Gui, %GUI%: Add, Text, % (index = 4 ? "xs Section" : "ys x+" settings.general.fWidth//2) " HWNDhwnd Border Center gSettings_stash2" (index = 1 ? " Section" : "") . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
 		vars.hwnd.settings["league_" array.2] := hwnd
 	}
 
 	If vars.client.stream
 	{
-		Gui, %GUI%: Add, Text, % "xs Section ", % Lang_Trans("global_hotkey")
+		Gui, %GUI%: Add, Text, % "xs Section x" x_anchor, % Lang_Trans("global_hotkey")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys HWNDhwnd Limit cBlack r1 gSettings_stash2 w" settings.general.fWidth * 8, % settings.stash.hotkey
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		vars.hwnd.settings.hotkey := vars.hwnd.help_tooltips["settings_stash hotkey"] := hwnd
 	}
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_stash2 Checked" settings.stash.history, % Lang_Trans("m_stash_history")
+	Gui, %GUI%: Add, Checkbox, % "xs x" x_anchor " Section HWNDhwnd gSettings_stash2 Checked" settings.stash.history, % Lang_Trans("m_stash_history")
 	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd1 gSettings_stash2 Checked" settings.stash.show_exalt, % Lang_Trans("m_stash_exalt")
 	Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd4 gSettings_stash2 Checked" settings.stash.bulk_trade, % Lang_Trans("m_stash_bulk")
 	If settings.stash.bulk_trade
 	{
-		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 1.5 " Section HWNDhwnd3", % Lang_Trans("m_stash_mintrade")
+		Gui, %GUI%: Add, Text, % "xs+" settings.general.fWidth * 3 " Section HWNDhwnd3", % Lang_Trans("m_stash_mintrade")
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys cBlack Number HWNDhwnd2 gSettings_stash2 Limit hp Right w" settings.general.fWidth * 3, % settings.stash.min_trade
 		Gui, %GUI%: Font, % "s" settings.general.fSize

@@ -20,7 +20,7 @@
 	{
 		settings.stash := {"indexes": 15}, ini := IniBatchRead("ini" vars.poe_version "\stash-ninja.ini")
 		settings.stash.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
-		settings.stash.leagues := [["settlers", "Settlers"], ["hc settlers", "Hardcore Settlers"], ["standard", "Standard"]]
+		settings.stash.leagues := [["settlers", "Settlers"], ["hc settlers", "Hardcore Settlers"], ["standard", "Standard"], ["necro settlers", "Necro Settlers"], ["hc necro settlers", "HC Necro Settlers"]]
 		settings.stash.league := !Blank(check := ini.settings["league"]) && LLK_HasVal(settings.stash.leagues, check,,,, 1) ? check : settings.stash.leagues.1.2
 		settings.stash.history := !Blank(check := ini.settings["enable price history"]) ? check : 1
 		settings.stash.show_exalt := !Blank(check := ini.settings["show exalt conversion"]) ? check : 0
