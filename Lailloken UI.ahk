@@ -77,7 +77,7 @@ Else
 LLK_Log("client is focused")
 
 Init_GUI(), LLK_Log("GUIs initialized")
-SetTimer, Log_Loop, 2000
+SetTimer, Log_Loop, 1500
 
 If (check := LLK_IniRead("ini" vars.poe_version "\config.ini", "versions", "reload settings"))
 {
