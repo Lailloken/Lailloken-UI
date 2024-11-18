@@ -1,5 +1,11 @@
 [
   [
+	["1.55.7", 15507],
+	"hotkeys: expanded support for non-standard layouts",
+	"client.txt parsing: increased efficiency, added backup and cleaning",
+	"omni-key context menu: added poe.wiki link for valdo maps"
+  ],
+  [
 	["1.55.6", 15506],
 	"hotfix 1: added necro settlers leagues (stash-ninja)",
 	"act-tracker: added support for mule characters"
