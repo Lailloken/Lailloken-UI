@@ -17,6 +17,10 @@
       "select the script's display language",
       "the script will restart upon selection"
     ],
+    "lang unknown": [
+      "the client's language couldn't be detected from analyzing its log-file",
+      "if you have reinstalled the game (or deleted its log-file) recently, try waypoint-traveling a few times and then restarting the tool"
+    ],
     "toolbar hide": [
       "permanently hides the toolbar until you hold <tab> or hover the cursor over its previous position"
     ],
@@ -41,14 +45,24 @@
       "yellow: char not found / waiting for level-up",
       "green: char found, tracking active"
     ],
+    "active character whois": [
+      "click this button to use the \"/whois\" in-game command to force-refresh character info"
+    ],
     "ascendancy": [
       "the game only logs ascendancies when a character levels up",
-      "this status will be out of date if you have recently (re)specced but not leveled up yet",
-      "click this label to use the \"/whois\" in-game command and force the game to log your ascendancy"
+      "this label will be out of sync if you have recently (re)specced but not leveled up yet"
     ],
     "active build": [
-      "type in a name/description of your build and press <enter>",
+      "optional: type in a name/description of your build and press <enter>",
       "used in the map-tracker feature to log which build was played"
+    ],
+    "logfile": [
+      "the size and load-time of the game's client.txt log-file: excessively large log-files may negatively impact the game's and tool's performance",
+      "if you have issues with the game or log-related features, long-click this label to clean the log-file by moving its contents into a separate, cumulative backup-file"
+    ],
+    "logfolder": [
+      "open the game's log folder",
+      "the client.txt log-file can only be modified after closing the game"
     ],
     "force resolution": [
       "you can force the client to run with a custom resolution not available by default",

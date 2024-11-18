@@ -301,15 +301,7 @@ String_Scroll(hotkey)
 		Return
 
 	active := vars.searchstrings.active, clip := vars.searchstrings.clipboard, vars.searchstrings.scroll := A_TickCount
-	If InStr(hotkey, "ESC")
-	{
-		SetTimer, ToolTip_Mouse, Delete
-		Gui, tooltip_mouse: Destroy
-		vars.Delete("tooltip_mouse"), vars.searchstrings.Delete("active"), vars.hwnd.Delete("tooltip_mouse")
-		ToolTip_Mouse("reset")
-		Return
-	}
-	Else If InStr(hotkey, "WheelUp")
+	If InStr(hotkey, "WheelUp")
 	{
 		If InStr(clip, ";")
 			index := SubStr(clip, InStr(clip, ";") + 1), index := SubStr(index, 1, InStr(index, ";") - 1), original := ";"index ";", index += 1 ;isolate scroll-index and increase by 1
@@ -324,6 +316,14 @@ String_Scroll(hotkey)
 		Else If (active.3 < active.4)
 			active.3 += 1
 		Else Return
+	}
+	Else
+	{
+		SetTimer, ToolTip_Mouse, Delete
+		Gui, tooltip_mouse: Destroy
+		vars.Delete("tooltip_mouse"), vars.searchstrings.Delete("active"), vars.hwnd.Delete("tooltip_mouse")
+		ToolTip_Mouse("reset")
+		Return
 	}
 
 	If !InStr(clip, ";")

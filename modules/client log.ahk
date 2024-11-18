@@ -3,64 +3,188 @@
 	local
 	global vars, settings
 
-	If !IsObject(vars.log.file) ;at script-startup
-		vars.log.file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := vars.log.file.Read()
-	Else ;when specifying "active character" in the settings menu
-	{
-		If !Blank(settings.general.character)
-		{
-			log_file := FileOpen(vars.log.file_location, "r", "UTF-8"), log_content := log_file.Read(), log_file.Close()
-			check := InStr(log_content, " " settings.general.character " " Lang_Trans("system_parenthesis"),, 0, 1)
-			check1 := InStr(log_content, " " settings.general.character " " Lang_Trans("log_whois"),, 0, 1), check := Max(check, check1)
-		}
-		Else
-		{
-			vars.log.level := 0
-			Return
-		}
-	}
-
 	If mode
-		vars.log.level := ""
-	Else
+	{
+		vars.log.level := 0, vars.log.character_last := !settings.general.character ? "" : vars.log.character_last
+		If !settings.general.character
+			Return
+	}
+	Else start := A_TickCount
+
+	FileGetSize, filesize, % vars.log.file_location, M
+
+	If !mode
+		settings.general.character := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "active character")
+		, log_file := vars.log.file := FileOpen(vars.log.file_location, "a", "UTF-8"), vars.log.file_size := filesize
+	Else log_file := FileOpen(vars.log.file_location, "a", "UTF-8")
+
+	max_pointer := log_file.Tell()
+	Loop
+	{
+		move := Min(max_pointer, 5 * A_Index * 1024000), log_file.Seek(-move, 2), log_read := log_file.Read(5*1024000)
+		If !mode && !IsObject(log_content) && (check := InStr(log_read, " Generating level ", 1, 0, 3))
+			log_content := StrSplit(SubStr(log_read, check), "`n", "`r" vars.lang.system_fullstop.1)
+
+		If !mode && !settings.general.lang_client && IsObject(log_content)
+			Lang_Client(log_content)
+
+		If settings.general.character && Blank(log_character.1)
+		&& (InStr(log_read, " " settings.general.character " " Lang_Trans("system_parenthesis")) || InStr(log_read, " " settings.general.character " " Lang_Trans("log_whois")))
+			log_character := StrSplit(log_read, "`n", "`r" vars.lang.system_fullstop.1), log_character := [log_character[Log_FindLines(log_character, "character")]]
+
+		If (max_pointer = move) || (IsObject(log_content) || mode) && (!settings.general.character || !Blank(log_character.1))
+			Break
+	}
+	log_file.Seek(0, 2)
+
+	If !mode
 	{
 		vars.log.parsing := "areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class"
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
 			vars.log[A_LoopField] := ""
-
-		If !settings.general.lang_client
-			check := InStr(log_content, " Generating level ", 1, 0, 10), Lang_Client(SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, check ? 10 : 1)))
-
-		If !Blank(settings.general.character := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "active character"))
-		{
-			check := InStr(log_content, " " settings.general.character " " Lang_Trans("system_parenthesis"),, 0, 1)
-			check1 := InStr(log_content, " " settings.general.character " " Lang_Trans("log_whois"),, 0, 1), check := Max(check, check1)
-		}
-		Else check := 0
 	}
-
-	If check
-		log_content_level := SubStr(log_content, check), log_content_level := SubStr(log_content_level, 1, InStr(log_content_level, "`r") - 1)
-		, Log_Parse(log_content_level, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
+	If settings.general.character && !Blank(log_character.1)
+		Log_Parse(log_character, bla, bla, bla, bla, bla, bla, level, bla, character_class)
 
 	If mode
 	{
-		vars.log.level := level ? level : 0, vars.log.character_class := character_class
+		vars.log.level := level ? level : 0, vars.log.character_class := character_class, log_file.Close()
 		Return
 	}
-	log_content := SubStr(log_content, InStr(log_content, " Generating level ", 1, 0, 2))
-	Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class) ;pass log-chunk to parse-function to extract the required information: the info is returned via ByRef variables
+
+	Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, bla, date_time, bla)
+
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
 	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
+	If !mode
+		vars.log.access_time := A_TickCount - start
+}
+
+Log_Backup()
+{
+	local
+	global vars, settings
+	
+	WinClose, % "ahk_id " vars.hwnd.poe_client
+	WinWaitClose, % "ahk_id " vars.hwnd.poe_client,, 3
+	If WinExist("ahk_id " vars.hwnd.poe_client)
+	{
+		MsgBox, % "Backup failed:`nCannot close the game-client."
+		Return
+	}
+	file := StrReplace(vars.log.file_location, "client.txt", "Client (old).txt")
+	For index, loop in ["Loop", "Log_Loop", "Loop_main"]
+		SetTimer, % loop, Delete
+	LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), LLK_Overlay(vars.hwnd.ClientFiller, "destroy")
+	Sleep 1000
+	LLK_Overlay("hide"), vars.log.file.Close()
+	LLK_ToolTip("copying...", 0, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "Yellow",,,, 1)
+
+	If !FileExist(file)
+	{
+		FileMove, % vars.log.file_location, % file, 1
+		If ErrorLevel
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nCannot move the old file.`nThe tool will restart."
+			LLK_Restart()
+			Return
+		}
+		source_file := FileOpen(file, "r", "UTF-8"), source_file.Seek(-Min(512000, source_file.Length), 2), dest_file := FileOpen(vars.log.file_location, "w", "UTF-8")
+		If !IsObject(dest_file)
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nCannot create the new file.`n`nRestart the game to let it create the new file.`nYou'll have to waypoint-travel around a few times before relaunching the tool."
+			ExitApp
+		}
+		append := source_file.Read(), append := SubStr(append, InStr(append, "`n") + 1) . (vars.log.character_last ? vars.log.character_last "`r`n" : "")
+		dest_file.Write(append), source_file.Close(), dest_file.Close()
+
+		If !FileExist(vars.log.file_location) || !FileExist(file)
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nSomething went wrong while copying the file. The game's log folder will open after closing this message."
+			Run, % "explore " SubStr(vars.log.file_location, 1, InStr(vars.log.file_location, "\",, 0) - 1)
+			MsgBox, % "Trouble-shooting steps:`n- If ""Client (old).txt"" doesn't exist, nothing happened and the original log-file wasn't changed.`n`n- If only ""Client (old).txt"" exists, the old file was moved but a new one wasn't created. Launching the game will create a new one, but you have to waypoint-travel around a bit before relaunching the tool."
+			ExitApp
+		}
+	}
+	Else
+	{
+		source_file := FileOpen(vars.log.file_location, "r", "UTF-8"), dest_file := FileOpen(file, "a", "UTF-8"), max_pointer := source_file.Length
+		If !IsObject(source_file) || !IsObject(dest_file)
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nCannot access the current or backup file.`nThe tool will restart."
+			LLK_Restart()
+		}
+		Loop
+		{
+			log_read := source_file.Read(10 * 1024000), dest_file.Write(log_read)
+			If source_file.AtEOF
+				Break
+		}
+
+		source_file.Close()
+		FileDelete, % vars.log.file_location
+		If FileExist(vars.log.file_location)
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nCannot delete the ""Client.txt"" log-file.`n. You'll have to delete it manually (the folder will open once you close this message).`n`nAfter deleting, restart the game, waypoint-travel around a few times, then restart the tool."
+			Run, % "explore " SubStr(vars.log.file_location, 1, InStr(vars.log.file_location, "\",, 0) - 1)
+			ExitApp
+		}
+		source_file := "", source_file := FileOpen(vars.log.file_location, "w", "UTF-8")
+		If !IsObject(source_file)
+		{
+			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+			MsgBox, % "Backup failed:`nCannot create the new file.`n`nRestart the game to let it create the new file.`nYou'll have to waypoint-travel around a few times before relaunching the tool."
+			ExitApp
+		}
+
+		dest_file.Seek(-512000, 2), append := dest_file.Read(), append := SubStr(append, InStr(append, "`n") + 1) . (vars.log.character_last ? vars.log.character_last "`r`n" : ""), source_file.Write(append)
+		source_file.Close(), dest_file.Close()
+	}
+
+	If FileExist(vars.log.file_location) && FileExist(file)
+	{
+		LLK_ToolTip("backup successful:`nyou can launch the game again,`nthe tool will restart automatically.", 0, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "Lime",,,, 1)
+		WinWait, ahk_group poe_window,, 60
+		LLK_Overlay(vars.hwnd.tooltip1, "destroy")
+		Sleep 4000
+		LLK_Restart()
+	}
+}
+
+Log_FindLines(log_array, data)
+{
+	local
+	global vars, settings
+
+	count := log_array.Count()
+	Loop
+	{
+		line := count - (A_Index - 1)
+		If (data = "area") && InStr(log_array[line], " Generating Level ", 1)
+			found := line, hits += 1
+		Else If (data = "character")
+		&& (InStr(log_array[line], " " settings.general.character " " Lang_Trans("system_parenthesis")) || InStr(log_array[line], " " settings.general.character " " Lang_Trans("log_whois")))
+		{
+			found := line
+			Break
+		}
+		If (hits >= 5)
+			Break
+	}
+	Return found
 }
 
 Log_Loop(mode := 0)
 {
 	local
 	global vars, settings
-	static button_color
 
 	Critical
 	If settings.qol.alarm && !vars.alarm.drag
@@ -79,8 +203,9 @@ Log_Loop(mode := 0)
 	If IsObject(vars.maptracker)
 		vars.maptracker.hideout := Maptracker_Towncheck() ? 1 : 0 ;flag to determine if the player is using a portal to re-enter the map (as opposed to re-entering from side-content)
 
-	log_content := vars.log.file.Read(), level0 := vars.log.level
-	If !Blank(log_content)
+	log_content := vars.log.file.Read(), level0 := vars.log.level, log_content := StrSplit(log_content, "`n", "`r" vars.lang.system_fullstop.1)
+
+	If log_content.Count()
 	{
 		Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
@@ -161,37 +286,38 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 	local
 	global vars, settings, db
 
-	Loop, Parse, content, `n, % "`r" vars.lang.system_fullstop.1
+	For index, loopfield in content
 	{
-		If InStr(A_LoopField, "Generating level ", 1)
+		If InStr(loopfield, "Generating level ", 1)
 		{
-			parse := SubStr(A_Loopfield, InStr(A_Loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var
-			areaseed := SubStr(A_Loopfield, InStr(A_Loopfield, "with seed ") + 10), areaname := ""
-			date_time := SubStr(A_LoopField, 1, InStr(A_LoopField, " ",,, 2) - 1)
+			parse := SubStr(loopfield, InStr(loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var
+			areaseed := SubStr(loopfield, InStr(loopfield, "with seed ") + 10), areaname := ""
+			date_time := SubStr(loopfield, 1, InStr(loopfield, " ",,, 2) - 1)
 			act := db.leveltracker.areas[areaID].act ;store current act
-			arealevel := parse := SubStr(A_LoopField, InStr(A_LoopField, "level ") + 6, InStr(A_LoopField, " area """) - InStr(A_LoopField, "level ") - 6)
+			arealevel := parse := SubStr(loopfield, InStr(loopfield, "level ") + 6, InStr(loopfield, " area """) - InStr(loopfield, "level ") - 6)
 			If (parse - 67 > 0)
 				areatier := (parse - 67 < 10 ? "0" : "") parse - 67
 			Else areatier := arealevel
 		}
-		Else If InStr(A_LoopField, " connected to ") && InStr(A_LoopField, ".login.") || InStr(A_LoopField, "*****")
+		Else If InStr(loopfield, " connected to ") && InStr(loopfield, ".login.") || InStr(loopfield, "*****")
 			areaID := "login"
 
-		If Lang_Match(A_LoopField, vars.lang.log_enter)
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_enter.1)), areaname := LLK_StringCase(Lang_Trim(parse, vars.lang.log_enter, Lang_Trans("log_location")))
+		If Lang_Match(loopfield, vars.lang.log_enter)
+			parse := SubStr(loopfield, InStr(loopfield, vars.lang.log_enter.1)), areaname := LLK_StringCase(Lang_Trim(parse, vars.lang.log_enter, Lang_Trans("log_location")))
 
-		If !Blank(settings.general.character) && InStr(A_LoopField, " " settings.general.character " ")
+		If !Blank(settings.general.character) && InStr(loopfield, " " settings.general.character " ")
 		{
-			If Lang_Match(A_LoopField, vars.lang.log_level)
+			If Lang_Match(loopfield, vars.lang.log_level)
 			{
-				level := SubStr(A_Loopfield, InStr(A_Loopfield, vars.lang.log_level.1)), level := Lang_Trim(level, vars.lang.log_level)
-				If InStr(A_LoopField, settings.general.character " " Lang_Trans("system_parenthesis"))
-					character_class := SubStr(A_LoopField, InStr(A_LoopField, Lang_Trans("system_parenthesis")) + 1)
+				level := SubStr(loopfield, InStr(loopfield, vars.lang.log_level.1)), level := Lang_Trim(level, vars.lang.log_level)
+				If InStr(loopfield, settings.general.character " " Lang_Trans("system_parenthesis"))
+					character_class := SubStr(loopfield, InStr(loopfield, Lang_Trans("system_parenthesis")) + 1)
 					, character_class := LLK_StringCase(SubStr(character_class, 1, InStr(character_class, Lang_Trans("system_parenthesis", 2)) - 1))
+				vars.log.character_last := loopfield
 			}
-			Else If Lang_Match(A_LoopField, vars.lang.log_whois)
+			Else If Lang_Match(loopfield, vars.lang.log_whois)
 			{
-				level0 := SubStr(A_LoopField, InStr(A_LoopField, settings.general.character)), parse := ""
+				level0 := SubStr(loopfield, InStr(loopfield, settings.general.character)), parse := ""
 				Loop, Parse, level0
 				{
 					If (A_Index = 1)
@@ -200,18 +326,19 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 						parse := !parse ? A_Index : parse, level .= A_LoopField
 				}
 				level0 := SubStr(level0, parse), level0 := SubStr(level0, InStr(level0, " ") + 1), character_class := LLK_StringCase(SubStr(level0, 1, InStr(level0, " ") - 1))
+				vars.log.character_last := loopfield
 			}
 
 			If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				Geartracker_GUI("refresh")
 		}
 
-		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (Lang_Match(A_LoopField, vars.lang.log_slain) || Lang_Match(A_LoopField, vars.lang.log_suicide))
+		If settings.features.maptracker && (vars.log.areaID = vars.maptracker.map.id) && (Lang_Match(loopfield, vars.lang.log_slain) || Lang_Match(loopfield, vars.lang.log_suicide))
 			vars.maptracker.map.deaths += 1
 
-		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && Lang_Match(A_LoopField, vars.lang.log_killed)
+		If settings.features.maptracker && settings.maptracker.kills && vars.maptracker.refresh_kills && Lang_Match(loopfield, vars.lang.log_killed)
 		{
-			parse := SubStr(A_LoopField, InStr(A_LoopField, vars.lang.log_killed.1)), parse := Lang_Trim(parse, vars.lang.log_killed)
+			parse := SubStr(loopfield, InStr(loopfield, vars.lang.log_killed.1)), parse := Lang_Trim(parse, vars.lang.log_killed)
 			Loop, Parse, parse
 				parse := (A_Index = 1) ? "" : parse, parse .= IsNumber(A_LoopField) ? A_LoopField : ""
 			If (vars.maptracker.refresh_kills = 1)
@@ -221,6 +348,6 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 		}
 
 		If settings.features.maptracker && settings.maptracker.mechanics && vars.maptracker.map.id && (vars.log.areaID = vars.maptracker.map.id)
-			Maptracker_ParseDialogue(A_LoopField)
+			Maptracker_ParseDialogue(loopfield)
 	}
 }

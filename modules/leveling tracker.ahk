@@ -82,8 +82,8 @@
 	If settings.leveltracker.hotkeys
 	{
 		Hotkey, If, WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main
-		Hotkey, % settings.leveltracker.hotkey_1, Leveltracker_Hotkeys, On
-		Hotkey, % settings.leveltracker.hotkey_2, Leveltracker_Hotkeys, On
+		Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_1), Leveltracker_Hotkeys, On
+		Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_2), Leveltracker_Hotkeys, On
 	}
 
 	vars.leveltracker.gearfilter := 1, vars.leveltracker.gear := []
@@ -554,12 +554,12 @@ Leveltracker_Hotkeys(mode := "")
 	If (mode = "refresh")
 	{
 		Hotkey, If, WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main
-		Hotkey, % settings.leveltracker.hotkey_01, Leveltracker_Hotkeys, Off
-		Hotkey, % settings.leveltracker.hotkey_02, Leveltracker_Hotkeys, Off
+		Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_01), Leveltracker_Hotkeys, Off
+		Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_02), Leveltracker_Hotkeys, Off
 		If settings.leveltracker.hotkeys
 		{
-			Hotkey, % settings.leveltracker.hotkey_1, Leveltracker_Hotkeys, On
-			Hotkey, % settings.leveltracker.hotkey_2, Leveltracker_Hotkeys, On
+			Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_1), Leveltracker_Hotkeys, On
+			Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_2), Leveltracker_Hotkeys, On
 		}
 		Return
 	}
@@ -2108,7 +2108,7 @@ Leveltracker_Skilltree(index := 0)
 			Return
 		If !Blank(A_Gui)
 			KeyWait, LButton
-		KeyWait, % vars.omnikey.hotkey
+		Omni_Release()
 		LLK_Overlay(leveltracker_skilltree, "destroy"), LLK_Overlay(leveltracker_skilltree_labs, "destroy")
 	}
 	Else LLK_ToolTip(Lang_Trans("lvltracker_noimages"), 1.5,,,, "red")

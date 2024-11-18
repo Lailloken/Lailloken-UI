@@ -531,10 +531,7 @@ Mapinfo_Rank(hotkey)
 	If !check
 		Return
 
-	hotkey0 := Hotkeys_RemoveModifiers(hotkey)
-	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
-		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
-	Else hotkey := hotkey0
+	hotkey0 := Hotkeys_RemoveModifiers(hotkey), hotkey := GetKeyName(hotkey0)
 
 	If IsNumber(hotkey)
 		IniWrite, % (settings.mapinfo.IDs[control].rank := hotkey), ini\map info.ini, % control, rank

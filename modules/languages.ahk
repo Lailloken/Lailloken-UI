@@ -11,7 +11,7 @@
 	vars.help.settings["lang translators"] := vars.lang.translator.Clone(), vars.system.font := Lang_Trans("system_font")
 }
 
-Lang_Client(log_chunk) ;finds out which language the client is running
+Lang_Client(log_array) ;finds out which language the client is running
 {
 	local
 	global vars, settings, json
@@ -46,20 +46,19 @@ Lang_Client(log_chunk) ;finds out which language the client is running
 		}
 	}
 
-	Loop, Parse, log_chunk, `n, `r
+	For index, line in log_array
 	{
-		If InStr(A_LoopField, "Generating level ", 1) ;(potentially) reset parsed language-setting every time "Generating level" is found in the log
+		If InStr(line, " Generating level ", 1)
 			lang_reset := 1
 
-		If InStr(A_LoopField, " : ")
+		If InStr(line, " : ")
 		{
 			If lang_reset ;without this reset, this function would merely find the last valid language (instead of the actual current language)
 				settings.general.lang_client := lang_client := "unknown"
 			For key, val in lang_check
-				If Lang_Match(A_LoopField, val)
+				If Lang_Match(line, val)
 					lang_client := key, lang_reset := 0
 		}
-
 	}
 	settings.general.lang_client := lang_client
 

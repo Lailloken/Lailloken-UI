@@ -386,7 +386,9 @@ HorizonsTooltip(mode := "")
 	global vars, settings, db
 	static toggle := 0
 
-	If !mode
+	If InStr(A_ThisHotkey, "SC0")
+		mode := GetKeyName(StrReplace(A_ThisHotkey, "*"))
+	Else If !mode
 		Loop, Parse, A_ThisHotkey
 			If LLK_IsType(A_LoopField, "alpha")
 				mode .= A_LoopField

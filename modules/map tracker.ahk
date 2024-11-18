@@ -35,8 +35,8 @@
 	{
 		Hotkey, If, (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client)
 		If settings.maptracker.portal_hotkey_old
-			Hotkey, % "~" settings.maptracker.portal_hotkey_old, Maptracker_Reminder, Off
-		Hotkey, % "~" settings.maptracker.portal_hotkey, Maptracker_Reminder, On
+			Hotkey, % "~" Hotkeys_Convert(settings.maptracker.portal_hotkey_old), Maptracker_Reminder, Off
+		Hotkey, % "~" Hotkeys_Convert(settings.maptracker.portal_hotkey), Maptracker_Reminder, On
 		settings.maptracker.portal_hotkey_old := settings.maptracker.portal_hotkey_single := settings.maptracker.portal_hotkey
 		Loop, Parse, % "+!^#"
 			settings.maptracker.portal_hotkey_single := StrReplace(settings.maptracker.portal_hotkey_single, A_LoopField)
@@ -49,7 +49,7 @@
 	settings.maptracker.colors := {}
 	If !IsObject(vars.maptracker)
 		vars.maptracker := {"keywords": [], "mechanics": {"blight": 1, "delirium": 1, "expedition": 1, "legion": 2, "ritual": 2, "harvest": 1, "incursion": 1, "bestiary": 1, "betrayal": 1, "delve": 1, "ultimatum": 1, "maven": 1}}
-	,	vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20240722], ["settlers", 20240726, 20250101]]
+	,	vars.maptracker.leagues := [["crucible", 20230407, 20230815], ["ancestor", 20230818, 20231205], ["affliction", 20231208, 20240401], ["necropolis", 20240329, 20240722], ["settlers", 20240726, 20260101]]
 
 	For mechanic in vars.maptracker.mechanics
 		settings.maptracker[mechanic] := !Blank(check := ini.mechanics[mechanic]) ? check : 0
@@ -543,7 +543,7 @@ Maptracker_GUI(mode := 0)
 	If settings.maptracker.character
 	{
 		If !vars.pics.maptracker.character
-			vars.pics.maptracker.character := LLK_ImageCache("img\GUI\mapping tracker\character.png"), vars.pics.maptracker.character0 := LLK_ImageCache("img\GUI\mapping tracker\character0.png"), 
+			vars.pics.maptracker.character := LLK_ImageCache("img\GUI\mapping tracker\character.png"), vars.pics.maptracker.character0 := LLK_ImageCache("img\GUI\mapping tracker\character0.png"),
 		Gui, %GUI_name%: Add, Pic, % "ys HWNDhwnd hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
 		If vars.log.level
 			vars.hwnd.maptracker.character := hwnd
@@ -588,7 +588,7 @@ Maptracker_Kills()
 		Return
 
 	Clipboard := "/kills"
-	KeyWait, % vars.omnikey.hotkey
+	Omni_Release()
 	KeyWait, LButton
 	WinActivate, ahk_group poe_window
 	WinWaitActive, ahk_group poe_window

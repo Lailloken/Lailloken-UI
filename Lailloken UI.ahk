@@ -77,7 +77,7 @@ Else
 LLK_Log("client is focused")
 
 Init_GUI(), LLK_Log("GUIs initialized")
-SetTimer, Log_Loop, 1000
+SetTimer, Log_Loop, 1500
 
 If (check := LLK_IniRead("ini" vars.poe_version "\config.ini", "versions", "reload settings"))
 {
@@ -420,7 +420,7 @@ Init_general()
 
 	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
 
-	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
+	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png"), "reload": LLK_ImageCache("img\GUI\restart.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
 }
 
 Init_vars()
@@ -1130,9 +1130,9 @@ Startup()
 
 	;get the location of the client.txt file
 	WinGet, poe_log_file, ProcessPath, ahk_group poe_window
-	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\client.txt")
-		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\client.txt"
-	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\kakaoclient.txt"
+	If FileExist(SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\Client.txt")
+		poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\Client.txt"
+	Else poe_log_file := SubStr(poe_log_file, 1, InStr(poe_log_file, "\",, 0)) "logs\Kakaoclient.txt"
 	LLK_Log("game's log-file: " poe_log_file)
 
 	If FileExist(poe_log_file) ;parse client.txt at startup to get basic location info

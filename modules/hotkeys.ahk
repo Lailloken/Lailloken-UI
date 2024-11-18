@@ -22,9 +22,9 @@
 	settings.hotkeys.emergencykey := !Blank(check := ini.hotkeys["emergency hotkey"]) ? check : "space"
 
 	Hotkey, If,
-	Hotkey, % "LWin & " settings.hotkeys.emergencykey, LLK_Restart, On
-	Hotkey, % "RWin & " settings.hotkeys.emergencykey, LLK_Restart, On
- 
+	Hotkey, % "LWin & " Hotkeys_Convert(settings.hotkeys.emergencykey), LLK_Restart, On
+	Hotkey, % "RWin & " Hotkeys_Convert(settings.hotkeys.emergencykey), LLK_Restart, On
+
 	If !settings.hotkeys.omnikey2
 		settings.hotkeys.rebound_c := 0
 	settings.hotkeys.tab := vars.hotkeys.tab := !Blank(check := ini.hotkeys["tab replacement"]) ? check : "tab"
@@ -35,15 +35,15 @@
 			vars.hotkeys.tab := StrReplace(vars.hotkeys.tab, A_LoopField)
 
 	Hotkey, If, settings.maptracker.kills && settings.features.maptracker && (vars.maptracker.refresh_kills = 1)
-	Hotkey, % settings.hotkeys.omnikey, Maptracker_Kills, On
+	Hotkey, % Hotkeys_Convert(settings.hotkeys.omnikey), Maptracker_Kills, On
 
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	If !settings.hotkeys.rebound_c
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey), Omnikey, On
 	Else
 	{
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2, Omnikey, On
-		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey, Omnikey2, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey2), Omnikey, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey), Omnikey2, On
 	}
 
 	For index, val in ["", 2]
@@ -52,14 +52,30 @@
 				vars.omnikey["hotkey" val] := StrReplace(vars.omnikey["hotkey" val], A_LoopField)
 
 	Hotkey, If, (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main)
-	Hotkey, % settings.hotkeys.tab, Cheatsheet_TAB, On
+	Hotkey, % Hotkeys_Convert(settings.hotkeys.tab), Cheatsheet_TAB, On
 
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
-	Hotkey, % settings.hotkeys.tab, Hotkeys_Tab, On
+	Hotkey, % Hotkeys_Convert(settings.hotkeys.tab), Hotkeys_Tab, On
 
 	Hotkey, If, WinExist("ahk_id "vars.hwnd.horizons.main)
 	Loop, Parse, % "abcdefghijklmnopqrstuvwxyz"
-		Hotkey, % "*" A_LoopField, HorizonsTooltip, On
+		Hotkey, % "*" Hotkeys_Convert(A_LoopField), HorizonsTooltip, On
+}
+
+Hotkeys_Convert(key)
+{
+	local
+	static exceptions := ["LButton", "MButton", "RButton", "WheelUp", "WheelDown", "XButton", "Up", "Down", "Left", "Right"], modifiers := ["~", "*", "#", "+", "!", "^"]
+
+	If (StrLen(key) > 1)
+		For index, modifier in modifiers
+			If InStr(key, modifier) && (SubStr(key, 0) != modifier)
+				key := StrReplace(key, modifier,,, 1), append .= modifier
+
+	For index, exception in exceptions
+		If InStr(key, exception)
+			Return append . key
+	Return append "SC0" Format("{:X}", GetKeySC(key))
 }
 
 Hotkeys_ESC()
@@ -358,13 +374,13 @@ SC005::Leveltracker_PobSkilltree("ascendancy 4")
 SC010::Leveltracker_PobSkilltree("prev")
 SC012::Leveltracker_PobSkilltree("next")
 SC011::Leveltracker_PobSkilltree("overview")
-SPACE::Leveltracker_PobSkilltree("reset")
+SC039::Leveltracker_PobSkilltree("reset")
 
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.second) && !vars.sanctum.lock ;last condition needed to make the space-key usable again after initial lock
-*Space::Sanctum("lock")
+*SC039::Sanctum("lock")
 
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.second)
-*LALT::Sanctum("trans")
+*SC038::Sanctum("trans")
 
 #If settings.features.sanctum && vars.sanctum.active && WinExist("ahk_id " vars.hwnd.sanctum.main) && (vars.general.wMouse = vars.hwnd.sanctum.main) && vars.general.cMouse && (check := LLK_HasVal(vars.hwnd.sanctum, vars.general.cMouse))
 *LButton::Sanctum_Mark(SubStr(check, InStr(check, "_") + 1), 1)
@@ -382,13 +398,13 @@ MButton::Stash_PricePicker("reset")
 *SC004::
 *SC005::
 *SC006::
-Space::
-LAlt::
+SC039::
+SC038::
 ~+LButton::
 ~*RButton::Stash_Hotkeys()
 
 #If WinActive("ahk_id " vars.hwnd.poe_client) && vars.stash.enter
-~*Enter::vars.stash.enter := 0, Stash_PricePicker("destroy")
+~*SC01C::vars.stash.enter := 0, Stash_PricePicker("destroy")
 
 #If vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ClientFiller) ;prevent clicking and activating the filler GUI
 *MButton::
@@ -401,7 +417,7 @@ LAlt::
 
 #If vars.hwnd.ocr_tooltip.main && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.ocr_tooltip.main) ;hovering over the ocr tooltip
 *LButton::OCR_Close()
-*Space::
+*SC039::
 *SC002::
 *SC003::
 *SC004::
@@ -409,17 +425,17 @@ LAlt::
 *SC006::OCR_Highlight(A_ThisHotkey)
 
 #If vars.snipping_tool.GUI && WinActive("ahk_id " vars.hwnd.snipping_tool.main)
-*W::
-*A::
-*S::
-*D::
-Space::
+*SC011::
+*SC01E::
+*SC01F::
+*SC020::
+SC039::
 LButton::
 RButton::Screenchecks_ImageRecalibrate(A_ThisHotkey)
 
 #If vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
-~Shift::
-~Shift UP::
+~SC02A::
+~SC02A UP::
 WinSet, TransColor, % "Purple " (InStr(A_ThisHotkey, "UP") ? "255" : 0), % "ahk_id " vars.hwnd.ocr_tooltip.main
 Return
 
@@ -487,7 +503,7 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *SC003::
 *SC004::
 *SC005::
-*Space::Mapinfo_Rank(A_ThisHotkey)
+*SC039::Mapinfo_Rank(A_ThisHotkey)
 
 #If (vars.system.timeout = 0) && settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
 
@@ -506,7 +522,7 @@ MButton::Leveltracker_ScreencapMenu()
 
 #If (vars.tooltip_mouse.name = "searchstring") ;scrolling through sub-strings in search-strings
 
-ESC::
+SC001::
 WheelUp::
 WheelDown::String_Scroll(A_ThisHotkey)
 
@@ -566,7 +582,7 @@ MButton::Cloneframes_Snap(A_ThisHotkey)
 
 #If WinActive("ahk_id "vars.hwnd.snip.main) ;moving the snip-widget via arrow keys
 
-ESC::snipGuiClose()
+SC001::snipGuiClose()
 *Up::
 *Down::
 *Left::
@@ -574,11 +590,11 @@ ESC::snipGuiClose()
 
 #If vars.cheatsheets.tab && vars.hwnd.cheatsheet.main && WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;clearing the cheatsheet quick-access (unused atm)
 
-Space::
+SC039::
 Gui, cheatsheet: Destroy
 vars.hwnd.Delete("cheatsheet")
 vars.cheatsheets.active := ""
-KeyWait, Space
+KeyWait, SC039
 Return
 
 #If vars.general.wMouse && vars.hwnd.cheatsheet.main && (vars.general.wMouse = vars.hwnd.cheatsheet.main) && (vars.cheatsheets.active.type = "advanced") ;ranking things in advanced cheatsheets
@@ -587,14 +603,14 @@ Return
 *SC003::
 *SC004::
 *SC005::
-Space::Cheatsheet_Rank()
+SC039::Cheatsheet_Rank()
 
 #If vars.general.wMouse && vars.hwnd.betrayal_info.main && (vars.general.wMouse = vars.hwnd.betrayal_info.main) ;ranking betrayal rewards
 
 SC002::
 SC003::
 SC004::
-Space::Betrayal_Rank(A_ThisHotkey)
+SC039::Betrayal_Rank(A_ThisHotkey)
 
 #If (vars.cheatsheets.active.type = "image") && vars.hwnd.cheatsheet.main && !vars.cheatsheets.tab && WinExist("ahk_id " vars.hwnd.cheatsheet.main) ;image-cheatsheet hotkeys
 
@@ -602,11 +618,11 @@ Up::
 Down::
 Left::
 Right::
-F1::
-F2::
-F3::
+SC03B::
+SC03C::
+SC03D::
 RButton::
-Space::
+SC039::
 SC002::
 SC003::
 SC004::
@@ -650,6 +666,6 @@ Return
 
 #IfWinActive ahk_group poe_ahk_window
 
-ESC::Hotkeys_ESC()
+SC001::Hotkeys_ESC()
 
 #If
