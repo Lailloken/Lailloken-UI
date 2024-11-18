@@ -601,6 +601,8 @@
 		m_general_build			=	"current build:"
 		m_general_level			=	"lvl"
 		m_general_client		=	"game-client settings:"
+		m_general_client		=	"game-client info:"
+		m_general_logfile		=	"log-file health:"
 		m_general_language		=	"language:"
 		m_general_language		=	"detected language:"
 		m_general_language		=	"not supported"
