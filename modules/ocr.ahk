@@ -38,7 +38,7 @@
 	If settings.features.OCR && !Blank(settings.OCR.hotkey)
 	{
 		Hotkey, IfWinActive, ahk_group poe_ahk_window
-		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR
+		Hotkey, % Hotkeys_Convert("*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey), OCR
 	}
 
 	If IsObject(db.altars)
@@ -551,9 +551,8 @@ OCR_Highlight(hotkey)
 		Return
 
 	hotkey0 := Hotkeys_RemoveModifiers(hotkey)
-	If (SubStr(hotkey0, 1, 2) = "SC") && (check := SubStr(hotkey0, 3))
-		hotkey := IsNumber(check) ? check - 1 : vars.hotkeys.scan_codes[check]
-	Else hotkey := 0
+	hotkey := GetKeyName(hotkey0)
+	hotkey := (hotkey = "space") ? 0 : hotkey
 	cHWND := vars.general.cMouse, check := LLK_HasVal(vars.hwnd.ocr_tooltip, vars.general.cMouse), category := StrReplace(SubStr(check, 1, InStr(check, "_") - 1), ":")
 	mod := (vars.hwnd.ocr_tooltip.type = "altars") ? SubStr(check, InStr(check, "_") + 1) : check, text_cHWND := vars.hwnd.ocr_tooltip[check "_text"]
 	GuiControl, % "+c" settings.OCR.colors[hotkey].2, % cHWND

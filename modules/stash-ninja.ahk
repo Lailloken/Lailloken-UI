@@ -39,7 +39,7 @@
 		{
 			settings.stash.hotkey := !Blank(check := ini.settings.hotkey) ? check : "F2"
 			Hotkey, IfWinActive, ahk_group poe_window
-			Hotkey, % "~" settings.stash.hotkey, Stash_Selection, On
+			Hotkey, % "~" Hotkeys_Convert(settings.stash.hotkey), Stash_Selection, On
 		}
 	}
 	settings.stash.fSize2 := settings.stash.fSize - 3, LLK_FontDimensions(settings.stash.fSize, height, width), LLK_FontDimensions(settings.stash.fSize2, height2, width2)
@@ -223,7 +223,7 @@ Stash(mode, test := 0)
 		{
 			color := (item = vars.stash.hover) ? " c" settings.stash.colors.5 : "", color2 := (item = vars.stash.hover) ? settings.stash.colors.6 : "Black"
 			regex0 := InStr(item, " of ") ? ".*" SubStr(item, InStr(item, " of ") + 4) : item, regex .= (!regex ? "" : "|") . StrReplace(regex0, " ", ".")
-			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "" : "y+-1 ") "xs Section BackgroundTrans Border w" width//2 - wPrices + 1 " h" settings.stash.fHeight2 . color, % " " val "x " item 
+			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "" : "y+-1 ") "xs Section BackgroundTrans Border w" width//2 - wPrices + 1 " h" settings.stash.fHeight2 . color, % " " val "x " item
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Background" color2, 0
 
 			Gui, %GUI_name%: Add, Text, % "ys x+-1 hp BackgroundTrans Border Right w" wPrices, % price_list[item] " "

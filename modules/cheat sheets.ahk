@@ -247,8 +247,7 @@ Cheatsheet_Advanced(name, hotkey := "")
 	{
 		If hotkey
 			KeyWait, % hotkey
-		KeyWait, % vars.omnikey.hotkey
-		KeyWait, % vars.omnikey.hotkey2
+		Omni_Release()
 		If InStr(A_Gui, "cheatsheet_menu")
 			KeyWait, LButton
 		LLK_Overlay(vars.hwnd.cheatsheet.main, "hide")
@@ -287,8 +286,7 @@ Cheatsheet_App(name, hotkey := "")
 		{
 			If hotkey
 				KeyWait, % hotkey
-			KeyWait, % vars.omnikey.hotkey
-			KeyWait, % vars.omnikey.hotkey2
+			Omni_Release()
 			WinActivate, ahk_group poe_window
 			;WinSet, Bottom,, % cheatsheets_apptitle_%parse%
 			WinMinimize, % vars.cheatsheets.list[name].title
@@ -1344,10 +1342,7 @@ Cheatsheet_Rank()
 	global vars, settings
 
 	check := LLK_HasVal(vars.hwnd.cheatsheet, vars.general.cMouse), name := vars.cheatsheets.active.name, control := StrReplace(check, "panel"), entry := vars.cheatsheets.entry
-	hotkey0 := Hotkeys_RemoveModifiers(A_ThisHotkey)
-	If (SubStr(hotkey0, 1, 2) = "SC") && (pCheck := SubStr(hotkey0, 3))
-		hotkey := IsNumber(pCheck) ? pCheck - 1 : vars.hotkeys.scan_codes[pCheck]
-	Else hotkey := hotkey0
+	hotkey0 := Hotkeys_RemoveModifiers(A_ThisHotkey), hotkey := GetKeyName(hotkey0)
 	rank := (hotkey = "space") ? 0 : hotkey
 
 	If InStr(check, "panel")

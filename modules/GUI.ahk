@@ -19,7 +19,7 @@
 	vars.hwnd.LLK_panel.settings := hwnd, style := (orientation = "horizontal") ? "ys" : "xs", style .= " " (orientation = "horizontal" ? " h" height " w" height : " w" height " h" height)
 
 	;Gui, LLK_panel: Margin, % settings.general.fWidth/2, % settings.general.fWidth/2
-	Gui, LLK_panel: Add, Pic, % style " Section Border BackgroundTrans HWNDhwnd0 " (orientation = "horizontal" ? "h" height/2 - 1 " w-1" : "w" height/2 - 1 " h-1"), % "img\GUI\restart.png"
+	Gui, LLK_panel: Add, Pic, % style " Section Border BackgroundTrans HWNDhwnd0 " (orientation = "horizontal" ? "h" height/2 - 1 " w-1" : "w" height/2 - 1 " h-1"), % "HBitmap:*" vars.pics.global.reload
 	Gui, LLK_panel: Add, Progress, % "xp yp wp hp BackgroundBlack cGreen Range0-500 HWNDhwnd01"
 	Gui, LLK_panel: Margin, 0, 0
 	Gui, LLK_panel: Add, Pic, % (orientation = "vertical" ? "ys" : "xs") " Border BackgroundTrans HWNDhwnd " (orientation = "horizontal" ? "h" height/2 - 1 " w-1" : "w" height/2 - 1 " h-1"), % "img\GUI\close.png"
@@ -98,6 +98,7 @@ Gui_ClientFiller(mode := "") ;creates a black full-screen GUI to fill blank spac
 	{
 		WinSet, AlwaysOnTop, On, % "ahk_id " vars.hwnd.poe_client
 		Gui, ClientFiller: Show, % "NA x" vars.monitor.x " y" vars.monitor.y " Maximize"
+		LLK_Overlay(vars.hwnd.ClientFiller, "show",, "ClientFiller")
 		WinWait, % "ahk_id " vars.hwnd.ClientFiller
 		WinSet, AlwaysOnTop, Off, % "ahk_id " vars.hwnd.poe_client
 	}
@@ -548,6 +549,7 @@ LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress
 			GuiControl,, %HWND_bar%, 0 ;reset the progress bar to 0
 			If HWND_control
 				GuiControl, movedraw, %HWND_control% ;redraw the button that was held down (otherwise the progress bar will remain on top of it)
+			KeyWait, % key
 			Return 1
 		}
 		Sleep 20

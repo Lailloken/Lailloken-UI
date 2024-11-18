@@ -580,10 +580,10 @@ Settings_general()
 
 	If vars.log.file_location
 	{
-		dimensions := [Lang_Trans("m_general_character") " ", vars.log.level ? Lang_Trans("m_general_build") " " : ""]
-		LLK_PanelDimensions(dimensions, settings.general.fSize, wChar, hChar,,, 0), wName := settings.general.fWidth2 * 16
+		dimensions := [Lang_Trans("m_general_character"), vars.log.level && settings.features.maptracker && settings.maptracker.character ? Lang_Trans("m_general_build") : ""]
+		LLK_PanelDimensions(dimensions, settings.general.fSize, wChar, hChar,,, 0), wName := settings.general.fWidth2 * 18
 		color := (settings.general.lang_client = "unknown" ? "Gray" : vars.log.level ? "Lime" : settings.general.character ? "Yellow" : "Red")
-		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c" color " w" wChar, % Lang_Trans("m_general_character") " "
+		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd c" color " w" wChar, % Lang_Trans("m_general_character")
 		vars.hwnd.settings.character_text := hwnd
 		If (settings.general.lang_client != "unknown")
 			vars.hwnd.help_tooltips["settings_active character status"] := hwnd
@@ -591,21 +591,25 @@ Settings_general()
 
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName, % LLK_StringCase(settings.general.character)
-		vars.hwnd.settings.character := hwnd
+		ControlGetPos,,,, hEdit,, ahk_id %hwnd%
+
+		Gui, %GUI%: Add, Pic, % "ys x+-1 HWNDhwnd00 gSettings_general2 Border hp-2 w-1", % "HBitmap:*" vars.pics.global.reload
+		vars.hwnd.settings.character := hwnd, vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_active character whois"] := hwnd00
 		If vars.log.level
 		{
-			Gui, %GUI%: Add, Text, % "ys x+-1 HWNDhwnd0 gSettings_general2 Border hp 0x200 Center", % " " vars.log.character_class " (" vars.log.level ") "
+			Gui, %GUI%: Add, Text, % "ys x+-1 HWNDhwnd0 Border hp 0x200 Center", % " " vars.log.character_class " (" vars.log.level ") "
 			ControlGetPos,,, wInfo, hInfo,, ahk_id %hwnd0%
-			vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_ascendancy"] := hwnd0
+			vars.hwnd.help_tooltips["settings_ascendancy"] := hwnd0
 			If settings.features.maptracker && settings.maptracker.character
 			{
 				Gui, %GUI%: Font, % "s"settings.general.fSize
-				Gui, %GUI%: Add, Text, % "Section xs w" wChar, % Lang_Trans("m_general_build") " "
+				Gui, %GUI%: Add, Text, % "Section xs w" wChar, % Lang_Trans("m_general_build")
 				Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-				Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd0" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName + wInfo - 1, % settings.general.build
+				Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd0" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName + wInfo + hEdit - 2, % settings.general.build
 				vars.hwnd.settings.build := hwnd0, vars.hwnd.help_tooltips["settings_active build"] := hwnd0
 			}
 		}
+
 		Gui, %GUI%: Font, % "s"settings.general.fSize
 		If (settings.general.lang_client != "unknown")
 		{
@@ -660,16 +664,19 @@ Settings_general()
 	If !vars.client.stream
 	{
 		Gui, %GUI%: Font, bold underline
-		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_client")
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_client", 2)
 		Gui, %GUI%: Font, norm
-		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd Hidden cRed gSettings_general2", % " " Lang_Trans("global_restart") " "
-		vars.hwnd.settings.apply := hwnd
 
+		Gui, %GUI%: Add, Text, % "ys cLime", % "path of exile " (vars.poe_version ? 2 : 1)
 		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_general_language", 2) " "
 		Gui, %GUI%: Add, Text, % "ys x+0 c" (settings.general.lang_client = "unknown" ? "Red" : "Lime"), % (settings.general.lang_client = "unknown") ? Lang_Trans("m_general_language", 3) : settings.general.lang_client
 
 		If (settings.general.lang_client = "unknown")
+		{
+			Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 			Gui, %GUI%: Add, Text, % "xs Section cRed", % "(some features will not be available)"
+			vars.hwnd.help_tooltips["settings_lang unknown"] := hwnd
+		}
 
 		If !InStr("unknown,english", settings.general.lang_client)
 		{
@@ -678,8 +685,24 @@ Settings_general()
 		}
 
 		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_general_display", 1) " "
-		Gui, %GUI%: Add, Text, % "ys x+0 cAqua HWNDhwnd", % Lang_Trans("m_general_display", (vars.client.fullscreen = "true") ? 2 : !vars.client.borderless ? 3 : 4)
+		Gui, %GUI%: Add, Text, % "ys x+0 cLime HWNDhwnd", % Lang_Trans("m_general_display", (vars.client.fullscreen = "true") ? 2 : !vars.client.borderless ? 3 : 4)
 		vars.hwnd.settings.window_mode := hwnd
+
+		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_general_logfile")
+		red := Min(255, Max(0, vars.log.file_size - 100)), green := 255 - red, rgb := (red < 10 ? "0" : "") . Format("{:X}", red) . (green < 10 ? "0" : "") . Format("{:X}", green) "00"
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd x+0 BackgroundTrans gSettings_general2 c" rgb, % " " Max(0, Round((355-vars.log.file_size)/355*100)) "% (" vars.log.file_size " mb / " vars.log.access_time " ms) "
+		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled BackgroundBlack cRed Vertical Range0-500 HWNDhwnd1", 0
+		If !vars.pics.global.folder
+			vars.pics.global.folder := LLK_ImageCache("img\GUI\folder.png")
+		Gui, %GUI%: Add, Pic, % "ys x+0 hp w-1 Border gSettings_general2 HWNDhwnd2", % "HBitmap:*" vars.pics.global.folder
+		vars.hwnd.settings.logfile := hwnd, vars.hwnd.settings.logfile_bar := vars.hwnd.help_tooltips["settings_logfile"] := hwnd1
+		vars.hwnd.settings.logfolder := vars.hwnd.help_tooltips["settings_logfolder"] := hwnd2
+
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_client")
+		Gui, %GUI%: Font, norm
+		Gui, %GUI%: Add, Text, % "ys Border HWNDhwnd Hidden cRed gSettings_general2", % " " Lang_Trans("global_restart") " "
+		vars.hwnd.settings.apply := hwnd
 
 		Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd", % Lang_Trans("m_general_resolution")
 		vars.hwnd.help_tooltips["settings_force resolution"] := hwnd
@@ -865,6 +888,12 @@ Settings_general2(cHWND := "")
 			KeyWait, LButton
 			Reload
 			ExitApp
+		Case "logfile":
+			If LLK_Progress(vars.hwnd.settings.logfile_bar, "LButton")
+				Log_Backup()
+		Case "logfolder":
+			KeyWait, LButton
+			Run, % "explore " SubStr(vars.log.file_location, 1, InStr(vars.log.file_location, "\",, 0) - 1)
 		Case "custom_width":
 			GuiControl, -Hidden, % vars.hwnd.settings.apply
 			GuiControl, movedraw, % vars.hwnd.settings.apply
@@ -2585,129 +2614,129 @@ Settings_OCR2(cHWND)
 	Switch check
 	{
 		Case "enable":
-		If !settings.OCR.allow
-		{
-			GuiControl,, % cHWND, 0
-			compat_text := OCR("compat")
-			Return
-		}
+			If !settings.OCR.allow
+			{
+				GuiControl,, % cHWND, 0
+				compat_text := OCR("compat")
+				Return
+			}
 
-		settings.features.ocr := LLK_ControlGet(cHWND)
-		IniWrite, % settings.features.ocr, ini\config.ini, Features, enable ocr
-		If !Blank(settings.OCR.hotkey)
-		{
-			Hotkey, IfWinActive, ahk_group poe_window
-			Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey, OCR, % settings.features.OCR ? "On" : "Off"
-		}
-		If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
-			OCR_Close()
-		Settings_menu("tldr-tooltips")
+			settings.features.ocr := LLK_ControlGet(cHWND)
+			IniWrite, % settings.features.ocr, ini\config.ini, Features, enable ocr
+			If !Blank(settings.OCR.hotkey)
+			{
+				Hotkey, IfWinActive, ahk_group poe_window
+				Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . Hotkeys_Convert(settings.OCR.hotkey), OCR, % settings.features.OCR ? "On" : "Off"
+			}
+			If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+				OCR_Close()
+			Settings_menu("tldr-tooltips")
 
 		Case "compat_edit":
-		If settings.OCR.allow
-			Return
-		compat_edit := LLK_ControlGet(vars.hwnd.settings.compat_edit), correct := ""
-		input := [], count := 0
-		Loop, Parse, compat_edit, % A_Space
-			If (StrLen(A_LoopField) > 1) && !LLK_HasVal(input, A_LoopField)
-				input.Push(A_LoopField)
-		For index, word in input
-			If vars.OCR.text_check.HasKey(word)
-				count += 1, correct .= (Blank(correct) ? "" : ", ") word
-		GuiControl, text, % vars.hwnd.settings.compat_correct, % (count >= 8 ? "" : "(" count "/8) ") . Lang_Trans("global_success") ": " (count >= 8 ? Lang_Trans("m_ocr_finish") : correct)
-		If (count < 8)
-			Return
-		Else
-		{
-			settings.OCR.allow := 1
-			IniWrite, 1, ini\ocr.ini, Settings, allow ocr
-		}
+			If settings.OCR.allow
+				Return
+			compat_edit := LLK_ControlGet(vars.hwnd.settings.compat_edit), correct := ""
+			input := [], count := 0
+			Loop, Parse, compat_edit, % A_Space
+				If (StrLen(A_LoopField) > 1) && !LLK_HasVal(input, A_LoopField)
+					input.Push(A_LoopField)
+			For index, word in input
+				If vars.OCR.text_check.HasKey(word)
+					count += 1, correct .= (Blank(correct) ? "" : ", ") word
+			GuiControl, text, % vars.hwnd.settings.compat_correct, % (count >= 8 ? "" : "(" count "/8) ") . Lang_Trans("global_success") ": " (count >= 8 ? Lang_Trans("m_ocr_finish") : correct)
+			If (count < 8)
+				Return
+			Else
+			{
+				settings.OCR.allow := 1
+				IniWrite, 1, ini\ocr.ini, Settings, allow ocr
+			}
 
 		Case "debug":
-		settings.OCR.debug := LLK_ControlGet(cHWND)
-		IniWrite, % settings.OCR.debug, ini\ocr.ini, settings, enable debug
+			settings.OCR.debug := LLK_ControlGet(cHWND)
+			IniWrite, % settings.OCR.debug, ini\ocr.ini, settings, enable debug
 
-		Case "z_hotkey":
-		input := LLK_ControlGet(cHWND)
-		If (StrLen(input) != 1)
-			Loop, Parse, % "+!^#"
-				input := StrReplace(input, A_LoopField)
+			Case "z_hotkey":
+			input := LLK_ControlGet(cHWND)
+			If (StrLen(input) != 1)
+				Loop, Parse, % "+!^#"
+					input := StrReplace(input, A_LoopField)
 
-		If !Blank(input) && GetKeyVK(input)
-		{
-			settings.OCR.z_hotkey := input
-			IniWrite, % input, ini\ocr.ini, settings, toggle highlighting hotkey
-			GuiControl, +cBlack, % cHWND
-		}
-		Else GuiControl, +cRed, % cHWND
+			If !Blank(input) && GetKeyVK(input)
+			{
+				settings.OCR.z_hotkey := input
+				IniWrite, % input, ini\ocr.ini, settings, toggle highlighting hotkey
+				GuiControl, +cBlack, % cHWND
+			}
+			Else GuiControl, +cRed, % cHWND
 
 		Case "hotkey_set":
-		input := LLK_ControlGet(vars.hwnd.settings.hotkey)
-		If (StrLen(input) != 1)
-			Loop, Parse, % "+!^#"
-				input := StrReplace(input, A_LoopField)
+			input := LLK_ControlGet(vars.hwnd.settings.hotkey)
+			If (StrLen(input) != 1)
+				Loop, Parse, % "+!^#"
+					input := StrReplace(input, A_LoopField)
 
-		If LLK_ControlGet(vars.hwnd.settings.hotkey) && (!GetKeyVK(input) || (input = ""))
-		{
-			WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.settings.hotkey
-			LLK_ToolTip(Lang_Trans("m_hotkeys_error"),, x, y + h,, "red")
-			Return
-		}
-		IniWrite, % LLK_ControlGet(vars.hwnd.settings.hotkey_block), ini\ocr.ini, settings, block native key-function
-		IniWrite, % input, ini\ocr.ini, settings, hotkey
-		IniWrite, % "tldr-tooltips", ini\config.ini, versions, reload settings
-		KeyWait, LButton
-		Reload
-		ExitApp
+			If LLK_ControlGet(vars.hwnd.settings.hotkey) && (!GetKeyVK(input) || (input = ""))
+			{
+				WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.settings.hotkey
+				LLK_ToolTip(Lang_Trans("m_hotkeys_error"),, x, y + h,, "red")
+				Return
+			}
+			IniWrite, % LLK_ControlGet(vars.hwnd.settings.hotkey_block), ini\ocr.ini, settings, block native key-function
+			IniWrite, % input, ini\ocr.ini, settings, hotkey
+			IniWrite, % "tldr-tooltips", ini\config.ini, versions, reload settings
+			KeyWait, LButton
+			Reload
+			ExitApp
 
 		Default:
-		If InStr(check, "font")
-		{
-			While GetKeyState("LButton", "P")
+			If InStr(check, "font")
 			{
-				If (control = "reset")
-					settings.OCR.fSize := settings.general.fSize
-				Else settings.OCR.fSize += (control = "minus") ? -1 : 1, settings.OCR.fSize := (settings.OCR.fSize < 6) ? 6 : settings.OCR.fSize
-				GuiControl, text, % vars.hwnd.settings.font_reset, % settings.OCR.fSize
-				Sleep 150
-			}
-			IniWrite, % settings.OCR.fSize, ini\ocr.ini, settings, font-size
-			LLK_FontDimensions(settings.OCR.fSize, height, width), settings.OCR.fWidth := width, settings.OCR.fHeight := height
-		}
-		Else If InStr(check, "color_")
-		{
-			pattern := SubStr(control, 1, 1), type := SubStr(control, 2, 1)
-			color := (vars.system.click = 1) ? RGB_Picker(settings.OCR.colors[pattern][type]) : settings.OCR.dColors[pattern][type]
-			If !Blank(color)
-			{
-				settings.OCR.colors[pattern][type] := color
-				IniWrite, % settings.OCR.colors[pattern].1 "," settings.OCR.colors[pattern].2, ini\ocr.ini, UI, % "pattern " pattern
-				Loop, 2
+				While GetKeyState("LButton", "P")
 				{
-					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_text" A_Index]
-					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_text" A_Index]
-					GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_panel" A_Index]
-					GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+					If (control = "reset")
+						settings.OCR.fSize := settings.general.fSize
+					Else settings.OCR.fSize += (control = "minus") ? -1 : 1, settings.OCR.fSize := (settings.OCR.fSize < 6) ? 6 : settings.OCR.fSize
+					GuiControl, text, % vars.hwnd.settings.font_reset, % settings.OCR.fSize
+					Sleep 150
+				}
+				IniWrite, % settings.OCR.fSize, ini\ocr.ini, settings, font-size
+				LLK_FontDimensions(settings.OCR.fSize, height, width), settings.OCR.fWidth := width, settings.OCR.fHeight := height
+			}
+			Else If InStr(check, "color_")
+			{
+				pattern := SubStr(control, 1, 1), type := SubStr(control, 2, 1)
+				color := (vars.system.click = 1) ? RGB_Picker(settings.OCR.colors[pattern][type]) : settings.OCR.dColors[pattern][type]
+				If !Blank(color)
+				{
+					settings.OCR.colors[pattern][type] := color
+					IniWrite, % settings.OCR.colors[pattern].1 "," settings.OCR.colors[pattern].2, ini\ocr.ini, UI, % "pattern " pattern
+					Loop, 2
+					{
+						GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_text" A_Index]
+						GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_text" A_Index]
+						GuiControl, % "+c" settings.OCR.colors[pattern][A_Index], % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+						GuiControl, % "movedraw", % vars.hwnd.settings["color_" pattern "_panel" A_Index]
+					}
 				}
 			}
-		}
-		Else If (check = "hotkey" || check = "hotkey_block")
-		{
-			setting := LLK_ControlGet(cHWND)
-			If (check = "hotkey")
+			Else If (check = "hotkey" || check = "hotkey_block")
 			{
-				If (StrLen(setting) > 1)
-					Loop, Parse, % "+!^#"
-						setting := StrReplace(setting, A_LoopField)
-				GuiControl, % "+c" (!GetKeyVK(setting) ? "Red" : "Black"), % cHWND
-				GuiControl, movedraw, % cHWND
+				setting := LLK_ControlGet(cHWND)
+				If (check = "hotkey")
+				{
+					If (StrLen(setting) > 1)
+						Loop, Parse, % "+!^#"
+							setting := StrReplace(setting, A_LoopField)
+					GuiControl, % "+c" (!GetKeyVK(setting) ? "Red" : "Black"), % cHWND
+					GuiControl, movedraw, % cHWND
+				}
+				GuiControl, % (setting != settings.OCR[check] ? "-Hidden" : "+Hidden"), % vars.hwnd.settings.hotkey_set
 			}
-			GuiControl, % (setting != settings.OCR[check] ? "-Hidden" : "+Hidden"), % vars.hwnd.settings.hotkey_set
-		}
-		Else LLK_ToolTip("no action: " check)
+			Else LLK_ToolTip("no action: " check)
 
-		If (InStr(check, "color_") || InStr(check, "font")) && vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
-			mode := vars.OCR.last, OCR%mode%()
+			If (InStr(check, "color_") || InStr(check, "font")) && vars.hwnd.ocr_tooltip.main && WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
+				mode := vars.OCR.last, OCR%mode%()
 	}
 }
 
@@ -3435,8 +3464,8 @@ Settings_stash2(cHWND)
 			Else
 			{
 				Hotkey, IfWinActive, ahk_group poe_window
-				Hotkey, % "~" settings.stash.hotkey, Stash_Selection, Off
-				Hotkey, % "~" (settings.stash.hotkey := input0), Stash_Selection, On
+				Hotkey, % "~" Hotkeys_Convert(settings.stash.hotkey), Stash_Selection, Off
+				Hotkey, % "~" Hotkeys_Convert(settings.stash.hotkey := input0), Stash_Selection, On
 				IniWrite, % """" input0 """", ini\stash-ninja.ini, settings, hotkey
 				GuiControl, +cBlack, % vars.hwnd.settings.hotkey
 				GuiControl, movedraw, % vars.hwnd.settings.hotkey
@@ -3601,7 +3630,7 @@ Settings_updater()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "Section xs y+"vars.settings.spacing, % Lang_Trans("m_updater_version")
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Pic, % "ys hp w-1 Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % "img\GUI\restart.png"
+	Gui, %GUI%: Add, Pic, % "ys hp w-1 Center Border BackgroundTrans HWNDhwnd gSettings_updater2", % "HBitmap:*" vars.pics.global.reload
 	vars.hwnd.settings.update_refresh := hwnd, LLK_PanelDimensions([Lang_Trans("m_updater_version", 2), Lang_Trans("m_updater_version", 3)], settings.general.fSize, width, height)
 
 	Gui, %GUI%: Add, Text, % "Section xs w" width, % Lang_Trans("m_updater_version", 2)
