@@ -35,8 +35,8 @@
 	{
 		Hotkey, If, (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client)
 		If settings.maptracker.portal_hotkey_old
-			Hotkey, % Hotkeys_Convert("~" settings.maptracker.portal_hotkey_old), Maptracker_Reminder, Off
-		Hotkey, % Hotkeys_Convert("~" settings.maptracker.portal_hotkey), Maptracker_Reminder, On
+			Hotkey, % "~" Hotkeys_Convert(settings.maptracker.portal_hotkey_old), Maptracker_Reminder, Off
+		Hotkey, % "~" Hotkeys_Convert(settings.maptracker.portal_hotkey), Maptracker_Reminder, On
 		settings.maptracker.portal_hotkey_old := settings.maptracker.portal_hotkey_single := settings.maptracker.portal_hotkey
 		Loop, Parse, % "+!^#"
 			settings.maptracker.portal_hotkey_single := StrReplace(settings.maptracker.portal_hotkey_single, A_LoopField)

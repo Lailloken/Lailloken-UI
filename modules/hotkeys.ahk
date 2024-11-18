@@ -39,11 +39,11 @@
 
 	Hotkey, IfWinActive, ahk_group poe_ahk_window
 	If !settings.hotkeys.rebound_c
-		Hotkey, % Hotkeys_Convert((!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey), Omnikey, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey), Omnikey, On
 	Else
 	{
-		Hotkey, % Hotkeys_Convert((!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey2), Omnikey, On
-		Hotkey, % Hotkeys_Convert((!settings.hotkeys.omniblock ? "*~" : "*") settings.hotkeys.omnikey), Omnikey2, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey2), Omnikey, On
+		Hotkey, % (!settings.hotkeys.omniblock ? "*~" : "*") . Hotkeys_Convert(settings.hotkeys.omnikey), Omnikey2, On
 	}
 
 	For index, val in ["", 2]

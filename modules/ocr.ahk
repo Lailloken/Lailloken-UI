@@ -38,7 +38,7 @@
 	If settings.features.OCR && !Blank(settings.OCR.hotkey)
 	{
 		Hotkey, IfWinActive, ahk_group poe_ahk_window
-		Hotkey, % Hotkeys_Convert("*" (settings.OCR.hotkey_block ? "" : "~") . settings.OCR.hotkey), OCR
+		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . Hotkeys_Convert(settings.OCR.hotkey), OCR
 	}
 
 	If IsObject(db.altars)
