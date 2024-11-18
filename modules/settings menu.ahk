@@ -591,10 +591,14 @@ Settings_general()
 
 		Gui, %GUI%: Font, % "s"settings.general.fSize - 4
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName, % LLK_StringCase(settings.general.character)
-		ControlGetPos,,,, hEdit,, ahk_id %hwnd%
+		ControlGetPos,,,, hEdit,, % "ahk_id " (vars.hwnd.settings.character := hwnd)
 
-		Gui, %GUI%: Add, Pic, % "ys x+-1 HWNDhwnd00 gSettings_general2 Border hp-2 w-1", % "HBitmap:*" vars.pics.global.reload
-		vars.hwnd.settings.character := hwnd, vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_active character whois"] := hwnd00
+		If settings.general.character
+		{
+			Gui, %GUI%: Add, Pic, % "ys x+-1 HWNDhwnd00 gSettings_general2 Border hp-2 w-1", % "HBitmap:*" vars.pics.global.reload
+			vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_active character whois"] := hwnd00
+		}
+
 		If vars.log.level
 		{
 			Gui, %GUI%: Add, Text, % "ys x+-1 HWNDhwnd0 Border hp 0x200 Center", % " " vars.log.character_class " (" vars.log.level ") "
@@ -848,12 +852,7 @@ Settings_general2(cHWND := "")
 			ControlGet, hwnd, HWND,, % hwnd
 			If !InStr(vars.hwnd.settings.character "," vars.hwnd.settings.build, hwnd) || char_wait
 				Return
-			parse := LLK_StringCase(LLK_ControlGet(hwnd)), parse := InStr(parse, " (") ? SubStr(parse, 1, InStr(parse, " (") - 1) : parse
-			While (SubStr(parse, 1, 1) = " ")
-				parse := SubStr(parse, 2)
-			While (SubStr(parse, 0) = " ")
-				parse := SubStr(parse, 1, -1)
-			GuiControl,, % hwnd, % parse
+			parse := LLK_StringCase(LLK_ControlGet(hwnd)), parse := Trim(parse, " ")
 			key := LLK_HasVal(vars.hwnd.settings, hwnd)
 			If (parse = settings.general[key])
 				Return

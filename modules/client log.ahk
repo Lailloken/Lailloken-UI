@@ -74,13 +74,12 @@ Log_Backup()
 		MsgBox, % "Backup failed:`nCannot close the game-client."
 		Return
 	}
-	LLK_Overlay(vars.hwnd.settings.main, "hide")
 	file := StrReplace(vars.log.file_location, "client.txt", "Client (old).txt")
 	For index, loop in ["Loop", "Log_Loop", "Loop_main"]
 		SetTimer, % loop, Delete
 	LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), LLK_Overlay(vars.hwnd.ClientFiller, "destroy")
 	Sleep 1000
-	vars.log.file.Close()
+	LLK_Overlay("hide"), vars.log.file.Close()
 	LLK_ToolTip("copying...", 0, vars.monitor.x + vars.client.xc, vars.monitor.y + vars.client.yc,, "Yellow",,,, 1)
 
 	If !FileExist(file)
