@@ -369,6 +369,10 @@
       "type in a key-name and press <enter>",
       "don't bind it to keys used for chatting"
     ],
+    "lootfilter enable": [
+      "provides an interface to modify your lootfilter and apply changes on the fly",
+      "shift-omni-click items to access it"
+    ],
     "maptracker enable": [
       "provides automated tracking of your map runs, and a log viewer with export tools",
       "tracks map-times, deaths, portals, loot, kills, and certain types of side-content"
@@ -859,9 +863,47 @@
       "press <space> to move the tree's starting point (white circle) to the cursor's position"
     ]
   },
+  "lootfilter": {
+    "add stack": [
+      "enter a stack size, then click this label to add a custom stack rule for this base type"
+    ],
+    "apply mods": [
+      "long-click to create and apply the new file",
+      "(/underline)note: the /itemfilter in-game command will be used, so make sure the chat box is closed and accessible"
+    ],
+    "basefilter": [
+      "select the filter you want to use as the base",
+      "a separate file with your customizations will be created and then applied in game, leaving the base filter unchanged"
+    ],
+    "hide": [
+      "hide the entire item-group in game"
+    ],
+    "incompatible": [
+      "some modifications no longer apply to the new base filter and will be discarded after applying the updates",
+      "this usually means that the new base filter no longer has a specific rule you toggled previously"
+    ],
+    "modifications": [
+      "list of modifications currently applied/pending: long-click this header panel to clear the whole list",
+      "(shift-)click an item name to search for the base type(s), right-click to remove it"
+    ],
+    "refresh": [
+      "reload the folder's contents, selected base filter, and modded filter",
+      "(/underline)note: unsaved changes will be lost"
+    ],
+    "revert": [
+      "revert every modification in this group"
+    ],
+    "search": [
+      "type in item base types and press <enter> to search for existing rules: supports regex, and comma-separation for multi-searches",
+      "you can also (shift-)omni-click items in game to search for the base type(s)"
+    ],
+    "search reset": [
+      "clear the current search"
+    ]
+  },
   "maptracker": {
     "logviewer day-select": [
-      "click to open the date selection: shows a breakdown of logged map runs",
+      "open the date selection: shows a breakdown of logged map runs",
       "the current search-filter will affect the available dates"
     ],
     "logviewer date help": [

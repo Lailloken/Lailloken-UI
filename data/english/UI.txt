@@ -20,11 +20,8 @@
 
 
 ;## some notation remarks
-	;## AutoHotkey-specific:
-		;## in order to add ampersands (&) to a string, include double ampersands in the value, e.g. key = "this && that"
-	;## custom notations:
-		;## in order to add line-breaks to a string, include ";" in the value, e.g. "line 1;line2"
-		;## I use <> as a replacement for quotation marks because they look better when using Fontin Smallcaps
+	;## in order to add line-breaks to a string, include ";" in the value, e.g. "line 1;line2"
+	;## I often use <> as a replacement for quotation marks because they look better when using Fontin Smallcaps
 
 
 ;## case-sensitivity
@@ -62,6 +59,7 @@
 		ms_cheat-sheets			=	"cheat-sheets"
 		ms_clone-frames			=	"clone-frames"
 		ms_donations			=	"donations"
+		ms_filterspoon			=	"filterspoon"
 		ms_hotkeys			=	"hotkeys"
 		ms_item-info			=	"item-info"
 		ms_leveling tracker		=	"act-tracker"
@@ -124,7 +122,7 @@
 		global_image			=	"img"
 		global_save			=	"save"
 		global_discard			=	"discard"
-		global_restart			=	"apply && restart"
+		global_restart			=	"apply & restart"
 		global_imgfolder		=	"open img folder"
 		global_newentry			=	"add entry:"
 		global_savedentry		=	"saved entries:"
@@ -157,7 +155,7 @@
 		global_variance			=	"variance (0-255)"
 		global_hotkey			=	"hotkey:"
 		global_panelsize		=	"panel-size:"
-		global_uisize			=	"ui-size:"
+		global_uisize			=	"ui size:"
 		global_auto			=	"auto"
 		global_price			=	"price"
 		global_all			=	"all"
@@ -172,6 +170,12 @@
 		global_start			=	"start"
 		global_cancel			=	"cancel"
 		global_downloading		=	"downloading..."
+		global_search			=	"search:"
+		global_toggle			=	"toggle"
+		global_hide			=	"hide"
+		global_revert			=	"revert"
+		global_apply			=	"apply"
+		global_apply			=	"apply changes"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -262,7 +266,6 @@
 		cheat_dynamic			=	"dynamic"
 		cheat_activation		=	"activation:"
 		cheat_hold			=	"hold"
-		cheat_toggle			=	"toggle"
 		cheat_manage			=	"manage image-files:"
 		cheat_title			=	"window title:"
 		cheat_launch			=	"if the window is not found,;launch this app instead:"
@@ -345,6 +348,19 @@
 
 
 ;#####################################################
+;## lootfilter / filterspoon
+;#####################################################
+
+;## these strings are displayed/required when using the lootfilter / filterspoon feature
+		lootfilter_basefilter		=	"filter:"
+		lootfilter_modifications	=	"current modifications:"
+		lootfilter_unsaved		=	"long-press to discard"
+		lootfilter_update		=	"apply base filter updates"
+		lootfilter_addstack		=	"add stack:"
+
+
+
+;#####################################################
 ;## mapping tracker
 ;#####################################################
 
@@ -381,7 +397,6 @@
 		maptracker_notes		=	"notes"
 		maptracker_character		=	"character"
 		maptracker_content		=	"content"		;## refers to map-content (league-mechanics, side-areas, etc.)
-		maptracker_search		=	"search:"
 
 ;## these strings are displayed in the sum/average tooltips (while long-clicking colored cells in the Σ row)
 		maptracker_sum			=	"sum"
@@ -665,7 +680,7 @@
 
 ;## these strings are displayed/required in the "betrayal-info" section of the settings menu
 		m_betrayal_enable		=	"enable the betrayal-info overlay"
-		m_betrayal_ruthless		=	"ruthless rewards && highlighting"	;## it's a toggle to switch between regular and ruthless rewards
+		m_betrayal_ruthless		=	"ruthless rewards & highlighting"	;## it's a toggle to switch between regular and ruthless rewards
 		m_betrayal_recognition		=	"image-recognition:"
 		m_betrayal_colors		=	"reward-colors:"
 		m_betrayal_rewards		=	"reward customization:"
@@ -749,7 +764,7 @@
 		m_iteminfo_modrolls		=	"hide roll-ranges on explicit mods"
 		m_iteminfo_shift		=	"shift-clicking activates item-info"
 		m_iteminfo_league		=	"enable league-start mode"
-		m_iteminfo_base			=	"show && compare item's base-stats"		;## base-stats as in armor, evasion, ES, attack-speed, phys/ele dmg
+		m_iteminfo_base			=	"show & compare item's base-stats"		;## base-stats as in armor, evasion, ES, attack-speed, phys/ele dmg
 		m_iteminfo_ilvl			=	"display item-lvl requirements"
 		m_iteminfo_highlight		=	"highlight customization:"
 		m_iteminfo_fractured		=	"fr"						;## this abbreviation for "fractured" should always have a length of 2 (max 3 if really necessary)
@@ -765,10 +780,19 @@
 
 
 ;#####################################################
+;## settings menu: filterspoon
+;#####################################################
+
+;## these strings are displayed/required in the "filterspoon" section of the settings menu
+		m_lootfilter_enable		=	"enable the filterspoon feature (experimental)"
+
+
+
+;#####################################################
 ;## settings menu: leveling tracker / act-tracker
 ;#####################################################
 
-;## these strings are displayed/required in the "leveling tracker / act-tracker" section of the settings menu
+;## these strings are displayed/required in the "act-tracker" section of the settings menu
 		m_lvltracker_enable		=	"enable the act-tracker feature"
 		m_lvltracker_timer		=	"enable timer"
 		m_lvltracker_pause		=	"pause timer in hideouts"
@@ -802,7 +826,7 @@
 		m_maptracker_mapinfo		=	"map-info data"					;## option to include data from the map-info feature
 		m_maptracker_notes		=	"notes"						;## option to add notes to map runs
 		m_maptracker_sidearea		=	"side-areas"
-		m_maptracker_rename		=	"tag && rename boss maps"			;## adds a "boss:"-tag to logged map-runs
+		m_maptracker_rename		=	"tag & rename boss maps"			;## adds a "boss:"-tag to logged map-runs
 		m_maptracker_character		=	"character/build info"
 		m_maptracker_content		=	"track atlas mechanics"
 		m_maptracker_dialogue		=	"–> dialogue tracking:"				;## tracking is done via in-game dialogue in the chat-box
