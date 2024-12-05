@@ -103,6 +103,7 @@ Return
 #Include modules\item-checker.ahk
 #Include modules\languages.ahk
 #Include modules\leveling tracker.ahk
+#Include modules\lootfilter.ahk
 #Include modules\map-info.ahk
 #Include modules\map tracker.ahk
 #Include modules\ocr.ahk
@@ -417,10 +418,10 @@ Init_general()
 	LLK_FontDimensions(settings.general.fSize - 4, font_height, font_width), settings.general.fHeight2 := font_height, settings.general.fWidth2 := font_width
 	settings.features.browser := !Blank(check := ini.settings["enable browser features"]) ? check : 1
 	settings.features.sanctum := !Blank(check := ini.features["enable sanctum planner"]) ? check : 0
-
+	settings.features.lootfilter := !Blank(check := ini.features["enable filterspoon"]) ? check : 0
 	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
 
-	vars.pics := {"global": {"help": LLK_ImageCache("img\GUI\help.png"), "reload": LLK_ImageCache("img\GUI\restart.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
+	vars.pics := {"global": {"close": LLK_ImageCache("img\GUI\close.png"), "help": LLK_ImageCache("img\GUI\help.png"), "reload": LLK_ImageCache("img\GUI\restart.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
 }
 
 Init_vars()
@@ -718,6 +719,15 @@ LLK_StringCase(string, mode := 0, title := 0)
 	Return string
 }
 
+LLK_StringCompare(string, needles)
+{
+	local
+
+	For index, needle in needles
+		If !Blank(needle) && (SubStr(string, 1, StrLen(needle)) = needle)
+			Return 1
+}
+
 LLK_StringRemove(string, characters)
 {
 	local
@@ -803,6 +813,10 @@ Loop_main()
 		Gui, skilltree_schematics: Show, % "NA x" (vars.leveltracker.skilltree_schematics.xPos := vars.general.xMouse - vars.leveltracker.skilltree_schematics.offsets.1) " y" (vars.leveltracker.skilltree_schematics.yPos := vars.general.yMouse - vars.leveltracker.skilltree_schematics.offsets.2)
 	If Mod(tick, 2)
 		Return
+
+	If !vars.general.drag && vars.hwnd.lootfilter.main && WinActive("ahk_id " vars.hwnd.lootfilter.main) && (vars.general.wMouse = vars.hwnd.poe_client)
+		&& !LLK_IsBetween(vars.general.xMouse, vars.lootfilter.xPos, vars.lootfilter.xPos + vars.lootfilter.width)
+		WinActivate, % "ahk_id " vars.hwnd.poe_client
 
 	If vars.cloneframes.editing && (vars.settings.active != "clone-frames") ;in case the user closes the settings menu without saving changes, reset clone-frames settings to previous state
 	{
@@ -926,7 +940,7 @@ Loop_main()
 	tick_helptooltips += 1
 	If !Mod(tick_helptooltips, 3) || check_help
 	{
-		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square") || check = "donation" && vars.settings.donations[control].2.Count()) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
+		If check_help && (vars.general.active_tooltip != vars.general.cMouse) && (database[check][control].Count() || InStr(control, "update changelog") || check = "lab" && !(vars.lab.mismatch || vars.lab.outdated) && InStr(control, "square") || check = "donation" && vars.settings.donations[control].2.Count() || check = "lootfilter" && InStr(control, "tooltip")) && !WinExist("ahk_id "vars.hwnd.screencheck_info.main)
 			Gui_HelpToolTip(check_help)
 		Else If (vars.general.drag || !check_help || WinExist("ahk_id "vars.hwnd.screencheck_info.main)) && WinExist("ahk_id "vars.hwnd.help_tooltips.main)
 			LLK_Overlay(vars.hwnd.help_tooltips.main, "destroy"), vars.general.active_tooltip := "", vars.hwnd.help_tooltips.main := ""
