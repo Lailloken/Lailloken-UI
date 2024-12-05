@@ -87,6 +87,8 @@ Hotkeys_ESC()
 		Cloneframes_SettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
 	Else If vars.leveltracker.skilltree_schematics.GUI
 		Leveltracker_PobSkilltree("close")
+	Else If WinExist("ahk_id " vars.hwnd.lootfilter.main)
+		Lootfilter_GUI("close")
 	Else If WinExist("ahk_id " vars.hwnd.recombination.main)
 	{
 		LLK_Overlay(vars.hwnd.recombination.main, "destroy"), vars.hwnd.recombination.main := ""

@@ -93,6 +93,19 @@
 				HorizonsTooltip("shaper")
 				Omni_Release()
 				LLK_Overlay(vars.hwnd.horizons.main, "destroy")
+			Case "lootfilter":
+				If !IsObject(vars.lootfilter)
+					Init_lootfilter()
+				input := LLK_ControlGet(vars.hwnd.lootfilter.search), item := vars.omnikey.item, shift := GetKeyState("Shift", "P")
+				If !InStr(input, """" (item.itembase ? item.itembase : item.name) """") || !shift && InStr(input, ",")
+				{
+					If shift && !Blank(input)
+						input .= ", """ LLK_StringCase(item.itembase ? item.itembase : item.name) """"
+					Else input := """" LLK_StringCase(item.itembase ? item.itembase : item.name) """"
+					If WinExist("ahk_id " vars.hwnd.lootfilter.main)
+						GuiControl,, % vars.hwnd.lootfilter.search, % input
+					Lootfilter_GUI("search", "dock_" (vars.general.xMouse >= vars.monitor.x + vars.client.xc ? "1" : "2"))
+				}
 			Case "mapinfo":
 				If Mapinfo_Parse()
 					Mapinfo_GUI()
@@ -210,6 +223,8 @@ Omni_Context(mode := 0)
 	While (!settings.features.stash || GetKeyState("ALT", "P")) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "essences"
+	If settings.features.lootfilter && (item.name || item.itembase) && (WinExist("ahk_id " vars.hwnd.lootfilter.main) || GetKeyState("Shift", "P"))
+		Return "lootfilter"
 	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
 		Return "recombination"
 	If WinExist("ahk_id "vars.hwnd.legion.main) && (item.itembase = "Timeless Jewel")

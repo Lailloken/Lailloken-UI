@@ -66,7 +66,7 @@ Log_Backup()
 {
 	local
 	global vars, settings
-	
+
 	WinClose, % "ahk_id " vars.hwnd.poe_client
 	WinWaitClose, % "ahk_id " vars.hwnd.poe_client,, 3
 	If WinExist("ahk_id " vars.hwnd.poe_client)
@@ -113,7 +113,8 @@ Log_Backup()
 	}
 	Else
 	{
-		source_file := FileOpen(vars.log.file_location, "r", "UTF-8"), dest_file := FileOpen(file, "a", "UTF-8"), max_pointer := source_file.Length
+		source_file := FileOpen(vars.log.file_location, "r", "UTF-8"), dest_file := FileOpen(file, "r", "UTF-8"), dest_file.Seek(-1 * Min(512000, dest_file.Length), 2)
+		dest_overlap := dest_file.Read(), dest_overlap := SubStr(dest_overlap, InStr(dest_overlap, "`n") + 1), dest_file.Seek(0, 2)
 		If !IsObject(source_file) || !IsObject(dest_file)
 		{
 			LLK_Overlay(vars.hwnd.tooltip1, "destroy")
@@ -122,7 +123,19 @@ Log_Backup()
 		}
 		Loop
 		{
-			log_read := source_file.Read(10 * 1024000), dest_file.Write(log_read)
+			log_read := source_file.Read(10 * 1024000)
+			Loop, Parse, log_read, `n, `r
+			{
+				If (A_Index = 1)
+					log_read := ""
+				date := SubStr(A_LoopField, 1, InStr(A_LoopField, " ",,, 2) - 1), date := StrReplace(StrReplace(StrReplace(date, " "), "/"), ":")
+				If (date < prev_date)
+					Continue
+				prev_date := date
+				If !InStr(dest_overlap, A_LoopField)
+					log_read .= A_LoopField "`r`n"
+			}
+			dest_file.Write(log_read)
 			If source_file.AtEOF
 				Break
 		}
@@ -196,8 +209,13 @@ Log_Loop(mode := 0)
 			Alarm("", "", vars.alarm.toggle ? "" : expired)
 	}
 
+	If vars.log.file_location ;for the unlikely event where the user manually deletes the client.txt while the tool is still running
+		If IsObject(vars.log.file) && !FileExist(vars.log.file_location)
+			vars.log.file.Close(), vars.log.file := ""
+		Else If !IsObject(vars.log.file) && FileExist(vars.log.file_location)
+			vars.log.file := FileOpen(vars.log.file_location, "a", "UTF-8")
 	guide := vars.leveltracker.guide ;short-cut variable
-	If !WinActive("ahk_group poe_ahk_window") || !vars.log.file_location || !WinExist("ahk_group poe_window")
+	If !WinActive("ahk_group poe_ahk_window") || !vars.log.file_location || !WinExist("ahk_group poe_window") || !FileExist(vars.log.file_location)
 		Return
 
 	If IsObject(vars.maptracker)

@@ -669,7 +669,7 @@ Iteminfo_Mods()
 				compare.items[loop][key] := %key%_%loop%
 				If (%key% = "")
 				{
-					%key% := 0  ;if the looted item doesn't have this stat, set its variable to 0
+					%key% := 0 ;if the looted item doesn't have this stat, set its variable to 0
 					compare.items.0[key] := 0
 				}
 				stats_equipped_%loop% .= key "," ;list stats that are present on the item

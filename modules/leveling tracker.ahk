@@ -2079,7 +2079,7 @@ Leveltracker_Skilltree(index := 0)
 		Gui, %GUI_name_skilltree%: Show, % "NA x10000 y10000"
 		WinGetPos, x, y, w, h, % "ahk_id "vars.hwnd.leveltracker_skilltree.main
 		Gui, %GUI_name_skilltree%: Show, % "NA x"vars.client.x " y" vars.monitor.y + vars.client.yc - h//2
-          skilltree.x := x, skilltree.y := y, skilltree.w := w, skilltree.h := h
+		skilltree.x := x, skilltree.y := y, skilltree.w := w, skilltree.h := h
 		LLK_Overlay(leveltracker_skilltree, "show",, GUI_name_skilltree), LLK_Overlay(hwnd_old, "destroy")
 
 		If Blank(A_Gui) && skilltree.files_lab.Count()

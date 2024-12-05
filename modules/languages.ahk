@@ -110,7 +110,7 @@ Lang_Load(file)
 	array := []
 	Loop, Parse, % StrReplace(LLK_FileRead("data\" file, 1, "65001"), "`t"), `n, `r
 	{
-		line := A_LoopField
+		line := StrReplace(A_LoopField, "&", "&&")
 		While (SubStr(line, 1, 1) = " ")
 			line := SubStr(line, 2)
 		While (SubStr(line, 0) = " ")
