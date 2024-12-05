@@ -778,7 +778,7 @@ Maptracker_Logs(mode := "")
 			Gui, %GUI_name%: Font, % "s" settings.maptracker.fSize2 - (InStr("time,e-exp", header) ? 0 : 4)
 			If (header = "time")
 			{
-				Gui, %GUI_name%: Add, Text, % "ys Section BackgroundTrans Right w" width - hEdit*2 - settings.maptracker.fWidth2//2 " h" hEdit . (keywords ? " cLime" : ""), % Lang_Trans("maptracker_search")
+				Gui, %GUI_name%: Add, Text, % "ys Section BackgroundTrans Right w" width - hEdit*2 - settings.maptracker.fWidth2//2 " h" hEdit . (keywords ? " cLime" : ""), % Lang_Trans("global_search")
 				Gui, %GUI_name%: Add, Pic, % "ys w" hEdit " h-1 BackgroundTrans HWNDhwnd2 x+" settings.maptracker.fWidth2//4, % "HBitmap:*" vars.pics.global.help
 				Gui, %GUI_name%: Add, Text, % "ys w" hEdit " Border BackgroundTrans Center gMaptracker_Logs2 HWNDhwnd1 cRed 0x200 x+" settings.maptracker.fWidth2//4, % "X"
 				vars.hwnd.maptracker_logs.filter_reset := hwnd1, vars.hwnd.help_tooltips["maptracker_logviewer search"] := hwnd2

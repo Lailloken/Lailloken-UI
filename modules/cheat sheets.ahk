@@ -769,8 +769,8 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize
 	Gui, %GUI_name%: Add, Text, % "Section xs cSilver Center HWNDhwnd0", % "activation:"
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 4
-	LLK_PanelDimensions([Lang_Trans("cheat_hold"), Lang_Trans("cheat_toggle")], settings.general.fSize - 4, width, height,,, 1)
-	Gui, %GUI_name%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheet_Menu2 AltSubmit HWNDhwnd", % StrReplace(Lang_Trans("cheat_hold") "|" Lang_Trans("cheat_toggle") "|", Lang_Trans("cheat_" vars.cheatsheets.list[name].activation) "|", Lang_Trans("cheat_" vars.cheatsheets.list[name].activation) "||")
+	LLK_PanelDimensions([Lang_Trans("cheat_hold"), Lang_Trans("global_toggle")], settings.general.fSize - 4, width, height,,, 1)
+	Gui, %GUI_name%: Add, DDL, % "ys w" width + settings.general.fWidth " hp r2 gCheatsheet_Menu2 AltSubmit HWNDhwnd", % StrReplace(Lang_Trans("cheat_hold") "|" Lang_Trans("global_toggle") "|", Lang_Trans("cheat_" vars.cheatsheets.list[name].activation) "|", Lang_Trans("cheat_" vars.cheatsheets.list[name].activation) "||")
 	vars.hwnd.help_tooltips["cheatsheets_menu activation"] := hwnd0, vars.hwnd.cheatsheet_menu.activation := vars.hwnd.help_tooltips["cheatsheets_menu activation|"] := hwnd
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize
 

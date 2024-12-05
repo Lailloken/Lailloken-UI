@@ -131,12 +131,14 @@ Gui_HelpToolTip(HWND_key)
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	If (check = "donation")
 		check := "settings", donation := 1
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "leveltrackerschematics": "skilltree_schematics", "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
+	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "leveltrackerschematics": "skilltree_schematics", "lootfilter": 0, "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]][(check = "leveltrackerschematics") ? "info" : "main"]
 	If (check = "lab" && InStr(control, "square"))
 		vars.help.lab[control] := [vars.lab.compass.rooms[StrReplace(control, "square")].name], vars.help.lab[control].1 .= (vars.help.lab[control].1 = vars.lab.room.2) ? " (" Lang_Trans("lab_movemarker") ")" : ""
-	database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
+	If (check = "lootfilter" && InStr(control, "tooltip"))
+		database := vars.lootfilter.filter, lootfilter := 1
+	Else database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
 
 	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
 	If !tooltip_width
@@ -150,6 +152,15 @@ Gui_HelpToolTip(HWND_key)
 	hwnd_old := vars.hwnd.help_tooltips.main, vars.hwnd.help_tooltips.main := tooltip, vars.general.active_tooltip := vars.general.cMouse
 
 	;LLK_PanelDimensions(vars.help[check][control], settings.general.fSize, width, height,,, 0)
+	If lootfilter
+	{
+		target_array := Lootfilter_ChunkCompare(database[StrReplace(control, "tooltip ")],,, lootfilter_chunk), target_array := StrSplit(lootfilter_chunk, "`n", "`r`t")
+		Loop, % (count := target_array.Count())
+			If LLK_StringCompare(target_array[count - (A_Index - 1)], ["class", "#"])
+				target_array.RemoveAt(count - (A_Index - 1))
+	}
+	Else target_array := (donation ? database[control].2 : database[check][control])
+
 	If InStr(control, "update changelog")
 		For index0, val in vars.updater.changelog
 		{
@@ -164,19 +175,22 @@ Gui_HelpToolTip(HWND_key)
 				}
 		}
 	Else
-		For index, text in (donation ? database[control].2 : database[check][control])
+		For index, text in target_array
 		{
 			font := InStr(text, "(/bold)") ? "bold" : "", font .= InStr(text, "(/underline)") ? (font ? " " : "") "underline" : "", font := !font ? "norm" : font
 			Gui, %GUI_name%: Font, % font
 			Gui, %GUI_name%: Add, Text, % "x0 y-1000 Hidden w"tooltip_width - settings.general.fWidth, % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
 			Gui, %GUI_name%: Add, Text, % (A_Index = 1 ? "Section x0 y0" : "Section xs") " Border BackgroundTrans hp+"settings.general.fWidth " w"tooltip_width, % ""
-			Gui, %GUI_name%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)")
+			Gui, %GUI_name%: Add, Text, % "Center xp+"settings.general.fWidth/2 " yp+"settings.general.fWidth/2 " w"tooltip_width - settings.general.fWidth (vars.lab.room.2 && InStr(text, vars.lab.room.2) ? " cLime" : ""), % LLK_StringCase(StrReplace(StrReplace(StrReplace(text, "&", "&&"), "(/underline)"), "(/bold)"))
 		}
+
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h + 1
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h
+	If (check = "lootfilter")
+		yPos := vars.lootfilter.yPos - height, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (InStr("maptracker", check) ? height - 1 : 0) : yPos)
-	LLK_Overlay(tooltip, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
+	LLK_Overlay(tooltip, (width < 10) ? "hide" : "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
 }
 
 Gui_Name(GuiHWND)
@@ -253,7 +267,7 @@ Gui_ToolbarButtons(cHWND, hotkey)
 		{
 			If GetKeyState(vars.hotkeys.tab, "P")
 			{
-				LLK_ToolTip(Lang_Trans("global_releasekey") " "  vars.hotkeys.tab, 10000)
+				LLK_ToolTip(Lang_Trans("global_releasekey") " " vars.hotkeys.tab, 10000)
 				KeyWait, % vars.hotkeys.tab
 			}
 			ExitApp
@@ -536,7 +550,7 @@ LLK_PanelDimensions(array, fSize, ByRef width, ByRef height, align := "left", he
 		height += 1
 }
 
-LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress bar, key = key that is held down to fill the progress bar, HWND_control = HWND of the button (to undo clipping)
+LLK_Progress(HWND_bar, key, HWND_control := "", key_wait := 1) ;HWND_bar = HWND of the progress bar, key = key that is held down to fill the progress bar, HWND_control = HWND of the button (to undo clipping)
 {
 	local
 
@@ -549,7 +563,8 @@ LLK_Progress(HWND_bar, key, HWND_control := "") ;HWND_bar = HWND of the progress
 			GuiControl,, %HWND_bar%, 0 ;reset the progress bar to 0
 			If HWND_control
 				GuiControl, movedraw, %HWND_control% ;redraw the button that was held down (otherwise the progress bar will remain on top of it)
-			KeyWait, % key
+			If key_wait
+				KeyWait, % key
 			Return 1
 		}
 		Sleep 20

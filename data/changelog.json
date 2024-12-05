@@ -1,5 +1,10 @@
 [
   [
+	["1.55.8", 15508],
+	"poe2 plans: see full changelogs for details",
+	"new experimental feature for lootfilters: filterspoon"
+  ],
+  [
 	["1.55.7", 15507],
 	"hotkeys: expanded support for non-standard layouts",
 	"client.txt parsing: increased efficiency, added backup and cleaning",
