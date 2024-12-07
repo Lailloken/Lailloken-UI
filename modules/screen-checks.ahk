@@ -20,6 +20,8 @@
 	vars.pixelsearch := {}, parse := LLK_IniRead("data\Resolutions.ini", vars.client.h "p", "gamescreen coordinates" vars.poe_version)
 	If InStr(parse, ",")
 		vars.pixelsearch.gamescreen := {"x1": SubStr(parse, 1, InStr(parse, ",") - 1), "y1": SubStr(parse, InStr(parse, ",") + 1)}
+	Else If vars.poe_version
+		vars.pixelsearch.gamescreen := {"x1": 1, "y1": 1}
 
 	ini := IniBatchRead("ini" vars.poe_version "\screen checks (" vars.client.h "p).ini")
 	vars.pixelsearch.gamescreen.color1 := ini.gamescreen["color 1"]
@@ -29,11 +31,14 @@
 
 	vars.pixelsearch.variation := 0, vars.pixelsearch.list := {"gamescreen": 1, "inventory": 1}
 	vars.imagesearch := {}
-	vars.imagesearch.search := ["skilltree", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
-	vars.imagesearch.list := {"betrayal": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
-	vars.imagesearch.checks := {"betrayal": {"x": vars.client.w - Round((1/72) * vars.client.h) * 2 , "y": Round((1/72) * vars.client.h), "w": Round((1/72) * vars.client.h), "h": Round((1/72) * vars.client.h)}
-		, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
-		, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}}
+	If !vars.poe_version
+	{
+		vars.imagesearch.search := ["skilltree", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
+		vars.imagesearch.list := {"betrayal": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
+		vars.imagesearch.checks := {"betrayal": {"x": vars.client.w - Round((1/72) * vars.client.h) * 2 , "y": Round((1/72) * vars.client.h), "w": Round((1/72) * vars.client.h), "h": Round((1/72) * vars.client.h)}
+			, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
+			, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}}
+	}
 	vars.imagesearch.variation := 15
 
 	For key in vars.imagesearch.list
@@ -188,7 +193,7 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 			If settings_menu && (SubStr(LIST, 1, InStr(LIST, ",") - 1) != vars.imagesearch[val].x1 || SubStr(LIST, InStr(LIST, ",") + 1) != vars.imagesearch[val].y1) ;if the coordinates are different from those saved in the ini, update them
 			{
 				coords := LIST "," SubStr(LIST, 1, InStr(LIST, ",") - 1) + Format("{:0.0f}", width) "," SubStr(LIST, InStr(LIST, ",") + 1) + Format("{:0.0f}", height)
-				IniWrite, % coords, % "ini\screen checks ("vars.client.h "p).ini", % val, last coordinates
+				IniWrite, % coords, % "ini" vars.poe_version "\screen checks ("vars.client.h "p).ini", % val, last coordinates
 				Loop, Parse, coords, `,
 				{
 					If (A_Index = 1)
@@ -266,7 +271,7 @@ Screenchecks_PixelRecalibrate(name) ;recalibrating a pixel-check
 	{
 		PixelGetColor, parse, % vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index], % vars.client.y + vars.pixelsearch[name]["y" A_Index], RGB
 		vars.pixelsearch[name]["color" A_Index] := parse
-		IniWrite, % parse, % "ini\screen checks ("vars.client.h "p).ini", %name%, color %A_Index%
+		IniWrite, % parse, % "ini" vars.poe_version "\screen checks ("vars.client.h "p).ini", %name%, color %A_Index%
 	}
 }
 

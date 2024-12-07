@@ -69,7 +69,7 @@ Lootfilter_Base(mode)
 		If !override
 			GuiControl, +Disabled, % vars.hwnd.lootfilter.search_go
 
-		If !search
+		If Blank(search)
 			vars.lootfilter.results := vars.lootfilter.search := ""
 		Else
 		{
@@ -225,7 +225,7 @@ Lootfilter_Get(chunk, data, ByRef operator := "")
 	Return (%data%)
 }
 
-Lootfilter_GUI(cHWND := "", side := "")
+Lootfilter_GUI(cHWND := "", side := "", activation := "")
 {
 	local
 	global vars, settings
@@ -462,9 +462,9 @@ Lootfilter_GUI(cHWND := "", side := "")
 	}
 	*/
 
+	Gui, %GUI_name%: Font, % "s" settings.lootfilter.fSize - 2
 	If (search := vars.lootfilter.search.2).Count()
 	{
-		Gui, %GUI_name%: Font, % "s" settings.lootfilter.fSize - 2
 		For base in search
 		{
 			count := 0, bases := A_Index
@@ -518,11 +518,11 @@ Lootfilter_GUI(cHWND := "", side := "")
 			If (bases != search.Count())
 				Gui, %GUI_name%: Add, Progress, % "Disabled Background606060 HWNDhwnd xs x-1 Section h2 w" xMax " y+-1", % 0
 		}
-		Gui, %GUI_name%: Font, % "s" settings.lootfilter.fSize
 	}
-	Else If (search := vars.lootfilter.search).1
+	Else If !Blank((search := vars.lootfilter.search).1)
 		Gui, %GUI_name%: Add, Text, % "Center x-1 cRed y" yMax + hMax " w" xMax - 1, % Lang_Trans("global_match", (StrLen(search.1) < 4 || search.2 = -1) ? 2 : 1)
 
+	Gui, %GUI_name%: Font, % "s" settings.lootfilter.fSize
 	If modifications.Count() || vars.lootfilter.pending
 	{
 		dimensions := [vars.lootfilter.pending ? Lang_Trans("global_apply", 2) : "."]
@@ -637,7 +637,7 @@ Lootfilter_ItemLabel(text, filter_index, style, xMax, iGroup)
 		Else If (index = 3)
 		{
 			thickness := Max(2, settings.lootfilter.fWidth//8)
-			Gui, %GUI_name%: Add, Progress, % "Disabled Background" (highlight ? (InStr(chunk, "(addition)") ? "00CC00" : "Yellow") : "Black") " xp-" thickness " yp-" thickness " wp+" thickness*2 " hp+" thickness*2, 0
+			Gui, %GUI_name%: Add, Progress, % "Disabled Background" (highlight ? (InStr(chunk, "(addition)") ? "00CC00" : "Aqua") : "Black") " xp-" thickness " yp-" thickness " wp+" thickness*2 " hp+" thickness*2, 0
 		}
 	}
 	Gui, %GUI_name%: Font, norm

@@ -89,7 +89,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			vars.alarm.timers.Delete(check)
 		vars.alarm.timers[time] := input1, x := y := w := h := ""
 		If !Blank(input1)
-			IniWrite, % StrReplace(time, "|"), ini\qol tools.ini, alarm - timers, % input1
+			IniWrite, % StrReplace(time, "|"), % "ini" vars.poe_version "\qol tools.ini", alarm - timers, % input1
 		Gui, alarm_set: Destroy
 		vars.hwnd.alarm.alarm_set := ""
 		WinActivate, ahk_group poe_window
@@ -119,8 +119,8 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			If !Blank(y)
 			{
 				settings.alarm.xPos := x, settings.alarm.yPos := y
-				IniWrite, % x, ini\qol tools.ini, alarm, x-coordinate
-				IniWrite, % y, ini\qol tools.ini, alarm, y-coordinate
+				IniWrite, % x, % "ini" vars.poe_version "\qol tools.ini", alarm, x-coordinate
+				IniWrite, % y, % "ini" vars.poe_version "\qol tools.ini", alarm, y-coordinate
 			}
 			vars.alarm.drag := 0
 			Return
@@ -171,7 +171,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 			{
 				pCheck := LLK_HasVal(vars.alarm.timers, control)
 				vars.alarm.timers.Delete(pCheck)
-				IniDelete, ini\qol tools.ini, alarm - timers, % control
+				IniDelete, % "ini" vars.poe_version "\qol tools.ini", alarm - timers, % control
 				KeyWait, RButton
 			}
 			Else
@@ -191,7 +191,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 				{
 					vars.alarm.timers.Delete(pCheck)
 					vars.alarm.timers["xyz|" control] := control
-					IniWrite, % "", ini\qol tools.ini, alarm - timers, % control
+					IniWrite, % "", % "ini" vars.poe_version "\qol tools.ini", alarm - timers, % control
 				}
 				Else vars.alarm.timers.Delete(control)
 			}
@@ -215,7 +215,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 					If (SubStr(control, 0) != "|")
 					{
 						vars.alarm.timers[time] := control
-						IniWrite, % "", ini\qol tools.ini, alarm - timers, % control
+						IniWrite, % "", % "ini" vars.poe_version "\qol tools.ini", alarm - timers, % control
 					}
 					Else vars.alarm.timers[time] := ""
 				}
@@ -232,7 +232,7 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 		Else If (check = "orientation")
 		{
 			settings.alarm.orientation := (settings.alarm.orientation = "horizontal") ? "vertical" : "horizontal"
-			IniWrite, % settings.alarm.orientation, ini\qol tools.ini, alarm, orientation
+			IniWrite, % settings.alarm.orientation, % "ini" vars.poe_version "\qol tools.ini", alarm, orientation
 			Alarm()
 		}
 		Else LLK_ToolTip("no action")
@@ -655,9 +655,9 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 		While !Blank(check_text) && InStr(" `n", SubStr(check_text, 0))
 			check_text := SubStr(check_text, 1, -1)
 		check_text := StrReplace(check_text, "`n", "(n)")
-		If (check_text != LLK_IniRead("ini\qol tools.ini", "notepad", vars.notepad.selected_entry))
+		If (check_text != LLK_IniRead("ini" vars.poe_version "\qol tools.ini", "notepad", vars.notepad.selected_entry))
 		{
-			IniWrite, % """" check_text """", ini\qol tools.ini, notepad, % vars.notepad.selected_entry
+			IniWrite, % """" check_text """", % "ini" vars.poe_version "\qol tools.ini", notepad, % vars.notepad.selected_entry
 			vars.notepad.entries[vars.notepad.selected_entry] := StrReplace(check_text, "(n)", "`n")
 			If vars.hwnd.notepad_widgets.HasKey(vars.notepad.selected_entry)
 				Notepad_Widget(vars.notepad.selected_entry, 5, color)
@@ -723,7 +723,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 		If (vars.system.click = 1) && Blank(rgb_picked)
 			Return
 		Else vars.notepad.settings[control][index] := (vars.system.click = 1) ? rgb_picked : ""
-		IniWrite, % (vars.notepad.settings[control].1 = settings.notepad.color ? "" : vars.notepad.settings[control].1) "|" (vars.notepad.settings[control].2 = settings.notepad.color1 ? "" : vars.notepad.settings[control].2), ini\qol tools.ini, notepad tab settings, % control
+		IniWrite, % (vars.notepad.settings[control].1 = settings.notepad.color ? "" : vars.notepad.settings[control].1) "|" (vars.notepad.settings[control].2 = settings.notepad.color1 ? "" : vars.notepad.settings[control].2), % "ini" vars.poe_version "\qol tools.ini", notepad tab settings, % control
 		Notepad("save"), refresh_widget := vars.hwnd.notepad_widgets.HasKey(control) ? 1 : 0
 	}
 	Else If (A_Gui = "notepad_reminder")
@@ -766,7 +766,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	}
 	Else If (check = "add")
 	{
-		name := LLK_ControlGet(vars.hwnd.notepad.name), ini := LLK_IniRead("ini\qol tools.ini", "notepad")
+		name := LLK_ControlGet(vars.hwnd.notepad.name), ini := LLK_IniRead("ini" vars.poe_version "\qol tools.ini", "notepad")
 		While (SubStr(name, 1, 1) = " ")
 			name := SubStr(name, 2)
 		While (SubStr(name, 0) = " ")
@@ -782,7 +782,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 			Return
 		}
 		Notepad("save"), vars.notepad.selected_entry := name
-		IniWrite, % "", ini\qol tools.ini, notepad, % name
+		IniWrite, % "", % "ini" vars.poe_version "\qol tools.ini", notepad, % name
 	}
 	Else If InStr(check, "select_")
 	{
@@ -799,8 +799,8 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 		{
 			If LLK_Progress(vars.hwnd.notepad["delbar_"control], "RButton")
 			{
-				IniDelete, ini\qol tools.ini, notepad, % control
-				IniDelete, ini\qol tools.ini, notepad tab settings, % control
+				IniDelete, % "ini" vars.poe_version "\qol tools.ini", notepad, % control
+				IniDelete, % "ini" vars.poe_version "\qol tools.ini", notepad tab settings, % control
 				vars.notepad.selected_entry := (control = vars.notepad.selected_entry) ? "" : vars.notepad.selected_entry
 				If vars.hwnd.notepad_widgets.HasKey(control)
 					LLK_Overlay(vars.hwnd.notepad_widgets[control], "destroy"), vars.hwnd.notepad_widgets.Delete(control)
@@ -912,7 +912,7 @@ Notepad_Reload()
 	static skip := ["font-color", "font-size", "button-offset", "x-coordinate button", "y-coordinate button", "transparency", "x-coordinate quicknote", "y-coordinate quicknote", "background color"]
 
 	vars.notepad.entries := {"notepad_reminder_feature": vars.notepad.entries.notepad_reminder_feature}, vars.notepad.settings := {}
-	ini := IniBatchRead("ini\qol tools.ini", "notepad"), ini1 := IniBatchRead("ini\qol tools.ini", "notepad tab settings")
+	ini := IniBatchRead("ini" vars.poe_version "\qol tools.ini", "notepad"), ini1 := IniBatchRead("ini" vars.poe_version "\qol tools.ini", "notepad tab settings")
 	For key, val in ini.notepad
 	{
 		val := StrReplace(val, "(n)", "`n")
@@ -1062,8 +1062,8 @@ Notepad_Widget(tab, mode := 0, color := 0)
 	If longpress && (tab = "notepad_reminder_feature") && !Blank(y)
 	{
 		settings.notepad.xQuickNote := x, settings.notepad.yQuickNote := y
-		IniWrite, % x, ini\qol tools.ini, notepad, x-coordinate quicknote
-		IniWrite, % y, ini\qol tools.ini, notepad, y-coordinate quicknote
+		IniWrite, % x, % "ini" vars.poe_version "\qol tools.ini", notepad, x-coordinate quicknote
+		IniWrite, % y, % "ini" vars.poe_version "\qol tools.ini", notepad, y-coordinate quicknote
 	}
 
 	If !vars.notepad.toggle && (tab != "notepad_reminder_feature")

@@ -27,8 +27,20 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {"logging": FileExist("data\log.txt"), "poe_version": WinExist("Path of Exile 2 test test") ? " 2" : ""}
-LLK_Log("--- tool launched" (vars.poe_version ? " (PoE 2)" : "") " ---")
+vars := {"general": {"runcheck": A_TickCount}, "logging": FileExist("data\log.txt")}, LLK_Log("waiting for valid game-clients...")
+While !WinExist("ahk_class POEWindowClass") && !WinExist("ahk_exe GeForceNOW.exe") ;wait for game-client window
+{
+	If (A_TickCount >= vars.general.runcheck + 60000)
+		ExitApp
+	win_not_exist := 1
+	Sleep, 100
+}
+
+;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
+If (WinExist("ahk_class POEWindowClass") || WinExist("ahk_exe GeForceNOW.exe")) && win_not_exist
+	Sleep, 4000
+LLK_Log("found game-client")
+vars.poe_version := CheckClient(), LLK_Log("--- tool launched" (vars.poe_version ? " (PoE 2)" : "") " ---")
 
 If !vars.poe_version && FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
 	IniIntegrityCheck()
@@ -46,7 +58,7 @@ Init_general(), LLK_Log("initialized general settings")
 Init_betrayal(), LLK_Log("initialized betrayal settings")
 Init_cheatsheets(), LLK_Log("initialized cheat-sheet settings")
 Init_cloneframes(), LLK_Log("initialized clone-frames settings")
-If WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")
+If WinExist("ahk_exe GeForceNOW.exe")
 	Init_geforce(), LLK_Log("initialized geforce now settings")
 Init_iteminfo(), LLK_Log("initialized item-info settings")
 Init_legion(), LLK_Log("initialized seed-explorer settings")
@@ -77,7 +89,7 @@ Else
 LLK_Log("client is focused")
 
 Init_GUI(), LLK_Log("GUIs initialized")
-SetTimer, Log_Loop, 1500
+SetTimer, Log_Loop, 1000
 
 If (check := LLK_IniRead("ini" vars.poe_version "\config.ini", "versions", "reload settings"))
 {
@@ -121,6 +133,23 @@ Blank(var)
 {
 	If (var = "")
 		Return 1
+}
+
+CheckClient()
+{
+	local
+	global vars
+
+	WinGet, clients, List, % WinExist("ahk_exe GeForceNOW.exe") ? "ahk_exe GeForceNOW.exe" : "ahk_class POEWindowClass"
+	If (clients > 1)
+		LLK_Error("Multiple game-clients detected. Tool will exit.")
+
+	If WinExist("ahk_exe GeForceNOW.exe")
+		WinGetTitle, title, ahk_exe GeForceNOW.exe
+	Else WinGet, title, ProcessPath, ahk_class POEWindowClass
+
+	If LLK_PatternMatch(title, "", [" 2", " ii"],,, 0)
+		Return " 2"
 }
 
 Exit()
@@ -200,15 +229,15 @@ Init_client()
 	If !FileExist("ini" vars.poe_version "\config.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\config.ini", settings
 
-	If !WinExist("ahk_exe GeForceNOW.exe") && !WinExist("ahk_exe boosteroid.exe") ;if client is not a streaming client
+	If !WinExist("ahk_exe GeForceNOW.exe") ;if client is not a streaming client
 	{
 		LLK_Log("game-client is local client")
 		;load client-config location and double-check
 		ini := IniBatchRead("ini" vars.poe_version "\config.ini")
-		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile" vars.poe_version "\production_Config.ini"
+		poe_config_file := !Blank(check := ini.settings["poe config-file"]) ? check : A_MyDocuments "\My Games\Path of Exile" (vars.poe_version ? " 2\poe2_" : "\") "production_Config.ini"
 		If !FileExist(poe_config_file)
 		{
-			FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, Please locate the 'production_Config.ini' file which is stored in the same folder as loot-filters, config files (*.ini)
+			FileSelectFile, poe_config_file, 3, %A_MyDocuments%\My Games\\production_Config.ini, % "Please locate the '" (vars.poe_version ? "poe2_" : "") "production_Config.ini' file which is stored in the same folder as loot-filters", config files (*.ini)
 			If (ErrorLevel = 1) || !InStr(poe_config_file, "production_Config")
 			{
 				Reload
@@ -220,9 +249,8 @@ Init_client()
 				Reload
 				ExitApp
 			}
-			IniWrite, "%poe_config_file%", % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 		}
-		Else IniWrite, "%poe_config_file%", % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
+		IniWrite, % """" poe_config_file """", % "ini" vars.poe_version "\config.ini", Settings, PoE config-file
 		vars.system.config := poe_config_file, vars.client.stream := 0
 		LLK_Log("found game's config-file")
 
@@ -770,14 +798,16 @@ Loop()
 	If !WinExist("ahk_group poe_window")
 		vars.client.closed := 1, vars.hwnd.poe_client := ""
 
-	If !WinExist("ahk_group poe_window") && (A_TickCount >= vars.general.runcheck + settings.general.kill[2]* 60000) && settings.general.kill[1]
-		ExitApp
-
 	If WinExist("ahk_group poe_window")
 	{
 		vars.general.runcheck := A_TickCount
 		If !vars.hwnd.poe_client
-			vars.hwnd.poe_client := WinExist("ahk_group poe_window")
+			If (vars.poe_version != CheckClient())
+			{
+				MsgBox, The wrong game-client is running. Start the correct game, then close this message.
+				Return
+			}
+			Else vars.hwnd.poe_client := WinExist("ahk_class POEWindowClass")
 
 		If vars.client.closed
 		{
@@ -797,6 +827,9 @@ Loop()
 				Gui, LLK_Panel: Color, % (vars.update.1 < 0) ? "Maroon" : "Green"
 		}
 	}
+
+	If !WinExist("ahk_group poe_window") && (A_TickCount >= vars.general.runcheck + settings.general.kill[2]* 60000) && settings.general.kill[1]
+		ExitApp
 }
 
 Loop_main()
@@ -1090,17 +1123,14 @@ Startup()
 	GroupAdd, snipping_tools, ahk_exe ScreenClippingHost.exe
 	GroupAdd, snipping_tools, ahk_exe ShellExperienceHost.exe
 	GroupAdd, snipping_tools, ahk_exe SnippingTool.exe
-	If !vars.poe_version
-		GroupAdd, poe_window, ahk_class POEWindowClass
-	Else GroupAdd, poe_window, Path of Exile 2 test test
+
+	GroupAdd, poe_window, ahk_class POEWindowClass
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
-	GroupAdd, poe_window, ahk_exe boosteroid.exe
-	If !vars.poe_version
-		GroupAdd, poe_ahk_window, ahk_class POEWindowClass
-	Else GroupAdd, poe_ahk_window, Path of Exile 2 test test
+	
+	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
 	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
-	GroupAdd, poe_ahk_window, ahk_exe boosteroid.exe
+
 	If settings.general.dev
 		GroupAdd, poe_ahk_window, ahk_exe code.exe ;treat VS Code's window as a client
 
@@ -1119,22 +1149,6 @@ Startup()
 		If !FileExist(A_LoopField "\") && !file_error ;check if the folder was created successfully
 			file_error := 1, LLK_FilePermissionError("create", A_ScriptDir "\" A_LoopField)
 	}
-
-	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
-
-	LLK_Log("waiting for valid game-clients...")
-	While !WinExist("ahk_group poe_window") ;wait for game-client window
-	{
-		If settings.general.kill.1 && (A_TickCount >= vars.general.runcheck + settings.general.kill.2* 60000) ;kill script after X minutes
-			ExitApp
-		win_not_exist := 1
-		Sleep, 100
-	}
-
-	;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
-	If WinExist("ahk_group poe_window") && win_not_exist
-		Sleep, 4000
-	LLK_Log("found game-client")
 
 	Init_client()
 	Init_lang()

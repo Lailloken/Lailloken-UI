@@ -118,7 +118,7 @@ Cheatsheet_Add(name, type)
 		LLK_ToolTip(Lang_Trans("global_errorname"), 1.5, xPos, yPos + height,, "red")
 		Return
 	}
-	If FileExist("cheat-sheets\"name "\")
+	If FileExist("cheat-sheets" vars.poe_version "\" name "\")
 	{
 		MsgBox, 4, % Lang_Trans("global_errorname", 4), % Lang_Trans("cheat_duplicate")
 		IfMsgBox No
@@ -127,20 +127,20 @@ Cheatsheet_Add(name, type)
 			Return
 		}
 	}
-	FileRemoveDir, cheat-sheets\%name%, 1
-	If FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("delete", A_ScriptDir "\cheat-sheets\"name)
-	FileCreateDir, cheat-sheets\%name%
-	If !error && !FileExist("cheat-sheets\"name "\")
-		error := 1, LLK_FilePermissionError("create", A_ScriptDir "\cheat-sheets\"name)
+	FileRemoveDir, % "cheat-sheets" vars.poe_version "\" name, 1
+	If FileExist("cheat-sheets" vars.poe_version "\" name "\")
+		error := 1, LLK_FilePermissionError("delete", A_ScriptDir "\cheat-sheets" vars.poe_version "\" name)
+	FileCreateDir, % "cheat-sheets" vars.poe_version "\" name
+	If !error && !FileExist("cheat-sheets" vars.poe_version "\" name "\")
+		error := 1, LLK_FilePermissionError("create", A_ScriptDir "\cheat-sheets" vars.poe_version "\" name)
 	If error
 		Return
-	IniWrite, 1, cheat-sheets\%name%\info.ini, general, enable
-	IniWrite, % type, cheat-sheets\%name%\info.ini, general, type
-	IniWrite, 1, cheat-sheets\%name%\info.ini, UI, scale
-	IniWrite, % "2,2", cheat-sheets\%name%\info.ini, UI, position
-	IniWrite, static, cheat-sheets\%name%\info.ini, general, image search
-	IniWrite, hold, cheat-sheets\%name%\info.ini, general, activation
+	IniWrite, 1, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, enable
+	IniWrite, % type, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, type
+	IniWrite, 1, % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, scale
+	IniWrite, % "2,2", % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, position
+	IniWrite, static, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, image search
+	IniWrite, hold, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, activation
 	Settings_menu("cheat-sheets")
 }
 
@@ -162,7 +162,7 @@ Cheatsheet_Advanced(name, hotkey := "")
 		LLK_ToolTip(Lang_Trans("global_scan"), 10, vars.general.xMouse + vars.client.w/100, vars.general.yMouse, "cheatsheet")
 		While (hotkey && GetKeyState(hotkey, "P") || GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (variation <= 75)
 		{
-			Loop, Files, % "cheat-sheets\" name "\[check] *.bmp"
+			Loop, Files, % "cheat-sheets" vars.poe_version "\" name "\[check] *.bmp"
 			{
 				pNeedle := Gdip_LoadImageFromFile(A_LoopFilePath)
 				If (pNeedle <= 0)
@@ -268,12 +268,12 @@ Cheatsheet_App(name, hotkey := "")
 
 	If !WinExist(vars.cheatsheets.list[name].title)
 	{
-		If !FileExist("cheat-sheets\" name "\app.lnk")
+		If !FileExist("cheat-sheets" vars.poe_version "\" name "\app.lnk")
 		{
 			LLK_ToolTip(Lang_Trans("cheat_nowindow", 1, [vars.cheatsheets.list[name].title]), 1.5,,,, "red")
 			Return
 		}
-		Run, % "cheat-sheets\"name "\app.lnk",
+		Run, % "cheat-sheets" vars.poe_version "\" name "\app.lnk",
 		WinWaitActive, % vars.cheatsheets.list[name].title
 		WinMaximize, % vars.cheatsheets.list[name].title
 	}
@@ -372,12 +372,12 @@ Cheatsheet_Calibrate()
 
 	If vars.cheatsheets.active.choice
 	{
-		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets\" name "\[check] " vars.cheatsheets.active.choice ".bmp", 100)
+		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets" vars.poe_version "\" name "\[check] " vars.cheatsheets.active.choice ".bmp", 100)
 		If Blank(LLK_HasVal(vars.cheatsheets.list[name].entries, vars.cheatsheets.active.choice))
 		{
 			If !IsObject(vars.cheatsheets.list[name].entries[vars.cheatsheets.active.choice])
 				vars.cheatsheets.list[name].entries[vars.cheatsheets.active.choice] := {"panels": [], "ranks": []}
-			IniWrite, 1, % "cheat-sheets\" name "\info.ini", entries, % vars.cheatsheets.active.choice
+			IniWrite, 1, % "cheat-sheets" vars.poe_version "\" name "\info.ini", entries, % vars.cheatsheets.active.choice
 		}
 		If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main)
 			Cheatsheet_Menu(name, 1)
@@ -404,14 +404,11 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 	global vars, settings
 
 	ignore := ["Up", "Down", "Left", "Right", "F1", "F2", "F3", "RButton", "Space", vars.hotkeys.tab]
-	hotkey0 := Hotkeys_RemoveModifiers(hotkey)
-	If (SubStr(hotkey0, 1, 2) = "SC") && (pCheck := SubStr(hotkey0, 3))
-		hotkey := IsNumber(pCheck) ? pCheck - 1 : vars.hotkeys.scan_codes[pCheck]
-	Else hotkey := hotkey0
+	hotkey0 := Hotkeys_RemoveModifiers(hotkey), hotkey := GetKeyName(hotkey0)
 
 	If !name
 		name := vars.cheatsheets.active.name
-	Loop, Files, % "cheat-sheets\"name "\[*"
+	Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\[*"
 	{
 		If !InStr(A_LoopFileName, "[check]") && !InStr(A_LoopFileName, "[sample]") && InStr("jpg,png,bmp", A_LoopFileExt)
 			valid += 1
@@ -430,7 +427,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 
 	If !IsObject(vars.cheatsheets[name].include)
 		vars.cheatsheets[name].include := []
-	has_00 := FileExist("cheat-sheets\"name "\[00].*")
+	has_00 := FileExist("cheat-sheets" vars.poe_version "\" name "\[00].*")
 
 	If !Blank(LLK_HasVal(ignore, hotkey))
 	{
@@ -440,13 +437,13 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 		{
 			vars.cheatsheets.list[name].pos.1 += (hotkey = "left" && vars.cheatsheets.list[name].pos.1 > 1) ? -1 : (hotkey = "right" && vars.cheatsheets.list[name].pos.1 < 3) ? 1 : 0
 			vars.cheatsheets.list[name].pos.2 += (hotkey = "up" && vars.cheatsheets.list[name].pos.2 > 1) ? -1 : (hotkey = "down" && vars.cheatsheets.list[name].pos.2 < 3) ? 1 : 0
-			IniWrite, % vars.cheatsheets.list[name].pos.1 "," vars.cheatsheets.list[name].pos.2, % "cheat-sheets\"name "\info.ini", UI, position
+			IniWrite, % vars.cheatsheets.list[name].pos.1 "," vars.cheatsheets.list[name].pos.2, % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, position
 		}
 		Else If InStr("F1,F2,F3", hotkey)
 		{
 			vars.cheatsheets.list[name].scale += (hotkey = "F1" && vars.cheatsheets.list[name].scale > 0.5) ? -0.1 : ((hotkey = "F2" && vars.cheatsheets.list[name].scale < 2)) ? 0.1 : 0
 			vars.cheatsheets.list[name].scale /= (hotkey = "F3") ? vars.cheatsheets.list[name].scale : 1
-			IniWrite, % Format("{:0.1f}", vars.cheatsheets.list[name].scale), % "cheat-sheets\"name "\info.ini", UI, scale
+			IniWrite, % Format("{:0.1f}", vars.cheatsheets.list[name].scale), % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, scale
 		}
 		Else If (hotkey = "RButton")
 		{
@@ -474,7 +471,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 				}
 			}
 
-			While !FileExist("cheat-sheets\"name "\["vars.cheatsheets[name].include.1 + index "]*") && !FileExist("cheat-sheets\"name "\[0"vars.cheatsheets[name].include.1 + index "]*")
+			While !FileExist("cheat-sheets" vars.poe_version "\" name "\[" vars.cheatsheets[name].include.1 + index "]*") && !FileExist("cheat-sheets" vars.poe_version "\" name "\[0" vars.cheatsheets[name].include.1 + index "]*")
 			{
 				If (A_Index = 100)
 				{
@@ -497,7 +494,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 			For key, index in vars.cheatsheets[name].include
 				vars.cheatsheets[name].include0.Push(index)
 			vars.cheatsheets[name].include := []
-			Loop, Files, % "cheat-sheets\"name "\[*"
+			Loop, Files, % "cheat-sheets" vars.poe_version "\" name "\[*"
 			{
 				If InStr(A_LoopFileName, "check") || InStr(A_LoopFileName, "sample") || !InStr("jpg,png,bmp", A_LoopFileExt)
 					continue
@@ -509,7 +506,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 
 	For key, index in vars.cheatsheets[name].include
 	{
-		If !FileExist("cheat-sheets\"name "\["index "]*") && !FileExist("cheat-sheets\"name "\*] "index ".*") ;previously-loaded image is no longer available
+		If !FileExist("cheat-sheets" vars.poe_version "\" name "\[" index "]*") && !FileExist("cheat-sheets" vars.poe_version "\" name "\*] " index ".*") ;previously-loaded image is no longer available
 		|| has_00 && !LLK_HasVal(vars.cheatsheets[name].include, "00") ;overlay was previously activated as non-segmented, but it has since been modified into a segmented one
 		{
 			vars.cheatsheets[name].include := [] ;reset overlay to blank
@@ -523,7 +520,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 			vars.cheatsheets[name].include.1 := "00" ;if segmented, set overlay to base-state
 		Else
 		{
-			Loop, Files, % "cheat-sheets\"name "\[*" ;if not segmented, load first available image
+			Loop, Files, % "cheat-sheets" vars.poe_version "\" name "\[*" ;if not segmented, load first available image
 			{
 				If InStr(A_LoopFileName, "check") || InStr(A_LoopFileName, "sample") || !InStr("jpg,png,bmp", A_LoopFileExt)
 					continue
@@ -533,8 +530,8 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 		}
 	}
 
-	If hotkey && (!Blank(LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets\"name "\*] "hotkey ".*") ;cont
-	&& !FileExist("cheat-sheets\"name "\[0"hotkey "]*.*"))
+	If hotkey && (!Blank(LLK_HasVal(vars.cheatsheets[name].include, hotkey)) || !FileExist("cheat-sheets" vars.poe_version "\"name "\["hotkey "]*.*") && !FileExist("cheat-sheets" vars.poe_version "\"name "\*] "hotkey ".*") ;cont
+	&& !FileExist("cheat-sheets" vars.poe_version "\"name "\[0"hotkey "]*.*"))
 	{
 		KeyWait, % hotkey0
 		Return
@@ -556,7 +553,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 		file := ""
 		If IsNumber(index)
 		{
-			Loop, Files, % "cheat-sheets\"name "\["index "]*"
+			Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\["index "]*"
 			{
 				If InStr("jpg,png,bmp", A_LoopFileExt)
 				{
@@ -567,7 +564,7 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 		}
 		Else
 		{
-			Loop, Files, % "cheat-sheets\"name "\*] "index ".*"
+			Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\*] "index ".*"
 			{
 				If InStr("jpg,png,bmp", A_LoopFileExt)
 				{
@@ -666,9 +663,9 @@ Cheatsheet_Info(name)
 	vars.hwnd.cheatsheet_info := hwnd
 	image := ""
 
-	If FileExist("cheat-sheets\"name "\[sample].*") || FileExist("cheat-sheets\"name "\[check].bmp")
+	If FileExist("cheat-sheets" vars.poe_version "\"name "\[sample].*") || FileExist("cheat-sheets" vars.poe_version "\"name "\[check].bmp")
 	{
-		Loop, Files, % "cheat-sheets\"name "\[sample].*"
+		Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\[sample].*"
 		{
 			If InStr("jpg,bmp,png", A_LoopFileExt)
 			{
@@ -677,7 +674,7 @@ Cheatsheet_Info(name)
 			}
 		}
 		If (image = "")
-			image := "cheat-sheets\"name "\[check].bmp"
+			image := "cheat-sheets" vars.poe_version "\"name "\[check].bmp"
 
 		pBitmap := Gdip_CreateBitmapFromFile(image)
 		Gdip_GetImageDimensions(pBitmap, width, height)
@@ -699,11 +696,11 @@ Cheatsheet_Info(name)
 		Gui, cheatsheet_info: Font, underline
 		Gui, cheatsheet_info: Add, Text, % "Section xs BackgroundTrans w"settings.general.fWidth*35, % "instructions:"
 		Gui, cheatsheet_info: Font, norm
-		IniRead, ini, % "cheat-sheets\" name "\info.ini", general, instructions, % "to recalibrate, screen-cap the area displayed above"
+		IniRead, ini, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, instructions, % "to recalibrate, screen-cap the area displayed above"
 		While (ini != "" && ini != " ")
 		{
 			Gui, cheatsheet_info: Add, Text, % "xs y+0 BackgroundTrans w"settings.general.fWidth*35, % "–> " ini
-			IniRead, ini, % "cheat-sheets\" name "\info.ini", general, instructions%A_Index%, % A_Space
+			IniRead, ini, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, instructions%A_Index%, % A_Space
 		}
 	}
 	Gui, cheatsheet_info: Font, underline
@@ -712,13 +709,13 @@ Cheatsheet_Info(name)
 	Gui, cheatsheet_info: Add, Text, % "xs y+0 w"settings.general.fWidth*35 ;cont
 	, % "–> type: " vars.cheatsheets.list[name].type "`n–> screen-check: " vars.cheatsheets.list[name].area "`n–> activation: " vars.cheatsheets.list[name].activation
 
-	IniRead, ini, % "cheat-sheets\" name "\info.ini", general, description, % A_Space
+	IniRead, ini, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, description, % A_Space
 	While (ini != "")
 	{
 		If (A_Index = 1)
 			Gui, cheatsheet_info: Add, Text, % "xs y+"settings.general.fHeight/2 " BackgroundTrans w"settings.general.fWidth*35, % "description"
 		Gui, cheatsheet_info: Add, Text, % "xs y+0 BackgroundTrans w"settings.general.fWidth*35, % "–> " ini
-		IniRead, ini, % "cheat-sheets\"name "\info.ini", general, description%A_Index%, % A_Space
+		IniRead, ini, % "cheat-sheets" vars.poe_version "\"name "\info.ini", general, description%A_Index%, % A_Space
 	}
 	Gui, cheatsheet_info: Show, NA x10000 y10000
 	WinGetPos,,, width, height, % "ahk_id "vars.hwnd.cheatsheet_info
@@ -779,7 +776,7 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 		vars.cheatsheet_menu.type := "images", files := 0, handle := ""
 		Loop, 99
 		{
-			If FileExist("cheat-sheets\"name "\[0" A_Index "]*") || FileExist("cheat-sheets\"name "\[" A_Index "]*")
+			If FileExist("cheat-sheets" vars.poe_version "\"name "\[0" A_Index "]*") || FileExist("cheat-sheets" vars.poe_version "\"name "\[" A_Index "]*")
 				files := (A_Index < 10) ? "0" A_Index : A_Index
 		}
 
@@ -793,9 +790,9 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheet_Menu2 HWNDhwnd", % " " Lang_Trans("global_snip") " "
 		vars.hwnd.cheatsheet_menu.snip_00 := vars.hwnd.help_tooltips["cheatsheets_menu snip0"] := hwnd
 
-		If FileExist("cheat-sheets\" name "\[00]*")
+		If FileExist("cheat-sheets" vars.poe_version "\" name "\[00]*")
 		{
-			IniRead, position, % "cheat-sheets\" name "\info.ini", general, 00-position, top
+			IniRead, position, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, 00-position, top
 			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheet_Menu2 HWNDhwnd Center", % " " Lang_Trans("global_show") " "
 			file_00 := 1, vars.hwnd.cheatsheet_menu.preview_00 := vars.hwnd.help_tooltips["cheatsheets_menu show"] := hwnd
 			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheet_Menu2 HWNDhwnd0", % " " Lang_Trans("global_delete", 2) " "
@@ -816,9 +813,9 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border gCheatsheet_Menu2 HWNDhwnd", % " " Lang_Trans("global_snip") " "
 			vars.hwnd.cheatsheet_menu["snip_"loop] := vars.hwnd.help_tooltips["cheatsheets_menu snip" (file_00 ? "0" : "") handle] := hwnd
 
-			If FileExist("cheat-sheets\"name "\["loop "]*")
+			If FileExist("cheat-sheets" vars.poe_version "\"name "\["loop "]*")
 			{
-				Loop, Files, % "cheat-sheets\"name "\["loop "]*"
+				Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\["loop "]*"
 					file := SubStr(A_LoopFileName, 1, InStr(A_LoopFileName, ".") - 1)
 				If (StrLen(file) = 4 || StrLen(file) > 6) ;file not tagged or tagged incorrectly
 					file := ""
@@ -859,7 +856,7 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 		vars.hwnd.cheatsheet_menu.test_title := hwnd
 
 		Gui, %GUI_name%: Add, Text, % "xs y+"settings.general.fHeight/2 " Section", % Lang_Trans("cheat_launch")
-		Gui, %GUI_name%: Add, Text, % "xs Section Border "(FileExist("cheat-sheets\" name "\app.lnk") ? "cLime" : "cWhite") " gCheatsheet_Menu2 HWNDhwnd", % " " Lang_Trans("cheat_exe") " "
+		Gui, %GUI_name%: Add, Text, % "xs Section Border "(FileExist("cheat-sheets" vars.poe_version "\" name "\app.lnk") ? "cLime" : "cWhite") " gCheatsheet_Menu2 HWNDhwnd", % " " Lang_Trans("cheat_exe") " "
 		vars.hwnd.cheatsheet_menu.pick := vars.hwnd.help_tooltips["cheatsheets_menu exe-pick"] := hwnd
 		Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border BackgroundTrans gCheatsheet_Menu2 HWNDhwnd0", % " " Lang_Trans("global_delete", 2) " "
 		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack cRed range0-500 Disabled HWNDhwnd", 0
@@ -894,7 +891,7 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 			If (A_Index = 1) && !vars.cheatsheet_menu.entry
 				vars.cheatsheet_menu.entry := entry
 			Gui, %GUI_name%: Add, Text, % "Section xs w"settings.general.fWidth*2 " Center HWNDhwnd", % A_Index
-			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border Center gCheatsheet_Menu2 HWNDhwnd"(FileExist("cheat-sheets\"name "\[check] " entry ".*") ? "" : " cGray"), % " " Lang_Trans("global_image") " "
+			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Border Center gCheatsheet_Menu2 HWNDhwnd"(FileExist("cheat-sheets" vars.poe_version "\"name "\[check] " entry ".*") ? "" : " cGray"), % " " Lang_Trans("global_image") " "
 			vars.hwnd.cheatsheet_menu["previewentry_"entry] := vars.hwnd.help_tooltips["cheatsheets_menu entry-image"handle] := hwnd
 			Gui, %GUI_name%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans HWNDhwnd0 gCheatsheet_Menu2", % " " Lang_Trans("global_delete", 2) " "
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Border range0-500 BackgroundBlack cRed HWNDhwnd", 0
@@ -948,12 +945,12 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	If (check = "check") ;toggling the screen-check DDL
 	{
 		choice := ["static", "dynamic"], vars.cheatsheets.list[name].area := choice[LLK_ControlGet(cHWND)]
-		IniWrite, % vars.cheatsheets.list[name].area, % "cheat-sheets\" name "\info.ini", general, image search
+		IniWrite, % vars.cheatsheets.list[name].area, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, image search
 	}
 	Else If (check = "activation") ;toggling the activation DDL
 	{
 		choice := ["hold", "toggle"], vars.cheatsheets.list[name].activation := choice[LLK_ControlGet(cHWND)]
-		IniWrite, % vars.cheatsheets.list[name].activation, % "cheat-sheets\" name "\info.ini", general, activation
+		IniWrite, % vars.cheatsheets.list[name].activation, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, activation
 	}
 	Else If InStr(check, "preview_") && !InStr(check, "sheet") ;long-clicking an img-index for preview
 		Cheatsheet_MenuPreview(name, "["control "]*")
@@ -961,7 +958,7 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 		Cheatsheet_MenuPaste(control)
 	Else If InStr(check, "snip_") ;clicking a snip button to initiate screen-capping for an index-slot
 	{
-		If (control = "00") || FileExist("cheat-sheets\"name "\[00]*")
+		If (control = "00") || FileExist("cheat-sheets" vars.poe_version "\"name "\[00]*")
 			pBitmap := SnippingTool(1)
 		Else
 		{
@@ -974,8 +971,8 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 		}
 		If (pBitmap <= 0)
 			Return
-		FileDelete, % "cheat-sheets\"name "\["control "]*"
-		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets\"name "\["control "].png", 100)
+		FileDelete, % "cheat-sheets" vars.poe_version "\"name "\["control "]*"
+		Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets" vars.poe_version "\"name "\["control "].png", 100)
 		Gdip_DisposeImage(pBitmap)
 		Cheatsheet_Menu(name)
 	}
@@ -983,7 +980,7 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	{
 		If LLK_Progress(vars.hwnd.cheatsheet_menu["delbar_"control], "LButton", cHWND)
 		{
-			FileDelete, % "cheat-sheets\"name "\["control "]*"
+			FileDelete, % "cheat-sheets" vars.poe_version "\"name "\["control "]*"
 			Cheatsheet_Menu(name)
 		}
 		Else Return
@@ -991,7 +988,7 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	Else If (check = "position") ;setting the header-position for image-sheets
 	{
 		vars.cheatsheets.list[name].header := LLK_ControlGet(cHWND)
-		IniWrite, % LLK_ControlGet(cHWND), % "cheat-sheets\"name "\info.ini", general, 00-position
+		IniWrite, % LLK_ControlGet(cHWND), % "cheat-sheets" vars.poe_version "\"name "\info.ini", general, 00-position
 	}
 	Else If InStr(check, "tag_") ;assigning a hotkey to an index-slot
 		Cheatsheet_MenuTag(cHWND, control)
@@ -1006,7 +1003,7 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 		{
 			WinActivate, % title
 			vars.cheatsheets.list[name].title := title
-			IniWrite, % title, % "cheat-sheets\"name "\info.ini", general, app title
+			IniWrite, % title, % "cheat-sheets" vars.poe_version "\"name "\info.ini", general, app title
 			KeyWait, LButton
 			WinActivate, ahk_group poe_window
 		}
@@ -1020,10 +1017,10 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 			Return
 		}
 		If InStr(app, ".lnk")
-			FileCopy, % app, % "cheat-sheets\"name "\app.lnk", 1
+			FileCopy, % app, % "cheat-sheets" vars.poe_version "\"name "\app.lnk", 1
 		Else If InStr(app, ".exe")
-			FileCreateShortcut, % app, % "cheat-sheets\"name "\app.lnk"
-		If FileExist("cheat-sheets\"name "\app.lnk")
+			FileCreateShortcut, % app, % "cheat-sheets" vars.poe_version "\"name "\app.lnk"
+		If FileExist("cheat-sheets" vars.poe_version "\"name "\app.lnk")
 		{
 			GuiControl, +cLime, % vars.hwnd.cheatsheet_menu.pick
 			GuiControl, movedraw, % vars.hwnd.cheatsheet_menu.pick
@@ -1035,7 +1032,7 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	{
 		If LLK_Progress(vars.hwnd.cheatsheet_menu.exe_delbar, "LButton", cHWND)
 		{
-			FileDelete, % "cheat-sheets\"name "\app.lnk"
+			FileDelete, % "cheat-sheets" vars.poe_version "\"name "\app.lnk"
 			GuiControl, +cWhite, % vars.hwnd.cheatsheet_menu.pick
 			GuiControl, movedraw, % vars.hwnd.cheatsheet_menu.pick
 		}
@@ -1043,12 +1040,12 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	}
 	Else If (check = "test_exe") ;clicking the test button to test the exe/shortcut file
 	{
-		If !FileExist("cheat-sheets\" name "\app.lnk")
+		If !FileExist("cheat-sheets" vars.poe_version "\" name "\app.lnk")
 		{
 			LLK_ToolTip(Lang_Trans("cheat_noexe"), 1.5,,,, "red")
 			Return
 		}
-		Else Run, % "cheat-sheets\" name "\app.lnk"
+		Else Run, % "cheat-sheets" vars.poe_version "\" name "\app.lnk"
 	}
 	Else If (check = "entryadd") ;clicking the add button to add a new entry
 	{
@@ -1062,9 +1059,9 @@ Cheatsheet_Menu2(cHWND) ;function to handle inputs within the 'cheatsheet_menu' 
 	{
 		If LLK_Progress(vars.hwnd.cheatsheet_menu["delbarentry_"control], "LButton", cHWND)
 		{
-			IniDelete, % "cheat-sheets\"name "\info.ini", entries, % control
-			IniDelete, % "cheat-sheets\"name "\info.ini", % control
-			FileDelete, % "cheat-sheets\"name "\[check] "control ".*"
+			IniDelete, % "cheat-sheets" vars.poe_version "\"name "\info.ini", entries, % control
+			IniDelete, % "cheat-sheets" vars.poe_version "\"name "\info.ini", % control
+			FileDelete, % "cheat-sheets" vars.poe_version "\"name "\[check] "control ".*"
 			vars.cheatsheets.list[name].entries.Delete(control)
 			If (control = vars.cheatsheet_menu.entry)
 				Cheatsheet_Menu(name)
@@ -1117,12 +1114,12 @@ Cheatsheet_MenuClose()
 	If (vars.cheatsheets.list[name].type = "app") && (LLK_ControlGet(vars.hwnd.cheatsheet_menu.title) = "")
 	{
 		vars.cheatsheets.list[name].title := ""
-		IniWrite, % "", % "cheat-sheets\"name "\info.ini", general, app title
+		IniWrite, % "", % "cheat-sheets" vars.poe_version "\"name "\info.ini", general, app title
 	}
 	Else If (vars.cheatsheets.list[name].type = "app") && (LLK_ControlGet(vars.hwnd.cheatsheet_menu.title) != "") && (LLK_ControlGet(vars.hwnd.cheatsheet_menu.title) != "a")
 	{
 		vars.cheatsheets.list[name].title := LLK_ControlGet(vars.hwnd.cheatsheet_menu.title)
-		IniWrite, % vars.cheatsheets.list[name].title, % "cheat-sheets\"name "\info.ini", general, app title
+		IniWrite, % vars.cheatsheets.list[name].title, % "cheat-sheets" vars.poe_version "\"name "\info.ini", general, app title
 	}
 	Else If (vars.cheatsheet_menu.type = "advanced") && (vars.cheatsheet_menu.entry)
 		Cheatsheet_MenuEntrySave()
@@ -1166,18 +1163,18 @@ Cheatsheet_MenuEntryAdd()
 			Return
 		}
 	}
-	If LLK_IniRead("cheat-sheets\"name "\info.ini", "entries", entryname)
+	If LLK_IniRead("cheat-sheets" vars.poe_version "\"name "\info.ini", "entries", entryname)
 	{
 		LLK_ToolTip(Lang_Trans("global_errorname", 4), 1.5,,,, "red")
 		Return
 	}
-	IniWrite, 1, % "cheat-sheets\"name "\info.ini", entries, % entryname
+	IniWrite, 1, % "cheat-sheets" vars.poe_version "\"name "\info.ini", entries, % entryname
 	vars.cheatsheets.list[name].entries[entryname] := {"panels": [], "ranks": []}
 	Loop 4
 	{
-		IniWrite, % "", % "cheat-sheets\"name "\info.ini", % entryname, panel %A_Index%
+		IniWrite, % "", % "cheat-sheets" vars.poe_version "\"name "\info.ini", % entryname, panel %A_Index%
 		vars.cheatsheets.list[name].entries[entryname].panels.Push("")
-		IniWrite, 0, % "cheat-sheets\"name "\info.ini", % entryname, panel %A_Index% rank
+		IniWrite, 0, % "cheat-sheets" vars.poe_version "\"name "\info.ini", % entryname, panel %A_Index% rank
 		vars.cheatsheets.list[name].entries[entryname].ranks.Push(0)
 	}
 	Cheatsheet_Menu(name, 1)
@@ -1188,12 +1185,12 @@ Cheatsheet_MenuEntrySave()
 	local
 	global vars, settings
 
-	name := vars.cheatsheet_menu.active, ini := IniBatchRead("cheat-sheets\" name "\info.ini")
+	name := vars.cheatsheet_menu.active, ini := IniBatchRead("cheat-sheets" vars.poe_version "\" name "\info.ini")
 	Loop 4
 	{
 		vars.cheatsheets.list[name].entries[vars.cheatsheet_menu.entry].panels[A_Index] := LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index])
 		If (StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") != ini[vars.cheatsheet_menu.entry]["panel " A_Index])
-			IniWrite, % """" StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") """", % "cheat-sheets\"name "\info.ini", % vars.cheatsheet_menu.entry, % "panel " A_Index
+			IniWrite, % """" StrReplace(LLK_ControlGet(vars.hwnd.cheatsheet_menu["panelentry_"A_Index]), "`n", "^^^") """", % "cheat-sheets" vars.poe_version "\"name "\info.ini", % vars.cheatsheet_menu.entry, % "panel " A_Index
 	}
 }
 
@@ -1219,14 +1216,14 @@ Cheatsheet_MenuPaste(index)
 			{
 				If !InStr(".bmp.png.jpg", SubStr(A_LoopField, -3))
 					continue
-				FileCopy, % A_LoopField, % "cheat-sheets\"name "\["index "].*", 1
+				FileCopy, % A_LoopField, % "cheat-sheets" vars.poe_version "\"name "\["index "].*", 1
 				index += 1, index := (index < 10) ? "0" index : index
 			}
 			Return
 		}
 	}
 	Else If InStr(Clipboard, ":\") && InStr(".bmp.png.jpg", SubStr(Clipboard, -3)) ;single img-file in clipboard
-		FileCopy, % Clipboard, % "cheat-sheets\"name "\["index "].*", 1
+		FileCopy, % Clipboard, % "cheat-sheets" vars.poe_version "\"name "\["index "].*", 1
 	Else
 	{
 		pBitmap := Gdip_CreateBitmapFromClipboard()
@@ -1237,8 +1234,8 @@ Cheatsheet_MenuPaste(index)
 		}
 		Else
 		{
-			FileDelete, "cheat-sheets\"name "\["index "]*"
-			Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets\"name "\["index "].png", 100)
+			FileDelete, "cheat-sheets" vars.poe_version "\"name "\["index "]*"
+			Gdip_SaveBitmapToFile(pBitmap, "cheat-sheets" vars.poe_version "\"name "\["index "].png", 100)
 			Gdip_DisposeImage(pBitmap)
 		}
 	}
@@ -1250,7 +1247,7 @@ Cheatsheet_MenuPreview(name, filename)
 	local
 	global vars, settings
 
-	If !FileExist("cheat-sheets\" name "\" filename)
+	If !FileExist("cheat-sheets" vars.poe_version "\" name "\" filename)
 	{
 		LLK_ToolTip(Lang_Trans("cheat_filemissing"),,,,, "red")
 		KeyWait, LButton
@@ -1263,7 +1260,7 @@ Cheatsheet_MenuPreview(name, filename)
 	vars.hwnd.cheatsheet_tooltip := hwnd
 
 	file := ""
-	Loop, Files, % "cheat-sheets\"name "\"filename
+	Loop, Files, % "cheat-sheets" vars.poe_version "\"name "\"filename
 	{
 		If InStr("jpg,bmp,png", A_LoopFileExt)
 		{
@@ -1324,7 +1321,7 @@ Cheatsheet_MenuTag(cHWND, index)
 		GuiControl,, % cHWND, % ""
 		Return
 	}
-	If FileExist("cheat-sheets\"name "\*] "key ".*")
+	If FileExist("cheat-sheets" vars.poe_version "\"name "\*] "key ".*")
 	{
 		LLK_ToolTip(Lang_Trans("m_hotkeys_error", 2), 1.5, x + w, y,, "red")
 		GuiControl,, % cHWND, % ""
@@ -1332,8 +1329,8 @@ Cheatsheet_MenuTag(cHWND, index)
 	}
 
 	If key
-		FileMove, % "cheat-sheets\"name "\["index "]*", % "cheat-sheets\"name "\["index "] "key ".*", 1
-	Else FileMove, % "cheat-sheets\"name "\["index "]*", % "cheat-sheets\"name "\["index "].*", 1
+		FileMove, % "cheat-sheets" vars.poe_version "\"name "\["index "]*", % "cheat-sheets" vars.poe_version "\"name "\["index "] "key ".*", 1
+	Else FileMove, % "cheat-sheets" vars.poe_version "\"name "\["index "]*", % "cheat-sheets" vars.poe_version "\"name "\["index "].*", 1
 }
 
 Cheatsheet_Rank()
@@ -1348,7 +1345,7 @@ Cheatsheet_Rank()
 	If InStr(check, "panel")
 	{
 		vars.cheatsheets.list[name].entries[entry].ranks[control] := rank
-		IniWrite, % rank, % "cheat-sheets\"name "\info.ini", % entry, % "panel "control " rank"
+		IniWrite, % rank, % "cheat-sheets" vars.poe_version "\"name "\info.ini", % entry, % "panel "control " rank"
 		GuiControl, % "+c"settings.cheatsheets.colors[rank], % vars.general.cMouse
 		GuiControl, % "movedraw", % vars.general.cMouse
 	}
@@ -1360,7 +1357,7 @@ Cheatsheet_Search(name)
 	local
 	global vars, settings
 
-	If !FileExist("cheat-sheets\"name "\[check].bmp") ;return 0 if reference img-file is missing
+	If !FileExist("cheat-sheets" vars.poe_version "\"name "\[check].bmp") ;return 0 if reference img-file is missing
 	{
 		If InStr(A_Gui, "settings_menu")
 			LLK_ToolTip(Lang_Trans("global_calibrate", 2),,,,, "yellow")
@@ -1383,7 +1380,7 @@ Cheatsheet_Search(name)
 		: (vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 + 100 >= vars.client.h) ? vars.client.h - 1 : vars.cheatsheets.list[name].y1 + vars.cheatsheets.list[name].y2 + 100
 	}
 
-	pNeedle := Gdip_CreateBitmapFromFile("cheat-sheets\"name "\[check].bmp") ;load reference img-file that will be searched for in the screenshot
+	pNeedle := Gdip_CreateBitmapFromFile("cheat-sheets" vars.poe_version "\"name "\[check].bmp") ;load reference img-file that will be searched for in the screenshot
 	If (pNeedle <= 0)
 	{
 		MsgBox, % Lang_Trans("cheat_loaderror") " " name
@@ -1395,7 +1392,7 @@ Cheatsheet_Search(name)
 		If InStr(A_Gui, "settings_menu") ;if search was initiated from settings menu, save positive coordinates
 		{
 			Gdip_GetImageDimension(pNeedle, width, height) ;get dimensions of the reference img-file
-			IniWrite, % LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height), % "cheat-sheets\"name "\info.ini", image search, last coordinates ;write string to ini-file
+			IniWrite, % LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height), % "cheat-sheets" vars.poe_version "\"name "\info.ini", image search, last coordinates ;write string to ini-file
 		}
 		Gdip_DisposeImage(pNeedle) ;clear reference-img file from memory
 		If InStr(A_Gui, "settings_menu")
@@ -1416,7 +1413,7 @@ Cheatsheet_TAB()
 	local
 	global vars, settings
 
-	If FileExist("cheat-sheets\"vars.cheatsheets.active.name "\[00].*")
+	If FileExist("cheat-sheets" vars.poe_version "\"vars.cheatsheets.active.name "\[00].*")
 	{
 		Cheatsheet_Image("", vars.hotkeys.tab)
 		KeyWait, % vars.hotkeys.tab

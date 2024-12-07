@@ -94,8 +94,8 @@ Cloneframes_SettingsAdd()
 		Return
 	}
 
-	IniDelete, ini\clone frames.ini, % name
-	IniWrite, 1, ini\clone frames.ini, % name, enable
+	IniDelete, % "ini" vars.poe_version "\clone frames.ini", % name
+	IniWrite, 1, % "ini" vars.poe_version "\clone frames.ini", % name, enable
 	Init_cloneframes()
 	Settings_menu("clone-frames")
 }
@@ -155,15 +155,15 @@ Cloneframes_SettingsSave()
 	global vars, settings
 
 	name := vars.cloneframes.editing
-	IniWrite, % vars.cloneframes.list[name].xSource, ini\clone frames.ini, % name, source x-coordinate
-	IniWrite, % vars.cloneframes.list[name].ySource, ini\clone frames.ini, % name, source y-coordinate
-	IniWrite, % vars.cloneframes.list[name].xTarget, ini\clone frames.ini, % name, target x-coordinate
-	IniWrite, % vars.cloneframes.list[name].yTarget, ini\clone frames.ini, % name, target y-coordinate
-	IniWrite, % vars.cloneframes.list[name].width, ini\clone frames.ini, % name, frame-width
-	IniWrite, % vars.cloneframes.list[name].height, ini\clone frames.ini, % name, frame-height
-	IniWrite, % vars.cloneframes.list[name].xScale, ini\clone frames.ini, % name, scaling x-axis
-	IniWrite, % vars.cloneframes.list[name].yScale, ini\clone frames.ini, % name, scaling y-axis
-	IniWrite, % vars.cloneframes.list[name].opacity, ini\clone frames.ini, % name, opacity
+	IniWrite, % vars.cloneframes.list[name].xSource, % "ini" vars.poe_version "\clone frames.ini", % name, source x-coordinate
+	IniWrite, % vars.cloneframes.list[name].ySource, % "ini" vars.poe_version "\clone frames.ini", % name, source y-coordinate
+	IniWrite, % vars.cloneframes.list[name].xTarget, % "ini" vars.poe_version "\clone frames.ini", % name, target x-coordinate
+	IniWrite, % vars.cloneframes.list[name].yTarget, % "ini" vars.poe_version "\clone frames.ini", % name, target y-coordinate
+	IniWrite, % vars.cloneframes.list[name].width, % "ini" vars.poe_version "\clone frames.ini", % name, frame-width
+	IniWrite, % vars.cloneframes.list[name].height, % "ini" vars.poe_version "\clone frames.ini", % name, frame-height
+	IniWrite, % vars.cloneframes.list[name].xScale, % "ini" vars.poe_version "\clone frames.ini", % name, scaling x-axis
+	IniWrite, % vars.cloneframes.list[name].yScale, % "ini" vars.poe_version "\clone frames.ini", % name, scaling y-axis
+	IniWrite, % vars.cloneframes.list[name].opacity, % "ini" vars.poe_version "\clone frames.ini", % name, opacity
 
 	Cloneframes_SettingsRefresh()
 }

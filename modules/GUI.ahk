@@ -223,8 +223,8 @@ Gui_ToolbarButtons(cHWND, hotkey)
 					Sleep 1
 				}
 				KeyWait, LButton
-				IniWrite, % xPos, ini\config.ini, UI, button xcoord
-				IniWrite, % yPos, ini\config.ini, UI, button ycoord
+				IniWrite, % xPos, % "ini" vars.poe_version "\config.ini", UI, button xcoord
+				IniWrite, % yPos, % "ini" vars.poe_version "\config.ini", UI, button ycoord
 				settings.general.xButton := xPos, settings.general.yButton := yPos, vars.general.drag := 0
 				Init_GUI()
 				WinActivate, ahk_group poe_window
@@ -240,7 +240,7 @@ Gui_ToolbarButtons(cHWND, hotkey)
 		{
 			KeyWait, RButton
 			settings.gui.oToolbar := (settings.gui.oToolbar = "horizontal") ? "vertical" : "horizontal"
-			IniWrite, % settings.gui.oToolbar, ini\config.ini, UI, toolbar-orientation
+			IniWrite, % settings.gui.oToolbar, % "ini" vars.poe_version "\config.ini", UI, toolbar-orientation
 			Init_GUI("refresh")
 		}
 		Else If WinExist("ahk_id "vars.hwnd.settings.main)
