@@ -338,7 +338,7 @@ Settings_cloneframes()
 		vars.hwnd.help_tooltips["settings_cloneframes toggle-info"] := hwnd
 	}
 
-	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR")
+	If !vars.poe_version && vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR")
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, % Lang_Trans("m_clone_gamescreen")
 		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
@@ -578,7 +578,7 @@ Settings_general()
 	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd gSettings_general2 Checked" settings.general.capslock, % Lang_Trans("m_general_capslock")
 	vars.hwnd.settings.capslock := hwnd, vars.hwnd.help_tooltips["settings_capslock toggling"] := hwnd, check := ""
 
-	If vars.log.file_location
+	If !vars.poe_version && vars.log.file_location
 	{
 		dimensions := [Lang_Trans("m_general_character"), vars.log.level && settings.features.maptracker && settings.maptracker.character ? Lang_Trans("m_general_build") : ""]
 		LLK_PanelDimensions(dimensions, settings.general.fSize, wChar, hChar,,, 0), wName := settings.general.fWidth2 * 18
@@ -1012,15 +1012,18 @@ Settings_hotkeys()
 
 	If !vars.client.stream
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.rebound_alt, % Lang_Trans("m_hotkeys_descriptions")
-		vars.hwnd.settings.rebound_alt := hwnd, vars.hwnd.help_tooltips["settings_hotkeys ingame-keybinds"] := hwnd0
-		If settings.hotkeys.rebound_alt
+		If !vars.poe_version
 		{
-			Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 xp+" settings.general.fWidth * 1.5, % Lang_Trans("m_hotkeys_descriptions", 2)
-			Gui, %GUI%: font, % "s"settings.general.fSize - 4
-			Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp gSettings_hotkeys2 w"settings.general.fWidth*10 " HWNDhwnd cBlack", % settings.hotkeys.item_descriptions
-			vars.hwnd.help_tooltips["settings_hotkeys altkey"] := hwnd0, vars.hwnd.settings.item_descriptions := vars.hwnd.help_tooltips["settings_hotkeys altkey|"] := hwnd
-			Gui, %GUI%: font, % "s"settings.general.fSize
+			Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked"settings.hotkeys.rebound_alt, % Lang_Trans("m_hotkeys_descriptions")
+			vars.hwnd.settings.rebound_alt := hwnd, vars.hwnd.help_tooltips["settings_hotkeys ingame-keybinds"] := hwnd0
+			If settings.hotkeys.rebound_alt
+			{
+				Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 xp+" settings.general.fWidth * 1.5, % Lang_Trans("m_hotkeys_descriptions", 2)
+				Gui, %GUI%: font, % "s"settings.general.fSize - 4
+				Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/2 " hp gSettings_hotkeys2 w"settings.general.fWidth*10 " HWNDhwnd cBlack", % settings.hotkeys.item_descriptions
+				vars.hwnd.help_tooltips["settings_hotkeys altkey"] := hwnd0, vars.hwnd.settings.item_descriptions := vars.hwnd.help_tooltips["settings_hotkeys altkey|"] := hwnd
+				Gui, %GUI%: font, % "s"settings.general.fSize
+			}
 		}
 		Gui, %GUI%: Add, Checkbox, % "xs Section HWNDhwnd gSettings_hotkeys2 Checked" settings.hotkeys.rebound_c " x" x_anchor, % Lang_Trans("m_hotkeys_ckey")
 		vars.hwnd.settings.rebound_c := hwnd
@@ -1079,6 +1082,7 @@ Settings_hotkeys()
 	vars.hwnd.settings.emergencykey := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize + 4
 	Gui, %GUI%: Add, Text, % "xs Border gSettings_hotkeys2 Hidden cRed Section HWNDhwnd y+"vars.settings.spacing, % " " Lang_Trans("global_restart") " "
+	Gui, %GUI%: Add, Text, % "xp yp wp hp BackgroundTrans", % ""
 	vars.hwnd.settings.apply := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 }
@@ -2414,7 +2418,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 		For key, val in vars.settings.sections
 		{
 			If (val = "general") || (val = "screen-checks") && !IsNumber(vars.pixelsearch.gamescreen.x1) || !vars.log.file_location && (val = "mapping tracker")
-			|| (WinExist("ahk_exe GeForceNOW.exe") || WinExist("ahk_exe boosteroid.exe")) && InStr("item-info, map-info, filterspoon", val)
+			|| WinExist("ahk_exe GeForceNOW.exe") && InStr("item-info, map-info, filterspoon", val)
 				Continue
 			color := (val = "updater" && IsNumber(vars.update.1) && vars.update.1 < 0) ? " cRed" : (val = "updater" && IsNumber(vars.update.1) && vars.update.1 > 0) ? " cLime" : ""
 			color := feature_check[val] && !settings.features[feature_check[val]] || (val = "clone-frames") && !vars.cloneframes.enabled || (val = "search-strings") && !vars.searchstrings.enabled || (val = "minor qol tools") && !(settings.qol.alarm + settings.qol.lab + settings.qol.notepad) ? " cGray" : color, color := feature_check2[val] && (settings.general.lang_client = "unknown") ? " cGray" : color
@@ -2834,7 +2838,7 @@ Settings_qol()
 		}
 	}
 
-	If vars.client.stream
+	If vars.client.stream || vars.poe_version
 		Return
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "Section xs HWNDhwnd0 y+"vars.settings.spacing (settings.general.lang_client = "unknown" ? " cGray" : ""), % Lang_Trans("m_qol_lab")
@@ -3029,6 +3033,8 @@ Settings_screenchecks()
 
 	For key in vars.pixelsearch.list
 	{
+		If vars.poe_version && (key = "gamescreen")
+			Continue
 		Gui, %GUI%: Add, Text, % "xs Section border gSettings_screenchecks2 HWNDhwnd", % " " Lang_Trans("global_info") " "
 		vars.hwnd.settings["info_"key] := vars.hwnd.help_tooltips["settings_screenchecks pixel-info"handle] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " border gSettings_screenchecks2 HWNDhwnd"(Blank(vars.pixelsearch[key].color1) ? " cRed" : ""), % " " Lang_Trans("global_calibrate") " "
@@ -3174,12 +3180,14 @@ Settings_ScreenChecksValid()
 
 	valid := 1
 	For key, val in vars.pixelsearch.list
-		valid *= vars.pixelsearch[key].color1 ? 1 : 0
+		If vars.poe_version && (key = "gamescreen")
+			Continue
+		Else valid *= vars.pixelsearch[key].color1 ? 1 : 0
 
 	For key, val in vars.imagesearch.list
 	{
-		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
-			continue
+		If vars.poe_version || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
+			Continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\" key . vars.poe_version ".bmp") && !Blank(vars.imagesearch[key].x1) ? 1 : 0
 	}
 

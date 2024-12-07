@@ -31,6 +31,8 @@
 
 		If settings.hotkeys.item_descriptions && settings.hotkeys.rebound_alt
 			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
+		Else If vars.poe_version
+			SendInput, ^{c}
 		Else SendInput, !^{c}
 
 		ClipWait, 0.1
@@ -150,7 +152,8 @@ Omnikey2()
 
 	If !Screenchecks_PixelSearch("gamescreen")
 	{
-		Screenchecks_ImageSearch()
+		If !vars.poe_version
+			Screenchecks_ImageSearch()
 		If settings.features.betrayal && vars.imagesearch.betrayal.check
 		{
 			Betrayal(), Omni_Release()
@@ -220,9 +223,10 @@ Omni_Context(mode := 0)
 		Iteminfo(2)
 	clip := !mode ? vars.omnikey.clipboard : Clipboard, item := vars.omnikey.item
 
-	While (!settings.features.stash || GetKeyState("ALT", "P")) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
-		If (A_TickCount >= vars.omnikey.start + 200)
-			Return "essences"
+	If !vars.poe_version
+		While (!settings.features.stash || GetKeyState("ALT", "P")) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
+			If (A_TickCount >= vars.omnikey.start + 200)
+				Return "essences"
 	If settings.features.lootfilter && (item.name || item.itembase) && (WinExist("ahk_id " vars.hwnd.lootfilter.main) || GetKeyState("Shift", "P"))
 		Return "lootfilter"
 	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
@@ -236,11 +240,11 @@ Omni_Context(mode := 0)
 	While settings.features.leveltracker && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = Lang_Trans("items_gem"))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
-	If !settings.features.stash && (item.name = "Orb of Horizons")
+	If !vars.poe_version && !settings.features.stash && (item.name = "Orb of Horizons")
 		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
-	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	If !vars.poe_version && !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
 	&& (item.rarity != Lang_Trans("items_unique"))
 	{
 		While (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
@@ -267,11 +271,14 @@ Omni_Context(mode := 0)
 				Return
 			}
 	}
-	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
-		Return "iteminfo"
-	While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
-		If (A_TickCount >= vars.omnikey.start + 200)
+	If !vars.poe_version
+	{
+		If WinExist("ahk_id " vars.hwnd.iteminfo.main)
 			Return "iteminfo"
+		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
+			If (A_TickCount >= vars.omnikey.start + 200)
+				Return "iteminfo"
+	}
 	If WinExist("ahk_id " vars.hwnd.geartracker.main)
 		Return "geartracker"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"]) || LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"])
@@ -310,7 +317,7 @@ Omni_ContextMenu()
 				vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"]
 			}
 
-			If (item.rarity != Lang_Trans("items_unique"))
+			If (item.rarity != Lang_Trans("items_unique")) && !Blank(item.class)
 			&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || LLK_HasVal(db.item_bases._classes, item.class) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
 			{
 				If !Blank(LLK_HasVal(db.item_bases._classes, item.class))
@@ -331,7 +338,7 @@ Omni_ContextMenu()
 					Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd2" style, % "craft of exile"
 					ControlGetPos,,, w4,,, % "ahk_id " hwnd2
 				}
-				If LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
+				If !vars.poe_version && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
 					Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd3 " style, % "recombination"
 				vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := class, vars.hwnd.omni_context.poedb := hwnd1
 				vars.hwnd.omni_context.craftofexile := hwnd2, vars.hwnd.omni_context.recombination := hwnd3
@@ -371,7 +378,7 @@ Omni_ContextMenu()
 				vars.hwnd.omni_context.seed := hwnd, vars.hwnd.omni_context.vilsol := hwnd1
 			}
 
-			If !item.unid && item.sockets
+			If !item.unid && item.sockets && !vars.poe_version
 			{
 				Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "chromatic calculator"
 				ControlGetPos,,, w11,,, % "ahk_id " hwnd
@@ -404,7 +411,7 @@ Omni_ContextMenuPick(cHWND)
 	{
 		class := StrReplace(vars.omni_context[cHWND], " ", "_"), class := (class = "body_armours") ? "Body_armour" : (InStr(item.itembase, "Runic ") ? "Runic_base_type#" : "") . class
 		class := StrReplace(class, "Jewels", "jewel"), class := InStr(item.class, "heist ") ? "Rogue's_equipment#" . StrReplace(item.class, "heist ") : class
-		Run, % "https://www.poewiki.net/wiki/" . class
+		Run, % "https://www.poe" Trim(vars.poe_version, " ") "wiki.net/wiki/" . class
 	}
 	Else If (check = "poelab")
 	{

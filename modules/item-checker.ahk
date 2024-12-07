@@ -3,7 +3,6 @@
 	local
 	global vars, settings, db, Json
 
-
 	If vars.poe_version
 		Return
 
@@ -191,6 +190,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 				item.itembase := StrReplace(A_LoopField, "synthesised ") ;remove 'synthesised' from the base-type
 		}
 	}
+
 	If (settings.general.lang_client = "english")
 		item.name_copy := item.name, item.itembase_copy := item.itembase
 	item.unid := InStr(clip, "`r`n" Lang_Trans("items_unidentified") "`r`n") ? 1 : 0, Clipboard := clipboard_copy ? clipboard_copy : Clipboard
@@ -209,7 +209,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	{
 		If item.unid || (item.rarity = Lang_Trans("items_normal")) ;unid and normal items = name is also base-type
 			item.itembase := item.name
-		Else If (settings.general.lang_client = "english") && (item.rarity = "magic")
+		Else If !vars.poe_version && (settings.general.lang_client = "english") && (item.rarity = "magic")
 		{
 			Loop, Parse, % vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard, `n, `r
 			{

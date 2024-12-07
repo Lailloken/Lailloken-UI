@@ -13,6 +13,15 @@
 
 	FileGetSize, filesize, % vars.log.file_location, M
 
+	If vars.poe_version
+	{
+		settings.general.lang_client := "english"
+		lang_parse := Lang_Load("english\client.txt")
+		For key, val in lang_parse
+			vars.lang[key] := val.Clone()
+		vars.system.font := Lang_Trans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
+	}
+
 	If !mode
 		settings.general.character := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "active character")
 		, log_file := vars.log.file := FileOpen(vars.log.file_location, "a", "UTF-8"), vars.log.file_size := filesize
@@ -209,11 +218,15 @@ Log_Loop(mode := 0)
 			Alarm("", "", vars.alarm.toggle ? "" : expired)
 	}
 
+	If vars.poe_version && !vars.cloneframes.enabled
+		Return
+
 	If vars.log.file_location ;for the unlikely event where the user manually deletes the client.txt while the tool is still running
 		If IsObject(vars.log.file) && !FileExist(vars.log.file_location)
 			vars.log.file.Close(), vars.log.file := ""
 		Else If !IsObject(vars.log.file) && FileExist(vars.log.file_location)
 			vars.log.file := FileOpen(vars.log.file_location, "a", "UTF-8")
+
 	guide := vars.leveltracker.guide ;short-cut variable
 	If !WinActive("ahk_group poe_ahk_window") || !vars.log.file_location || !WinExist("ahk_group poe_window") || !FileExist(vars.log.file_location)
 		Return
@@ -233,7 +246,7 @@ Log_Loop(mode := 0)
 			If (A_Index = 1) && !Blank(%A_LoopField%)
 				vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
 		}
-		If !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
+		If settings.features.leveltracker && !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
 			Leveltracker_Progress()
 
 		If settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
@@ -264,7 +277,7 @@ Log_Loop(mode := 0)
 			Settings_menu("general",, 0)
 	}
 
-	If mode
+	If mode || vars.poe_version
 		Return
 
 	If settings.qol.lab && InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "Airlock") && vars.log.areaseed && vars.lab.rooms.Count() && !vars.lab.rooms[vars.lab.room.1].seed

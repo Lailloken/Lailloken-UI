@@ -205,10 +205,9 @@ String_Menu2(cHWND)
 	String_MenuSave()
 	If InStr(check, "del_")
 	{
-
 		If LLK_Progress(vars.hwnd.searchstrings_menu["delbar_"control], "LButton")
 		{
-			IniDelete, ini\search-strings.ini, % active.1, % control
+			IniDelete, % "ini" vars.poe_version "\search-strings.ini", % active.1, % control
 			Init_searchstrings()
 			If (active.2 = control)
 				active.2 := ""
@@ -239,7 +238,7 @@ String_Menu2(cHWND)
 			LLK_ToolTip(error.1, error.2, x, y + h,, "red")
 			Return
 		}
-		IniWrite, % "", ini\search-strings.ini, % active.1, % name
+		IniWrite, % "", % "ini" vars.poe_version "\search-strings.ini", % active.1, % name
 		active.2 := name
 		Init_searchstrings()
 	}
@@ -287,7 +286,7 @@ String_MenuSave()
 		edit := SubStr(edit, 1, -1)
 	If (edit != vars.searchstrings.list[active.1].strings[active.2].0)
 	{
-		IniWrite, % """" StrReplace(edit, "`n", " `;`;`; ") """", ini\search-strings.ini, % active.1, % active.2
+		IniWrite, % """" StrReplace(edit, "`n", " `;`;`; ") """", % "ini" vars.poe_version "\search-strings.ini", % active.1, % active.2
 		Init_searchstrings()
 	}
 }
@@ -342,7 +341,7 @@ String_Search(name)
 	global vars, settings
 
 	var := vars.searchstrings.list[name]
-	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;return 0 if reference img-file is missing
+	If !FileExist("img\Recognition ("vars.client.h "p)\GUI\[search-strings" vars.poe_version "] "name ".bmp") ;return 0 if reference img-file is missing
 	{
 		If InStr(A_Gui, "settings_menu")
 			LLK_ToolTip(Lang_Trans("global_calibrate", 2),,,,, "yellow")
@@ -357,7 +356,7 @@ String_Search(name)
 		x1 := 0, y1 := 0, x2 := 0, y2 := 0
 	Else	x1 := var.x1, y1 := var.y1, x2 := var.x2, y2 := var.y2
 
-	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\GUI\[search-strings] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
+	pNeedle_searchstrings := Gdip_CreateBitmapFromFile("img\Recognition ("vars.client.h "p)\GUI\[search-strings" vars.poe_version "] "name ".bmp") ;load reference img-file that will be searched for in the screenshot
 	If InStr(A_Gui, "settings_menu") && (pNeedle_searchstrings <= 0)
 	{
 		MsgBox, % Lang_Trans("cheat_loaderror") " " name
@@ -369,7 +368,7 @@ String_Search(name)
 		If InStr(A_Gui, "settings_menu") ;if search was initiated from settings menu, save positive coordinates
 		{
 			Gdip_GetImageDimension(pNeedle_searchstrings, width, height) ;get dimensions of the reference img-file
-			IniWrite, % LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height), % "ini\search-strings.ini", % name, last coordinates ;write coordinates to ini-file
+			IniWrite, % LIST "," Format("{:0.0f}", width) "," Format("{:0.0f}", height), % "ini" vars.poe_version "\search-strings.ini", % name, last coordinates ;write coordinates to ini-file
 		}
 		Gdip_DisposeImage(pNeedle_searchstrings) ;clear reference-img file from memory
 		If InStr(A_Gui, "settings_menu")
