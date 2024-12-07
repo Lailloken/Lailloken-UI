@@ -1,5 +1,10 @@
 [
   [
+	["1.56.0", 15600],
+	"initial poe2 compatibility update: will be beta for the time being",
+	"clean install in separate folder recommended"
+  ],
+  [
 	["1.55.8", 15508],
 	"poe2 plans: see full changelogs for details",
 	"new experimental feature for lootfilters: filterspoon"
