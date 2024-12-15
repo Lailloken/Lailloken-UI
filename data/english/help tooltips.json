@@ -490,8 +490,12 @@
     ],
     "mapinfo mod settings": [
       "below, you can customize the tiering of specific map mods",
-      "hover over mods and press number keys 1-4 to apply highlighting, or space to strike them out",
+      "hover over mods and press number keys 1-4 to apply highlighting, space to strike them out, or right-click to reset them to un-tiered (white)",
       "use the mod search to find mods, click the – and + buttons to (un)pin mods for quick access"
+    ],
+    "mapinfo reset tiers": [
+      "long-click to reset every map mod tier to default (white, not crossed out)",
+      "(/underline)note: this affects every single mod, not just the pinned ones below"
     ],
     "alarm enable": [
       "timer-widget with alarm/countdown and stopwatch functionality",
@@ -871,9 +875,21 @@
       "long-click to create and apply the new file",
       "(/underline)note: the /itemfilter in-game command will be used, so make sure the chat box is closed and accessible"
     ],
+    "backgroundcolor": [
+      "click to select the background color, right-click to reset to the previous color"
+    ],
+    "bordercolor": [
+      "click to select the border color, right-click to reset to the previous color"
+    ],
+    "textcolor": [
+      "click to select the text color, right-click to reset to the previous color"
+    ],
     "basefilter": [
       "select the filter you want to use as the base",
       "a separate file with your customizations will be created and then applied in game, leaving the base filter unchanged"
+    ],
+    "gui color": [
+      "click to select the background color underneath item labels, or right-click to reset to default"
     ],
     "hide": [
       "hide the entire item-group in game"

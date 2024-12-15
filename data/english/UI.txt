@@ -100,7 +100,7 @@
 		global_enable			=	"enable"
 		global_reset			=	"reset"
 		global_color			=	"color"
-		global_color			=	"colors"
+		global_color			=	"colors:"
 		global_opacity			=	"opacity:"
 		global_tier			=	"tier"
 		global_ilvl			=	"ilvl"
@@ -357,6 +357,7 @@
 		lootfilter_unsaved		=	"long-press to discard"
 		lootfilter_update		=	"apply base filter updates"
 		lootfilter_addstack		=	"add stack:"
+		lootfilter_selection		=	"current selection:"
 
 
 
@@ -851,6 +852,7 @@
 		m_mapinfo_pinned		=	"pinned mods:"
 		m_mapinfo_modsearch		=	"mod search:"
 		m_mapinfo_roll_highlight	=	"highlight map rolls"
+		m_mapinfo_reset			=	"reset tiers"
 
 
 
