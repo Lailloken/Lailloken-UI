@@ -623,6 +623,153 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	vars.tooltip.wait := 0
 }
 
+RGB_Convert(RGB)
+{
+	local
+
+	If InStr(RGB, " ")
+	{
+		Loop, Parse, RGB, % A_Space
+			If (A_Index < 4)
+				converted .= Format("{:02X}", A_LoopField)
+		Return converted
+	}
+	For index, val in ["red", "green", "blue"]
+		%val% := Format("{:i}", "0x" SubStr(RGB, 1 + 2*(index - 1), 2))
+	Return [red, green, blue]
+}
+
+RGB_Picker(RGB := "")
+{
+	local
+	global vars, settings
+	static palette, hwnd_r, hwnd_g, hwnd_b, hwnd_edit_r, hwnd_edit_g, hwnd_edit_b, hwnd_final, sliders
+
+	If !palette
+	{
+		palette := []
+		palette.Push(["330000", "660000", "990000", "CC0000", "FF0000", "FF3333", "FF6666", "FF9999", "FFCCCC"])
+		palette.Push(["331900", "663300", "994C00", "CC6600", "FF8000", "FF9933", "FFB266", "FFCC99", "FFE5CC"])
+		palette.Push(["333300", "666600", "999900", "CCCC00", "FFFF00", "FFFF33", "FFFF66", "FFFF99", "FFFFCC"])
+		palette.Push(["193300", "336600", "4C9900", "66CC00", "80FF00", "99FF33", "B2FF66", "CCFF99", "E5FFCC"])
+		palette.Push(["003300", "006600", "009900", "00CC00", "00FF00", "33FF33", "66FF66", "99FF99", "CCFFCC"])
+		palette.Push(["003319", "006633", "00994C", "00CC66", "00FF80", "33FF99", "66FFB2", "99FFCC", "CCFFE5"])
+		palette.Push(["003333", "006666", "009999", "00CCCC", "00FFFF", "33FFFF", "66FFFF", "99FFFF", "CCFFFF"])
+		palette.Push(["001933", "003366", "004C99", "0066CC", "0080FF", "3399FF", "66B2FF", "99CCFF", "CCE5FF"])
+		palette.Push(["000033", "000066", "000099", "0000CC", "0000FF", "3333FF", "6666FF", "9999FF", "CCCCFF"])
+		palette.Push(["190033", "330066", "4C0099", "6600CC", "7F00FF", "9933FF", "B266FF", "CC99FF", "E5CCFF"])
+		palette.Push(["330033", "660066", "990099", "CC00CC", "FF00FF", "FF33FF", "FF66FF", "FF99FF", "FFCCFF"])
+		palette.Push(["330019", "660033", "99004C", "CC0066", "FF007F", "FF3399", "FF66B2", "FF99CC", "FFCCE5"])
+		palette.Push(["000000", "202020", "404040", "606060", "808080", "A0A0A0", "C0C0C0", "E0E0E0", "FFFFFF"])
+	}
+
+	If (A_Gui = "RGB_palette")
+	{
+		Loop, Parse, % "rgb"
+			If (RGB = hwnd_%A_LoopField%)
+				GuiControl,, % hwnd_edit_%A_LoopField%, % (input := LLK_ControlGet(RGB))
+			Else If (RGB = hwnd_edit_%A_LoopField%)
+			{
+				If ((input := LLK_ControlGet(RGB)) > 255)
+				{
+					GuiControl, -gRGB_Picker, % RGB
+					GuiControl,, % RGB, % (input := 255)
+					GuiControl, +gRGB_Picker, % RGB
+				}
+				GuiControl,, % hwnd_%A_LoopField%, % input
+			}
+		Return
+	}
+
+	hwnd_GUI := {}
+	Gui, RGB_palette: New, -Caption -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Border HWNDhwnd +E0x02000000 +E0x00080000 HWNDhwnd_palette
+	Gui, RGB_palette: Color, Black
+	Gui, RGB_palette: Font, % "s" settings.general.fSize " cWhite", % vars.system.font
+	Gui, RGB_palette: Margin, % settings.general.fWidth, % settings.general.fWidth
+
+	For index0, val0 in palette
+		For index, val in val0
+		{
+			style := (A_Index = 1) ? "Section " (index0 != 1 ? "ys x+-1" : "") : "xs y+" (LLK_IsBetween(index, 5, 6) ? settings.general.fWidth / 5 : -1), columns := index0
+			Gui, RGB_palette: Add, Text, % style " Center 0x200 BackgroundTrans HWNDhwnd_" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " c" (index >= 5 ? "Black" : "White"), % (RGB = val) ? "X" : ""
+			If (RGB = val)
+				marked := val
+			Gui, RGB_palette: Add, Progress, % "xp yp Disabled Background606060 c" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " HWNDhwnd", 100
+			hwnd_GUI[hwnd] := """" val """"
+		}
+
+	For index, val in RGB_Convert(RGB)
+	{
+		letter := (index = 1 ? "R" : (index = 2 ? "G" : "B"))
+		Gui, RGB_palette: Add, Text, % "Section Border Center " (index = 1 ? "x" settings.general.fWidth " y+-1" : "xs y+-1") " w" settings.general.fWidth*3, % letter
+		Gui, RGB_palette: Add, Slider, % "ys x+-1 hp Border Range0-255 Tooltip gRGB_Picker HWNDhwnd_" letter " w" settings.general.fWidth*20 - 9, % val
+		Gui, RGB_palette: Font, % "s" settings.general.fSize - 4
+		Gui, RGB_palette: Add, Edit, % "ys Number Right Limit3 x+-1 hp cBlack gRGB_Picker HWNDhwnd_edit_" letter " w" settings.general.fWidth*3 - 1, % val
+		Gui, RGB_palette: Font, % "s" settings.general.fSize
+	}
+	Gui, RGB_palette: Add, Progress, % "Disabled xs y+-1 Section hp HWNDhwnd_final Background606060 c" (Blank(RGB) ? "000000" : RGB) " w" settings.general.fWidth*3, 100
+	Gui, RGB_palette: Add, Text, % "ys x+-1 Border HWNDhwnd_save 0x200", % " " Lang_Trans("global_apply") " "
+
+	Gui, RGB_palette: Show, % "NA x10000 y10000"
+	WinGetPos,,, w, h, ahk_id %hwnd_palette%
+	xPos := vars.general.xMouse - (vars.general.xMouse - vars.monitor.x + w >= vars.monitor.w ? w - settings.general.fWidth : settings.general.fWidth)
+	yPos := vars.general.yMouse - (vars.general.yMouse - vars.monitor.y + h >= vars.monitor.h ? h - settings.general.fWidth : settings.general.fWidth)
+
+	ControlFocus,, ahk_id %hwnd_save%
+	Gui, RGB_palette: Show, % "x" xPos " y" yPos
+	While (vars.general.wMouse != hwnd_palette) && !timeout
+	{
+		If !start
+			start := A_TickCount
+		If (A_TickCount >= start + 1000) && (vars.general.wMouse != hwnd_palette)
+			timeout := 1
+		Sleep 10
+	}
+	While Blank(picked_rgb) && (vars.general.wMouse = hwnd_palette)
+	{
+		KeyWait, LButton, D T0.1
+		If !ErrorLevel && hwnd_GUI.HasKey(vars.general.cMouse)
+			hover_last := vars.general.cMouse, rgb := StrReplace(hwnd_GUI[hover_last], """")
+		Else If !ErrorLevel && (vars.general.cMouse = hwnd_save)
+		{
+			picked_rgb := current_rgb
+		}
+		Else
+		{
+			current_rgb := ""
+			Loop, Parse, % "rgb"
+				current_rgb .= Format("{:02X}", LLK_ControlGet(hwnd_%A_LoopField%))
+			GuiControl, +c%current_rgb%, % hwnd_final
+			If (current_rgb != marked)
+				GuiControl, Text, % hwnd_%marked%, % ""
+			If (hwnd_%current_rgb%)
+			{
+				GuiControl, Text, % hwnd_%current_rgb%, % "X"
+				marked := current_rgb
+			}
+			Sleep 10
+			Continue
+		}
+		KeyWait, LButton
+		If (rgb != rgb_last)
+		{
+			rgb_last := rgb, sliders := RGB_Convert(rgb)
+			For index, val in ["r", "g", "b"]
+			{
+				GuiControl,, % hwnd_%val%, % sliders[index]
+				GuiControl,, % hwnd_edit_%val%, % sliders[index]
+				GuiControl, Text, % hwnd_%marked%, % ""
+				GuiControl, Text, % hwnd_%rgb%, % "X"
+				marked := rgb
+			}
+		}
+	}
+	KeyWait, LButton
+	Gui, RGB_palette: Destroy
+	Return picked_rgb
+}
+
+/*
 RGB_Picker(current_rgb := "")
 {
 	local
@@ -690,6 +837,7 @@ RGB_Picker(current_rgb := "")
 	Gui, RGB_palette: Destroy
 	Return picked_rgb
 }
+*/
 
 ToolTip_Mouse(mode := "", timeout := 0)
 {

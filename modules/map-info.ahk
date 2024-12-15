@@ -3,9 +3,6 @@
 	local
 	global vars, settings, db, Json
 
-	If vars.poe_version
-		Return
-
 	If !FileExist("ini" vars.poe_version "\map info.ini")
 	{
 		IniWrite, % "", % "ini" vars.poe_version "\map info.ini", Settings
@@ -14,28 +11,35 @@
 
 	ini := IniBatchRead("ini" vars.poe_version "\map info.ini")
 	If !ini.HasKey("pinned")
-	{
-		IniWrite, % "001=1`n002=1`n003=1`n004=1`n007=1", % "ini" vars.poe_version "\map info.ini", pinned
-		ini.pinned := {"001": 1, "002": 1, "003": 1, "004": 1, "007": 1}
-	}
-	settings.features.mapinfo := (settings.general.lang_client = "unknown") || vars.poe_version ? 0 : LLK_IniRead("ini" vars.poe_version "\config.ini", "Features", "enable map-info panel", 0)
+		If !vars.poe_version
+		{
+			IniWrite, % "001=1`n002=1`n003=1`n004=1`n007=1", % "ini" vars.poe_version "\map info.ini", pinned
+			ini.pinned := {"001": 1, "002": 1, "003": 1, "004": 1, "007": 1}
+		}
+		Else
+		{
+			IniWrite, % "053=1`n054=1`n056=1", % "ini" vars.poe_version "\map info.ini", pinned
+			ini.pinned := {"053": 1, "054": 1, "056": 1}
+		}
+	settings.features.mapinfo := (settings.general.lang_client = "unknown") ? 0 : LLK_IniRead("ini" vars.poe_version "\config.ini", "Features", "enable map-info panel", 0)
 	settings.mapinfo := {"IDs": {}, "pinned": {}}
 
 	For key, val in ini.pinned
 		settings.mapinfo.pinned[key] := val
 
-	Loop, Parse, % StrReplace(LLK_FileRead("data\english\map-info.txt"), "`t"), `n, `r
+	Loop, Parse, % StrReplace(LLK_FileRead("data\english\map-info" vars.poe_version ".txt"), "`t"), `n, `r
 	{
 		If !InStr(A_LoopField, "id=")
 			Continue
-		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": !Blank(check := ini[ID].rank) ? check : 1, "show": !Blank(check1 := ini[ID].show) ? check1 : 1}
+		ID := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1), settings.mapinfo.IDs[ID] := {"rank": !Blank(check := ini[ID].rank) ? check : 0, "show": !Blank(check1 := ini[ID].show) ? check1 : 1}
 	}
 
-	settings.mapinfo.dColor := ["FFFFFF", "f77e05", "Red", "Fuchsia"], settings.mapinfo.eColor_default := ["FFFFFF", "Yellow", "Green", "Lime"]
+	settings.mapinfo.dColor := ["00FF00", "FF8000", "FF0000", "FF00FF"], settings.mapinfo.eColor_default := ["FF8000", "FFFF00", "009900", "00FF00"]
+	settings.mapinfo.dColor.0 := "FFFFFF", settings.mapinfo.eColor_default.0 := "FFFFFF"
 	settings.mapinfo.color := [], settings.mapinfo.eColor := []
-	Loop 4
-		settings.mapinfo.color[A_Index] := !Blank(check := ini.UI["difficulty " A_Index " color"]) ? check : settings.mapinfo.dColor[A_Index]
-	,	settings.mapinfo.eColor[A_Index] := !Blank(check := ini.UI["logbook " A_Index " color"]) ? check : settings.mapinfo.eColor_default[A_Index]
+	Loop 5
+		settings.mapinfo.color[5 - A_Index] := !Blank(check := ini.UI["difficulty " 5 - A_Index " color"]) ? check : settings.mapinfo.dColor[5 - A_Index]
+	,	settings.mapinfo.eColor[5 - A_Index] := !Blank(check := ini.UI["logbook " 5 - A_Index " color"]) ? check : settings.mapinfo.eColor_default[5 - A_Index]
 	settings.mapinfo.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
 	LLK_FontDimensions(settings.mapinfo.fSize, font_height, font_width), settings.mapinfo.fHeight := font_height, settings.mapinfo.fWidth := font_width
 	settings.mapinfo.trigger := !Blank(check := ini.settings["enable shift-clicking"]) ? check : 0
@@ -46,7 +50,7 @@
 		settings.mapinfo.roll_requirements[Lang_Trans("maps_stats_full", A_Index + 1)] := !Blank(check := ini.UI[Lang_Trans("maps_stats_full", A_Index + 1) " requirement"]) ? check : ""
 
 	lang := settings.general.lang_client, db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
-	Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" lang "\map-info.txt") ? lang : "english") "\map-info.txt", 1), "`t"), `n, `r
+	Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" lang "\map-info" vars.poe_version ".txt") ? lang : "english") "\map-info" vars.poe_version ".txt", 1), "`t"), `n, `r
 	{
 		section := (SubStr(A_LoopField, 1, 1) = "[") ? LLK_StringRemove(SubStr(A_LoopField, 2, InStr(A_LoopField, "]") - 2), "# , #") : section
 		If !A_LoopField || (SubStr(A_LoopField, 1, 1) = ";") || (SubStr(A_LoopField, 1, 1) = "[")
@@ -67,6 +71,8 @@
 		{
 			If !IsObject(db.mapinfo.mods[section])
 				db.mapinfo.mods[section] := {}
+			If settings.general.dev && (key = "ID") && db.mapinfo.mods[section].ID
+				MsgBox, % "duplicate: " section
 			db.mapinfo.mods[section][key] := StrReplace(val, "&", "&&")
 			If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
 				MsgBox, % "invalid mod-type for:`n" section
@@ -104,13 +110,18 @@ Mapinfo_GUI(mode := 1)
 	Gui, %GUI_name%: Margin, 0, 0 ;% settings.mapinfo.fWidth/2, % settings.mapinfo.fWidth/2
 	Gui, %GUI_name%: Font, % "s"settings.mapinfo.fSize " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.mapinfo.main, vars.hwnd.mapinfo := {"main": mapinfo}, mod_count := 0
-	summary := summary0 := map.mods . Lang_Trans("maps_stats", 1) " | " map.quantity . Lang_Trans("maps_stats", 2) " | " map.rarity . Lang_Trans("maps_stats", 3) . (!Blank(map.packsize) ? " | " map.packsize . Lang_Trans("maps_stats", 4) : "")
+	If !vars.poe_version
+		summary := summary0 := map.mods . Lang_Trans("maps_stats", 1) " | " map.quantity . Lang_Trans("maps_stats", 2) " | " map.rarity . Lang_Trans("maps_stats", 3)
+		. (!Blank(map.packsize) ? " | " map.packsize . Lang_Trans("maps_stats", 4) : "")
+	Else summary := summary0 := (map.tier >= 11 ? "-20% ele res (t11+)" : map.tier >= 6 ? "-10% ele res (t6+)" : "no res penalty")
+
 	If StrLen(map.maps . map.scarabs . map.currency)
 	{
 		Loop, Parse, % "maps,scarabs,currency", `,
 			If !Blank(map[A_LoopField])
 				add := " | " map[A_LoopField] . Lang_Trans("maps_stats", 4 + A_Index), summary .= add, summary1 .= StrReplace(add, !summary1 ? " | " : "")
 	}
+
 	dimensions := [], summary_array := StrSplit(summary, "|", A_Space), summary_array0 := StrSplit(summary0, "|", A_Space), summary_array1 := StrSplit(summary1, "|", A_Space)
 	LLK_PanelDimensions(summary_array, settings.mapinfo.fSize, wSummary, hSummary)
 
@@ -120,11 +131,11 @@ Mapinfo_GUI(mode := 1)
 			Continue
 		If InStr(category, "(")
 			dimensions.Push(SubStr(category, 1, InStr(category, "(") - 2))
-		Loop 4
+		Loop 5
 		{
-			For index, val in map[category][A_Index]
+			For index, val in map[category][5 - A_Index]
 				dimensions.Push((mode = 2) && InStr(val.1, ":") ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1), mod_count += (SubStr(val.2, 1, 1) != 3) ? 1 : 0
-			For index, val in map[category].0[A_Index]
+			For index, val in map[category][-1][5 - A_Index]
 			{
 				If (mode != 2)
 					dimensions.Push(val.1)
@@ -142,10 +153,10 @@ Mapinfo_GUI(mode := 1)
 	For index0, category in vars.mapinfo.categories
 	{
 		check := 0
-		Loop, 4
-			check += map[category][A_Index].Count() ? map[category][A_Index].Count() : 0
+		Loop, 5
+			check += map[category][5 - A_Index].Count() ? map[category][5 - A_Index].Count() : 0
 		If (mode < 2)
-			For index, array in map[category].0
+			For index, array in map[category][-1]
 				check += array.Count() ? array.Count() : 0
 		If !check
 			Continue
@@ -176,7 +187,7 @@ Mapinfo_GUI(mode := 1)
 			added += 1, count[category] += 1, yControl1 := yControl
 		}
 
-		Loop 4
+		Loop 5
 		{
 			outer := A_Index
 			For index, val in map[category][5 - outer]
@@ -195,11 +206,11 @@ Mapinfo_GUI(mode := 1)
 			}
 		}
 		Gui, %GUI_name%: Font, strike
-		Loop 4
+		Loop 5
 		{
 			If (mode = 2)
 				Break
-			For index, val in map[category].0[5 - A_Index]
+			For index, val in map[category][-1][5 - A_Index]
 			{
 				text := InStr(val.1, ":") && (mode = 2) ? SubStr(val.1, 1, InStr(val.1, ":") - 1) : val.1, prefix := ""
 				If (mode < 2)
@@ -231,7 +242,7 @@ Mapinfo_GUI(mode := 1)
 	}
 
 	rolls := ["mods", "quantity", "rarity", "pack size", "maps", "scarabs", "currency"]
-	If (map.mods + map.quantity > 0)
+	If (map.mods + (!vars.poe_version ? map.quantity : 0) > 0)
 	{
 		;Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans x1 y" yControl + hControl " Section HWNDhwnd Center w" width + settings.mapinfo.fHeight*2 - 3, % summary
 		For index, vSum in summary_array0
@@ -250,20 +261,20 @@ Mapinfo_GUI(mode := 1)
 			If color
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
 		}
-		added := 0, spectrum := [0, 0, 0, 0], spectrum[0] := [0, 0, 0, 0]
+		added := 0, spectrum := [0, 0, 0, 0], spectrum[-1] := [0, 0, 0, 0], spectrum.0 := 0, spectrum[-1].0 := 0
 
 		For index0, category in vars.mapinfo.categories
 		{
 			If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, InStr(category, "(") ? SubStr(category, 1, InStr(category, "(") - 2) : category))
 				Continue
-			Loop 4
+			Loop 5
 			{
-				spectrum[A_Index] += map[category][A_Index].Count() ? map[category][A_Index].Count() : 0
-				spectrum.0[A_Index] += map[category].0[A_Index].Count() ? map[category].0[A_Index].Count() : 0
+				spectrum[5 - A_Index] += map[category][5 - A_Index].Count() ? map[category][5 - A_Index].Count() : 0
+				spectrum[-1][5 - A_Index] += map[category][-1][5 - A_Index].Count() ? map[category][-1][5 - A_Index].Count() : 0
 			}
 		}
 
-		Loop 4
+		Loop 5
 		{
 			index0 := A_Index
 			Loop, % spectrum[5 - A_Index]
@@ -273,10 +284,10 @@ Mapinfo_GUI(mode := 1)
 				added += 1
 			}
 		}
-		Loop 4
+		Loop 5
 		{
 			index0 := A_Index
-			Loop, % spectrum.0[5 - A_Index]
+			Loop, % spectrum[-1][5 - A_Index]
 			{
 				style := !added ? "xs Section HWNDhwnd y+" settings.mapinfo.fHeight//5 " x" wGui/2 - (wSpectrum1 * mod_count)/2 : "ys x+0" ;(Mod(wSpectrum, mod_count) && LLK_IsBetween(added, Floor(mod_count/2), Ceil(mod_count/2)) ? (mod_count > 3 ? 2 : 1) : 0)
 				Gui, %GUI_name%: Add, Progress, % style " BackgroundBlack Border c"settings.mapinfo.color[5 - index0] " w" wSpectrum1 " h"settings.mapinfo.fHeight/3, 100
@@ -313,8 +324,9 @@ Mapinfo_Lineparse(line, ByRef text, ByRef value)
 	local
 	global vars
 
-	If Lang_Match(line, vars.lang.mods_contract_alert, 0) ;remove the %-value from "per x% alert level" contract-mods
-		remove := SubStr(line, InStr(line, vars.lang.mods_contract_alert.1)), remove := SubStr(remove, 1, InStr(remove, vars.lang.mods_contract_alert.2) + StrLen(vars.lang.mods_contract_alert.2) - 1), remove2 := Lang_Trim(remove, vars.lang.mods_contract_alert), line := LLK_StringRemove(line, remove2 " , " remove2 "," remove2)
+	If !vars.poe_version && Lang_Match(line, vars.lang.mods_contract_alert, 0) ;remove the %-value from "per x% alert level" contract-mods
+		remove := SubStr(line, InStr(line, vars.lang.mods_contract_alert.1)), remove := SubStr(remove, 1, InStr(remove, vars.lang.mods_contract_alert.2) + StrLen(vars.lang.mods_contract_alert.2) - 1)
+		, remove2 := Lang_Trim(remove, vars.lang.mods_contract_alert), line := LLK_StringRemove(line, remove2 " , " remove2 "," remove2)
 
 	Loop, Parse, line
 	{
@@ -332,11 +344,14 @@ Mapinfo_Lineparse(line, ByRef text, ByRef value)
 		text := SubStr(text, 1, -1)
 }
 
-Mapinfo_Parse(mode := 1)
+Mapinfo_Parse(mode := 1, poe_version := "")
 {
 	local
 	global vars, settings, db
 	static clip
+
+	If poe_version
+		Return Mapinfo_Parse2(mode)
 
 	item := vars.omnikey.item
 	If mode
@@ -360,8 +375,8 @@ Mapinfo_Parse(mode := 1)
 		vars.mapinfo.active_map[category] := []
 	mod_count := 0, map_mods := {}, content := [], mod_multi := 1, map := vars.mapinfo.active_map, mods := db.mapinfo.mods ;short-cut variables
 	For key in map
-		Loop 5
-			map[key][(A_Index = 5) ? 0 : A_Index] := []
+		Loop 6
+			map[key][5 - A_Index] := []
 
 	Loop, Parse, clip, `;
 	{
@@ -417,7 +432,7 @@ Mapinfo_Parse(mode := 1)
 			While LLK_HasVal(vars.mapinfo.expedition_areas, InStr(vars.mapinfo.categories[index_check], "(") ? SubStr(vars.mapinfo.categories[index_check], 1, InStr(vars.mapinfo.categories[index_check], "(") - 2) : vars.mapinfo.categories[index_check])
 				index_check += 1
 			expedition_npc := vars.mapinfo.expedition_npc := expedition_groups[A_LoopField], key := expedition_area " (" expedition_npc ")", vars.mapinfo.categories.InsertAt(index_check, key), map[key] := []
-			Loop 5
+			Loop 6
 				map[key][5 - A_Index] := []
 		}
 		Else If !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, A_LoopField))
@@ -432,9 +447,9 @@ Mapinfo_Parse(mode := 1)
 				pushtext := InStr(mods[implicit_text].text, ": +") ? StrReplace(mods[implicit_text].text, ": +", ": +" implicit_value,, 1) : InStr(mods[implicit_text].text, "%") ? StrReplace(mods[implicit_text].text, "%", implicit_value "%",, 1) : mods[implicit_text].text
 				If !settings.mapinfo.IDs[mods[implicit_text].id].show
 				{
-					If !IsObject(map[key].0[settings.mapinfo.IDs[mods[implicit_text].id].rank])
-						map[key].0[settings.mapinfo.IDs[mods[implicit_text].id].rank] := []
-					map[key].0[settings.mapinfo.IDs[mods[implicit_text].id].rank].Push([pushtext, mods[implicit_text].id])
+					If !IsObject(map[key][-1][settings.mapinfo.IDs[mods[implicit_text].id].rank])
+						map[key][-1][settings.mapinfo.IDs[mods[implicit_text].id].rank] := []
+					map[key][-1][settings.mapinfo.IDs[mods[implicit_text].id].rank].Push([pushtext, mods[implicit_text].id])
 				}
 				Else map[key][settings.mapinfo.IDs[mods[implicit_text].id].rank].Push([pushtext, mods[implicit_text].id])
 			}
@@ -501,9 +516,9 @@ Mapinfo_Parse(mode := 1)
 		pushtext := StrReplace(pushtext, "(n)", "`n")
 		If !settings.mapinfo.IDs[mods[map_mod].id].show
 		{
-			If !IsObject(map[mods[map_mod].type].0[settings.mapinfo.IDs[mods[map_mod].id].rank])
-				map[mods[map_mod].type].0[settings.mapinfo.IDs[mods[map_mod].id].rank] := []
-			map[mods[map_mod].type].0[settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
+			If !IsObject(map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank])
+				map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank] := []
+			map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
 		}
 		Else map[mods[map_mod].type][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
 	}
@@ -520,6 +535,94 @@ Mapinfo_Parse(mode := 1)
 	Return 1
 }
 
+Mapinfo_Parse2(mode)
+{
+	local
+	global vars, settings, db
+	static clip
+
+	item := vars.omnikey.item
+	If mode
+		clip := StrReplace(Clipboard, " (augmented)")
+
+	If LLK_PatternMatch(item.rarity, "", [Lang_Trans("items_normal"), Lang_Trans("items_unique")])
+		error := [Lang_Trans("m_general_language", 3) ":`n" LLK_StringCase(Lang_Trans("items_normal") " && " Lang_Trans("items_unique")), 1.5, "Red"]
+	Else If item.unid
+		error := [Lang_Trans("m_general_language", 3) ":`n" LLK_StringCase(Lang_Trans("items_unidentified")), 1.5, "Red"]
+
+	If error
+	{
+		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map.cancel := 1
+		Return 0
+	}
+
+	vars.mapinfo.categories := db.mapinfo["mod types"].Clone(), vars.mapinfo.active_map := {}
+	For index, category in vars.mapinfo.categories
+		vars.mapinfo.active_map[category] := []
+	mod_count := 0, map_mods := {}, map := vars.mapinfo.active_map, mods := db.mapinfo.mods, parsed_lines := {}, map.mods := 0
+
+	;If !IsObject(clip)
+	;	clip := StrSplit(clip, "`n", "`r ")
+
+	For key in map
+		Loop 6
+			map[key][5 - A_Index] := []
+
+	Loop, Parse, clip, `n, `r
+	{
+		If !tier
+			If !InStr(A_LoopField, "(")
+				Continue
+			Else tier := SubStr(A_LoopField, InStr(A_LoopField, "(") + 1), tier := SubStr(tier, InStr(tier, " ") + 1), tier := map.tier := SubStr(tier, 1, InStr(tier, ")") - 1), map.name := A_LoopField
+
+		If !item_level
+			If !InStr(A_LoopField, Lang_Trans("items_ilevel"))
+				Continue
+			Else
+			{
+				item_level := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
+				raw_text := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), raw_text := SubStr(raw_text, InStr(raw_text, "-`r`n") + 3), raw_text := SubStr(raw_text, 1, InStr(raw_text, "---") - 3)
+				Break
+			}
+	}
+
+	Loop, Parse, raw_text, `n, `r
+	{
+		If (A_Index = 1)
+			raw_text := ""
+		Mapinfo_Lineparse(Iteminfo_ModRemoveRange(A_LoopField), text, value)
+		raw_text .= (!raw_text ? "" : "`n") text, parsed_lines[text] := !parsed_lines[text] ? value : parsed_lines[text] + value
+	}
+
+	For key, val in db.mapinfo.mods
+		If RegExMatch(raw_text, "i)" StrReplace(key, "|", ".*"))
+		{
+			map.mods += 1
+			Loop, Parse, key, % "|"
+				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, A_LoopField, "",, 1)
+			If InStr(map_mods[key], "freeze buildup")
+				map_mods[key] := SubStr(map_mods[key], 1, InStr(map_mods[key], "/") - 1) ;freeze/ignite/shock hybrid mod is always X/X/X %, so simply display as X%
+		}
+
+	Loop, Parse, raw_text, `n, `r
+		If settings.general.dev && !Blank(A_LoopField)
+			MsgBox, % "unknown mod: " A_LoopField
+
+	For map_mod, value in map_mods
+	{
+		pushtext := InStr(mods[map_mod].text, ": +") || InStr(mods[map_mod].text, ": -") ? StrReplace(StrReplace(mods[map_mod].text, ": -", ": -" value), ": +", ": +" value,, 1) : InStr(mods[map_mod].text, "%") ? StrReplace(mods[map_mod].text, "%", value "%",, 1) : mods[map_mod].text
+		pushtext := StrReplace(pushtext, "(n)", "`n")
+		If !settings.mapinfo.IDs[mods[map_mod].id].show
+		{
+			If !IsObject(map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank])
+				map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank] := []
+			map[mods[map_mod].type][-1][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
+		}
+		Else map[mods[map_mod].type][settings.mapinfo.IDs[mods[map_mod].id].rank].Push([pushtext, mods[map_mod].id])
+	}
+	Return 1
+}
+
 Mapinfo_Rank(hotkey)
 {
 	local
@@ -531,13 +634,15 @@ Mapinfo_Rank(hotkey)
 	If !check
 		Return
 
-	hotkey0 := Hotkeys_RemoveModifiers(hotkey), hotkey := GetKeyName(hotkey0)
+	If !InStr(hotkey, "RButton")
+		hotkey0 := Hotkeys_RemoveModifiers(hotkey), hotkey := GetKeyName(hotkey0)
+	Else hotkey := 0
 
 	If IsNumber(hotkey)
-		IniWrite, % (settings.mapinfo.IDs[control].rank := hotkey), ini\map info.ini, % control, rank
-	Else IniWrite, % (settings.mapinfo.IDs[control].show := !settings.mapinfo.IDs[control].show), ini\map info.ini, % control, show
+		IniWrite, % (settings.mapinfo.IDs[control].rank := hotkey), % "ini" vars.poe_version "\map info.ini", % control, rank
+	Else IniWrite, % (settings.mapinfo.IDs[control].show := !settings.mapinfo.IDs[control].show), % "ini" vars.poe_version "\map info.ini", % control, show
 	If !search
-		Mapinfo_Parse(0), Mapinfo_GUI(0)
+		Mapinfo_Parse(0, vars.poe_version), Mapinfo_GUI(0)
 	Else Settings_menu("map-info",, 0)
 	KeyWait, % hotkey0
 }
