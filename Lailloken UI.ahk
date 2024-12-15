@@ -574,6 +574,25 @@ LLK_ArraySort(array)
 	Return parse2
 }
 
+LLK_CloneObject(object)
+{
+	local
+
+	For key, val in object
+		If !IsNumber(key)
+			is_array := 1
+
+	If is_array
+		new_object := []
+	Else new_object := {}
+
+	For key, val in object
+		If !IsObject(val)
+			new_object[key] := val
+		Else new_object[key] := LLK_CloneObject(val)
+	Return new_object
+}
+
 LLK_Error(ErrorMessage, restart := 0)
 {
 	MsgBox, % ErrorMessage
@@ -639,6 +658,25 @@ LLK_HasKey(object, value, InStr := 0, case_sensitive := 0, all_results := 0, rec
 	If all_results
 		Return (parse.Count() ? parse : "")
 	Return
+}
+
+LLK_HasRegex(object, regex, all_results := 0, check_key := 0)
+{
+	local
+
+	If !IsObject(object)
+		Return
+	parse := []
+	For key, val in object
+		If RegExMatch(!check_key ? val : key, regex)
+		{
+			If !all_results
+				Return key
+			Else parse.Push(key)
+		}
+
+	If all_results && parse.Count()
+		Return parse
 }
 
 LLK_HasVal(object, value, InStr := 0, case_sensitive := 0, all_results := 0, recurse := 0, check_decimals := 0) ; check_decimals is a band-aid fix for very specific use-cases where X and X.000[...] need to be distinguished
@@ -1126,7 +1164,7 @@ Startup()
 
 	GroupAdd, poe_window, ahk_class POEWindowClass
 	GroupAdd, poe_window, ahk_exe GeForceNOW.exe
-	
+
 	GroupAdd, poe_ahk_window, ahk_class POEWindowClass
 	GroupAdd, poe_ahk_window, ahk_class AutoHotkeyGUI
 	GroupAdd, poe_ahk_window, ahk_exe GeForceNOW.exe
