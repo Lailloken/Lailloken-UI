@@ -288,7 +288,7 @@ OCR_Altars()
 					regex_array_copy[index] := ""
 				Else regex .= (!regex ? "" : ".*") val
 
-			regex_results := OCR_HasRegex(header_lookup, regex, 1)
+			regex_results := LLK_HasRegex(header_lookup, regex, 1)
 			If (regex_results.Count() > 1)
 			{
 				regex := ""
@@ -299,7 +299,7 @@ OCR_Altars()
 						blank_regex := ""
 						Loop, Parse, % regex_array[index]
 						{
-							If OCR_HasRegex(header_lookup, OCR_RegexCheck(regex_array_copy, index, blank_regex . A_LoopField), 1)
+							If LLK_HasRegex(header_lookup, OCR_RegexCheck(regex_array_copy, index, blank_regex . A_LoopField), 1)
 								blank_regex .= A_LoopField
 							Else blank_regex .= (SubStr(blank_regex, -1) = ".*") ? "" : ".*"
 						}
@@ -307,7 +307,7 @@ OCR_Altars()
 							regex .= (!regex || SubStr(regex, -1) = ".*" ? "" : ".*") regex_array_copy[index] := blank_regex
 					}
 				}
-				regex_results := OCR_HasRegex(header_lookup, regex, 1)
+				regex_results := LLK_HasRegex(header_lookup, regex, 1)
 			}
 			If (regex_results.Count() = 1) && (key != header_check[regex_results.1])
 				key := header_check[regex_results.1], header += 1, parsed_text[header].Push(key ":")
@@ -356,7 +356,7 @@ OCR_Altars()
 				Else regex .= (regex = "i)") ? vRegex : ".*" vRegex
 			}
 
-			If (OCR_HasRegex(mod_lookup, regex, 1).Count() = 1)
+			If (LLK_HasRegex(mod_lookup, regex, 1).Count() = 1)
 				regex_all := regex
 			Else If (LLK_HasVal(regex_array_copy, 0,,, 1).Count() < regex_array_copy.Count()//2)
 			{
@@ -367,7 +367,7 @@ OCR_Altars()
 						blank_regex := ""
 						Loop, Parse, % regex_array[iRegex]
 						{
-							If OCR_HasRegex(mod_lookup, OCR_RegexCheck(regex_array_copy, iRegex, blank_regex . A_LoopField), 1)
+							If LLK_HasRegex(mod_lookup, OCR_RegexCheck(regex_array_copy, iRegex, blank_regex . A_LoopField), 1)
 								blank_regex .= A_LoopField
 							Else blank_regex .= (SubStr(blank_regex, -1) = ".*") ? "" : ".*"
 						}
@@ -379,7 +379,7 @@ OCR_Altars()
 					If vRegex
 						regex_all .= (regex_all = "i)" ? "" : ".*") vRegex
 			}
-			If (regex_all != "i)") && (regex_result := OCR_HasRegex(mod_lookup, regex_all, 1))
+			If (regex_all != "i)") && (regex_result := LLK_HasRegex(mod_lookup, regex_all, 1))
 				parsed_mods.Push(regex_result.Count() > 1 ? "???" : mod_lookup[regex_result.1])
 		}
 
@@ -512,7 +512,7 @@ OCR_FilterInput(text) ;WIP, currently not in use
 				Else regex .= (InStr(".*i)", SubStr(regex, -1)) ? "" : ".*") word
 
 			For k, array in lookup
-				results += (check := OCR_HasRegex(array, regex, 1).Count()) ? check : 0, usecase0 := check ? k : usecase0
+				results += (check := LLK_HasRegex(array, regex, 1).Count()) ? check : 0, usecase0 := check ? k : usecase0
 			If (results = 1)
 			{
 				usecase := usecase0
@@ -521,25 +521,6 @@ OCR_FilterInput(text) ;WIP, currently not in use
 		}
 	}
 	MsgBox, % usecase
-}
-
-OCR_HasRegex(object, regex, all_results := 0, check_key := 0)
-{
-	local
-
-	If !IsObject(object)
-		Return
-	parse := []
-	For key, val in object
-		If RegExMatch(!check_key ? val : key, regex)
-		{
-			If !all_results
-				Return key
-			Else parse.Push(key)
-		}
-
-	If all_results && parse.Count()
-		Return parse
 }
 
 OCR_Highlight(hotkey)
@@ -619,7 +600,7 @@ OCR_VaalAreas()
 					regex := ""
 					Loop, Parse, % regex_array[index]
 					{
-						check := OCR_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, index, regex . A_LoopField), 1, 1)
+						check := LLK_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, index, regex . A_LoopField), 1, 1)
 						regex .= check.Count() ? A_LoopField : (SubStr(regex, -1) = ".*" ? "" : ".*")
 						If (check.Count() = 1)
 						{
@@ -628,7 +609,7 @@ OCR_VaalAreas()
 						}
 					}
 				}
-			If ((check := OCR_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, 0, ""), 1, 1)).Count() = 1) && !LLK_HasVal(lines[db.vaalareas[check.1].2], (line1 := db.vaalareas[check.1].1))
+			If ((check := LLK_HasRegex(db.vaalareas, OCR_RegexCheck(regex_array_copy, 0, ""), 1, 1)).Count() = 1) && !LLK_HasVal(lines[db.vaalareas[check.1].2], (line1 := db.vaalareas[check.1].1))
 			{
 				If InStr(line1, "corr. packs") && !extra_pack
 				{

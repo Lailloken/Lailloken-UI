@@ -505,7 +505,8 @@ LButton::LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 *SC003::
 *SC004::
 *SC005::
-*SC039::Mapinfo_Rank(A_ThisHotkey)
+*SC039::
+*RButton::Mapinfo_Rank(A_ThisHotkey)
 
 #If (vars.system.timeout = 0) && settings.maptracker.loot && (vars.general.xMouse > vars.monitor.x + vars.monitor.w/2) ;ctrl-clicking loot into stash and logging it
 

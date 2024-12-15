@@ -98,7 +98,13 @@
 			Case "lootfilter":
 				If !IsObject(vars.lootfilter)
 					Init_lootfilter()
+
 				input := LLK_ControlGet(vars.hwnd.lootfilter.search), item := vars.omnikey.item, shift := GetKeyState("Shift", "P")
+				If (item.rarity = Lang_Trans("items_magic")) && !item.itembase
+				{
+					Omni_Release()
+					Return
+				}
 				If !InStr(input, """" (item.itembase ? item.itembase : item.name) """") || !shift && InStr(input, ",")
 				{
 					If shift && !Blank(input)
@@ -106,10 +112,10 @@
 					Else input := """" LLK_StringCase(item.itembase ? item.itembase : item.name) """"
 					If WinExist("ahk_id " vars.hwnd.lootfilter.main)
 						GuiControl,, % vars.hwnd.lootfilter.search, % input
-					Lootfilter_GUI("search", "dock_" (vars.general.xMouse >= vars.monitor.x + vars.client.xc ? "1" : "2"))
+					Lootfilter_GUI("search", "dock_" (vars.general.xMouse >= vars.monitor.x + vars.client.xc ? "1" : "2"), "omnikey")
 				}
 			Case "mapinfo":
-				If Mapinfo_Parse()
+				If Mapinfo_Parse(1, vars.poe_version)
 					Mapinfo_GUI()
 			Case "recombination":
 				Recombination()
@@ -227,7 +233,7 @@ Omni_Context(mode := 0)
 		While (!settings.features.stash || GetKeyState("ALT", "P")) && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && InStr(item.name, "Essence of ", 1) || (item.name = "remnant of corruption")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "essences"
-	If settings.features.lootfilter && (item.name || item.itembase) && (WinExist("ahk_id " vars.hwnd.lootfilter.main) || GetKeyState("Shift", "P"))
+	If settings.features.lootfilter && !vars.general.shift_trigger && (item.name || item.itembase) && (WinExist("ahk_id " vars.hwnd.lootfilter.main) || GetKeyState("Shift", "P"))
 		Return "lootfilter"
 	If WinExist("ahk_id " vars.hwnd.recombination.main) && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
 		Return "recombination"
@@ -244,10 +250,11 @@ Omni_Context(mode := 0)
 		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
-	If !vars.poe_version && !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	If (!vars.poe_version && !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
+	|| vars.poe_version && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Waystone"]))
 	&& (item.rarity != Lang_Trans("items_unique"))
 	{
-		While (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
+		While !vars.poe_version && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])
 			If (A_TickCount >= vars.omnikey.start + 200)
 			{
 				If LLK_PatternMatch(vars.omnikey.clipboard, "", ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"])
@@ -258,6 +265,7 @@ Omni_Context(mode := 0)
 			}
 		If InStr(clip, Lang_Trans("items_mapreward"))
 			Return "context_menu"
+
 		If settings.features.mapinfo
 			Return "mapinfo"
 	}

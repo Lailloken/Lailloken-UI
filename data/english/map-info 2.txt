@@ -1,0 +1,339 @@
+;#####################################################
+;## general information/instructions
+;#####################################################
+
+;## purpose of this file
+	;## the script uses this file to detect specific word patterns in data that was copied from the game-client in order to extract information
+	;## these patterns used to be hard-coded for English only, but they are now exposed in this txt-file and can be adapted to new target languages
+
+
+;## file structure
+	;## the script ignores TABs, empty lines, as well as lines/sections marked as comments (;##)
+	;## the file is divided into [sections]: don't change them unless stated otherwise
+	;## each non-comment line in this file is a key/value pair, divided into two parts:
+		;##	key		=	value
+		;## some keys don't require a value
+
+
+;## map-mods will be grouped into these 5 categories
+;## translate these keys as you see fit, but don't change the order
+
+[mod types]
+player
+monsters
+bosses
+area
+
+
+;## from this point onwards, the [section] will be the strings of map-mods as they are displayed on map-items
+;## replace those strings with the corresponding strings of the target language and use placeholders where applicable
+
+;## each mod belongs to a type (from the five in the [mod types] section above)
+;## there's a sixth "expedition" type: don't change that
+;## you can simply use the "find & replace" feature in text-editors to quickly replace all the "type = X" lines (since there are only 5 different ones)
+
+;## each mod has a short text-string that will be used in the map-info panel instead of the full mod-text
+;## %-signs will be replaced by the actual %-roll of the map-mod, e.g. "ele reflect: %" -> "ele reflect: 15%"
+;## try to trim down the text-strings as much as possible in order to keep the map-info panel compact
+
+;## the text-strings between ID 200 and 300 make heavy use of abbreviations because the original mod-text is very long
+
+[increased Quantity of Items found in this Area]
+type	=	area
+text	=	quant: +%
+ID	=	001
+
+[increased Rarity of Items found in this Area]
+type	=	area
+text	=	rarity: +%
+ID	=	002
+
+[increased Gold found in this Area]
+type	=	area
+text	=	gold: +%
+ID	=	003
+
+[increased Experience gain]
+type	=	player
+text	=	exp: +%
+ID	=	004
+
+[increased Pack size]
+type	=	monsters
+text	=	pack size: +%
+ID	=	005
+
+[increased number of Monster Packs]
+type	=	monsters
+text	=	extra packs: +%
+ID	=	006
+
+[increased amount of Chests]
+type	=	area
+text	=	extra chests: +%
+ID	=	007
+
+[increased Magic Monsters]
+type	=	monsters
+text	=	extra magic: +%
+ID	=	008
+
+[increased number of Rare Monsters]
+type	=	monsters
+text	=	extra rares: +%
+ID	=	009
+
+[increased amount of Magic Chests]
+type	=	area
+text	=	magic chests: +%
+ID	=	010
+
+[increased amount of Rare Chests]
+type	=	area
+text	=	rare chests: +%
+ID	=	011
+
+[increased Magic Pack Size]
+type	=	monsters
+text	=	magic pack size: +%
+ID	=	012
+
+[Rare Monsters have additional Modifier]
+type	=	monsters
+text	=	mods on rares: +
+ID	=	013
+
+[Area contains an additional Shrine]
+type	=	area
+text	=	extra shrine
+ID	=	014
+
+[Area contains an additional Strongbox]
+type	=	area
+text	=	extra strongbox
+ID	=	015
+
+[Area contains an additional Essence]
+type	=	area
+text	=	extra essence
+ID	=	016
+
+[Area contains additional packs of Undead]
+type	=	monsters
+text	=	extra undead packs
+ID	=	017
+
+[Area contains additional packs of Beasts]
+type	=	monsters
+text	=	extra beast packs
+ID	=	018
+
+[Area contains additional packs of Ezomyte Monsters]
+type	=	monsters
+text	=	extra ezomyte packs
+ID	=	019
+
+[Area contains additional packs of Faridun Monsters]
+type	=	monsters
+text	=	extra faridun packs
+ID	=	020
+
+[Area contains additional packs of Vaal Monsters]
+type	=	monsters
+text	=	extra vaal packs
+ID	=	021
+
+[Area contains additional packs of Iron Guards]
+type	=	monsters
+text	=	extra iron guard packs
+ID	=	022
+
+[Area contains additional packs of Plagued Monsters]
+type	=	monsters
+text	=	extra plagued packs
+ID	=	023
+
+[Area contains additional packs of Transcended Monsters]
+type	=	monsters
+text	=	extra transcended packs
+ID	=	024
+
+[Area contains additional packs of Bramble Monsters]
+type	=	monsters
+text	=	extra bramble packs
+ID	=	025
+
+[Monsters deal of Damage as Extra Fire]
+type	=	monsters
+text	=	extra fire dmg: +%
+ID	=	026
+
+[Monsters deal of Damage as Extra Cold]
+type	=	monsters
+text	=	extra cold dmg: +%
+ID	=	027
+
+[Monsters deal of Damage as Extra Lightning]
+type	=	monsters
+text	=	extra light dmg: +%
+ID	=	028
+
+[increased Monster Damage]
+type	=	monsters
+text	=	inc damage: +%
+ID	=	029
+
+[increased Monster Movement Speed|increased Monster Attack Speed|increased Monster Cast Speed]
+type	=	monsters
+text	=	speed: +%
+ID	=	030
+
+[Monsters have increased Critical Hit Chance|to Monster Critical Damage Bonus]
+type	=	monsters
+text	=	crit/multi: +%
+ID	=	031
+
+[more Monster Life]
+type	=	monsters
+text	=	more life: %
+ID	=	032
+
+[Monster Elemental Resistances]
+type	=	monsters
+text	=	ele res: +%
+ID	=	033
+
+[Monsters are Armoured]
+type	=	monsters
+text	=	extra armor
+ID	=	034
+
+[Monsters are Evasive]
+type	=	monsters
+text	=	extra evasion
+ID	=	035
+
+[Monsters gain of Maximum Life as Extra Maximum Energy Shield]
+type	=	monsters
+text	=	life as extra es: %
+ID	=	036
+
+[Monsters have chance to Poison on Hit]
+type	=	monsters
+text	=	poison chance: %
+ID	=	037
+
+[Monsters have chance to Bleed on Hit]
+type	=	monsters
+text	=	bleed chance: %
+ID	=	038
+
+[Monsters have increased Ailment Threshold|Monsters have increased Stun Threshold]
+type	=	monsters
+text	=	stun/ailm thresh: +%
+ID	=	039
+
+[Monsters Break Armour equal to of Physical Damage dealt]
+type	=	monsters
+text	=	dmg breaks armor: %
+ID	=	040
+
+[Monsters have increased Accuracy Rating]
+type	=	monsters
+text	=	inc accuracy: %
+ID	=	041
+
+[Monsters deal of Damage as Extra Chaos]
+type	=	monsters
+text	=	extra chaos dmg: +%
+ID	=	042
+
+[Monsters have increased Stun Buildup]
+type	=	monsters
+text	=	inc stun: +%
+ID	=	043
+
+[Monsters have increased Freeze Buildup|Monsters have increased Ignite Chance|Monsters have increased Shock Chance]
+type	=	monsters
+text	=	freeze/ignite/shock: +%
+ID	=	044
+
+[Monsters fire additional Projectiles]
+type	=	monsters
+text	=	extra proj: +%
+ID	=	045
+
+[Monsters have increased Area of Effect]
+type	=	monsters
+text	=	area of effect: +%
+ID	=	046
+
+[Players are Cursed with Enfeeble]
+type	=	player
+text	=	enfeeble
+ID	=	047
+
+[Players are Cursed with Temporal Chains]
+type	=	player
+text	=	temp chains
+ID	=	048
+
+[Players are Cursed with Elemental Weakness]
+type	=	player
+text	=	ele weakness
+ID	=	049
+
+[Area has patches of Burning Ground]
+type	=	area
+text	=	burning ground
+ID	=	050
+
+[Area has patches of Chilled Ground]
+type	=	area
+text	=	chilled ground
+ID	=	051
+
+[Area has patches of Shocked Ground]
+type	=	area
+text	=	shocked ground
+ID	=	052
+
+[Monster Damage Penetrates Elemental Resistances]
+type	=	monsters
+text	=	ele pen: %
+ID	=	053
+
+[maximum Player Resistances]
+type	=	player
+text	=	max res: -%
+ID	=	054
+
+[Players gain reduced Flask Charges]
+type	=	player
+text	=	flask charges: -%
+ID	=	055
+
+[Players have less Recovery Rate of Life and Energy Shield]
+type	=	player
+text	=	less recovery: %
+ID	=	056
+
+[Players have less Cooldown Recovery Rate]
+type	=	player
+text	=	less cdr: %
+ID	=	057
+
+[Monsters take reduced Extra Damage from Critical Hits]
+type	=	monsters
+text	=	crit res: +%
+ID	=	058
+
+[less effect of Curses on Monsters]
+type	=	player
+text	=	less curse effect: %
+ID	=	059
+
+[Monsters have chance to steal Power, Frenzy and Endurance charges on Hit]
+type	=	monsters
+text	=	steal charges: %
+ID	=	060

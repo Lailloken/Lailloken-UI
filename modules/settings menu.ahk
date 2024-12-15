@@ -1880,7 +1880,7 @@ Settings_lootfilter2(cHWND := "")
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If (check = "enable")
 	{
-		IniWrite, % (settings.features.lootfilter := LLK_ControlGet(cHWND)), ini\config.ini, features, enable filterspoon
+		IniWrite, % (settings.features.lootfilter := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\config.ini", features, enable filterspoon
 		If !settings.features.lootfilter && WinExist("ahk_id " vars.hwnd.lootfilter.main)
 			Lootfilter_GUI("close")
 		Settings_menu("filterspoon")
@@ -1935,36 +1935,39 @@ Settings_mapinfo()
 	}
 	ControlGetPos, xGui,, wGui,,, ahk_id %hwnd%
 
-	Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_mapinfo_logbook")
-	Loop 4
+	If !vars.poe_version
 	{
-		Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/(A_Index = 1 ? 2 : 4) " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.eColor[A_Index], % " " A_Index " "
-		vars.hwnd.settings["colorlogbook_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo logbooks"handle1] := hwnd, handle1 .= "|"
-	}
-
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked" settings.mapinfo.roll_highlight, % Lang_Trans("m_mapinfo_roll_highlight")
-	vars.hwnd.settings.roll_highlight := vars.hwnd.help_tooltips["settings_mapinfo roll highlight"] := hwnd, handle := ""
-	ControlGetPos, xControl,,,,, ahk_id %hwnd%
-	If settings.mapinfo.roll_highlight
-	{
-		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans HWNDhwnd1 Border c" settings.mapinfo.roll_colors.1 " x+" settings.general.fWidth / 4, % " 117" Lang_Trans("maps_stats", 2) " "
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd11 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
-		Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd2 Border w" settings.general.fWidth, % " "
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd21 Border BackgroundBlack c" settings.mapinfo.roll_colors.1, % 100
-		Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd3 Border w" settings.general.fWidth, % " "
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd31 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, % 100
-		Loop 3
-			vars.hwnd.help_tooltips["settings_mapinfo roll colors" handle] := hwnd%A_Index%1, handle .= "|"
-		vars.hwnd.settings.rollcolor_text := hwnd1, vars.hwnd.settings.rollcolor_back := hwnd11
-		vars.hwnd.settings.rollcolor_1 := hwnd2, vars.hwnd.settings.rollcolor_11 := hwnd21
-		vars.hwnd.settings.rollcolor_2 := hwnd3, vars.hwnd.settings.rollcolor_21 := hwnd31, dimensions := [], handle := ""
-		Loop 6
+		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_mapinfo_logbook")
+		Loop 4
 		{
-			Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Center HWNDhwnd Border w" settings.general.fWidth * 2, % Lang_Trans("maps_stats", A_Index + 1)
-			Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-			Gui, %GUI%: Add, Edit, % "ys x+-1 hp Right cBlack Number HWNDhwnd1 Limit3 gSettings_mapinfo2 w" settings.general.fWidth * 3, % settings.mapinfo.roll_requirements[Lang_Trans("maps_stats_full", A_Index + 1)]
-			Gui, %GUI%: Font, % "s" settings.general.fSize
-			vars.hwnd.help_tooltips["settings_mapinfo requirements" handle] := hwnd, vars.hwnd.help_tooltips["settings_mapinfo requirements|" handle] := vars.hwnd.settings["thresh_" Lang_Trans("maps_stats_full", A_Index + 1)] := hwnd1, handle .= "||"
+			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/(A_Index = 1 ? 2 : 4) " Center Border gSettings_mapinfo2 HWNDhwnd c"settings.mapinfo.eColor[A_Index], % " " A_Index " "
+			vars.hwnd.settings["colorlogbook_"A_Index] := vars.hwnd.help_tooltips["settings_mapinfo logbooks"handle1] := hwnd, handle1 .= "|"
+		}
+
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_mapinfo2 HWNDhwnd Checked" settings.mapinfo.roll_highlight, % Lang_Trans("m_mapinfo_roll_highlight")
+		vars.hwnd.settings.roll_highlight := vars.hwnd.help_tooltips["settings_mapinfo roll highlight"] := hwnd, handle := ""
+		ControlGetPos, xControl,,,,, ahk_id %hwnd%
+		If settings.mapinfo.roll_highlight
+		{
+			Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans HWNDhwnd1 Border c" settings.mapinfo.roll_colors.1 " x+" settings.general.fWidth / 4, % " 117" Lang_Trans("maps_stats", 2) " "
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd11 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, 100
+			Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd2 Border w" settings.general.fWidth, % " "
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd21 Border BackgroundBlack c" settings.mapinfo.roll_colors.1, % 100
+			Gui, %GUI%: Add, Text, % "ys x+-1 BackgroundTrans gSettings_mapinfo2 HWNDhwnd3 Border w" settings.general.fWidth, % " "
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp HWNDhwnd31 Border BackgroundBlack c" settings.mapinfo.roll_colors.2, % 100
+			Loop 3
+				vars.hwnd.help_tooltips["settings_mapinfo roll colors" handle] := hwnd%A_Index%1, handle .= "|"
+			vars.hwnd.settings.rollcolor_text := hwnd1, vars.hwnd.settings.rollcolor_back := hwnd11
+			vars.hwnd.settings.rollcolor_1 := hwnd2, vars.hwnd.settings.rollcolor_11 := hwnd21
+			vars.hwnd.settings.rollcolor_2 := hwnd3, vars.hwnd.settings.rollcolor_21 := hwnd31, dimensions := [], handle := ""
+			Loop 6
+			{
+				Gui, %GUI%: Add, Text, % (A_Index = 1 ? "xs Section" : "ys x+" settings.general.fWidth//2) " Center HWNDhwnd Border w" settings.general.fWidth * 2, % Lang_Trans("maps_stats", A_Index + 1)
+				Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+				Gui, %GUI%: Add, Edit, % "ys x+-1 hp Right cBlack Number HWNDhwnd1 Limit3 gSettings_mapinfo2 w" settings.general.fWidth * 3, % settings.mapinfo.roll_requirements[Lang_Trans("maps_stats_full", A_Index + 1)]
+				Gui, %GUI%: Font, % "s" settings.general.fSize
+				vars.hwnd.help_tooltips["settings_mapinfo requirements" handle] := hwnd, vars.hwnd.help_tooltips["settings_mapinfo requirements|" handle] := vars.hwnd.settings["thresh_" Lang_Trans("maps_stats_full", A_Index + 1)] := hwnd1, handle .= "||"
+			}
 		}
 	}
 
@@ -1973,13 +1976,19 @@ Settings_mapinfo()
 	Gui, %GUI%: Font, % "norm"
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 	vars.hwnd.help_tooltips["settings_mapinfo mod settings"] := hwnd
-	Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_mapinfo_pinned")
+
+	Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans gSettings_mapinfo2 HWNDhwnd", % " " Lang_Trans("m_mapinfo_reset") " "
+	Gui, %GUI%: Add, Progress, % "Disabled Range0-500 Vertical xp yp wp hp BackgroundBlack cRed HWNDhwnd2", 0
+	vars.hwnd.settings.reset_tiers := hwnd, vars.hwnd.settings.reset_tiers_bar := vars.hwnd.help_tooltips["settings_mapinfo reset tiers"] := hwnd2
+
 	For ID, val in settings.mapinfo.pinned
 	{
+		If (A_Index = 1)
+			Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_mapinfo_pinned")
 		If !(check := LLK_HasVal(db.mapinfo.mods, ID,,,, 1)) || !val
 			Continue
-		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, ini := IniBatchRead("ini\map info.ini", ID)
-		text := db.mapinfo.mods[check].text, text := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text, color := settings.mapinfo.color[!Blank(check := ini[ID].rank) ? check : 1]
+		ID := (ID < 100 ? "0" : "") . (ID < 10 ? "0" : "") . ID, ini := IniBatchRead("ini" vars.poe_version "\map info.ini", ID)
+		text := db.mapinfo.mods[check].text, text := InStr(text, ":") ? SubStr(text, 1, InStr(text, ":") - 1) : text, color := settings.mapinfo.color[!Blank(check := ini[ID].rank) ? check : 0]
 		style := (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys", show := !Blank(check := ini[ID].show) ? check : 1
 		If !show
 			Gui, %GUI%: Font, strike
@@ -2014,7 +2023,7 @@ Settings_mapinfo()
 				style := !added.Count() || (xLast + wLast + StrLen(text) * settings.general.fWidth >= xGui + wGui) ? "xs Section" : "ys", added[object.ID] := 1
 				If (outer = 1)
 					Continue
-				ini := IniBatchRead("ini\map info.ini", object.ID), color := settings.mapinfo.color[!Blank(check := ini[object.ID].rank) ? check : 1]
+				ini := IniBatchRead("ini" vars.poe_version "\map info.ini", object.ID), color := settings.mapinfo.color[!Blank(check := ini[object.ID].rank) ? check : 0]
 				show := !Blank(check := ini[object.ID].show) ? check : 1, text := InStr(object.text, ":") ? SubStr(object.text, 1, InStr(object.text, ":") - 1) : object.text
 				If !show
 					Gui, %GUI%: Font, strike
@@ -2038,22 +2047,36 @@ Settings_mapinfo2(cHWND)
 	{
 		Case "enable":
 			settings.features.mapinfo := LLK_ControlGet(cHWND)
-			IniWrite, % settings.features.mapinfo, ini\config.ini, features, enable map-info panel
+			IniWrite, % settings.features.mapinfo, % "ini" vars.poe_version "\config.ini", features, enable map-info panel
 			Settings_menu("map-info")
 			LLK_Overlay(vars.hwnd.mapinfo.main, "destroy")
 		Case "shiftclick":
 			settings.mapinfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
-			IniWrite, % settings.mapinfo.trigger, ini\map info.ini, settings, enable shift-clicking
+			IniWrite, % settings.mapinfo.trigger, % "ini" vars.poe_version "\map info.ini", settings, enable shift-clicking
 		Case "tabtoggle":
 			settings.mapinfo.tabtoggle := LLK_ControlGet(cHWND)
-			IniWrite, % settings.mapinfo.tabtoggle, ini\map info.ini, settings, show panel while holding tab
+			IniWrite, % settings.mapinfo.tabtoggle, % "ini" vars.poe_version "\map info.ini", settings, show panel while holding tab
 		Case "modsearch":
 			GuiControl, +cBlack, % cHWND
 		Case "modsearch_ok":
 			vars.settings.mapinfo_search := LLK_ControlGet(cHWND := vars.hwnd.settings.modsearch), Settings_menu("map-info",, 0)
 			Return
+		Case "reset_tiers":
+			If LLK_Progress(vars.hwnd.settings.reset_tiers_bar, "LButton")
+			{
+				For key, val in IniBatchRead("ini" vars.poe_version "\map info.ini")
+					If !IsNumber(key)
+						Continue
+					Else
+					{
+						key := (key < 100 ? "0" : "") . (key < 10 ? "0" : "") . key
+						IniDelete, % "ini" vars.poe_version "\map info.ini", % key
+					}
+				Init_mapinfo(), Settings_menu("map-info")
+			}
+			Else Return
 		Case "roll_highlight":
-			IniWrite, % (settings.mapinfo.roll_highlight := LLK_ControlGet(cHWND)), ini\map info.ini, settings, highlight map rolls
+			IniWrite, % (settings.mapinfo.roll_highlight := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\map info.ini", settings, highlight map rolls
 			Settings_menu("map-info")
 		Default:
 			If InStr(check, "font_")
@@ -2066,12 +2089,12 @@ Settings_mapinfo2(cHWND)
 					GuiControl, text, % vars.hwnd.settings.font_reset, % settings.mapinfo.fSize
 					Sleep 150
 				}
-				IniWrite, % settings.mapinfo.fSize, ini\map info.ini, settings, font-size
+				IniWrite, % settings.mapinfo.fSize, % "ini" vars.poe_version "\map info.ini", settings, font-size
 				LLK_FontDimensions(settings.mapinfo.fSize, height, width), settings.mapinfo.fWidth := width, settings.mapinfo.fHeight := height
 			}
 			Else If InStr(check, "thresh_")
 			{
-				IniWrite, % (settings.mapinfo.roll_requirements[control] := LLK_ControlGet(cHWND)), ini\map info.ini, UI, % control " requirement"
+				IniWrite, % (settings.mapinfo.roll_requirements[control] := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\map info.ini", UI, % control " requirement"
 				Return
 			}
 			Else If InStr(check, "rollcolor")
@@ -2084,7 +2107,7 @@ Settings_mapinfo2(cHWND)
 				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" control "1"]
 				GuiControl, % "+c" color, % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
 				GuiControl, % "movedraw", % vars.hwnd.settings["rollcolor_" (control = 1 ? "text" : "back")]
-				IniWrite, % (settings.mapinfo.roll_colors[control] := color), ini\map info.ini, UI, % "map rolls " (control = 1 ? "text" : "back") " color"
+				IniWrite, % (settings.mapinfo.roll_colors[control] := color), % "ini"vars.poe_version "\map info.ini", UI, % "map rolls " (control = 1 ? "text" : "back") " color"
 			}
 			Else If InStr(check, "color")
 			{
@@ -2095,20 +2118,25 @@ Settings_mapinfo2(cHWND)
 					Return
 				Else settings.mapinfo[key][control] := (vars.system.click = 1) ? picked_rgb : settings.mapinfo[InStr(check, "color_") ? "dColor" : "eColor_default"][control]
 
-				IniWrite, % settings.mapinfo[key][control], ini\map info.ini, UI, % InStr(check, "color_") ? (control = 5 ? "header" : "difficulty " control) " color" : "logbook " control " color"
+				IniWrite, % settings.mapinfo[key][control], % "ini" vars.poe_version "\map info.ini", UI, % InStr(check, "color_") ? (control = 5 ? "header" : "difficulty " control) " color" : "logbook " control " color"
 				GuiControl, % "+c" settings.mapinfo[key][control], % cHWND
 				GuiControl, movedraw, % cHWND
 			}
 			Else If InStr(check, "pin_")
 			{
 				KeyWait, LButton
-				IniWrite, % (settings.mapinfo.pinned[control] := InStr(check, "unpin_") ? 0 : 1), ini\map info.ini, pinned, % control
+				If InStr(check, "unpin_")
+				{
+					settings.mapinfo.pinned.Delete(control)
+					IniDelete, % "ini" vars.poe_version "\map info.ini", pinned, % control
+				}
+				Else IniWrite, % (settings.mapinfo.pinned[control] := 1), % "ini" vars.poe_version "\map info.ini", pinned, % control
 				Settings_menu("map-info",, 0)
 				Return
 			}
 			Else LLK_ToolTip("no action")
 			If WinExist("ahk_id "vars.hwnd.mapinfo.main)
-				Mapinfo_Parse(0), Mapinfo_GUI(GetKeyState(vars.hotkeys.tab, "P") ? 2 : 0)
+				Mapinfo_Parse(0, vars.poe_version), Mapinfo_GUI(GetKeyState(vars.hotkeys.tab, "P") ? 2 : 0)
 	}
 }
 
@@ -2207,7 +2235,7 @@ Settings_maptracker()
 	Gui, %GUI%: Add, Text, % "ys Center gSettings_maptracker2 Border HWNDhwnd x+"settings.general.fWidth/4 " w"settings.general.fWidth * 2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
 
-	Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("global_color", 2) ": "
+	Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("global_color", 2) " "
 	Loop 2
 	{
 		Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans HWNDhwnd0 gSettings_maptracker2 x+" settings.general.fWidth * (A_Index = 1 ? 0 : 0.25) " w" settings.general.fHeight, % ""
@@ -2366,7 +2394,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	{
 		If !vars.poe_version
 			vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "sanctum", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []}
-		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "cheat-sheets", "clone-frames", "minor qol tools", "search-strings"], "sections2": []}
+		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "cheat-sheets", "clone-frames", "filterspoon", "map-info", "minor qol tools", "search-strings"], "sections2": []}
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(Lang_Trans("ms_" val))
 	}
@@ -2796,7 +2824,7 @@ Settings_qol()
 		vars.hwnd.settings.alarmfont_reset := vars.hwnd.help_tooltips["settings_font-size||"] := hwnd
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " HWNDhwnd Border Center gSettings_qol2 w"settings.general.fWidth*2, % "+"
 		vars.hwnd.settings.alarmfont_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
-		Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth, % Lang_Trans("global_color", 2) ":"
+		Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth, % Lang_Trans("global_color", 2)
 
 		Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " BackgroundTrans Border HWNDhwnd gSettings_qol2", % "  "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack HWNDhwnd1 c" settings.alarm.color, 100

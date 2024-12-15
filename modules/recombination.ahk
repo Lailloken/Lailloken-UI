@@ -444,7 +444,7 @@ Recombination_GUI(cHWND := "")
 				Gui, %GUI_name%: Add, Text, % "ys x+"settings.recombination.fWidth/4 " Center Border gRecombination_GUI HWNDhwnd2 w"settings.recombination.fWidth*2, % "+"
 				vars.hwnd.recombination.font_minus := hwnd0, vars.hwnd.recombination.font_reset := hwnd1, vars.hwnd.recombination.font_plus := hwnd2
 
-				Gui, %GUI_name%: Add, Text, % "ys", % Lang_Trans("global_color", 2) ":"
+				Gui, %GUI_name%: Add, Text, % "ys", % Lang_Trans("global_color", 2)
 				For index, val in settings.recombination.colors
 				{
 					Gui, %GUI_name%: Add, Text, % "ys x+" settings.recombination.fWidth/(A_Index = 1 ? 2 : 4) " BackgroundTrans Border HWNDhwnd gRecombination_GUI w" settings.recombination.fHeight " h" settings.recombination.fHeight, % ""

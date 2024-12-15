@@ -184,9 +184,9 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 				item.class_copy := item.class := StrReplace(A_LoopField, Lang_Trans("items_class") " ") ;StrReplace(StrReplace(A_LoopField, "item class: "), " ", "_")
 			If InStr(A_LoopField, Lang_Trans("items_rarity"), 1)
 				item.rarity := StrReplace(A_LoopField, Lang_Trans("items_rarity") " ")
-			If (A_Index = 3)
+			If (A_Index = 3) || !item.class && (A_Index = 2)
 				item.name := StrReplace(StrReplace(A_LoopField, "superior "), "synthesised ") ;remove 'superior' and 'synthesised' from the name
-			If (A_Index = 4)
+			If (A_Index = 4) || !item.class && (A_Index = 3)
 				item.itembase := StrReplace(A_LoopField, "synthesised ") ;remove 'synthesised' from the base-type
 		}
 	}
@@ -2344,12 +2344,14 @@ Iteminfo_Trigger(mode := 0) ;handles shift-clicks on items and currency for the 
 		Sleep 350
 		If settings.hotkeys.rebound_alt && settings.hotkeys.item_descriptions
 			SendInput, % "{" settings.hotkeys.item_descriptions " down}^{c}{" settings.hotkeys.item_descriptions " up}"
+		Else If vars.poe_version
+			SendInput, ^{c}
 		Else SendInput, !^{c}
 		ClipWait, 0.1
 		If Clipboard
 		{
 			If settings.mapinfo.trigger && (Omni_Context(1) = "mapinfo")
-				Iteminfo_Close(), Mapinfo_Parse(), Mapinfo_GUI()
+				Iteminfo_Close(), Mapinfo_Parse(1, vars.poe_version), Mapinfo_GUI()
 			Else If settings.iteminfo.trigger
 				LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), Iteminfo()
 		}
