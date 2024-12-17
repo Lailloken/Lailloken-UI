@@ -3,27 +3,24 @@
 	local
 	global vars, settings, db, Json
 
-	If vars.poe_version
-		Return
-
 	If !FileExist("ini" vars.poe_version "\item-checker.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\item-checker.ini", settings
 	If !FileExist("ini" vars.poe_version "\item-checker gear.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\item-checker gear.ini", amulet
 
 	lang := settings.general.lang_client
-	If !IsObject(db.anoints)
+	If !vars.poe_version && !IsObject(db.anoints)
 		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
 	,	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
 
 	settings.iteminfo := {}, ini := IniBatchRead("ini" vars.poe_version "\item-checker.ini")
 	settings.iteminfo.profile := !Blank(check := ini.settings["current profile"]) ? check : 1
-	settings.iteminfo.modrolls := !Blank(check := ini.settings["hide roll-ranges"]) ? check : 1
+	settings.iteminfo.modrolls := !Blank(check := ini.settings["hide roll-ranges"]) ? check : (vars.poe_version ? 0 : 1)
 	settings.iteminfo.trigger := !Blank(check := ini.settings["enable wisdom-scroll trigger"]) ? check : 0
-	settings.iteminfo.ilvl := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable item-levels"]) ? check : 0
-	settings.iteminfo.itembase := !Blank(check := ini.settings["enable base-info"]) ? check : 1
-	settings.iteminfo.override := !Blank(check := ini.settings["enable blacklist-override"]) ? check : 0
-	settings.iteminfo.compare := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
+	settings.iteminfo.ilvl := (settings.general.lang_client != "english") || vars.poe_version ? 0 : !Blank(check := ini.settings["enable item-levels"]) ? check : 0
+	settings.iteminfo.itembase := !Blank(check := ini.settings["enable base-info"]) ? check : (vars.poe_version ? 0 : 1)
+	settings.iteminfo.override := !Blank(check := ini.settings["enable blacklist-override"]) ? check : (vars.poe_version ? 1 : 0)
+	settings.iteminfo.compare := (settings.general.lang_client != "english") || vars.poe_version ? 0 : !Blank(check := ini.settings["enable gear-tracking"]) ? check : 0
 
 	settings.iteminfo.rules := {}
 	settings.iteminfo.rules.res_weapons := (settings.general.lang_client != "english") ? 0 : !Blank(check := ini.settings["weapon res override"]) ? check : 0
@@ -36,10 +33,10 @@
 	settings.iteminfo.fSize := !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize
 	LLK_FontDimensions(settings.iteminfo.fSize, height, width), settings.iteminfo.fWidth := width, settings.iteminfo.fHeight := height
 
-	settings.iteminfo.dColors_tier := ["00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "00eeee"]
-	settings.iteminfo.dColors_tier[0] := "3399ff"
-	settings.iteminfo.colors_tier := [], settings.iteminfo.colors_ilvl := []
-	settings.iteminfo.dColors_ilvl := ["ffffff", "00bb00", "008000", "ffff00", "ff8c00", "ff4040", "aa0000", "ff00ff"]
+	settings.iteminfo.dColors_marking := ["00FF00", "990000", "00FFFF", "FF00FF"]
+	settings.iteminfo.dColors_tier := ["00FF00", "006600", "FFFF00", "FF8000", "FF3333", "990000", "00FFFF"], settings.iteminfo.dColors_tier[0] := "3399ff"
+	settings.iteminfo.colors_tier := [], settings.iteminfo.colors_ilvl := [], settings.iteminfo.colors_marking := []
+	settings.iteminfo.dColors_ilvl := ["FFFFFF", "00FF00", "006600", "FFFF00", "FF8000", "FF3333", "990000", "FF00FF"]
 	settings.iteminfo.ilevels := ["80", "70", "60", "50", "40", "30", "20", "10"]
 
 	Loop 8 ;load custom colors
@@ -47,6 +44,8 @@
 		settings.iteminfo.colors_tier[A_Index - 1] := !Blank(check := ini.UI[(A_Index = 8) ? "fractured" : "tier " A_Index - 1]) ? check : settings.iteminfo.dColors_tier[A_Index - 1]
 		settings.iteminfo.colors_ilvl[A_Index] := !Blank(check := ini.UI["ilvl tier " A_Index]) ? check : settings.iteminfo.dColors_ilvl[A_Index]
 	}
+	For index, val in ["desired", "undesired", "desired class", "undesired class"]
+		settings.iteminfo.colors_marking[index] := !Blank(check := ini.UI[val " highlighting"]) ? check : settings.iteminfo.dColors_marking[index]
 
 	If !IsObject(vars.iteminfo) ;only do this when the function is called for the very first time (i.e. at startup) ;this function is used whenever major features are toggled on/off
 	{
@@ -241,14 +240,22 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If (refresh = 2)
 		Return
 
-	If !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") ;|| (item.name = "Impossible Escape")
+	If !db.item_bases.HasKey(item.class) && !vars.omnikey.poedb[item.class] || (item.itembase = "Timeless Jewel") || vars.poe_version && (item.rarity = "unique") ;|| (item.name = "Impossible Escape")
 	{
 		LLK_ToolTip(Lang_Trans("ms_item-info") ":`n" Lang_Trans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return
 	}
 
-	Iteminfo_Stats() ;calculate data related to base-stats (defenses)
-	Iteminfo_Mods() ;parse item's mods
+	If vars.poe_version
+	{
+		Iteminfo_Stats2()
+		Iteminfo_Mods2()
+	}
+	Else
+	{
+		Iteminfo_Stats() ;calculate data related to base-stats (defenses)
+		Iteminfo_Mods() ;parse item's mods
+	}
 	Iteminfo_GUI() ;use parsed data to build the tooltip
 }
 
@@ -443,6 +450,92 @@ Iteminfo_Stats()
 				ele_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
 				Loop, Parse, ele_dmg, `,, % A_Space
 					ele_dmg%A_Index% := A_LoopField
+			}
+			If InStr(A_LoopField, Lang_Trans("items_chaos_dmg"))
+				chaos_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+			If InStr(A_LoopField, Lang_Trans("items_aps"))
+			{
+				speed := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+				break
+			}
+		}
+		If phys_dmg
+		{
+			Loop, Parse, phys_dmg, % "-"
+				phys%A_Index% := A_LoopField
+			pdps := Format("{:0.2f}", ((phys1+phys2)/2)*speed)
+		}
+		If ele_dmg
+		{
+			edps2 := 0
+			edps3 := 0
+			Loop, Parse, ele_dmg1, % "-"
+				ele_dmg1_%A_Index% := A_LoopField
+			edps1 := ((ele_dmg1_1+ele_dmg1_2)/2)*speed
+			If ele_dmg2
+			{
+				Loop, Parse, ele_dmg2, % "-"
+					ele_dmg2_%A_Index% := A_LoopField
+				edps2 := ((ele_dmg2_1+ele_dmg2_2)/2)*speed
+			}
+			If ele_dmg3
+			{
+				Loop, Parse, ele_dmg3, % "-"
+					ele_dmg3_%A_Index% := A_LoopField
+				edps3 := ((ele_dmg3_1+ele_dmg3_2)/2)*speed
+			}
+			edps0 := Format("{:0.2f}", edps1 + edps2 + edps3)
+		}
+		If chaos_dmg
+		{
+			Loop, Parse, chaos_dmg, % "-"
+				chaos_dmg%A_Index% := A_LoopField
+			cdps := Format("{:0.2f}", ((chaos_dmg1+chaos_dmg2)/2)*speed)
+		}
+		item.dps := {"total": Format("{:0.2f}", pdps + edps0 + cdps), "phys": pdps, "ele": edps0, "chaos": cdps, "speed": speed}
+		item.dps0 := {"cdps": cdps, "pdps": pdps, "edps": edps0, "speed": speed, "dps": pdps + edps0 + cdps} ;secondary object for dps-comparison that uses a very rigid format (ini-format)
+	}
+}
+
+Iteminfo_Stats2()
+{
+	local
+	global vars, settings
+
+	clip := vars.iteminfo.clipboard, item := vars.iteminfo.item, defenses := {}
+	Loop, Parse, clip, `n, `r ;get the raw defense values and store them
+	{
+		If InStr(A_LoopField, Lang_Trans("items_armour"))
+			defenses.armor := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ": ") + 2), " (augmented)")
+		If InStr(A_LoopField, Lang_Trans("items_evasion"))
+			defenses.evasion := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ": ") + 2), " (augmented)")
+		If InStr(A_LoopField, Lang_Trans("items_energy"))
+			defenses.energy := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ": ") + 2), " (augmented)")
+		If InStr(A_LoopField, Lang_Trans("items_ward"))
+			defenses.ward := StrReplace(SubStr(A_LoopField, InStr(A_LoopField, ": ") + 2), " (augmented)")
+		If InStr(A_LoopField, Lang_Trans("items_requirements"))
+			break
+	}
+
+	If InStr(clip, Lang_Trans("items_aps"))
+		item.type := "attack"
+	Else If defenses.armor || defenses.evasion || defenses.energy || defenses.ward
+		item.type := "defense"
+	Else If InStr("rings,belts,amulets,", item.class) || InStr(item.class, "jewels")
+		item.type := "jewelry"
+	Else item.type := ""
+
+	If (item.type = "attack")
+	{
+		phys_dmg := pdps := ele_count := ele_dmg := ele_dmg1 := ele_dmg2 := ele_dmg3 := edps0 := chaos_dmg := cdps := speed := 0
+		Loop, Parse, clip, `n, `r
+		{
+			If InStr(A_LoopField, Lang_Trans("items_phys_dmg"))
+				phys_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+			Else If InStr(A_LoopField, " damage:")
+			{
+				ele_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2), ele_count += 1
+				ele_dmg%ele_count% := ele_dmg
 			}
 			If InStr(A_LoopField, Lang_Trans("items_chaos_dmg"))
 				chaos_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
@@ -694,6 +787,28 @@ Iteminfo_Mods()
 	}
 
 	clip2 := StrReplace(clip2, "`n{", "|{") ;group lines that belong to a single affix together
+	vars.iteminfo.clipboard2 := clip2
+}
+
+Iteminfo_Mods2()
+{
+	local
+	global vars, settings
+
+	clip := vars.iteminfo.clipboard, item := vars.iteminfo.item
+	clip2 := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), clip2 := SubStr(clip2, InStr(clip2, "--`r`n") + 4), clip2 := Trim(LLK_StringCase(clip2), " `r`n")
+
+	Loop, Parse, clip2, `n, % "`r "
+	{
+		If (A_Index = 1)
+			clip2 := ""
+		If clip2 && InStr(A_LoopField, "---")
+			Break
+		If LLK_PatternMatch(A_LoopField, "", ["(", "---"])
+			Continue
+		clip2 .= (!clip2 ? "" : "|") A_LoopField
+	}
+
 	vars.iteminfo.clipboard2 := clip2
 }
 
@@ -1031,7 +1146,7 @@ Iteminfo_GUI()
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// implicit area
 
-	tColors := settings.iteminfo.colors_tier, iColors := settings.iteminfo.colors_ilvl ;short-cut variables
+	tColors := settings.iteminfo.colors_tier, iColors := settings.iteminfo.colors_ilvl, mColors := settings.iteminfo.colors_marking ;short-cut variables
 	For index, implicit in item.implicits ;add segments to the GUI
 	{
 		;determine if there's a suitable icon for the implicit
@@ -1062,7 +1177,7 @@ Iteminfo_GUI()
 		highlight := Iteminfo_ModHighlight(implicit, 0, 1)
 		If !highlight ;mod is neither desired nor undesired
 			color := "Black"
-		Else color := (highlight = 1) ? tColors.1 : tColors.6
+		Else color := (highlight = 1) ? mColors.1 : mColors.2
 
 		color1 := (color = "Black") ? "White" : "Black"
 		Gui, %GUI_name%: Add, Text, % "xs Center Hidden Border w"UI.wSegment*(UI.segments - 1.25) " HWNDhwnd c"color1, % Iteminfo_ModRemoveRange(implicit) ;add hidden text label as dummy to get the correct height
@@ -1125,7 +1240,7 @@ Iteminfo_GUI()
 		highlight := Iteminfo_ModHighlight(StrReplace(item.cluster.enchant, "`n", ";"), 0, 1)
 		If (highlight = 0) ;mod is neither desired nor undesired
 			color := "Black"
-		Else color := (highlight = 1) ? tColors.1 : tColors.6 ;determine which is the case
+		Else color := (highlight = 1) ? mColors.1 : mColors.2 ;determine which is the case
 
 		Gui, %GUI_name%: Add, Text, % "xs Section Border Hidden Center BackgroundTrans w"UI.wSegment*(UI.segments - 1.25) " cWhite HWNDmain_text", % item.cluster.enchant ;dummy panel to get the correct height
 		GuiControlGet, check_, Pos, %main_text%
@@ -1152,7 +1267,7 @@ Iteminfo_GUI()
 	roll_stats := [], roll_colors := {0: tColors[1], 10: tColors[2], 20: tColors[3], 30: tColors[4], 40: tColors[5], 50: tColors[6]}
 	Loop, Parse, clip2, | ;parse the item-info affix by affix
 	{
-		If (item.class != "base jewels")
+		If !vars.poe_version && (item.class != "base jewels")
 			tier := unique ? "u" : InStr(A_LoopField, Lang_Trans("items_tier")) ? SubStr(A_LoopField, InStr(A_LoopField, Lang_Trans("items_tier")) + StrLen(Lang_Trans("items_tier")) + 1, 2) : InStr(A_LoopField, "(crafted)") ? "c" : "#", tier := InStr(tier, ")") ? StrReplace(tier, ")") : tier ;determine affix tier for non-jewel items
 		Else tier := "?"
 
@@ -1257,7 +1372,7 @@ Iteminfo_GUI()
 			Else ;add (un)desired rectangle for non-uniques
 			{
 				highlights .= highlight := Iteminfo_ModHighlight(A_LoopField) ;highlights = (un)desired highlighting for the whole mod-group, highlight = highlighting for the single part
-				color := !highlight ? "Black" : (highlight = -2) ? iColors.8 : (highlight = -1) ? tColors.6 : (highlight = 1) ? tColors.1 : tColors.7 ;determine the right color
+				color := !highlight ? "Black" : (highlight = -2) ? mColors.4 : (highlight = -1) ? mColors.2 : (highlight = 1) ? mColors.1 : mColors.3 ;determine the right color
 				Gui, %GUI_name%: Add, Text, % "ys hp w"UI.wSegment/4 " Border BackgroundTrans Center", % " " ;add the rectangle
 				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp HWNDhwnd Disabled Border BackgroundBlack c"color, 100 ;color the rectangle
 				vars.hwnd.iteminfo[StrReplace(StrReplace(A_LoopField, " (crafted)"), " (fractured)")] := hwnd ;store the rectangle's HWND and include the mod-text
@@ -1274,17 +1389,17 @@ Iteminfo_GUI()
 			If InStr(A_LoopField, " (fractured)")
 			{
 				color := tColors.7 ;fractured mods have a specific color
-				If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && ((tier = 1) || item.class = "base jewels") ;if the fractured mod is also desired, add red highlighting to the text and make it bold
+				If InStr(highlights, "+",,, vars.poe_version ? 1 : LLK_InStrCount(A_LoopField, "`n")) && ((tier = 1) || item.class = "base jewels") ;if the fractured mod is also desired, add red highlighting to the text and make it bold
 				{
 					color_t := "Red"
 					Gui, %GUI_name%: Font, bold
 				}
 			}
-			Else If InStr(highlights, "-",,, LLK_InStrCount(A_LoopField, "`n")) && settings.iteminfo.override ;if the override-option is enabled and the mod is undesired, apply t6 color
-				color := tColors.6
-			Else If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && (item.class = "base jewels") ;if the item is a base/generic jewel and the mod is desired, override cell colors with t1 color
-				color := tColors.1
-			Else If InStr(highlights, "+",,, LLK_InStrCount(A_LoopField, "`n")) && (tier = 1 || tier = "#") ;if the mod is desired and t1 or untiered, apply white background and red text (Neversink's t1 color-scheme)
+			Else If InStr(highlights, "-",,, vars.poe_version ? 1 : LLK_InStrCount(A_LoopField, "`n")) && settings.iteminfo.override ;if the override-option is enabled and the mod is undesired, apply t6 color
+				color := mColors.2
+			Else If InStr(highlights, "+",,, vars.poe_version ? 1 : LLK_InStrCount(A_LoopField, "`n")) && (item.class = "base jewels") ;if the item is a base/generic jewel and the mod is desired, override cell colors with t1 color
+				color := mColors.1
+			Else If InStr(highlights, "+",,, vars.poe_version ? 1 : LLK_InStrCount(A_LoopField, "`n")) && (tier = 1 || tier = "#") ;if the mod is desired and t1 or untiered, apply white background and red text (Neversink's t1 color-scheme)
 				color := "White", color_t := "Red"
 			Else If (item.class = "base jewels") ;for base/generic jewel mods, use shades of gray (lighter shade = lower weight/probability)
 				color := IsNumber(tier) ? 119-tier*2 . 119-tier*2 . 119-tier*2 : "Black", color_t := (tier < 10) ? "Red" : "White"
@@ -1292,9 +1407,9 @@ Iteminfo_GUI()
 
 			label := Iteminfo_ModgroupCheck(name, 1) ? Iteminfo_ModgroupCheck(name, 1) : Iteminfo_ModCheck(mod, item.type), label := InStr(A_LoopField, " (crafted)") ? "mastercraft" : label ;check for suitable icon
 			width := (label || settings.iteminfo.ilvl && item.class != "base jewels" && ilvl != "??") ? UI.wSegment/2 : UI.wSegment ;determine the width of the cell, and whether it needs to be divided into two parts
-			width := (settings.iteminfo.override && InStr(highlights, "-",,, LLK_InStrCount(A_LoopField, "`n")) && !InStr(A_LoopField, " (fractured)")) ? UI.wSegment : width
+			width := (settings.iteminfo.override && InStr(highlights, "-",,, vars.poe_version ? 1 : LLK_InStrCount(A_LoopField, "`n")) && !InStr(A_LoopField, " (fractured)")) ? UI.wSegment : width
 
-			Gui, %GUI_name%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center cBlack c"color_t, % tier ;add tier-cell
+			Gui, %GUI_name%: Add, Text, % "x"x " y"y " h"height " w"width " BackgroundTrans Border 0x200 Center c" (color = "black" ? "White" : color_t), % tier ;add tier-cell
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack c"color, 100
 			Gui, %GUI_name%: Font, norm
 
@@ -1694,18 +1809,18 @@ Iteminfo_ModHighlight(string, mode := 0, implicit := 0) ;check if mod is highlig
 		If !highlight[implicit_check].HasKey(string) ;mod is not highlighted: add it to highlighted mods and save
 		{
 			highlight[implicit_check][string] := 1
-			IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
+			IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
 			If blacklist[implicit_check].HasKey(string) ;if mod was previously blacklisted, remove it from there and save the blacklist
 			{
 				blacklist[implicit_check].Delete(string)
-				IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
+				IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
 			}
 			Return 1
 		}
 		Else ;mod is highlighted: remove it from highlighted mods and save
 		{
 			highlight[implicit_check].Delete(string)
-			IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
+			IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
 			Return 0
 		}
 	}
@@ -1716,18 +1831,18 @@ Iteminfo_ModHighlight(string, mode := 0, implicit := 0) ;check if mod is highlig
 		If !highlight[item.class_copy].HasKey(string) ;mod is not highlighted: add it to class-specific highlighted mods and save
 		{
 			highlight[item.class_copy][string] := 1
-			IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
+			IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
 			If blacklist[item.class_copy].HasKey(string) ;if mod was previously blacklisted, remove it from there and save the blacklist
 			{
 				blacklist[item.class_copy].Delete(string)
-				IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
+				IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
 			}
 			Return 2
 		}
 		Else ;mod is highlighted: remove it from class-specific highlighted mods and save
 		{
 			highlight[item.class_copy].Delete(string)
-			IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
+			IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
 			Return 0
 		}
 	}
@@ -1743,18 +1858,18 @@ Iteminfo_ModHighlight(string, mode := 0, implicit := 0) ;check if mod is highlig
 		If !blacklist[implicit_check].HasKey(string) ;mod is not blacklisted: add it to blacklisted mods and save
 		{
 			blacklist[implicit_check][string] := 1
-			IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
+			IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
 			If highlight[implicit_check].HasKey(string) ;if mod was previously highlighted, remove it from there and save the highlights
 			{
 				highlight[implicit_check].Delete(string)
-				IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
+				IniWrite, % Iteminfo_ModHighlightString(highlight[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "highlight" : "highlight implicits"
 			}
 			Return 1
 		}
 		Else ;mod is blacklisted: remove it from blacklisted mods and save
 		{
 			blacklist[implicit_check].Delete(string)
-			IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
+			IniWrite, % Iteminfo_ModHighlightString(blacklist[implicit_check]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % !implicit ? "blacklist" : "blacklist implicits"
 			Return 0
 		}
 	}
@@ -1765,18 +1880,18 @@ Iteminfo_ModHighlight(string, mode := 0, implicit := 0) ;check if mod is highlig
 		If !blacklist[item.class_copy].HasKey(string) ;mod is not blacklisted: add it to class-specific blacklisted mods and save
 		{
 			blacklist[item.class_copy][string] := 1
-			IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
+			IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
 			If highlight[item.class_copy].HasKey(string) ;if mod was previously highlighted, remove it from there and save the highlights
 			{
 				highlight[item.class_copy].Delete(string)
-				IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
+				IniWrite, % Iteminfo_ModHighlightString(highlight[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "highlight "item.class_copy
 			}
 			Return 2
 		}
 		Else ;mod is blacklisted: remove it from class-specific blacklist and save
 		{
 			blacklist[item.class_copy].Delete(string)
-			IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
+			IniWrite, % Iteminfo_ModHighlightString(blacklist[item.class_copy]), % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % "blacklist "item.class_copy
 			Return 0
 		}
 	}
@@ -1806,7 +1921,7 @@ Iteminfo_ModInvert(cHWND)
 	Else vars.iteminfo.inverted_mods[mod] := 1
 	For key, val in vars.iteminfo.inverted_mods
 		string .= "|" key "|"
-	IniWrite, % string, ini\item-checker.ini, inverted mods, invert
+	IniWrite, % string, % "ini" vars.poe_version "\item-checker.ini", inverted mods, invert
 	Iteminfo(1)
 }
 
@@ -1872,8 +1987,8 @@ Iteminfo_GearParse(slot) ;parse the info of an equipped item and save it for ite
 	If (hotkey = "RButton") ;clear the info for the hovered gear-slot
 	{
 		vars.iteminfo.compare.slots[slot].equipped := ""
-		If FileExist("ini\item-checker gear.ini")
-			IniDelete, ini\item-checker gear.ini, % slot
+		If FileExist("ini" vars.poe_version "\item-checker gear.ini")
+			IniDelete, % "ini" vars.poe_version "\item-checker gear.ini", % slot
 		LLK_ToolTip(slot " cleared")
 		If WinExist("ahk_id "vars.hwnd.iteminfo.main)
 			Iteminfo(1)
@@ -2090,7 +2205,7 @@ Iteminfo_GearParse(slot) ;parse the info of an equipped item and save it for ite
 		itemcheck_clip := SubStr(itemcheck_clip, 1, -1)
 
 	vars.iteminfo.compare.slots[slot].equipped := (item_type = "attack") ? "dps="tdps "`npdps="pdps "`nedps="edps0 "`ncdps="cdps "`nspeed=" speed "`n" Iteminfo_Compare(implicits "`n" itemcheck_clip, item_type) : defenses Iteminfo_Compare(implicits "`n" itemcheck_clip, item_type)
-	IniWrite, % vars.iteminfo.compare.slots[slot].equipped, ini\item-checker gear.ini, % slot
+	IniWrite, % vars.iteminfo.compare.slots[slot].equipped, % "ini" vars.poe_version "\item-checker gear.ini", % slot
 	Loop, Parse, % vars.iteminfo.compare.slots[slot].equipped, `n
 	{
 		If (A_Index = 1)
@@ -2151,7 +2266,7 @@ Iteminfo_Marker() ;placing markers while using the shift-trigger feature
 Iteminfo_ModCheck(string, item_type := "") ;checks a mod's text to determine if there's a suitable icon to represent the mod
 {
 	local
-	global settings
+	global vars, settings
 
 	If (settings.general.lang_client != "english")
 		Return
@@ -2209,7 +2324,7 @@ Iteminfo_ModCheck(string, item_type := "") ;checks a mod's text to determine if 
 			If InStr(string, "physical")
 				Return "phys"
 		}
-		Else If InStr(string, "critical strike")
+		Else If !vars.poe_version && InStr(string, "critical strike") || vars.poe_version && InStr(string, "critical")
 			Return "crit"
 		Else If InStr(string, "attack speed")
 			Return "speed"
