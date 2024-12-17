@@ -578,7 +578,7 @@ Settings_general()
 	Gui, %GUI%: Add, Checkbox, % "ys HWNDhwnd gSettings_general2 Checked" settings.general.capslock, % Lang_Trans("m_general_capslock")
 	vars.hwnd.settings.capslock := hwnd, vars.hwnd.help_tooltips["settings_capslock toggling"] := hwnd, check := ""
 
-	If !vars.poe_version && vars.log.file_location
+	If vars.log.file_location
 	{
 		dimensions := [Lang_Trans("m_general_character"), vars.log.level && settings.features.maptracker && settings.maptracker.character ? Lang_Trans("m_general_build") : ""]
 		LLK_PanelDimensions(dimensions, settings.general.fSize, wChar, hChar,,, 0), wName := settings.general.fWidth2 * 18
@@ -864,7 +864,8 @@ Settings_general2(cHWND := "")
 			}
 			Else
 			{
-				GuiControl, +cWhite, % hwnd
+				GuiControl, +cBlack, % hwnd
+				GuiControl, movedraw, % hwnd
 				Return
 			}
 			Init_log("refresh")
@@ -1194,12 +1195,12 @@ Settings_iteminfo()
 	}
 
 	Gui, %GUI%: Add, Text, % "xs Section Center HWNDhwnd0", % Lang_Trans("m_iteminfo_profiles", 3)
-	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border BackgroundTrans cBlack HWNDhwnd gSettings_iteminfo2", % " " Lang_Trans("m_iteminfo_desired") " "
+	Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/2 " Center Border BackgroundTrans HWNDhwnd gSettings_iteminfo2", % " " Lang_Trans("m_iteminfo_desired") " "
 	vars.hwnd.help_tooltips["settings_iteminfo reset"] := hwnd0, vars.hwnd.settings.desired := hwnd
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled range0-500 cRed HWNDhwnd Background"settings.iteminfo.colors_tier.1, 0
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled Vertical range0-500 BackgroundBlack cRed HWNDhwnd", 0
 	vars.hwnd.settings.delbar_desired := vars.hwnd.help_tooltips["settings_iteminfo reset|"] := hwnd
-	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans cBlack HWNDhwnd0 gSettings_iteminfo2", % " " Lang_Trans("m_iteminfo_undesired") " "
-	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled range0-500 cRed HWNDhwnd Background"settings.iteminfo.colors_tier.6, 0
+	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans HWNDhwnd0 gSettings_iteminfo2", % " " Lang_Trans("m_iteminfo_undesired") " "
+	Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled Vertical range0-500 BackgroundBlack cRed HWNDhwnd", 0
 	vars.hwnd.settings.undesired := hwnd0, vars.hwnd.settings.delbar_undesired := vars.hwnd.help_tooltips["settings_iteminfo reset||"] := hwnd
 
 	Gui, %GUI%: Font, bold underline
@@ -1213,53 +1214,74 @@ Settings_iteminfo()
 	Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center gSettings_iteminfo2 Border HWNDhwnd w"settings.general.fWidth*2, % "+"
 	vars.hwnd.settings.font_plus := vars.hwnd.help_tooltips["settings_font-size|||"] := hwnd
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.modrolls, % Lang_Trans("m_iteminfo_modrolls")
-	vars.hwnd.settings.modrolls := hwnd, vars.hwnd.help_tooltips["settings_iteminfo modrolls"] := hwnd
-
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.trigger, % Lang_Trans("m_iteminfo_shift")
 	vars.hwnd.settings.trigger := hwnd, vars.hwnd.help_tooltips["settings_iteminfo shift-click"] := hwnd
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.compare (settings.general.lang_client != "english" ? " cGray" : ""), % Lang_Trans("m_iteminfo_league")
-	vars.hwnd.settings.compare := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo league-start" : "lang unavailable") ] := hwnd
-
-	If !settings.iteminfo.compare
+	If !vars.poe_version
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.itembase, % Lang_Trans("m_iteminfo_base")
-		vars.hwnd.settings.itembase := hwnd, vars.hwnd.help_tooltips["settings_iteminfo base-info"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.modrolls, % Lang_Trans("m_iteminfo_modrolls")
+		vars.hwnd.settings.modrolls := hwnd, vars.hwnd.help_tooltips["settings_iteminfo modrolls"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.compare (settings.general.lang_client != "english" ? " cGray" : ""), % Lang_Trans("m_iteminfo_league")
+		vars.hwnd.settings.compare := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo league-start" : "lang unavailable") ] := hwnd
+		If !settings.iteminfo.compare
+		{
+			Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.itembase, % Lang_Trans("m_iteminfo_base")
+			vars.hwnd.settings.itembase := hwnd, vars.hwnd.help_tooltips["settings_iteminfo base-info"] := hwnd
+		}
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.ilvl (settings.general.lang_client != "english" ? " cGray" : ""), % Lang_Trans("m_iteminfo_ilvl")
+		vars.hwnd.settings.ilvl := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo enable item-level" : "lang unavailable||")] := hwnd
 	}
-
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.ilvl (settings.general.lang_client != "english" ? " cGray" : ""), % Lang_Trans("m_iteminfo_ilvl")
-	vars.hwnd.settings.ilvl := hwnd, vars.hwnd.help_tooltips["settings_" (settings.general.lang_client = "english" ? "iteminfo enable item-level" : "lang unavailable||")] := hwnd
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans y+"vars.settings.spacing, % Lang_Trans("m_iteminfo_highlight")
 	Gui, %GUI%: Font, norm
 	LLK_PanelDimensions([Lang_Trans("global_tier"), Lang_Trans("global_ilvl")], settings.general.fSize, wText, hText,,, 0)
 
-	Loop 8
+	Gui, %GUI%: Add, Text, % "xs Section", % "(un)desired: "
+
+	Loop 2
 	{
-		parse := (A_Index = 1) ? 7 : A_Index - 2
-		If (A_Index = 1)
-			Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 w" wText, % Lang_Trans("global_tier")
-		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/(A_Index = 1 ? 2 : 4) " w"settings.general.fWidth*3 " cBlack Center Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd", % (A_Index = 1) ? Lang_Trans("m_iteminfo_fractured") : (A_Index = 2) ? "#" : parse
-		vars.hwnd.help_tooltips["settings_iteminfo item-tier"] := hwnd0, vars.hwnd.settings["tier_"parse] := hwnd, handle := (A_Index = 1) ? "|" : handle "|"
-		Gui, %GUI%: Add, Progress, % "xp yp wp hp BackgroundBlack HWNDhwnd Disabled c"settings.iteminfo.colors_tier[parse], 100
-		vars.hwnd.settings["tierbar_"parse] := vars.hwnd.help_tooltips["settings_iteminfo item-tier"handle] := hwnd
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd0" (A_Index = 1 ? " x+0" : ""), % (A_Index = 1) ? "global" : "item-class"
+		Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd x+" settings.general.fWidth//2 " w" settings.general.fWidth//2
+		Gui, %GUI%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack HWNDhwnd2 c" settings.iteminfo.colors_marking[A_Index + A_Index//2], 100
+		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd3 w" settings.general.fWidth//2
+		Gui, %GUI%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack HWNDhwnd4 c" settings.iteminfo.colors_marking[A_Index + A_Index//2 + 1], 100
+		vars.hwnd.settings["marking_desired" (A_Index = 1 ? "" : "_class")] := hwnd, vars.hwnd.settings["marking_desired" (A_Index = 1 ? "" : "_class") "_bar"] := hwnd2
+		vars.hwnd.settings["marking_undesired" (A_Index = 1 ? "" : "_class")] := hwnd3, vars.hwnd.settings["marking_undesired" (A_Index = 1 ? "" : "_class") "_bar"] := hwnd4
+		vars.hwnd.help_tooltips["settings_iteminfo marking " (A_Index = 1 ? "global" : "class")] := hwnd0
+		vars.hwnd.help_tooltips["settings_iteminfo marking " (A_Index = 1 ? "global" : "class") "|"] := hwnd2, vars.hwnd.help_tooltips["settings_iteminfo marking " (A_Index = 1 ? "global" : "class") "||"] := hwnd4
 	}
 
-	If settings.iteminfo.ilvl
+	If !vars.poe_version
+	{
 		Loop 8
 		{
+			parse := (A_Index = 1) ? 7 : A_Index - 2
 			If (A_Index = 1)
-				Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans HWNDhwnd00 w" wText, % Lang_Trans("global_ilvl")
-			color := (settings.iteminfo.colors_ilvl[A_Index] = "ffffff") && (A_Index = 1) ? "Red" : "Black", vars.hwnd.help_tooltips["settings_iteminfo item-level"] := hwnd00, handle := (A_Index = 1) ? "|" : handle "|"
-			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/(A_Index = 1 ? 2 : 4) " w"settings.general.fWidth*3 " c"color " Border Center BackgroundTrans gSettings_iteminfo2 HWNDhwnd0", % settings.iteminfo.ilevels[A_Index]
-			Gui, %GUI%: Add, Progress, % "xp yp wp hp BackgroundBlack HWNDhwnd Disabled c"settings.iteminfo.colors_ilvl[A_Index], 100
-			vars.hwnd.settings["ilvl_"A_Index] := hwnd0, vars.hwnd.settings["ilvlbar_"A_Index] := vars.hwnd.help_tooltips["settings_iteminfo item-level"handle] := hwnd
+				Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd0 w" wText, % Lang_Trans("global_tier")
+			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/(A_Index = 1 ? 2 : 4) " w"settings.general.fWidth*3 " cBlack Center Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd", % (A_Index = 1) ? Lang_Trans("m_iteminfo_fractured") : (A_Index = 2) ? "#" : parse
+			vars.hwnd.help_tooltips["settings_iteminfo item-tier"] := hwnd0, vars.hwnd.settings["tier_"parse] := hwnd, handle := (A_Index = 1) ? "|" : handle "|"
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp BackgroundBlack HWNDhwnd Disabled c"settings.iteminfo.colors_tier[parse], 100
+			vars.hwnd.settings["tierbar_"parse] := vars.hwnd.help_tooltips["settings_iteminfo item-tier"handle] := hwnd
 		}
+
+		If settings.iteminfo.ilvl
+			Loop 8
+			{
+				If (A_Index = 1)
+					Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans HWNDhwnd00 w" wText, % Lang_Trans("global_ilvl")
+				color := (settings.iteminfo.colors_ilvl[A_Index] = "ffffff") && (A_Index = 1) ? "Red" : "Black", vars.hwnd.help_tooltips["settings_iteminfo item-level"] := hwnd00, handle := (A_Index = 1) ? "|" : handle "|"
+				Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/(A_Index = 1 ? 2 : 4) " w"settings.general.fWidth*3 " c"color " Border Center BackgroundTrans gSettings_iteminfo2 HWNDhwnd0", % settings.iteminfo.ilevels[A_Index]
+				Gui, %GUI%: Add, Progress, % "xp yp wp hp BackgroundBlack HWNDhwnd Disabled c"settings.iteminfo.colors_ilvl[A_Index], 100
+				vars.hwnd.settings["ilvl_"A_Index] := hwnd0, vars.hwnd.settings["ilvlbar_"A_Index] := vars.hwnd.help_tooltips["settings_iteminfo item-level"handle] := hwnd
+			}
+	}
 
 	Gui, %GUI%: Add, Checkbox, % "xs Section hp gSettings_iteminfo2 HWNDhwnd Checked"settings.iteminfo.override, % Lang_Trans("m_iteminfo_override")
 	vars.hwnd.settings.override := hwnd, vars.hwnd.help_tooltips["settings_iteminfo override"] := hwnd, colors := (settings.general.lang_client != "english") ? ["Gray", "Gray"] : [settings.iteminfo.colors_tier.1, settings.iteminfo.colors_tier.6]
+
+	If vars.poe_version
+		Return
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans HWNDhwnd0 y+"vars.settings.spacing, % Lang_Trans("m_iteminfo_rules")
@@ -1303,19 +1325,19 @@ Settings_iteminfo2(cHWND)
 		GuiControl, +cFuchsia, % vars.hwnd.settings[check]
 		GuiControl, movedraw, % vars.hwnd.settings[check]
 		settings.iteminfo.profile := control
-		IniWrite, % control, ini\item-checker.ini, settings, current profile
+		IniWrite, % control, % "ini" vars.poe_version "\item-checker.ini", settings, current profile
 		Init_iteminfo()
 	}
 	Else If (check = "desired")
 	{
 		If LLK_Progress(vars.hwnd.settings.delbar_desired, "LButton", cHWND)
 		{
-			IniRead, parse, ini\item-checker.ini, % "highlighting "settings.iteminfo.profile
+			IniRead, parse, % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile
 			Loop, Parse, parse, `n
 			{
 				key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
 				If InStr(key, "highlight")
-					IniWrite, % "", ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % key
+					IniWrite, % "", % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % key
 			}
 			Init_iteminfo()
 		}
@@ -1325,12 +1347,12 @@ Settings_iteminfo2(cHWND)
 	{
 		If LLK_Progress(vars.hwnd.settings.delbar_undesired, "LButton", cHWND)
 		{
-			IniRead, parse, ini\item-checker.ini, % "highlighting "settings.iteminfo.profile
+			IniRead, parse, % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile
 			Loop, Parse, parse, `n
 			{
 				key := SubStr(A_LoopField, 1, InStr(A_LoopField, "=") - 1)
 				If InStr(key, "blacklist")
-					IniWrite, % "", ini\item-checker.ini, % "highlighting "settings.iteminfo.profile, % key
+					IniWrite, % "", % "ini" vars.poe_version "\item-checker.ini", % "highlighting "settings.iteminfo.profile, % key
 			}
 			Init_iteminfo()
 		}
@@ -1349,19 +1371,19 @@ Settings_iteminfo2(cHWND)
 			Sleep 150
 		}
 		LLK_FontDimensions(settings.iteminfo.fSize, height, width), settings.iteminfo.fWidth := width, settings.iteminfo.fHeight := height, vars.iteminfo.UI := {}
-		IniWrite, % settings.iteminfo.fSize, ini\item-checker.ini, settings, font-size
+		IniWrite, % settings.iteminfo.fSize, % "ini" vars.poe_version "\item-checker.ini", settings, font-size
 		If !WinExist("ahk_id "vars.hwnd.iteminfo.main)
 			Iteminfo(1)
 	}
 	Else If (check = "trigger")
 	{
 		settings.iteminfo.trigger := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
-		IniWrite, % settings.iteminfo.trigger, ini\item-checker.ini, settings, enable wisdom-scroll trigger
+		IniWrite, % settings.iteminfo.trigger, % "ini" vars.poe_version "\item-checker.ini", settings, enable wisdom-scroll trigger
 	}
 	Else If (check = "modrolls")
 	{
 		settings.iteminfo.modrolls := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.modrolls, ini\item-checker.ini, settings, hide roll-ranges
+		IniWrite, % settings.iteminfo.modrolls, % "ini" vars.poe_version "\item-checker.ini", settings, hide roll-ranges
 	}
 	Else If (check = "compare")
 	{
@@ -1371,14 +1393,14 @@ Settings_iteminfo2(cHWND)
 			Return
 		}
 		settings.iteminfo.compare := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.compare, ini\item-checker.ini, settings, enable gear-tracking
+		IniWrite, % settings.iteminfo.compare, % "ini" vars.poe_version "\item-checker.ini", settings, enable gear-tracking
 		Init_iteminfo()
 		Settings_menu("item-info")
 	}
 	Else If (check = "itembase")
 	{
 		settings.iteminfo.itembase := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.itembase, ini\item-checker.ini, settings, enable base-info
+		IniWrite, % settings.iteminfo.itembase, % "ini" vars.poe_version "\item-checker.ini", settings, enable base-info
 	}
 	Else If (check = "ilvl")
 	{
@@ -1388,8 +1410,21 @@ Settings_iteminfo2(cHWND)
 			Return
 		}
 		settings.iteminfo.ilvl := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.ilvl, ini\item-checker.ini, settings, enable item-levels
+		IniWrite, % settings.iteminfo.ilvl, % "ini" vars.poe_version "\item-checker.ini", settings, enable item-levels
 		Settings_menu("item-info")
+	}
+	Else If InStr(check, "marking_")
+	{
+		type := (InStr(control, "class") ? (InStr(control, "undesired") ? 4 : 3) : (control = "desired" ? 1 : 2))
+		If (vars.system.click = 1)
+			picked_rgb := RGB_Picker(settings.iteminfo.colors_marking[type])
+		Else picked_rgb := settings.iteminfo.dColors_marking[type]
+		
+		If Blank(picked_rgb)
+			Return
+		IniWrite, % """" (settings.iteminfo.colors_marking[type] := picked_rgb) """", % "ini" vars.poe_version "\item-checker.ini", UI, % StrReplace(control, "_", " ") " highlighting"
+		GuiControl, % "+c" picked_rgb, % vars.hwnd.settings[check "_bar"]
+		;GuiControl, % "movedraw", % vars.hwnd.settings[check "_bar"]
 	}
 	Else If InStr(check, "tier_")
 	{
@@ -1399,24 +1434,21 @@ Settings_iteminfo2(cHWND)
 			Return
 		Else color := (vars.system.click = 2) ? settings.iteminfo.dColors_tier[control] : picked_rgb
 		GuiControl, +c%color%, % vars.hwnd.settings["tierbar_"control]
-		GuiControl, movedraw, % vars.hwnd.settings["tierbar_"control]
 		If (control = 1 || control = 6)
 		{
-			GuiControl, +Background%color%, % vars.hwnd.settings[(control = 1) ? "delbar_desired" : "delbar_undesired"]
-			GuiControl, movedraw, % vars.hwnd.settings[(control = 1) ? "delbar_desired" : "delbar_undesired"]
 			If (control = 6)
 				Loop, Parse, % "res_weapons, attacks, spells, hitgain, crit", `,, %A_Space%
 				{
 					GuiControl, +c%color%, % vars.hwnd.settings["rule_"A_LoopField]
 					GuiControl, movedraw, % vars.hwnd.settings["rule_"A_LoopField]
 				}
-			If (control = 1)
+			Else
 			{
 				GuiControl, +c%color%, % vars.hwnd.settings.rule_res
 				GuiControl, movedraw, % vars.hwnd.settings.rule_res
 			}
 		}
-		IniWrite, % color, ini\item-checker.ini, UI, % (control = 7) ? "fractured" : "tier "control
+		IniWrite, % """" color """", % "ini" vars.poe_version "\item-checker.ini", UI, % (control = 7) ? "fractured" : "tier "control
 		settings.iteminfo.colors_tier[control] := color
 	}
 	Else If InStr(check, "ilvl_")
@@ -1433,13 +1465,13 @@ Settings_iteminfo2(cHWND)
 			GuiControl, % "+c"(color = "FFFFFF" ? "Red" : "Black"), % cHWND
 			GuiControl, movedraw, % cHWND
 		}
-		IniWrite, % color, ini\item-checker.ini, UI, % "ilvl tier "control
+		IniWrite, % """"  color """", % "ini" vars.poe_version "\item-checker.ini", UI, % "ilvl tier "control
 		settings.iteminfo.colors_ilvl[control] := color
 	}
 	Else If (check = "override")
 	{
 		settings.iteminfo.override := LLK_ControlGet(cHWND)
-		IniWrite, % settings.iteminfo.override, ini\item-checker.ini, settings, enable blacklist-override
+		IniWrite, % settings.iteminfo.override, % "ini" vars.poe_version "\item-checker.ini", settings, enable blacklist-override
 	}
 	Else If InStr(check, "rule_")
 	{
@@ -1450,7 +1482,7 @@ Settings_iteminfo2(cHWND)
 		}
 		settings.iteminfo.rules[control] := LLK_ControlGet(cHWND)
 		parse := (control = "res_weapons") ? "weapon res" : (control = "hitgain") ? "lifemana gain" : control
-		IniWrite, % settings.iteminfo.rules[control], ini\item-checker.ini, settings, % parse " override"
+		IniWrite, % settings.iteminfo.rules[control], % "ini" vars.poe_version "\item-checker.ini", settings, % parse " override"
 	}
 	Else LLK_ToolTip("no action")
 
@@ -2165,22 +2197,30 @@ Settings_maptracker()
 	Gui, %GUI%: Font, norm
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.hide, % Lang_Trans("m_maptracker_hide")
 	vars.hwnd.settings.hide := vars.hwnd.help_tooltips["settings_maptracker hide"] := hwnd
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot, % Lang_Trans("m_maptracker_loot")
-	vars.hwnd.settings.loot := hwnd, vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
-	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, % Lang_Trans("m_maptracker_kills")
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.loot, % Lang_Trans("m_maptracker_loot")
+		vars.hwnd.settings.loot := hwnd, vars.hwnd.help_tooltips["settings_maptracker loot-tracker"] := hwnd
+	}
+	Gui, %GUI%: Add, Checkbox, % (!vars.poe_version ? "ys" : "xs Section") " gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.kills, % Lang_Trans("m_maptracker_kills")
 	vars.hwnd.settings.kills := vars.hwnd.help_tooltips["settings_maptracker kill-tracker"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mapinfo (!settings.features.mapinfo ? " cGray" : ""), % Lang_Trans("m_maptracker_mapinfo")
 	vars.hwnd.settings.mapinfo := hwnd, vars.hwnd.help_tooltips["settings_maptracker mapinfo"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.notes, % Lang_Trans("m_maptracker_notes")
 	vars.hwnd.settings.notes := vars.hwnd.help_tooltips["settings_maptracker notes"] := hwnd
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, % Lang_Trans("m_maptracker_sidearea")
-	vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
-	Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % Lang_Trans("m_maptracker_rename")
-	vars.hwnd.settings.rename := vars.hwnd.help_tooltips["settings_maptracker rename"] := hwnd
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, % Lang_Trans("m_maptracker_sidearea")
+		vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
+		Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % Lang_Trans("m_maptracker_rename")
+		vars.hwnd.settings.rename := vars.hwnd.help_tooltips["settings_maptracker rename"] := hwnd
+	}
+
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.character, % Lang_Trans("m_maptracker_character")
 	vars.hwnd.settings.character := vars.hwnd.help_tooltips["settings_maptracker character"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mechanics, % Lang_Trans("m_maptracker_content")
 	vars.hwnd.settings.mechanics := vars.hwnd.help_tooltips["settings_maptracker mechanics"] := hwnd
+
 	If settings.maptracker.mechanics
 	{
 		Gui, %GUI%: Add, Text, % "xs Section Center xp+" settings.general.fWidth * 2, % Lang_Trans("m_maptracker_dialogue")
@@ -2205,7 +2245,7 @@ Settings_maptracker()
 		{
 			If (type != 2)
 				Continue
-			added += 1, color := !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"mechanic ".bmp") ? "red" : settings.maptracker[mechanic] ? " cLime" : ""
+			added += 1, color := !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"mechanic . vars.poe_version ".bmp") ? "red" : settings.maptracker[mechanic] ? " cLime" : ""
 			Gui, %GUI%: Add, Text, % (added = 1 || !Mod(added - 1, 4) ? "xs Section" : "ys x+"settings.general.fWidth/4) " Border Center gSettings_maptracker2 HWNDhwnd c"color, % " " Lang_Trans("mechanic_" mechanic) " "
 			vars.hwnd.settings["screenmechanic_"mechanic] := vars.hwnd.help_tooltips["settings_maptracker screenmechanic"handle] := hwnd, handle .= "|"
 		}
@@ -2261,21 +2301,21 @@ Settings_maptracker2(cHWND)
 	{
 		Case "enable":
 			settings.features.maptracker := LLK_ControlGet(cHWND)
-			IniWrite, % settings.features.maptracker, ini\config.ini, features, enable map tracker
+			IniWrite, % settings.features.maptracker, % "ini" vars.poe_version "\config.ini", features, enable map tracker
 			If !settings.features.maptracker
 				vars.maptracker.Delete("map"), LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
 			Init_GUI(), Settings_menu("mapping tracker")
 		Case "hide":
 			settings.maptracker.hide := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.hide, ini\map tracker.ini, settings, hide panel when paused
+			IniWrite, % settings.maptracker.hide, % "ini" vars.poe_version "\map tracker.ini", settings, hide panel when paused
 			If LLK_Overlay(vars.hwnd.maptracker.main, "check")
 				Maptracker_GUI()
 		Case "loot":
 			settings.maptracker.loot := LLK_ControlGet(cHWND), Settings_ScreenChecksValid()
-			IniWrite, % settings.maptracker.loot, ini\map tracker.ini, settings, enable loot tracker
+			IniWrite, % settings.maptracker.loot, % "ini" vars.poe_version "\map tracker.ini", settings, enable loot tracker
 		Case "kills":
 			settings.maptracker.kills := LLK_ControlGet(cHWND), vars.maptracker.refresh_kills := ""
-			IniWrite, % settings.maptracker.kills, ini\map tracker.ini, settings, enable kill tracker
+			IniWrite, % settings.maptracker.kills, % "ini" vars.poe_version "\map tracker.ini", settings, enable kill tracker
 		Case "mapinfo":
 			If !settings.features.mapinfo
 			{
@@ -2283,28 +2323,28 @@ Settings_maptracker2(cHWND)
 				Return
 			}
 			settings.maptracker.mapinfo := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.mapinfo, ini\map tracker.ini, settings, log mods from map-info panel
+			IniWrite, % settings.maptracker.mapinfo, % "ini" vars.poe_version "\map tracker.ini", settings, log mods from map-info panel
 		Case "notes":
 			settings.maptracker.notes := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.notes, ini\map tracker.ini, settings, enable notes
+			IniWrite, % settings.maptracker.notes, % "ini" vars.poe_version "\map tracker.ini", settings, enable notes
 			Maptracker_GUI()
 		Case "sidecontent":
 			settings.maptracker.sidecontent := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.sidecontent, ini\map tracker.ini, settings, track side-areas
+			IniWrite, % settings.maptracker.sidecontent, % "ini" vars.poe_version "\map tracker.ini", settings, track side-areas
 		Case "rename":
 			settings.maptracker.rename := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.rename, ini\map tracker.ini, settings, rename boss maps
+			IniWrite, % settings.maptracker.rename, % "ini" vars.poe_version "\map tracker.ini", settings, rename boss maps
 		Case "character":
 			settings.maptracker.character := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.character, ini\map tracker.ini, settings, log character info
+			IniWrite, % settings.maptracker.character, % "ini" vars.poe_version "\map tracker.ini", settings, log character info
 			Maptracker_GUI()
 		Case "mechanics":
 			settings.maptracker.mechanics := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.mechanics, ini\map tracker.ini, settings, track league mechanics
+			IniWrite, % settings.maptracker.mechanics, % "ini" vars.poe_version "\map tracker.ini", settings, track league mechanics
 			Settings_menu("mapping tracker")
 		Case "portal_reminder":
 			settings.maptracker.portal_reminder := LLK_ControlGet(cHWND)
-			IniWrite, % settings.maptracker.portal_reminder, ini\map tracker.ini, settings, portal-scroll reminder
+			IniWrite, % settings.maptracker.portal_reminder, % "ini" vars.poe_version "\map tracker.ini", settings, portal-scroll reminder
 			Settings_menu("mapping tracker")
 		Case "portal_hotkey":
 			input := LLK_ControlGet(cHWND)
@@ -2314,7 +2354,7 @@ Settings_maptracker2(cHWND)
 			If !Blank(input) && GetKeyVK(input)
 			{
 				settings.maptracker.portal_hotkey := LLK_ControlGet(cHWND)
-				IniWrite, % settings.maptracker.portal_hotkey, ini\map tracker.ini, settings, portal-scroll hotkey
+				IniWrite, % settings.maptracker.portal_hotkey, % "ini" vars.poe_version "\map tracker.ini", settings, portal-scroll hotkey
 				GuiControl, +cBlack, % cHWND
 				Init_maptracker()
 			}
@@ -2334,7 +2374,7 @@ Settings_maptracker2(cHWND)
 					Sleep 150
 				}
 				LLK_FontDimensions(settings.maptracker.fSize, height, width), settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
-				IniWrite, % settings.maptracker.fSize, ini\map tracker.ini, settings, font-size
+				IniWrite, % settings.maptracker.fSize, % "ini" vars.poe_version "\map tracker.ini", settings, font-size
 				If WinExist("ahk_id "vars.hwnd.maptracker.main)
 					Maptracker_GUI()
 				If WinExist("ahk_id "vars.hwnd.maptracker_logs.main)
@@ -2347,12 +2387,12 @@ Settings_maptracker2(cHWND)
 					pClipboard := Screenchecks_ImageRecalibrate()
 					If (pClipboard <= 0)
 						Return
-					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp", 100), Gdip_DisposeImage(pClipboard)
+					Gdip_SaveBitmapToFile(pClipboard, "img\Recognition ("vars.client.h "p)\Mapping Tracker\"control . vars.poe_version ".bmp", 100), Gdip_DisposeImage(pClipboard)
 					GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % vars.hwnd.settings["screenmechanic_"control]
 					GuiControl, movedraw, % vars.hwnd.settings["screenmechanic_"control]
 					Return
 				}
-				If InStr(check, "screen") && !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"control ".bmp")
+				If InStr(check, "screen") && !FileExist("img\Recognition ("vars.client.h "p)\Mapping Tracker\"control . vars.poe_version ".bmp")
 					Return
 				If !InStr(check, "screen") && !vars.maptracker.dialog
 				{
@@ -2360,7 +2400,7 @@ Settings_maptracker2(cHWND)
 					Return
 				}
 				settings.maptracker[control] := !settings.maptracker[control] ? 1 : 0
-				IniWrite, % settings.maptracker[control], ini\map tracker.ini, mechanics, % control
+				IniWrite, % settings.maptracker[control], % "ini" vars.poe_version "\map tracker.ini", mechanics, % control
 				GuiControl, % "+c"(settings.maptracker[control] ? "Lime" : "505050"), % cHWND
 				GuiControl, movedraw, % cHWND
 			}
@@ -2373,7 +2413,7 @@ Settings_maptracker2(cHWND)
 						Return
 				}
 				settings.maptracker.colors[control] := (vars.system.click = 1) ? picked_rgb : settings.maptracker.dColors[control]
-				IniWrite, % settings.maptracker.colors[control], ini\map tracker.ini, UI, % control " color"
+				IniWrite, % settings.maptracker.colors[control], % "ini" vars.poe_version "\map tracker.ini", UI, % control " color"
 				GuiControl, % "+c" settings.maptracker.colors[control], % vars.hwnd.settings[check "_bar"]
 				If InStr(check, "selected") && WinExist("ahk_id " vars.hwnd.maptracker_logs.main)
 					Maptracker_Logs()
@@ -2394,7 +2434,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	{
 		If !vars.poe_version
 			vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "sanctum", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []}
-		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "cheat-sheets", "clone-frames", "filterspoon", "map-info", "minor qol tools", "search-strings"], "sections2": []}
+		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "search-strings"], "sections2": []}
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(Lang_Trans("ms_" val))
 	}
@@ -3265,7 +3305,7 @@ Settings_searchstrings()
 	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden default HWNDhwnd gSettings_searchstrings2", ok
 	vars.hwnd.help_tooltips["settings_searchstrings add"] := hwnd0, vars.hwnd.settings.add := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys cBlack x+" settings.general.fWidth/2 " hp HWNDhwnd w"settings.general.fWidth*15
+	Gui, %GUI%: Add, Edit, % "ys cBlack x+" settings.general.fWidth/2 " hp HWNDhwnd w"settings.general.fWidth*20
 	If !vars.searchstrings.list.Count()
 	{
 		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd69", % "HBitmap:*" vars.pics.global.help

@@ -190,6 +190,11 @@
 		log_expedition			=	"Rog:"				;## for some reason, Rog is always displayed as simply "Rog", regardless of when he speaks (at least in English)
 		log_expedition			=	"Tujen, the Haggler:"
 
+		log_expedition 2		=	"Dannig:"			;## PoE2 only displays the names
+		log_expedition 2		=	"Gwennen:"
+		log_expedition 2		=	"Rog:"
+		log_expedition 2		=	"Tujen:"
+
 
 
 ;#####################################################

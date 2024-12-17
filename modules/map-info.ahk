@@ -113,7 +113,7 @@ Mapinfo_GUI(mode := 1)
 	If !vars.poe_version
 		summary := summary0 := map.mods . Lang_Trans("maps_stats", 1) " | " map.quantity . Lang_Trans("maps_stats", 2) " | " map.rarity . Lang_Trans("maps_stats", 3)
 		. (!Blank(map.packsize) ? " | " map.packsize . Lang_Trans("maps_stats", 4) : "")
-	Else summary := summary0 := (map.tier >= 11 ? "-20% ele res (t11+)" : map.tier >= 6 ? "-10% ele res (t6+)" : "no res penalty")
+	Else summary := summary0 := "waystones: " (Blank(map.waystones) ? "+0%" : map.waystones) ;(map.tier >= 11 ? "-20% ele res (t11+)" : map.tier >= 6 ? "-10% ele res (t6+)" : "no res penalty")
 
 	If StrLen(map.maps . map.scarabs . map.currency)
 	{
@@ -570,14 +570,16 @@ Mapinfo_Parse2(mode)
 
 	Loop, Parse, clip, `n, `r
 	{
-		If !tier
+		If !map.name
 			If !InStr(A_LoopField, "(")
 				Continue
-			Else tier := SubStr(A_LoopField, InStr(A_LoopField, "(") + 1), tier := SubStr(tier, InStr(tier, " ") + 1), tier := map.tier := SubStr(tier, 1, InStr(tier, ")") - 1), map.name := A_LoopField
+			Else map.name := A_LoopField
 
 		If !item_level
-			If !InStr(A_LoopField, Lang_Trans("items_ilevel"))
+			If !InStr(A_LoopField, Lang_Trans("items_ilevel")) && !InStr(A_LoopField, "waystone drop chance:")
 				Continue
+			Else If InStr(A_LoopField, "waystone drop chance:")
+				map.waystones := SubStr(A_LoopField, InStr(A_LoopField, "+")), map.waystones := (check := InStr(map.waystones, " (")) ? SubStr(map.waystones, 1, check - 1) : map.waystones
 			Else
 			{
 				item_level := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
@@ -600,7 +602,7 @@ Mapinfo_Parse2(mode)
 			map.mods += 1
 			Loop, Parse, key, % "|"
 				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, A_LoopField, "",, 1)
-			If InStr(map_mods[key], "freeze buildup")
+			If InStr(key, "freeze buildup")
 				map_mods[key] := SubStr(map_mods[key], 1, InStr(map_mods[key], "/") - 1) ;freeze/ignite/shock hybrid mod is always X/X/X %, so simply display as X%
 		}
 

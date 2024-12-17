@@ -279,14 +279,13 @@ Omni_Context(mode := 0)
 				Return
 			}
 	}
-	If !vars.poe_version
-	{
-		If WinExist("ahk_id " vars.hwnd.iteminfo.main)
+	
+	If WinExist("ahk_id " vars.hwnd.iteminfo.main)
+		Return "iteminfo"
+	While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
+		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "iteminfo"
-		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
-			If (A_TickCount >= vars.omnikey.start + 200)
-				Return "iteminfo"
-	}
+
 	If WinExist("ahk_id " vars.hwnd.geartracker.main)
 		Return "geartracker"
 	If !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"]) || LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"])
@@ -312,7 +311,7 @@ Omni_ContextMenu()
 		&& (check := InStr(clip, Lang_Trans("items_mapreward")))
 		{
 			reward := SubStr(clip, check + StrLen(Lang_Trans("items_mapreward")) + 1), reward := StrReplace(SubStr(reward, 1, InStr(reward, "`r") - 1), Lang_Trans("items_mapreward_foil"))
-			Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase(reward)
+			Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "wiki: " LLK_StringCase(reward)
 			ControlGetPos,,, w1,,, % "ahk_id " hwnd
 			vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := reward
 		}
@@ -320,13 +319,13 @@ Omni_ContextMenu()
 		{
 			If !(item.unid && item.rarity = Lang_Trans("items_unique")) && (LLK_PatternMatch(item.name, "", ["Splinter"]) || item.itembase || !LLK_PatternMatch(item.rarity, "", [Lang_Trans("items_magic"), Lang_Trans("items_rare"), Lang_Trans("items_currency")]))
 			{
-				Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase(item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"])
+				Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "wiki: " LLK_StringCase(item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"])
 				ControlGetPos,,, w1,,, % "ahk_id " hwnd
 				vars.hwnd.omni_context.wiki_exact := hwnd, vars.omni_context[hwnd] := item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"]
 			}
 
 			If (item.rarity != Lang_Trans("items_unique")) && !Blank(item.class)
-			&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || LLK_HasVal(db.item_bases._classes, item.class) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
+			&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || (LLK_HasVal(db.item_bases._classes, item.class) || vars.poe_version && vars.omnikey.poedb[item.class]) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
 			{
 				If !Blank(LLK_HasVal(db.item_bases._classes, item.class))
 					class := db.item_bases._classes[LLK_HasVal(db.item_bases._classes, item.class)]
@@ -334,9 +333,9 @@ Omni_ContextMenu()
 					class := LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
 				Else If (settings.general.lang_client = "english")
 					class := item.class
-				Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "poe.wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
+				Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "wiki: " LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class)
 				ControlGetPos,,, w2,,, % "ahk_id " hwnd
-				If (class != "cluster jewels") && (!Blank(LLK_HasVal(db.item_bases._classes, item.class)) || InStr(item.class, "heist") && item.itembase)
+				If (class != "cluster jewels") && (!Blank(LLK_HasVal(db.item_bases._classes, item.class)) || vars.poe_version && vars.omnikey.poedb[item.class] || InStr(item.class, "heist") && item.itembase)
 				{
 					Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd1" style, % "poe.db: " Lang_Trans("system_poedb_lang", 2)
 					ControlGetPos,,, w3,,, % "ahk_id " hwnd1
@@ -443,7 +442,7 @@ Omni_ContextMenuPick(cHWND)
 		Else If !Blank(LLK_HasVal(["unset ring", "iron flask", "bone ring", "convoking wand", "bone spirit shield", "silver flask"], item.itembase)) || InStr(item.class, "jewels") || InStr(item.class, "heist")
 			page := StrReplace(item.itembase, " ", "_")
 		Else page := StrReplace(item.class, " ", "_") . item.attributes
-		Run, % "https://poedb.tw/" . Lang_Trans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")
+		Run, % "https://poe" Trim(vars.poe_version, " ") "db.tw/" . Lang_Trans("system_poedb_lang") . "/" . page . (InStr(page, "cluster_jewel") ? "#EnchantmentModifiers" : "#ModifiersCalc")
 		Clipboard := item.ilvl
 		If InStr(page, "cluster_jewel") && settings.features.browser
 		{
@@ -482,7 +481,7 @@ Omni_ItemInfo()
 	Iteminfo(2)
 	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables
 
-	If item.itembase
+	If !vars.poe_version && item.itembase
 	{
 		item.attributes := ""
 		For class, val in db.item_bases
@@ -490,6 +489,23 @@ Omni_ItemInfo()
 				For subtype, val1 in val
 					If val1.HasKey(item.itembase)
 						item.attributes .= InStr(subtype, "armour") ? "_str" : "", item.attributes .= InStr(subtype, "evasion") ? "_dex" : "", item.attributes .= InStr(subtype, "energy") ? "_int" : ""
+	}
+	Else If vars.poe_version && item.class && (vars.omnikey.poedb[item.class] = 2)
+	{
+		item.attributes := ""
+		Loop, Parse, % vars.omnikey.clipboard, `n, % "`r "
+		{
+			If !requirements
+			{
+				If InStr(A_LoopField, "Requirements:")
+					requirements := 1
+				Continue
+			}
+			If requirements && InStr(A_LoopField, "---")
+				Break
+			If !InStr(A_LoopField, "Level:") && InStr(A_LoopField, ":")
+				item.attributes .= "_" LLK_StringCase(SubStr(A_LoopField, 1, 3))
+		}
 	}
 
 	Loop, Parse, clip, `n, % "`r " ;store the item's class, rarity, and miscellaneous info

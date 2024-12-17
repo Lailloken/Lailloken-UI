@@ -277,7 +277,7 @@ Hotkeys_Tab()
 		}
 	map := vars.mapinfo.active_map
 	While settings.features.mapinfo && settings.mapinfo.tabtoggle && map.name && GetKeyState(vars.hotkeys.tab, "P")
-	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || InStr(map.name, vars.log.areaname) || InStr(vars.log.areaID, "hideout") || InStr(vars.log.areaID, "heisthub") || InStr(map.english, "invitation") && LLK_PatternMatch(vars.log.areaID, "", ["MavenHub", "PrimordialBoss"]))
+	&& (LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || (InStr(map.name, vars.log.areaname) || vars.poe_version && LLK_StringCompare(vars.log.areaID, ["map"])) || LLK_StringCompare(vars.log.areaID, ["hideout"]) || InStr(vars.log.areaID, "heisthub") || InStr(map.english, "invitation") && LLK_PatternMatch(vars.log.areaID, "", ["MavenHub", "PrimordialBoss"]))
 		If (A_TickCount >= start + 200)
 		{
 			active .= " mapinfo", vars.mapinfo.toggle := 1, Mapinfo_GUI(2)

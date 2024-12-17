@@ -168,7 +168,7 @@ Exit()
 	If !vars.poe_version && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
 		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
 
-	If !vars.poe_version && vars.maptracker.map.date_time
+	If vars.maptracker.map.date_time
 		Maptracker_Save()
 }
 
@@ -472,6 +472,10 @@ Init_vars()
 	vars.client := {}
 	vars.GUI := []
 	vars.omnikey := {}
+	vars.omnikey.poedb := {"Claws": 1,"Daggers": 1, "Wands": 1, "One Hand Swords": 1, "One Hand Axes": 1, "One Hand Maces": 1, "Sceptres": 1, "Spears": 1, "Flails": 1
+	, "Bows": 1, "Staves": 1, "Two Hand Swords": 1, "Two Hand Axes": 1, "Two Hand Maces": 1, "Quarterstaves": 1, "Crossbows": 1, "Traps": 1
+	, "Amulets": 1, "Rings": 1, "Belts": 1, "Gloves": 2, "Boots": 2, "Body Armours": 2, "Helmets": 2
+	, "Quivers": 1, "Foci": 1, "Shields": 2, "Jewels": 1, "Life Flasks": 1, "Mana Flasks": 1, "Charms": 1}
 	vars.leveltracker := {}
 	vars.lang := {}, vars.lang2 := {}
 	vars.log := {} ;store data related to the game's log here
@@ -1046,7 +1050,7 @@ Loop_main()
 		location := vars.log.areaID ;short-cut variable
 		If (vars.cloneframes.enabled
 		&& ((settings.cloneframes.pixelchecks && Screenchecks_PixelSearch("gamescreen")) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
-		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !InStr(location, "hideout") && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
+		&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !LLK_StringCompare(location, ["hideout"]) && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 		&& !vars.sanctum.active
 		|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
 			Cloneframes_Show()

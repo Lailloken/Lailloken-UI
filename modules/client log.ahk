@@ -66,6 +66,8 @@
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
+	If vars.poe_version && Blank(vars.log.areaname) && !Blank(areaID)
+		vars.log.areaname := Log_Get(areaID, "areaname")
 	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
 	If !mode
 		vars.log.access_time := A_TickCount - start
@@ -203,6 +205,24 @@ Log_FindLines(log_array, data)
 	Return found
 }
 
+Log_Get(log_text, data)
+{
+	local
+	
+	If (data = "areaname")
+		If !LLK_StringCompare(log_text, ["map"])
+			%data% := log_text
+		Else
+		{
+			If RegExMatch(log_text, "Hideout.*_Claimable")
+				Return LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout") . " hideout")
+			%data% := StrReplace(SubStr(log_text, 4), "_noboss") . (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") && !InStr(log_text, "losttowers") ? " (boss)" : "")
+			Loop, Parse, % %data%
+				%data% := (A_Index = 1) ? "" : %data%, %data% .= (A_Index != 1 && RegExMatch(A_LoopField, "[A-Z]") ? " " : "") . A_LoopField
+		}
+	Return LLK_StringCase(%data%)
+}
+
 Log_Loop(mode := 0)
 {
 	local
@@ -217,9 +237,6 @@ Log_Loop(mode := 0)
 		If (expired || vars.alarm.toggle) && !WinExist("ahk_id " vars.hwnd.alarm.alarm_set)
 			Alarm("", "", vars.alarm.toggle ? "" : expired)
 	}
-
-	If vars.poe_version && !vars.cloneframes.enabled
-		Return
 
 	If vars.log.file_location ;for the unlikely event where the user manually deletes the client.txt while the tool is still running
 		If IsObject(vars.log.file) && !FileExist(vars.log.file_location)
@@ -244,12 +261,14 @@ Log_Loop(mode := 0)
 			If !Blank(%A_LoopField%)
 				vars.log[A_LoopField] := %A_LoopField%
 			If (A_Index = 1) && !Blank(%A_LoopField%)
-				vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
+				If !vars.poe_version
+					vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
+				Else vars.log.areaname := Log_Get(areaID, "areaname")
 		}
 		If settings.features.leveltracker && !LLK_HasVal(vars.leveltracker.guide.group1, "an_end_to_hunger", 1) && !InStr(vars.log.areaID, "labyrinth_") && (!Blank(areaID) && (areaID != vars.leveltracker.guide.target_area) || IsNumber(level) && (level0 != level)) && LLK_Overlay(vars.hwnd.leveltracker.main, "check") ;player has leveled up or moved to a different location: update overlay for zone-layouts, exp-gain, and act clarifications
 			Leveltracker_Progress()
 
-		If settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
+		If !vars.poe_version && settings.qol.alarm && (areaID = "1_1_1") && IsNumber(StrReplace((check := LLK_HasVal(vars.alarm.timers, "oni", 1)), "|")) ;for oni-goroshi farming: re-entering Twilight Strand resets timer to 0:00
 			vars.alarm.timers.Delete(check), vars.alarm.timers[A_Now "|"] := "oni"
 
 		If settings.qol.lab && InStr(areaID, "labyrinth_airlock") ;entering Aspirants' Plaza: reset previous lab-progress (if there is any)
@@ -277,7 +296,7 @@ Log_Loop(mode := 0)
 			Settings_menu("general",, 0)
 	}
 
-	If mode || vars.poe_version
+	If mode
 		Return
 
 	If settings.qol.lab && InStr(vars.log.areaID, "labyrinth_") && !InStr(vars.log.areaID, "Airlock") && vars.log.areaseed && vars.lab.rooms.Count() && !vars.lab.rooms[vars.lab.room.1].seed
@@ -286,7 +305,7 @@ Log_Loop(mode := 0)
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
 		vars.leveltracker.guide.target_area := "", Leveltracker(vars.log.areaID = "login" ? "mule" : "+")
 
-	If settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
+	If !vars.poe_version && settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
 		Loop, % vars.mapinfo.categories.Count()
 		{
@@ -300,16 +319,17 @@ Log_Loop(mode := 0)
 	Maptracker_Timer()
 	Leveltracker_Timer()
 
-	If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && (vars.leveltracker.gear_ready != vars.leveltracker.gear_counter)
-	{
-		GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % vars.leveltracker.gear_ready
-		vars.leveltracker.gear_counter := vars.leveltracker.gear_ready
-	}
-	Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.gear_counter
-	{
-		GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % ""
-		vars.leveltracker.gear_counter := 0
-	}
+	If !vars.poe_version
+		If settings.leveltracker.geartracker && vars.leveltracker.gear_ready && (vars.leveltracker.gear_ready != vars.leveltracker.gear_counter)
+		{
+			GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % vars.leveltracker.gear_ready
+			vars.leveltracker.gear_counter := vars.leveltracker.gear_ready
+		}
+		Else If (!vars.leveltracker.gear_ready || !settings.leveltracker.geartracker) && vars.leveltracker.gear_counter
+		{
+			GuiControl, Text, % vars.hwnd.LLK_panel.leveltracker_text, % ""
+			vars.leveltracker.gear_counter := 0
+		}
 }
 
 Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel, ByRef areatier, ByRef act, ByRef level, ByRef date_time, ByRef character_class)
@@ -326,8 +346,10 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 			date_time := SubStr(loopfield, 1, InStr(loopfield, " ",,, 2) - 1)
 			act := db.leveltracker.areas[areaID].act ;store current act
 			arealevel := parse := SubStr(loopfield, InStr(loopfield, "level ") + 6, InStr(loopfield, " area """) - InStr(loopfield, "level ") - 6)
-			If (parse - 67 > 0)
+			If !vars.poe_version && (parse - 67 > 0)
 				areatier := (parse - 67 < 10 ? "0" : "") parse - 67
+			Else If vars.poe_version && (parse - 64 > 0)
+				areatier := (parse - 64 < 10 ? "0" : "") parse - 64
 			Else areatier := arealevel
 		}
 		Else If InStr(loopfield, " connected to ") && InStr(loopfield, ".login.") || InStr(loopfield, "*****")

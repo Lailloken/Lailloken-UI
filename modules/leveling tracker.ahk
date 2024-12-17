@@ -469,6 +469,8 @@ Leveltracker_Experience(arealevel := "", safe := 0, feature := "")
 
 	If !vars.log.level
 		Return
+	Else If vars.poe_version
+		Return "???"
 
 	arealevel := !arealevel ? vars.log.arealevel : arealevel, exp_penalty := {95: 1.069518717, 96: 1.129943503, 97: 1.2300123, 98: 1.393728223, 99: 1.666666667}
 	If (vars.log.level > 94)
