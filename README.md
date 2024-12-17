@@ -7,8 +7,8 @@ A light-weight AHK script with UI and QoL features for Path of Exile, emphasizin
 |---|---|---|---|
 
 ## Contributions
-| [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_translations.png)](https://github.com/Lailloken/Lailloken-UI/discussions/326) | [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_code.png) |
-|---|---|---|
+| [![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_issues.png)](https://github.com/Lailloken/Lailloken-UI/issues/339) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/_code.png) |
+|---|---|
 <br>
 
 ## Context: What is this project?
