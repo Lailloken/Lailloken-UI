@@ -1,5 +1,12 @@
 [
   [
+	["1.56.2", 15602],
+	"still beta, mainly poe2 changes",
+	"item-info: now poe2 compatible (but limited)",
+	"map-tracker: now poe2 compatible",
+	"omni-key context menu: added poe2db links"
+  ],
+  [
 	["1.56.1", 15601],
 	"still beta, mainly poe2 changes",
 	"color palette is now more flexible (rgb sliders)",
