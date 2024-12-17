@@ -50,7 +50,7 @@
     ],
     "ascendancy": [
       "the game only logs ascendancies when a character levels up",
-      "this label will be out of sync if you have recently (re)specced but not leveled up yet"
+      "this label will be out of sync if you have recently (re)specced but not leveled up yet: in that case, click the refresh button on the left"
     ],
     "active build": [
       "optional: type in a name/description of your build and press <enter>",
@@ -247,6 +247,14 @@
       "adds the ilvl requirement to each mod, which exposes high-tier but low-lvl mods",
       "this option caters more to advanced users because it adds even more information"
     ],
+    "iteminfo marking global": [
+      "colors used to highlight globally (un)desired mods",
+      "click a box to open the color-palette, right click to reset"
+    ],
+    "iteminfo marking class": [
+      "colors used to highlight class-specificly (un)desired mods",
+      "click a box to open the color-palette, right click to reset"
+    ],
     "iteminfo item-tier": [
       "click a box to open the color-palette, right click to reset",
       "<fr> refers to fractured, <#> to untiered mods",
@@ -256,7 +264,8 @@
       "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo override": [
-      "undesired mods will always be highlighted like t6 ones, except fractured ones"
+      "tiers/ilvl on undesired mods (except fractured) will be highlighted by the <undesired> color instead of the usual color",
+      "this will also hide icons on undesired mods to improve visual clarity"
     ],
     "iteminfo rules": [
       "single-click solution to mark larger mod groups as (un)desired",
@@ -995,6 +1004,9 @@
       "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)",
       "you can search for mods and also general rolls, e.g. \"100q\" for 100% quantity\n(for general rolls, it will always search for \"x and above\")"
     ],
+    "logviewer search mapinfo 2": [
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)"
+    ],
     "logviewer header mapinfo": [
       "mods rolled on a map (optional, has to be enabled first):\nclick highlighted cells in this column to view a list of logged mods",
       "header is clickable for searching:\nclick to paste \"yes\" into the search, r-click to paste \"no\", double-(r-)click to search immediately"
@@ -1016,6 +1028,9 @@
     "logviewer search content": [
       "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)",
       "available short-hand inputs: \"elder\" for elder guardians, \"sirus\" for conquerors"
+    ],
+    "logviewer search content 2": [
+      "supported inputs:\n\"xyz\" (search), \"!abc\" (exclude), \"xyz !abc\" (search xyz, exclude abc), \"abc, xyz, ...\" (search abc, and xyz, ...)"
     ],
     "logviewer header content": [
       "side-content you encountered in a map (optional, has to be enabled first)",
