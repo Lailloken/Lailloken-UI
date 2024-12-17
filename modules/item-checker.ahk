@@ -240,7 +240,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If (refresh = 2)
 		Return
 
-	If !db.item_bases.HasKey(item.class) && !vars.omnikey.poedb[item.class] || (item.itembase = "Timeless Jewel") || vars.poe_version && (item.rarity = "unique") ;|| (item.name = "Impossible Escape")
+	If !vars.poe_version && !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") || vars.poe_version && (item.rarity = "unique" || !vars.omnikey.poedb[item.class]) ;|| (item.name = "Impossible Escape")
 	{
 		LLK_ToolTip(Lang_Trans("ms_item-info") ":`n" Lang_Trans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return
@@ -532,13 +532,15 @@ Iteminfo_Stats2()
 		{
 			If InStr(A_LoopField, Lang_Trans("items_phys_dmg"))
 				phys_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+			Else If InStr(A_LoopField, Lang_Trans("items_chaos_dmg"))
+				chaos_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
 			Else If InStr(A_LoopField, " damage:")
 			{
-				ele_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2), ele_count += 1
-				ele_dmg%ele_count% := ele_dmg
+				ele_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+				Loop, Parse, ele_dmg, % ","
+					ele_count += 1, ele_dmg%ele_count% := A_LoopField
 			}
-			If InStr(A_LoopField, Lang_Trans("items_chaos_dmg"))
-				chaos_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
+
 			If InStr(A_LoopField, Lang_Trans("items_aps"))
 			{
 				speed := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
