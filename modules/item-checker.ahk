@@ -240,7 +240,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If (refresh = 2)
 		Return
 
-	If !vars.poe_version && !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") || vars.poe_version && (item.rarity = "unique" || !vars.omnikey.poedb[item.class]) ;|| (item.name = "Impossible Escape")
+	If !vars.poe_version && !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") || vars.poe_version && !vars.omnikey.poedb[item.class] ;|| (item.name = "Impossible Escape")
 	{
 		LLK_ToolTip(Lang_Trans("ms_item-info") ":`n" Lang_Trans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return

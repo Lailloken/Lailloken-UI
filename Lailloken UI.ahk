@@ -298,11 +298,11 @@ Init_client()
 		Sleep, 2000
 	}
 	WinGetPos, x, y, w, h, ahk_group poe_window
-	Gui, Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
+	Gui, Screen_Test: New, -DPIScale +LastFound +AlwaysOnTop +ToolWindow -Caption
 	WinSet, Trans, 0
-	Gui, Test: Show, % "NA x" x + w//2 " y" y + h//2 " Maximize"
+	Gui, Screen_Test: Show, % "NA x" x + w//2 " y" y + h//2 " Maximize"
 	WinGetPos, xScreenOffset_monitor, yScreenOffSet_monitor, width_native, height_native
-	Gui, Test: Destroy
+	Gui, Screen_Test: Destroy
 	;WinGetPos, x, y, w, h, ahk_class Shell_TrayWnd
 	vars.monitor := {"x": xScreenOffset_monitor, "y": yScreenOffSet_monitor, "w": width_native, "h": height_native, "xc": xScreenOffset_monitor + width_native / 2, "yc": yScreenOffSet_monitor + height_native / 2}
 	LLK_Log("measured monitor resolution and position: " width_native "x" height_native ", " xScreenOffset_monitor ", " yScreenOffSet_monitor)
@@ -1045,7 +1045,6 @@ Loop_main()
 			vars.general.inactive := 0
 			LLK_Overlay("show")
 		}
-
 		Leveltracker_Fade()
 		location := vars.log.areaID ;short-cut variable
 		If (vars.cloneframes.enabled

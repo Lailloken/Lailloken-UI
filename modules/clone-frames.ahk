@@ -15,7 +15,7 @@
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
 		For cloneframe in vars.cloneframes.list
-			Gui, % StrReplace(cloneframe, " ", "_") ": Destroy"
+			Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Destroy"
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
@@ -25,7 +25,7 @@
 		If (key = "settings")
 			key := "settings_cloneframe" ;dummy entry for clone-frame creation
 		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1}
-		Gui, % StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
+		Gui, % "cloneframe_" StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
 		vars.hwnd.cloneframes[key] := hwnd
 		If vars.cloneframes.list[key].enable
 			vars.cloneframes.enabled += 1
@@ -51,7 +51,7 @@ Cloneframes_Hide()
 	For cloneframe in vars.cloneframes.list
 	{
 		If vars.hwnd.cloneframes[cloneframe] && WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
-			Gui, % StrReplace(cloneframe, " ", "_") ": Hide"
+			Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Hide"
 		If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id " vars.hwnd.cloneframe_borders.main)
 			Gui, cloneframe_border: Hide
 		If vars.hwnd.cloneframe_borders.second && WinExist("ahk_id " vars.hwnd.cloneframe_borders.second)
@@ -199,15 +199,16 @@ Cloneframes_Show()
 		If !val.enable && !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) || (cloneframe = "settings_cloneframe")
 		{
 			If WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
-				Gui, % StrReplace(cloneframe, " ", "_") ": Hide"
+				Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Hide"
 			If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id " vars.hwnd.cloneframe_borders.main) && !vars.cloneframes.editing
 				Gui, cloneframe_border: Hide
 			If vars.hwnd.cloneframe_borders.second && WinExist("ahk_id " vars.hwnd.cloneframe_borders.second) && !vars.cloneframes.editing
 				Gui, cloneframe_border2: Hide
 			continue
 		}
+
 		If !WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
-			Gui, % StrReplace(cloneframe, " ", "_") ": Show", NA
+			Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Show", NA
 		pBitmap := Gdip_BitmapFromScreen(vars.monitor.x + val.xSource "|" vars.monitor.y + val.ySource "|" val.width "|" val.height)
 		width := val.width* val.xScale/100, height := val.height* val.yScale/100
 		hbmBitmap := CreateDIBSection(width, height), hdcBitmap := CreateCompatibleDC(), obmBitmap := SelectObject(hdcBitmap, hbmBitmap), gBitmap := Gdip_GraphicsFromHDC(hdcBitmap)

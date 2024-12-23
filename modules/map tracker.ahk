@@ -21,7 +21,7 @@
 	LLK_FontDimensions(settings.maptracker.fSize, height, width), settings.maptracker.fWidth := width, settings.maptracker.fHeight := height
 	settings.maptracker.fSize2 := !Blank(check := ini.settings["font-size2"]) ? check : settings.general.fSize
 	LLK_FontDimensions(settings.maptracker.fSize2, height, width), settings.maptracker.fWidth2 := width, settings.maptracker.fHeight2 := height
-	settings.maptracker.rename := !Blank(check := ini.settings["rename boss maps"]) ? check : (vars.poe_version ? 0 : 1)
+	settings.maptracker.rename := !Blank(check := ini.settings["rename boss maps"]) ? check : 1
 	settings.maptracker.sidecontent := !Blank(check := ini.settings["track side-areas"]) ? check : 0
 	settings.maptracker.character := !Blank(check := ini.settings["log character info"]) ? check : 0
 	settings.maptracker.mechanics := !Blank(check := ini.settings["track league mechanics"]) ? check : 0
@@ -150,11 +150,12 @@ Maptracker_Check(mode := 0) ;checks if player is in a map or map-related content
 	global vars, settings
 
 	mode_check := ["abyssleague", "endgame_labyrinth_trials", "mapsidearea"]
-	For key, val in (vars.poe_version ? {"map": 0} : {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "synthesis": 0, "abyssleague": 0, "endgame_labyrinth_trials": 0, "mapsidearea": 0})
+	For key, val in (vars.poe_version ? {"map": 0, "breach": 0} : {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "synthesis": 0, "abyssleague": 0, "endgame_labyrinth_trials": 0, "mapsidearea": 0})
 	{
 		If !mode && !Blank(LLK_HasVal(mode_check, key)) || (mode = 1) && Blank(LLK_HasVal(mode_check, key))
 			Continue
-		If InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
+		If vars.poe_version && LLK_StringCompare(vars.log.areaID, [key])
+		|| !vars.poe_version && InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
 			Return 1
 	}
 }
@@ -529,7 +530,7 @@ Maptracker_GUI(mode := 0)
 	vars.hwnd.maptracker.drag := hwnd
 	Gui, %GUI_name%: Add, Text, % "Section x" settings.maptracker.fWidth/2 " y0 0x200 h" Ceil(settings.maptracker.fHeight * 1.25) " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? "not tracking" : (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "")
 	vars.hwnd.maptracker.save := hwnd
-	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled range0-500 BackgroundBlack cGreen HWNDhwnd", 0
+	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Vertical Range0-500 BackgroundBlack cGreen HWNDhwnd", 0
 	vars.hwnd.maptracker.delbar := hwnd, count := 0
 
 	If settings.maptracker.notes
@@ -1796,9 +1797,6 @@ Maptracker_Timer()
 	If WinExist("ahk_id " vars.hwnd.maptracker.main) && (inactive = 2)
 		LLK_Overlay(vars.hwnd.maptracker.main, "destroy")
 
-	If Maptracker_Check() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
-		vars.maptracker.refresh_kills := 2
-
 	If Maptracker_Towncheck() && (vars.maptracker.refresh_kills = 2) && WinExist("ahk_id "vars.hwnd.maptracker.main) && !vars.maptracker.pause && Gui_Name(vars.hwnd.maptracker.main) ;flash the tracker as a reminder to update the kill-count
 	{
 		Gui, % Gui_Name(vars.hwnd.maptracker.main) ": Color", % (vars.maptracker.color = "Maroon") ? "Black" : "Maroon"
@@ -1813,6 +1811,9 @@ Maptracker_Timer()
 		GuiControl, +BackgroundBlack, % vars.hwnd.maptracker.delbar
 	}
 
+	If vars.maptracker.last_kills && vars.log.areaID && !Maptracker_Check(2) && !Maptracker_Towncheck()
+		vars.maptracker.last_kills := ""
+
 	If !Maptracker_Check(2) || !settings.maptracker.sidecontent && Maptracker_Check(1) || vars.maptracker.pause ;when outside a map, don't advance the timer (or track character-movement between maps/HO)
 		Return
 
@@ -1820,6 +1821,9 @@ Maptracker_Timer()
 		Maptracker_Save(1), new := 1 ;flag to specify that this is a new map
 	Else
 	{
+		If vars.poe_version && Blank(vars.log.areaname) && !Blank(vars.log.areaID)
+			vars.log.areaname := Log_Get(vars.log.areaID, "areaname")
+		
 		If !vars.maptracker.map.name && vars.log.areaname ;get the map's name from the client.txt's area-name
 		{
 			If settings.maptracker.rename
@@ -1851,8 +1855,9 @@ Maptracker_Timer()
 				vars.maptracker.map.content.Push(key)
 			}
 
-		If settings.features.mapinfo && settings.maptracker.mapinfo && !vars.maptracker.map.mapinfo && !vars.mapinfo.active_map.expired && (vars.mapinfo.active_map.name || vars.poe_version)
-		&& (vars.poe_version || vars.maptracker.map.name && InStr(vars.mapinfo.active_map.name, vars.maptracker.map.name) || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || vars.mapinfo.active_map.tag && InStr(vars.log.areaID, vars.mapinfo.active_map.tag))
+		active_map := vars.mapinfo.active_map
+		If settings.features.mapinfo && settings.maptracker.mapinfo && !vars.maptracker.map.mapinfo && !active_map.expired && active_map.name
+		&& (vars.poe_version || vars.maptracker.map.name && InStr(active_map.name, vars.maptracker.map.name) || LLK_HasVal(vars.mapinfo.categories, vars.log.areaname, 1) || active_map.tag && InStr(vars.log.areaID, active_map.tag))
 		{
 			If LLK_PatternMatch(vars.mapinfo.active_map.tag, "", ["mavenhub", "heist", "blight"])
 				vars.maptracker.map.name := (settings.maptracker.rename && vars.mapinfo.active_map.tag = "mavenhub" ? Lang_Trans("maps_boss") ": " : "") LLK_StringCase(vars.mapinfo.active_map.name)
@@ -1863,8 +1868,13 @@ Maptracker_Timer()
 			vars.maptracker.map.experience := StrReplace(Leveltracker_Experience(), "%")
 	}
 	If new && settings.maptracker.kills ;if entered map is new and kill-tracker is enabled, create a reminder-tooltip that follows the mouse
-		ToolTip_Mouse("killtracker"), vars.maptracker.refresh_kills := 1 ;three-state flag used to determine which kill-count is parsed from the client-log and how the tracker needs to be colored
+		If (vars.maptracker.refresh_kills = 3) && vars.maptracker.last_kills
+			vars.maptracker.map.kills := [vars.maptracker.last_kills], vars.maptracker.refresh_kills := 2
+		Else ToolTip_Mouse("killtracker"), vars.maptracker.refresh_kills := 1 ;three-state flag used to determine which kill-count is parsed from the client-log and how the tracker needs to be colored
 	vars.maptracker.map.time += 1 ;advance the timer
+
+	If Maptracker_Check() && (vars.maptracker.refresh_kills > 2) ;when re-entering a map after updating the kill-tracker, set its state to 2 so it starts flashing again the next time the hideout is entered
+		vars.maptracker.refresh_kills := 2
 }
 
 Maptracker_Towncheck()

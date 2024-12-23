@@ -252,7 +252,7 @@
       "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo marking class": [
-      "colors used to highlight class-specificly (un)desired mods",
+      "colors used to highlight class-specifically (un)desired mods",
       "click a box to open the color-palette, right click to reset"
     ],
     "iteminfo item-tier": [
@@ -388,7 +388,11 @@
     ],
     "maptracker rename": [
       "tags and renames boss maps for easier searching",
-      "example: <boss: elder> instead of <absence of value and meaning>"
+      "example:\n<boss: elder> instead of <absence of value and meaning>"
+    ],
+    "maptracker rename 2": [
+      "tags and renames boss maps for easier searching",
+      "example:\n<boss: xesht> instead of <twisted domain (boss)>"
     ],
     "maptracker character": [
       "your character's name, class, and level will be logged",

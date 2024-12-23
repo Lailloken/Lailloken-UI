@@ -724,17 +724,6 @@ Leveltracker_Import(profile := "")
 			Try vars.leveltracker["pob" profile] := LevelTracker_PobImport(StrReplace(act, "pob-code:"), profile)
 	}
 
-	/*
-	While (SubStr(gem_notes, 0) = "`n")
-		gem_notes := SubStr(gem_notes, 1, -1)
-	IniDelete, ini\leveling tracker.ini, Gem notes%profile%
-	If gem_notes
-	{
-		StringLower, gem_notes, gem_notes
-		gem_notes := StrReplace(gem_notes, "&", "&&")
-		IniWrite, % gem_notes, ini\leveling tracker.ini, Gem notes%profile%
-	}
-	*/
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 
 	IniDelete, ini\leveling tracker.ini, Gems%profile%

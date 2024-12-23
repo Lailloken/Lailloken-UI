@@ -90,10 +90,9 @@ Lootfilter_Base(mode)
 				For index, match in LLK_HasRegex(vars.lootfilter.bases, "i)" (InStr(val, """") ? "^""" : "") StrReplace(val, """") . (InStr(val, """") ? """$" : ""), 1, 1)
 					search_results[match] := vars.lootfilter.bases[match]
 
-				;If !InStr(val, """")
-					For key in vars.lootfilter.bases
-						If !search_results[key] && InStr(val, StrReplace(key, """"))
-							search_results[key] := 1
+				For key in vars.lootfilter.bases
+					If !search_results[key] && InStr(val, StrReplace(key, """"))
+						search_results[key] := 1
 			}
 			vars.lootfilter.search := [search.1, search_results]
 		}
@@ -122,7 +121,7 @@ Lootfilter_Base(mode)
 
 		If (mode = "load")
 		{
-			vars.lootfilter.modifications_backup := LLK_CloneObject(modifications) ; modifications.Clone()
+			vars.lootfilter.modifications_backup := LLK_CloneObject(modifications)
 			FileGetTime, timestamp1, % file1, M
 			If FileExist(file2)
 			{
@@ -228,10 +227,7 @@ Lootfilter_ChunkModify(chunk, action, object := "", stack_size := 0)
 		insert_line := "", loopfield := A_LoopField
 		For key, val in object
 			If (index != 1) && !LLK_StringCompare(loopfield, ["basetype", "class"]) && !InStr(chunk, key) && !InStr(modified_chunk, key)
-			{
-				;insert_line := InStr(key, "color") ? "Set" key " " val : key " " val
 				modified_chunk .= "`r`n" (InStr(key, "color") ? "Set" key " " val : key " " val)
-			}
 			Else If InStr(loopfield, key)
 			{
 				end := 0
@@ -301,7 +297,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 		}
 		LLK_Overlay(vars.hwnd.lootfilter.main, "destroy"), vars.lootfilter.search := vars.hwnd.lootfilter.main := ""
 		vars.lootfilter.pending := (vars.lootfilter.pending = 2) ? 2 : 0
-		vars.lootfilter.filter := vars.lootfilter.filter_backup.Clone(), vars.lootfilter.modifications := LLK_CloneObject(vars.lootfilter.modifications_backup) ; vars.lootfilter.modifications_backup.Clone()
+		vars.lootfilter.filter := vars.lootfilter.filter_backup.Clone(), vars.lootfilter.modifications := LLK_CloneObject(vars.lootfilter.modifications_backup)
 		Return
 	}
 	Else If (check = "basefilter")
@@ -372,7 +368,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 	{
 		If !LLK_Progress(vars.hwnd.lootfilter.apply_bar, "LButton",, 0) && !(dev_mode := (settings.general.dev && LLK_Progress(vars.hwnd.lootfilter.apply_bar, "RButton",, 0)))
 			Return
-		vars.lootfilter.filter_backup := vars.lootfilter.filter.Clone(), vars.lootfilter.modifications_backup := LLK_CloneObject(vars.lootfilter.modifications) ; vars.lootfilter.modifications.Clone()
+		vars.lootfilter.filter_backup := vars.lootfilter.filter.Clone(), vars.lootfilter.modifications_backup := LLK_CloneObject(vars.lootfilter.modifications)
 		FileDelete, % vars.lootfilter.config_folder "LLK-UI*.filter"
 		file_dump := "# LLK-UI modded filter, base file: " settings.lootfilter.active
 		For index, chunk in vars.lootfilter.filter
@@ -449,9 +445,6 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			Else If (vars.system.click = 1) && !Blank(pick := RGB_Picker(RGB_Convert(original := vars.lootfilter.selection.modifications[control])))
 				rgb := RGB_Convert(pick), vars.lootfilter.selection.modifications[control] := rgb.1 " " rgb.2 " " rgb.3 " " SubStr(original, InStr(original, " ",, 0) + 1)
 			Else Return
-			;GuiControl, % "+Background" pick, % vars.hwnd.lootfilter["selection_" control "_back"]
-			;GuiControl, % (control = "textcolor" ? "+c" : "+Background") pick, % vars.hwnd.lootfilter["selection_" control "_preview"]
-			;GuiControl, % "movedraw", % vars.hwnd.lootfilter["selection_" control "_preview"]
 		}
 		Else If InStr(check, "_discard")
 		{
@@ -666,7 +659,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			Else If (index = 2)
 				style := "xp-" settings.lootfilter.hLabel/5 " yp-" settings.lootfilter.hLabel/5 " wp+" settings.lootfilter.hLabel*0.4 " hp+" settings.lootfilter.hLabel*0.4
 			Else style := "xp-" settings.lootfilter.hLabel/5 " y" yText - 1 " wp+" settings.lootfilter.hLabel*0.4 " h" settings.lootfilter.hLabel
-			;Else style := ""
+
 			Gui, %GUI_name%: Add, Text, % style " Border BackgroundTrans gLootfilter_GUI HWNDhwnd"
 			Gui, %GUI_name%: Add, Progress, % "Disabled HWNDhwnd2 xp yp wp hp Background" (RGB_Convert(Blank(vars.lootfilter.selection.modifications[val]) ? colors[val] : vars.lootfilter.selection.modifications[val])), 0
 			vars.hwnd.lootfilter["selection_" val] := hwnd, vars.hwnd.lootfilter["selection_" val "_back"] := vars.hwnd.help_tooltips["lootfilter_" val] := hwnd2

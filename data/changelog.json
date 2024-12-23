@@ -1,5 +1,11 @@
 [
   [
+	["1.56.3", 15603],
+	"still beta, poe 1 and 2 changes",
+	"map-tracker: streamlined kill-tracking, improved poe2 support",
+	"item-info: re-enabled for uniques in poe2 to check dps"
+  ],
+  [
 	["1.56.2", 15602],
 	"still beta, mainly poe2 changes",
 	"item-info: now poe2 compatible (but limited)",
