@@ -260,7 +260,7 @@ ID	=	044
 
 [Monsters fire additional Projectiles]
 type	=	monsters
-text	=	extra proj: +%
+text	=	extra proj: +
 ID	=	045
 
 [Monsters have increased Area of Effect]
