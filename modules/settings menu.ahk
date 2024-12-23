@@ -2211,11 +2211,12 @@ Settings_maptracker()
 	If !vars.poe_version
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.sidecontent, % Lang_Trans("m_maptracker_sidearea")
-		vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd
-		Gui, %GUI%: Add, Checkbox, % "ys gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % Lang_Trans("m_maptracker_rename")
-		vars.hwnd.settings.rename := vars.hwnd.help_tooltips["settings_maptracker rename"] := hwnd
+		vars.hwnd.settings.sidecontent := vars.hwnd.help_tooltips["settings_maptracker side-content"] := hwnd, style := "ys"
 	}
+	Else style := "xs"
 
+	Gui, %GUI%: Add, Checkbox, % style " gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.rename, % Lang_Trans("m_maptracker_rename")
+	vars.hwnd.settings.rename := vars.hwnd.help_tooltips["settings_maptracker rename" vars.poe_version] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.character, % Lang_Trans("m_maptracker_character")
 	vars.hwnd.settings.character := vars.hwnd.help_tooltips["settings_maptracker character"] := hwnd
 	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_maptracker2 HWNDhwnd Checked"settings.maptracker.mechanics, % Lang_Trans("m_maptracker_content")

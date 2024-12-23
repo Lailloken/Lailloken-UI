@@ -99,11 +99,8 @@ Mapinfo_GUI(mode := 1)
 	static toggle := 0
 
 	map := vars.mapinfo.active_map ;short-cut variable
-	If map.cancel
-	{
-		map.cancel := 0
+	If !map
 		Return
-	}
 	toggle := !toggle, GUI_name := "mapinfo" toggle
 	Gui, %GUI_name%: New, % "-DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDmapinfo" (mode = 2 ? " +E0x20" : "")
 	Gui, %GUI_name%: Color, Black
@@ -366,7 +363,7 @@ Mapinfo_Parse(mode := 1, poe_version := "")
 
 	If error
 	{
-		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map.cancel := 1
+		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map := ""
 		Return 0
 	}
 
@@ -552,7 +549,7 @@ Mapinfo_Parse2(mode)
 
 	If error
 	{
-		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map.cancel := 1
+		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map := ""
 		Return 0
 	}
 

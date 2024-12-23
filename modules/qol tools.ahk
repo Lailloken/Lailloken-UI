@@ -995,15 +995,6 @@ Notepad_Widget(tab, mode := 0, color := 0)
 	If (InStr(A_Gui, "notepad") || mode = 1)
 		LLK_Overlay(hwnd_old, "destroy")
 
-	/*
-	If IsObject(vars.notepad_widgets[tab].text)
-	{
-		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count()
-		Gui, %GUI_name%: Add, Text, % "Section", % StrReplace(tab, "&", "&&") " (" page "/" pages "):`n" StrReplace(vars.notepad_widgets[tab].text[page], "&", "&&")
-	}
-	Else Gui, %GUI_name%: Add, Text, % "Section" (tab = "notepad_reminder_feature" ? " cRed" : ""), % StrReplace(vars.notepad.entries[tab], "&", "&&")
-	*/
-
 	If IsObject(vars.notepad_widgets[tab].text)
 	{
 		page := vars.notepad_widgets[tab].page, pages := vars.notepad_widgets[tab].text.Count(), multi := 1

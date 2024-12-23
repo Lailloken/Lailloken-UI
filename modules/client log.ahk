@@ -66,8 +66,7 @@
 	Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
-	If vars.poe_version && Blank(vars.log.areaname) && !Blank(areaID)
-		vars.log.areaname := Log_Get(areaID, "areaname")
+
 	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
 	If !mode
 		vars.log.access_time := A_TickCount - start
@@ -208,15 +207,27 @@ Log_FindLines(log_array, data)
 Log_Get(log_text, data)
 {
 	local
-	
+	global vars, settings
+
 	If (data = "areaname")
-		If !LLK_StringCompare(log_text, ["map"])
+		If !LLK_StringCompare(log_text, ["map", "breach"])
 			%data% := log_text
 		Else
 		{
-			If RegExMatch(log_text, "Hideout.*_Claimable")
+			If LLK_StringCompare(log_text, ["breach"])
+			{
+				If settings.maptracker.rename
+					Return "boss: xesht"
+				Else Return "twisted domain (boss)"
+			}
+			Else If RegExMatch(log_text, "Hideout.*_Claimable")
 				Return LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout") . " hideout")
-			%data% := StrReplace(SubStr(log_text, 4), "_noboss") . (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") && !InStr(log_text, "losttowers") ? " (boss)" : "")
+			%data% := StrReplace(SubStr(log_text, 4), "_noboss")
+			If InStr(%data%, "uberboss_")
+				%data% := (settings.maptracker.rename ? "boss:" : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (boss)")
+			Else If LLK_StringCompare(%data%, ["unique"])
+				%data% := "unique:" (InStr(%data%, "merchant") ? " nameless seer" : SubStr(%data%, 7))
+			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") && !InStr(log_text, "losttowers") ? " (boss)" : "")
 			Loop, Parse, % %data%
 				%data% := (A_Index = 1) ? "" : %data%, %data% .= (A_Index != 1 && RegExMatch(A_LoopField, "[A-Z]") ? " " : "") . A_LoopField
 		}
@@ -394,10 +405,11 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 			parse := SubStr(loopfield, InStr(loopfield, vars.lang.log_killed.1)), parse := Lang_Trim(parse, vars.lang.log_killed)
 			Loop, Parse, parse
 				parse := (A_Index = 1) ? "" : parse, parse .= IsNumber(A_LoopField) ? A_LoopField : ""
+
 			If (vars.maptracker.refresh_kills = 1)
 				vars.maptracker.map.kills := [parse], LLK_ToolTip(Lang_Trans("maptracker_kills", 2),,,,, "Lime"), vars.tooltip_mouse := "", vars.maptracker.refresh_kills := 2
 			Else If (vars.maptracker.refresh_kills > 1) && Maptracker_Towncheck()
-				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(Lang_Trans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3
+				vars.maptracker.map.kills.2 := parse, LLK_ToolTip(Lang_Trans("maptracker_kills", 2),,,,, "Lime"), vars.maptracker.refresh_kills := 3, vars.maptracker.last_kills := parse
 		}
 
 		If settings.features.maptracker && settings.maptracker.mechanics && vars.maptracker.map.id && (vars.log.areaID = vars.maptracker.map.id)
