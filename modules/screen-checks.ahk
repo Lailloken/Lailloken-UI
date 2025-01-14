@@ -36,8 +36,14 @@
 		vars.imagesearch.search := ["skilltree", "betrayal"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
 		vars.imagesearch.list := {"betrayal": 1, "skilltree": 1, "stash": 0} ;this object is parsed when listing image-checks in the settings menu
 		vars.imagesearch.checks := {"betrayal": {"x": vars.client.w - Round((1/72) * vars.client.h) * 2 , "y": Round((1/72) * vars.client.h), "w": Round((1/72) * vars.client.h), "h": Round((1/72) * vars.client.h)}
-			, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
-			, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}}
+		, "skilltree": {"x": vars.client.w//2 - Round((1/16) * vars.client.h)//2, "y": Round(0.054 * vars.client.h), "w": Round((1/16) * vars.client.h), "h": Round(0.02 * vars.client.h)}
+		, "stash": {"x": Round(0.27 * vars.client.h), "y": Round(0.055 * vars.client.h), "w": Round(0.07 * vars.client.h), "h": Round((1/48) * vars.client.h)}}
+	}
+	Else
+	{
+		vars.imagesearch.search := ["skilltree"] ;this array is parsed when doing image-checks: order is important (place static checks in front for better performance)
+		vars.imagesearch.list := {"skilltree": 1} ;this object is parsed when listing image-checks in the settings menu
+		vars.imagesearch.checks := {"skilltree": {"x": vars.client.w//2 - vars.client.h//16, "y": Round(0.018 * vars.client.h), "w": vars.client.h//8, "h": Round(0.02 * vars.client.h)}}
 	}
 	vars.imagesearch.variation := 15
 
@@ -180,11 +186,11 @@ Screenchecks_ImageSearch(name := "") ;performing image screen-checks: use parame
 
 		If InStr(A_Gui, "settings_menu") ;when testing a screen-check via the settings, check the whole screenshot
 			x1 := 0, y1 := 0, x2 := 0, y2 := 0, settings_menu := 1
-		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;skip check if reference-image or coordinates are missing
+		Else If !vars.imagesearch[val].x1 || !FileExist("img\Recognition (" vars.client.h "p)\GUI\" val . vars.poe_version ".bmp") ;skip check if reference-image or coordinates are missing
 			continue
 		Else x1 := vars.imagesearch[val].x1, y1 := vars.imagesearch[val].y1, x2 := vars.imagesearch[val].x2, y2 := vars.imagesearch[val].y2
 
-		pNeedle := Gdip_CreateBitmapFromFile("img\Recognition (" vars.client.h "p)\GUI\" val ".bmp") ;load the reference image
+		pNeedle := Gdip_CreateBitmapFromFile("img\Recognition (" vars.client.h "p)\GUI\" val . vars.poe_version ".bmp") ;load the reference image
 		If (Gdip_ImageSearch(pHaystack, pNeedle, LIST, x1, y1, x2, y2, vars.imagesearch.variation,, 1, 1) > 0) ;search within the screenshot
 		{
 			Gdip_GetImageDimension(pNeedle, width, height)
@@ -233,7 +239,7 @@ Screenchecks_Info(name) ;holding the <info> button to view instructions
 
 	If FileExist("img\GUI\screen-checks\"name ".jpg")
 	{
-		pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\screen-checks\" name ".jpg"), pBitmap := Gdip_ResizeBitmap(pBitmap0, vars.settings.w - settings.general.fWidth - 1, 10000, 1, 7, 1), Gdip_DisposeImage(pBitmap0)
+		pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\screen-checks\" name . vars.poe_version ".jpg"), pBitmap := Gdip_ResizeBitmap(pBitmap0, vars.settings.w - settings.general.fWidth - 1, 10000, 1, 7, 1), Gdip_DisposeImage(pBitmap0)
 		hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap), Gdip_DisposeImage(pBitmap)
 		Gui, screencheck_info: Add, Pic, % "Section w"vars.settings.w - settings.general.fWidth - 1 " h-1", HBitmap:*%hBitmap%
 		DeleteObject(hBitmap)

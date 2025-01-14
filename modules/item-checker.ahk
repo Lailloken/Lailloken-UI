@@ -221,11 +221,16 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 			}
 			item.itembase := StrReplace(StrReplace(item.name, prefix), suffix)
 		}
+		Else If vars.poe_version && InStr(item.name, "waystone (")
+			item.itembase := "Waystone"
 		Else
 			For key in db.item_bases["_bases"]
 				If InStr(item.name, " " key, 1) || InStr(item.name, key " ", 1)
 					item.itembase := (StrLen(key) > StrLen(item.itembase)) ? key : item.itembase
 	}
+
+	If InStr(item.itembase, "waystone (")
+		item.itembase := "Waystone"
 
 	If (settings.general.lang_client != "english") && item.itembase ;try to get the English item-class on non-English clients (via base-item database)
 		item.class := db.item_bases._classes[db.item_bases._bases[item.itembase]]

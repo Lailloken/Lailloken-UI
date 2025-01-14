@@ -13,15 +13,6 @@
 
 	FileGetSize, filesize, % vars.log.file_location, M
 
-	If vars.poe_version
-	{
-		settings.general.lang_client := "english"
-		lang_parse := Lang_Load("english\client.txt")
-		For key, val in lang_parse
-			vars.lang[key] := val.Clone()
-		vars.system.font := Lang_Trans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
-	}
-
 	If !mode
 		settings.general.character := LLK_IniRead("ini" vars.poe_version "\config.ini", "settings", "active character")
 		, log_file := vars.log.file := FileOpen(vars.log.file_location, "a", "UTF-8"), vars.log.file_size := filesize
@@ -33,9 +24,6 @@
 		move := Min(max_pointer, 5 * A_Index * 1024000), log_file.Seek(-move, 2), log_read := log_file.Read(5*1024000)
 		If !mode && !IsObject(log_content) && (check := InStr(log_read, " Generating level ", 1, 0, 3))
 			log_content := StrSplit(SubStr(log_read, check), "`n", "`r" vars.lang.system_fullstop.1)
-
-		If !mode && !settings.general.lang_client && IsObject(log_content)
-			Lang_Client(log_content)
 
 		If settings.general.character && Blank(log_character.1)
 		&& (InStr(log_read, " " settings.general.character " " Lang_Trans("system_parenthesis")) || InStr(log_read, " " settings.general.character " " Lang_Trans("log_whois")))
@@ -67,7 +55,7 @@
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
 
-	vars.log.level := !vars.log.level ? 0 : vars.log.level, settings.general.lang_client := settings.general.lang_client ? settings.general.lang_client : "unknown"
+	vars.log.level := !vars.log.level ? 0 : vars.log.level
 	If !mode
 		vars.log.access_time := A_TickCount - start
 }
@@ -210,7 +198,7 @@ Log_Get(log_text, data)
 	global vars, settings
 
 	If (data = "areaname")
-		If !LLK_StringCompare(log_text, ["map", "breach"])
+		If !LLK_StringCompare(log_text, ["map", "breach", "ritual"])
 			%data% := log_text
 		Else
 		{
@@ -220,13 +208,25 @@ Log_Get(log_text, data)
 					Return "boss: xesht"
 				Else Return "twisted domain (boss)"
 			}
+			Else If LLK_StringCompare(log_text, ["ritual"])
+			{
+				If settings.maptracker.rename
+					Return "boss: king in the mists"
+				Else Return "crux of nothingness (boss)"
+			}
+			Else If InStr(log_text, "uberboss_monolith")
+			{
+				If settings.maptracker.rename
+					Return "boss: arbiter of ash"
+				Else Return "the burning monolith (boss)"
+			}
 			Else If RegExMatch(log_text, "Hideout.*_Claimable")
 				Return LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout") . " hideout")
 			%data% := StrReplace(SubStr(log_text, 4), "_noboss")
 			If InStr(%data%, "uberboss_")
 				%data% := (settings.maptracker.rename ? "boss:" : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (boss)")
 			Else If LLK_StringCompare(%data%, ["unique"])
-				%data% := "unique:" (InStr(%data%, "merchant") ? " nameless seer" : SubStr(%data%, 7))
+				%data% := "unique:" (InStr(%data%, "merchant") ? " nameless seer" : InStr(%data%, "vault") ? " vaults of kamasa" : SubStr(%data%, 7))
 			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") && !InStr(log_text, "losttowers") ? " (boss)" : "")
 			Loop, Parse, % %data%
 				%data% := (A_Index = 1) ? "" : %data%, %data% .= (A_Index != 1 && RegExMatch(A_LoopField, "[A-Z]") ? " " : "") . A_LoopField
@@ -354,8 +354,10 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 		{
 			parse := SubStr(loopfield, InStr(loopfield, "area """) + 6), areaID := SubStr(parse, 1, InStr(parse, """") -1) ;store PoE-internal location name in var
 			areaseed := SubStr(loopfield, InStr(loopfield, "with seed ") + 10), areaname := ""
+			If (areaID = "c_g2_9_2_" || areaID = "c_g3_16_") ;bugged PoE2 areaIDs
+				areaID := SubStr(areaID, 1, -1)
 			date_time := SubStr(loopfield, 1, InStr(loopfield, " ",,, 2) - 1)
-			act := db.leveltracker.areas[areaID].act ;store current act
+			act := db.leveltracker.areas[StrReplace(areaID, vars.poe_version ? "c_" : "")].act . (vars.poe_version && InStr(areaID, "C_") ? "c" : "") ;store current act
 			arealevel := parse := SubStr(loopfield, InStr(loopfield, "level ") + 6, InStr(loopfield, " area """) - InStr(loopfield, "level ") - 6)
 			If !vars.poe_version && (parse - 67 > 0)
 				areatier := (parse - 67 < 10 ? "0" : "") parse - 67

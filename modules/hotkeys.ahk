@@ -85,6 +85,12 @@ Hotkeys_ESC()
 
 	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
 		Cloneframes_SettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
+	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
+		Gui, alarm_set: Destroy
+	Else If WinExist("LLK-UI: notepad reminder")
+		WinActivate, ahk_group poe_window
+	Else If WinActive("ahk_id " vars.hwnd.notepad.main)
+		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 	Else If vars.leveltracker.skilltree_schematics.GUI
 		Leveltracker_PobSkilltree("close")
 	Else If WinExist("ahk_id " vars.hwnd.lootfilter.main)
@@ -132,16 +138,10 @@ Hotkeys_ESC()
 		vars.snipping_tool := {"GUI": 0}
 	Else If WinExist("ahk_id " vars.hwnd.ocr_tooltip.main)
 		OCR_Close()
-	Else If WinExist("LLK-UI: notepad reminder")
-		WinActivate, ahk_group poe_window
-	Else If WinActive("ahk_id " vars.hwnd.notepad.main)
-		Notepad("save"), LLK_Overlay(vars.hwnd.notepad.main, "destroy"), vars.hwnd.notepad.main := ""
 	Else If WinExist("ahk_id " vars.hwnd.maptracker_logs.sum_tooltip)
 		Gui, maptracker_tooltip: Destroy
 	Else If WinExist("ahk_id "vars.hwnd.legion.main)
 		Legion_Close()
-	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
-		Gui, alarm_set: Destroy
 	Else If WinExist("ahk_id " vars.hwnd.maptracker_dates.main)
 		LLK_Overlay(vars.hwnd.maptracker_dates.main, "destroy")
 	Else If WinExist("ahk_id " vars.hwnd.maptracker_logs.maptracker_edit)

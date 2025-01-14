@@ -150,12 +150,12 @@ Maptracker_Check(mode := 0) ;checks if player is in a map or map-related content
 	global vars, settings
 
 	mode_check := ["abyssleague", "endgame_labyrinth_trials", "mapsidearea"]
-	For key, val in (vars.poe_version ? {"map": 0, "breach": 0} : {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "synthesis": 0, "abyssleague": 0, "endgame_labyrinth_trials": 0, "mapsidearea": 0})
+	For key, val in (vars.poe_version ? {"map": 0, "breach": 0, "ritual": 0} : {"mapworlds": 0, "maven": 0, "betrayal": 0, "incursion": 0, "heist": "heisthub", "mapatziri": 0, "legionleague": 0, "expedition": 0, "atlasexilesboss": 0, "breachboss": 0, "affliction": 0, "bestiary": 0, "sanctum": "sanctumfoyer", "synthesis": 0, "abyssleague": 0, "endgame_labyrinth_trials": 0, "mapsidearea": 0, "azmeri": 0})
 	{
 		If !mode && !Blank(LLK_HasVal(mode_check, key)) || (mode = 1) && Blank(LLK_HasVal(mode_check, key))
 			Continue
 		If vars.poe_version && LLK_StringCompare(vars.log.areaID, [key])
-		|| !vars.poe_version && InStr(vars.log.areaID, key) && (!val || val && !InStr(vars.log.areaID, val))
+		|| !vars.poe_version && LLK_StringCompare(vars.log.areaID, [key]) && (!val || val && !InStr(vars.log.areaID, val))
 			Return 1
 	}
 }
@@ -245,7 +245,7 @@ Maptracker_DateSelect()
 			}
 
 		If league_count && (A_Index = 1)
-			Gui, %GUI_name%: Add, Progress, % "ys x+-1 Section Background606060 w" settings.maptracker.fWidth2/2 " h" hRow * StrLen(league_count) - (StrLen(league_count) - 1)
+			Gui, %GUI_name%: Add, Progress, % "ys x+-1 Section Background646464 w" settings.maptracker.fWidth2/2 " h" hRow * StrLen(league_count) - (StrLen(league_count) - 1)
 
 		If wControl
 			LLK_PanelDimensions(["  " year " (" LLK_HasKey(runs, year, 1,, 1).Count() ")  "], settings.maptracker.fSize2 + 2, wControl1, hControl1), width0 := (wControl >= wControl1) ? " wp" : " w" wControl1
@@ -528,7 +528,7 @@ Maptracker_GUI(mode := 0)
 
 	Gui, %GUI_name%: Add, Progress, % "x0 y0 BackgroundWhite HWNDhwnd w" settings.maptracker.fWidth * 0.6 " h" settings.maptracker.fWidth * 0.6, 0
 	vars.hwnd.maptracker.drag := hwnd
-	Gui, %GUI_name%: Add, Text, % "Section x" settings.maptracker.fWidth/2 " y0 0x200 h" Ceil(settings.maptracker.fHeight * 1.25) " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? "not tracking" : (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "")
+	Gui, %GUI_name%: Add, Text, % "Section x0 y0 0x200 h" Ceil(settings.maptracker.fHeight * 1.25) " BackgroundTrans HWNDhwnd" (vars.maptracker.pause ? " c"settings.maptracker.colors.date_unselected : ""), % Blank(vars.maptracker.map.name) ? " not tracking " : " " (InStr(vars.maptracker.map.name, ":") ? SubStr(vars.maptracker.map.name, InStr(vars.maptracker.map.name, ":") + 2) : vars.maptracker.map.name) " ("vars.maptracker.map.tier ")" (vars.maptracker.map.time ? " " FormatSeconds(vars.maptracker.map.time, 0) : "") " "
 	vars.hwnd.maptracker.save := hwnd
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled Vertical Range0-500 BackgroundBlack cGreen HWNDhwnd", 0
 	vars.hwnd.maptracker.delbar := hwnd, count := 0
@@ -540,15 +540,16 @@ Maptracker_GUI(mode := 0)
 				vars.pics.maptracker["notes" tag] := LLK_ImageCache("img\GUI\mapping tracker\notes" tag ".png")
 		Loop 3
 			count += vars.maptracker.notes[A_Index].Count()
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (count ? "" : "0")]
-		vars.hwnd.maptracker.notes := hwnd
+		Gui, %GUI_name%: Add, Pic, % "ys x+0 hp w-1 HWNDhwnd BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["notes" (count ? "" : "0")]
+		vars.hwnd.maptracker.notes := hwnd, spacing := 1
 	}
 
 	If settings.maptracker.character
 	{
 		If !vars.pics.maptracker.character
 			vars.pics.maptracker.character := LLK_ImageCache("img\GUI\mapping tracker\character.png"), vars.pics.maptracker.character0 := LLK_ImageCache("img\GUI\mapping tracker\character0.png"),
-		Gui, %GUI_name%: Add, Pic, % "ys HWNDhwnd hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
+		Gui, %GUI_name%: Add, Pic, % "ys" (!spacing ? " x+0" : "") " HWNDhwnd hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["character" (vars.log.level ? "" : 0)]
+		spacing := 1
 		If vars.log.level
 			vars.hwnd.maptracker.character := hwnd
 	}
@@ -557,7 +558,8 @@ Maptracker_GUI(mode := 0)
 	{
 		If !vars.pics.maptracker["content_" content]
 			vars.pics.maptracker["content_" content] := LLK_ImageCache("img\GUI\mapping tracker\" content ".png")
-		Gui, %GUI_name%: Add, Pic, % "ys hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
+		Gui, %GUI_name%: Add, Pic, % "ys" (!spacing ? " x+0" : "") " hp w-1 BackgroundTrans", % "HBitmap:*" vars.pics.maptracker["content_" content]
+		spacing := 1
 	}
 
 	If mode
@@ -566,7 +568,7 @@ Maptracker_GUI(mode := 0)
 		For loot, stack in vars.maptracker.map.loot
 		{
 			loot := (StrLen(loot) > 30) ? SubStr(loot, 1, 30) . " [...]" : loot
-			Gui, %GUI_name%: Add, Text, % "xs Section"(A_Index = 1 ? " y+"settings.maptracker.fWidth/2 : " y+0"), % loot (stack > 1 ? " (" stack ")" : "")
+			Gui, %GUI_name%: Add, Text, % "xs Section"(A_Index = 1 ? " y+" settings.maptracker.fWidth/2 : " y+0"), % loot (stack > 1 ? " (" stack ")" : "")
 		}
 	}
 	Else vars.maptracker.loot := 0
@@ -1783,7 +1785,7 @@ Maptracker_Timer()
 
 	If !mapname_replace
 	{
-		mapname_replace := {"mavenboss": Lang_Trans("maps_maven"), "mavenhub": Lang_Trans("maps_maven_invitation"), "MapWorldsPrimordialBoss1": Lang_Trans("maps_hunger"), "MapWorldsPrimordialBoss2": Lang_Trans("maps_blackstar"), "MapWorldsPrimordialBoss3": Lang_Trans("maps_exarch"), "MapWorldsPrimordialBoss4": Lang_Trans("maps_eater"), "MapWorldsShapersRealm": Lang_Trans("maps_shaper"), "MapWorldsElderArena": Lang_Trans("maps_elder"), "MapWorldsElderArenaUber": Lang_Trans("maps_elder", 2), "harvestleagueboss": Lang_Trans("maps_oshabi"), "mapatziri1": Lang_Trans("maps_atziri"), "mapatziri2": Lang_Trans("maps_atziri", 2), "atlasexilesboss5": Lang_Trans("maps_sirus"), "synthesis_mapboss": Lang_Trans("maps_cortex")}
+		mapname_replace := {"azmerileagueboss": "the king in the mists", "mavenboss": Lang_Trans("maps_maven"), "mavenhub": Lang_Trans("maps_maven_invitation"), "MapWorldsPrimordialBoss1": Lang_Trans("maps_hunger"), "MapWorldsPrimordialBoss2": Lang_Trans("maps_blackstar"), "MapWorldsPrimordialBoss3": Lang_Trans("maps_exarch"), "MapWorldsPrimordialBoss4": Lang_Trans("maps_eater"), "MapWorldsShapersRealm": Lang_Trans("maps_shaper"), "MapWorldsElderArena": Lang_Trans("maps_elder"), "MapWorldsElderArenaUber": Lang_Trans("maps_elder", 2), "harvestleagueboss": Lang_Trans("maps_oshabi"), "mapatziri1": Lang_Trans("maps_atziri"), "mapatziri2": Lang_Trans("maps_atziri", 2), "atlasexilesboss5": Lang_Trans("maps_sirus"), "synthesis_mapboss": Lang_Trans("maps_cortex")}
 		mapname_add := {"heist": Lang_Trans("maps_heist"), "expedition": Lang_Trans("maps_logbook"), "affliction": Lang_Trans("maps_delirium")}
 	}
 
@@ -1811,7 +1813,7 @@ Maptracker_Timer()
 		GuiControl, +BackgroundBlack, % vars.hwnd.maptracker.delbar
 	}
 
-	If vars.maptracker.last_kills && vars.log.areaID && !Maptracker_Check(2) && !Maptracker_Towncheck()
+	If vars.maptracker.last_kills && vars.log.areaID && !Maptracker_Check(2) && !Maptracker_Towncheck() && !InStr(vars.log.areaID, "_town")
 		vars.maptracker.last_kills := ""
 
 	If !Maptracker_Check(2) || !settings.maptracker.sidecontent && Maptracker_Check(1) || vars.maptracker.pause ;when outside a map, don't advance the timer (or track character-movement between maps/HO)

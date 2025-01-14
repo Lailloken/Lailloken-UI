@@ -131,7 +131,7 @@ Gui_HelpToolTip(HWND_key)
 	HWND_key := StrReplace(HWND_key, "|"), check := SubStr(HWND_key, 1, InStr(HWND_key, "_") - 1), control := SubStr(HWND_key, InStr(HWND_key, "_") + 1)
 	If (check = "donation")
 		check := "settings", donation := 1
-	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "leveltrackerschematics": "skilltree_schematics", "lootfilter": 0, "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
+	HWND_checks := {"cheatsheets": "cheatsheet_menu", "maptracker": "maptracker_logs", "maptrackernotes": "maptrackernotes_edit", "notepad": 0, "leveltracker": "leveltracker_screencap", "leveltrackereditor": "leveltracker_editor", "leveltrackerschematics": "skilltree_schematics", "lootfilter": 0, "snip": 0, "lab": 0, "searchstrings": "searchstrings_menu", "updater": "update_notification", "geartracker": 0, "seed-explorer": "legion", "recombination": 0}
 	If (check != "settings")
 		WinGetPos, xWin, yWin, wWin,, % "ahk_id "vars.hwnd[(HWND_checks[check] = 0) ? check : HWND_checks[check]][(check = "leveltrackerschematics") ? "info" : "main"]
 	If (check = "lab" && InStr(control, "square"))
@@ -140,7 +140,7 @@ Gui_HelpToolTip(HWND_key)
 		database := vars.lootfilter.filter, lootfilter := 1
 	Else database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
 
-	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : 1)
+	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "leveltrackereditor" ? 0.5 : 1)
 	If !tooltip_width
 		Return
 
@@ -186,7 +186,7 @@ Gui_HelpToolTip(HWND_key)
 
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin, yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin + (check = "leveltrackereditor" ? (wWin - 2)//2 : 0), yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h
 	If (check = "lootfilter")
 		yPos := vars.lootfilter.yPos - height, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (InStr("maptracker", check) ? height - 1 : 0) : yPos)
@@ -317,7 +317,7 @@ LLK_ControlGetPos(cHWND, return_val)
 	}
 }
 
-LLK_Drag(width, height, ByRef xPos, ByRef yPos, top_left := 0, gui_name := "", snap := 0, xOffset := "", yOffset := "") ; top_left parameter: GUI will be aligned based on top-left corner
+LLK_Drag(width, height, ByRef xPos, ByRef yPos, top_left := 0, gui_name := "", snap := 0, xOffset := "", yOffset := "", ignore_bounds := 0) ; top_left parameter: GUI will be aligned based on top-left corner
 {
 	local
 	global vars, settings
@@ -339,27 +339,32 @@ LLK_Drag(width, height, ByRef xPos, ByRef yPos, top_left := 0, gui_name := "", s
 		Return
 	}
 
-	xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
-	xPos -= vars.monitor.x, yPos -= vars.monitor.y
-	If (xPos >= vars.monitor.w)
-		xPos := vars.monitor.w - 1
+	If !ignore_bounds
+	{
+		xPos := (xPos < vars.monitor.x) ? vars.monitor.x : xPos, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
+		xPos -= vars.monitor.x, yPos -= vars.monitor.y
+		If (xPos >= vars.monitor.w)
+			xPos := vars.monitor.w - 1
+		If (yPos >= vars.monitor.h)
+			yPos := vars.monitor.h - 1
+	}
 
 	If (xPos >= vars.monitor.w / 2) && !top_left
 		xTarget := xPos - width + 1
 	Else xTarget := xPos
 
-	If (yPos >= vars.monitor.h)
-		yPos := vars.monitor.h - 1
-
 	If (yPos >= vars.monitor.h / 2) && !top_left
 		yTarget := yPos - height + 1
 	Else yTarget := yPos
 
-	If top_left && (xTarget + width > vars.monitor.w)
-		xTarget := vars.monitor.w - width, xPos := xTarget
-	If top_left && (yTarget + height > vars.monitor.h)
-		yTarget := vars.monitor.h - height, yPos := yTarget
-
+	If !ignore_bounds
+	{
+		If top_left && (xTarget + width > vars.monitor.w)
+			xTarget := vars.monitor.w - width, xPos := xTarget
+		If top_left && (yTarget + height > vars.monitor.h)
+			yTarget := vars.monitor.h - height, yPos := yTarget
+	}
+	
 	If snap && LLK_IsBetween(xTarget + width/2, vars.monitor.x + vars.client.xc * 0.9, vars.monitor.x + vars.client.xc * 1.1)
 		xPos := "", xTarget := vars.client.xc - width/2 + 1
 
@@ -446,7 +451,7 @@ LLK_Overlay(guiHWND, mode := "show", NA := 1, gui_name0 := "")
 	{
 		For index, val in vars.GUI
 		{
-			If (val.hwnd = vars.hwnd.settings.main) && (vars.settings.active = "betrayal-info") || !WinExist("ahk_id " val.hwnd) || InStr(vars.hwnd.cheatsheet_menu.main "," vars.hwnd.searchstrings_menu.main "," vars.hwnd.leveltracker_screencap.main "," vars.hwnd.notepad.main, val.hwnd)
+			If (val.hwnd = vars.hwnd.settings.main) && (vars.settings.active = "betrayal-info") || !WinExist("ahk_id " val.hwnd) || InStr(vars.hwnd.cheatsheet_menu.main "," vars.hwnd.searchstrings_menu.main "," vars.hwnd.leveltracker_screencap.main "," vars.hwnd.notepad.main "," vars.hwnd.leveltracker_editor.main, val.hwnd)
 				Continue
 			Gui, % val.name ": Hide"
 		}
@@ -575,7 +580,7 @@ LLK_Progress(HWND_bar, key, HWND_control := "", key_wait := 1) ;HWND_bar = HWND 
 	Return 0
 }
 
-LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "White", size := "", align := "", trans := "", center := 0, background := "")
+LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "White", size := "", align := "", trans := "", center := 0, background := "", center_text := 0)
 {
 	local
 	global vars, settings
@@ -604,7 +609,7 @@ LLK_ToolTip(message, duration := 1, x := "", y := "", name := "", color := "Whit
 	Gui, tooltip%name%: Font, % "s" size* (name = "update" ? 1.4 : 1) " cWhite", % vars.system.font
 	vars.hwnd["tooltip" name] := hwnd
 
-	Gui, tooltip%name%: Add, Text, % "c"color align, % message
+	Gui, tooltip%name%: Add, Text, % "c"color align (center_text ? " Center" : ""), % message
 	Gui, tooltip%name%: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, ahk_id %hwnd%
 
@@ -694,7 +699,7 @@ RGB_Picker(RGB := "")
 			Gui, RGB_palette: Add, Text, % style " Center 0x200 BackgroundTrans HWNDhwnd_" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " c" (index >= 5 ? "Black" : "White"), % (RGB = val) ? "X" : ""
 			If (RGB = val)
 				marked := val
-			Gui, RGB_palette: Add, Progress, % "xp yp Disabled Background606060 c" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " HWNDhwnd", 100
+			Gui, RGB_palette: Add, Progress, % "xp yp Disabled Background646464 c" val " w" settings.general.fWidth * 2 " h" settings.general.fWidth * 2 " HWNDhwnd", 100
 			hwnd_GUI[hwnd] := """" val """"
 		}
 
@@ -707,7 +712,7 @@ RGB_Picker(RGB := "")
 		Gui, RGB_palette: Add, Edit, % "ys Number Right Limit3 x+-1 hp cBlack gRGB_Picker HWNDhwnd_edit_" letter " w" settings.general.fWidth*3 - 1, % val
 		Gui, RGB_palette: Font, % "s" settings.general.fSize
 	}
-	Gui, RGB_palette: Add, Progress, % "Disabled xs y+-1 Section hp HWNDhwnd_final Background606060 c" (Blank(RGB) ? "000000" : RGB) " w" settings.general.fWidth*3, 100
+	Gui, RGB_palette: Add, Progress, % "Disabled xs y+-1 Section hp HWNDhwnd_final Background646464 c" (Blank(RGB) ? "000000" : RGB) " w" settings.general.fWidth*3, 100
 	Gui, RGB_palette: Add, Text, % "ys x+-1 Border HWNDhwnd_save 0x200", % " " Lang_Trans("global_apply") " "
 
 	Gui, RGB_palette: Show, % "NA x10000 y10000"
