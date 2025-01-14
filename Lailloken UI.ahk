@@ -103,7 +103,6 @@ If vars.ini_integrity
 	ExitApp
 }
 LLK_Log("+++ tool is running +++")
-Settings_menu("leveling tracker")
 Return
 
 #Include modules\betrayal-info.ahk
@@ -622,6 +621,8 @@ LLK_FileCheck()
 	For index, val in ["necropolis.ahk"]
 		If FileExist("modules\" val)
 			FileDelete, modules\%val%
+	If FileExist("img\GUI\screen-checks\necro_lantern.jpg")
+		FileDelete, img\GUI\screen-checks\necro_lantern.jpg
 	If FileExist("data\english\necropolis.json")
 		FileDelete, data\english\necropolis.json
 	If FileExist("ini\altars.ini")
