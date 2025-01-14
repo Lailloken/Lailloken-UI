@@ -18,8 +18,7 @@
       "the script will restart upon selection"
     ],
     "lang unknown": [
-      "the client's language couldn't be detected from analyzing its log-file",
-      "if you have reinstalled the game (or deleted its log-file) recently, try waypoint-traveling a few times and then restarting the tool"
+      "the client's language couldn't be detected from reading its config-file"
     ],
     "toolbar hide": [
       "permanently hides the toolbar until you hold <tab> or hover the cursor over its previous position"
@@ -345,7 +344,14 @@
     ],
     "leveltracker import": [
       "imports guide data from clipboard into this guide slot",
-      "note: importing will reset the <mule> checkbox"
+      "(/underline)note: importing will reset the <mule> checkbox"
+    ],
+    "leveltracker import 2": [
+      "imports guide data from clipboard into this guide slot",
+      "importing a guide will reset your progress:\nyou can long-click the \">\" button in the guide-overlay to re-sync the guide to the zone you're currently in"
+    ],
+    "leveltracker editor": [
+      "opens the guide editor to load the default guide, edit the current one, or write a new one"
     ],
     "leveltracker mule": [
       "the guide in this slot will be treated as a mule for slot 1",
@@ -872,6 +878,15 @@
       "type in a caption and press <enter>"
     ]
   },
+  "leveltrackereditor": {
+    "guide reset": [
+      "long-click to load the default guide",
+      "(/underline)note: your progress and custom edits will be deleted"
+    ],
+    "export": [
+      "copy the guide data into the clipboard"
+    ]
+  },
   "leveltrackerschematics": {
     "how-to": [
       "press <q> or <e> to switch between individual skill-trees",
@@ -901,11 +916,23 @@
       "select the filter you want to use as the base",
       "a separate file with your customizations will be created and then applied in game, leaving the base filter unchanged"
     ],
+    "global item-classes": [
+      "enabling this option will reveal additional checkboxes underneath",
+      "you have to tick at least one item-class to enable this override",
+      "this will also hide high-tier items:\nunidentified (tier x)"
+    ],
+    "global overrides": [
+      "the options below can be used to quickly modify filtering for larger item-groups",
+      "changes made here will always take precedence over individual customizations, even if the search-results list may not reflect it"
+    ],
     "gui color": [
       "click to select the background color underneath item labels, or right-click to reset to default"
     ],
     "hide": [
       "hide the entire item-group in game"
+    ],
+    "highlight color": [
+      "click to select the color used to highlight rule modifications, or right-click to reset to default"
     ],
     "incompatible": [
       "some modifications no longer apply to the new base filter and will be discarded after applying the updates",
@@ -916,7 +943,7 @@
       "(shift-)click an item name to search for the base type(s), right-click to remove it"
     ],
     "refresh": [
-      "reload the folder's contents, selected base filter, and modded filter",
+      "reload the folder's contents, the selected base filter, and the modded filter",
       "(/underline)note: unsaved changes will be lost"
     ],
     "revert": [
@@ -927,7 +954,10 @@
       "you can also (shift-)omni-click items in game to search for the base type(s)"
     ],
     "search reset": [
-      "clear the current search"
+      "clear the current search, and show global override options"
+    ],
+    "style color": [
+      "click to select the color used to highlight style modifications, or right-click to reset to default"
     ]
   },
   "maptracker": {
