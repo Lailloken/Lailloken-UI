@@ -330,6 +330,8 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 		vars.lootfilter.pending := (vars.lootfilter.pending = 2) ? 2 : 0
 		vars.lootfilter.filter := vars.lootfilter.filter_backup.Clone(), vars.lootfilter.modifications := LLK_CloneObject(vars.lootfilter.modifications_backup)
 		vars.lootfilter.maps_hide := vars.lootfilter.maps_hide_previous
+		vars.lootfilter.gems_hide := vars.lootfilter.gems_hide_previous.Clone()
+		vars.lootfilter.classes_hide := LLK_CloneObject(vars.lootfilter.classes_hide_previous)
 		Return
 	}
 	Else If (check = "basefilter")
