@@ -103,6 +103,7 @@ If vars.ini_integrity
 	ExitApp
 }
 LLK_Log("+++ tool is running +++")
+Settings_menu("leveling tracker")
 Return
 
 #Include modules\betrayal-info.ahk
@@ -148,7 +149,7 @@ CheckClient()
 		WinGetTitle, title, ahk_exe GeForceNOW.exe
 	Else WinGet, title, ProcessPath, ahk_class POEWindowClass
 
-	If LLK_PatternMatch(title, "", [" 2", " ii"],,, 0)
+	If WinExist("ahk_exe GeForceNOW.exe") && LLK_PatternMatch(title, "", [" 2", " ii"],,, 0) || RegExMatch(title, "i)2\\.*\.exe$")
 		Return " 2"
 }
 
@@ -287,6 +288,11 @@ Init_client()
 			IniDelete, % "ini" vars.poe_version "\config.ini", Settings, custom-width
 			ini.settings["custom-width"] := ini.settings["custom-resolution"] := "", ini.settings["remove window-borders"] := 0
 		}
+
+		If !InStr(poe_config_check, "language=") || InStr(poe_config_check, "language=en")
+			settings.general.lang_client0 := "english"
+		Else parse := SubStr(poe_config_check, InStr(poe_config_check, "language=") + 9), parse := SubStr(parse, 1, ((check := InStr(parse, "`r")) ? check : InStr(parse, "`n")) - 1)
+			, settings.general.lang_client0 := parse
 	}
 	Else vars.client.stream := 1, vars.client.fullscreen := "true"
 
@@ -858,7 +864,7 @@ Loop()
 				WinWaitActive, ahk_group poe_window
 				Sleep, 4000
 			}
-			Init_client(), Init_GUI(), Init_screenchecks()
+			Init_client(), Init_Lang(), Init_GUI(), Init_screenchecks()
 		}
 		vars.client.closed := 0
 
@@ -923,7 +929,7 @@ Loop_main()
 
 	If settings.general.ClientFiller
 	{
-		If vars.hwnd.ClientFiller && !WinExist("ahk_id " vars.hwnd.ClientFiller) && !WinActive("ahk_exe code.exe") && WinActive("ahk_group poe_window")
+		If vars.hwnd.ClientFiller && !WinExist("ahk_id " vars.hwnd.ClientFiller) && !WinActive("ahk_exe code.exe") && WinActive("ahk_group poe_window") && !WinActive("ahk_id " vars.hwnd.leveltracker_editor.main)
 			Gui_ClientFiller("show"), ClientFiller_count := 0
 		Else If (ClientFiller_count = 3)
 			Gui, ClientFiller: Hide
@@ -1001,7 +1007,7 @@ Loop_main()
 	Else If WinActive("ahk_group poe_ahk_window") && vars.stash.hover && !vars.stash.enter && !LLK_IsBetween(vars.general.xMouse, vars.client.x, vars.client.x + vars.stash.width)
 		vars.stash.hover := "", Stash("refresh")
 
-	If settings.general.hide_toolbar && WinActive("ahk_group poe_ahk_window")
+	If settings.general.hide_toolbar && (vars.general.inactive < 3) && WinActive("ahk_group poe_ahk_window")
 	{
 		If vars.general.wMouse && vars.hwnd.LLK_panel.main && !WinExist("ahk_id " vars.hwnd.LLK_panel.main) && LLK_IsBetween(vars.general.xMouse, vars.toolbar.x, vars.toolbar.x2) && LLK_IsBetween(vars.general.yMouse, vars.toolbar.y, vars.toolbar.y2)
 			LLK_Overlay(vars.hwnd.LLK_panel.main, "show")
@@ -1038,7 +1044,7 @@ Loop_main()
 		remove_tooltips := ""
 	}
 
-	If !vars.general.gui_hide && (WinActive("ahk_group poe_ahk_window") || (settings.general.dev && WinActive("ahk_exe code.exe"))) && !vars.client.closed && !WinActive("ahk_id "vars.hwnd.leveltracker_screencap.main) && !WinActive("ahk_id "vars.hwnd.snip.main) && !WinActive("ahk_id "vars.hwnd.cheatsheet_menu.main) && !WinActive("ahk_id "vars.hwnd.searchstrings_menu.main) && !WinActive("ahk_id "vars.hwnd.notepad.main) && !WinActive("ahk_id " vars.hwnd.alarm.main) && !(vars.general.inactive && WinActive("ahk_id "vars.hwnd.settings.main))
+	If !vars.general.gui_hide && (WinActive("ahk_group poe_ahk_window") || (settings.general.dev && WinActive("ahk_exe code.exe"))) && !vars.client.closed && !WinActive("ahk_id "vars.hwnd.leveltracker_screencap.main) && !WinActive("ahk_id "vars.hwnd.snip.main) && !WinActive("ahk_id "vars.hwnd.cheatsheet_menu.main) && !WinActive("ahk_id "vars.hwnd.searchstrings_menu.main) && !WinActive("ahk_id "vars.hwnd.notepad.main) && !WinActive("ahk_id " vars.hwnd.alarm.main) && !(vars.general.inactive && WinActive("ahk_id "vars.hwnd.settings.main)) && !WinActive("ahk_id " vars.hwnd.leveltracker_editor.main)
 	{
 		If vars.general.inactive
 		{
@@ -1191,8 +1197,7 @@ Startup()
 			file_error := 1, LLK_FilePermissionError("create", A_ScriptDir "\" A_LoopField)
 	}
 
-	Init_client()
-	Init_lang()
+	Init_client(), Init_Lang()
 
 	vars.hwnd.poe_client := WinExist("ahk_group poe_window") ;save the client's handle
 	vars.general.runcheck := A_TickCount ;save when the client was last running (for purposes of killing the script after X minutes)
