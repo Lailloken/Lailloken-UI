@@ -593,7 +593,7 @@ Settings_general()
 		Gui, %GUI%: Add, Edit, % "ys x+0 cBlack r1 hp gSettings_general2 HWNDhwnd" (settings.general.lang_client = "unknown" ? " Disabled" : "") " w" wName, % LLK_StringCase(settings.general.character)
 		ControlGetPos,,,, hEdit,, % "ahk_id " (vars.hwnd.settings.character := hwnd)
 
-		If settings.general.character
+		If settings.general.character && !(settings.general.lang_client = "unknown")
 		{
 			Gui, %GUI%: Add, Pic, % "ys x+-1 HWNDhwnd00 gSettings_general2 Border hp-2 w-1", % "HBitmap:*" vars.pics.global.reload
 			vars.hwnd.settings.ascendancy := vars.hwnd.help_tooltips["settings_active character whois"] := hwnd00
@@ -875,7 +875,7 @@ Settings_general2(cHWND := "")
 				Geartracker_GUI("refresh")
 			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			{
-				exp := Leveltracker_Experience("", 1)
+				exp := vars.poe_version ? "" : Leveltracker_Experience("", 1)
 				GuiControl, text, % vars.hwnd.leveltracker.experience, % StrReplace(exp, (exp = "100%") ? "" : "100%")
 				GuiControl, % "+c" (InStr(exp, "100%") ? "Lime" : "Red"), % vars.hwnd.leveltracker.experience
 			}
@@ -1507,7 +1507,7 @@ Settings_leveltracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("global_general")
 	Gui, %GUI%: Font, norm
-	If !vars.client.stream
+	If !vars.client.stream && !vars.poe_version
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.timer, % Lang_Trans("m_lvltracker_timer")
 		vars.hwnd.settings.timer := vars.hwnd.help_tooltips["settings_leveltracker timer"] := hwnd
@@ -1531,11 +1531,10 @@ Settings_leveltracker()
 		vars.hwnd.settings.fade_hover := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade mouse"] := hwnd
 	}
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.hints, % Lang_Trans("m_lvltracker_hints")
-	vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
-
-	If !vars.client.stream
+	If !vars.client.stream && !vars.poe_version
 	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.hints, % Lang_Trans("m_lvltracker_hints")
+		vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
 		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % Lang_Trans("m_lvltracker_gear")
 		vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
 		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % Lang_Trans("m_lvltracker_zones")
@@ -1563,18 +1562,28 @@ Settings_leveltracker()
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs y+"vars.settings.spacing " Section x" x_anchor, % Lang_Trans("m_lvltracker_guide")
 	Gui, %GUI%: Font, norm
-	Gui, %GUI%: Add, Text, % "ys Border Center gSettings_leveltracker2 HWNDhwnd", % " " Lang_Trans("m_lvltracker_generate") " "
-	vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd, handle := "", files := []
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Text, % "ys Border Center gSettings_leveltracker2 HWNDhwnd", % " " Lang_Trans("m_lvltracker_generate") " "
+		vars.hwnd.settings.generate := vars.hwnd.help_tooltips["settings_leveltracker generate"] := hwnd
+	}
+
+	handle := "", files := []
 	Loop 3
 	{
-		file := !FileExist("ini\leveling guide" (A_Index = 1 ? "" : A_Index) ".ini") ? " cGray" : "", profile := (A_Index = 1) ? "" : A_Index
+		file := !FileExist("ini" vars.poe_version "\leveling guide" (A_Index = 1 ? "" : A_Index) ".ini") ? " cGray" : "", profile := (A_Index = 1) ? "" : A_Index
 		files.Push(file)
 		Gui, %GUI%: Add, Text, % "xs Section Border Center " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd0 w" settings.general.fWidth * 2 . (settings.leveltracker.profile = profile ? " cFuchsia" : ""), % A_Index
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1", % " " Lang_Trans("global_import") " "
-		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2" color, % " " Lang_Trans("m_lvltracker_reset") " "
+		If vars.poe_version
+		{
+			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_edit", % " edit "
+			vars.hwnd.settings["editprofile" profile] := vars.hwnd.help_tooltips["settings_leveltracker editor" handle] := hwnd_edit
+		}
+		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2", % " " Lang_Trans("m_lvltracker_reset") " "
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd3 range0-500", 0
 		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
-		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*12 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini\leveling guide" profile ".ini", "info", "name")
+		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*12 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini" vars.poe_version "\leveling guide" profile ".ini", "info", "name")
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		If vars.leveltracker["pob" (A_Index = 1 ? "" : A_Index)].Count()
 			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/4 " Center cLime Border gSettings_leveltracker2 HWNDhwnd5", % " pob "
@@ -1586,17 +1595,21 @@ Settings_leveltracker()
 		}
 
 		vars.hwnd.settings["profile" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
-		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" handle] := hwnd1
+		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" . vars.poe_version . handle] := hwnd1
 		vars.hwnd.settings["reset" profile] := hwnd2, vars.hwnd.settings["resetbar" profile] := vars.hwnd.help_tooltips["settings_leveltracker reset" handle] := hwnd3
 		vars.hwnd.settings["name" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile name" handle] := hwnd4
 		vars.hwnd.settings["pobpreview" profile] := vars.hwnd.help_tooltips["settings_leveltracker pob preview" handle] := hwnd5, handle .= "|"
 	}
 
 	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans", % Lang_Trans("global_credits") ":"
-	Gui, %GUI%: Add, Link, % "ys hp x+" settings.general.fWidth/2, <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
-	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
-	Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
-	Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Link, % "ys hp x+" settings.general.fWidth/2, <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
+		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
+		Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
+		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
+	}
+	Else Gui, %GUI%: Add, Text, % "ys hp cYellow x+" settings.general.fWidth/2, % "default guide based on u/xebtria's"
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_lvltracker_skilltree")
@@ -1610,8 +1623,13 @@ Settings_leveltracker()
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Disabled Border HWNDhwnd1 BackgroundBlack cRed Range0-500", 0
 		vars.hwnd.settings.treeclear := hwnd, vars.hwnd.help_tooltips["settings_leveltracker skilltree clear"] := vars.hwnd.settings.treeclear_bar := hwnd1
 	}
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pobmanual, % Lang_Trans("m_lvltracker_pobmanual")
-	vars.hwnd.settings.pobmanual := vars.hwnd.help_tooltips["settings_leveltracker pob manual"] := hwnd
+
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pobmanual, % Lang_Trans("m_lvltracker_pobmanual")
+		vars.hwnd.settings.pobmanual := vars.hwnd.help_tooltips["settings_leveltracker pob manual"] := hwnd
+	}
+
 	If settings.leveltracker.pobmanual
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pob, % Lang_Trans("m_lvltracker_pob")
@@ -1652,8 +1670,8 @@ Settings_leveltracker2(cHWND := "")
 	{
 		settings.features.leveltracker := LLK_ControlGet(cHWND), timer := vars.leveltracker.timer
 		If !settings.features.leveltracker && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0) ;save current timer state
-			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
-		IniWrite, % settings.features.leveltracker, ini\config.ini, features, enable leveling guide
+			IniWrite, % (timer.current_split0 := timer.current_split), % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, time
+		IniWrite, % settings.features.leveltracker, % "ini" vars.poe_version "\config.ini", features, enable leveling guide
 		Leveltracker_Toggle("destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
 		vars.leveltracker := {}, vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
 		If settings.features.leveltracker
@@ -1663,9 +1681,9 @@ Settings_leveltracker2(cHWND := "")
 	Else If (check = "timer")
 	{
 		settings.leveltracker.timer := LLK_ControlGet(cHWND), timer := vars.leveltracker.timer
-		IniWrite, % settings.leveltracker.timer, ini\leveling tracker.ini, settings, enable timer
+		IniWrite, % settings.leveltracker.timer, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable timer
 		If !settings.leveltracker.timer && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
-			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+			IniWrite, % (timer.current_split0 := timer.current_split), % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, time
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
 		vars.leveltracker.timer.pause := -1, Settings_menu("leveling tracker")
@@ -1673,50 +1691,50 @@ Settings_leveltracker2(cHWND := "")
 	Else If (check = "pausetimer")
 	{
 		settings.leveltracker.pausetimer := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.pausetimer, ini\leveling tracker.ini, settings, hideout pause
+		IniWrite, % settings.leveltracker.pausetimer, % "ini" vars.poe_version "\leveling tracker.ini", settings, hideout pause
 	}
 	Else If (check = "fade")
 	{
 		settings.leveltracker.fade := LLK_ControlGet(cHWND)
 		If !settings.leveltracker.fade && LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
-		IniWrite, % settings.leveltracker.fade, ini\leveling tracker.ini, settings, enable fading
+		IniWrite, % settings.leveltracker.fade, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable fading
 		Settings_menu("leveling tracker")
 	}
 	Else If (check = "fadetime")
 	{
 		settings.leveltracker.fadetime := !LLK_ControlGet(cHWND) ? 0 : Format("{:0.0f}", LLK_ControlGet(cHWND)*1000)
-		IniWrite, % settings.leveltracker.fadetime, ini\leveling tracker.ini, settings, fade-time
+		IniWrite, % settings.leveltracker.fadetime, % "ini" vars.poe_version "\leveling tracker.ini", settings, fade-time
 	}
 	Else If (check = "fade_hover")
 	{
 		settings.leveltracker.fade_hover := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.fade_hover, ini\leveling tracker.ini, settings, show on hover
+		IniWrite, % settings.leveltracker.fade_hover, % "ini" vars.poe_version "\leveling tracker.ini", settings, show on hover
 	}
 	Else If (check = "geartracker")
 	{
 		settings.leveltracker.geartracker := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.geartracker, ini\leveling tracker.ini, settings, enable geartracker
+		IniWrite, % settings.leveltracker.geartracker, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable geartracker
 		If settings.leveltracker.geartracker
 			Geartracker_GUI("refresh")
 	}
 	Else If (check = "layouts")
 	{
 		settings.leveltracker.layouts := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.layouts, ini\leveling tracker.ini, settings, enable zone-layout overlay
+		IniWrite, % settings.leveltracker.layouts, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable zone-layout overlay
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress()
 	}
 	Else If (check = "hints")
 	{
 		settings.leveltracker.hints := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.hints, ini\leveling tracker.ini, settings, enable additional hints
+		IniWrite, % settings.leveltracker.hints, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable additional hints
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
 	}
 	Else If (check = "hotkeys_enable")
 	{
-		IniWrite, % (settings.leveltracker.hotkeys := LLK_ControlGet(cHWND)), ini\leveling tracker.ini, settings, enable page hotkeys
+		IniWrite, % (settings.leveltracker.hotkeys := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\leveling tracker.ini", settings, enable page hotkeys
 		settings.leveltracker.hotkey_01 := settings.leveltracker.hotkey_1, settings.leveltracker.hotkey_02 := settings.leveltracker.hotkey_2
 		Leveltracker_Hotkeys("refresh"), Settings_menu("leveling tracker")
 	}
@@ -1743,7 +1761,7 @@ Settings_leveltracker2(cHWND := "")
 		}
 		settings.leveltracker.hotkey_01 := settings.leveltracker.hotkey_1, settings.leveltracker.hotkey_02 := settings.leveltracker.hotkey_2
 		control := (hwnd = vars.hwnd.settings.hotkey_1) ? 1 : 2
-		IniWrite, % (settings.leveltracker["hotkey_" control] := input0), ini\leveling tracker.ini, settings, % "hotkey " control
+		IniWrite, % (settings.leveltracker["hotkey_" control] := input0), % "ini" vars.poe_version "\leveling tracker.ini", settings, % "hotkey " control
 		Leveltracker_Hotkeys("refresh")
 		GuiControl, +cBlack, % hwnd
 		GuiControl, movedraw, % hwnd
@@ -1765,11 +1783,11 @@ Settings_leveltracker2(cHWND := "")
 	}
 	Else If (check = "pobmanual")
 	{
-		IniWrite, % (settings.leveltracker.pobmanual := LLK_ControlGet(cHWND)), ini\leveling tracker.ini, settings, manual pob-screencap
+		IniWrite, % (settings.leveltracker.pobmanual := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\leveling tracker.ini", settings, manual pob-screencap
 		Settings_menu("leveling tracker")
 	}
 	Else If (check = "pob")
-		IniWrite, % (settings.leveltracker.pob := LLK_ControlGet(cHWND)), ini\leveling tracker.ini, settings, enable pob-screencap
+		IniWrite, % (settings.leveltracker.pob := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\leveling tracker.ini", settings, enable pob-screencap
 	Else If (check = "screencap")
 	{
 		KeyWait, LButton
@@ -1785,15 +1803,20 @@ Settings_leveltracker2(cHWND := "")
 		KeyWait, LButton
 		Run, https://heartofphos.github.io/exile-leveling/
 	}
+	Else If InStr(check, "editprofile")
+	{
+		profile := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : ""
+		Leveltracker_GuideEditor("profile#" profile), LLK_Overlay(vars.hwnd.settings.main, "hide")
+	}
 	Else If InStr(check, "profile")
 	{
 		GuiControl, +cWhite, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		timer := vars.leveltracker.timer
 		If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
-			IniWrite, % (timer.current_split0 := timer.current_split), ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+			IniWrite, % (timer.current_split0 := timer.current_split), % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, time
 		settings.leveltracker.profile := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : "", vars.leveltracker.timer.pause := -1
-		IniWrite, % settings.leveltracker.profile, ini\leveling tracker.ini, Settings, profile
+		IniWrite, % settings.leveltracker.profile, % "ini" vars.poe_version "\leveling tracker.ini", Settings, profile
 		GuiControl, +cFuchsia, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		If vars.leveltracker.skilltree_schematics.GUI
@@ -1824,7 +1847,7 @@ Settings_leveltracker2(cHWND := "")
 	Else If InStr(check, "name")
 	{
 		name := LLK_ControlGet(cHWND), number := IsNumber(SubStr(check, 0)) ? SubStr(check, 0) : ""
-		IniWrite, % """" name """", % "ini\leveling guide" number ".ini", info, name
+		IniWrite, % """" name """", % "ini" vars.poe_version "\leveling guide" number ".ini", info, name
 	}
 	Else If InStr(check, "pobpreview")
 	{
@@ -1845,9 +1868,9 @@ Settings_leveltracker2(cHWND := "")
 		Else
 		{
 			vars.leveltracker.guide["muled" profile] := ""
-			IniDelete, ini\leveling guide.ini, info, % "muled " profile
+			IniDelete, % "ini" vars.poe_version "\leveling guide.ini", info, % "muled " profile
 		}
-		IniWrite, % (settings.leveltracker["mule" profile] := input), ini\leveling tracker.ini, settings, % "profile " profile " mule"
+		IniWrite, % (settings.leveltracker["mule" profile] := input), % "ini" vars.poe_version "\leveling tracker.ini", settings, % "profile " profile " mule"
 		GuiControl, % "+c" (input ? "Lime" : "White"), % cHWND
 
 		If (profile = settings.leveltracker.profile)
@@ -1868,7 +1891,7 @@ Settings_leveltracker2(cHWND := "")
 			GuiControl, text, % vars.hwnd.settings.font_reset, % settings.leveltracker.fSize
 			Sleep 150
 		}
-		IniWrite, % settings.leveltracker.fSize, ini\leveling tracker.ini, settings, font-size
+		IniWrite, % settings.leveltracker.fSize, % "ini" vars.poe_version "\leveling tracker.ini", settings, font-size
 		LLK_FontDimensions(settings.leveltracker.fSize, height, width), settings.leveltracker.fHeight := height, settings.leveltracker.fWidth := width
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker()
@@ -1882,7 +1905,7 @@ Settings_leveltracker2(cHWND := "")
 		settings.leveltracker.trans := control
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker()
-		IniWrite, % settings.leveltracker.trans, ini\leveling tracker.ini, settings, transparency
+		IniWrite, % settings.leveltracker.trans, % "ini" vars.poe_version "\leveling tracker.ini", settings, transparency
 		GuiControl, +cFuchsia, % vars.hwnd.settings["opac_" control]
 		GuiControl, movedraw, % vars.hwnd.settings["opac_" control]
 	}
@@ -2435,7 +2458,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	{
 		If !vars.poe_version
 			vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "betrayal-info", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "sanctum", "search-strings", "stash-ninja", "tldr-tooltips"], "sections2": []}
-		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "search-strings"], "sections2": []}
+		Else vars.settings := {"sections": ["general", "hotkeys", "screen-checks", "updater", "donations", "leveling tracker", "cheat-sheets", "clone-frames", "filterspoon", "item-info", "map-info", "mapping tracker", "minor qol tools", "search-strings"], "sections2": []}
 		For index, val in vars.settings.sections
 			vars.settings.sections2.Push(Lang_Trans("ms_" val))
 	}
@@ -2496,7 +2519,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
 			vars.hwnd.settings[val] := hwnd, vars.hwnd.settings["background_"val] := hwnd1
 			If (val = "donations")
-				Gui, %GUI_name%: Add, Progress, % "Section xs y+0 wp Background606060 h" settings.general.fWidth//2, 0
+				Gui, %GUI_name%: Add, Progress, % "Section xs y+0 wp Background646464 h" settings.general.fWidth//2, 0
 		}
 	ControlGetPos, x, yLast_section, w, hLast_section,, ahk_id %hwnd%
 	Gui, %GUI_name%: Font, norm
@@ -2612,7 +2635,7 @@ Settings_menu2(section, mode := 0) ;mode parameter used when manually calling th
 	}
 }
 
-Settings_menuClose()
+Settings_menuClose(activate := 1)
 {
 	local
 	global vars, settings
@@ -2620,9 +2643,9 @@ Settings_menuClose()
 	KeyWait, LButton
 	If (vars.settings.active = "hotkeys")
 		Init_hotkeys()
-	WinGetPos, xsettings_menu, ysettings_menu,,, % "ahk_id " vars.hwnd.settings.main
 	LLK_Overlay(vars.hwnd.settings.main, "destroy"), vars.settings.active := "", vars.hwnd.Delete("settings"), vars.settings.mapinfo_search := ""
-	WinActivate, ahk_group poe_window
+	If !settings.general.dev && activate
+		WinActivate, ahk_group poe_window
 }
 
 Settings_OCR()
@@ -3255,7 +3278,7 @@ Settings_ScreenChecksValid()
 
 	For key, val in vars.imagesearch.list
 	{
-		If vars.poe_version || (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (!settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (settings.features[key] = 0)
+		If (key = "skilltree" && !settings.features.leveltracker) || (key = "stash" && (vars.poe_version || !settings.features.maptracker || !settings.maptracker.loot)) || (key = "betrayal") && (vars.poe_version || settings.features[key] = 0)
 			Continue
 		valid *= FileExist("img\Recognition ("vars.client.h "p)\GUI\" key . vars.poe_version ".bmp") && !Blank(vars.imagesearch[key].x1) ? 1 : 0
 	}

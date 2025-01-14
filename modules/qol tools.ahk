@@ -315,6 +315,31 @@ Alarm(hotkey := 1, cHWND := "", mode := "")
 	LLK_Overlay(hwnd_old, "destroy"), vars.alarm.drag := 0
 }
 
+Distilled_Emotions()
+{
+	local
+	global vars, settings
+	static emotions := ["isolation", "suffering", "fear", "despair", "disgust", "envy", "paranoia", "greed", "guilt", "ire"]
+
+	GUI_name := "distilled_emotions", LLK_PanelDimensions(emotions, settings.general.fSize, width, height)
+	Gui, %GUI_name%: New, -Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDhwnd_emotions
+	Gui, %GUI_name%: Color, Black
+	Gui, %GUI_name%: Margin, 0, 0
+	Gui, %GUI_name%: Font, % "s" settings.general.fSize " cWhite", % vars.system.font
+
+	For index, val in emotions
+		Gui, %GUI_name%: Add, Text, % "xs Center w" width . (InStr(vars.omnikey.item.name, val) ? " cLime" : ""), % val
+
+	Gui, %GUI_name%: Show, NA x10000 y10000
+	WinGetPos, xWin, yWin, wWin, hWin, ahk_id %hwnd_emotions%
+	xPos := vars.general.xMouse - wWin//2, yPos := vars.general.yMouse - hWin, Gui_CheckBounds(xPos, yPos, wWin, hWin)
+	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
+	LLK_Overlay(hwnd_emotions, "show",, "distilled_emotions")
+	KeyWait, % vars.omnikey.hotkey
+	KeyWait, % vars.omnikey.hotkey2
+	LLK_Overlay(hwnd_emotions, "destroy")
+}
+
 EssenceTooltip(cHWND)
 {
 	local
@@ -953,8 +978,8 @@ Notepad_Widget(tab, mode := 0, color := 0)
 		start := A_TickCount
 		If (mode = 2)
 		{
-			LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy"), vars.hwnd.notepad_widgets.Delete(tab)
 			KeyWait, RButton
+			LLK_Overlay(vars.hwnd.notepad_widgets[tab], "destroy"), vars.hwnd.notepad_widgets.Delete(tab)
 			Return
 		}
 

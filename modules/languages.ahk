@@ -9,65 +9,22 @@
 	Loop 2
 		vars["lang" (A_Index = 1 ? "" : 2)] := Lang_Load((A_Index = 1 ? lang : "english") "\UI.txt")
 	vars.help.settings["lang translators"] := vars.lang.translator.Clone(), vars.system.font := Lang_Trans("system_font")
-}
 
-Lang_Client(log_array) ;finds out which language the client is running
-{
-	local
-	global vars, settings, json
-	static lang_check
-
-	If !IsObject(lang_check)
+	prev_lang := settings.general.lang_client ? settings.general.lang_client : ""
+	If !FileExist("data\" settings.general.lang_client0 "\")
+		settings.general.lang_client := "unknown", vars.system.font := "Fontin SmallCaps"
+	Else
 	{
-		lang_check := {} ;object which holds the "you have entered XYZ" strings for every available language
-		Loop, Files, data\*, R
-		{
-			If (A_LoopFileName != "client.txt")
-				Continue
-			parse := StrReplace(StrReplace(A_LoopFilePath, "\client.txt"), "data\"), lang_check[parse] := []
-			Loop, Parse, % StrReplace(LLK_FileRead(A_LoopFilePath, 1, "65001"), "`t"), `n, `r
-			{
-				line := A_LoopField
-				While (SubStr(line, 1, 1) = " ")
-					line := SubStr(line, 2)
-				While (SubStr(line, 0) = " ")
-					line := SubStr(line, 1, -1)
-				If !(InStr(line, "log_enter") && InStr(line, "=") && InStr(line, """")) || (SubStr(line, 1, 1) = ";")
-					Continue
-				line := SubStr(A_LoopField, InStr(A_LoopField, """") + 1), line := InStr(line, ";##") ? SubStr(line, 1, InStr(line, ";##") -1) : line
-				While (SubStr(line, 1, 1) = " ")
-					line := SubStr(line, 2)
-				While (SubStr(line, 0) = " ")
-					line := SubStr(line, 1, -1)
-				line := SubStr(line, 1, -1)
-				Loop, Parse, % StrReplace(line, "#", "¢"), ¢
-					lang_check[parse].Push((parse != "english" && InStr(A_LoopField, "You have entered")) ? "--invalid--" : A_LoopField)
-			}
-		}
-	}
-
-	For index, line in log_array
-	{
-		If InStr(line, " Generating level ", 1)
-			lang_reset := 1
-
-		If InStr(line, " : ")
-		{
-			If lang_reset ;without this reset, this function would merely find the last valid language (instead of the actual current language)
-				settings.general.lang_client := lang_client := "unknown"
-			For key, val in lang_check
-				If Lang_Match(line, val)
-					lang_client := key, lang_reset := 0
-		}
-	}
-	settings.general.lang_client := lang_client
-
-	If lang_client && (lang_client != "unknown") ;if the current client-language is supported, load the client-related strings
-	{
-		lang_parse := Lang_Load(lang_client "\client.txt")
+		settings.general.lang_client := settings.general.lang_client0, lang_parse := Lang_Load(settings.general.lang_client0 "\client.txt")
 		For key, val in lang_parse
 			vars.lang[key] := val.Clone()
 		vars.system.font := Lang_Trans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
+	}
+
+	If prev_lang && (prev_lang != settings.general.lang_client)
+	{
+		MsgBox, % "Client language has changed between restarts. The tool will now restart."
+		LLK_Restart()
 	}
 }
 
