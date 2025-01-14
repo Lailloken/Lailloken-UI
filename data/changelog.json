@@ -1,5 +1,11 @@
 [
   [
+	["1.56.4", 15604],
+	"minor poe1 and poe2 fixes",
+	"map-tracker: poe1 and poe2 boss-fight improvements",
+	"act-tracker: poe2 compatibility, poe2 guide editor"
+  ],
+  [
 	["1.56.3", 15603],
 	"still beta, poe 1 and 2 changes",
 	"map-tracker: streamlined kill-tracking, improved poe2 support",
