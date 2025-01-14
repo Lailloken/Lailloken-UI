@@ -540,6 +540,8 @@ Leveltracker_GuideEditor(cHWND)
 		new_profile := (cHWND = "reset") ? profile : IsNumber(SubStr(cHWND, 0)) ? SubStr(cHWND, 0) : ""
 		If (new_profile != profile) || (cHWND = "reset")
 		{
+			If (cHWND != "reset")
+				vars.leveltracker_editor.act := 1
 			vars.leveltracker_editor.guide := [], act_count := 1, profile := new_profile
 			Loop, Parse, % LLK_IniRead("ini" vars.poe_version "\leveling guide" profile ".ini", "steps"), `n, `r
 			{
@@ -778,7 +780,7 @@ Leveltracker_GuideEditor(cHWND)
 	Gui, %GUI_name%: Font, % "norm"
 	For index, highlight in ["hint", "quest-name", "quest-item"]
 	{
-		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " highlight
+		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " highlight . (highlight = "hint" ? " / more info" : "")
 		vars.hwnd.leveltracker_editor["highlight_" highlight] := hwnd
 	}
 
