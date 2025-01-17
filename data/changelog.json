@@ -1,6 +1,7 @@
 [
   [
 	["1.56.4", 15604],
+	"hotfix 1: added support for new tower maps (map-tracker)",
 	"minor poe1 and poe2 fixes",
 	"map-tracker: poe1 and poe2 boss-fight improvements",
 	"act-tracker: poe2 compatibility, poe2 guide editor"
