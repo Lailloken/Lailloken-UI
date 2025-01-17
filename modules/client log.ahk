@@ -222,12 +222,14 @@ Log_Get(log_text, data)
 			}
 			Else If RegExMatch(log_text, "Hideout.*_Claimable")
 				Return LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout") . " hideout")
-			%data% := StrReplace(SubStr(log_text, 4), "_noboss")
+			%data% := StrReplace(SubStr(log_text, 4), "_noboss"), %data% := StrReplace(%data%, "SwampTower", "SinkingSpire")
 			If InStr(%data%, "uberboss_")
 				%data% := (settings.maptracker.rename ? "boss:" : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (boss)")
 			Else If LLK_StringCompare(%data%, ["unique"])
 				%data% := "unique:" (InStr(%data%, "merchant") ? " nameless seer" : InStr(%data%, "vault") ? " vaults of kamasa" : SubStr(%data%, 7))
-			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") && !InStr(log_text, "losttowers") ? " (boss)" : "")
+			Else If LLK_PatternMatch(log_text, "", ["losttowers", "swamptower", "mesa", "bluff", "alpineridge"],,, 0)
+				%data% .= !InStr(log_text, "losttowers") ? " (tower)" : ""
+			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") ? " (boss)" : "")
 			Loop, Parse, % %data%
 				%data% := (A_Index = 1) ? "" : %data%, %data% .= (A_Index != 1 && RegExMatch(A_LoopField, "[A-Z]") ? " " : "") . A_LoopField
 		}
