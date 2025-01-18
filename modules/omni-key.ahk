@@ -252,7 +252,7 @@ Omni_Context(mode := 0)
 			If (A_TickCount >= vars.omnikey.start + 200)
 				Return "horizons"
 	If (!vars.poe_version && !LLK_PatternMatch(item.name "`n" item.itembase, "", ["Doryani", "Maple"]) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map", "Invitation", "Blueprint:", "Contract:", "Expedition Logbook"])
-	|| vars.poe_version && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Waystone"]))
+	|| vars.poe_version && LLK_PatternMatch(item.name "`n" item.itembase, "", [Lang_Trans("items_waystone")]))
 	&& (item.rarity != Lang_Trans("items_unique"))
 	{
 		While !vars.poe_version && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && LLK_PatternMatch(item.name "`n" item.itembase, "", ["Map"])

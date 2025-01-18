@@ -110,7 +110,7 @@ Mapinfo_GUI(mode := 1)
 	If !vars.poe_version
 		summary := summary0 := map.mods . Lang_Trans("maps_stats", 1) " | " map.quantity . Lang_Trans("maps_stats", 2) " | " map.rarity . Lang_Trans("maps_stats", 3)
 		. (!Blank(map.packsize) ? " | " map.packsize . Lang_Trans("maps_stats", 4) : "")
-	Else summary := summary0 := "waystones: " (Blank(map.waystones) ? "+0%" : map.waystones) ;(map.tier >= 11 ? "-20% ele res (t11+)" : map.tier >= 6 ? "-10% ele res (t6+)" : "no res penalty")
+	Else summary := summary0 := Lang_Trans("maps_waystones") . " " . (Blank(map.waystones) ? "+0%" : map.waystones) ;(map.tier >= 11 ? "-20% ele res (t11+)" : map.tier >= 6 ? "-10% ele res (t6+)" : "no res penalty")
 
 	If StrLen(map.maps . map.scarabs . map.currency)
 	{
@@ -165,13 +165,14 @@ Mapinfo_GUI(mode := 1)
 			hPic := Max(check*settings.mapinfo.fHeight - check + 1, settings.mapinfo.fHeight*2 - 1)
 			GUI, %GUI_name%: Add, Text, % "xs x0 " (!added ? " y0" : " y" yControl + hControl - 1) " Section HWNDhwnd Border BackgroundTrans w" wPic " h" hPic, % " "
 			ControlGetPos, xControl, yControl, wControl, hControl,, ahk_id %hwnd%
-			pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic ".png")
+			If !vars.pics.mapinfo[pic]
+				vars.pics.mapinfo[pic] := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic . (category = "player" ? vars.poe_version : "") ".png")
 			If InStr("area,heist", category)
-				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(pBitmap0,, 200 - hResize/2, 64, hResize,, 1)
-			Else pBitmap := Gdip_CloneBitmapArea(pBitmap0,,, 64, Round(64 * (hPic/wPic)),, 1)
+				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(vars.pics.mapinfo[pic],, 200 - hResize/2, 64, hResize,, 1)
+			Else pBitmap := Gdip_CloneBitmapArea(vars.pics.mapinfo[pic],,, 64, Round(64 * (hPic/wPic)),, 1)
 			hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 			GUI, %GUI_name%: Add, Pic, % "xp yp h" hPic " w-1", HBitmap:*%hbmBitmap%
-			Gdip_DisposeImage(pBitmap0), Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
+			Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
 		}
 
 		If InStr(category, "(")
@@ -228,13 +229,14 @@ Mapinfo_GUI(mode := 1)
 			pic := (InStr(category, "(") ? SubStr(category, InStr(category, "(") + 1, InStr(category, ")") - InStr(category, "(") - 1) : category), check += InStr(category, "(") ? 1 : 0
 			wPic := settings.mapinfo.fHeight*2 - 1, hPic := Max(check*settings.mapinfo.fHeight - check + 1, settings.mapinfo.fHeight*2 - 1)
 			GUI, %GUI_name%: Add, Text, % "ys x+-1 Border BackgroundTrans y" yControl1 " h" yControl + hControl - yControl1 " w" wPic, % " "
-			pBitmap0 := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic ".png")
+			If !vars.pics.mapinfo[pic]
+				vars.pics.mapinfo[pic] := Gdip_CreateBitmapFromFile("img\GUI\map-info\" pic . (category = "player" ? vars.poe_version : "") ".png")
 			If InStr("area,heist", category)
-				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(pBitmap0,, 200 - hResize/2, 64, hResize,, 1)
-			Else pBitmap := Gdip_CloneBitmapArea(pBitmap0,,, 64, Round(64 * (hPic/wPic)),, 1)
+				factor := hPic/wPic, hResize := Round(64 * factor), pBitmap := Gdip_CloneBitmapArea(vars.pics.mapinfo[pic],, 200 - hResize/2, 64, hResize,, 1)
+			Else pBitmap := Gdip_CloneBitmapArea(vars.pics.mapinfo[pic],,, 64, Round(64 * (hPic/wPic)),, 1)
 			hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 			GUI, %GUI_name%: Add, Pic, % "xp yp h" hPic " w-1", HBitmap:*%hbmBitmap%
-			Gdip_DisposeImage(pBitmap0), Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
+			Gdip_DisposeImage(pBitmap), DeleteObject(hbmBitmap)
 		}
 	}
 
@@ -573,9 +575,9 @@ Mapinfo_Parse2(mode)
 			Else map.name := A_LoopField
 
 		If !item_level
-			If !InStr(A_LoopField, Lang_Trans("items_ilevel")) && !InStr(A_LoopField, "waystone drop chance:")
+			If !InStr(A_LoopField, Lang_Trans("items_ilevel")) && !InStr(A_LoopField, Lang_Trans("items_map_waystonechance"))
 				Continue
-			Else If InStr(A_LoopField, "waystone drop chance:")
+			Else If InStr(A_LoopField, Lang_Trans("items_map_waystonechance"))
 				map.waystones := SubStr(A_LoopField, InStr(A_LoopField, "+")), map.waystones := (check := InStr(map.waystones, " (")) ? SubStr(map.waystones, 1, check - 1) : map.waystones
 			Else
 			{
@@ -599,7 +601,7 @@ Mapinfo_Parse2(mode)
 			map.mods += 1
 			Loop, Parse, key, % "|"
 				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, A_LoopField, "",, 1)
-			If InStr(key, "freeze buildup")
+			If InStr(val.ID, "044") || (val.ID = 44)
 				map_mods[key] := SubStr(map_mods[key], 1, InStr(map_mods[key], "/") - 1) ;freeze/ignite/shock hybrid mod is always X/X/X %, so simply display as X%
 		}
 
