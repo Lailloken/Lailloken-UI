@@ -16,7 +16,7 @@
 
 
 ;## map-mods will be grouped into these 5 categories
-;## translate these keys as you see fit, but don't change the order
+;## do not translate these here or in the map-mods section further below
 
 [mod types]
 player
@@ -29,76 +29,73 @@ area
 ;## replace those strings with the corresponding strings of the target language and use placeholders where applicable
 
 ;## each mod belongs to a type (from the five in the [mod types] section above)
-;## there's a sixth "expedition" type: don't change that
-;## you can simply use the "find & replace" feature in text-editors to quickly replace all the "type = X" lines (since there are only 5 different ones)
+;## do not change the type values
 
 ;## each mod has a short text-string that will be used in the map-info panel instead of the full mod-text
 ;## %-signs will be replaced by the actual %-roll of the map-mod, e.g. "ele reflect: %" -> "ele reflect: 15%"
 ;## try to trim down the text-strings as much as possible in order to keep the map-info panel compact
 
-;## the text-strings between ID 200 and 300 make heavy use of abbreviations because the original mod-text is very long
-
-[increased Quantity of Items found in this Area]
+[# increased Quantity of Items found in this Area]
 type	=	area
 text	=	quant: +%
 ID	=	001
 
-[increased Rarity of Items found in this Area]
+[# increased Rarity of Items found in this Area]
 type	=	area
 text	=	rarity: +%
 ID	=	002
 
-[increased Gold found in this Area]
+[# increased Gold found in this Area]
 type	=	area
 text	=	gold: +%
 ID	=	003
 
-[increased Experience gain]
+[# increased Experience gain]
 type	=	player
 text	=	exp: +%
 ID	=	004
 
-[increased Pack size]
+[# increased Pack size]
 type	=	monsters
 text	=	pack size: +%
 ID	=	005
 
-[increased number of Monster Packs]
+[# increased number of Monster Packs]
 type	=	monsters
 text	=	extra packs: +%
 ID	=	006
 
-[increased amount of Chests]
+[# increased amount of Chests]
 type	=	area
 text	=	extra chests: +%
 ID	=	007
 
-[increased Magic Monsters]
+[# increased Magic Monsters]
 type	=	monsters
 text	=	extra magic: +%
 ID	=	008
 
-[increased number of Rare Monsters]
+[# increased number of Rare Monsters]
 type	=	monsters
 text	=	extra rares: +%
 ID	=	009
 
-[increased amount of Magic Chests]
+[# increased amount of Magic Chests]
 type	=	area
 text	=	magic chests: +%
 ID	=	010
 
-[increased amount of Rare Chests]
+[# increased amount of Rare Chests]
 type	=	area
 text	=	rare chests: +%
 ID	=	011
 
-[increased Magic Pack Size]
+[# increased Magic Pack Size]
 type	=	monsters
 text	=	magic pack size: +%
 ID	=	012
 
-[Rare Monsters have additional Modifier]
+[Rare Monsters have # additional Modifier]
 type	=	monsters
 text	=	mods on rares: +
 ID	=	013
@@ -118,87 +115,87 @@ type	=	area
 text	=	extra essence
 ID	=	016
 
-[Area contains additional packs of Undead]
+[Area contains # additional packs of Undead]
 type	=	monsters
 text	=	extra undead packs
 ID	=	017
 
-[Area contains additional packs of Beasts]
+[Area contains # additional packs of Beasts]
 type	=	monsters
 text	=	extra beast packs
 ID	=	018
 
-[Area contains additional packs of Ezomyte Monsters]
+[Area contains # additional packs of Ezomyte Monsters]
 type	=	monsters
 text	=	extra ezomyte packs
 ID	=	019
 
-[Area contains additional packs of Faridun Monsters]
+[Area contains # additional packs of Faridun Monsters]
 type	=	monsters
 text	=	extra faridun packs
 ID	=	020
 
-[Area contains additional packs of Vaal Monsters]
+[Area contains # additional packs of Vaal Monsters]
 type	=	monsters
 text	=	extra vaal packs
 ID	=	021
 
-[Area contains additional packs of Iron Guards]
+[Area contains # additional packs of Iron Guards]
 type	=	monsters
 text	=	extra iron guard packs
 ID	=	022
 
-[Area contains additional packs of Plagued Monsters]
+[Area contains # additional packs of Plagued Monsters]
 type	=	monsters
 text	=	extra plagued packs
 ID	=	023
 
-[Area contains additional packs of Transcended Monsters]
+[Area contains # additional packs of Transcended Monsters]
 type	=	monsters
 text	=	extra transcended packs
 ID	=	024
 
-[Area contains additional packs of Bramble Monsters]
+[Area contains # additional packs of Bramble Monsters]
 type	=	monsters
 text	=	extra bramble packs
 ID	=	025
 
-[Monsters deal of Damage as Extra Fire]
+[Monsters deal # of Damage as Extra Fire]
 type	=	monsters
 text	=	extra fire dmg: +%
 ID	=	026
 
-[Monsters deal of Damage as Extra Cold]
+[Monsters deal # of Damage as Extra Cold]
 type	=	monsters
 text	=	extra cold dmg: +%
 ID	=	027
 
-[Monsters deal of Damage as Extra Lightning]
+[Monsters deal # of Damage as Extra Lightning]
 type	=	monsters
 text	=	extra light dmg: +%
 ID	=	028
 
-[increased Monster Damage]
+[# increased Monster Damage]
 type	=	monsters
 text	=	inc damage: +%
 ID	=	029
 
-[increased Monster Movement Speed|increased Monster Attack Speed|increased Monster Cast Speed]
+[# increased Monster Movement Speed|# increased Monster Attack Speed|# increased Monster Cast Speed]
 type	=	monsters
 text	=	speed: +%
 ID	=	030
 
-[Monsters have increased Critical Hit Chance|to Monster Critical Damage Bonus]
+[Monsters have # increased Critical Hit Chance|# to Monster Critical Damage Bonus]
 type	=	monsters
 text	=	crit/multi: +%
 ID	=	031
 
-[more Monster Life]
+[# more Monster Life]
 type	=	monsters
 text	=	more life: %
 ID	=	032
 
-[Monster Elemental Resistances]
+[# Monster Elemental Resistances]
 type	=	monsters
 text	=	ele res: +%
 ID	=	033
@@ -213,57 +210,57 @@ type	=	monsters
 text	=	extra evasion
 ID	=	035
 
-[Monsters gain of Maximum Life as Extra Maximum Energy Shield]
+[Monsters gain # of Maximum Life as Extra Maximum Energy Shield]
 type	=	monsters
 text	=	life as extra es: %
 ID	=	036
 
-[Monsters have chance to Poison on Hit]
+[Monsters have # chance to Poison on Hit]
 type	=	monsters
 text	=	poison chance: %
 ID	=	037
 
-[Monsters have chance to Bleed on Hit]
+[Monsters have # chance to Bleed on Hit]
 type	=	monsters
 text	=	bleed chance: %
 ID	=	038
 
-[Monsters have increased Ailment Threshold|Monsters have increased Stun Threshold]
+[Monsters have # increased Ailment Threshold|Monsters have # increased Stun Threshold]
 type	=	monsters
-text	=	stun/ailm thresh: +%
+text	=	stun/ailm res: +%
 ID	=	039
 
-[Monsters Break Armour equal to of Physical Damage dealt]
+[Monsters Break Armour equal to # of Physical Damage dealt]
 type	=	monsters
 text	=	dmg breaks armor: %
 ID	=	040
 
-[Monsters have increased Accuracy Rating]
+[Monsters have # increased Accuracy Rating]
 type	=	monsters
 text	=	inc accuracy: %
 ID	=	041
 
-[Monsters deal of Damage as Extra Chaos]
+[Monsters deal # of Damage as Extra Chaos]
 type	=	monsters
 text	=	extra chaos dmg: +%
 ID	=	042
 
-[Monsters have increased Stun Buildup]
+[Monsters have # increased Stun Buildup]
 type	=	monsters
 text	=	inc stun: +%
 ID	=	043
 
-[Monsters have increased Freeze Buildup|Monsters have increased Ignite Chance|Monsters have increased Shock Chance]
+[Monsters have # increased Freeze Buildup|Monsters have # increased Ignite Chance|Monsters have # increased Shock Chance]
 type	=	monsters
 text	=	freeze/ignite/shock: +%
 ID	=	044
 
-[Monsters fire additional Projectiles]
+[Monsters fire # additional Projectiles]
 type	=	monsters
 text	=	extra proj: +
 ID	=	045
 
-[Monsters have increased Area of Effect]
+[Monsters have # increased Area of Effect]
 type	=	monsters
 text	=	area of effect: +%
 ID	=	046
@@ -298,32 +295,32 @@ type	=	area
 text	=	shocked ground
 ID	=	052
 
-[Monster Damage Penetrates Elemental Resistances]
+[Monster Damage Penetrates # Elemental Resistances]
 type	=	monsters
 text	=	ele pen: %
 ID	=	053
 
-[maximum Player Resistances]
+[# maximum Player Resistances]
 type	=	player
 text	=	max res: -%
 ID	=	054
 
-[Players gain reduced Flask Charges]
+[Players gain # reduced Flask Charges]
 type	=	player
 text	=	flask charges: -%
 ID	=	055
 
-[Players have less Recovery Rate of Life and Energy Shield]
+[Players have # less Recovery Rate of Life and Energy Shield]
 type	=	player
 text	=	less recovery: %
 ID	=	056
 
-[Players have less Cooldown Recovery Rate]
+[Players have # less Cooldown Recovery Rate]
 type	=	player
 text	=	less cdr: %
 ID	=	057
 
-[Monsters take reduced Extra Damage from Critical Hits]
+[Monsters take # reduced Extra Damage from Critical Hits]
 type	=	monsters
 text	=	crit res: +%
 ID	=	058
@@ -333,7 +330,7 @@ type	=	player
 text	=	less curse effect: %
 ID	=	059
 
-[Monsters have chance to steal Power, Frenzy and Endurance charges on Hit]
+[Monsters have # chance to steal Power, Frenzy and Endurance charges on Hit]
 type	=	monsters
 text	=	steal charges: %
 ID	=	060
