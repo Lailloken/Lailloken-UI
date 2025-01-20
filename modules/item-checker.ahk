@@ -552,7 +552,7 @@ Iteminfo_Stats2()
 				phys_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
 			Else If InStr(A_LoopField, Lang_Trans("items_chaos_dmg"))
 				chaos_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
-			Else If InStr(A_LoopField, " damage:")
+			Else If Lang_Match(A_LoopField, vars.lang.items_dmg)
 			{
 				ele_dmg := SubStr(StrReplace(A_LoopField, " (augmented)"), InStr(A_LoopField, ":") + 2)
 				Loop, Parse, ele_dmg, % ","
