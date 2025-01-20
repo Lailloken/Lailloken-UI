@@ -477,10 +477,11 @@ Init_vars()
 	vars.client := {}
 	vars.GUI := []
 	vars.omnikey := {}
-	vars.omnikey.poedb := {"Claws": 1,"Daggers": 1, "Wands": 1, "One Hand Swords": 1, "One Hand Axes": 1, "One Hand Maces": 1, "Sceptres": 1, "Spears": 1, "Flails": 1
+	vars.omnikey.poedb := {"Claws": 1, "Daggers": 1, "Wands": 1, "One Hand Swords": 1, "One Hand Axes": 1, "One Hand Maces": 1, "Sceptres": 1, "Spears": 1, "Flails": 1
 	, "Bows": 1, "Staves": 1, "Two Hand Swords": 1, "Two Hand Axes": 1, "Two Hand Maces": 1, "Quarterstaves": 1, "Crossbows": 1, "Traps": 1
 	, "Amulets": 1, "Rings": 1, "Belts": 1, "Gloves": 2, "Boots": 2, "Body Armours": 2, "Helmets": 2
 	, "Quivers": 1, "Foci": 1, "Shields": 2, "Jewels": 1, "Life Flasks": 1, "Mana Flasks": 1, "Charms": 1}
+
 	vars.leveltracker := {}
 	vars.lang := {}, vars.lang2 := {}
 	vars.log := {} ;store data related to the game's log here
