@@ -157,7 +157,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	Else UI.xPos := "", UI.yPos := "", vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard := StrReplace(StrReplace(StrReplace(Clipboard, "maelström", "maelstrom"), " — " Lang_Trans("items_unscalable")), "&", "&&"), vars[(refresh = 2) ? "omnikey" : "iteminfo"].item := {}
 
 	clip := vars[(refresh = 2) ? "omnikey" : "iteminfo"].clipboard, item := vars[(refresh = 2) ? "omnikey" : "iteminfo"].item ;short-cut variables
-	Loop, % (refresh = 2 && settings.general.lang_client != "english") ? 2 : 1
+	Loop, % (!vars.poe_version && refresh = 2 && settings.general.lang_client != "english") ? 2 : 1
 	{
 		If (A_Index = 2)
 		{
@@ -232,8 +232,21 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If InStr(item.itembase, Lang_Trans("items_waystone"))
 		item.itembase := Lang_Trans("items_waystone")
 
-	If (settings.general.lang_client != "english") && item.itembase ;try to get the English item-class on non-English clients (via base-item database)
+	If !vars.poe_version && (settings.general.lang_client != "english") && item.itembase ;try to get the English item-class on non-English clients (via base-item database)
 		item.class := db.item_bases._classes[db.item_bases._bases[item.itembase]]
+
+	If vars.poe_version && (settings.general.lang_client != "english") && item.class
+	{
+		item.class_loc := item.class
+		For key, array in vars.lang
+			If !InStr(key, "items_classes_")
+				Continue
+			Else If LLK_HasVal(array, item.class)
+			{
+				item.class := StrReplace(key, "items_classes_")
+				Break
+			}
+	}
 
 	For key, val in vars.lang ;get the English item-class for certain items that are not included in the database, e.g. heist items (via lang_XYZ)
 		If LLK_PatternMatch(key, "items_", ["heist"]) && !Blank(LLK_HasVal(val, item.class_copy))
@@ -245,7 +258,7 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	If (refresh = 2)
 		Return
 
-	If !vars.poe_version && !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") || vars.poe_version && !vars.omnikey.poedb[item.class] ;|| (item.name = "Impossible Escape")
+	If !vars.poe_version && !db.item_bases.HasKey(item.class) || (item.itembase = "Timeless Jewel") || vars.poe_version && !vars.omnikey.poedb[item.class]
 	{
 		LLK_ToolTip(Lang_Trans("ms_item-info") ":`n" Lang_Trans("iteminfo_unsupported"), 2,,,, "red"), LLK_Overlay(vars.hwnd.iteminfo.main, "destroy")
 		Return

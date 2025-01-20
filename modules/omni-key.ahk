@@ -319,6 +319,7 @@ Omni_ContextMenu()
 		Else
 		{
 			If !(item.unid && item.rarity = Lang_Trans("items_unique")) && (LLK_PatternMatch(item.name, "", ["Splinter"]) || item.itembase || !LLK_PatternMatch(item.rarity, "", [Lang_Trans("items_magic"), Lang_Trans("items_rare"), Lang_Trans("items_currency")]))
+			&& (settings.general.lang_client = "english")
 			{
 				Gui, omni_context: Add, Text, % "Section gOmni_ContextMenuPick HWNDhwnd" style, % "wiki: " LLK_StringCase(item[item.itembase && item.rarity != Lang_Trans("items_unique") ? "itembase" : "name"])
 				ControlGetPos,,, w1,,, % "ahk_id " hwnd
@@ -326,16 +327,17 @@ Omni_ContextMenu()
 			}
 
 			If (item.rarity != Lang_Trans("items_unique")) && !Blank(item.class)
-			&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || (LLK_HasVal(db.item_bases._classes, item.class) || vars.poe_version && vars.omnikey.poedb[item.class]) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
+			&& (settings.general.lang_client = "english" && !InStr(item.class, "currency") || (LLK_HasVal(db.item_bases._classes, item.class) || vars.poe_version && (vars.omnikey.poedb[item.class] || item.class = "socketable")) || LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "]))
 			{
 				If !Blank(LLK_HasVal(db.item_bases._classes, item.class))
 					class := db.item_bases._classes[LLK_HasVal(db.item_bases._classes, item.class)]
 				Else If LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
 					class := LLK_PatternMatch(item.name, "", ["Essence of", "Scarab", "Catalyst", " Oil", "Memory of "])
-				Else If (settings.general.lang_client = "english")
+				Else If (settings.general.lang_client = "english") || vars.poe_version
 					class := item.class
+
 				Gui, omni_context: Add, Text, % "Section" (hwnd ? " xs " : " ") "gOmni_ContextMenuPick HWNDhwnd" style, % "wiki: " 
-				. (class = "socketable" ? (InStr(item.name, "soul core of ") ? "soul core" : "rune") : LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class))
+				. (class = "socketable" ? (InStr(item.name, Lang_Trans("items_soul_core")) ? "soul core" : "rune") : LLK_StringCase((InStr(item.itembase, "Runic ") ? "runic " : "") . class))
 				ControlGetPos,,, w2,,, % "ahk_id " hwnd
 				If (class != "cluster jewels") && (!Blank(LLK_HasVal(db.item_bases._classes, item.class)) || vars.poe_version && vars.omnikey.poedb[item.class] || InStr(item.class, "heist") && item.itembase)
 				{
@@ -349,7 +351,7 @@ Omni_ContextMenu()
 				}
 				If !vars.poe_version && LLK_PatternMatch(item.class, "", vars.recombination.classes,,, 0)
 					Gui, omni_context: Add, Text, % "Section xs gOmni_ContextMenuPick HWNDhwnd3 " style, % "recombination"
-				vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := (class = "socketable") ? (InStr(item.name, "soul core of ") ? "soul core" : "rune") : class, vars.hwnd.omni_context.poedb := hwnd1
+				vars.hwnd.omni_context.wiki_class := hwnd, vars.omni_context[hwnd] := (class = "socketable") ? (InStr(item.name, Lang_Trans("items_soul_core")) ? "soul core" : "rune") : class, vars.hwnd.omni_context.poedb := hwnd1
 				vars.hwnd.omni_context.craftofexile := hwnd2, vars.hwnd.omni_context.recombination := hwnd3
 				width := (Max(w, w1, w2) > width) ? Max(w, w1, w2) : width
 			}
