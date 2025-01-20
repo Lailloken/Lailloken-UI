@@ -264,8 +264,10 @@
 		items_aps			=	"Attacks per Second:"
 		items_quality			=	"Quality:"
 		items_phys_dmg			=	"Physical Damage:"
-		items_ele_dmg			=	"Elemental Damage:"
+		items_dmg			=	"# Damage:"
 		items_chaos_dmg			=	"Chaos Damage:"
+
+		items_ele_dmg			=	"Elemental Damage:"					;## PoE1 only, ele-dmg is displayed differently
 
 		items_map_waystonechance	=	"Waystone Drop Chance:"					;## PoE2 only (whole block)
 
