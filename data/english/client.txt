@@ -246,7 +246,8 @@
 ;## NOTE: it's possible that there's a difference in the ALT-CTRL-C text and the easier-to-find text (e.g. German tooltips display "ss" whenever the ALT-CTRL-C text contains "ß"), so be aware of that if the target language has such variations
 
 ;## these strings are the item-names of certain items (top of the in-game tooltip)
-		items_waystone			=	"Waystone"						;## PoE2 only
+		items_waystone			=	"Waystone"						;## PoE2 only (whole block)
+		items_soul_core			=	"Soul Core of"
 
 ;## these strings are displayed in the in-game tooltip when hovering over an item
 		items_unidentified		=	"Unidentified"						;## PoE1 and PoE2 (whole block)
@@ -267,7 +268,6 @@
 		items_chaos_dmg			=	"Chaos Damage:"
 
 		items_map_waystonechance	=	"Waystone Drop Chance:"					;## PoE2 only (whole block)
-
 
 
 		items_maptier			=	"Map Tier:"						;## PoE1 only (whole block)
@@ -376,6 +376,43 @@
 		items_warlord_suffix		=	"of the Conquest"
 
 		items_synthesis			=	"Synthesised Item"
+
+
+;## these strings are the current(ly planned) item-classes for PoE2
+;## relevant for poedb context-menu link and item-info feature
+;## has to match the strings COPIED from the item (not while hovering)
+		items_class_Claws		=	"Claws"
+		items_class_Daggers		=	"Daggers"
+		items_class_Wands		=	"Wands"
+		items_class_One Hand Swords	=	"One Hand Swords"
+		items_class_One Hand Axes	=	"One Hand Axes"
+		items_class_One Hand Maces	=	"One Hand Maces"
+		items_class_Sceptres		=	"Sceptres"
+		items_class_Spears		=	"Spears"
+		items_class_Flails		=	"Flails"
+		items_class_Bows		=	"Bows"
+		items_class_Staves		=	"Staves"
+		items_class_Two Hand Swords	=	"Two Hand Swords"
+		items_class_Two Hand Axes	=	"Two Hand Axes"
+		items_class_Two Hand Maces	=	"Two Hand Maces"
+		items_class_Quarterstaves	=	"Quarterstaves"
+		items_class_Crossbows		=	"Crossbows"
+		items_class_Traps		=	"Traps"
+		items_class_Amulets		=	"Amulets"
+		items_class_Rings		=	"Rings"
+		items_class_Belts		=	"Belts"
+		items_class_Gloves		=	"Gloves"
+		items_class_Boots		=	"Boots"
+		items_class_Body Armours	=	"Body Armours"
+		items_class_Helmets		=	"Helmets"
+		items_class_Quivers		=	"Quivers"
+		items_class_Foci		=	"Foci"
+		items_class_Shields		=	"Shields"
+		items_class_Jewels		=	"Jewels"
+		items_class_Life Flasks		=	"Life Flasks"
+		items_class_Mana Flasks		=	"Mana Flasks"
+		items_class_Charms		=	"Charms"
+		items_class_Socketable		=	"Socketable"		;## runes and soul cores
 
 
 ;## these are mod-related strings in item tooltips, e.g. "+X to Armour", "+X to maximum Energy Shield"
