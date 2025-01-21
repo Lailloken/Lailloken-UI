@@ -239,11 +239,11 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	{
 		item.class_loc := item.class
 		For key, array in vars.lang
-			If !InStr(key, "items_classes_")
+			If !InStr(key, "items_class_")
 				Continue
 			Else If LLK_HasVal(array, item.class)
 			{
-				item.class := StrReplace(key, "items_classes_")
+				item.class := StrReplace(key, "items_class_")
 				Break
 			}
 	}
