@@ -714,23 +714,23 @@ Leveltracker_GuideEditor(cHWND)
 	Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.leveltracker_editor.main, vars.hwnd.leveltracker_editor := {"main": hwnd_editor}
 
-	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Center Border gLeveltracker_GuideEditor HWNDhwnd_winbar", % " lailloken ui: guide editor (slot " (!profile ? 1 : profile) ") "
+	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Center Border gLeveltracker_GuideEditor HWNDhwnd_winbar", % " lailloken ui: " Lang_Trans("lvltracker_editor") " (" Lang_Trans("lvltracker_editor_slot") " " (!profile ? 1 : profile) ") "
 	Gui, %GUI_name%: Add, Text, % "ys Center Border gLeveltracker_GuideEditor HWNDhwnd_xbutton w" settings.leveltracker.fWidth_editor * 2, % "x"
 	vars.hwnd.leveltracker_editor.xbutton := hwnd_xbutton, vars.hwnd.leveltracker_editor.winbar := hwnd_winbar
 
-	Gui, %GUI_name%: Add, Text, % "Section xs x" margin " y+" margin, % "ui-size: "
+	Gui, %GUI_name%: Add, Text, % "Section xs x" margin " y+" margin, % Lang_Trans("global_uisize") " "
 	Gui, %GUI_name%: Add, Text, % "ys x+0 Border HWNDhwnd gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "–"
 	Gui, %GUI_name%: Add, Text, % "ys Border HWNDhwnd1 gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "r"
 	Gui, %GUI_name%: Add, Text, % "ys Border HWNDhwnd2 gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "+"
 	vars.hwnd.leveltracker_editor["font_minus"] := hwnd, vars.hwnd.leveltracker_editor["font_reset"] := hwnd1, vars.hwnd.leveltracker_editor["font_plus"] := hwnd2
 
-	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % "text-size: "
+	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % Lang_Trans("global_font") " "
 	Gui, %GUI_name%: Add, Text, % "ys x+0 Border HWNDhwnd gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "–"
 	Gui, %GUI_name%: Add, Text, % "ys Border HWNDhwnd1 gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "r"
 	Gui, %GUI_name%: Add, Text, % "ys Border HWNDhwnd2 gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor * 2, % "+"
 	vars.hwnd.leveltracker_editor["font_1minus"] := hwnd, vars.hwnd.leveltracker_editor["font_1reset"] := hwnd1, vars.hwnd.leveltracker_editor["font_1plus"] := hwnd2
 
-	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % "acts: "
+	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % Lang_Trans("lvltracker_editor_acts") " "
 	For index, vAct in [1, 2, 3, 1, 2, 3]
 	{
 		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 2.5 (A_Index > 3 ? " cFF8000" : ""), % " " vAct " "
@@ -738,26 +738,28 @@ Leveltracker_GuideEditor(cHWND)
 		vars.hwnd.leveltracker_editor["act_" index] := hwnd
 	}
 
-	Gui, %GUI_name%: Add, Text, % "ys Border Center Hidden cRed HWNDhwnd gLeveltracker_GuideEditor x+" margin*2, % " save changes "
-	Gui, %GUI_name%: Add, Text, % "xp yp Border Center Hidden HWNDhwnd1 gLeveltracker_GuideEditor", % " export guide "
+	Gui, %GUI_name%: Add, Text, % "ys Border Center Hidden cRed HWNDhwnd gLeveltracker_GuideEditor x+" margin*2, % Lang_Trans("lvltracker_editor_save")
+	Gui, %GUI_name%: Add, Text, % "xp yp Border Center Hidden HWNDhwnd1 gLeveltracker_GuideEditor", % Lang_Trans("lvltracker_editor_export")
 	vars.hwnd.leveltracker_editor.save := hwnd, vars.hwnd.leveltracker_editor.export := vars.hwnd.help_tooltips["leveltracker_editor export"] := hwnd1, wEdit := settings.leveltracker.fWidth_editor * 70
 	ControlGetPos, xEdit, yEdit,, hEdit,, ahk_id %hwnd%
 	yEdit := yEdit + hEdit - 1
 
 	Gui, %GUI_name%: Font, % "underline"
-	Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans x" wEdit + margin*2 " y" yEdit + margin + (vars.leveltracker_editor.guide.Count() ? settings.leveltracker.fHeight_editor : 0), % "area-names (click to paste):"
+	Gui, %GUI_name%: Add, Text, % "Section BackgroundTrans x" wEdit + margin*2 " y" yEdit + margin + (vars.leveltracker_editor.guide.Count() ? settings.leveltracker.fHeight_editor : 0), % Lang_Trans("lvltracker_editor_areas")
 	Gui, %GUI_name%: Font, % "norm"
 	Gui, %GUI_name%: Add, Progress, % "Disabled Hidden ys hp w" margin + 1
-	act_no := (act > 3) ? act - 3 : act, dimensions := ["load default guide", "export guide"]
+	act_no := (act > 3) ? act - 3 : act, dimensions := [Lang_Trans("lvltracker_editor_load"), Lang_Trans("lvltracker_editor_export")]
+	For index, highlight in ["hint", "quest-name", "quest-item"]
+		dimensions.Push(Lang_Trans("lvltracker_editor_" highlight))
 	For index, ID in act%act_no%
-		dimensions.Push(db.leveltracker.areas[ID].name (InStr(ID, "3a") ? " (blocked)" : ""))
+		dimensions.Push(db.leveltracker.areas[ID].name (InStr(ID, "3a") ? " " Lang_Trans("lvltracker_editor_blocked") : ""))
 	If (act < 6)
-		dimensions.Push(db.leveltracker.areas["g" (act_no < 3 ? act_no : 0) + 1 "_1"].name . (InStr(ID, "3a") ? " (blocked)" : ""))
+		dimensions.Push(db.leveltracker.areas["g" (act_no < 3 ? act_no : 0) + 1 "_1"].name . (InStr(ID, "3a") ? " " Lang_Trans("lvltracker_editor_blocked") : ""))
 	Else dimensions.Push(db.leveltracker.areas["g_endgame_town"])
 	LLK_PanelDimensions(dimensions, settings.leveltracker.fSize_editor, width, height)
 	For index, ID in act%act_no%
 	{
-		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " db.leveltracker.areas[ID].name . (InStr(ID, "3a") ? " (blocked)" : "")
+		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " db.leveltracker.areas[ID].name . (InStr(ID, "3a") ? " " Lang_Trans("lvltracker_editor_blocked") : "")
 		vars.hwnd.leveltracker_editor["pastearea_" (act > 3 ? "c_" : "") . ID] := hwnd
 	}
 	If (act < 6)
@@ -773,7 +775,7 @@ Leveltracker_GuideEditor(cHWND)
 
 	Gui, %GUI_name%: Add, Progress, % "Disabled Hidden ys hp w" margin + 1
 	Gui, %GUI_name%: Font, % "underline"
-	Gui, %GUI_name%: Add, Text, % "Section xs y+" margin*2, % "icons (click to paste):"
+	Gui, %GUI_name%: Add, Text, % "Section xs y+" margin*2, % Lang_Trans("lvltracker_editor_icons")
 	Gui, %GUI_name%: Font, % "norm"
 
 	For index, icon in icons
@@ -785,11 +787,11 @@ Leveltracker_GuideEditor(cHWND)
 	}
 
 	Gui, %GUI_name%: Font, % "underline"
-	Gui, %GUI_name%: Add, Text, % "Section xs y+" margin*2, % "highlight selected text:"
+	Gui, %GUI_name%: Add, Text, % "Section xs y+" margin*2, % Lang_Trans("lvltracker_editor_highlight")
 	Gui, %GUI_name%: Font, % "norm"
 	For index, highlight in ["hint", "quest-name", "quest-item"]
 	{
-		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " highlight . (highlight = "hint" ? " / more info" : "")
+		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " Lang_Trans("lvltracker_editor_" highlight)
 		vars.hwnd.leveltracker_editor["highlight_" highlight] := hwnd
 	}
 
@@ -800,12 +802,12 @@ Leveltracker_GuideEditor(cHWND)
 	Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor
 	Gui, %GUI_name%: Add, Progress, % "xs Disabled Hidden h" margin + 1
 
-	Gui, %GUI_name%: Add, Text, % "Section Border BackgroundTrans Center HWNDhwnd gLeveltracker_GuideEditor x" wEdit + margin*2 " y" yEdit - hEdit + 1 " w" width, % " load default guide "
+	Gui, %GUI_name%: Add, Text, % "Section Border BackgroundTrans Center HWNDhwnd gLeveltracker_GuideEditor x" wEdit + margin*2 " y" yEdit - hEdit + 1 " w" width, % Lang_Trans("lvltracker_editor_load")
 	Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border Range0-500 Vertical HWNDhwnd1 BackgroundBlack cRed", 0
 	vars.hwnd.leveltracker_editor.reset := hwnd, vars.hwnd.leveltracker_editor.reset_bar := vars.hwnd.help_tooltips["leveltrackereditor_guide reset"] := hwnd1
 	If vars.leveltracker_editor.guide.Count()
 	{
-		Gui, %GUI_name%: Add, Text, % "xs Border BackgroundTrans Center HWNDhwnd gLeveltracker_GuideEditor w" width, % " export guide "
+		Gui, %GUI_name%: Add, Text, % "xs Border BackgroundTrans Center HWNDhwnd gLeveltracker_GuideEditor w" width, % Lang_Trans("lvltracker_editor_export")
 		vars.hwnd.leveltracker_editor.export := vars.hwnd.help_tooltips["leveltrackereditor_export"] := hwnd
 	}
 
@@ -891,7 +893,7 @@ Leveltracker_Import(profile := "")
 
 	If vars.poe_version
 	{
-		If !LLK_PatternMatch(Clipboard, "", ["enter areaid"],,, 1)
+		If !LLK_PatternMatch(Clipboard, "", [Lang_Trans("lvltracker_format_enter") " areaid"],,, 1)
 		{
 			LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
 			Return
@@ -1477,6 +1479,22 @@ Leveltracker_ScreencapMenuClose()
 		SnipGuiClose()
 }
 
+LevelTracker_PageDivider(step)
+{
+	local
+	global vars, settings
+	static enter, waypoint, portal, kill
+
+	If !enter
+		For index, val in ["enter", "waypoint", "portal", "kill"]
+			%val% := StrReplace(StrReplace(StrReplace(Lang_Trans("lvltracker_format_" val), ")", "\)"), "(", "\("), " ", "\s")
+
+	If !InStr(step, "(hint)")
+	&& RegExMatch(step, "i)(" enter "|" waypoint "|" portal "|sail to)\sareaid")
+	&& !(InStr(step, enter) < InStr(step, kill)) && !(InStr(step, "enter") < InStr(step, "activate") && InStr(step, "airlock")) && !InStr(step, "complete the")
+		Return 1
+}
+
 LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
 {
 	local
@@ -2053,8 +2071,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	For raw_index, step in guide.text_raw
 	{
 		guide.group1.Push(step)
-		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to")) && InStr(step, "areaid")
-		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the") && !InStr(step, "(hint)")
+		If LevelTracker_PageDivider(step)
 		{
 			Loop
 				If InStr(guide.text_raw[raw_index + A_Index], "(hint)")
@@ -2081,9 +2098,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 			Continue
 		guide.group0.Push(step)
 
-		If (InStr(step, "enter") || InStr(step, "(img:waypoint) to") || (InStr(step, "sail to ") && !InStr(step, "wraeclast")) || InStr(step, "(img:portal) to")) && InStr(step, "areaid")
-		&& !InStr(step, "arena:") ;&& !InStr(step, "the warden's_chambers") && !InStr(step, "sewer_outlet") && !InStr(step, "resurrection site") && !InStr(step, "the black core")
-		&& !(InStr(step, "enter") < InStr(step, "kill")) && !(InStr(step, "enter") < InStr(step, "activate") && !InStr(step, "airlock")) && !InStr(step, "complete the") && !InStr(step, "(hint)")
+		If LevelTracker_PageDivider(step)
 		{
 			If (progress_index = guide.progress.MaxIndex())
 				Continue
@@ -2173,9 +2188,9 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 				Else
 				{
 					text := LLK_StringRemove(StrReplace(StrReplace(part, "&&", "&"), "&", "&&"), "<,>,arena:,(hint)"), area := StrReplace(text, "areaid")
-					act := areas[StrReplace(area, vars.poe_version ? "C_" : "")].act . (vars.poe_version && InStr(part, "areaidc_") ? "c" : "")
+					act := areas[StrReplace(area, vars.poe_version ? "C_" : "")].act . (vars.poe_version && InStr(part, "areaidc_") ? Lang_Trans("lvltracker_format_act", 2) : "")
 					If InStr(text, "areaid") ;translate ID to location-name (and add potential act-clarification)
-						text := ((act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout") ? (act = 11 ? "epilogue" : "a" act) " | " : "") . areas[StrReplace(StrReplace(text, "areaid"), vars.poe_version ? "c_" : "")][InStr(line, "to areaid") && areas[area].map_name ? "map_name" : "name"]
+						text := ((act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout") ? (act = 11 ? Lang_Trans("lvltracker_format_epilogue") : Lang_Trans("lvltracker_format_act", 1) . act) " | " : "") . areas[StrReplace(StrReplace(text, "areaid"), vars.poe_version ? "c_" : "")][InStr(line, "to areaid") && areas[area].map_name ? "map_name" : "name"]
 					text := StrReplace(text, "_", " "), text := StrReplace(text, "(a11)", "(epilogue)")
 					If InStr(part, "(quest:")
 						replace := SubStr(text, InStr(text, "(quest:")), replace := SubStr(replace, 1, InStr(replace, ")")), item := StrReplace(SubStr(replace, InStr(replace, ":") + 1), ")"), text := StrReplace(text, replace, item)
@@ -2186,7 +2201,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 						Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize - 2
 					Gui, %GUI_name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
 					Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize
-					kill := (part = "kill") ? 1 : 0
+					kill := (part = Lang_Trans("lvltracker_format_kill")) ? 1 : 0
 				}
 				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0", spacing_check := 0
 			}

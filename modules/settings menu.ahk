@@ -1577,7 +1577,7 @@ Settings_leveltracker()
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1", % " " Lang_Trans("global_import") " "
 		If vars.poe_version
 		{
-			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_edit", % " edit "
+			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_edit", % " " Lang_Trans("global_edit") " "
 			vars.hwnd.settings["editprofile" profile] := vars.hwnd.help_tooltips["settings_leveltracker editor" handle] := hwnd_edit
 		}
 		Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2", % " " Lang_Trans("m_lvltracker_reset") " "
