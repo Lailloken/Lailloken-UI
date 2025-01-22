@@ -19,6 +19,13 @@
 		For key, val in lang_parse
 			vars.lang[key] := val.Clone()
 		vars.system.font := Lang_Trans("system_font"), vars.help.settings["lang contributors"] := vars.lang.contributor.Clone()
+
+		If (settings.general.lang_client != "english")
+		{
+			vars.omnikey.poedb_loc := {}
+			For key, val in vars.omnikey.poedb
+				vars.omnikey.poedb_loc[Lang_Trans("items_class_" key)] := val
+		}
 	}
 
 	If prev_lang && (prev_lang != settings.general.lang_client)

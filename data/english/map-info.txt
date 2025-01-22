@@ -31,7 +31,7 @@ Expedition Logbook			=	Logbook
 
 
 ;## map-mods will be grouped into these 5 categories
-;## translate these keys as you see fit, but don't change the order
+;## do not translate these here or in the map-mods section further below
 
 [mod types]
 player
@@ -42,7 +42,7 @@ heist
 
 
 ;## these are the different expedition groups/clans as they are displayed in the game, as well as the corresponding NPCs
-;## replace both key and value with the corresponding strings of the target language
+;## replace only the key (left of the equal-sign) with the corresponding strings of the target language
 
 [expedition groups]
 black scythe mercenaries	=	tujen
@@ -76,8 +76,7 @@ volcanic island
 ;## replace those strings with the corresponding strings of the target language and use placeholders where applicable
 
 ;## each mod belongs to a type (from the five in the [mod types] section above)
-;## there's a sixth "expedition" type: don't change that
-;## you can simply use the "find & replace" feature in text-editors to quickly replace all the "type = X" lines (since there are only 5 different ones)
+;## do not change the type values
 
 ;## each mod has a short text-string that will be used in the map-info panel instead of the full mod-text
 ;## %-signs will be replaced by the actual %-roll of the map-mod, e.g. "ele reflect: %" -> "ele reflect: 15%"

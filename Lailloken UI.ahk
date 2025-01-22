@@ -454,7 +454,7 @@ Init_general()
 	settings.features.lootfilter := !Blank(check := ini.features["enable filterspoon"]) ? check : 0
 	settings.updater := {"update_check": LLK_IniRead("ini\config.ini", "settings", "update auto-check", 0)}
 
-	vars.pics := {"global": {"close": LLK_ImageCache("img\GUI\close.png"), "help": LLK_ImageCache("img\GUI\help.png"), "reload": LLK_ImageCache("img\GUI\restart.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "maptracker": {}, "stashninja": {}}
+	vars.pics := {"global": {"close": LLK_ImageCache("img\GUI\close.png"), "help": LLK_ImageCache("img\GUI\help.png"), "reload": LLK_ImageCache("img\GUI\restart.png")}, "iteminfo": {}, "legion": {}, "leveltracker": {}, "mapinfo": {}, "maptracker": {}, "stashninja": {}}
 }
 
 Init_vars()
@@ -477,10 +477,11 @@ Init_vars()
 	vars.client := {}
 	vars.GUI := []
 	vars.omnikey := {}
-	vars.omnikey.poedb := {"Claws": 1,"Daggers": 1, "Wands": 1, "One Hand Swords": 1, "One Hand Axes": 1, "One Hand Maces": 1, "Sceptres": 1, "Spears": 1, "Flails": 1
+	vars.omnikey.poedb := {"Claws": 1, "Daggers": 1, "Wands": 1, "One Hand Swords": 1, "One Hand Axes": 1, "One Hand Maces": 1, "Sceptres": 1, "Spears": 1, "Flails": 1
 	, "Bows": 1, "Staves": 1, "Two Hand Swords": 1, "Two Hand Axes": 1, "Two Hand Maces": 1, "Quarterstaves": 1, "Crossbows": 1, "Traps": 1
 	, "Amulets": 1, "Rings": 1, "Belts": 1, "Gloves": 2, "Boots": 2, "Body Armours": 2, "Helmets": 2
 	, "Quivers": 1, "Foci": 1, "Shields": 2, "Jewels": 1, "Life Flasks": 1, "Mana Flasks": 1, "Charms": 1}
+
 	vars.leveltracker := {}
 	vars.lang := {}, vars.lang2 := {}
 	vars.log := {} ;store data related to the game's log here
@@ -610,10 +611,10 @@ LLK_Error(ErrorMessage, restart := 0)
 	ExitApp
 }
 
-LLK_FileCheck()
+LLK_FileCheck() ;delete old files (or ones that have been moved elsewhere)
 {
 	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
-		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
+		If FileExist("data\" val)
 		{
 			FileDelete, data\%val%
 			FileRemoveDir, data\%val%, 1
@@ -621,6 +622,8 @@ LLK_FileCheck()
 	For index, val in ["necropolis.ahk"]
 		If FileExist("modules\" val)
 			FileDelete, modules\%val%
+	If FileExist("data\global\default guide 2.txt")
+		FileDelete, data\global\default guide 2.txt
 	If FileExist("img\GUI\screen-checks\necro_lantern.jpg")
 		FileDelete, img\GUI\screen-checks\necro_lantern.jpg
 	If FileExist("data\english\necropolis.json")

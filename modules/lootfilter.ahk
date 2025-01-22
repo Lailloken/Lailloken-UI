@@ -47,7 +47,7 @@ Lootfilter_Base(mode)
 			If !FileExist(file%iLoad%)
 				Continue
 
-			filter_raw := StrReplace(LLK_FileRead(file%iLoad%, 1), "`r`n`r`n", "§"), filter_raw := StrSplit(filter_raw, "§", "`r`n")
+			filter_raw := StrReplace(LLK_FileRead(file%iLoad%, 1), "`r`n", "`n"), filter_raw := StrSplit(StrReplace(filter_raw, "`n`n", "§"), "§", "`n")
 			For index, chunk in filter_raw
 			{
 				chunk := (SubStr(chunk, 1, 1) = "#") ? SubStr(chunk, InStr(chunk, "`n") + 1) : chunk, chunk := StrReplace(chunk, "`t")
@@ -71,21 +71,23 @@ Lootfilter_Base(mode)
 				{
 					rarities := ["off", "magic", "rare", "unique"]
 					If InStr(chunk, "LLK-UI modification (global): hide maps/waystones")
-						vars.lootfilter.maps_hide_previous := vars.lootfilter.maps_hide := Lootfilter_Get(chunk, (vars.poe_version ? "waystone" : "map") "tier"), filter[-1] := chunk
+						vars.lootfilter.maps_hide_previous := vars.lootfilter.maps_hide := Lootfilter_Get(chunk, (vars.poe_version ? "waystone" : "map") "tier"), vars.lootfilter.filter[-1] := chunk
 					Else If InStr(chunk, "LLK-UI modification (global): hide classes")
 					{
-						classes := StrReplace(Lootfilter_Get(chunk, "`nClass"), """ """, """|"""), filter[-2] := chunk
+						classes := StrReplace(Lootfilter_Get(chunk, "`nClass"), """ """, """|"""), vars.lootfilter.filter[-2] := chunk
 						vars.lootfilter.classes_hide := [LLK_HasVal(rarities, Lootfilter_Get(chunk, "Rarity")), {}, InStr(chunk, "Quality < 1") ? 0 : 1]
 						Loop, Parse, classes, % "|", % """"
 							vars.lootfilter.classes_hide.2[A_LoopField] := 1
 					}
 					Else If InStr(chunk, "LLK-UI modification (global): hide skill gems")
-						vars.lootfilter.gems_hide.1 := vars.lootfilter.gems_hide_previous.1 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`r`n`r`n") . chunk
+						vars.lootfilter.gems_hide.1 := vars.lootfilter.gems_hide_previous.1 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`n`n") . chunk
 					Else If InStr(chunk, "LLK-UI modification (global): hide spirit gems")
-						vars.lootfilter.gems_hide.2 := vars.lootfilter.gems_hide_previous.2 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`r`n`r`n") . chunk
+						vars.lootfilter.gems_hide.2 := vars.lootfilter.gems_hide_previous.2 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`n`n") . chunk
 					Else If InStr(chunk, "LLK-UI modification (global): hide support gems")
-						vars.lootfilter.gems_hide.3 := vars.lootfilter.gems_hide_previous.3 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`r`n`r`n") . chunk
+						vars.lootfilter.gems_hide.3 := vars.lootfilter.gems_hide_previous.3 := Lootfilter_Get(chunk, "ItemLevel"), gems_append .= (!gems_append ? "" : "`n`n") . chunk
 				}
+				Else If filter[-1] && !filter.1
+					filter.1 := chunk
 				Else filter.Push(chunk)
 			}
 		}
@@ -150,8 +152,13 @@ Lootfilter_Base(mode)
 				FileGetTime, timestamp2, % file2, M
 				If (timestamp1 > timestamp2) || !InStr(file1, file2_base)
 				{
+					global_mods := []
+					For index, chunk in vars.lootfilter.filter
+						If (index < 0)
+							global_mods[index] := chunk
 					filter := vars.lootfilter.filter := base_filter.Clone(), vars.lootfilter.pending := 2
-					start := A_TickCount
+					For index, chunk in global_mods
+						vars.lootfilter.filter[index] := chunk
 					For key, array in modifications
 					{
 						For index, chunk in array
@@ -224,8 +231,8 @@ Lootfilter_ChunkCompare(chunk1, chunk2 := "", ignore_stack := 0, ByRef new_chunk
 	For index in [1, 2]
 		Loop, Parse, chunk%index%, `n, `r`t
 			If (A_Index > 1) && !LLK_StringCompare(A_LoopField, ["basetype", "SetFontSize", "SetTextColor", "SetBorderColor", "SetBackgroundColor", "PlayAlertSound", "PlayEffect", "MinimapIcon", ignore_stack ? "stacksize" : "", "#"])
-				new_chunk%index% .= A_LoopField "`r`n`t"
-	new_chunk1 := Trim(new_chunk1, "`r`n`t"), new_chunk2 := Trim(new_chunk2, "`r`n`t")
+				new_chunk%index% .= A_LoopField "`n`t"
+	new_chunk1 := Trim(new_chunk1, "`n`t"), new_chunk2 := Trim(new_chunk2, "`n`t")
 
 	If (new_chunk1 = new_chunk2)
 		Return 1
@@ -241,15 +248,17 @@ Lootfilter_ChunkModify(chunk, action, object := "", stack_size := 0)
 		modified_chunk := chunk
 	Else modified_chunk := StrReplace(chunk, SubStr(chunk, 1, 4), action,, 1)
 
-	modified_chunk .= (!InStr(modified_chunk, "LLK-UI modification") ? "`r`n# LLK-UI modification" : "") . (LLK_HasKey(object, "color", 1) && !InStr(modified_chunk, "(style)") ? " (style)" : "")
+	modified_chunk .= (!InStr(modified_chunk, "LLK-UI modification") ? "`n# LLK-UI modification" : "") . (LLK_HasKey(object, "color", 1) && !InStr(modified_chunk, "(style)") ? " (style)" : "")
 	Loop, Parse, modified_chunk, `n, `r
 	{
 		If ((index := A_Index) = 1)
 			modified_chunk := ""
+		If (action = "hide") && LLK_StringCompare(A_LoopField, ["play", "minimap"])
+			Continue
 		insert_line := "", loopfield := A_LoopField
 		For key, val in object
 			If (index != 1) && !LLK_StringCompare(loopfield, ["basetype", "class"]) && !InStr(chunk, key) && !InStr(modified_chunk, key)
-				modified_chunk .= "`r`n" (InStr(key, "color") ? "Set" key " " val : key " " val)
+				modified_chunk .= "`n" (InStr(key, "color") ? "Set" key " " val : key " " val)
 			Else If InStr(loopfield, key)
 			{
 				end := 0
@@ -258,11 +267,11 @@ Lootfilter_ChunkModify(chunk, action, object := "", stack_size := 0)
 				If !end
 					end := InStr(A_LoopField, " ")
 				insert_line := SubStr(A_LoopField, 1, end) . (key = "basetype" ? """" StrReplace(val, """") """" : val)
-				modified_chunk .= (!modified_chunk ? "" : "`r`n") insert_line
+				modified_chunk .= (!modified_chunk ? "" : "`n") insert_line
 				Break
 			}
 		If !insert_line
-			modified_chunk .= (!modified_chunk ? "" : "`r`n") A_LoopField
+			modified_chunk .= (!modified_chunk ? "" : "`n") A_LoopField
 	}
 	Return modified_chunk
 }
@@ -279,19 +288,20 @@ Lootfilter_Get(chunk, data, ByRef operator := "")
 		{
 			textcolor := "255 255 255 255", backgroundcolor := "0 0 0 240", bordercolor := "0 0 0 255"
 			If (check := InStr(chunk, type,, 0))
-				%type% := SubStr(chunk, check + StrLen(type) + 1), %type% := SubStr(%type%, 1, (check := InStr(%type%, "`r")) ? check - 1 : StrLen(%type%))
+				%type% := SubStr(chunk, check + StrLen(type) + 1), %type% := SubStr(%type%, 1, (check := InStr(%type%, "`n")) ? check - 1 : StrLen(%type%))
 			object[type] := %type%
 		}
 		Return object
 	}
 	Else If (check := InStr(chunk, data,, 0))
 	{
-		data := StrReplace(data, "`n")
-		operator := SubStr(chunk, check), operator := SubStr(operator, 1, InStr(operator, "`r") ? InStr(operator, "`r") - 1 : StrLen(operator))
+		If InStr(data, "`n")
+			check += 1
+		data := StrReplace(data, "`n"), operator := SubStr(chunk, check), operator := SubStr(operator, 1, InStr(operator, "`n") ? InStr(operator, "`n") - 1 : StrLen(operator))
 		If LLK_PatternMatch(operator, "", ["<", ">", "="])
 			operator := SubStr(operator, InStr(operator, " ") + 1), operator := SubStr(operator, 1, InStr(operator, " ") - 1)
 		Else operator := ""
-		%data% := SubStr(chunk, check), %data% := SubStr(%data%, 1, (check := InStr(%data%, "`r")) ? check - 1 : StrLen(%data%))
+		%data% := SubStr(chunk, check), %data% := SubStr(%data%, 1, (check := InStr(%data%, "`n")) ? check - 1 : StrLen(%data%))
 		start := InStr("arealevel, stacksize, maptier, waystonetier, rarity, itemlevel", data) ? InStr(%data%, " ",, 0) + 1 : InStr(%data%, InStr(data, "color") ? " " : """")
 		%data% := SubStr(%data%, start + (InStr(data, "color") ? 1 : 0))
 		Return (%data%)
@@ -412,9 +422,9 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 		FileDelete, % vars.lootfilter.config_folder "LLK-UI*.filter"
 		file_dump := "# LLK-UI modded filter, base file: " settings.lootfilter.active
 		For index, chunk in vars.lootfilter.filter
-			file_dump .= "`r`n`r`n" chunk
+			file_dump .= "`n`n" chunk
 		file := FileOpen(vars.lootfilter.config_folder . (new_file := "LLK-UI_modded_filter") ".filter", "w", "UTF-8-RAW")
-		file.Write(file_dump "`r`n"), file.Close()
+		file.Write(file_dump "`n"), file.Close()
 		KeyWait, LButton
 		KeyWait, RButton
 		If (vars.lootfilter.pending = 2)
@@ -432,7 +442,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 	Else If (check = "map_hide")
 	{
 		input := IsNumber(A_GuiControl) ? A_GuiControl : 1, vars.lootfilter.search := "", vars.lootfilter.maps_hide := input
-		append := "Hide`r`nRarity < Unique`r`n" (vars.poe_version ? "BaseType ""Waystone""`r`nWaystone" : "Class == ""Maps""`r`nMap") "Tier < " input "`r`nSetBorderColor 255 0 0 255`r`n# LLK-UI modification (global): hide maps/waystones"
+		append := "Hide`nRarity < Unique`n" (vars.poe_version ? "BaseType ""Waystone""`nWaystone" : "Class == ""Maps""`nMap") "Tier < " input "`nSetBorderColor 255 0 0 255`n# LLK-UI modification (global): hide maps/waystones"
 		If (input > 1)
 			vars.lootfilter.filter[-1] := append
 		Else	vars.lootfilter.filter.Delete(-1)
@@ -455,19 +465,19 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			If val
 				append_classes .= (!append_classes ? "" : " ") """" class """"
 
-		append := "Hide`r`nRarity < " rarities[vars.lootfilter.classes_hide.1] "`r`nClass == " append_classes (!vars.lootfilter.classes_hide.3 ? "`r`nQuality < 1`r`nSockets 0" : "") "`r`nSetBorderColor 255 0 0 255`r`n# LLK-UI modification (global): hide classes"
+		append := "Hide`nRarity < " rarities[vars.lootfilter.classes_hide.1] "`nClass == " append_classes (!vars.lootfilter.classes_hide.3 ? "`nQuality < 1`nSockets 0" : "") "`nSetBorderColor 255 0 0 255`n# LLK-UI modification (global): hide classes"
 		If (vars.lootfilter.classes_hide.1 > 1) && vars.lootfilter.classes_hide.2.Count()
 			vars.lootfilter.filter[-2] := append
 		Else vars.lootfilter.filter.Delete(-2)
 	}
 	Else If InStr(check, "gem_hide")
 	{
-		types := ["Skill", "Spirit", "Support"], type := SubStr(control, InStr(control, "_") + 1), input := LLK_ControlGet(cHWND), input := IsNumber(input) ? input : 1
+		types := ["Skill", "Spirit", "Support"], type := SubStr(control, InStr(control, "_") + 1), input := LLK_ControlGet(cHWND), input := IsNumber(input) ? input : (input = "all" ? 4 : 1)
 		vars.lootfilter.gems_hide[LLK_HasVal(types, type)] := input, gems_hide := vars.lootfilter.gems_hide
 		For index, gem in types
 		{
 			If (gems_hide[index] > 1)
-				append .= (!append ? "" : "`r`n`r`n") "Hide`r`nBaseType == ""Uncut " gem " Gem""`r`nItemLevel < " gems_hide[index] "`r`nSetBorderColor 255 0 0 255`r`n# LLK-UI modification (global): hide " LLK_StringCase(gem) " gems"
+				append .= (!append ? "" : "`n`n") "Hide`nBaseType == ""Uncut " gem " Gem""`nItemLevel < " gems_hide[index] "`nSetBorderColor 255 0 0 255`n# LLK-UI modification (global): hide " LLK_StringCase(gem) " gems"
 		}
 		
 		If append
@@ -493,7 +503,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 					vars.lootfilter.filter.RemoveAt(index)
 			}
 			Else
-				If InStr(chunk, "`r`ncontinue") || InStr(chunk, "LLK-UI modification") || !InStr(Lootfilter_Get(chunk, "basetype"), """" control """")
+				If InStr(chunk, "`ncontinue") || InStr(chunk, "LLK-UI modification") || !InStr(Lootfilter_Get(chunk, "basetype"), """" control """")
 				|| (arealevel := Lootfilter_Get(chunk, "arealevel"), operator) && (arealevel <= (vars.poe_version ? 1 : 67)) && !InStr(operator, ">") ; placeholder: arealevel 1 for PoE2
 					Continue
 				Else
@@ -517,7 +527,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			Return
 		}
 		chunk := vars.lootfilter.filter[control]
-		modified_chunk := Lootfilter_ChunkModify(chunk, "Show", base), modified_chunk := StrReplace(modified_chunk, "`r`n`t", "`r`n`tStackSize >= " input "`r`n`t",, 1) " (addition)"
+		modified_chunk := Lootfilter_ChunkModify(chunk, "Show", base), modified_chunk := StrReplace(modified_chunk, "`n`t", "`n`tStackSize >= " input "`n`t",, 1) " (addition)"
 		vars.lootfilter.filter.InsertAt(control, modified_chunk), Lootfilter_Base("modifications")
 	}
 	*/
@@ -682,7 +692,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			For index, chunk in vars.lootfilter.filter
 			{
 				arealevel := Lootfilter_Get(chunk, "arealevel", operator)
-				If (index < 1) || !RegExMatch(chunk, "i)\s.*" base ".*") || InStr(chunk, "`r`ncontinue") || arealevel && (arealevel <= (vars.poe_version ? 1 : 67)) && !InStr(operator, ">") || search_override && !InStr(chunk, "LLK-UI modification")
+				If (index < 1) || !RegExMatch(chunk, "i)\s.*" base ".*") || InStr(chunk, "`ncontinue") || arealevel && (arealevel <= (vars.poe_version ? 1 : 67)) && !InStr(operator, ">") || search_override && !InStr(chunk, "LLK-UI modification")
 					Continue
 				stack := Lootfilter_Get(chunk, "stacksize"), text := (stack ? stack "x " : "") StrReplace(base, """")
 
@@ -741,7 +751,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 		For index, rarity in ["magic", "rare", "unique"]
 			classesDDL .= "|" rarity
 		Loop 19
-			skillgemsDDL .= "|" A_Index + 1, spiritgemsDDL .= "|" A_Index + 1, supportgemsDDL .= (A_Index < 3) ? "|" A_Index + 1 : ""
+			skillgemsDDL .= "|" A_Index + 1, spiritgemsDDL .= "|" A_Index + 1, supportgemsDDL .= (A_Index < 4) ? "|" (A_Index = 3 ? "all" : A_Index + 1) : ""
 		Gui, %GUI_name%: Font, % "s" settings.lootfilter.fSize
 		;Gui, %GUI_name%: Add, Progress, % "xs Disabled Background646464 x-1 w" xMax " h5", 0
 		Gui, %GUI_name%: Add, Text, % "xs Section BackgroundTrans x-1 Border Center w" xMax " h" hDDL, % "global overrides:"
@@ -861,7 +871,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 			vars.hwnd.lootfilter.selection_apply := hwnd, vars.hwnd.lootfilter.selection_discard := hwnd2, vars.hwnd.lootfilter.x_bar := hwnd_header_bar
 		}
 	}
-	Else If modifications.Count() || vars.lootfilter.pending || vars.lootfilter.class_pending || vars.lootfilter.gem_pending
+	Else If modifications.Count() || vars.lootfilter.pending || vars.lootfilter.class_pending || vars.lootfilter.gem_pending || (vars.lootfilter.maps_hide != vars.lootfilter.maps_hide_previous)
 	{
 		dimensions := [vars.lootfilter.pending ? Lang_Trans("global_apply", 2) : "."]
 		LLK_PanelDimensions([Lang_Trans("lootfilter_modifications")], settings.lootfilter.fSize, wHeader, hHeader)
@@ -894,7 +904,7 @@ Lootfilter_GUI(cHWND := "", side := "", activation := "")
 		}
 	}
 
-	If vars.lootfilter.selection || modifications.Count() || vars.lootfilter.pending || vars.lootfilter.class_pending || vars.lootfilter.gem_pending
+	If vars.lootfilter.selection || modifications.Count() || vars.lootfilter.pending || vars.lootfilter.class_pending || vars.lootfilter.gem_pending || (vars.lootfilter.maps_hide != vars.lootfilter.maps_hide_previous)
 	{
 		ControlGetPos,, yHide_last,, hHide_last,, % "ahk_id " hide_last
 		yHide_last := yHide_last + hHide_last, yModification_last := yModification_last + hModification_last
@@ -950,7 +960,7 @@ Lootfilter_ItemLabel(text, filter_index, style, xMax := 10000, iGroup := 0)
 		textcolor := [255, 255, 255, 255], backgroundcolor := [0, 0, 0, 240], bordercolor := [0, 0, 0, 255]
 		rgb := ""
 		If InStr(chunk, type)
-			%type% := SubStr(chunk, InStr(chunk, type) + StrLen(type) + 1), %type% := SubStr(%type%, 1, InStr(%type%, "`r") - 1), %type% := StrSplit(%type%, " ")
+			%type% := SubStr(chunk, InStr(chunk, type) + StrLen(type) + 1), %type% := SubStr(%type%, 1, InStr(%type%, "`n") - 1), %type% := StrSplit(%type%, " ")
 		For iRGB, vRGB in %type%
 			If (iRGB < 4)
 				rgb .= Format("{:02X}", vRGB)

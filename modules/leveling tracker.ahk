@@ -349,7 +349,7 @@ Leveltracker(cHWND := "", hotkey := "")
 					IniWrite, % step, % "ini" vars.poe_version "\leveling guide" settings.leveltracker.profile ".ini", progress, % "step_" guide.progress.MaxIndex()
 				}
 				Leveltracker_Progress(1)
-				If !Blank(LLK_HasVal(guide.group1, "an_end_to_hunger", 1)) || (guide.target_area = vars.log.areaID)
+				If LLK_HasVal(guide.group1, "an_end_to_hunger", 1) || LLK_HasVal(guide.group1, "act-tracker", 1) || (guide.target_area = vars.log.areaID)
 					Break
 			}
 			vars.leveltracker.fast := 0, vars.leveltracker.last_manual := A_TickCount
@@ -522,10 +522,13 @@ Leveltracker_GuideEditor(cHWND)
 	, act1 := ["g1_1", "g1_town", "g1_2", "g1_3", "g1_4", "g1_5", "g1_6", "g1_7", "g1_8", "g1_9", "g1_10", "g1_11", "g1_12", "g1_13_1", "g1_13_2", "g1_14", "g1_15"]
 	, act2 := ["g2_1", "g2_town", "g2_2", "g2_3a", "g2_3", "g2_4_1", "g2_4_2", "g2_4_3", "g2_5_1", "g2_5_2", "g2_6", "g2_7", "g2_8", "g2_9_1", "g2_9_2", "g2_10_1", "g2_10_2", "g2_12_1", "g2_12_2", "g2_13"]
 	, act3 := ["g3_1", "g3_town", "g3_2_1", "g3_2_2", "g3_3", "g3_4", "g3_5", "g3_6_1", "g3_6_2", "g3_7", "g3_8", "g3_9", "g3_10", "g3_10_airlock", "g3_11", "g3_12", "g3_14", "g3_16", "g3_17"]
-	, icons := ["checkpoint", "waypoint", "portal", "arena", 0, 1, 2, 3, 4, 5, 6, 7]
+	, icons
+	
+	If !icons
+		icons := ["checkpoint", "waypoint", "portal", "arena", "quest" . (vars.poe_version ? "_2" : ""), "help", 0, 1, 2, 3, 4, 5, 6, 7]
 
 	If !vars.leveltracker_editor.act
-		vars.leveltracker_editor := {"act": 1, "default_guide": Trim(StrReplace(LLK_FileRead("data\global\default guide" vars.poe_version ".txt"), "`r`n", "`n"), " `r`n")}
+		vars.leveltracker_editor := {"act": 1, "default_guide": Trim(StrReplace(LLK_FileRead("data\" settings.general.lang "\[leveltracker] default guide" vars.poe_version ".txt"), "`r`n", "`n"), " `r`n")}
 	act := vars.leveltracker_editor.act
 
 	If (cHWND = "clear")
@@ -750,6 +753,7 @@ Leveltracker_GuideEditor(cHWND)
 		dimensions.Push(db.leveltracker.areas[ID].name (InStr(ID, "3a") ? " (blocked)" : ""))
 	If (act < 6)
 		dimensions.Push(db.leveltracker.areas["g" (act_no < 3 ? act_no : 0) + 1 "_1"].name . (InStr(ID, "3a") ? " (blocked)" : ""))
+	Else dimensions.Push(db.leveltracker.areas["g_endgame_town"])
 	LLK_PanelDimensions(dimensions, settings.leveltracker.fSize_editor, width, height)
 	For index, ID in act%act_no%
 	{
@@ -761,6 +765,11 @@ Leveltracker_GuideEditor(cHWND)
 		Gui, %GUI_name%: Add, Text, % "Section xs Border HWNDhwnd gLeveltracker_GuideEditor cYellow w" width, % " " db.leveltracker.areas["g" (act_no < 3 ? act_no : 0) + 1 "_1"].name
 		vars.hwnd.leveltracker_editor["pastearea_" (act > 2 ? "c_" : "") "g" (act_no < 3 ? act_no : 0) + 1 "_1"] := hwnd
 	}
+	Else
+	{
+		Gui, %GUI_name%: Add, Text, % "Section xs Border HWNDhwnd gLeveltracker_GuideEditor cYellow w" width, % " " db.leveltracker.areas["g_endgame_town"].name
+		vars.hwnd.leveltracker_editor["pastearea_g_endgame_town"] := hwnd
+	}
 
 	Gui, %GUI_name%: Add, Progress, % "Disabled Hidden ys hp w" margin + 1
 	Gui, %GUI_name%: Font, % "underline"
@@ -769,9 +778,9 @@ Leveltracker_GuideEditor(cHWND)
 
 	For index, icon in icons
 	{
-		If !vars.pics.leveltracker[icon]
+		If (icon != "help") && !vars.pics.leveltracker[icon]
 			vars.pics.leveltracker[icon] := LLK_ImageCache("img\GUI\leveling tracker\" icon ".png")
-		Gui, %GUI_name%: Add, Pic, % (index = 1 || icons[index - 1] = "arena" ? "Section xs y+" (index = 4 ? -1 : margin) : "ys") " Border hp" (index = 1 ? "" : "-2") " w-1 gLeveltracker_GuideEditor HWNDhwnd", % "HBitmap:*" vars.pics.leveltracker[icon]
+		Gui, %GUI_name%: Add, Pic, % (index = 1 || (icons[index - 1] = "help") ? "Section xs y+" (index = 4 ? -1 : margin) : "ys") " Border hp" (index = 1 ? "" : "-2") " w-1 gLeveltracker_GuideEditor HWNDhwnd", % "HBitmap:*" (icon = "help" ? vars.pics.global.help : vars.pics.leveltracker[icon])
 		vars.hwnd.leveltracker_editor["pasteicon_" icon] := hwnd
 	}
 
@@ -2030,6 +2039,10 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	vars.leveltracker.guide.text_raw := vars.leveltracker.guide.import.Clone(), in_progress := 1, vars.leveltracker.last := A_TickCount*100 ;dummy-value to prevent Loop_main() from prematurely fading the overlay
 	guide := vars.leveltracker.guide, areas := db.leveltracker.areas, timer := vars.leveltracker.timer ;short-cut variables
 	vars.leveltracker.fade := mode ? 0 : vars.leveltracker.fade, vars.leveltracker.toggle := mode ? 1 : vars.leveltracker.toggle
+
+	If !vars.log.act
+		vars.log.act := areas[vars.log.areaID].act
+
 	If (mode = 1)
 		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker.png
 	For progress_index, step in guide.progress
@@ -2149,16 +2162,17 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 
 			For index, part in text_parts
 			{
+				spacing_check := !Blank(SubStr(text_parts[index + 1], 1, 1)) && InStr(",.", SubStr(text_parts[index + 1], 1, 1)) ? 1 : 0
 				If InStr(part, "(img:")
 				{
-					img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1)
-					If !vars.pics.leveltracker[img]
+					img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1), img := StrReplace(img, " ", "_")
+					If (img != "help") && !vars.pics.leveltracker[img]
 						vars.pics.leveltracker[img] := LLK_ImageCache("img\GUI\leveling tracker\" img ".png")
-					Gui, %GUI_name_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(settings.leveltracker.fWidth/(InStr(step, "(hint)") ? 3 : 2))) " BackgroundTrans "(InStr(step, "(hint)") ? "hp-2" : "h" settings.leveltracker.fHeight - 2) " w-1", % "HBitmap:*" vars.pics.leveltracker[img]
+					Gui, %GUI_name_main%: Add, Picture, % style (A_Index = 1 ? "" : " x+"(settings.leveltracker.fWidth/(InStr(step, "(hint)") ? 3 : 2))) " BackgroundTrans "(InStr(step, "(hint)") ? "hp-2" : "h" settings.leveltracker.fHeight - 2) " w-1", % "HBitmap:*" (img = "help" ? vars.pics.global.help : vars.pics.leveltracker[img])
 				}
 				Else
 				{
-					text := LLK_StringRemove(part, "<,>,arena:,(hint)"), area := StrReplace(text, "areaid")
+					text := LLK_StringRemove(StrReplace(StrReplace(part, "&&", "&"), "&", "&&"), "<,>,arena:,(hint)"), area := StrReplace(text, "areaid")
 					act := areas[StrReplace(area, vars.poe_version ? "C_" : "")].act . (vars.poe_version && InStr(part, "areaidc_") ? "c" : "")
 					If InStr(text, "areaid") ;translate ID to location-name (and add potential act-clarification)
 						text := ((act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout") ? (act = 11 ? "epilogue" : "a" act) " | " : "") . areas[StrReplace(StrReplace(text, "areaid"), vars.poe_version ? "c_" : "")][InStr(line, "to areaid") && areas[area].map_name ? "map_name" : "name"]
@@ -2170,11 +2184,11 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 						color := SubStr(part, InStr(part, "(color:") + 7), color := SubStr(color, 1, InStr(color, ")") - 1), text := StrReplace(text, "(color:"color ")")
 					If InStr(step, "(hint)")
 						Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize - 2
-					Gui, %GUI_name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || (SubStr(text_parts[index + 1], 1, 1) = ",") || InStr(text_parts[index + 1], "(img:") ? text : text " "
+					Gui, %GUI_name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
 					Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize
 					kill := (part = "kill") ? 1 : 0
 				}
-				style := InStr(part, "(img:") ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0"
+				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0", spacing_check := 0
 			}
 			If InStr(step, "(hint)")
 				Loop, Files, % "img\GUI\leveling tracker\hints\" (vars.poe_version ? "PoE 2\" : "") "*.jpg"

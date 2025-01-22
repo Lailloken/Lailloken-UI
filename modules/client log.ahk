@@ -205,33 +205,53 @@ Log_Get(log_text, data)
 			If LLK_StringCompare(log_text, ["breach"])
 			{
 				If settings.maptracker.rename
-					Return "boss: xesht"
-				Else Return "twisted domain (boss)"
+					Return Lang_Trans("maps_boss") ": " Lang_Trans("maps_xesht")
+				Else Return Lang_Trans("maps_xesht", 2) " (" Lang_Trans("maps_boss") ")"
 			}
 			Else If LLK_StringCompare(log_text, ["ritual"])
 			{
 				If settings.maptracker.rename
-					Return "boss: king in the mists"
-				Else Return "crux of nothingness (boss)"
+					Return Lang_Trans("maps_boss") ": " Lang_Trans("maps_ritualboss")
+				Else Return Lang_Trans("maps_ritualboss", 2) " (" Lang_Trans("maps_boss") ")"
 			}
 			Else If InStr(log_text, "uberboss_monolith")
 			{
 				If settings.maptracker.rename
-					Return "boss: arbiter of ash"
-				Else Return "the burning monolith (boss)"
+					Return Lang_Trans("maps_boss") ": " Lang_Trans("maps_arbiter")
+				Else Return Lang_Trans("maps_arbiter", 2) " (" Lang_Trans("maps_boss") ")"
 			}
 			Else If RegExMatch(log_text, "Hideout.*_Claimable")
-				Return LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout") . " hideout")
+			{
+				hideout := LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout"))
+				Return LLK_StringCase(Lang_Trans("maps_" hideout "_hideout") ? Lang_Trans("maps_" hideout "_hideout") : hideout " " Lang_Trans("maps_hideout"))
+			}
+
 			%data% := StrReplace(SubStr(log_text, 4), "_noboss"), %data% := StrReplace(%data%, "SwampTower", "SinkingSpire")
 			If InStr(%data%, "uberboss_")
-				%data% := (settings.maptracker.rename ? "boss:" : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (boss)")
+				%data% := (settings.maptracker.rename ? Lang_Trans("maps_boss") ": " : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (" Lang_Trans("maps_boss") ")")
 			Else If LLK_StringCompare(%data%, ["unique"])
-				%data% := "unique:" (InStr(%data%, "merchant") ? " nameless seer" : InStr(%data%, "vault") ? " vaults of kamasa" : SubStr(%data%, 7))
+				%data% := Lang_Trans("items_unique") ": " (InStr(%data%, "merchant") ? Lang_Trans("maps_seer") : InStr(%data%, "vault") ? Lang_Trans("maps_vaults") : SubStr(%data%, 7))
 			Else If LLK_PatternMatch(log_text, "", ["losttowers", "swamptower", "mesa", "bluff", "alpineridge"],,, 0)
-				%data% .= !InStr(log_text, "losttowers") ? " (tower)" : ""
-			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") ? " (boss)" : "")
+				%data% .= !InStr(log_text, "losttowers") ? " (" Lang_Trans("maps_tower") ")" : ""
+			Else %data% .= (!InStr(log_text, "_noboss") && !InStr(log_text, "unique") ? " (" Lang_Trans("maps_boss") ")" : "")
+
 			Loop, Parse, % %data%
 				%data% := (A_Index = 1) ? "" : %data%, %data% .= (A_Index != 1 && RegExMatch(A_LoopField, "[A-Z]") ? " " : "") . A_LoopField
+
+			If InStr(%data%, "(" Lang_Trans("maps_tower") ")") || InStr(%data%, "lost towers")
+			{
+				check_localization := StrReplace(%data%, " (" Lang_Trans("maps_tower") ")")
+				If Lang_Trans("maps_" StrReplace(check_localization, " ", "_"))
+					%data% := Lang_Trans("maps_" StrReplace(check_localization, " ", "_")) . (!InStr(check_localization, "lost towers") ? " (" Lang_Trans("maps_tower") ")" : "")
+			}
+			Else If InStr(%data%, "citadel")
+				For index, val in ["stone", "iron", "copper"]
+					If InStr(%data%, val) && Lang_Trans("maps_" val "_citadel")
+					{
+						%data% := StrReplace(%data%, val " citadel", Lang_Trans("maps_" val "_citadel"))
+						Break
+					}
+
 		}
 	Return LLK_StringCase(%data%)
 }

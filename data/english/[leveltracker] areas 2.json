@@ -222,5 +222,9 @@
   "g3_17": {
     "name": "the black chambers",
     "act": "3"
+  },
+  "g_endgame_town": {
+    "name": "the ziggurat refuge",
+    "act": "11"
   }
 }
