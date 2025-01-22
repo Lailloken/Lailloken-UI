@@ -528,7 +528,7 @@ Leveltracker_GuideEditor(cHWND)
 		icons := ["checkpoint", "waypoint", "portal", "arena", "quest" . (vars.poe_version ? "_2" : ""), "help", 0, 1, 2, 3, 4, 5, 6, 7]
 
 	If !vars.leveltracker_editor.act
-		vars.leveltracker_editor := {"act": 1, "default_guide": Trim(StrReplace(LLK_FileRead("data\global\default guide" vars.poe_version ".txt"), "`r`n", "`n"), " `r`n")}
+		vars.leveltracker_editor := {"act": 1, "default_guide": Trim(StrReplace(LLK_FileRead("data\" settings.general.lang "\[leveltracker] default guide" vars.poe_version ".txt"), "`r`n", "`n"), " `r`n")}
 	act := vars.leveltracker_editor.act
 
 	If (cHWND = "clear")
@@ -2158,6 +2158,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 
 			For index, part in text_parts
 			{
+				spacing_check := !Blank(SubStr(text_parts[index + 1], 1, 1)) && InStr(",.", SubStr(text_parts[index + 1], 1, 1)) ? 1 : 0
 				If InStr(part, "(img:")
 				{
 					img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1), img := StrReplace(img, " ", "_")
@@ -2179,11 +2180,11 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 						color := SubStr(part, InStr(part, "(color:") + 7), color := SubStr(color, 1, InStr(color, ")") - 1), text := StrReplace(text, "(color:"color ")")
 					If InStr(step, "(hint)")
 						Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize - 2
-					Gui, %GUI_name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || (SubStr(text_parts[index + 1], 1, 1) = ",") || InStr(text_parts[index + 1], "(img:") ? text : text " "
+					Gui, %GUI_name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
 					Gui, %GUI_name_main%: Font, % "s"settings.leveltracker.fSize
 					kill := (part = "kill") ? 1 : 0
 				}
-				style := InStr(part, "(img:") ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0"
+				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0", spacing_check := 0
 			}
 			If InStr(step, "(hint)")
 				Loop, Files, % "img\GUI\leveling tracker\hints\" (vars.poe_version ? "PoE 2\" : "") "*.jpg"
