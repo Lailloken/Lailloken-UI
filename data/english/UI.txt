@@ -155,7 +155,7 @@
 		global_variance			=	"variance (0-255)"
 		global_hotkey			=	"hotkey:"
 		global_panelsize		=	"panel-size:"
-		global_uisize			=	"ui size:"
+		global_uisize			=	"ui-size:"
 		global_auto			=	"auto"
 		global_price			=	"price"
 		global_all			=	"all"
@@ -282,6 +282,9 @@
 		cheat_filemissing		=	"file doesn't exist"
 		cheat_loaderror			=	"cannot load file:"
 		cheat_duplicate			=	"A cheat-sheet with the same name already exists and will be overwritten. Do you want to continue?"
+		cheat_flip			=	"cannot flip through images"			;## this string + one of the following two form a sentence
+		cheat_flip			=	"in segmented cheat-sheets"
+		cheat_flip			=	"after using letter-keys"
 
 
 
@@ -316,27 +319,28 @@
 ;## these strings are displayed/required when using the leveling tracker / act-tracker
 		lvltracker_header		=	"skilltree configuration"
 		lvltracker_deleteall		=	"del all"
-		lvltracker_gemnotes		=	"not included in pob"
+
+
+		lvltracker_gemnotes		=	"not included in pob"				;## PoE1 only (whole block)
 		lvltracker_gearlist		=	"char (lvl):"					;## displayed at the top of the geartracker: "char (lvl): Lailloken (69)"
 		lvltracker_gearadd		=	"item added"
 		lvltracker_gearadd		=	"item already added"
 		lvltracker_gearadd		=	"item already;equippable"
 		lvltracker_gearadd		=	"item doesn't have;any requirements"
 		lvltracker_gear5levels		=	"only show the next 5 levels"
-		lvltracker_flip			=	"cannot flip through images"
-		lvltracker_flip			=	"in segmented cheat-sheets"
-		lvltracker_flip			=	"after using letter-keys"
+
+
 		lvltracker_endreached		=	"can't go further"
 		lvltracker_fastforwarderror	=	"current location is not;included in any remaining step"
 		lvltracker_guidemissing		=	"guide hasn't been;imported yet"
-		lvltracker_importerror		=	""gems only" guides;are not supported"		;## exile-leveling has a "gems only" option
+		lvltracker_importerror		=	""gems only" guides;are not supported"		;## PoE1 only, exile-leveling has a "gems only" option
 		lvltracker_importerror		=	"invalid import data"
 		lvltracker_multipaste		=	"some files are;not supported"
 		lvltracker_multipaste		=	"multi-paste not supported;for ascendancy-trees"
-		lvltracker_multipaste		=	"# entries starting from # will potentially be overwritten.;Continue?"	;## these are placeholders for numbers
+		lvltracker_multipaste		=	"# entries starting from # will potentially be overwritten.;Continue?"	;## the placeholders will be replaced by numbers
 		lvltracker_noimages		=	"couldn't find;image-files"
 		lvltracker_timererror		=	"can't resume: run complete"			;## campaign timer can't be resumed because the run has finished
-		lvltracker_timererror		=	"enter <twilight strand> to reset"		;## timer can only be reset with a fresh character
+		lvltracker_timererror		=	"enter the first zone to reset"			;## timer can only be reset with a fresh character
 		lvltracker_timererror		=	"pause the timer first"
 		lvltracker_timererror		=	"blocked by hideout-pause setting"		;## there's a setting "pause timer in hideouts" which blocks manual resuming
 		lvltracker_timermessage		=	"run started"
@@ -345,6 +349,29 @@
 		lvltracker_treeerror		=	"skill-tree version;is incompatible"
 		lvltracker_treenone		=	"imported pob doesn't;have usable trees"
 		lvltracker_treeascendancy	=	"slot empty"
+
+
+		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use the words in this block in combination with "areaidXYZ" to place a page divider
+		lvltracker_format_waypoint	=	"(img:waypoint) to"				;## these 2 lines stand for "portal/waypoint-travel to XYZ": don't change the part in parentheses, it will be replaced by icons
+		lvltracker_format_portal	=	"(img:portal) to"
+		lvltracker_format_kill		=	"kill"						;## the string that follows this word will automatically be highlighted as a unique boss
+		lvltracker_format_act		=	"a#c"						;## abbreviation, e.g. "act 1 cruel": used when the guide leads to a location in a different act (e.g. "enter a1c | clearfell encampment")
+		lvltracker_format_epilogue	=	"epilogue"
+
+
+		lvltracker_editor		=	"guide editor"
+		lvltracker_editor_slot		=	"slot"						;## the act-tracker has 3 slots to save guides into
+		lvltracker_editor_acts		=	"acts:"
+		lvltracker_editor_save		=	"save changes"
+		lvltracker_editor_export	=	"export guide"
+		lvltracker_editor_areas		=	"area-names (click to paste):"
+		lvltracker_editor_icons		=	"icons (click to paste):"
+		lvltracker_editor_highlight	=	"highlight selected text:"
+		lvltracker_editor_load		=	"load default guide"
+		lvltracker_editor_blocked	=	"(blocked)"					;## there are two different "Halani Gates" areas: the first time you visit, they're blocked off
+		lvltracker_editor_hint		=	"hint / more info"
+		lvltracker_editor_quest-name	=	"quest-name"
+		lvltracker_editor_quest-item	=	"quest-item"
 
 
 ;#####################################################
