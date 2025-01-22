@@ -611,10 +611,10 @@ LLK_Error(ErrorMessage, restart := 0)
 	ExitApp
 }
 
-LLK_FileCheck()
+LLK_FileCheck() ;delete old files (or ones that have been moved elsewhere)
 {
 	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
-		If FileExist("data\" val) ;delete old files (or ones that have been moved elsewhere)
+		If FileExist("data\" val)
 		{
 			FileDelete, data\%val%
 			FileRemoveDir, data\%val%, 1
@@ -622,6 +622,8 @@ LLK_FileCheck()
 	For index, val in ["necropolis.ahk"]
 		If FileExist("modules\" val)
 			FileDelete, modules\%val%
+	If FileExist("data\global\default guide 2.txt")
+		FileDelete, data\global\default guide 2.txt
 	If FileExist("img\GUI\screen-checks\necro_lantern.jpg")
 		FileDelete, img\GUI\screen-checks\necro_lantern.jpg
 	If FileExist("data\english\necropolis.json")
