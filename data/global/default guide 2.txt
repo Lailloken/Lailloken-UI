@@ -147,10 +147,10 @@ find 2 (quest:small_soul_cores) in side-rooms while following the red trace
 find a locked room with an altar in front, kill blackjaw inside
 (hint)_______ignore the locked room with gold and chests inside
 follow the red trace to the exit, enter areaidg3_6_2 ;; jiquani's sanctum
-talk to alva, find 2 (quest:medium_soul_cores), activate 2 (quest:generators)
-(hint)_______(quest:soul_cores) are scattered randomly
-(hint)_______(quest:generators) and alva form a triangle (alva at the bottom)
-return to alva, kill zicoatl , take (quest:large_soul_core)
+talk to alva, find 2 (quest:medium_soul_cores) , activate 2 (quest:generators)
+(hint)_______(quest:generators) and alva form a triangle: before using the 2nd (quest:generator) ,
+(hint)_______place a (img:portal) . use the (quest:generator) , use the (img:portal) , (img:waypoint) back to areaidg3_6_2 ;; jiquani's sanctum
+return to alva, kill zicoatl for (quest:large_soul_core)
 (img:waypoint) to areaidg3_2_1 ;; infested barrens
 insert (quest:large_soul_core) nearby, enter areaidg3_2_2 ;; the matlan waterways
 find and activate levers throughout the area
@@ -321,10 +321,10 @@ find 2 (quest:small_soul_cores) in side-rooms while following the red trace
 find a locked room with an altar in front, kill blackjaw inside
 (hint)_______ignore the locked room with gold and chests inside
 follow the red trace to the exit, enter areaidc_g3_6_2 ;; jiquani's sanctum
-talk to alva, find 2 (quest:medium_soul_cores), activate 2 (quest:generators)
-(hint)_______(quest:soul_cores) are scattered randomly
-(hint)_______(quest:generators) and alva form a triangle (alva at the bottom)
-return to alva, kill zicoatl , take (quest:large_soul_core)
+talk to alva, find 2 (quest:medium_soul_cores) , activate 2 (quest:generators)
+(hint)_______(quest:generators) and alva form a triangle: before using the 2nd (quest:generator) ,
+(hint)_______place a (img:portal) . use the (quest:generator) , use the (img:portal) , (img:waypoint) back to areaidc_g3_6_2 ;; jiquani's sanctum
+return to alva, kill zicoatl for (quest:large_soul_core)
 (img:waypoint) to areaidc_g3_2_1 ;; infested barrens
 insert (quest:large_soul_core) nearby, enter areaidc_g3_2_2 ;; the matlan waterways
 find and activate levers throughout the area
