@@ -359,7 +359,7 @@
 		lvltracker_format_epilogue	=	"epilogue"
 
 
-		lvltracker_editor		=	"guide editor"
+		lvltracker_editor		=	"guide editor"					;## PoE2 only (whole block)
 		lvltracker_editor_slot		=	"slot"						;## the act-tracker has 3 slots to save guides into
 		lvltracker_editor_acts		=	"acts:"
 		lvltracker_editor_save		=	"save changes"
