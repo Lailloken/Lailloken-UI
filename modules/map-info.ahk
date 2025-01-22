@@ -568,9 +568,9 @@ Mapinfo_Parse2(mode)
 			map[key][5 - A_Index] := []
 
 	Loop, Parse, clip, `n, `r
-	{
+	{		
 		If !map.name
-			If !InStr(A_LoopField, "(")
+			If !InStr(A_LoopField, Lang_Trans("system_parenthesis"))
 				Continue
 			Else map.name := A_LoopField
 
