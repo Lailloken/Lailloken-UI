@@ -2039,6 +2039,10 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	vars.leveltracker.guide.text_raw := vars.leveltracker.guide.import.Clone(), in_progress := 1, vars.leveltracker.last := A_TickCount*100 ;dummy-value to prevent Loop_main() from prematurely fading the overlay
 	guide := vars.leveltracker.guide, areas := db.leveltracker.areas, timer := vars.leveltracker.timer ;short-cut variables
 	vars.leveltracker.fade := mode ? 0 : vars.leveltracker.fade, vars.leveltracker.toggle := mode ? 1 : vars.leveltracker.toggle
+
+	If !vars.log.act
+		vars.log.act := areas[vars.log.areaID].act
+
 	If (mode = 1)
 		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker.png
 	For progress_index, step in guide.progress
