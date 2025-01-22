@@ -351,7 +351,7 @@
 		lvltracker_treeascendancy	=	"slot empty"
 
 
-		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use the words in this block in combination with "areaidXYZ" to place a page divider
+		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use this and the next two in combination with "areaidXYZ" to place a page divider
 		lvltracker_format_waypoint	=	"(img:waypoint) to"				;## these 2 lines stand for "portal/waypoint-travel to XYZ": don't change the part in parentheses, it will be replaced by icons
 		lvltracker_format_portal	=	"(img:portal) to"
 		lvltracker_format_kill		=	"kill"						;## the string that follows this word will automatically be highlighted as a unique boss
