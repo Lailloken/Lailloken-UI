@@ -118,7 +118,7 @@
 	vars.leveltracker.skilltree_schematics := {"active": !Blank(check := ini.settings["last skilltree-schematic" settings.leveltracker.profile]) ? check : "1"
 		, "scale": !Blank(check2 := ini.settings["schematic scaling"]) ? check2 : 0}
 
-	lang := settings.general.lang_client
+	lang := settings.general.lang
 	If !IsObject(db.leveltracker)
 		If !vars.poe_version
 			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
@@ -126,7 +126,7 @@
 			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
 			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
 			, "trees": {"supported": ["3_25"]}}
-		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\english\[leveltracker] areas 2.json"))}
+		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))}
 }
 
 Geartracker(mode := "")
@@ -2280,10 +2280,12 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 		vars.hwnd.leveltracker.timer_act := hwnd
 	}
 	Gui, %GUI_name_controls2%: Add, Text, % "Section xs " (settings.leveltracker.timer ? "xs y+-1" : "") " Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels, % settings.leveltracker.layouts ? check " zl" : ""
-	vars.hwnd.leveltracker.layouts := hwnd, exp_info := vars.poe_version ? "" : Leveltracker_Experience("", 1)
+	level_diff := vars.log.level - vars.log.arealevel
+	vars.hwnd.leveltracker.layouts := hwnd, exp_info := vars.poe_version ? RegExMatch(vars.log.areaID, "i)^hideout|_town$") ? "" : Lang_Trans("lvltracker_exp") " " (level_diff > 0 ? "+" : "") level_diff : Leveltracker_Experience("", 1)
+	color := !vars.poe_version ? (!InStr(exp_info, "100%") ? "Red" : "Lime") : (Abs(level_diff) > 3 ? "Red" : Abs(level_diff) > 2 ? "FF8000" : "Lime")
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % "<"
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % ">"
-	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " c" (!InStr(exp_info, "100%") ? "Red" : "Lime"), % StrReplace(exp_info, (exp_info = "100%") ? "" : "100%")
+	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " c" color, % StrReplace(exp_info, (exp_info = "100%") ? "" : "100%")
 	vars.hwnd.leveltracker.experience := hwnd
 
 	Gui, %GUI_name_controls2%: Show, % "NA x10000 y10000"
