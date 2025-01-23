@@ -596,7 +596,7 @@ Mapinfo_Parse2(mode)
 	}
 
 	For key, val in db.mapinfo.mods
-		If RegExMatch(raw_text, "i)" StrReplace(key, "|", ".*"))
+		If RegExMatch(raw_text, "i)(^|\n)" StrReplace(key, "|", ".*"))
 		{
 			map.mods += 1
 			Loop, Parse, key, % "|"
