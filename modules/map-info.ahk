@@ -582,13 +582,16 @@ Mapinfo_Parse2(mode)
 			Else
 			{
 				item_level := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
-				raw_text := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), raw_text := SubStr(raw_text, InStr(raw_text, "-`r`n") + 3), raw_text := SubStr(raw_text, 1, InStr(raw_text, "---") - 3)
+				raw_text := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), raw_text := SubStr(raw_text, InStr(raw_text, "-`r`n") + 3)
+				raw_text := SubStr(raw_text, 1, InStr(raw_text, "`r`n---",,, InStr(raw_text, "(") ? 2 : 1) - 1)
 				Break
 			}
 	}
 
 	Loop, Parse, raw_text, `n, `r
 	{
+		If InStr(A_LoopField, "---")
+			Continue
 		If (A_Index = 1)
 			raw_text := ""
 		Mapinfo_Lineparse(Iteminfo_ModRemoveRange(A_LoopField), text, value)
