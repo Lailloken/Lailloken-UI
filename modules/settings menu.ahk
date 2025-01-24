@@ -874,11 +874,7 @@ Settings_general2(cHWND := "")
 			Else If settings.leveltracker.geartracker && vars.hwnd.geartracker.main
 				Geartracker_GUI("refresh")
 			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-			{
-				exp := vars.poe_version ? "" : Leveltracker_Experience("", 1)
-				GuiControl, text, % vars.hwnd.leveltracker.experience, % StrReplace(exp, (exp = "100%") ? "" : "100%")
-				GuiControl, % "+c" (InStr(exp, "100%") ? "Lime" : "Red"), % vars.hwnd.leveltracker.experience
-			}
+				Leveltracker_Progress()
 			If settings.features.maptracker && settings.maptracker.character
 				Maptracker_GUI()
 			Settings_menu("general"), char_wait := 0
@@ -1237,11 +1233,11 @@ Settings_iteminfo()
 	Gui, %GUI%: Font, norm
 	LLK_PanelDimensions([Lang_Trans("global_tier"), Lang_Trans("global_ilvl")], settings.general.fSize, wText, hText,,, 0)
 
-	Gui, %GUI%: Add, Text, % "xs Section", % "(un)desired: "
+	Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_iteminfo_undesired", 2) " "
 
 	Loop 2
 	{
-		Gui, %GUI%: Add, Text, % "ys HWNDhwnd0" (A_Index = 1 ? " x+0" : ""), % (A_Index = 1) ? "global" : "item-class"
+		Gui, %GUI%: Add, Text, % "ys HWNDhwnd0" (A_Index = 1 ? " x+0" : ""), % (A_Index = 1) ? Lang_Trans("global_global") : Lang_Trans("m_iteminfo_class")
 		Gui, %GUI%: Add, Text, % "ys Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd x+" settings.general.fWidth//2 " w" settings.general.fWidth//2
 		Gui, %GUI%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack HWNDhwnd2 c" settings.iteminfo.colors_marking[A_Index + A_Index//2], 100
 		Gui, %GUI%: Add, Text, % "ys x+-1 Border BackgroundTrans gSettings_iteminfo2 HWNDhwnd3 w" settings.general.fWidth//2
