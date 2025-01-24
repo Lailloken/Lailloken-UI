@@ -176,6 +176,7 @@
 		global_revert			=	"revert"
 		global_apply			=	"apply"
 		global_apply			=	"apply changes"
+		global_global			=	"global"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -349,6 +350,7 @@
 		lvltracker_treeerror		=	"skill-tree version;is incompatible"
 		lvltracker_treenone		=	"imported pob doesn't;have usable trees"
 		lvltracker_treeascendancy	=	"slot empty"
+		lvltracker_exp			=	"lvl-diff:"					;## stands for level-difference, i.e. character-level - area-level = X
 
 
 		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use this and the next two in combination with "areaidXYZ" to place a page divider
@@ -789,10 +791,12 @@
 		m_iteminfo_profiles		=	"reset the profile's:"				;## you can choose between two options: a profile's desired, or undesired mods
 		m_iteminfo_desired		=	"desired"
 		m_iteminfo_undesired		=	"undesired"
+		m_iteminfo_undesired		=	"(un)desired:"
 		m_iteminfo_modrolls		=	"hide roll-ranges on explicit mods"
 		m_iteminfo_shift		=	"shift-clicking activates item-info"
 		m_iteminfo_league		=	"enable league-start mode"
 		m_iteminfo_base			=	"show & compare item's base-stats"		;## base-stats as in armor, evasion, ES, attack-speed, phys/ele dmg
+		m_iteminfo_class		=	"item-class"
 		m_iteminfo_ilvl			=	"display item-lvl requirements"
 		m_iteminfo_highlight		=	"highlight customization:"
 		m_iteminfo_fractured		=	"fr"						;## this abbreviation for "fractured" should always have a length of 2 (max 3 if really necessary)
