@@ -133,10 +133,12 @@ Cheatsheet_Add(name, type)
 	FileCreateDir, % "cheat-sheets" vars.poe_version "\" name
 	If !error && !FileExist("cheat-sheets" vars.poe_version "\" name "\")
 		error := 1, LLK_FilePermissionError("create", A_ScriptDir "\cheat-sheets" vars.poe_version "\" name)
+	
 	If error
 		Return
+	types := ["images", "app", "advanced"]
 	IniWrite, 1, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, enable
-	IniWrite, % type, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, type
+	IniWrite, % types[type], % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, type
 	IniWrite, 1, % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, scale
 	IniWrite, % "2,2", % "cheat-sheets" vars.poe_version "\" name "\info.ini", UI, position
 	IniWrite, static, % "cheat-sheets" vars.poe_version "\" name "\info.ini", general, image search
@@ -450,13 +452,13 @@ Cheatsheet_Image(name := "", hotkey := "") ;'hotkey' parameter used when overlay
 			WinGetPos, x, y,,, % "ahk_id "vars.hwnd.cheatsheet.main
 			If has_00
 			{
-				LLK_ToolTip(Lang_Trans("lvltracker_flip") "`n" Lang_Trans("lvltracker_flip", 2), 2, x, y,, "Yellow")
+				LLK_ToolTip(Lang_Trans("cheat_flip") "`n" Lang_Trans("cheat_flip", 2), 2, x, y,, "Yellow")
 				KeyWait, % hotkey0
 				Return
 			}
 			If !IsNumber(vars.cheatsheets[name].include.1)
 			{
-				LLK_ToolTip(Lang_Trans("lvltracker_flip") "`n" Lang_Trans("lvltracker_flip", 3), 2, x, y,, "Yellow")
+				LLK_ToolTip(Lang_Trans("cheat_flip") "`n" Lang_Trans("cheat_flip", 3), 2, x, y,, "Yellow")
 				KeyWait, % hotkey0
 				Return
 			}

@@ -181,7 +181,7 @@ Settings_cheatsheets()
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Text, % "ys HWNDhwnd0 x+"settings.general.fWidth, % Lang_Trans("global_type")
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, DDL, % "ys hp x+" settings.general.fWidth/2 " w"settings.general.fWidth*8 " r10 cBlack HWNDhwnd", % Lang_Trans("m_cheat_images") "||" Lang_Trans("m_cheat_app") "|" Lang_Trans("m_cheat_advanced") "|"
+	Gui, %GUI%: Add, DDL, % "ys hp x+" settings.general.fWidth/2 " w"settings.general.fWidth*8 " r10 AltSubmit cBlack HWNDhwnd", % Lang_Trans("m_cheat_images") "||" Lang_Trans("m_cheat_app") "|" Lang_Trans("m_cheat_advanced") "|"
 	vars.hwnd.help_tooltips["settings_cheatsheets types"] := hwnd0, vars.hwnd.settings.type := hwnd, vars.hwnd.help_tooltips["settings_cheatsheets types|"] := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 	Gui, %GUI%: Add, Text, % "ys hp Border gSettings_cheatsheets2 HWNDhwnd", % " " Lang_Trans("global_add") " "
