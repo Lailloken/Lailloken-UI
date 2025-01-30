@@ -595,7 +595,7 @@ Mapinfo_Parse2(mode)
 		If (A_Index = 1)
 			raw_text := ""
 		Mapinfo_Lineparse(Iteminfo_ModRemoveRange(A_LoopField), text, value)
-		raw_text .= (!raw_text ? "" : "`n") text, parsed_lines[text] := !parsed_lines[text] ? value : parsed_lines[text] + value
+		raw_text .= "`n" text "`n", parsed_lines[text] := !parsed_lines[text] ? value : parsed_lines[text] + value
 	}
 
 	For key, val in db.mapinfo.mods
@@ -603,7 +603,7 @@ Mapinfo_Parse2(mode)
 		{
 			map.mods += 1
 			Loop, Parse, key, % "|"
-				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, A_LoopField, "",, 1)
+				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, "`n" A_LoopField "`n")
 			If InStr(val.ID, "044") || (val.ID = 44)
 				map_mods[key] := SubStr(map_mods[key], 1, InStr(map_mods[key], "/") - 1) ;freeze/ignite/shock hybrid mod is always X/X/X %, so simply display as X%
 		}

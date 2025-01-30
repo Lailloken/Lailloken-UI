@@ -225,10 +225,9 @@ Log_Get(log_text, data)
 				hideout := LLK_StringCase(StrReplace(StrReplace(log_text, "_claimable"), "maphideout"))
 				Return LLK_StringCase(Lang_Trans("maps_" hideout "_hideout") ? Lang_Trans("maps_" hideout "_hideout") : hideout " " Lang_Trans("maps_hideout"))
 			}
-
 			%data% := StrReplace(SubStr(log_text, 4), "_noboss"), %data% := StrReplace(%data%, "SwampTower", "SinkingSpire")
 			If InStr(%data%, "uberboss_")
-				%data% := (settings.maptracker.rename ? Lang_Trans("maps_boss") ": " : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (" Lang_Trans("maps_boss") ")")
+				%data% := (settings.maptracker.rename ? Lang_Trans("maps_boss") ":" : "") . StrReplace(%data%, "uberboss_") . (settings.maptracker.rename ? "" : " (" Lang_Trans("maps_boss") ")")
 			Else If LLK_StringCompare(%data%, ["unique"])
 				%data% := Lang_Trans("items_unique") ": " (InStr(%data%, "merchant") ? Lang_Trans("maps_seer") : InStr(%data%, "vault") ? Lang_Trans("maps_vaults") : SubStr(%data%, 7))
 			Else If LLK_PatternMatch(log_text, "", ["losttowers", "swamptower", "mesa", "bluff", "alpineridge"],,, 0)

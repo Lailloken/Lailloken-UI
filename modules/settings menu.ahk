@@ -1582,8 +1582,12 @@ Settings_leveltracker()
 		Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*12 . (!file ? " gSettings_leveltracker2" : " Disabled"), % LLK_IniRead("ini" vars.poe_version "\leveling guide" profile ".ini", "info", "name")
 		Gui, %GUI%: Font, % "s" settings.general.fSize
 		If vars.leveltracker["pob" (A_Index = 1 ? "" : A_Index)].Count()
-			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/4 " Center cLime Border gSettings_leveltracker2 HWNDhwnd5", % " pob "
-		If (A_Index > 1) && !files.1 && vars.leveltracker["PoB" A_Index].gems.Count()
+		{
+			Gui, %GUI%: Add, Text, % "ys x+" settings.general.fWidth/4 " Center BackgroundTrans cLime Border gSettings_leveltracker2 HWNDhwnd5", % " pob "
+			Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack Vertical cRed HWNDhwnd7 range0-500", 0
+		}
+
+		If !vars.poe_version && (A_Index > 1) && !files.1 && vars.leveltracker["PoB" A_Index].gems.Count()
 		{
 			checked := settings.leveltracker["mule" A_Index]
 			Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd6 Checked" checked . (checked ? " cLime" : ""), % "mule"
@@ -1594,7 +1598,8 @@ Settings_leveltracker()
 		vars.hwnd.settings["import" profile] := vars.hwnd.help_tooltips["settings_leveltracker import" . vars.poe_version . handle] := hwnd1
 		vars.hwnd.settings["reset" profile] := hwnd2, vars.hwnd.settings["resetbar" profile] := vars.hwnd.help_tooltips["settings_leveltracker reset" handle] := hwnd3
 		vars.hwnd.settings["name" profile] := vars.hwnd.help_tooltips["settings_leveltracker profile name" handle] := hwnd4
-		vars.hwnd.settings["pobpreview" profile] := vars.hwnd.help_tooltips["settings_leveltracker pob preview" handle] := hwnd5, handle .= "|"
+		vars.hwnd.settings["pobpreview" profile] := hwnd5, vars.hwnd.help_tooltips["settings_leveltracker pob preview" handle] := hwnd7
+		vars.hwnd.settings["pobpreview" profile "_bar"] := hwnd7, handle .= "|"
 	}
 
 	Gui, %GUI%: Add, Text, % "xs Section Center BackgroundTrans", % Lang_Trans("global_credits") ":"
@@ -1620,11 +1625,8 @@ Settings_leveltracker()
 		vars.hwnd.settings.treeclear := hwnd, vars.hwnd.help_tooltips["settings_leveltracker skilltree clear"] := vars.hwnd.settings.treeclear_bar := hwnd1
 	}
 
-	If !vars.poe_version
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pobmanual, % Lang_Trans("m_lvltracker_pobmanual")
-		vars.hwnd.settings.pobmanual := vars.hwnd.help_tooltips["settings_leveltracker pob manual"] := hwnd
-	}
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.pobmanual, % Lang_Trans("m_lvltracker_pobmanual")
+	vars.hwnd.settings.pobmanual := vars.hwnd.help_tooltips["settings_leveltracker pob manual"] := hwnd
 
 	If settings.leveltracker.pobmanual
 	{
@@ -1848,6 +1850,15 @@ Settings_leveltracker2(cHWND := "")
 	Else If InStr(check, "pobpreview")
 	{
 		profile := IsNumber(pCheck := SubStr(check, 0)) ? pCheck : "", info := vars.leveltracker["pob" profile]
+		If LLK_Progress(vars.hwnd.settings[check "_bar"], "RButton")
+		{
+			If vars.leveltracker.skilltree_schematics.GUI
+				Leveltracker_PobSkilltree("close")
+			IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile
+			Init_leveltracker()
+			Settings_menu("leveling tracker")
+			Return
+		}
 		For index, val in info.ascendancies
 			ascendancy .= (!ascendancy ? "" : ", ") val
 		text := "class: " info.class "`nascendancy: " ascendancy "`nskill-sets: " info.gems.Count() "`nskill-trees: " info.trees.Count()

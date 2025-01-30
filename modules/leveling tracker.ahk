@@ -24,28 +24,27 @@
 			IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, act %A_Index%
 	}
 
-	If !vars.poe_version
-		For index0, val in ["", 2, 3]
+	For index0, val in ["", 2, 3]
+	{
+		vars.leveltracker["PoB" val] := {}
+		For index, category in ["class", "ascendancies", "gems", "trees", "active tree"]
 		{
-			vars.leveltracker["PoB" val] := {}
-			For index, category in ["class", "ascendancies", "gems", "trees", "active tree"]
-			{
-				string := ini["PoB" val][category]
-				If StrLen(string)
-					vars.leveltracker["pob" val][category] := InStr("{}[]", SubStr(string, 1, 1) . SubStr(string, 0)) ? json.Load(string) : string
-				Else If (category = "active tree") && vars.leveltracker["pob" val].Count() && !StrLen(string)
-					vars.leveltracker["pob" val][category] := 1
-			}
-			If (index0 > 1)
-				settings.leveltracker["mule" val] := ini.settings["profile " val " mule"] ? 1 : 0
-			Else
-				For index, inner in [2, 3]
-				{
-					ini_mule := LLK_IniRead("ini" vars.poe_version "\leveling guide.ini", "info", "muled " inner)
-					If (SubStr(ini_mule, 1, 1) . SubStr(ini_mule, 0) = "{}")
-						vars.leveltracker.guide["muled" inner] := Json.Load(ini_mule)
-				}
+			string := ini["PoB" val][category]
+			If StrLen(string)
+				vars.leveltracker["pob" val][category] := InStr("{}[]", SubStr(string, 1, 1) . SubStr(string, 0)) ? json.Load(string) : string
+			Else If (category = "active tree") && vars.leveltracker["pob" val].Count() && !StrLen(string)
+				vars.leveltracker["pob" val][category] := 1
 		}
+		If (index0 > 1)
+			settings.leveltracker["mule" val] := ini.settings["profile " val " mule"] ? 1 : 0
+		Else
+			For index, inner in [2, 3]
+			{
+				ini_mule := LLK_IniRead("ini" vars.poe_version "\leveling guide.ini", "info", "muled " inner)
+				If (SubStr(ini_mule, 1, 1) . SubStr(ini_mule, 0) = "{}")
+					vars.leveltracker.guide["muled" inner] := Json.Load(ini_mule)
+			}
+	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
 		FileCreateDir, % "img\GUI\skill-tree" settings.leveltracker.profile
@@ -69,7 +68,7 @@
 	settings.leveltracker.fSize_editor := !Blank(check := ini.settings["font-size editor"]) ? check : settings.leveltracker.fSize
 	LLK_FontDimensions(settings.leveltracker.fSize_editor, font_height, font_width), settings.leveltracker.fHeight_editor := font_height, settings.leveltracker.fWidth_editor := font_width
 	settings.leveltracker.fSize_editor1 := !Blank(check := ini.settings["font-size editor text"]) ? check : settings.leveltracker.fSize
-	settings.leveltracker.pobmanual := vars.poe_version ? 1 : !Blank(check := ini.settings["manual pob-screencap"]) ? check : 0
+	settings.leveltracker.pobmanual := !Blank(check := ini.settings["manual pob-screencap"]) ? check : 0
 	settings.leveltracker.pob := !Blank(check := ini.settings["enable pob-screencap"]) ? check : 0
 	settings.leveltracker.trans := !Blank(check := ini.settings["transparency"]) ? check : 5
 	settings.leveltracker.trans := (settings.leveltracker.trans > 5) ? 5 : settings.leveltracker.trans
@@ -118,7 +117,7 @@
 	vars.leveltracker.skilltree_schematics := {"active": !Blank(check := ini.settings["last skilltree-schematic" settings.leveltracker.profile]) ? check : "1"
 		, "scale": !Blank(check2 := ini.settings["schematic scaling"]) ? check2 : 0}
 
-	lang := settings.general.lang
+	lang := settings.general.lang, lang2 := settings.general.lang_client
 	If !IsObject(db.leveltracker)
 		If !vars.poe_version
 			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
@@ -126,7 +125,8 @@
 			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
 			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
 			, "trees": {"supported": ["3_25"]}}
-		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))}
+		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
+			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
 }
 
 Geartracker(mode := "")
@@ -895,8 +895,12 @@ Leveltracker_Import(profile := "")
 	{
 		If !LLK_PatternMatch(Clipboard, "", [Lang_Trans("lvltracker_format_enter") " areaid"],,, 1)
 		{
-			LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
-			Return
+			Try PoB := LevelTracker_PobImport(Clipboard, profile)
+			If !IsObject(PoB)
+			{
+				LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
+				Return
+			}
 		}
 
 		If FileExist("ini 2\leveling guide" profile ".ini")
@@ -1495,17 +1499,17 @@ LevelTracker_PageDivider(step)
 		Return 1
 }
 
-LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
+LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", regex := 0)
 {
 	local
 	global vars, settings, db
 	static toggle := 0, last_gem, stat_colors := ["d81c1c", "00bf40", "0077FF"], last_xPos, last_yPos
 
-	If !gem_name && !last_gem || Blank(xPos) && Blank(last_xPos) || Blank(yPos) && Blank(last_yPos)
+	If !regex && (!gem_name && !last_gem || Blank(xPos) && Blank(last_xPos) || Blank(yPos) && Blank(last_yPos))
 		Return
 
 	profile := settings.leveltracker.profile, profile := settings.leveltracker["mule" profile] ? "" : profile
-	pob := vars.leveltracker["pob" profile]
+	pob := vars.leveltracker["pob" profile], item := vars.omnikey.item, wHover := settings.leveltracker.fWidth * 15
 	If !IsObject(vars.leveltracker.gemlinks)
 		vars.leveltracker.gemlinks := {}
 	If gem_name
@@ -1517,13 +1521,54 @@ LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
 	If !Blank(yPos)
 		last_yPos := yPos
 	Else yPos := last_yPos
-	support := InStr(gem_name, " support"), gem_name := StrReplace(gem_name, " support")
+	support := InStr(gem_name, " support") || (item.class = Lang_Trans("items_gem", 2)) ? 1 : 0, gem_name := StrReplace(gem_name, " support")
 	check := LLK_HasVal(pob.gems, (support ? " |–" : "") . gem_name,,, 1, 1)
+	orientation := (xPos - vars.monitor.x <= vars.monitor.x + vars.client.w//2) ? "right" : "left"
 
 	If !check.Count()
 	{
-		LLK_ToolTip(Lang_Trans("lvltracker_gemnotes"), 1.5,,,, "Red")
-		Return
+		check := [], check2 := [], regex_string := {}
+		If vars.poe_version
+		{
+			For index, val in ["skill", "support", "spirit"]
+				If val && InStr(item.name, Lang_Trans("items_uncut_gem", index))
+					type := val
+
+			For index, skillset in pob.gems
+				For index2, group in skillset.groups
+					For index3, gem in group.gems
+						If db.leveltracker.regex[type][StrReplace(gem, " |–")]
+						{
+							If regex
+								regex_string[StrReplace(gem, " |–")] := 1
+							If !LLK_HasVal(check, index)
+								check.Push(index)
+							If !IsObject(check2[index])
+								check2[index] := [index2]
+							Else If !LLK_HasVal(check2[index], index2)
+								check2[index].Push(index2)
+						}
+
+			If regex
+				If !regex_string.Count()
+				{
+					LLK_ToolTip(Lang_Trans("lvltracker_gemregex", 2), 1.5,,,, "Red")
+					Return
+				}
+				Else
+				{
+					For key in regex_string
+						string .= key "|"
+					Clipboard := Trim(StrReplace(string, " ", "."), "|")
+					LLK_ToolTip(Lang_Trans("lvltracker_gemregex"), 1.5,,,, "Lime")
+					Return
+				}
+		}
+		If !check.Count()
+		{
+			LLK_ToolTip(Lang_Trans("lvltracker_gemnotes"), 1.5,,,, "Red")
+			Return
+		}
 	}
 
 	toggle := !toggle, GUI_name := "leveltracker_gemlinks" toggle
@@ -1535,17 +1580,27 @@ LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
 	hwnd_old := vars.hwnd.leveltracker_gemlinks.main, vars.hwnd.leveltracker_gemlinks := {"main": leveltracker_gemlinks}
 	hover := vars.leveltracker.gemlinks.hover := LLK_HasVal(check, hover) ? hover : check.1
 
-	For index, val in LLK_HasVal(pob.gems[hover].groups, (support ? " |–" : "") gem_name,,, 1, 1)
+	For index, val in (vars.poe_version && type ? check2[hover] : LLK_HasVal(pob.gems[hover].groups, (support ? " |–" : "") gem_name,,, 1, 1))
 	{
-		LLK_PanelDimensions(pob.gems[hover].groups[val].gems, settings.leveltracker.fSize, wLinks, hLinks)
-		For link, gem in pob.gems[hover].groups[val].gems
+		If !vars.poe_version
+			LLK_PanelDimensions(pob.gems[hover].groups[val].gems, settings.leveltracker.fSize, wLinks, hLinks)
+		Else
 		{
-			gem_lookup := InStr(gem, "|") ? StrReplace(gem, " |–") " support" : gem, gem_lookup := StrReplace(StrReplace(gem_lookup, "vaal "), "awakened ")
-			style := (index = 1 && link = 1) ? "x0 y1" : (link = 1 ? "ys x+-1 y1" : "xs y+-1")
-			Gui, %GUI_name%: Add, Text, % style " Section BackgroundTrans HWNDhwnd w" wLinks " h" hLinks - 2 " c" stat_colors[db.leveltracker.regex[gem_lookup].2], % " " gem
-			Gui, %GUI_name%: Add, Progress, % "xp+1 yp wp-2 hp Disabled Background" (gem_name = StrReplace(gem, " |–") ? "303030" : "Black"), 0
-			If (link = 1)
-				ControlGetPos, xFirst, yFirst, wFirst, hFirst,, ahk_id %hwnd%
+			dimensions := []
+			For iGem, vGem in pob.gems[hover].groups[val].gems
+				For gem_type, oGems in db.leveltracker.regex
+					If oGems[StrReplace(vGem, " |–")] && !LLK_HasVal(dimensions, vGem, 1)
+						dimensions.Push(vGem " (" oGems[StrReplace(vGem, " |–")] ")")
+			LLK_PanelDimensions(dimensions, settings.leveltracker.fSize, wLinks, hLinks)
+		}
+
+		For link, gem in (vars.poe_version ? dimensions : pob.gems[hover].groups[val].gems)
+		{
+			gem_lookup := InStr(gem, "|") ? StrReplace(gem, " |–") . (vars.poe_version ? "" : " support") : gem, gem_lookup := StrReplace(StrReplace(gem_lookup, "vaal "), "awakened ")
+			style := (index = 1 && link = 1) ? (orientation = "left" || check.Count() = 1 ? "x0" : "x" wHover - 1) " y1" : (link = 1 ? "ys x+-1 y1" : "xs y+-1")
+			Gui, %GUI_name%: Add, Text, % style " Section BackgroundTrans HWNDhwnd w" wLinks " h" hLinks - 2 . (!vars.poe_version ? " c" stat_colors[db.leveltracker.regex[gem_lookup].2] : ""), % " " gem
+			gem := InStr(gem, "(") ? SubStr(gem, 1, InStr(gem, "(") - 2) : gem, gem := StrReplace(gem, " |–")
+			Gui, %GUI_name%: Add, Progress, % "xp+1 yp wp-2 hp Disabled Background" (InStr(gem_name, gem) || type && db.leveltracker.regex[type][gem] ? "303030" : "Black"), 0
 			ControlGetPos, xLast, yLast, wLast, hLast,, ahk_id %hwnd%
 		}
 		If !Blank(pob.gems[hover].groups[val].label)
@@ -1558,17 +1613,17 @@ LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "")
 		Gui, %GUI_name%: Add, Text, % "x" xLast " y0 BackgroundTrans Border w" wLinks " h" yLast + hLast + 1, % "" ; draw a border around gem-group
 	}
 
-	For index, val in check
-	{
-		Gui, %GUI_name%: Add, Text, % (index = 1 ? "ys x+-1 y0" : "xs y+-1") " Section BackgroundTrans Border Center w" settings.leveltracker.fWidth * 15, % " " pob.gems[val].title
-		Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Background" (val = hover ? "303030" : "Black"), 0
-		vars.hwnd.leveltracker_gemlinks["skillset" val] := hwnd
-		ControlGetPos, xSkillset, ySkillset, wSkillset, hSkillset,, ahk_id %hwnd%
-	}
+	If (check.Count() > 1)
+		For index, val in check
+		{
+			Gui, %GUI_name%: Add, Text, % (index = 1 ? (orientation = "left" ? "ys x+-1" : "x0") " y0" : "xs y+-1") " Section BackgroundTrans Border Center w" wHover, % " " pob.gems[val].title
+			Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Disabled HWNDhwnd Background" (val = hover ? "303030" : "Black"), 0
+			vars.hwnd.leveltracker_gemlinks["skillset" val] := hwnd
+		}
 
 	Gui, %GUI_name%: Show, NA x10000 y10000
 	WinGetPos,,, wWin, hWin, ahk_id %leveltracker_gemlinks%
-	xPos -= wWin, yPos -= (ySkillset + hSkillset)//2
+	xPos -= (orientation = "left") ? wWin - wHover//2 : wHover//2
 	Gui_CheckBounds(xPos, yPos, wWin, hWin)
 	Gui, %GUI_name%: Show, % "NA x" xPos " y" yPos
 	LLK_Overlay(leveltracker_gemlinks, "show",, GUI_name), LLK_Overlay(hwnd_old, "destroy")
@@ -1578,15 +1633,20 @@ LevelTracker_PobImport(b64, profile)
 {
 	local
 	global vars, db, settings, JSON
-	static classes := {"scion": ["ascendant"], "marauder": ["juggernaut", "berserker", "chieftain"], "ranger": ["warden", "deadeye", "pathfinder"], "witch": ["occultist", "elementalist", "necromancer"]
+	static classes, replace := {"&lt;": "<", "&gt;": ">", "&quot;": """", "&amp;": "&&", "&apos;": "'"}
+
+	If !classes
+		If vars.poe_version
+			classes := {"mercenary": ["witchhunter", "gemling legionnaire"], "monk": ["invoker", "acolyte of chayula"], "ranger": ["deadeye", "pathfinder"], "sorceress": ["stormweaver", "chronomancer"], "warrior": ["titan", "warbringer"], "witch": ["infernalist", "blood mage"]}
+		Else classes := {"scion": ["ascendant"], "marauder": ["juggernaut", "berserker", "chieftain"], "ranger": ["warden", "deadeye", "pathfinder"], "witch": ["occultist", "elementalist", "necromancer"]
 		, "duelist": ["slayer", "gladiator", "champion"], "templar": ["inquisitor", "hierophant", "guardian"], "shadow": ["assassin", "trickster", "saboteur"]}
-		, replace := {"&lt;": "<", "&gt;": ">", "&quot;": """", "&amp;": "&&", "&apos;": "'"}
 
 	Base64Dec(RTrim(b64, "="), compressed), buffer := 1024 * 10000
 	zlib_Decompress(decompressed, compressed, buffer)
 	xml := StrReplace(StrGet(&decompressed, buffer, ""), "`t"), xml := LLK_StringCase(xml)
 
-	If InStr(xml, "<PathOfBuilding>") && InStr(xml, "</PathOfBuilding>")
+	If !vars.poe_version && InStr(xml, "<PathOfBuilding>") && InStr(xml, "</PathOfBuilding>")
+	|| vars.poe_version && InStr(xml, "<PathOfBuilding2>") && InStr(xml, "</PathOfBuilding2>")
 	{
 		For text, replacement in replace
 			xml := StrReplace(xml, text, replacement)
@@ -1608,19 +1668,23 @@ LevelTracker_PobImport(b64, profile)
 
 				count := 0
 				For index, node in nodes ; check for filler-trees that don't have allocated nodes
-					count += (treeDB[version].nodes[node].ascendancyname || !Blank(treeDB[version].nodes[node].classstartindex)) ? 0 : 1
+					count += (treeDB[version].nodes[node].ascendancyname || !Blank(treeDB[version].nodes[node][vars.poe_version ? "classesstart" : "classstartindex"])) ? 0 : 1
 				If !count
 					Continue
 
 				If InStr(A_LoopField, " title=""")
 					title := SubStr(A_LoopField, InStr(A_LoopField, " title=""") + 8), title := SubStr(title, 1, InStr(title, """") - 1), title := LevelTracker_PobRemoveTags(title)
 				Else title := "untitled tree"
-				masteries := {}, parse := SubStr(A_LoopField, InStr(A_LoopField, "masteryEffects=""") + 16), parse := SubStr(parse, 1, InStr(parse, """") - 1)
-				Loop, Parse, parse, `,, % "{}"
-					If Mod(A_Index, 2)
-						mastery := A_LoopField
-					Else masteries[mastery] := A_LoopField
 
+				masteries := {}
+				If !vars.poe_version && InStr(A_LoopField, "masteryEffects=""")
+				{
+					parse := SubStr(A_LoopField, InStr(A_LoopField, "masteryEffects=""") + 16), parse := SubStr(parse, 1, InStr(parse, """") - 1)
+					Loop, Parse, parse, `,, % "{}"
+						If Mod(A_Index, 2)
+							mastery := A_LoopField
+						Else masteries[mastery] := A_LoopField
+				}
 				trees0.Push({"title": title, "nodes": nodes, "masteries": masteries, "version": version})
 			}
 
@@ -1715,7 +1779,7 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 			, "red": Gdip_BrushCreateSolid(0x64ff0000), "red2": Gdip_BrushCreateSolid(0x99ff0000), "red3": Gdip_BrushCreateSolid(0xffff0000)
 			, "green": Gdip_BrushCreateSolid(0x6400cc00), "green2": Gdip_BrushCreateSolid(0x9900cc00), "green3": Gdip_BrushCreateSolid(0xff00cc00)
 			, "blue": Gdip_BrushCreateSolid(0x640000ff), "blue2": Gdip_BrushCreateSolid(0x990000ff), "blue3": Gdip_BrushCreateSolid(0xff0000ff)
-			, "black": Gdip_BrushCreateSolid(0xff000000), "gray": Gdip_BrushCreateSolid(0xff606060)}
+			, "black": Gdip_BrushCreateSolid(0xff000000), "gray": Gdip_BrushCreateSolid(0xff606060), "yellow": Gdip_BrushCreateSolid(0x64ffff00)}
 	}
 
 	If (mode = "close")
@@ -1837,14 +1901,15 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 		x_coord := tree.groups[group].x, y_coord := tree.groups[group].y
 		margin := 250
 
-		If ascendancy && tree.nodes[node].HasKey("classstartindex")
+		If ascendancy && tree.nodes[node].HasKey(vars.poe_version ? "classesstart" : "classstartindex")
 			ascendancy_points.Push(node)
 
 		If Blank(orbit) || Blank(orbitindex)
 			Continue
-		If InStr("23", orbit)
+
+		If (tree.constants.skillsperorbit[orbit] = 16)
 			angle := angles.1[orbitIndex]
-		Else If (orbit = 4)
+		Else If (tree.constants.skillsperorbit[orbit] = 40)
 			angle := angles.2[orbitIndex]
 		Else angle := (360/tree.constants.skillsperorbit[orbit]) * orbitIndex
 
@@ -1900,19 +1965,20 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 	masteries_previous := vars.leveltracker["PoB" profile].trees[active - 1].masteries
 
 	For index, outer in (ascendancy ? [2] : [1, 2])
-		For index, node in (ascendancy ? ascendancy_points : (outer = 2) ? allocated : allocated_previous)
+		For index, node in (ascendancy ? ascendancy_points : (outer = 2 ? allocated : allocated_previous))
 		{
 			If tree.nodes[node].expansionjewel.parent || (outer = 1 && !ascendancy) && LLK_HasVal(allocated, node) || tree.nodes[node].ascendancyname && !LLK_HasVal(ascendancy_points, node)
 				Continue
+
 			group := tree.nodes[node].group
 			x_coord := (tree.groups[group].x - xOffset) * scale, y_coord := (tree.groups[group].y - yOffset) * scale
 
 			orbit := tree.nodes[node].orbit, orbitIndex := tree.nodes[node].orbitIndex
-			If Blank(orbit) || blank(orbitindex)
+			If Blank(orbit) || Blank(orbitindex)
 				Continue
-			If InStr("23", orbit)
+			If (tree.constants.skillsperorbit[orbit] = 16)
 				angle := angles.1[orbitIndex]
-			Else If (orbit = 4)
+			Else If (tree.constants.skillsperorbit[orbit] = 40)
 				angle := angles.2[orbitIndex]
 			Else angle := (360/tree.constants.skillsperorbit[orbit]) * orbitIndex
 
@@ -1920,13 +1986,13 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 			x := radius * cos((angle - 90) * 0.017453293252) + x_coord
 			y := radius * sin((angle - 90) * 0.017453293252) + y_coord
 
-			type := tree.nodes[node].isnotable || tree.nodes[node].isjewelsocket ? "notable" : tree.nodes[node].ismastery ? "mastery" : tree.nodes[node].HasKey("classstartindex") ? "classstart" : tree.nodes[node].iskeystone ? "keystone" : "normal"
+			type := tree.nodes[node].isnotable || tree.nodes[node].isjewelsocket ? "notable" : tree.nodes[node].ismastery ? "mastery" : tree.nodes[node].HasKey(vars.poe_version ? "classesstart" : "classstartindex") ? (vars.poe_version ? "keystone" : "classstart") : tree.nodes[node].iskeystone ? "keystone" : "normal"
 			new_node := !LLK_HasVal(ascendancy ? ascendancy_trees[ascendancy - 1] : allocated_previous, node) || (masteries[node] != masteries_previous[node]) ? 1 : 0
-			pBrush := (outer = 1) ? "red" : tree.nodes[node].HasKey("classstartindex") ? "white" : new_node ? "green" : "white"
+			pBrush := (outer = 1) ? "red" : tree.nodes[node].HasKey(vars.poe_version ? "classesstart" : "classstartindex") ? (vars.poe_version ? "yellow" : "white") : new_node ? "green" : "white"
 			pBrush .= (mode = "overview") ? "3" : (type = "mastery") ? "2" : ""
 			Gdip_FillEllipseC(gBitmap, brush[pBrush], x, y, rNode := Ceil(radii[type] * scale), rNode)
 
-			If tree.nodes[node].HasKey("classstartindex")
+			If tree.nodes[node].HasKey(vars.poe_version ? "classesstart" : "classstartindex")
 			{
 				If !Blank(vars.leveltracker.skilltree_schematics.classOrigin.1)
 					offsets := [Round(x) - vars.leveltracker.skilltree_schematics.classOrigin.1, Round(y) - vars.leveltracker.skilltree_schematics.classOrigin.2]
@@ -1934,14 +2000,15 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 				If IsNumber(vars.leveltracker.skilltree_schematics.xPos)
 					vars.leveltracker.skilltree_schematics.xPos -= offsets.1, vars.leveltracker.skilltree_schematics.yPos -= offsets.2
 
-				For kAttr, vAttr in {"blue": 0, "green": 120, "red": 240}
-				{
-					rAttr := 130 * scale
-					xAttr := rAttr * cos((vAttr - 90) * 0.017453293252) + x_coord
-					yAttr := rAttr * sin((vAttr - 90) * 0.017453293252) + y_coord
-					kAttr .= (mode = "overview") ? "3" : ""
-					Gdip_FillEllipseC(gBitmap, brush[kAttr], xAttr, yAttr, radii.normal * scale, radii.normal * scale)
-				}
+				If !vars.poe_version
+					For kAttr, vAttr in {"blue": 0, "green": 120, "red": 240}
+					{
+						rAttr := 130 * scale
+						xAttr := rAttr * cos((vAttr - 90) * 0.017453293252) + x_coord
+						yAttr := rAttr * sin((vAttr - 90) * 0.017453293252) + y_coord
+						kAttr .= (mode = "overview") ? "3" : ""
+						Gdip_FillEllipseC(gBitmap, brush[kAttr], xAttr, yAttr, radii.normal * scale, radii.normal * scale)
+					}
 				Continue
 			}
 
@@ -1951,10 +2018,14 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 					If (vMastery = masteries[node])
 						Gdip_TextToGraphics(gBitmap, iMastery, "x" x - Round(rNode * 0.65) " y" y - rNode * 0.8 " s" Floor(rNode * 1.8))
 			}
-			For inner in (outer = 1 ? [1, 2] : [1])
-				For index2, connection in tree.nodes[node][(inner = 1) ? "out" : "in"]
+			For inner in (outer = 1 && !vars.poe_version ? [1, 2] : [1])
+				For index2, connection in (vars.poe_version ? tree.nodes[node].connections : tree.nodes[node][(inner = 1) ? "out" : "in"])
 				{
-					If !LLK_HasVal((outer = 2) ? allocated : allocated_previous, connection) || tree.nodes[connection].ismastery || tree.nodes[connection].HasKey("classstartindex")
+					If vars.poe_version
+						connection_array := connection.Clone(), connection := connection.id
+
+					If !vars.poe_version && !LLK_HasVal((outer = 2) ? allocated : allocated_previous, connection) || vars.poe_version && !LLK_HasVal(allocated_previous, connection) && !LLK_HasVal(allocated, connection)
+					|| tree.nodes[connection].ismastery || tree.nodes[connection].HasKey(vars.poe_version ? "classesstart" : "classstartindex")
 					|| tree.nodes[connection].expansionjewel.parent || tree.nodes[connection].ascendancyname && !LLK_HasVal(ascendancy_points, connection)
 					|| (tree.nodes[node].ascendancyname = "ascendant") && InStr(tree.nodes[node].name, "Path of the ")
 					|| (inner = 2) && tree.nodes[node].ismastery
@@ -1963,34 +2034,73 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 					x_coord2 := (tree.groups[group2].x - xOffset) * scale, y_coord2 := (tree.groups[group2].y - yOffset) * scale
 					orbit2 := tree.nodes[connection].orbit, orbitIndex2 := tree.nodes[connection].orbitIndex
 
-					If InStr("23", orbit2)
+					If (tree.constants.skillsperorbit[orbit2] = 16)
 						angle2 := angles.1[orbitIndex2]
-					Else If (orbit2 = 4)
+					Else If (tree.constants.skillsperorbit[orbit2] = 40)
 						angle2 := angles.2[orbitIndex2]
 					Else angle2 := (360/tree.constants.skillsperorbit[orbit2]) * orbitIndex2
 
-					path1 := (360 - Max(angle, angle2)) + Min(angle, angle2), path2 := Max(angle, angle2) - Min(angle, angle2)
-					If (path1 <= path2)
-						start := Max(angle, angle2), end := Min(angle, angle2) + 360
-					Else start := Min(angle, angle2), end := Max(angle, angle2)
-					points := []
 					radius2 := tree.constants.orbitradii[orbit2] * scale
+					x2 := radius2 * cos((angle2 - 90) * 0.017453293252) + x_coord2
+					y2 := radius2 * sin((angle2 - 90) * 0.017453293252) + y_coord2
 
-					If (orbit = orbit2) && (group = group2)
+					rConnection := tree.constants.orbitradii[Abs(connection_array.orbit)] * (connection_array.orbit < 0 ? -1 : 1) * scale
+					rConnection := !rConnection ? 0 : rConnection
+					If vars.poe_version && rConnection
 					{
+						cX := (x + x2)/2 + (y2 - y) * (rConnection > 0 ? 1 : -1) * Sqrt((rConnection**2 / ((x - x2)**2 + (y - y2)**2)) - 0.25)
+						cY := (y + y2)/2 + (x - x2) * (rConnection > 0 ? 1 : -1) * Sqrt((rConnection**2 / ((x - x2)**2 + (y - y2)**2)) - 0.25)
+						;cX := cX * scale, cY := cY * scale
+						angleCheck1 := [], angleCheck2 := []
+						
 						Loop
 						{
-							If (start + A_Index - 1 > end)
+							If (A_Index > 360)
+								Break
+							xCheck := Abs(rConnection) * cos((A_Index - 90) * 0.017453293252) + cX
+							yCheck := Abs(rConnection) * sin((A_Index - 90) * 0.017453293252) + cY
+
+							;MsgBox, % tree.nodes[node].name ": " x ", " y " (" angle ")" "`ncheck: " xCheck ", " yCheck " (" A_Index ")"
+							angleCheck1[A_Index] := [x - xCheck, y - yCheck]
+							angleCheck2[A_Index] := [x2 - xCheck, y2 - yCheck]
+						}
+						Loop 2
+						{
+							min := 1000000, iOuter := A_Index
+							For index, val in angleCheck%iOuter%
+								If (Abs(val.1) + Abs(val.2) < min)
+									angle%iOuter% := index, min := Abs(val.1) + Abs(val.2)
+						}
+						x_coord2 := cX, y_coord2 := cY, radius2 := Abs(rConnection) ;* scale
+						;MsgBox, % tree.nodes[node].name ": " angle "°`n" tree.nodes[connection].name ": " angle2 "°"
+					}
+
+					path1 := (360 - Max(rConnection ? angle1 : angle, angle2)) + Min(rConnection ? angle1 : angle, angle2), path2 := Max(rConnection ? angle1 : angle, angle2) - Min(rConnection ? angle1 : angle, angle2)
+					;If (tree.nodes[node].name = "skill speed") && (tree.nodes[connection].name = "flow state")
+					;	MsgBox, % "path1: " path1 "`npath2: " path2 "`nangle: " angle "`nangle2: " angle2 "`n" tree.nodes[node].skill
+					If (path1 <= path2)
+						start := Max(rConnection ? angle1 : angle, angle2), end := Min(rConnection ? angle1 : angle, angle2) + 360
+					Else start := Min(rConnection ? angle1 : angle, angle2), end := Max(rConnection ? angle1 : angle, angle2)
+					points := []
+
+					;If InStr("flow like water", tree.nodes[node].name) ;InStr("step like mist, flow like water", tree.nodes[connection].name)
+					;	MsgBox, % start ", " end
+
+					If vars.poe_version && rConnection || (orbit = orbit2) && (group = group2) && (!vars.poe_version || tree.constants.orbitradii[Abs(connection_array.orbit)] = 0)
+					{
+						;MsgBox, % "node:" tree.nodes[node].name "`nconnection: " tree.nodes[connection].name "`nstart: " start "`nend: " end
+						Loop
+						{
+							If (start + A_Index - 1 > end) || (A_Index > 360)
 								Break
 							points.Push(radius2 * cos((start - 90 + A_Index - 1) * 0.017453293252) + x_coord2)
 							points.Push(radius2 * sin((start - 90 + A_Index - 1) * 0.017453293252) + y_coord2)
 						}
 					}
 					Else points := [x, y], points.Push(radius2 * cos((angle2 - 90) * 0.017453293252) + x_coord2), points.Push(radius2 * sin((angle2 - 90) * 0.017453293252) + y_coord2)
-					x2 := radius2 * cos((angle2 - 90) * 0.017453293252) + x_coord2
-					y2 := radius2 * sin((angle2 - 90) * 0.017453293252) + y_coord2
+
 					new_connection := !LLK_HasVal(ascendancy ? ascendancy_trees[ascendancy - 1] : allocated_previous, connection) || new_node && LLK_HasVal(allocated, connection) ? 1 : 0
-					Gdip_DrawCurve(gBitmap, pen[(outer = 1) ? "red" : new_connection ? "green" : "white"], points, 0.5)
+					Gdip_DrawCurve(gBitmap, pen[(outer = 1) || vars.poe_version && LLK_HasVal(allocated_previous, connection) && !LLK_HasVal(allocated, connection) ? "red" : new_connection ? "green" : "white"], points, 0.5)
 					type := tree.nodes[connection].isnotable || tree.nodes[node].isjewelsocket ? "notable" : tree.nodes[connection].ismastery ? "mastery" : tree.nodes[connection].iskeystone ? "keystone" : "normal"
 				}
 		}
