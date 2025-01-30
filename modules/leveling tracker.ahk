@@ -901,6 +901,12 @@ Leveltracker_Import(profile := "")
 				LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
 				Return
 			}
+			Else
+			{
+				Init_leveltracker(), Settings_menu("leveling tracker")
+				Clipboard := ""
+				Return 1
+			}
 		}
 
 		If FileExist("ini 2\leveling guide" profile ".ini")
@@ -2050,7 +2056,6 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 					{
 						cX := (x + x2)/2 + (y2 - y) * (rConnection > 0 ? 1 : -1) * Sqrt((rConnection**2 / ((x - x2)**2 + (y - y2)**2)) - 0.25)
 						cY := (y + y2)/2 + (x - x2) * (rConnection > 0 ? 1 : -1) * Sqrt((rConnection**2 / ((x - x2)**2 + (y - y2)**2)) - 0.25)
-						;cX := cX * scale, cY := cY * scale
 						angleCheck1 := [], angleCheck2 := []
 						
 						Loop
@@ -2059,8 +2064,6 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 								Break
 							xCheck := Abs(rConnection) * cos((A_Index - 90) * 0.017453293252) + cX
 							yCheck := Abs(rConnection) * sin((A_Index - 90) * 0.017453293252) + cY
-
-							;MsgBox, % tree.nodes[node].name ": " x ", " y " (" angle ")" "`ncheck: " xCheck ", " yCheck " (" A_Index ")"
 							angleCheck1[A_Index] := [x - xCheck, y - yCheck]
 							angleCheck2[A_Index] := [x2 - xCheck, y2 - yCheck]
 						}
@@ -2071,24 +2074,17 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 								If (Abs(val.1) + Abs(val.2) < min)
 									angle%iOuter% := index, min := Abs(val.1) + Abs(val.2)
 						}
-						x_coord2 := cX, y_coord2 := cY, radius2 := Abs(rConnection) ;* scale
-						;MsgBox, % tree.nodes[node].name ": " angle "°`n" tree.nodes[connection].name ": " angle2 "°"
+						x_coord2 := cX, y_coord2 := cY, radius2 := Abs(rConnection)
 					}
 
 					path1 := (360 - Max(rConnection ? angle1 : angle, angle2)) + Min(rConnection ? angle1 : angle, angle2), path2 := Max(rConnection ? angle1 : angle, angle2) - Min(rConnection ? angle1 : angle, angle2)
-					;If (tree.nodes[node].name = "skill speed") && (tree.nodes[connection].name = "flow state")
-					;	MsgBox, % "path1: " path1 "`npath2: " path2 "`nangle: " angle "`nangle2: " angle2 "`n" tree.nodes[node].skill
+
 					If (path1 <= path2)
 						start := Max(rConnection ? angle1 : angle, angle2), end := Min(rConnection ? angle1 : angle, angle2) + 360
 					Else start := Min(rConnection ? angle1 : angle, angle2), end := Max(rConnection ? angle1 : angle, angle2)
 					points := []
 
-					;If InStr("flow like water", tree.nodes[node].name) ;InStr("step like mist, flow like water", tree.nodes[connection].name)
-					;	MsgBox, % start ", " end
-
 					If vars.poe_version && rConnection || (orbit = orbit2) && (group = group2) && (!vars.poe_version || tree.constants.orbitradii[Abs(connection_array.orbit)] = 0)
-					{
-						;MsgBox, % "node:" tree.nodes[node].name "`nconnection: " tree.nodes[connection].name "`nstart: " start "`nend: " end
 						Loop
 						{
 							If (start + A_Index - 1 > end) || (A_Index > 360)
@@ -2096,7 +2092,6 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 							points.Push(radius2 * cos((start - 90 + A_Index - 1) * 0.017453293252) + x_coord2)
 							points.Push(radius2 * sin((start - 90 + A_Index - 1) * 0.017453293252) + y_coord2)
 						}
-					}
 					Else points := [x, y], points.Push(radius2 * cos((angle2 - 90) * 0.017453293252) + x_coord2), points.Push(radius2 * sin((angle2 - 90) * 0.017453293252) + y_coord2)
 
 					new_connection := !LLK_HasVal(ascendancy ? ascendancy_trees[ascendancy - 1] : allocated_previous, connection) || new_node && LLK_HasVal(allocated, connection) ? 1 : 0
