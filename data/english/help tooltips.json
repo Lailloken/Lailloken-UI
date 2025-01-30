@@ -347,7 +347,7 @@
       "(/underline)note: importing will reset the <mule> checkbox"
     ],
     "leveltracker import 2": [
-      "imports guide data from clipboard into this guide slot",
+      "imports guide or pob data from clipboard into this guide slot",
       "importing a guide will reset your progress:\nyou can long-click the \">\" button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
     "leveltracker editor": [
@@ -365,7 +365,7 @@
       "optional: type in a description/name for the guide in this slot"
     ],
     "leveltracker pob preview": [
-      "long-click to check available pob data"
+      "long-click to check available pob data, long-right-click to delete pob data"
     ],
     "leveltracker layouts": [
       "hold <tab> to overlay images with possible zone-layouts (guide-panel shows # zl)",

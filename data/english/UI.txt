@@ -322,8 +322,11 @@
 		lvltracker_deleteall		=	"del all"
 
 
-		lvltracker_gemnotes		=	"not included in pob"				;## PoE1 only (whole block)
-		lvltracker_gearlist		=	"char (lvl):"					;## displayed at the top of the geartracker: "char (lvl): Lailloken (69)"
+		lvltracker_gemnotes		=	"not included in pob"
+		lvltracker_gemregex		=	"regex copied"
+		lvltracker_gemregex		=	"regex failed"
+
+		lvltracker_gearlist		=	"char (lvl):"					;## PoE1 only (whole block), displayed at the top of the geartracker: "char (lvl): Lailloken (69)"
 		lvltracker_gearadd		=	"item added"
 		lvltracker_gearadd		=	"item already added"
 		lvltracker_gearadd		=	"item already;equippable"
