@@ -248,6 +248,9 @@
 ;## these strings are the item-names of certain items (top of the in-game tooltip)
 		items_waystone			=	"Waystone"						;## PoE2 only (whole block)
 		items_soul_core			=	"Soul Core of"
+		items_uncut_gem			=	"Uncut Skill Gem"
+		items_uncut_gem			=	"Uncut Support Gem"
+		items_uncut_gem			=	"Uncut Spirit Gem"
 
 ;## these strings are displayed in the in-game tooltip when hovering over an item
 		items_unidentified		=	"Unidentified"						;## PoE1 and PoE2 (whole block)
@@ -336,17 +339,18 @@
 		items_int			=	"Int:"
 
 
-		items_rarity			=	"Rarity:"			;## important: every string in the following block has to match the one in the "Rarity: XYZ" line in the clipboard-info
+		items_rarity			=	"Rarity:"			;## PoE1 and PoE2 (whole block), important: every string in the following block has to match the one in the "Rarity: XYZ" line in the clipboard-info
 		items_rare			=	"Rare"				;## do not mix these strings with those from the "Item Class: XYZ" line (class and rarity are sometimes similar but not 100% the same)
-		items_unique			=	"Unique"			;## PoE1 and PoE2
-		items_normal			=	"Normal"			;## PoE1 and PoE2
-		items_magic			=	"Magic"				;## PoE1 and PoE2
-		items_currency			=	"Currency"			;## PoE1 and PoE2
-		items_gem			=	"Gem"				;## PoE1 only
+		items_unique			=	"Unique"
+		items_normal			=	"Normal"
+		items_magic			=	"Magic"
+		items_currency			=	"Currency"
+		items_gem			=	"Gem"
 
 
-		items_class			=	"Item Class:"			;## PoE1 only (whole block), important: every string in the following lines has to match the one in the "Item Class: XYZ" line in the clipboard-info
-		items_map fragments		=	"Map Fragments"
+		items_class			=	"Item Class:"			;## PoE1 and PoE2, important: every string in the following lines has to match the one in the "Item Class: XYZ" line in the clipboard-info
+		items_gem			=	"Support Gems"			;## PoE2 only
+		items_map fragments		=	"Map Fragments"			;## PoE1 only (rest of block)
 		items_heist brooches		=	"Heist Brooches"
 		items_heist cloaks		=	"Heist Cloaks"
 		items_heist gear		=	"Heist Gear"

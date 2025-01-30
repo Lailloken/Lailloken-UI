@@ -334,3 +334,36 @@ ID	=	059
 type	=	monsters
 text	=	steal charges: %
 ID	=	060
+
+
+;## ID 2XX for delirium mods
+
+[Players in Area are # Delirious]
+type	=	player
+text	=	delirious: %
+ID	=	201
+
+[# increased Waystones found in Area]
+type	=	area
+text	=	waystones: +%
+ID	=	202
+
+[# increased Precursor Tablets found in Area]
+type	=	area
+text	=	tablets: +%
+ID	=	203
+
+[# increased Stack size of Simulacrum Splinters found in Area]
+type	=	area
+text	=	splinters: +%
+ID	=	204
+
+[Rare Monsters have a # chance to have an additional Modifier]
+type	=	monsters
+text	=	extra mod on rares: +%
+ID	=	205
+
+[Unique Monsters have # additional Modifier]
+type	=	monsters
+text	=	mods on uniques: +
+ID	=	206

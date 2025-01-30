@@ -1,5 +1,12 @@
 [
   [
+	["1.56.6", 15606],
+	"act-tracker: tweaks for poe2 default guide",
+	"act-tracker: added pob2 integrations",
+	"map-info: fixed delirious waystones",
+	"item-info: added poeladder.com unique drop-tiers"
+  ],
+  [
 	["1.56.5", 15605],
 	"act-tracker: tweaks for poe2 default guide",
 	"map-info: added poe2-themed icon for player mods",

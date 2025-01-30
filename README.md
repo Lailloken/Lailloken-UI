@@ -70,7 +70,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile 1 and 2, em
 <br>
 
 ### [Act-Tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Act%E2%80%90Tracker): campaign-related QoL features
-**`Path of Exile 2 compatible: guide-overlay`**  
+**`Path of Exile 2 compatible`**  
 | \*automatic [exile-leveling](https://heartofphos.github.io/exile-leveling/) overlay | quick-access PoB skill-tree schematics | quick-access PoB gem setups |
 |---|---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_003.jpg) |

@@ -74,9 +74,11 @@
 				}
 			Case "gemnotes":
 				MouseGetPos, xMouse, yMouse
-				LevelTracker_PobGemLinks(vars.omnikey.item.name,, xMouse - 10, yMouse)
+				LevelTracker_PobGemLinks(vars.omnikey.item.name,, xMouse, yMouse + 10)
 				Omni_Release()
 				LLK_Overlay(vars.hwnd.leveltracker_gemlinks.main, "destroy"), vars.hwnd.leveltracker_gemlinks.main := ""
+			Case "gemregex":
+				LevelTracker_PobGemLinks(vars.omnikey.item.name,,,, 1)
 			Case "geartracker":
 				Geartracker_Add()
 			Case "legion":
@@ -242,11 +244,13 @@ Omni_Context(mode := 0)
 		Return "legion"
 	If WinExist("ahk_id " vars.hwnd.notepad.main) && (vars.notepad.selected_entry = "gems") && (item.rarity = Lang_Trans("items_gem"))
 		Return "gemnotepad"
-	If settings.features.leveltracker && vars.hwnd.leveltracker_gemlinks.main && WinExist("ahk_id " vars.hwnd.leveltracker_gemlinks.main) && (item.rarity = Lang_Trans("items_gem"))
-		Return "gemnotes"
-	While settings.features.leveltracker && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = Lang_Trans("items_gem"))
+
+	While settings.features.leveltracker && (GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")) && (item.rarity = Lang_Trans("items_gem") || LLK_PatternMatch(item.name, "", [Lang_Trans("items_uncut_gem", 1), Lang_Trans("items_uncut_gem", 2), Lang_Trans("items_uncut_gem", 3)],,, 0))
 		If (A_TickCount >= vars.omnikey.start + 200)
 			Return "gemnotes"
+	If settings.features.leveltracker && LLK_PatternMatch(item.name, "", [Lang_Trans("items_uncut_gem", 1), Lang_Trans("items_uncut_gem", 2), Lang_Trans("items_uncut_gem", 3)],,, 0)
+		Return "gemregex"
+
 	If !vars.poe_version && !settings.features.stash && (item.name = "Orb of Horizons")
 		While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
 			If (A_TickCount >= vars.omnikey.start + 200)

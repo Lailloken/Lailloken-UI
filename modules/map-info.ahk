@@ -568,9 +568,9 @@ Mapinfo_Parse2(mode)
 			map[key][5 - A_Index] := []
 
 	Loop, Parse, clip, `n, `r
-	{
+	{		
 		If !map.name
-			If !InStr(A_LoopField, "(")
+			If !InStr(A_LoopField, Lang_Trans("system_parenthesis"))
 				Continue
 			Else map.name := A_LoopField
 
@@ -582,25 +582,28 @@ Mapinfo_Parse2(mode)
 			Else
 			{
 				item_level := SubStr(A_LoopField, InStr(A_LoopField, ":") + 2)
-				raw_text := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), raw_text := SubStr(raw_text, InStr(raw_text, "-`r`n") + 3), raw_text := SubStr(raw_text, 1, InStr(raw_text, "---") - 3)
+				raw_text := SubStr(clip, InStr(clip, Lang_Trans("items_ilevel"))), raw_text := SubStr(raw_text, InStr(raw_text, "-`r`n") + 3)
+				raw_text := SubStr(raw_text, 1, InStr(raw_text, "`r`n---",,, InStr(raw_text, "(") ? 2 : 1) - 1)
 				Break
 			}
 	}
 
 	Loop, Parse, raw_text, `n, `r
 	{
+		If InStr(A_LoopField, "---")
+			Continue
 		If (A_Index = 1)
 			raw_text := ""
 		Mapinfo_Lineparse(Iteminfo_ModRemoveRange(A_LoopField), text, value)
-		raw_text .= (!raw_text ? "" : "`n") text, parsed_lines[text] := !parsed_lines[text] ? value : parsed_lines[text] + value
+		raw_text .= "`n" text "`n", parsed_lines[text] := !parsed_lines[text] ? value : parsed_lines[text] + value
 	}
 
 	For key, val in db.mapinfo.mods
-		If RegExMatch(raw_text, "i)" StrReplace(key, "|", ".*"))
+		If RegExMatch(raw_text, "i)(^|\n)" StrReplace(key, "|", ".*"))
 		{
 			map.mods += 1
 			Loop, Parse, key, % "|"
-				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, A_LoopField, "",, 1)
+				map_mods[key] .= (!map_mods[key] ? "" : "/") . parsed_lines[A_LoopField], raw_text := StrReplace(raw_text, "`n" A_LoopField "`n")
 			If InStr(val.ID, "044") || (val.ID = 44)
 				map_mods[key] := SubStr(map_mods[key], 1, InStr(map_mods[key], "/") - 1) ;freeze/ignite/shock hybrid mod is always X/X/X %, so simply display as X%
 		}
