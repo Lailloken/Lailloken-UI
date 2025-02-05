@@ -671,7 +671,7 @@ Settings_general()
 		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_client", 2)
 		Gui, %GUI%: Font, norm
 
-		Gui, %GUI%: Add, Text, % "ys cLime", % "path of exile " (vars.poe_version ? 2 : 1)
+		Gui, %GUI%: Add, Text, % "ys cLime", % "path of exile " (vars.poe_version ? 2 : 1) . (vars.general.input_method.1 = 2 ? " (" Lang_Trans("global_controller") ")" : "")
 		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_general_language", 2) " "
 		Gui, %GUI%: Add, Text, % "ys x+0 c" (settings.general.lang_client = "unknown" ? "Red" : "Lime"), % (settings.general.lang_client = "unknown") ? Lang_Trans("m_general_language", 3) : settings.general.lang_client
 

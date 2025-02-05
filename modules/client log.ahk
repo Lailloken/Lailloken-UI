@@ -25,6 +25,16 @@
 		If !mode && !IsObject(log_content) && (check := InStr(log_read, " Generating level ", 1, 0, 3))
 			log_content := StrSplit(SubStr(log_read, check), "`n", "`r" vars.lang.system_fullstop.1)
 
+		If Blank(vars.general.input_method) && (check := InStr(log_read, "current input mode = ",, 0))
+		{
+			method := SubStr(log_read, 1, check + 23), method := SubStr(method, InStr(method, "`n",, 0) + 1)
+			timestamp := SubStr(method, 1, InStr(method, " ",,, 2) - 1)
+			Loop, Parse, timestamp
+				timestamp := (A_Index = 1) ? "" : timestamp, timestamp .= IsNumber(A_LoopField) ? A_LoopField : ""
+			method := SubStr(method, InStr(method, " ",, 0) + 1), method := Trim(method, "'")
+			vars.general.input_method := [method, timestamp]
+		}
+
 		If settings.general.character && Blank(log_character.1)
 		&& (InStr(log_read, " " settings.general.character " " Lang_Trans("system_parenthesis")) || InStr(log_read, " " settings.general.character " " Lang_Trans("log_whois")))
 			log_character := StrSplit(log_read, "`n", "`r" vars.lang.system_fullstop.1), log_character := [log_character[Log_FindLines(log_character, "character")]]
@@ -388,6 +398,19 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 		}
 		Else If InStr(loopfield, " connected to ") && InStr(loopfield, ".login.") || InStr(loopfield, "*****")
 			areaID := "login"
+		Else If InStr(loopfield, "current input mode = ")
+		{
+			timestamp := SubStr(loopfield, 1, InStr(loopfield, " ",,, 2) - 1)
+			Loop, Parse, timestamp
+				timestamp := (A_Index = 1) ? "" : timestamp, timestamp .= IsNumber(A_LoopField) ? A_LoopField : ""
+			method := SubStr(loopfield, InStr(loopfield, " ",, 0) + 1), method := Trim(method, "'")
+			If (timestamp > vars.general.input_method.2)
+			{
+				vars.general.input_method := [method, timestamp]
+				If (vars.settings.active = "general")
+					Settings_menu("general")
+			}
+		}
 
 		If Lang_Match(loopfield, vars.lang.log_enter)
 			parse := SubStr(loopfield, InStr(loopfield, vars.lang.log_enter.1)), areaname := LLK_StringCase(Lang_Trim(parse, vars.lang.log_enter, Lang_Trans("log_location")))
