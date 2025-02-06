@@ -961,7 +961,7 @@ Leveltracker_Import(profile := "")
 							Case "quest":
 								npc := quests[quest]["reward_offers"][quest]["quest_npc"]
 								npc := (npc = "lady dialla") ? "dialla" : (npc = "captain fairgraves") ? "fairgraves" : (npc = "commander kirac") ? "kirac" : InStr(npc, " ") ? SubStr(npc, 1, InStr(npc, " ") - 1) : npc
-								step_text := npc ? StrReplace(step_text, "hand in ", npc ": ") "<" StrReplace(quests[quest].name, " ", "_") "> " : step_text "<" StrReplace(quests[quest].name, " ", "_") "> "
+								step_text := npc ? "(img:quest) " StrReplace(step_text, "hand in ", npc ": ") "<" StrReplace(quests[quest].name, " ", "_") "> " : step_text "<" StrReplace(quests[quest].name, " ", "_") "> "
 							Case "quest_text":
 								value := " (quest:" StrReplace(value, " ", "_") ") "
 								step_text .= value ;!InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
@@ -1034,7 +1034,7 @@ Leveltracker_Import(profile := "")
 				{
 					If !IsObject(ss_parts)
 					{
-						text := (SubStr(ss_parts, 1, 1) = " ") ? SubStr(ss_parts, 2) : ss_parts ;, text := (SubStr(text, 0) = " ") ? SubStr(text, 1, -1) : text
+						text := !ss_array.parts[ss_part_index + 1].value ? Trim(ss_parts, " ") : (SubStr(ss_parts, 1, 1) = " ") ? SubStr(ss_parts, 2) : ss_parts
 						ss_text .= ((ss_text != "(hint)") ? "" : "_______") StrReplace(text, " ", "_")
 					}
 					Else
@@ -1044,7 +1044,7 @@ Leveltracker_Import(profile := "")
 							Case "dir":
 								ss_text .= " (img:"ss_parts.dirIndex ") "
 							Case "waypoint":
-								ss_text .= (InStr(ss_text, "broken") ? "" : "the_") " (img:waypoint) "
+								ss_text .= (InStr(ss_text, "broken") ? "" : "_the") " (img:waypoint) "
 							Case "quest_text":
 								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
 							Case "generic":
