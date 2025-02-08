@@ -177,6 +177,7 @@
 		global_apply			=	"apply"
 		global_apply			=	"apply changes"
 		global_global			=	"global"
+		global_controller		=	"controller"	;## gamepad
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"

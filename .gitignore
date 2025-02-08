@@ -1,0 +1,22 @@
+# currently unused folders/files
+img/Betrayal/
+
+# local folders created by the tool on startup/demand
+cheat-sheets/
+cheat-sheets?2/
+exports/
+ini/
+ini?2/
+update/
+
+# custom, user-defined hotkeys
+modules/hotkeys?custom*
+
+# sub-folders/files within img, created on demand
+img/recognition*/
+img/GUI/skill-tree*/
+img/*.json
+img/*.jpg
+
+# files created by specific features on demand
+data/global/?stash-ninja??prices*

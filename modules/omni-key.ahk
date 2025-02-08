@@ -21,7 +21,7 @@
 		WinWaitActive, % "ahk_id " vars.hwnd.poe_client
 	}
 
-	If Screenchecks_PixelSearch("inventory")
+	If (vars.general.input_method.1 = 2) || Screenchecks_PixelSearch("inventory")
 	{
 		If WinExist("ahk_id " vars.hwnd.maptrackernotes_edit.main)
 		{
@@ -408,8 +408,16 @@ Omni_ContextMenu()
 	MouseGetPos, mouseX, mouseY
 	Gui, omni_context: Show, % "NA x10000 y10000"
 	WinGetPos,,, w, h, % "ahk_id " vars.hwnd.omni_context.main
-	xTarget := (mouseX + w > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : mouseX
-	yTarget := (mouseY + h > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : mouseY
+	If (vars.general.input_method.1 = 2)
+	{
+		xTarget := vars.monitor.x + vars.client.xc + vars.client.h * 0.174 - w
+		yTarget := vars.monitor.y + vars.client.yc + vars.client.h * 0.104 - h//2
+	}
+	Else
+	{
+		xTarget := (mouseX + w > vars.client.x + vars.client.w) ? vars.client.x + vars.client.w - w : mouseX
+		yTarget := (mouseY + h > vars.client.y + vars.client.h) ? vars.client.y + vars.client.h - h : mouseY
+	}
 	If (w > 50)
 		Gui, omni_context: Show, % "NA x" xTarget " y" yTarget
 	Else Gui, omni_context: Destroy

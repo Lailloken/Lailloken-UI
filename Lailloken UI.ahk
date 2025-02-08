@@ -165,8 +165,8 @@ Exit()
 	If !vars.poe_version && IsObject(vars.betrayal.board) && (vars.betrayal.board0 != Json.Dump(vars.betrayal.board))
 		IniWrite, % """" Json.Dump(vars.betrayal.board) """", ini\betrayal info.ini, settings, board
 	timer := vars.leveltracker.timer
-	If !vars.poe_version && IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
-		IniWrite, % vars.leveltracker.timer.current_split, ini\leveling tracker.ini, % "current run" settings.leveltracker.profile, time
+	If IsNumber(timer.current_split) && (timer.current_split != timer.current_split0)
+		IniWrite, % vars.leveltracker.timer.current_split, % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, time
 
 	If vars.maptracker.map.date_time
 		Maptracker_Save()
