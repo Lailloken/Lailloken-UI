@@ -15,15 +15,6 @@
 			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
 		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
 
-		If FileExist("data\global\[legion] version.txt")
-		{
-			version := StrReplace(StrReplace(LLK_FileRead("data\global\[legion] version.txt"), "`r"), "`n")
-			IniWrite, % version, % "ini" vars.poe_version "\seed-explorer.ini", settings, version
-			FileDelete, % "data\global\[legion] version.txt"
-		}
-		If FileExist("data\global\[legion] version_check.txt")
-			FileDelete, % "data\global\[legion] version_check.txt"
-
 		ini := IniBatchRead("ini" vars.poe_version "\seed-explorer.ini")
 		settings.legion := {"fSize": !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize, "profile": !Blank(check1 := ini.settings["profile"]) ? check1 : 1}
 		settings.legion.version := !Blank(check := ini.settings.version) ? check : 0
