@@ -155,7 +155,7 @@ Sanctum(cHWND := "", hotkey := 0)
 	xSnip := vars.sanctum.xSnip, ySnip := vars.sanctum.ySnip
 	grid := vars.sanctum.grid
 
-	Gui, %GUI_name%: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_sanctum"
+	Gui, %GUI_name%: New, % "-Caption -DPIScale +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDhwnd_sanctum", LLK-UI: Sanctum Overlay
 	Gui, %GUI_name%: Font, % "s" settings.sanctum.fSize + 4 " cBlack w1000", % vars.system.font
 	Gui, %GUI_name%: Color, Purple
 	WinSet, TransColor, Purple 125

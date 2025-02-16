@@ -83,7 +83,7 @@ Hotkeys_ESC()
 	local
 	global vars, settings
 
-	If vars.hwnd.cloneframe_borders.main && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main)
+	If WinExist("LLK-UI: Clone-Frames Borders")
 		Cloneframes_SettingsRefresh(), vars.hwnd.cloneframe_borders.main := ""
 	Else If WinActive("ahk_id "vars.hwnd.alarm.alarm_set)
 		Gui, alarm_set: Destroy
@@ -577,7 +577,7 @@ RButton::Iteminfo_GearParse(LLK_HasVal(vars.hwnd.iteminfo_comparison, vars.gener
 WheelUp::
 WheelDown::Cloneframes_SettingsApply(vars.general.cMouse, A_ThisHotkey)
 
-#If vars.hwnd.cloneframe_borders.main && (vars.general.wMouse != vars.hwnd.settings.main) && WinExist("ahk_id "vars.hwnd.cloneframe_borders.main) ;moving clone-frame borders via clicks
+#If (vars.general.wMouse != vars.hwnd.settings.main) && WinExist("LLK-UI: Clone-Frames Borders") ;moving clone-frame borders via clicks
 
 LButton::
 RButton::

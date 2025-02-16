@@ -306,7 +306,7 @@ Screenchecks_PixelSearch(name) ;performing pixel-checks
 		PixelSearch, x, y, vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index], vars.client.y + vars.pixelsearch[name]["y" A_Index], vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index]
 		, vars.client.y + vars.pixelsearch[name]["y" A_Index], % vars.pixelsearch[name]["color" A_Index], % vars.pixelsearch.variation, Fast RGB
 		pixel_check -= ErrorLevel
-		If !pixel_check
+		If (pixel_check < 1)
 			break
 	}
 	Return pixel_check

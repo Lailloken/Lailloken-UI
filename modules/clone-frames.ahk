@@ -14,8 +14,9 @@
 		vars.cloneframes := {"enabled": 0, "scroll": {}}
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
-		For cloneframe in vars.cloneframes.list
-			Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Destroy"
+		If !vars.general.MultiThreading
+			For cloneframe in vars.cloneframes.list
+				Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Destroy"
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
@@ -25,8 +26,11 @@
 		If (key = "settings")
 			key := "settings_cloneframe" ;dummy entry for clone-frame creation
 		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1}
-		Gui, % "cloneframe_" StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
-		vars.hwnd.cloneframes[key] := hwnd
+		If !vars.general.MultiThreading
+		{
+			Gui, % "cloneframe_" StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
+			vars.hwnd.cloneframes[key] := hwnd
+		}
 		If vars.cloneframes.list[key].enable
 			vars.cloneframes.enabled += 1
 
@@ -41,6 +45,21 @@
 		vars.cloneframes.list[key].opacity := !Blank(check := ini[key]["opacity"]) ? check : 5
 	}
 	vars.cloneframes.enabled -= 1, vars.cloneframes.list.settings_cloneframe.enable := 0 ;set the dummy entry to disabled
+}
+
+Cloneframes_Check()
+{
+	local
+	global vars, settings
+
+	MainThread := !InStr(A_ScriptDir, "modules"), location := vars.log.areaID
+	If (vars.cloneframes.enabled
+	&& ((settings.cloneframes.pixelchecks && (MainThread && Screenchecks_PixelSearch("gamescreen") || !MainThread && vars.pixels.gamescreen.check)) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
+	&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !LLK_StringCompare(location, ["hideout"]) && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
+	&& !vars.sanctum.active
+	|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
+		Cloneframes_Show()
+	Else Cloneframes_Hide()
 }
 
 Cloneframes_Hide()
@@ -96,7 +115,7 @@ Cloneframes_SettingsAdd()
 
 	IniDelete, % "ini" vars.poe_version "\clone frames.ini", % name
 	IniWrite, 1, % "ini" vars.poe_version "\clone frames.ini", % name, enable
-	Init_cloneframes()
+	Init_cloneframes(), Cloneframes_Thread()
 	Settings_menu("clone-frames")
 }
 
@@ -112,8 +131,8 @@ Cloneframes_SettingsRefresh(name := "")
 		GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	}
 
-	Init_cloneframes()
-	vars.cloneframes.editing := name
+	Init_cloneframes(), Cloneframes_Thread()
+	vars.cloneframes.editing := name, StringSend("clone-edit=" name)
 	GuiControl, +cLime, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	If (name = "")
@@ -171,7 +190,8 @@ Cloneframes_SettingsSave()
 Cloneframes_SettingsApply(cHWND, hotkey := "")
 {
 	local
-	global vars, settings
+	global vars, settings, json
+	static hotkeys := {"LButton": 1, "RButton": 1, "MButton": 1, "WheelUp": 1, "WheelDown": 1}
 
 	If Blank(vars.cloneframes.editing)
 		Return
@@ -187,6 +207,9 @@ Cloneframes_SettingsApply(cHWND, hotkey := "")
 	If InStr(hotkey, "wheel")
 		GuiControl,, % vars.hwnd.settings[check], % value
 	Else vars.cloneframes.list[editing][check] := value
+
+	If hotkeys[A_ThisHotkey] && vars.general.MultiThreading
+		StringSend("clone-edit=" json.dump(vars.cloneframes.list[editing]))
 }
 
 Cloneframes_Show()
@@ -220,7 +243,7 @@ Cloneframes_Show()
 				vars.hwnd.cloneframe_borders := {}
 			If !vars.hwnd.cloneframe_borders.main
 			{
-				Gui, cloneframe_border: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd ;source-frame with two colored corners
+				Gui, cloneframe_border: New, -Caption +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd, LLK-UI: Clone-Frames Borders ;source-frame with two colored corners
 				Gui, cloneframe_border: Margin, 4, 4
 				Gui, cloneframe_border: Color, Silver
 				WinSet, TransColor, Black
@@ -271,14 +294,11 @@ Cloneframes_Snap(hotkey)
 	local
 	global vars, settings
 
-	;If vars.cloneframes.last
-	;	Return
-	name := vars.cloneframes.editing, vars.cloneframes.last := A_TickCount
+	name := vars.cloneframes.editing
 
 	Switch hotkey
 	{
 		Case "LButton":
-			;vars.cloneframes.list[name].xSource := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].ySource := vars.general.yMouse - vars.monitor.y
 			GuiControl,, % vars.hwnd.settings.xSource, % vars.general.xMouse - vars.monitor.x
 			GuiControl,, % vars.hwnd.settings.ySource, % vars.general.yMouse - vars.monitor.y
 		Case "RButton":
@@ -287,14 +307,21 @@ Cloneframes_Snap(hotkey)
 				LLK_ToolTip(Lang_Trans("m_clone_errorborders"),,,,, "red")
 				Return
 			}
-			;vars.cloneframes.list[name].width := vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
-			;vars.cloneframes.list[name].height := vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
 			GuiControl,, % vars.hwnd.settings.width, % vars.general.xMouse - vars.monitor.x - vars.cloneframes.list[name].xSource
 			GuiControl,, % vars.hwnd.settings.height, % vars.general.yMouse - vars.monitor.y - vars.cloneframes.list[name].ySource
 		Case "MButton":
-			;vars.cloneframes.list[name].xTarget := vars.general.xMouse - vars.monitor.x, vars.cloneframes.list[name].yTarget := vars.general.yMouse - vars.monitor.y
 			GuiControl,, % vars.hwnd.settings.xTarget, % vars.general.xMouse - vars.monitor.x
 			GuiControl,, % vars.hwnd.settings.yTarget, % vars.general.yMouse - vars.monitor.y
 	}
 	KeyWait, %hotkey%
+}
+
+Cloneframes_Thread(wParam := 0, lParam := 0)
+{
+	local
+	global vars
+
+	If !vars.general.MultiThreading
+		Return
+	SendMessage, 0x8001, wParam, lParam,, % vars.general.bThread,,,, 1000
 }

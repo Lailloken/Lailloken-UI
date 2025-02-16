@@ -1,5 +1,13 @@
 {
   "settings": {
+    "multi-threading 0": [
+      "the tool is running on a single cpu thread",
+      "certain advanced features and performance options are not available"
+    ],
+    "multi-threading 1": [
+      "the tool is running on multiple cpu threads",
+      "this enables certain advanced features and performance options"
+    ],
     "kill timer": [
       "automatically closes the script if the game client is not running",
       "specify how long it may run without the game"
