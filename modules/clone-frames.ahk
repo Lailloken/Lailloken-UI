@@ -54,9 +54,9 @@ Cloneframes_Check()
 	global vars, settings
 
 	location := vars.log.areaID
-	If (vars.cloneframes.enabled
-	&& ((settings.cloneframes.pixelchecks && (vars.MainThread && Screenchecks_PixelSearch("gamescreen") || !vars.MainThread && vars.pixels.gamescreen)) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
-	&& ((settings.cloneframes.inventory && (vars.MainThread && Screenchecks_PixelSearch("inventory") || !vars.MainThread && !vars.pixels.inventory)) || !settings.cloneframes.inventory)
+	If vars.cloneframes.enabled
+	&& ((settings.cloneframes.pixelchecks && (vars.MainThread && Screenchecks_PixelSearch("gamescreen") || !vars.MainThread && vars.pixels.gamescreen)) || !settings.cloneframes.pixelchecks) ;user is on gamescreen, or auto-toggle is disabled
+	&& ((settings.cloneframes.inventory && (vars.MainThread && !Screenchecks_PixelSearch("inventory") || !vars.MainThread && !vars.pixels.inventory)) || !settings.cloneframes.inventory)
 	&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !LLK_StringCompare(location, ["hideout"]) && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 	&& !vars.sanctum.active
 	|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
@@ -134,7 +134,9 @@ Cloneframes_SettingsRefresh(name := "")
 	}
 
 	Init_cloneframes(), Cloneframes_Thread()
-	vars.cloneframes.editing := name, StringSend("clone-edit=" name)
+	vars.cloneframes.editing := name
+	If vars.general.MultiThreading
+		StringSend("clone-edit=" name)
 	GuiControl, +cLime, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	GuiControl, movedraw, % vars.hwnd.settings["enable_"vars.cloneframes.editing]
 	If (name = "")

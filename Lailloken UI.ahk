@@ -722,7 +722,8 @@ Loop_main()
 		{
 			vars.general.inactive := 0
 			LLK_Overlay("show")
-			StringSend("wait=0") ;Cloneframes_Thread(0, 2)
+			If vars.general.MultiThreading
+				StringSend("wait=0") ;Cloneframes_Thread(0, 2)
 		}
 		Leveltracker_Fade()
 
