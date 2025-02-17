@@ -166,7 +166,7 @@ StringReceive(wParam, string) ;based on example #4 on https://www.autohotkey.com
 	}
 	Else If InStr(string, "iteminfo-compare=")
 		settings.iteminfo.compare := SubStr(string, InStr(string, "=") + 1)
-	ToolTip, %A_ScriptName%`nReceived the following string:`n%string%`n%A_TickCount%, 0, 0
+	;ToolTip, %A_ScriptName%`nReceived the following string:`n%string%`n%A_TickCount%, 0, 0
 
 	If InStr(string, """client"":")
 		Init_cloneframes(), Init_screenchecks()
