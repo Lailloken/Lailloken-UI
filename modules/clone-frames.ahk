@@ -212,7 +212,7 @@ Cloneframes_SettingsApply(cHWND, hotkey := "")
 		GuiControl,, % vars.hwnd.settings[check], % value
 	Else vars.cloneframes.list[editing][check] := value
 
-	If hotkeys[A_ThisHotkey] && vars.general.MultiThreading
+	If vars.general.MultiThreading
 		StringSend("clone-edit=" json.dump(vars.cloneframes.list[editing]))
 }
 
