@@ -27,7 +27,7 @@ OnExit("Exit")
 Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
-vars := {"general": {"runcheck": A_TickCount}, "logging": FileExist("data\log.txt")}, LLK_Log("waiting for valid game-clients...")
+vars := {"general": {"runcheck": A_TickCount}, "logging": FileExist("data\log.txt"), "MainThread": 1}, LLK_Log("waiting for valid game-clients...")
 While !WinExist("ahk_class POEWindowClass") && !WinExist("ahk_exe GeForceNOW.exe") ;wait for game-client window
 {
 	If (A_TickCount >= vars.general.runcheck + 60000)
@@ -545,7 +545,7 @@ Loop()
 Loop_main()
 {
 	local
-	global vars, settings
+	global vars, settings, json
 	static tick_helptooltips := 0, ClientFiller_count := 0, priceindex_count := 0, tick_recombination := 0, stashhover := {}, tick := 0
 
 	Critical
@@ -556,6 +556,13 @@ Loop_main()
 		Gui, skilltree_schematics: Show, % "NA x" (vars.leveltracker.skilltree_schematics.xPos := vars.general.xMouse - vars.leveltracker.skilltree_schematics.offsets.1) " y" (vars.leveltracker.skilltree_schematics.yPos := vars.general.yMouse - vars.leveltracker.skilltree_schematics.offsets.2)
 	If Mod(tick, 2)
 		Return
+
+	If vars.general.MultiThreading
+	{
+		WinGetText, comms_text, % vars.general.bThread
+		If !(Blank(comms_text) || ErrorLevel)
+			vars.pixels := json.Load(comms_text)
+	}
 
 	If !vars.general.drag && vars.hwnd.lootfilter.main && WinActive("ahk_id " vars.hwnd.lootfilter.main) && (vars.general.wMouse = vars.hwnd.poe_client)
 		&& !LLK_IsBetween(vars.general.xMouse, vars.lootfilter.xPos, vars.lootfilter.xPos + vars.lootfilter.width)

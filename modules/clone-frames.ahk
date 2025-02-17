@@ -8,6 +8,7 @@
 
 	settings.cloneframes := {}, ini := IniBatchRead("ini" vars.poe_version "\clone frames.ini")
 	settings.cloneframes.pixelchecks := !Blank(check := ini.settings["enable pixel-check"]) ? check : 0
+	settings.cloneframes.inventory := !Blank(check := ini.settings["hide in inventory"]) ? check : 1
 	settings.cloneframes.hide := !Blank(check := ini.settings["hide in hideout"]) ? check : 0
 
 	If !IsObject(vars.cloneframes)
@@ -52,9 +53,10 @@ Cloneframes_Check()
 	local
 	global vars, settings
 
-	MainThread := !InStr(A_ScriptDir, "modules"), location := vars.log.areaID
+	location := vars.log.areaID
 	If (vars.cloneframes.enabled
-	&& ((settings.cloneframes.pixelchecks && (MainThread && Screenchecks_PixelSearch("gamescreen") || !MainThread && vars.pixels.gamescreen.check)) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
+	&& ((settings.cloneframes.pixelchecks && (vars.MainThread && Screenchecks_PixelSearch("gamescreen") || !vars.MainThread && vars.pixels.gamescreen)) || !settings.cloneframes.pixelchecks)) ;user is on gamescreen, or auto-toggle is disabled
+	&& ((settings.cloneframes.inventory && (vars.MainThread && Screenchecks_PixelSearch("inventory") || !vars.MainThread && !vars.pixels.inventory)) || !settings.cloneframes.inventory)
 	&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !LLK_StringCompare(location, ["hideout"]) && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
 	&& !vars.sanctum.active
 	|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings

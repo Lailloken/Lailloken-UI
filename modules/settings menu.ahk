@@ -343,6 +343,11 @@ Settings_cloneframes()
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, % Lang_Trans("m_clone_gamescreen")
 		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
 	}
+	If !Blank(vars.pixelsearch.inventory.x1) && (vars.pixelsearch.inventory.x1 != "ERROR")
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.inventory, % Lang_Trans("m_clone_inventory")
+		vars.hwnd.settings.inventory := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks inventory"] := hwnd
+	}
 	If vars.log.file_location
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.hide, % Lang_Trans("m_clone_hideout")
@@ -450,6 +455,12 @@ Settings_cloneframes2(cHWND)
 	{
 		settings.cloneframes.pixelchecks := LLK_ControlGet(cHWND)
 		IniWrite, % settings.cloneframes.pixelchecks, % "ini" vars.poe_version "\clone frames.ini", settings, enable pixel-check
+		Cloneframes_Thread()
+	}
+	Else If (check = "inventory")
+	{
+		settings.cloneframes.inventory := LLK_ControlGet(cHWND)
+		IniWrite, % settings.cloneframes.inventory, % "ini" vars.poe_version "\clone frames.ini", settings, hide in inventory
 		Cloneframes_Thread()
 	}
 	Else If (check = "hide_town")
@@ -1402,6 +1413,8 @@ Settings_iteminfo2(cHWND)
 		settings.iteminfo.compare := LLK_ControlGet(cHWND)
 		IniWrite, % settings.iteminfo.compare, % "ini" vars.poe_version "\item-checker.ini", settings, enable gear-tracking
 		Init_iteminfo()
+		If vars.general.MultiThreading
+			StringSend("iteminfo-compare=" settings.iteminfo.compare)
 		Settings_menu("item-info")
 	}
 	Else If (check = "itembase")

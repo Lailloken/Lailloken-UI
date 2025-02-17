@@ -163,6 +163,10 @@
       "requires the <gamescreen> pixel-check to be configured correctly in the <screen-checks> section of the menu",
       "only works while playing with the minimap in the center of the screen"
     ],
+    "cloneframes pixelchecks inventory": [
+      "hides frames when the inventory is open",
+      "requires the <inventory> pixel-check to be configured correctly in the <screen-checks> section of the menu"
+    ],
     "cloneframes hideout": [
       "hides clone-frames while you're inside towns and hideouts"
     ],

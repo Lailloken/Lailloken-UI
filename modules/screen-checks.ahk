@@ -264,8 +264,9 @@ Screenchecks_Info(name) ;holding the <info> button to view instructions
 Screenchecks_PixelRecalibrate(name) ;recalibrating a pixel-check
 {
 	local
-	global vars, settings
+	global vars, settings, json
 
+	object := {}
 	Switch name
 	{
 		Case "gamescreen":
@@ -276,9 +277,11 @@ Screenchecks_PixelRecalibrate(name) ;recalibrating a pixel-check
 	Loop %loopcount%
 	{
 		PixelGetColor, parse, % vars.client.x + vars.client.w - 1 - vars.pixelsearch[name]["x" A_Index], % vars.client.y + vars.pixelsearch[name]["y" A_Index], RGB
-		vars.pixelsearch[name]["color" A_Index] := parse
+		vars.pixelsearch[name]["color" A_Index] := parse, object["color" A_Index] := parse
 		IniWrite, % parse, % "ini" vars.poe_version "\screen checks ("vars.client.h "p).ini", %name%, color %A_Index%
 	}
+	If vars.general.MultiThreading
+		StringSend("pixel-" name "=" json.dump(object))
 }
 
 Screenchecks_PixelSearch(name) ;performing pixel-checks

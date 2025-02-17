@@ -8,8 +8,8 @@
 #Include data\JSON.ahk
 #Persistent
 
-vars := {"general": {}, "hwnd": {}, "log": {}, "sanctum": {}, "settings": {}}
-settings := {}
+vars := {"general": {}, "hwnd": {}, "log": {}, "pixels": {}, "sanctum": {}, "settings": {}}
+settings := {"general": {}, "iteminfo": {}}
 If !(vars.general.Gdip := Gdip_Startup(1))
 	ExitApp
 
@@ -25,16 +25,18 @@ SetBatchLines, -1
 Menu, Tray, Tip, Lailloken UI B-Thread
 OnMessage(0x004A, "StringReceive")
 OnMessage(0x8000, "Exit")
-OnMessage(0x8001, "Cloneframes")
+OnMessage(0x8001, "Cloneframes_Thread2")
 
 Gui, comms_window: New, -Caption +ToolWindow +LastFound +AlwaysOnTop HWNDhwnd_comms, LLK-UI: B-Thread
+WinSet, Trans, 0
 Gui, comms_window: Add, Text, % "cBlack HWNDhwnd w100 h100"
 vars.hwnd.comms := hwnd
-Gui, comms_window: Show, NA x2000 y0 w100 h100
+Gui, comms_window: Show, NA x10000 y10000 w100 h100
 
 vars.poe_version := CheckClient()
-SetTimer, Loop, 1000
-SetTimer, Loop_main, 50
+SetTimer, Loop, 200
+SetTimer, Loop_clone, 50
+settings.iteminfo.compare := LLK_IniRead("ini" vars.poe_version "\item-checker.ini", "settings", "enable gear-tracking")
 Return
 
 #Include modules\_functions.ahk
@@ -60,7 +62,7 @@ Return
 #Include modules\settings menu.ahk
 #Include modules\stash-ninja.ahk
 
-Cloneframes(wParam, lParam)
+Cloneframes_Thread2(wParam, lParam)
 {
 	local
 	global vars
@@ -83,23 +85,11 @@ Exit()
 Loop()
 {
 	local
-	global vars
-
-	If vars.PID ;in case the main thread crashes without sending the 0x8000 message
-	{
-		Process, Exist, % vars.PID
-		If !ErrorLevel
-			ExitApp
-	}
-}
-
-Loop_main()
-{
-	local
-	global vars
-	static cloneframes_hidden
+	global vars, settings, json
+	static tick := 0, pixels_last
 
 	Critical
+	tick += 1
 	If LLK_StringCompare(vars.log.areaID, ["Sanctum"]) && WinExist("LLK-UI: Sanctum Overlay")
 		vars.sanctum.active := 1
 	Else vars.sanctum.active := 0
@@ -111,25 +101,44 @@ Loop_main()
 	}
 	Else vars.settings.active := ""
 
-	start := A_TickCount
+	If (tick = 5) && vars.PID ;in case the main thread crashes without sending the 0x8000 message
+	{
+		tick := 0
+		Process, Exist, % vars.PID
+		If !ErrorLevel
+			ExitApp
+	}
+
+	If !vars.pixelsearch.wait
+		For pixel in vars.pixelsearch.list
+			If (pixel = "gamescreen") && settings.cloneframes.pixelchecks || (pixel = "inventory") && (settings.cloneframes.inventory || settings.iteminfo.compare)
+				vars.pixels[pixel] := Screenchecks_PixelSearch(pixel)
+			Else vars.pixels[pixel] := 0
+
+	If vars.pixels.Count() && ((check := json.dump(vars.pixels)) != pixels_last)
+	{
+		GuiControl, Text, % vars.hwnd.comms, % StrReplace(check, """,""", """,`n""")
+		pixels_last := check
+	}
+}
+
+Loop_clone()
+{
+	local
+	global vars, settings
+	static cloneframes_hidden
+
+	Critical
 	If !vars.cloneframes.wait && IsObject(vars.cloneframes) && !vars.wait
 		Cloneframes_Check(), cloneframes_hidden := 0
 	If vars.wait && !cloneframes_hidden
 		Cloneframes_Hide(), cloneframes_hidden := 1
 }
 
-Loop_screen()
-{
-	local
-	global vars, settings
-
-	
-}
-
 StringReceive(wParam, string) ;based on example #4 on https://www.autohotkey.com/docs/v1/lib/OnMessage.htm
 {
 	local
-	global vars, json
+	global vars, settings, json
 
 	StringAddress := NumGet(string + 2*A_PtrSize), string := StrGet(StringAddress), editing := vars.cloneframes.editing
 	If (SubStr(string, 1, 1) . SubStr(string, 0) = "{}")
@@ -147,10 +156,20 @@ StringReceive(wParam, string) ;based on example #4 on https://www.autohotkey.com
 		Else vars.cloneframes.editing := SubStr(string, InStr(string, "=") + 1)
 		vars.cloneframes.wait := 0
 	}
+	Else If InStr(string, "pixel-")
+	{
+		vars.pixelsearch.wait := 1
+		name := SubStr(string, InStr(string, "-") + 1), name := SubStr(name, 1, InStr(name, "=") - 1)
+		For key, val in json.Load(SubStr(string, InStr(string, "=") + 1))
+			vars.pixelsearch[name][key] := val
+		vars.pixelsearch.wait := 0
+	}
+	Else If InStr(string, "iteminfo-compare=")
+		settings.iteminfo.compare := SubStr(string, InStr(string, "=") + 1)
 	ToolTip, %A_ScriptName%`nReceived the following string:`n%string%`n%A_TickCount%, 0, 0
 
 	If InStr(string, """client"":")
-		Init_cloneframes()
+		Init_cloneframes(), Init_screenchecks()
 	Return true
 }
 
@@ -227,90 +246,3 @@ Init_hotkeys(a := "", b := "", c := "", d := "")
 {
 	Return
 }
-
-/*
-Geartracker_Add(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Geartracker_GUI(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Init_Leveltracker(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Experience(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_GuideEditor(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Hotkeys(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Import(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Load(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_PobGemLinks(a := "", b := "", c := "", d := "", e := "")
-{
-	Return
-}
-
-Leveltracker_PobSkilltree(a := "", b := "", c := "", d := "", e := "")
-{
-	Return
-}
-
-Leveltracker_Progress(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_ProgressReset(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_ScreencapMenu(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Skilltree(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Timer(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-
-Leveltracker_Toggle(a := "", b := "", c := "", d := "")
-{
-	Return
-}
-*/

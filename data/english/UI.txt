@@ -750,6 +750,7 @@
 ;## these strings are displayed/required in the "clone-frames" section of the settings menu
 		m_clone_toggle			=	"automatic toggling:"
 		m_clone_gamescreen		=	"hide when not on the gamescreen"
+		m_clone_inventory		=	"hide when the inventory is open"
 		m_clone_hideout			=	"hide in hideouts/towns"
 		m_clone_list			=	"list of available clone-frames:"
 		m_clone_new			=	"add new"
