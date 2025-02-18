@@ -752,6 +752,12 @@
 		m_clone_gamescreen		=	"hide when not on the gamescreen"
 		m_clone_inventory		=	"hide when the inventory is open"
 		m_clone_hideout			=	"hide in hideouts/towns"
+		m_clone_performance		=	"performance (fps) settings:"		;## frames per second
+		m_clone_performance		=	"measured fps:"
+		m_clone_performance		=	"low"
+		m_clone_performance		=	"med"
+		m_clone_performance		=	"high"
+		m_clone_performance		=	"max"
 		m_clone_list			=	"list of available clone-frames:"
 		m_clone_new			=	"add new"
 		m_clone_editing			=	"clone-frame editing:"

@@ -536,6 +536,9 @@ Loop()
 			If (vars.update.1 != 0)
 				Gui, LLK_Panel: Color, % (vars.update.1 < 0) ? "Maroon" : "Green"
 		}
+
+		If vars.general.MultiThreading && !WinExist(vars.general.bThread)
+			LLK_Error("Secondary thread has crashed, the tool needs to be restarted", 1)
 	}
 
 	If !WinExist("ahk_group poe_window") && (A_TickCount >= vars.general.runcheck + settings.general.kill[2]* 60000) && settings.general.kill[1]
@@ -561,7 +564,15 @@ Loop_main()
 	{
 		WinGetText, comms_text, % vars.general.bThread
 		If !(Blank(comms_text) || ErrorLevel)
-			vars.pixels := json.Load(comms_text)
+		{
+			comms_object := json.Load(comms_text), vars.pixels := comms_object.pixels.Clone()
+			If (vars.settings.active = "clone-frames") && !Mod(tick, 10)
+			{
+				GuiControl, Text, % vars.hwnd.settings.fps, % " " (fps := Round(comms_object["clone-speed"]))
+				GuiControl, % "+c" (fps <= settings.cloneframes.fps * 0.75 ? "Red" : fps < settings.cloneframes.fps ? "Yellow" : "lime"), % vars.hwnd.settings.fps
+				GuiControl, % "movedraw", % vars.hwnd.settings.fps
+			}
+		}
 	}
 
 	If !vars.general.drag && vars.hwnd.lootfilter.main && WinActive("ahk_id " vars.hwnd.lootfilter.main) && (vars.general.wMouse = vars.hwnd.poe_client)

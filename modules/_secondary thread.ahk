@@ -22,20 +22,20 @@ CoordMode, ToolTip, Screen
 SendMode, Input
 SetTitleMatchMode, 2
 SetBatchLines, -1
-Menu, Tray, Tip, Lailloken UI B-Thread
+Menu, Tray, NoIcon
 OnMessage(0x004A, "StringReceive")
 OnMessage(0x8000, "Exit")
 OnMessage(0x8001, "Cloneframes_Thread2")
 
 Gui, comms_window: New, -Caption +ToolWindow +LastFound +AlwaysOnTop HWNDhwnd_comms, LLK-UI: B-Thread
 WinSet, Trans, 0
-Gui, comms_window: Add, Text, % "cBlack HWNDhwnd w100 h100"
+Gui, comms_window: Add, Text, % "cBlack HWNDhwnd w200 h200"
 vars.hwnd.comms := hwnd
-Gui, comms_window: Show, NA x10000 y10000 w100 h100
+Gui, comms_window: Show, NA x10000 y10000
 
 vars.poe_version := CheckClient()
 SetTimer, Loop, 200
-SetTimer, Loop_clone, 50
+Cloneframes_Thread2(1, LLK_IniRead("ini" vars.poe_version "\clone frames.ini", "settings", "performance", 2))
 settings.iteminfo.compare := LLK_IniRead("ini" vars.poe_version "\item-checker.ini", "settings", "enable gear-tracking")
 Return
 
@@ -66,10 +66,13 @@ Cloneframes_Thread2(wParam, lParam)
 {
 	local
 	global vars
+	static intervals := [200, 100, 50, 33]
 
 	vars.cloneframes.wait := 1
 	If (wParam + lParam = 0)
 		Init_cloneframes()
+	If (wParam = 1)
+		SetTimer, Loop_clone, % Round(intervals[lParam] - 10)
 	vars.cloneframes.wait := 0
 }
 
@@ -86,7 +89,7 @@ Loop()
 {
 	local
 	global vars, settings, json
-	static tick := 0, pixels_last
+	static tick := 0, comms_last
 
 	Critical
 	tick += 1
@@ -115,10 +118,10 @@ Loop()
 				vars.pixels[pixel] := Screenchecks_PixelSearch(pixel)
 			Else vars.pixels[pixel] := 0
 
-	If vars.pixels.Count() && ((check := json.dump(vars.pixels)) != pixels_last)
+	If vars.pixels.Count() && ((check := json.dump({"clone-speed": Round(1000/vars.cloneframes.ms), "pixels": vars.pixels.Clone()})) != comms_last)
 	{
-		GuiControl, Text, % vars.hwnd.comms, % StrReplace(check, """,""", """,`n""")
-		pixels_last := check
+		GuiControl, Text, % vars.hwnd.comms, % StrReplace(StrReplace(check, "{""", "{`n"""), """,""", """,`n""")
+		comms_last := check
 	}
 }
 
@@ -126,9 +129,10 @@ Loop_clone()
 {
 	local
 	global vars, settings
-	static cloneframes_hidden
+	static cloneframes_hidden, last := 0
 
 	Critical
+	vars.cloneframes.ms := A_TickCount - last, last := A_TickCount
 	If !vars.cloneframes.wait && IsObject(vars.cloneframes) && !vars.wait
 		Cloneframes_Check(), cloneframes_hidden := 0
 	If vars.wait && !cloneframes_hidden

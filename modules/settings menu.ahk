@@ -354,6 +354,25 @@ Settings_cloneframes()
 		vars.hwnd.settings.hide_town := hwnd, vars.hwnd.help_tooltips["settings_cloneframes hideout"] := hwnd
 	}
 
+	If vars.general.MultiThreading
+	{
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_clone_performance")
+		Gui, %GUI%: Font, norm
+		Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", % "HBitmap:*" vars.pics.global.help
+		vars.hwnd.help_tooltips["settings_cloneframes performance"] := hwnd
+		For index, val in ["low", "normal", "high", "max"]
+		{
+			Gui, %GUI%: Add, Radio, % (index = 1 ? "xs Section" : "ys x+0") " HWNDhwnd gSettings_cloneframes2" (index = settings.cloneframes.speed ? " Checked" : "")
+			, % Lang_Trans("m_clone_performance", 2 + index) " (" (index = 3 ? 20 : (index = 4 ? 30 : index * 5)) ")"
+			vars.hwnd.settings["performance_" index] := hwnd
+		}
+		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_clone_performance", 2)
+		Gui, %GUI%: Add, Text, % "ys x+0 HWNDhwnd", % "100"
+		vars.hwnd.settings.fps := hwnd
+	}
+
+
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % Lang_Trans("m_clone_list")
 	WinGetPos,,, width,, % "ahk_id " hwnd
@@ -468,6 +487,11 @@ Settings_cloneframes2(cHWND)
 		settings.cloneframes.hide := LLK_ControlGet(cHWND)
 		IniWrite, % settings.cloneframes.hide, % "ini" vars.poe_version "\clone frames.ini", settings, hide in hideout
 		Cloneframes_Thread()
+	}
+	Else If InStr(check, "performance_")
+	{
+		IniWrite, % (settings.cloneframes.speed := speed := control), % "ini" vars.poe_version "\clone frames.ini", settings, performance
+		settings.cloneframes.fps := 1000//vars.cloneframes.intervals[speed], Cloneframes_Thread(1, control)
 	}
 	Else If (check = "add" || check = "add2")
 		Cloneframes_SettingsAdd()

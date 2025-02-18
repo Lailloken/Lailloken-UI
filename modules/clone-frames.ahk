@@ -10,9 +10,10 @@
 	settings.cloneframes.pixelchecks := !Blank(check := ini.settings["enable pixel-check"]) ? check : 0
 	settings.cloneframes.inventory := !Blank(check := ini.settings["hide in inventory"]) ? check : 1
 	settings.cloneframes.hide := !Blank(check := ini.settings["hide in hideout"]) ? check : 0
+	settings.cloneframes.speed := speed := !Blank(check := ini.settings["performance"]) ? check : 2
 
 	If !IsObject(vars.cloneframes)
-		vars.cloneframes := {"enabled": 0, "scroll": {}}
+		vars.cloneframes := {"enabled": 0, "scroll": {}, "intervals": [200, 100, 50, 33]}
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
 		If !vars.general.MultiThreading
@@ -21,6 +22,7 @@
 		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
+	settings.cloneframes.fps := 1000//vars.cloneframes.intervals[speed]
 	vars.hwnd.cloneframes := {}
 	For key, val in ini
 	{

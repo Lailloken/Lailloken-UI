@@ -170,6 +170,10 @@
     "cloneframes hideout": [
       "hides clone-frames while you're inside towns and hideouts"
     ],
+    "cloneframes performance": [
+      "select a preferred/compatible performance profile",
+      "try to balance the number of clone-frames and the target-fps so that the measured performance stays green"
+    ],
     "cloneframes new": [
       "to create a new frame, enter a name and click <add new>"
     ],
