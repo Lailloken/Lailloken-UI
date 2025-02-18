@@ -566,7 +566,7 @@ Loop_main()
 		If !(Blank(comms_text) || ErrorLevel)
 		{
 			comms_object := json.Load(comms_text), vars.pixels := comms_object.pixels.Clone()
-			If (vars.settings.active = "clone-frames") && !Mod(tick, 10)
+			If !Mod(tick, 10) && (vars.settings.active = "clone-frames") && vars.hwnd.settings.fps && (vars.cloneframes.list.Count() > 1)
 			{
 				GuiControl, Text, % vars.hwnd.settings.fps, % " " (fps := Round(comms_object["clone-speed"]))
 				GuiControl, % "+c" (fps <= settings.cloneframes.fps * 0.75 ? "Red" : fps < settings.cloneframes.fps ? "Yellow" : "lime"), % vars.hwnd.settings.fps

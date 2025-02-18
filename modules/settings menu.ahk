@@ -354,7 +354,7 @@ Settings_cloneframes()
 		vars.hwnd.settings.hide_town := hwnd, vars.hwnd.help_tooltips["settings_cloneframes hideout"] := hwnd
 	}
 
-	If vars.general.MultiThreading
+	If vars.general.MultiThreading && (vars.cloneframes.list.Count() > 1)
 	{
 		Gui, %GUI%: Font, bold underline
 		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_clone_performance")
