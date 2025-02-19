@@ -3848,7 +3848,7 @@ Settings_updater()
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
-			If (val.1.2 < 15300)
+			If (val.1.2 < 15400)
 				Continue
 			If !added[major]
 				Gui, %GUI%: Add, Text, % "Section xs", % major
