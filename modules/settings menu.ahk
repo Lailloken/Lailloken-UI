@@ -343,11 +343,35 @@ Settings_cloneframes()
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, % Lang_Trans("m_clone_gamescreen")
 		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
 	}
+	If !Blank(vars.pixelsearch.inventory.x1) && (vars.pixelsearch.inventory.x1 != "ERROR")
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.inventory, % Lang_Trans("m_clone_inventory")
+		vars.hwnd.settings.inventory := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks inventory"] := hwnd
+	}
 	If vars.log.file_location
 	{
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.hide, % Lang_Trans("m_clone_hideout")
 		vars.hwnd.settings.hide_town := hwnd, vars.hwnd.help_tooltips["settings_cloneframes hideout"] := hwnd
 	}
+
+	If vars.general.MultiThreading && (vars.cloneframes.list.Count() > 1)
+	{
+		Gui, %GUI%: Font, bold underline
+		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_clone_performance")
+		Gui, %GUI%: Font, norm
+		Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", % "HBitmap:*" vars.pics.global.help
+		vars.hwnd.help_tooltips["settings_cloneframes performance"] := hwnd
+		For index, val in ["low", "normal", "high", "max"]
+		{
+			Gui, %GUI%: Add, Radio, % (index = 1 ? "xs Section" : "ys x+0") " HWNDhwnd gSettings_cloneframes2" (index = settings.cloneframes.speed ? " Checked" : "")
+			, % Lang_Trans("m_clone_performance", 2 + index) " (" (index = 3 ? 20 : (index = 4 ? 30 : index * 5)) ")"
+			vars.hwnd.settings["performance_" index] := hwnd
+		}
+		Gui, %GUI%: Add, Text, % "xs Section", % Lang_Trans("m_clone_performance", 2)
+		Gui, %GUI%: Add, Text, % "ys x+0 HWNDhwnd", % "100"
+		vars.hwnd.settings.fps := hwnd
+	}
+
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % Lang_Trans("m_clone_list")
@@ -442,7 +466,7 @@ Settings_cloneframes()
 Settings_cloneframes2(cHWND)
 {
 	local
-	global vars, settings
+	global vars, settings, json
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), name := vars.cloneframes.editing
 
@@ -450,11 +474,24 @@ Settings_cloneframes2(cHWND)
 	{
 		settings.cloneframes.pixelchecks := LLK_ControlGet(cHWND)
 		IniWrite, % settings.cloneframes.pixelchecks, % "ini" vars.poe_version "\clone frames.ini", settings, enable pixel-check
+		Cloneframes_Thread()
+	}
+	Else If (check = "inventory")
+	{
+		settings.cloneframes.inventory := LLK_ControlGet(cHWND)
+		IniWrite, % settings.cloneframes.inventory, % "ini" vars.poe_version "\clone frames.ini", settings, hide in inventory
+		Cloneframes_Thread()
 	}
 	Else If (check = "hide_town")
 	{
 		settings.cloneframes.hide := LLK_ControlGet(cHWND)
 		IniWrite, % settings.cloneframes.hide, % "ini" vars.poe_version "\clone frames.ini", settings, hide in hideout
+		Cloneframes_Thread()
+	}
+	Else If InStr(check, "performance_")
+	{
+		IniWrite, % (settings.cloneframes.speed := speed := control), % "ini" vars.poe_version "\clone frames.ini", settings, performance
+		settings.cloneframes.fps := 1000//vars.cloneframes.intervals[speed], Cloneframes_Thread(1, control)
 	}
 	Else If (check = "add" || check = "add2")
 		Cloneframes_SettingsAdd()
@@ -470,7 +507,7 @@ Settings_cloneframes2(cHWND)
 		If LLK_Progress(vars.hwnd.settings["delbar_"control], "LButton", cHWND)
 		{
 			IniDelete, % "ini" vars.poe_version "\clone frames.ini", % control
-			Init_cloneframes()
+			Init_cloneframes(), Cloneframes_Thread()
 			Settings_menu("clone-frames")
 		}
 		Else Return
@@ -487,7 +524,7 @@ Settings_cloneframes2(cHWND)
 		GuiControl, % "+c"(LLK_ControlGet(cHWND) ? "White" : "Gray"), % cHWND
 		GuiControl, movedraw, % cHWND
 		IniWrite, % vars.cloneframes.list[control].enable, % "ini" vars.poe_version "\clone frames.ini", % control, enable
-		Init_cloneframes()
+		Init_cloneframes(), Cloneframes_Thread()
 		GuiControl, % "+c" (!vars.cloneframes.enabled ? "Gray" : "White"), % vars.hwnd.settings["clone-frames"]
 		GuiControl, % "movedraw", % vars.hwnd.settings["clone-frames"]
 	}
@@ -496,7 +533,11 @@ Settings_cloneframes2(cHWND)
 	Else If (check = "discard")
 		Cloneframes_SettingsRefresh()
 	Else If (check = "opacity")
+	{
 		vars.cloneframes.list[name].opacity := LLK_ControlGet(cHWND)
+		If vars.general.MultiThreading
+			StringSend("clone-edit=" json.dump(vars.cloneframes.list[name]))
+	}
 	Else LLK_ToolTip("no action")
 }
 
@@ -561,9 +602,14 @@ Settings_general()
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_settings")
 	Gui, %GUI%: Font, norm
 
+	multi := vars.general.MultiThreading
+	Gui, %GUI%: Add, Text, % "ys c" (multi ? "Lime" : "Yellow"), % Lang_Trans("global_multithreading", multi ? 1 : 2)
+	Gui, %GUI%: Add, Pic, % "ys HWNDhwnd hp w-1", % "HBitmap:*" vars.pics.global.help
+	vars.hwnd.help_tooltips["settings_multi-threading " multi] := hwnd
+
 	If settings.general.dev
 	{
-		Gui, %GUI%: Add, Checkbox, % "ys hp gSettings_general2 HWNDhwnd Checked" settings.general.dev_env, % "dev branch"
+		Gui, %GUI%: Add, Checkbox, % "xs Section hp gSettings_general2 HWNDhwnd Checked" settings.general.dev_env, % "dev branch"
 		vars.hwnd.settings.dev_env := hwnd
 	}
 
@@ -1391,6 +1437,8 @@ Settings_iteminfo2(cHWND)
 		settings.iteminfo.compare := LLK_ControlGet(cHWND)
 		IniWrite, % settings.iteminfo.compare, % "ini" vars.poe_version "\item-checker.ini", settings, enable gear-tracking
 		Init_iteminfo()
+		If vars.general.MultiThreading
+			StringSend("iteminfo-compare=" settings.iteminfo.compare)
 		Settings_menu("item-info")
 	}
 	Else If (check = "itembase")
@@ -2490,7 +2538,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	}
 
 	vars.settings.GUI_toggle := toggle := !toggle, GUI_name := "settings_menu" toggle
-	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsettings_menu"
+	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsettings_menu", LLK-UI: Settings Menu (%section%)
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, % vars.settings.xMargin, % vars.settings.line1
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
@@ -3800,7 +3848,7 @@ Settings_updater()
 		For index, val in vars.updater.changelog
 		{
 			major := SubStr(val.1.1, 1, 5)
-			If (val.1.2 < 15300)
+			If (val.1.2 < 15400)
 				Continue
 			If !added[major]
 				Gui, %GUI%: Add, Text, % "Section xs", % major

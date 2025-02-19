@@ -1,5 +1,11 @@
 [
   [
+	["1.57.0", 15700, 1],
+	"added experimental multi-threading support(/highlight)",
+	"clone-frames: added auto-toggle option when inventory is open",
+	"clone-frames: added performance/fps settings (5-30 fps)"
+  ],
+  [
 	["1.56.7", 15607],
 	"act-tracker: enabled timer for poe2",
 	"added basic controller support: context-menu and item-info"

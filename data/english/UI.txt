@@ -149,8 +149,8 @@
 		global_width			=	"width"
 		global_height			=	"height"
 		global_gap			=	"gap"
-		global_pattern			=	"pattern"	;## as in color pattern
-		global_regular			=	"regular"	;## as in default
+		global_pattern			=	"pattern"		;## as in color pattern
+		global_regular			=	"regular"		;## as in default
 		global_setup			=	"setup"
 		global_variance			=	"variance (0-255)"
 		global_hotkey			=	"hotkey:"
@@ -160,7 +160,7 @@
 		global_price			=	"price"
 		global_all			=	"all"
 		global_confirm			=	"confirm"
-		global_mouse			=	"l#m#r"		;## left, middle, right mouse-button
+		global_mouse			=	"l#m#r"			;## left, middle, right mouse-button
 		global_coordinates		=	"coordinates"
 		global_time			=	"time:"
 		global_refresh			=	"refresh"
@@ -177,7 +177,9 @@
 		global_apply			=	"apply"
 		global_apply			=	"apply changes"
 		global_global			=	"global"
-		global_controller		=	"controller"	;## gamepad
+		global_controller		=	"controller"		;## gamepad
+		global_multithreading		=	"multi-threaded"	;## i.e. using multiple CPU cores/threads
+		global_multithreading		=	"single-threaded"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -748,7 +750,14 @@
 ;## these strings are displayed/required in the "clone-frames" section of the settings menu
 		m_clone_toggle			=	"automatic toggling:"
 		m_clone_gamescreen		=	"hide when not on the gamescreen"
+		m_clone_inventory		=	"hide when the inventory is open"
 		m_clone_hideout			=	"hide in hideouts/towns"
+		m_clone_performance		=	"performance (fps) settings:"		;## frames per second
+		m_clone_performance		=	"measured fps:"
+		m_clone_performance		=	"low"
+		m_clone_performance		=	"med"
+		m_clone_performance		=	"high"
+		m_clone_performance		=	"max"
 		m_clone_list			=	"list of available clone-frames:"
 		m_clone_new			=	"add new"
 		m_clone_editing			=	"clone-frame editing:"

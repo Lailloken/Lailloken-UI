@@ -65,6 +65,9 @@
 		If Blank(vars.log[A_LoopField]) && !Blank(%A_LoopField%)
 			vars.log[A_LoopField] := %A_LoopField%
 
+	If vars.general.MultiThreading
+		StringSend("areaID=" vars.log.areaID)
+
 	vars.log.level := !vars.log.level ? 0 : vars.log.level
 	If !mode
 		vars.log.access_time := A_TickCount - start
@@ -300,9 +303,12 @@ Log_Loop(mode := 0)
 		Log_Parse(log_content, areaID, areaname, areaseed, arealevel, areatier, act, level, date_time, character_class)
 		Loop, Parse, % vars.log.parsing, `,, %A_Space%
 		{
-			If !Blank(%A_LoopField%)
-				vars.log[A_LoopField] := %A_LoopField%
-			If (A_Index = 1) && !Blank(%A_LoopField%)
+			If Blank(%A_LoopField%)
+				Continue
+			Else If (A_LoopField = "areaID") && vars.general.MultiThreading
+				StringSend("areaID=" %A_LoopField%)
+			vars.log[A_LoopField] := %A_LoopField%
+			If (A_Index = 1)
 				If !vars.poe_version
 					vars.log.areaname := "" ;make it blank because there sometimes is a desync between it and areaID, i.e. they are parsed in two separate loop-ticks
 				Else vars.log.areaname := Log_Get(areaID, "areaname")

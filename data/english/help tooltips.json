@@ -1,5 +1,13 @@
 {
   "settings": {
+    "multi-threading 0": [
+      "the tool is running on a single cpu thread",
+      "certain advanced features and performance options are not available"
+    ],
+    "multi-threading 1": [
+      "the tool is running on multiple cpu threads",
+      "this enables certain advanced features and performance options"
+    ],
     "kill timer": [
       "automatically closes the script if the game client is not running",
       "specify how long it may run without the game"
@@ -155,8 +163,16 @@
       "requires the <gamescreen> pixel-check to be configured correctly in the <screen-checks> section of the menu",
       "only works while playing with the minimap in the center of the screen"
     ],
+    "cloneframes pixelchecks inventory": [
+      "hides frames when the inventory is open",
+      "requires the <inventory> pixel-check to be configured correctly in the <screen-checks> section of the menu"
+    ],
     "cloneframes hideout": [
       "hides clone-frames while you're inside towns and hideouts"
+    ],
+    "cloneframes performance": [
+      "select a preferred/compatible performance profile",
+      "try to balance the number of clone-frames and the target-fps so that the measured performance stays green"
     ],
     "cloneframes new": [
       "to create a new frame, enter a name and click <add new>"
