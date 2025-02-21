@@ -3490,7 +3490,7 @@ Settings_stash()
 	leagues := settings.stash.leagues, vars.hwnd.settings.apply_button := hwnd
 	For index, array in leagues
 	{
-		Gui, %GUI%: Add, Text, % (index = 4 ? "xs Section" : "ys x+" settings.general.fWidth//2) " HWNDhwnd Border Center gSettings_stash2" (index = 1 ? " Section" : "") . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
+		Gui, %GUI%: Add, Text, % (!InStr(array.1, leagues[index - 1].1) ? "xs Section" : "ys x+" settings.general.fWidth//2) " HWNDhwnd Border Center gSettings_stash2" (index = 1 ? " Section" : "") . (array.2 = settings.stash.league ? " cLime" : ""), % " " array.1 " "
 		vars.hwnd.settings["league_" array.2] := hwnd
 	}
 
