@@ -1,8 +1,8 @@
 [
   [
 	["1.57.1", 15701],
-	"initial legacy of phrecia support: stash-ninja, act-tracker (pob trees)",
-	"item-info: added support for idols (untested, needs feedback)"
+	"hotfix 1: added item-info support for idols",
+	"initial legacy of phrecia support: stash-ninja, act-tracker (pob trees)"
   ],
   [
 	["1.57.0", 15700, 1],
