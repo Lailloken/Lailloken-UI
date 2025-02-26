@@ -97,7 +97,7 @@ Loop()
 		vars.sanctum.active := 1
 	Else vars.sanctum.active := 0
 
-	If (check := WinExist("LLK-UI: Settings Menu ("))
+	If WinExist("LLK-UI: Settings Menu (")
 	{
 		WinGetTitle, title, % "LLK-UI: Settings Menu ("
 		title := SubStr(title, InStr(title, "(") + 1), vars.settings.active := SubStr(title, 1, -1)

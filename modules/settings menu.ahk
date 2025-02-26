@@ -1927,6 +1927,7 @@ Settings_leveltracker2(cHWND := "")
 		}
 		IniWrite, % (settings.leveltracker["mule" profile] := input), % "ini" vars.poe_version "\leveling tracker.ini", settings, % "profile " profile " mule"
 		GuiControl, % "+c" (input ? "Lime" : "White"), % cHWND
+		GuiControl, % "movedraw", % cHWND
 
 		If (profile = settings.leveltracker.profile)
 			Leveltracker_Load()

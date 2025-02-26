@@ -1073,6 +1073,7 @@ Leveltracker_Import(profile := "")
 			Try vars.leveltracker["pob" profile] := LevelTracker_PobImport(StrReplace(act, "pob-code:"), profile)
 	}
 
+	guide_text .= "<you_can_now_disable_the_act-tracker_in_the_settings>`n"
 	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
 
 	If !vars.poe_version

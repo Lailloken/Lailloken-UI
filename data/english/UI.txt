@@ -559,8 +559,8 @@
 		sanctum_rooms_5_3		=	"infernum"
 		sanctum_rooms_5_4		=	"desecrated crypt"
 
-		sanctum_info			=	"ben. fountain (150c):;+1 boon;"	;## semicolon at the end to make it three lines
-		sanctum_info			=	"rad. fountain (5c):;+1 boon, -1 affl, +200 insp;rerolls afflicted rooms"
+		sanctum_info			=	"ben. fountain (150c):;+1 boon;;"	;## semicolons at the end to make it four lines
+		sanctum_info			=	"rad. fountain (5c):;+1 boon, -1 affl, +200 insp;rerolls afflicted rooms if an;affliction was removed"
 
 
 
@@ -918,7 +918,7 @@
 ;#####################################################
 
 ;## these strings are displayed/required in the "sanctum planner" section of the settings menu
-		m_sanctum_enable		=	"enable the sanctum planner overlay (beta)"
+		m_sanctum_enable		=	"enable the sanctum planner overlay"
 		m_sanctum_cheatsheets		=	"show cheat-sheet"
 
 

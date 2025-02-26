@@ -582,7 +582,7 @@
       "check the links above if you want to use special keys/combinations"
     ],
     "sanctum enable": [
-      "provides tools to analyze sanctum floors and highlight specific rooms and paths to plan ahead",
+      "analyzes rooms and connections on the sanctum map and provides tools for highlighting and planning",
       "hold <tab> during a sanctum run to show the overlay, it will hide upon release",
       "press space while holding tab to lock the overlay so it doesn't automatically hide"
     ],
