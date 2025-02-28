@@ -227,9 +227,9 @@ Cloneframes_Show()
 
 	For cloneframe, val in vars.cloneframes.list
 	{
-		If !val.enable && !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) || (cloneframe = "settings_cloneframe")
+		If !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) && (!val.enable || (cloneframe = "settings_cloneframe")
 		|| (val.inventory = 1) && vars.pixels.inventory || (val.inventory = 2) && !vars.pixels.inventory && !(val.gamescreen = 2 && vars.pixels.gamescreen)
-		|| (val.gamescreen = 1) && vars.pixels.gamescreen || (val.gamescreen = 2) && !vars.pixels.gamescreen && !(val.inventory = 2 && vars.pixels.inventory)
+		|| (val.gamescreen = 1) && vars.pixels.gamescreen || (val.gamescreen = 2) && !vars.pixels.gamescreen && !(val.inventory = 2 && vars.pixels.inventory))
 		{
 			If WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
 				Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Hide"
