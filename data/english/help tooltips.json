@@ -156,26 +156,21 @@
       "enables/disables the cheat sheet"
     ],
     "cloneframes toggle-info": [
-      "automatic toggling is disabled while this section of the menu is open"
+      "by scanning specific screen-pixels, clone-frames can be toggled on/off automatically to avoid blocking in-game content",
+      "global: the chosen toggle behavior will apply to every clone-frame\ncustom: each clone-frame can have its own toggle behavior",
+      "below, you can choose how clone-frames behave when certain in-game interfaces are on screen"
     ],
-    "cloneframes pixelchecks": [
-      "hides frames if you're not on the main screen (where you control your character)",
-      "requires the <gamescreen> pixel-check to be configured correctly in the <screen-checks> section of the menu",
-      "only works while playing with the minimap in the center of the screen"
-    ],
-    "cloneframes pixelchecks inventory": [
-      "hides frames when the inventory is open",
-      "requires the <inventory> pixel-check to be configured correctly in the <screen-checks> section of the menu"
-    ],
-    "cloneframes hideout": [
-      "hides clone-frames while you're inside towns and hideouts"
+    "cloneframes toggle-modes": [
+      "ignore: clone-frames will ignore what is on screen and will never toggle",
+      "hide: clone-frames will hide when the interface is on screen",
+      "show: clone-frames will show only when the specific interface is on screen"
     ],
     "cloneframes performance": [
       "select a preferred/compatible performance profile",
       "try to balance the number of clone-frames and the target-fps so that the measured performance stays green"
     ],
     "cloneframes new": [
-      "to create a new frame, enter a name and click <add new>"
+      "to create a new frame, enter a name and press enter"
     ],
     "cloneframes edit": [
       "enters edit-mode, which activates the section below and allows you to adjust the frame's settings"
@@ -1115,6 +1110,8 @@
   },
   "screenchecks": {
     "gamescreen": [
+      "(/bold)(/underline)explanation:",
+      "-> this check is used to determine whether you are controlling your character or accessing a menu",
       "(/bold)(/underline)instructions:",
       "-> close every in-game menu: atlas, inventory, etc.",
       "-> the minimap has to be in the center",

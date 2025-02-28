@@ -423,6 +423,7 @@ Init_vars()
 	vars.mapinfo := {}
 	vars.hwnd := {"help_tooltips": {}}
 	vars.help := Json.Load(LLK_FileRead("data\english\help tooltips.json",, "65001"))
+	vars.pixels := {}
 	vars.recombination := {"classes": ["shield", "sword", "quiver", "bow", "claw", "dagger", "mace", "ring", "amulet", "helmet", "glove", "boot", "belt", "wand", "staves", "axe", "sceptre", "body"]}
 	vars.snip := {}
 	Loop, Files, data\alt_font*
@@ -573,6 +574,16 @@ Loop_main()
 				GuiControl, % "movedraw", % vars.hwnd.settings.fps
 			}
 		}
+	}
+	Else If !Mod(tick, 4)
+	{
+		If !vars.poe_version && vars.cloneframes.enabled && vars.cloneframes.gamescreen
+			vars.pixels.gamescreen := Screenchecks_PixelSearch("gamescreen")
+		Else vars.pixels.gamescreen := 0
+
+		If vars.cloneframes.enabled && vars.cloneframes.inventory || settings.iteminfo.compare
+			vars.pixels.inventory := Screenchecks_PixelSearch("inventory")
+		Else vars.pixels.inventory := 0
 	}
 
 	If !vars.general.drag && vars.hwnd.lootfilter.main && WinActive("ahk_id " vars.hwnd.lootfilter.main) && (vars.general.wMouse = vars.hwnd.poe_client)
