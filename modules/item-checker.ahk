@@ -665,10 +665,10 @@ Iteminfo_Mods()
 		|| ((InStr(clip, "`r`nSynthesised ", 1) || InStr(item.itembase, " Talisman", 1) && (item.rarity != Lang_Trans("items_unique"))) && InStr(A_LoopField, Lang_Trans("items_implicit")))) && !settings.iteminfo.compare
 			item.implicits.Push(StrReplace(A_LoopField, " (implicit)")) ;store implicits: eater, exarch, corruption, synthesis, rare talisman
 
-		If InStr(A_LoopField, Lang_Trans("items_implicit")) && settings.iteminfo.compare
+		If InStr(A_LoopField, "(implicit)") && settings.iteminfo.compare
 			item.implicits.Push(StrReplace(A_LoopField, " (implicit)")) ;store all implicits if league-start mode is enabled
 
-		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "{ " Lang_Trans("items_implicit")) || InStr(A_LoopField, "{ Allocated Crucible") ;don't include implicits or crucible info
+		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, " (implicit)") || InStr(A_LoopField, "{ Allocated Crucible") ;don't include implicits or crucible info
 			Continue
 		clip2 .= A_LoopField "`n" ;rebuild the copied item-info without unnecessary lines
 	}

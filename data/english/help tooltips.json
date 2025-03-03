@@ -156,9 +156,10 @@
       "enables/disables the cheat sheet"
     ],
     "cloneframes toggle-info": [
-      "by scanning specific screen-pixels, clone-frames can be toggled on/off automatically to avoid blocking in-game content",
-      "global: the chosen toggle behavior will apply to every clone-frame\ncustom: each clone-frame can have its own toggle behavior",
-      "below, you can choose how clone-frames behave when certain in-game interfaces are on screen"
+      "clone-frames can be toggled on/off automatically to avoid blocking in-game content",
+      "global: settings will apply to every clone-frame\ncustom: each frame can have its own settings",
+      "below, you can choose how clone-frames behave when certain in-game interfaces are on screen",
+      "note: after closing this settings section, clone-frames are always hidden in towns/hideouts(/underline)"
     ],
     "cloneframes toggle-modes": [
       "ignore: clone-frames will ignore what is on screen and will never toggle",
