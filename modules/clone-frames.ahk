@@ -28,8 +28,8 @@
 	{
 		If (key = "settings")
 			key := "settings_cloneframe" ;dummy entry for clone-frame creation
-		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1, "gamescreen": !Blank(check1 := ini[key]["gamescreen toggle"]) ? check1 : (settings.cloneframes.gamescreen ? 2 : 0)
-		, "inventory": !Blank(check2 := ini[key]["inventory toggle"]) ? check2 : settings.cloneframes.inventory}
+		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1, "gamescreen": !Blank(check1 := ini[key]["gamescreen toggle"]) ? check1 : settings.cloneframes.gamescreen
+		, "inventory": !Blank(check3 := ini[key]["inventory toggle"]) ? check3 : settings.cloneframes.inventory}
 
 		If (settings.cloneframes.toggle = 1)
 			vars.cloneframes.list[key].gamescreen := settings.cloneframes.gamescreen, vars.cloneframes.list[key].inventory := settings.cloneframes.inventory
