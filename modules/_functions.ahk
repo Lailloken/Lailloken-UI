@@ -125,6 +125,8 @@ DB_Load(database)
 				If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
 					db.vaalareas_dictionary.Push(A_LoopField)
 	}
+	Else If (database = "legion")
+		db.legion := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\timeless jewels.json") ? settings.general.lang_client : "english") "\timeless jewels.json"))
 }
 
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
