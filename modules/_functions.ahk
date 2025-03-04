@@ -92,6 +92,39 @@ DB_Load(database)
 			If A_LoopField
 				db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] .= !db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] ? A_LoopField : "`n" A_LoopField ;store maps starting with a-z here
 	}
+	Else If (database = "OCR")
+	{
+		tldr := Json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
+		db.altars := tldr["eldritch altars"].Clone()
+		db.altar_dictionary := []
+		For outer in ["", ""]
+			For index1, key in ["boss", "minions", "player"]
+			{
+				If (outer = 1)
+				{
+					If !IsObject(db.altars[key "_check"])
+						db.altars[key "_check"] := []
+					For index, array in db.altars[key]
+						Loop, Parse, % array.1, `n, `r
+							If !LLK_HasVal(db.altars[key "_check"], A_LoopField)
+								db.altars[key "_check"].Push(A_LoopField)
+				}
+				Else
+				{
+					For iDB, kDB in db.altars[key "_check"]
+						Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
+							If !LLK_HasVal(db.altar_dictionary, A_LoopField)
+								db.altar_dictionary.Push(A_LoopField)
+				}
+			}
+
+		db.vaalareas := tldr["vaal side areas"].Clone()
+		db.vaalareas_dictionary := []
+		For key in db.vaalareas
+			Loop, Parse, key, % A_Space
+				If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
+					db.vaalareas_dictionary.Push(A_LoopField)
+	}
 }
 
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
