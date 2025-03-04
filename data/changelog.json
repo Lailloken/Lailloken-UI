@@ -2,6 +2,7 @@
   [
 	["1.57.2", 15702],
 	"fix: item-info implicits",
+	"fix: stash-ninja bookmarking",
 	"renamed the <gamescreen> screen-check to be more descriptive",
 	"expanded clone-frames toggling customization"
   ],
