@@ -2109,6 +2109,9 @@ Settings_mapinfo()
 	Gui, %GUI%: Add, Progress, % "Disabled Range0-500 Vertical xp yp wp hp BackgroundBlack cRed HWNDhwnd2", 0
 	vars.hwnd.settings.reset_tiers := hwnd, vars.hwnd.settings.reset_tiers_bar := vars.hwnd.help_tooltips["settings_mapinfo reset tiers"] := hwnd2
 
+	If !IsObject(db.mapinfo)
+		DB_Load("mapinfo")
+
 	For ID, val in settings.mapinfo.pinned
 	{
 		If (A_Index = 1)

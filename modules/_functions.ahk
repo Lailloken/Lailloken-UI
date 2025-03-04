@@ -44,6 +44,54 @@ DB_Load(database)
 		db.item_bases := Json.Load(LLK_FileRead("data\global\item bases" vars.poe_version ".json", 1))
 	Else If (database = "item_drops")
 		db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers" vars.poe_version ".json"))
+	Else If (database = "anoints")
+		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\anoints.json") ? settings.general.lang_client : "english") "\anoints.json",, "65001"))
+	Else If (database = "essences")
+		db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\essences.json") ? settings.general.lang_client : "english") "\essences.json",, "65001"))
+	Else If (database = "mapinfo")
+	{
+		db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
+		Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\map-info" vars.poe_version ".txt") ? settings.general.lang_client : "english") "\map-info" vars.poe_version ".txt", 1), "`t"), `n, `r
+		{
+			section := (SubStr(A_LoopField, 1, 1) = "[") ? LLK_StringRemove(SubStr(A_LoopField, 2, InStr(A_LoopField, "]") - 2), "# , #") : section
+			If !A_LoopField || (SubStr(A_LoopField, 1, 1) = ";") || (SubStr(A_LoopField, 1, 1) = "[")
+			{
+				line := ""
+				Continue
+			}
+			line := InStr(A_LoopField, ";##") ? SubStr(A_LoopField, 1, InStr(A_LoopField, ";##") - 1) : A_LoopField
+			key := InStr(line, "=") ? SubStr(line, 1, InStr(line, "=") - 1) : "", val := InStr(line, "=") ? SubStr(line, InStr(line, "=") + 1) : ""
+
+			If (section = "Map Names") && InStr(line, "=")
+				db.mapinfo.localization[key] := val
+			Else If LLK_PatternMatch(section, "", ["mod types", "expedition areas"])
+				db.mapinfo[section].Push(line)
+			Else If (section = "expedition groups")
+				db.mapinfo[section][key] := val
+			Else If LLK_PatternMatch(key, "", ["type", "text", "ID"])
+			{
+				If !IsObject(db.mapinfo.mods[section])
+					db.mapinfo.mods[section] := {}
+				If settings.general.dev && (key = "ID") && db.mapinfo.mods[section].ID
+					MsgBox, % "duplicate: " section
+				db.mapinfo.mods[section][key] := StrReplace(val, "&", "&&")
+				If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
+					MsgBox, % "invalid mod-type for:`n" section
+			}
+		}
+
+		Loop, Parse, % StrReplace(LLK_FileRead("data\global\Atlas.txt", 1), "`t"), `n, `r
+		{
+			val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+			maps .= StrReplace(val, ",", " (" A_Index "),") ;create a list of all maps
+			Sort, val, D`,
+			db.mapinfo.maps[A_Index] := StrReplace(SubStr(val, 1, -1), ",", "`n") ;store tier X maps here
+		}
+		Sort, maps, D`,
+		Loop, Parse, % LLK_StringCase(maps), `,
+			If A_LoopField
+				db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] .= !db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] ? A_LoopField : "`n" A_LoopField ;store maps starting with a-z here
+	}
 }
 
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.

@@ -8,11 +8,6 @@
 	If !FileExist("ini" vars.poe_version "\item-checker gear.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\item-checker gear.ini", amulet
 
-	lang := settings.general.lang_client
-	If !vars.poe_version && !IsObject(db.anoints)
-		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
-	,	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
-
 	settings.iteminfo := {}, ini := IniBatchRead("ini" vars.poe_version "\item-checker.ini")
 	settings.iteminfo.profile := !Blank(check := ini.settings["current profile"]) ? check : 1
 	settings.iteminfo.modrolls := !Blank(check := ini.settings["hide roll-ranges"]) ? check : (vars.poe_version ? 0 : 1)
@@ -625,6 +620,9 @@ Iteminfo_Mods()
 	If item.itembase && InStr("crimson jewel, viridian jewel, cobalt jewel", item.itembase)
 		item.class := "base jewels"
 
+	If !IsObject(db.anoints)
+		DB_Load("anoints")
+
 	Loop, Parse, clip2, | ;remove unnecessary item-info: implicits, crafted mods, etc.
 	{
 		If (A_Index = 1)
@@ -1043,6 +1041,8 @@ Iteminfo_GUI()
 				}
 				Else If (item.anoint != "") ;for anointed items
 				{
+					If !IsObject(db.anoints)
+						DB_Load("anoints")
 					width := UI.wSegment * 0.5, loop_count += 1
 					filler_width := (item.rarity != Lang_Trans("items_unique")) ? (UI.segments - loop_count*1.25 + 1) * UI.wSegment : (UI.segments - loop_count*1.25 + 2.5) * UI.wSegment
 				}
