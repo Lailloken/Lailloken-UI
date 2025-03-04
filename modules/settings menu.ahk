@@ -4,7 +4,7 @@
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Betrayal-Info">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_betrayal2 HWNDhwnd Checked"settings.features.betrayal, % Lang_Trans("m_betrayal_enable")
 	vars.hwnd.settings.enable := vars.hwnd.help_tooltips["settings_betrayal enable"] := hwnd
@@ -131,7 +131,7 @@ Settings_cheatsheets()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, Init_cheatsheets()
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Cheat-sheet-Overlay-Toolkit">wiki page</a>
 
 	Gui, %GUI%: Add, Checkbox, % "xs y+"vars.settings.spacing " Section gSettings_cheatsheets2 HWNDhwnd Checked"settings.features.cheatsheets, % Lang_Trans("m_cheat_enable")
 	vars.hwnd.settings.feature := hwnd, vars.hwnd.help_tooltips["settings_cheatsheets enable"] := hwnd
@@ -326,33 +326,8 @@ Settings_cloneframes()
 	global vars, settings
 
 	Init_cloneframes()
-	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
+	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor, xMargin := settings.general.fWidth * 0.75
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames">wiki page</a>
-
-	If vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR") || vars.log.file_location
-	{
-		Gui, %GUI%: Font, underline bold
-		Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_clone_toggle")
-		Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
-		Gui, %GUI%: Font, norm
-		vars.hwnd.help_tooltips["settings_cloneframes toggle-info"] := hwnd
-	}
-
-	If !vars.poe_version && vars.pixelsearch.gamescreen.x1 && (vars.pixelsearch.gamescreen.x1 != "ERROR")
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.pixelchecks, % Lang_Trans("m_clone_gamescreen")
-		vars.hwnd.settings.hide_menu := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks"] := hwnd
-	}
-	If !Blank(vars.pixelsearch.inventory.x1) && (vars.pixelsearch.inventory.x1 != "ERROR")
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.inventory, % Lang_Trans("m_clone_inventory")
-		vars.hwnd.settings.inventory := hwnd, vars.hwnd.help_tooltips["settings_cloneframes pixelchecks inventory"] := hwnd
-	}
-	If vars.log.file_location
-	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_cloneframes2 HWNDhwnd Checked"settings.cloneframes.hide, % Lang_Trans("m_clone_hideout")
-		vars.hwnd.settings.hide_town := hwnd, vars.hwnd.help_tooltips["settings_cloneframes hideout"] := hwnd
-	}
 
 	If vars.general.MultiThreading && (vars.cloneframes.list.Count() > 1)
 	{
@@ -372,46 +347,79 @@ Settings_cloneframes()
 		vars.hwnd.settings.fps := hwnd
 	}
 
-
+	wMax := settings.general.fWidth * 20
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % Lang_Trans("m_clone_list")
-	WinGetPos,,, width,, % "ahk_id " hwnd
+	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd -Wrap y+" vars.settings.spacing, % Lang_Trans("m_clone_list")
+	ControlGetPos, xHeader, yHeader, wHeader, hHeader,, % "ahk_id " hwnd
 	Gui, %GUI%: Font, norm
-	LLK_PanelDimensions([Lang_Trans("m_clone_new")], settings.general.fSize, width0, height0), LLK_PanelDimensions([Lang_Trans("global_edit"), Lang_Trans("global_delete", 2)], settings.general.fSize, width1, height1), width0 := Floor(width0), width1 := Floor(width1)
-	While Mod(width0, 2)
-		width += 1
-	If (width0 >= 2 * width1)
-		width1 := width0 / 2
-	Else width0 := 2 * width1
-	Gui, %GUI%: Add, Text, % "xs Section Border gSettings_cloneframes2 HWNDhwnd Center w"width0, % Lang_Trans("m_clone_new")
-	vars.hwnd.settings.add := hwnd, vars.hwnd.help_tooltips["settings_cloneframes new"] := hwnd
-	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default gSettings_cloneframes2 HWNDhwnd", % "ok"
-	vars.hwnd.settings.add2 := hwnd
+	LLK_PanelDimensions([Lang_Trans("global_edit")], settings.general.fSize, width1, height1), width0 := Floor(width0), width1 := Floor(width1)
 	Gui, %GUI%: Font, % "s"settings.general.fSize - 4
-	Gui, %GUI%: Add, Edit, % "ys hp cBlack HWNDhwnd w"width - width0 - settings.general.fWidth * 0.75
-	vars.hwnd.settings.name := hwnd, vars.hwnd.help_tooltips["settings_cloneframes new|"] := hwnd
+	Gui, %GUI%: Add, Edit, % "xs Section hp cBlack HWNDhwnd w" Max(wMax, wHeader)
+	vars.hwnd.settings.name := hwnd, vars.hwnd.help_tooltips["settings_cloneframes new"] := hwnd
+	ControlGetPos, xLast, yLast, wLast, hLast,, % "ahk_id " hwnd
+	Gui, %GUI%: Add, Button, % "xp yp wp hp Hidden Default gSettings_cloneframes2 HWNDhwnd", % "ok"
+	vars.hwnd.settings.add := hwnd
 	Gui, %GUI%: Font, % "s"settings.general.fSize
 
 	For cloneframe, val in vars.cloneframes.list
 	{
 		If (cloneframe = "settings_cloneframe")
-			continue
-		Gui, %GUI%: Add, Text, % "xs w"width1 " Section Border Center gSettings_cloneframes2 HWNDhwnd", % Lang_Trans("global_edit")
+			Continue
+		Gui, %GUI%: Add, Text, % "xs Section Border Center gSettings_cloneframes2 HWNDhwnd w" width1, % Lang_Trans("global_edit")
 		handle .= "|", vars.hwnd.settings["edit_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes edit"handle] := hwnd
-		Gui, %GUI%: Add, Text, % "ys hp x+0 w"width1 " Border gSettings_cloneframes2 BackgroundTrans Center HWNDhwnd0", % Lang_Trans("global_delete", 2)
+		Gui, %GUI%: Add, Text, % "ys hp x+-1 Border gSettings_cloneframes2 BackgroundTrans Center HWNDhwnd0 w" settings.general.fWidth*2, % "x"
 		Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack range0-500 cRed HWNDhwnd", 0
 		vars.hwnd.settings["delbar_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes delete"handle] := hwnd, vars.hwnd.settings["del_"cloneframe] := hwnd0
-		Gui, %GUI%: Add, Checkbox, % "ys gSettings_cloneframes2 HWNDhwnd Checked"val.enable " c"(val.enable ? "White" : "Gray"), % cloneframe
+		Gui, %GUI%: Add, Checkbox, % "ys gSettings_cloneframes2 hp -Wrap HWNDhwnd Checked"val.enable " c"(val.enable ? "White" : "Gray") " w" Max(wMax, wHeader) - width1 - settings.general.fWidth*2.85, % cloneframe
 		vars.hwnd.settings["enable_"cloneframe] := vars.hwnd.help_tooltips["settings_cloneframes toggle"handle] := hwnd
-		Gui, %GUI%: Font, norm
+		ControlGetPos, xLast, yLast, wLast, hLast,, % "ahk_id " hwnd
 	}
 
 	If (vars.cloneframes.list.Count() = 1)
 		Return
 
+	Gui, %GUI%: Add, Progress, % "Disabled Section BackgroundWhite x" xHeader + Max(wMax, wHeader) + xMargin " y" yHeader - 1 " w1 h" (hDivider := yLast + hLast - yHeader), 0
+	Gui, %GUI%: Font, bold underline
+	Gui, %GUI%: Add, Text, % "Section ys", % Lang_Trans("m_clone_toggle")
+	Gui, %GUI%: Font, % "norm s" settings.general.fSize - 4
+	Gui, %GUI%: Add, DDL, % "ys hp w" settings.general.fWidth*7 " r2 AltSubmit gSettings_cloneframes2 HWNDhwnd Choose" settings.cloneframes.toggle, % Lang_Trans("global_global") "|" Lang_Trans("global_custom")
+	;Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
+	vars.hwnd.settings.toggle := vars.hwnd.help_tooltips["settings_cloneframes toggle-info"] := hwnd, handle := ""
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+
+	LLK_PanelDimensions([Lang_Trans("global_inventory"), Lang_Trans("global_ignore") " ", Lang_Trans("global_hide") " ", Lang_Trans("global_show") " "], settings.general.fSize, wHeader1max, hHeader1max,,, 0)
+	LLK_PanelDimensions([Lang_Trans("m_screen_gamescreen"), Lang_Trans("global_ignore") " ", Lang_Trans("global_hide") " ", Lang_Trans("global_show") " "], settings.general.fSize, wHeader2max, hHeader2max,,, 0)
+	Gui, %GUI%: Add, Text, % "Section xs HWNDhwnd Center w" wHeader1max, % Lang_Trans("global_inventory")
+	ControlGetPos, xHeader1, yHeader1, wHeader1, hHeader1,, % "ahk_id " hwnd
+	Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+	For key, val in (settings.cloneframes.toggle = 2 ? vars.cloneframes.list : {"global": {"inventory": settings.cloneframes.inventory}})
+	{
+		If (key = "settings_cloneframe")
+			Continue
+		Gui, %GUI%: Add, DDL, % "xs wp hp r3 AltSubmit HWNDhwnd gSettings_cloneframes2 Choose" val.inventory + 1, % Lang_Trans("global_ignore") "|" Lang_Trans("global_hide") "|" Lang_Trans("global_show")
+		ControlGetPos, xLast1, yLast1, wLast1, hLast1,, % "ahk_id " hwnd
+		vars.hwnd.settings["inventory_" key] := vars.hwnd.help_tooltips["settings_cloneframes toggle-modes" handle] := hwnd, handle .= "|"
+	}
+	Gui, %GUI%: Font, % "s" settings.general.fSize
+
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Progress, % "Disabled Section ys BackgroundWhite w1 h" yLast1 + hLast1 - (yHeader + hHeader) - settings.general.fHeight/4, 0
+		Gui, %GUI%: Add, Text, % "Section ys Center w" wHeader2max, % Lang_Trans("m_screen_gamescreen")
+		Gui, %GUI%: Font, % "s" settings.general.fSize - 4
+		For key, val in (settings.cloneframes.toggle = 2 ? vars.cloneframes.list : {"global": {"gamescreen": settings.cloneframes.gamescreen}})
+		{
+			If (key = "settings_cloneframe")
+				Continue
+			Gui, %GUI%: Add, DDL, % "xs wp hp r3 AltSubmit HWNDhwnd gSettings_cloneframes2 Choose" val.gamescreen + 1, % Lang_Trans("global_ignore") "|" Lang_Trans("global_hide") "|" Lang_Trans("global_show")
+			handle .= "|", vars.hwnd.settings["gamescreen_" key] := vars.hwnd.help_tooltips["settings_cloneframes toggle-modes" handle] := hwnd
+		}
+		Gui, %GUI%: Font, % "s" settings.general.fSize
+	}
+
 	LLK_PanelDimensions([Lang_Trans("global_coordinates"), Lang_Trans("global_width") "/" Lang_Trans("global_height")], settings.general.fSize, width, height)
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "xs Section HWNDhwnd y+"vars.settings.spacing, % Lang_Trans("m_clone_editing")
+	Gui, %GUI%: Add, Text, % "xs Section x" x_anchor " HWNDhwnd y" yLast + hLast + vars.settings.spacing, % Lang_Trans("m_clone_editing")
 	colors := ["3399FF", "Yellow", "DC3220"], handle := "", vars.hwnd.settings.edit_text := vars.hwnd.help_tooltips["settings_cloneframes corners"handle] := hwnd
 	Gui, %GUI%: Font, norm
 	For index, val in vars.lang.global_mouse
@@ -470,30 +478,12 @@ Settings_cloneframes2(cHWND)
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1), name := vars.cloneframes.editing
 
-	If (check = "hide_menu")
-	{
-		settings.cloneframes.pixelchecks := LLK_ControlGet(cHWND)
-		IniWrite, % settings.cloneframes.pixelchecks, % "ini" vars.poe_version "\clone frames.ini", settings, enable pixel-check
-		Cloneframes_Thread()
-	}
-	Else If (check = "inventory")
-	{
-		settings.cloneframes.inventory := LLK_ControlGet(cHWND)
-		IniWrite, % settings.cloneframes.inventory, % "ini" vars.poe_version "\clone frames.ini", settings, hide in inventory
-		Cloneframes_Thread()
-	}
-	Else If (check = "hide_town")
-	{
-		settings.cloneframes.hide := LLK_ControlGet(cHWND)
-		IniWrite, % settings.cloneframes.hide, % "ini" vars.poe_version "\clone frames.ini", settings, hide in hideout
-		Cloneframes_Thread()
-	}
-	Else If InStr(check, "performance_")
+	If InStr(check, "performance_")
 	{
 		IniWrite, % (settings.cloneframes.speed := speed := control), % "ini" vars.poe_version "\clone frames.ini", settings, performance
 		settings.cloneframes.fps := 1000//vars.cloneframes.intervals[speed], Cloneframes_Thread(1, control)
 	}
-	Else If (check = "add" || check = "add2")
+	Else If (check = "add")
 		Cloneframes_SettingsAdd()
 	Else If InStr(check, "edit_")
 		Cloneframes_SettingsRefresh(control)
@@ -507,8 +497,7 @@ Settings_cloneframes2(cHWND)
 		If LLK_Progress(vars.hwnd.settings["delbar_"control], "LButton", cHWND)
 		{
 			IniDelete, % "ini" vars.poe_version "\clone frames.ini", % control
-			Init_cloneframes(), Cloneframes_Thread()
-			Settings_menu("clone-frames")
+			Settings_menu("clone-frames"), Cloneframes_Thread()
 		}
 		Else Return
 	}
@@ -528,6 +517,25 @@ Settings_cloneframes2(cHWND)
 		GuiControl, % "+c" (!vars.cloneframes.enabled ? "Gray" : "White"), % vars.hwnd.settings["clone-frames"]
 		GuiControl, % "movedraw", % vars.hwnd.settings["clone-frames"]
 	}
+	Else If (check = "toggle")
+	{
+		IniWrite, % LLK_ControlGet(cHWND), % "ini" vars.poe_version "\clone frames.ini", settings, toggle
+		Settings_menu("clone-frames"), Cloneframes_Thread()
+	}
+	Else If InStr(check, "inventory_")
+	{
+		input := LLK_ControlGet(cHWND) - 1
+		If (control = "global")
+			IniWrite, % input, % "ini" vars.poe_version "\clone frames.ini", settings, inventory toggle
+		Else IniWrite, % input, % "ini" vars.poe_version "\clone frames.ini", % control, inventory toggle
+	}
+	Else If InStr(check, "gamescreen_")
+	{
+		input := LLK_ControlGet(cHWND) - 1
+		If (control = "global")
+			IniWrite, % input, % "ini" vars.poe_version "\clone frames.ini", settings, gamescreen toggle
+		Else IniWrite, % input, % "ini" vars.poe_version "\clone frames.ini", % control, gamescreen toggle
+	}
 	Else If (check = "save")
 		Cloneframes_SettingsSave()
 	Else If (check = "discard")
@@ -539,6 +547,9 @@ Settings_cloneframes2(cHWND)
 			StringSend("clone-edit=" json.dump(vars.cloneframes.list[name]))
 	}
 	Else LLK_ToolTip("no action")
+
+	If InStr(check, "inventory_") || InStr(check, "gamescreen_")
+		Init_cloneframes(), Cloneframes_Thread()
 }
 
 Settings_donations()
@@ -596,7 +607,7 @@ Settings_general()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki">llk-ui wiki && setup guide</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki">llk-ui wiki && setup guide</a>
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_general_settings")
@@ -1218,7 +1229,7 @@ Settings_iteminfo()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Item-info">wiki page</a>
 
 	If (settings.general.lang_client = "unknown")
 	{
@@ -1927,6 +1938,7 @@ Settings_leveltracker2(cHWND := "")
 		}
 		IniWrite, % (settings.leveltracker["mule" profile] := input), % "ini" vars.poe_version "\leveling tracker.ini", settings, % "profile " profile " mule"
 		GuiControl, % "+c" (input ? "Lime" : "White"), % cHWND
+		GuiControl, % "movedraw", % cHWND
 
 		If (profile = settings.leveltracker.profile)
 			Leveltracker_Load()
@@ -2557,7 +2569,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	Gui, %GUI_name%: Add, Progress, % "xp yp wp hp Border Disabled HWNDhwnd1 BackgroundBlack cBlack", 100
 	ControlGetPos, x, y,,,, ahk_id %hwnd%
 	vars.hwnd.settings.general := hwnd, vars.settings.xSelection := x, vars.settings.ySelection := y + vars.settings.line1, vars.settings.wSelection := section_width, vars.hwnd.settings["background_general"] := hwnd1
-	vars.settings.x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2
+	vars.settings.x_anchor := vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin
 	feature_check := {"betrayal-info": "betrayal", "cheat-sheets": "cheatsheets", "leveling tracker": "leveltracker", "mapping tracker": "maptracker", "map-info": "mapinfo", "tldr-tooltips": "OCR", "sanctum": "sanctum", "stash-ninja": "stash", "filterspoon" : "lootfilter"}
 	feature_check2 := {"item-info": 1, "mapping tracker": 1, "map-info": 1}
 
@@ -2925,7 +2937,7 @@ Settings_qol()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Minor-Features">wiki page</a>
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs HWNDhwnd1 y+"vars.settings.spacing " Section", % Lang_Trans("m_qol_alarm")
@@ -3171,7 +3183,7 @@ Settings_screenchecks()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Screen-checks">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Screen-checks">wiki page</a>
 	Gui, %GUI%: Font, % "underline bold"
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_screen_pixel")
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 BackgroundTrans HWNDhwnd", % "HBitmap:*" vars.pics.global.help
@@ -3350,7 +3362,7 @@ Settings_searchstrings()
 	global vars, settings
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
-	Gui, %GUI%: Add, Link, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings">wiki page</a>
+	Gui, %GUI%: Add, Link, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Search-strings">wiki page</a>
 	Gui, %GUI%: Add, Link, % "ys HWNDhwnd x+"2*settings.general.fWidth, <a href="https://poe.re/">poe regex</a>
 	vars.hwnd.help_tooltips["settings_searchstrings poe-regex"] := hwnd
 
@@ -3802,7 +3814,7 @@ Settings_updater()
 
 	GUI := "settings_menu" vars.settings.GUI_toggle
 	Gui, %GUI%: Font, bold underline
-	Gui, %GUI%: Add, Text, % "Section x"vars.settings.xSelection + vars.settings.wSelection + vars.settings.xMargin*2 " y" vars.settings.ySelection, % Lang_Trans("global_general")
+	Gui, %GUI%: Add, Text, % "Section x" vars.settings.x_anchor " y" vars.settings.ySelection, % Lang_Trans("global_general")
 	Gui, %GUI%: Font, norm
 
 	Gui, %GUI%: Add, Checkbox, % "Section xs HWNDhwnd gSettings_updater2 checked"settings.updater.update_check, % Lang_Trans("m_updater_autocheck")

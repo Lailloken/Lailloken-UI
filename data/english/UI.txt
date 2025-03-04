@@ -180,6 +180,8 @@
 		global_controller		=	"controller"		;## gamepad
 		global_multithreading		=	"multi-threaded"	;## i.e. using multiple CPU cores/threads
 		global_multithreading		=	"single-threaded"
+		global_ignore			=	"ignore"
+		global_custom			=	"custom"		;## as in "user-defined"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -559,8 +561,8 @@
 		sanctum_rooms_5_3		=	"infernum"
 		sanctum_rooms_5_4		=	"desecrated crypt"
 
-		sanctum_info			=	"ben. fountain (150c):;+1 boon;"	;## semicolon at the end to make it three lines
-		sanctum_info			=	"rad. fountain (5c):;+1 boon, -1 affl, +200 insp;rerolls afflicted rooms"
+		sanctum_info			=	"ben. fountain (150c):;+1 boon;;"	;## semicolons at the end to make it four lines
+		sanctum_info			=	"rad. fountain (5c):;+1 boon, -1 affl, +200 insp;rerolls afflicted rooms if an;affliction was removed"
 
 
 
@@ -748,17 +750,14 @@
 ;#####################################################
 
 ;## these strings are displayed/required in the "clone-frames" section of the settings menu
-		m_clone_toggle			=	"automatic toggling:"
-		m_clone_gamescreen		=	"hide when not on the gamescreen"
-		m_clone_inventory		=	"hide when the inventory is open"
-		m_clone_hideout			=	"hide in hideouts/towns"
+		m_clone_toggle			=	"auto-toggle:"
 		m_clone_performance		=	"performance (fps) settings:"		;## frames per second
 		m_clone_performance		=	"measured fps:"
 		m_clone_performance		=	"low"
 		m_clone_performance		=	"med"
 		m_clone_performance		=	"high"
 		m_clone_performance		=	"max"
-		m_clone_list			=	"list of available clone-frames:"
+		m_clone_list			=	"clone-frames:"
 		m_clone_new			=	"add new"
 		m_clone_editing			=	"clone-frame editing:"
 		m_clone_sourcexy		=	"source x/y:"
@@ -918,7 +917,7 @@
 ;#####################################################
 
 ;## these strings are displayed/required in the "sanctum planner" section of the settings menu
-		m_sanctum_enable		=	"enable the sanctum planner overlay (beta)"
+		m_sanctum_enable		=	"enable the sanctum planner overlay"
 		m_sanctum_cheatsheets		=	"show cheat-sheet"
 
 
@@ -929,9 +928,8 @@
 
 ;## these strings are displayed/required in the "screen-checks" section of the settings menu
 		m_screen_pixel			=	"list of active pixel-checks:"
-		m_screen_pixel			=	"enable background pixel-checks"
 		m_screen_image			=	"list of active image-checks:"
-		m_screen_gamescreen		=	"gamescreen"					;## refers to the main screen, i.e. where you control your character and generally play the game
+		m_screen_gamescreen		=	"infopanel"					;## refers to the small panel in the top-right corner that shows area-name, server, league, etc.
 
 
 

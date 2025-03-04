@@ -7,19 +7,19 @@
 		IniWrite, % "", % "ini" vars.poe_version "\clone frames.ini", settings
 
 	settings.cloneframes := {}, ini := IniBatchRead("ini" vars.poe_version "\clone frames.ini")
-	settings.cloneframes.pixelchecks := !Blank(check := ini.settings["enable pixel-check"]) ? check : 0
-	settings.cloneframes.inventory := !Blank(check := ini.settings["hide in inventory"]) ? check : 1
-	settings.cloneframes.hide := !Blank(check := ini.settings["hide in hideout"]) ? check : 0
+	settings.cloneframes.gamescreen := vars.poe_version ? 0 : !Blank(check := ini.settings["gamescreen toggle"]) ? check : (!Blank(check1 := ini.settings["enable pixel-check"]) ? (check1 ? 2 : check1) : 0)
+	settings.cloneframes.inventory := !Blank(check := ini.settings["inventory toggle"]) ? check : (!Blank(check1 := ini.settings["hide in inventory"]) ? check1 : 1)
 	settings.cloneframes.speed := speed := !Blank(check := ini.settings["performance"]) ? check : 2
+	settings.cloneframes.toggle := !Blank(check := ini.settings.toggle) ? check : 1
 
 	If !IsObject(vars.cloneframes)
-		vars.cloneframes := {"enabled": 0, "scroll": {}, "intervals": [200, 100, 50, 33]}
+		vars.cloneframes := {"enabled": 0, "gamescreen": 0, "inventory": 0, "scroll": {}, "intervals": [200, 100, 50, 33]}
 	Else ;when calling this function to update clone-frames, destroy old GUIs just in case
 	{
 		If !vars.general.MultiThreading
 			For cloneframe in vars.cloneframes.list
 				Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Destroy"
-		vars.cloneframes.enabled := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
+		vars.cloneframes.enabled := vars.cloneframes.gamescreen := vars.cloneframes.inventory := 0, vars.cloneframes.list := {}, vars.cloneframes.editing := ""
 	}
 
 	settings.cloneframes.fps := 1000//vars.cloneframes.intervals[speed]
@@ -28,14 +28,19 @@
 	{
 		If (key = "settings")
 			key := "settings_cloneframe" ;dummy entry for clone-frame creation
-		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1}
+		vars.cloneframes.list[key] := {"enable": !Blank(check := ini[key].enable) ? check : 1, "gamescreen": !Blank(check1 := ini[key]["gamescreen toggle"]) ? check1 : settings.cloneframes.gamescreen
+		, "inventory": !Blank(check3 := ini[key]["inventory toggle"]) ? check3 : settings.cloneframes.inventory}
+
+		If (settings.cloneframes.toggle = 1)
+			vars.cloneframes.list[key].gamescreen := settings.cloneframes.gamescreen, vars.cloneframes.list[key].inventory := settings.cloneframes.inventory
+
 		If !vars.general.MultiThreading
 		{
 			Gui, % "cloneframe_" StrReplace(key, " ", "_") ": New", -Caption +E0x80000 +E0x20 +LastFound +AlwaysOnTop +ToolWindow +OwnDialogs HWNDhwnd
 			vars.hwnd.cloneframes[key] := hwnd
 		}
 		If vars.cloneframes.list[key].enable
-			vars.cloneframes.enabled += 1
+			vars.cloneframes.enabled += 1, vars.cloneframes.gamescreen += vars.cloneframes.list[key].gamescreen, vars.cloneframes.inventory += vars.cloneframes.list[key].inventory
 
 		vars.cloneframes.list[key].xSource := Format("{:0.0f}", !Blank(check := ini[key]["source x-coordinate"]) ? check : vars.client.x - vars.monitor.x + 4) ;coordinates refer to monitor's coordinates (without offsets)
 		vars.cloneframes.list[key].ySource := Format("{:0.0f}", !Blank(check := ini[key]["source y-coordinate"]) ? check : vars.client.y - vars.monitor.y + 4)
@@ -57,10 +62,8 @@ Cloneframes_Check()
 
 	location := vars.log.areaID
 	If vars.cloneframes.enabled
-	&& ((settings.cloneframes.pixelchecks && (vars.MainThread && Screenchecks_PixelSearch("gamescreen") || !vars.MainThread && vars.pixels.gamescreen)) || !settings.cloneframes.pixelchecks) ;user is on gamescreen, or auto-toggle is disabled
-	&& ((settings.cloneframes.inventory && (vars.MainThread && !Screenchecks_PixelSearch("inventory") || !vars.MainThread && !vars.pixels.inventory)) || !settings.cloneframes.inventory)
-	&& (!settings.cloneframes.hide || (settings.cloneframes.hide && !LLK_StringCompare(location, ["hideout"]) && !InStr(location, "_town") && !InStr(location, "heisthub") && (location != "login"))) ;outside hideout/town/login, or auto-toggle is disabled
-	&& !vars.sanctum.active
+	&& (!LLK_StringCompare(location, ["hideout"]) && !LLK_PatternMatch(location, "", ["_town", "heisthub", "KalguuranSettlersLeague"],,, 0))
+	&& !vars.sanctum.active && (location != "login")
 	|| (vars.settings.active = "clone-frames") ;accessing the clone-frames section of the settings
 		Cloneframes_Show()
 	Else Cloneframes_Hide()
@@ -119,8 +122,7 @@ Cloneframes_SettingsAdd()
 
 	IniDelete, % "ini" vars.poe_version "\clone frames.ini", % name
 	IniWrite, 1, % "ini" vars.poe_version "\clone frames.ini", % name, enable
-	Init_cloneframes(), Cloneframes_Thread()
-	Settings_menu("clone-frames")
+	Cloneframes_Thread(), Settings_menu("clone-frames")
 }
 
 Cloneframes_SettingsRefresh(name := "")
@@ -225,7 +227,9 @@ Cloneframes_Show()
 
 	For cloneframe, val in vars.cloneframes.list
 	{
-		If !val.enable && !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) || (cloneframe = "settings_cloneframe")
+		If !(vars.cloneframes.editing && cloneframe = vars.cloneframes.editing) && (!val.enable || (cloneframe = "settings_cloneframe")
+		|| (val.inventory = 1) && vars.pixels.inventory || (val.inventory = 2) && !vars.pixels.inventory && !(val.gamescreen = 2 && vars.pixels.gamescreen)
+		|| (val.gamescreen = 1) && vars.pixels.gamescreen || (val.gamescreen = 2) && !vars.pixels.gamescreen && !(val.inventory = 2 && vars.pixels.inventory))
 		{
 			If WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])
 				Gui, % "cloneframe_" StrReplace(cloneframe, " ", "_") ": Hide"
@@ -233,7 +237,7 @@ Cloneframes_Show()
 				Gui, cloneframe_border: Hide
 			If vars.hwnd.cloneframe_borders.second && WinExist("ahk_id " vars.hwnd.cloneframe_borders.second) && !vars.cloneframes.editing
 				Gui, cloneframe_border2: Hide
-			continue
+			Continue
 		}
 
 		If !WinExist("ahk_id " vars.hwnd.cloneframes[cloneframe])

@@ -665,10 +665,10 @@ Iteminfo_Mods()
 		|| ((InStr(clip, "`r`nSynthesised ", 1) || InStr(item.itembase, " Talisman", 1) && (item.rarity != Lang_Trans("items_unique"))) && InStr(A_LoopField, Lang_Trans("items_implicit")))) && !settings.iteminfo.compare
 			item.implicits.Push(StrReplace(A_LoopField, " (implicit)")) ;store implicits: eater, exarch, corruption, synthesis, rare talisman
 
-		If InStr(A_LoopField, Lang_Trans("items_implicit")) && settings.iteminfo.compare
+		If InStr(A_LoopField, "(implicit)") && settings.iteminfo.compare
 			item.implicits.Push(StrReplace(A_LoopField, " (implicit)")) ;store all implicits if league-start mode is enabled
 
-		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, "{ " Lang_Trans("items_implicit")) || InStr(A_LoopField, "{ Allocated Crucible") ;don't include implicits or crucible info
+		If (SubStr(A_LoopField, 1, 1) != "{") || InStr(A_LoopField, " (implicit)") || InStr(A_LoopField, "{ Allocated Crucible") ;don't include implicits or crucible info
 			Continue
 		clip2 .= A_LoopField "`n" ;rebuild the copied item-info without unnecessary lines
 	}
@@ -2460,12 +2460,11 @@ Iteminfo_Overlays() ;show update buttons for specific gear-slots underneath the 
 	If settings.iteminfo.compare
 		For slot, val in vars.iteminfo.compare.slots
 		{
-			If LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login")
-			&& (!vars.general.MultiThreading && Screenchecks_PixelSearch("inventory") || vars.general.MultiThreading && vars.pixels.inventory)
+			If LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2) && (vars.log.areaID != "login") && vars.pixels.inventory
 			&& !WinExist("ahk_id "vars.hwnd.iteminfo_comparison[slot]) && (vars.general.wMouse != vars.hwnd.iteminfo.main) && (vars.general.wMouse != vars.hwnd.omni_context.main) && WinActive("ahk_group poe_window")
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "show",, "iteminfo_button_" slot)
 			Else If WinExist("ahk_id " vars.hwnd.iteminfo_comparison[slot])
-			&& (!(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2)) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window") || (!vars.general.MultiThreading && !Screenchecks_PixelSearch("inventory") || vars.general.MultiThreading && !vars.pixels.inventory))
+			&& (!(LLK_IsBetween(vars.general.xMouse, val.x1, val.x2) && LLK_IsBetween(vars.general.yMouse, val.y1, val.y2)) || (vars.general.wMouse = vars.hwnd.iteminfo.main) || (vars.general.wMouse = vars.hwnd.omni_context.main) || (vars.log.areaID = "login") || !WinActive("ahk_group poe_window") || !vars.pixels.inventory)
 				LLK_Overlay(vars.hwnd.iteminfo_comparison[slot], "hide")
 		}
 }

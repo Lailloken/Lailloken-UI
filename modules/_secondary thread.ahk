@@ -97,7 +97,7 @@ Loop()
 		vars.sanctum.active := 1
 	Else vars.sanctum.active := 0
 
-	If (check := WinExist("LLK-UI: Settings Menu ("))
+	If WinExist("LLK-UI: Settings Menu (")
 	{
 		WinGetTitle, title, % "LLK-UI: Settings Menu ("
 		title := SubStr(title, InStr(title, "(") + 1), vars.settings.active := SubStr(title, 1, -1)
@@ -114,7 +114,7 @@ Loop()
 
 	If !vars.pixelsearch.wait
 		For pixel in vars.pixelsearch.list
-			If (pixel = "gamescreen") && settings.cloneframes.pixelchecks || (pixel = "inventory") && (settings.cloneframes.inventory || settings.iteminfo.compare)
+			If !vars.poe_version && (pixel = "gamescreen") && vars.cloneframes.gamescreen || (pixel = "inventory") && (vars.cloneframes.inventory || settings.iteminfo.compare)
 				vars.pixels[pixel] := Screenchecks_PixelSearch(pixel)
 			Else vars.pixels[pixel] := 0
 
