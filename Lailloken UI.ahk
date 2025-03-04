@@ -398,10 +398,6 @@ Init_vars()
 	global vars, settings, CustomFont, db, Json
 
 	db := {}
-	;read databases for item-info tooltip
-	db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
-	db.item_bases := Json.Load(LLK_FileRead("data\global\item bases" vars.poe_version ".json", 1))
-	db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers" vars.poe_version ".json"))
 
 	settings := {}
 	settings.features := {}

@@ -303,6 +303,9 @@ Omni_ContextMenu()
 	local
 	global vars, settings, db
 
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
+
 	Loop 2
 	{
 		Gui, omni_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd0
@@ -496,6 +499,8 @@ Omni_ItemInfo()
 
 	Iteminfo(2)
 	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	If !vars.poe_version && item.itembase
 	{

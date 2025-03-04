@@ -38,6 +38,12 @@ DB_Load(database)
 		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
 			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
 	}
+	Else If (database = "item_mods")
+		db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
+	Else If (database = "item_bases")
+		db.item_bases := Json.Load(LLK_FileRead("data\global\item bases" vars.poe_version ".json", 1))
+	Else If (database = "item_drops")
+		db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers" vars.poe_version ".json"))
 }
 
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.

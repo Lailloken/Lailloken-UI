@@ -141,6 +141,9 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	UI.segments := 10 ;number of segments the tooltip is made of, i.e. the tooltip is 10 standardized widths wide
 	UI.hDivider := UI.hSegment//9 ;thickness of the dividing lines between implicits, prefixes, suffixes, etc.
 
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
+
 	If (refresh = 1) ;refresh tooltip after changing settings in the menu, i.e. use the previously omni-clicked item's info and redraw the tooltip with new settings
 	{
 		If !vars.iteminfo.clipboard
@@ -308,6 +311,8 @@ Iteminfo_Stats()
 	Else item.type := ""
 
 	item.ilvl_max := "86", item.stats := {} ;list of stats that will later be listed in the optional base-info area of the tooltip
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	For class, class_val in db.item_bases ;parse through the item-databases to get relevant information
 	{
@@ -844,6 +849,11 @@ Iteminfo_GUI()
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo, "inverted_mods": {}}
+
+	If !IsObject(db.item_mods)
+		DB_Load("item_mods")
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1480,6 +1490,9 @@ Iteminfo_GUI()
 
 	If unique
 	{
+		If !IsObject(db.item_drops)
+			DB_Load("item_drops")
+		
 		If roll_stats.Count()
 			Gui, %GUI_name%: Add, Progress, % "xs w" UI.wSegment*UI.segments " Disabled h" UI.hDivider " BackgroundWhite",
 		If db.item_drops[item.name]
