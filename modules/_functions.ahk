@@ -21,6 +21,25 @@ CheckClient()
 		Return " 2"
 }
 
+DB_Load(database)
+{
+	local
+	global vars, settings, db, json
+
+	If (database = "leveltracker")
+	{
+		lang := settings.general.lang, lang2 := settings.general.lang_client
+		If !vars.poe_version
+			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
+			, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] gems.json") ? lang : "english") "\[leveltracker] gems.json"))
+			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
+			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
+			, "trees": {"supported": ["3_25", "3_25_alternate"]}}
+		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
+			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
+	}
+}
+
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
 {
 	local

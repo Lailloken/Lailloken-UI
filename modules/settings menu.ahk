@@ -1548,7 +1548,7 @@ Settings_iteminfo2(cHWND)
 Settings_leveltracker()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 
 	GUI := "settings_menu" vars.settings.GUI_toggle, x_anchor := vars.settings.x_anchor
 	Gui, %GUI%: Add, Link, % "Section x" x_anchor " y" vars.settings.ySelection, <a href="https://github.com/Lailloken/Lailloken-UI/wiki/Act‐Tracker">wiki page</a>
@@ -1558,6 +1558,9 @@ Settings_leveltracker()
 
 	If !settings.features.leveltracker
 		Return
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("global_general")
@@ -1721,6 +1724,9 @@ Settings_leveltracker2(cHWND := "")
 {
 	local
 	global vars, settings, JSON, db
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	check := LLK_HasVal(vars.hwnd.settings, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If (check = "enable")

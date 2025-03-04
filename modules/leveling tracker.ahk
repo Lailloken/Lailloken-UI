@@ -123,17 +123,6 @@
 	vars.leveltracker.skilltree := {"active": !Blank(check := ini.settings["last skilltree-image" settings.leveltracker.profile]) ? check : "00"}
 	vars.leveltracker.skilltree_schematics := {"active": !Blank(check := ini.settings["last skilltree-schematic" settings.leveltracker.profile]) ? check : "1"
 		, "scale": !Blank(check2 := ini.settings["schematic scaling"]) ? check2 : 0}
-
-	lang := settings.general.lang, lang2 := settings.general.lang_client
-	If !IsObject(db.leveltracker)
-		If !vars.poe_version
-			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
-			, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] gems.json") ? lang : "english") "\[leveltracker] gems.json"))
-			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
-			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
-			, "trees": {"supported": ["3_25", "3_25_alternate"]}}
-		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
-			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
 }
 
 Geartracker(mode := "")
@@ -289,6 +278,10 @@ Leveltracker(cHWND := "", hotkey := "")
 
 	If vars.leveltracker.fast ;block any input during fast-forwarding
 		Return
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
+
 	check := LLK_HasVal(vars.hwnd.leveltracker, cHWND), profile := settings.leveltracker.profile
 	If InStr(check, "dummy")
 		Return
@@ -537,6 +530,9 @@ Leveltracker_GuideEditor(cHWND)
 	If !vars.leveltracker_editor.act
 		vars.leveltracker_editor := {"act": 1, "default_guide": Trim(StrReplace(LLK_FileRead("data\" settings.general.lang "\[leveltracker] default guide" vars.poe_version ".txt"), "`r`n", "`n"), " `r`n")}
 	act := vars.leveltracker_editor.act
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	If (cHWND = "clear")
 	{
@@ -897,6 +893,8 @@ Leveltracker_Import(profile := "")
 	global vars, settings, Json, db
 
 	KeyWait, LButton
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	If vars.poe_version
 	{
@@ -1522,6 +1520,9 @@ LevelTracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", reg
 	If !regex && (!gem_name && !last_gem || Blank(xPos) && Blank(last_xPos) || Blank(yPos) && Blank(last_yPos))
 		Return
 
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
+
 	profile := settings.leveltracker.profile, profile := settings.leveltracker["mule" profile] ? "" : profile
 	pob := vars.leveltracker["pob" profile], item := vars.omnikey.item, wHover := settings.leveltracker.fWidth * 15
 	If !IsObject(vars.leveltracker.gemlinks)
@@ -1658,6 +1659,9 @@ LevelTracker_PobImport(b64, profile)
 	Base64Dec(RTrim(b64, "="), compressed), buffer := 1024 * 10000
 	zlib_Decompress(decompressed, compressed, buffer)
 	xml := StrReplace(StrGet(&decompressed, buffer, ""), "`t"), xml := LLK_StringCase(xml)
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	If !vars.poe_version && InStr(xml, "<PathOfBuilding>") && InStr(xml, "</PathOfBuilding>")
 	|| vars.poe_version && InStr(xml, "<PathOfBuilding2>") && InStr(xml, "</PathOfBuilding2>")
@@ -1805,6 +1809,9 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 
 	If wait && !InStr(mode, "init ")
 		Return
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	If InStr(mode, "init ")
 	{
@@ -2166,6 +2173,9 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 
 	If in_progress
 		Return
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	vars.leveltracker.guide.text_raw := vars.leveltracker.guide.import.Clone(), in_progress := 1, vars.leveltracker.last := A_TickCount*100 ;dummy-value to prevent Loop_main() from prematurely fading the overlay
 	guide := vars.leveltracker.guide, areas := db.leveltracker.areas, timer := vars.leveltracker.timer ;short-cut variables
@@ -2671,6 +2681,9 @@ Leveltracker_Strings()
 	Loop, Parse, % "str,str_supp,dex,dex_supp,int,int_supp,none", `,
 		strings_%A_LoopField% := [], strings_gems := []
 
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
+
 	For key, val in vars.leveltracker.guide.gems
 	{
 		regex := StrReplace(db.leveltracker.regex[val].1, " ", "."), regex := !regex ? StrReplace(val, " ", ".") : regex
@@ -2774,6 +2787,9 @@ Leveltracker_Timer(mode := "")
 
 	If !settings.leveltracker.timer
 		Return
+
+	If !IsObject(db.leveltracker)
+		DB_Load("leveltracker")
 
 	If vars.hwnd.leveltracker.main && (timer.pause = 1) && (db.leveltracker.areas.HasKey(vars.log.areaID) || InStr(vars.log.areaID, "labyrinth")) && (timer.current_act != 11) ;resume the timer after leaving a hideout (if it wasn't paused manually by the user)
 		timer.pause := 0
