@@ -1,5 +1,11 @@
 [
   [
+	["1.57.2", 15702],
+	"fix: item-info implicits",
+	"renamed the <gamescreen> screen-check to be more descriptive",
+	"expanded clone-frames toggling customization"
+  ],
+  [
 	["1.57.1", 15701],
 	"hotfix 1: added item-info support for idols",
 	"initial legacy of phrecia support: stash-ninja, act-tracker (pob trees)"
