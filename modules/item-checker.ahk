@@ -848,8 +848,6 @@ Iteminfo_GUI()
 	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo, "inverted_mods": {}}
 
-	If !IsObject(db.item_mods)
-		DB_Load("item_mods")
 	If !IsObject(db.item_bases)
 		DB_Load("item_bases")
 
@@ -1312,6 +1310,9 @@ Iteminfo_GUI()
 		If settings.iteminfo.ilvl && (item.class != "base jewels") ;if item-levels are enabled, look them up in the databases
 		{
 			ilvl := "??" ;set placeholder ilvl
+			If !IsObject(db.item_mods)
+				DB_Load("item_mods")
+
 			For key, val in db.item_mods[db.item_mods.HasKey(search_class) ? search_class : "universal"]
 			{
 				If (val.affix = name) && (val.type = affix_type)
@@ -1337,6 +1338,9 @@ Iteminfo_GUI()
 
 		If (settings.general.lang_client = "english") && (item.class = "base jewels") ;for base/generic jewels, look up mod-weights
 		{
+			If !IsObject(db.item_mods)
+				DB_Load("item_mods")
+
 			For key, val in db.item_mods["base jewels"]
 			{
 				If (val.affix = name) ;affix names match
