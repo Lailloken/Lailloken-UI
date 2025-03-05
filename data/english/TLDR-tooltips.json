@@ -354,14 +354,14 @@
         "essence scarabs"
       ],
       [
-        "final boss drops additional reliquary scarabs",
-        "reliquary scarabs"
+        "final boss drops additional titanic scarabs",
+        "titanic scarabs"
       ]
     ],
     "minions": [
       [
-        "overwhelm physical damage reduction",
-        "overwhelm pdr"
+        "hits have chance to ignore enemy physical damage reduction",
+        "chance to ignore pdr"
       ],
       [
         "skills fire additional projectiles",
@@ -680,7 +680,7 @@
         "harbinger scarab"
       ],
       [
-        "[dnt] chance to drop an additional miscellaneous scarab",
+        "chance to drop an additional miscellaneous scarab",
         "miscellaneous scarab"
       ],
       [
@@ -704,8 +704,8 @@
         "essence scarab"
       ],
       [
-        "chance to drop an additional reliquary scarab",
-        "reliquary scarab"
+        "chance to drop an additional titanic scarab",
+        "titanic scarab"
       ]
     ],
     "player": [
