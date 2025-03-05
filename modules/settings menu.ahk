@@ -2550,7 +2550,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 
 	If !IsNumber(mode)
 		mode := 0
-	vars.settings.active := section ;which section of the settings menu is currently active (for purposes of reloading the correct section after restarting)
+	vars.settings.active := vars.settings.active_last := section ;which section of the settings menu is currently active (for purposes of reloading the correct section after restarting)
 
 	If WinExist("ahk_id "vars.hwnd.settings.main)
 	{

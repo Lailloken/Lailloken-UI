@@ -245,7 +245,7 @@ Gui_ToolbarButtons(cHWND, hotkey)
 		}
 		Else If WinExist("ahk_id "vars.hwnd.settings.main)
 			Settings_menuClose()
-		Else Settings_menu("general",, 0)
+		Else Settings_menu(vars.settings.active_last ? vars.settings.active_last : "general",, 0)
 	}
 	Else If InStr(check, "restart")
 	{
