@@ -28,12 +28,13 @@ Menu, Tray, Tip, Lailloken UI
 Menu, Tray, Icon, img\GUI\tray.ico
 
 vars := {"general": {"runcheck": A_TickCount}, "logging": FileExist("data\log.txt"), "MainThread": 1}, LLK_Log("waiting for valid game-clients...")
+timeout := [LLK_IniRead("ini\config.ini", "settings", "kill script", 1), LLK_IniRead("ini\config.ini", "settings", "kill-timeout", 1)]
 While !WinExist("ahk_class POEWindowClass") && !WinExist("ahk_exe GeForceNOW.exe") ;wait for game-client window
 {
-	If (A_TickCount >= vars.general.runcheck + 60000)
+	If timeout.1 && (A_TickCount >= vars.general.runcheck + 60000 * timeout.2)
 		ExitApp
 	win_not_exist := 1
-	Sleep, 100
+	Sleep, 500
 }
 
 ;band-aid fix for situations in which the client was launched after the script, and the script detected an unsupported resolution because the PoE-client window was being resized during window-detection
@@ -351,7 +352,7 @@ Init_general()
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
 	}
-	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini") ;ini-version is stored here regardless of which PoE-version is being played
+	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini", 0) ;ini-version is stored here regardless of which PoE-version is being played
 	If !ini_version
 		IniWrite, % new_version, ini\config.ini, versions, ini
 
@@ -475,7 +476,8 @@ IniIntegrityCheck()
 
 LLK_FileCheck() ;delete old files (or ones that have been moved elsewhere)
 {
-	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\", "english\eldritch altars.json"]
+	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\"
+		, "english\eldritch altars.json", "english\[leveltracker] default guide 2.txt"]
 		If FileExist("data\" val)
 		{
 			FileDelete, data\%val%
@@ -594,7 +596,7 @@ Loop_main()
 
 	If vars.hwnd.leveltracker_gemlinks.main && vars.general.wMouse && (vars.general.wMouse = vars.hwnd.leveltracker_gemlinks.main)
 	&& vars.general.cMouse && (check := LLK_HasVal(vars.hwnd.leveltracker_gemlinks, vars.general.cMouse)) && (vars.leveltracker.gemlinks.hover != SubStr(check, 0))
-		LevelTracker_PobGemLinks("", SubStr(check, 0))
+		Leveltracker_PobGemLinks("", SubStr(check, 0))
 
 	If vars.hwnd.recombination.main && WinActive("ahk_id " vars.hwnd.recombination.main) && (vars.general.wMouse = vars.hwnd.poe_client)
 	{
@@ -826,7 +828,7 @@ Startup()
 	global vars, settings, json
 
 	ini := IniBatchRead("ini" vars.poe_version "\config.ini", "settings")
-	settings.general := {"kill": [!Blank(check := ini.settings["kill script"]) ? check : 1, !Blank(check1 := ini.settings["kill script"]) ? check1 : 1]}
+	settings.general := {"kill": [LLK_IniRead("ini\config.ini", "settings", "kill script", 1), LLK_IniRead("ini\config.ini", "settings", "kill-timeout", 1)]}
 	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0, settings.general.capslock := !Blank(check := ini.settings["enable capslock-toggling"]) ? check : 1
 	SetStoreCapsLockMode, % settings.general.capslock ;for people who have something bound to CapsLock
 	If !(vars.general.Gdip := Gdip_Startup(1))
