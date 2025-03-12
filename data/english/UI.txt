@@ -182,6 +182,9 @@
 		global_multithreading		=	"single-threaded"
 		global_ignore			=	"ignore"
 		global_custom			=	"custom"		;## as in "user-defined"
+		global_condition		=	"condition:"		;## as in "if x condition is met"
+		global_yes			=	"yes"
+		global_no			=	"no"
 
 		mechanic_bestiary		=	"bestiary"
 		mechanic_betrayal		=	"betrayal"
@@ -372,7 +375,7 @@
 		lvltracker_editor		=	"guide editor"					;## PoE2 only (whole block)
 		lvltracker_editor_slot		=	"slot"						;## the act-tracker has 3 slots to save guides into
 		lvltracker_editor_acts		=	"acts:"
-		lvltracker_editor_save		=	"save changes"
+		lvltracker_editor_save		=	"unsaved changes:"
 		lvltracker_editor_export	=	"export guide"
 		lvltracker_editor_areas		=	"area-names (click to paste):"
 		lvltracker_editor_icons		=	"icons (click to paste):"
@@ -382,6 +385,8 @@
 		lvltracker_editor_hint		=	"hint / more info"
 		lvltracker_editor_quest-name	=	"quest-name"
 		lvltracker_editor_quest-item	=	"quest-item"
+		lvltracker_editor_remove	=	"remove page"
+		lvltracker_editor_add		=	"add page"
 
 
 ;#####################################################
@@ -851,10 +856,14 @@
 		m_lvltracker_pob		=	"pob: middle-click opens screen-cap menu"
 		m_lvltracker_screencap		=	"screen-cap menu"
 		m_lvltracker_guide		=	"guides:"
-		m_lvltracker_generate		=	"open exile-leveling"
 		m_lvltracker_reset		=	"reset"
 		m_lvltracker_incompatible	=	"incompatible guide-data,;update required"
 		m_lvltracker_treeclear		=	"delete data"
+		m_lvltracker_leaguestart	=	"league-start"
+		m_lvltracker_bandit		=	"bandit"
+		m_lvltracker_bandits		=	"alira"
+		m_lvltracker_bandits		=	"kraityn"
+		m_lvltracker_bandits		=	"oak"
 
 
 
