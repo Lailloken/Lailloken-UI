@@ -35,8 +35,15 @@ DB_Load(database)
 			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
 			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
 			, "trees": {"supported": ["3_25", "3_25_alternate"]}}
-		Else db.leveltracker := {"areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
+		Else
+		{
+			db.leveltracker := {"areaIDs": {}, "areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
 			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
+
+			For iAct, aAct in db.leveltracker.areas
+				For iArea, oArea in aAct
+					db.leveltracker.areaIDs[oArea.id] := oArea.mapname ? {"name": oArea.name, "mapname": oArea.mapname} : {"name": oArea.name}
+		}
 	}
 	Else If (database = "item_mods")
 		db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
