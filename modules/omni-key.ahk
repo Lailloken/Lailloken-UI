@@ -74,11 +74,11 @@
 				}
 			Case "gemnotes":
 				MouseGetPos, xMouse, yMouse
-				LevelTracker_PobGemLinks(vars.omnikey.item.name,, xMouse, yMouse + 10)
+				Leveltracker_PobGemLinks(vars.omnikey.item.name,, xMouse, yMouse + 10)
 				Omni_Release()
 				LLK_Overlay(vars.hwnd.leveltracker_gemlinks.main, "destroy"), vars.hwnd.leveltracker_gemlinks.main := ""
 			Case "gemregex":
-				LevelTracker_PobGemLinks(vars.omnikey.item.name,,,, 1)
+				Leveltracker_PobGemLinks(vars.omnikey.item.name,,,, 1)
 			Case "geartracker":
 				Geartracker_Add()
 			Case "legion":

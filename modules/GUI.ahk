@@ -140,7 +140,7 @@ Gui_HelpToolTip(HWND_key)
 		database := vars.lootfilter.filter, lootfilter := 1
 	Else database := donation ? vars.settings.donations : !IsObject(vars.help[check][control]) ? vars.help2 : vars.help
 
-	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" || check = "leveltrackereditor" ? 0.5 : 1)
+	tooltip_width := (check = "settings") ? vars.settings.w - vars.settings.wSelection : (wWin - 2) * (check = "cheatsheets" && vars.cheatsheet_menu.type = "advanced" ? 0.5 : (check = "leveltrackereditor") ? 0.75 : 1)
 	If !tooltip_width
 		Return
 
@@ -186,7 +186,7 @@ Gui_HelpToolTip(HWND_key)
 
 	Gui, %GUI_name%: Show, NA AutoSize x10000 y10000
 	WinGetPos,,, width, height, ahk_id %tooltip%
-	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin + (check = "leveltrackereditor" ? (wWin - 2)//2 : 0), yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h
+	xPos := (check = "settings") ? vars.settings.x + vars.settings.wSelection - 1 : xWin + (check = "leveltrackereditor" ? (wWin - 2)//8 : 0), yPos := InStr(control, "update changelog") && (height > vars.monitor.h - (y + h)) ? y - height - 1 : (y + h + height + 1 > vars.monitor.y + vars.monitor.h) ? y - height : y + h
 	If (check = "lootfilter")
 		yPos := vars.lootfilter.yPos - height, yPos := (yPos < vars.monitor.y) ? vars.monitor.y : yPos
 	Gui, %GUI_name%: Show, % "NA x"xPos " y"(InStr("notepad, lab, leveltracker, snip, searchstrings, maptracker", check) ? yWin - (InStr("maptracker", check) ? height - 1 : 0) : yPos)
