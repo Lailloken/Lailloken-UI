@@ -1044,7 +1044,7 @@ Leveltracker_Import(profile := "")
 
 	If vars.poe_version
 	{
-		If !InStr(Clipboard, " areaid") ;!LLK_PatternMatch(Clipboard, "", [Lang_Trans("lvltracker_format_enter") " areaid"],,, 1)
+		If !InStr(Clipboard, " areaid")
 		{
 			Try PoB := Leveltracker_PobImport(Clipboard, profile)
 			If !IsObject(PoB)
@@ -1071,7 +1071,10 @@ Leveltracker_Import(profile := "")
 				dump .= (!dump ? "" : "`n") "act" A_Index "=""" json.dump(object[A_Index]) """"
 
 		If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
+		{
 			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
+			IniWrite, 0, % "ini" vars.poe_version "\leveling guide" profile ".ini", Progress, pages
+		}
 		IniWrite, % (settings.leveltracker["guide" profile].info.custom := 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, custom
 		IniWrite, % dump, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
 		Init_leveltracker(), Settings_menu("leveling tracker")
