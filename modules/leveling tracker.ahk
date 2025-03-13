@@ -826,9 +826,9 @@ Leveltracker_GuideEditor(cHWND)
 	vars.hwnd.leveltracker_editor["font_1minus"] := hwnd, vars.hwnd.leveltracker_editor["font_1reset"] := hwnd1, vars.hwnd.leveltracker_editor["font_1plus"] := hwnd2
 
 	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % Lang_Trans("lvltracker_editor_acts") " "
-	For index, vAct in [1, 2, 3, 1, 2, 3]
+	For index, vAct in (vars.poe_version ? [1, 2, 3, 1, 2, 3] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 	{
-		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 2.5 (A_Index > 3 ? " cFF8000" : ""), % " " vAct " "
+		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 3 (vars.poe_version && A_Index > 3 ? " cFF8000" : ""), % vAct
 		Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (vars.leveltracker_editor.act = index ? "404040" : "Black"), 100
 		vars.hwnd.leveltracker_editor["act_" index] := hwnd
 	}
@@ -860,7 +860,7 @@ Leveltracker_GuideEditor(cHWND)
 	LLK_PanelDimensions(dimensions, settings.leveltracker.fSize_editor, width, height)
 	For index, object in db.leveltracker.areas[act]
 	{
-		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width, % " " object.name . (InStr(object.id, "g2_3a") ? " " Lang_Trans("lvltracker_editor_blocked") : "")
+		Gui, %GUI_name%: Add, Text, % (index = 1 ? "y+" margin : "") " Section xs Border HWNDhwnd gLeveltracker_GuideEditor w" width . (object.id = "labyrinth_airlock" ? " c569777" : ""), % " " object.name . (InStr(object.id, "g2_3a") ? " " Lang_Trans("lvltracker_editor_blocked") : "")
 		vars.hwnd.leveltracker_editor["pastearea_" object.id] := hwnd
 	}
 
