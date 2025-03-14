@@ -671,7 +671,8 @@ Leveltracker_GuideEditor(cHWND)
 			If FileExist("ini" vars.poe_version "\leveling guide" targetProfile ".ini")
 			{
 				IniDelete, % "ini" vars.poe_version "\leveling guide" targetProfile ".ini", Guide
-				IniWrite, 0, % "ini" vars.poe_version "\leveling guide" targetProfile ".ini", Progress, pages
+				If !settings.general.dev
+					IniWrite, 0, % "ini" vars.poe_version "\leveling guide" targetProfile ".ini", Progress, pages
 			}
 			Else IniWrite, % "", % "ini" vars.poe_version "\leveling guide" targetProfile ".ini", Info
 
@@ -828,7 +829,7 @@ Leveltracker_GuideEditor(cHWND)
 	Gui, %GUI_name%: Add, Text, % "ys x+" margin, % Lang_Trans("lvltracker_editor_acts") " "
 	For index, vAct in (vars.poe_version ? [1, 2, 3, 1, 2, 3] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 	{
-		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 3 (vars.poe_version && A_Index > 3 ? " cFF8000" : ""), % vAct
+		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 2.5 (vars.poe_version && A_Index > 3 ? " cFF8000" : ""), % vAct
 		Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (vars.leveltracker_editor.act = index ? "404040" : "Black"), 100
 		vars.hwnd.leveltracker_editor["act_" index] := hwnd
 	}
@@ -896,7 +897,7 @@ Leveltracker_GuideEditor(cHWND)
 	Loop, % Max(vars.leveltracker_editor.guide[act].Count(), 1)
 	{
 		Gui, %GUI_name%: Add, Text, % (xPage + wPage >= wEdit - wPage ? "xs Section" : "ys") . (A_Index = 1 ? " Section x+" margin : "")
-		. " Border HWNDhwnd BackgroundTrans gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor*3, % A_Index
+		. " Border HWNDhwnd BackgroundTrans gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor*2.5, % A_Index
 		If (A_Index = page[act] || LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1))
 			Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (A_Index = page[act] ? "505050" : LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1) ? "303030" : "Black"), 100
 		vars.hwnd.leveltracker_editor["page_" A_Index] := hwnd
@@ -2107,7 +2108,8 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 				failed_versions[version] := 1
 				Return
 			}
-			FileAppend, % download, % file, UTF-8
+			file_new := FileOpen(file, "w", "UTF-8-RAW")
+			file_new.Write(download), file_new.Close()
 			Sleep 500
 			If !FileExist(file)
 			{
