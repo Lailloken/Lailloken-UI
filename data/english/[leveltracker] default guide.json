@@ -614,8 +614,8 @@
         "yes"
       ],
       "lines": [
-         "siosa: <a_fixture_of_fate>",
-      "(img:waypoint) to areaid1_3_15 ;; the imperial gardens"
+        "siosa: <a_fixture_of_fate>",
+        "(img:waypoint) to areaid1_3_15 ;; the imperial gardens"
       ]
     },
     {
@@ -662,8 +662,8 @@
       ],
       "lines": [
         "find and kill voll for (quest:deshret's_banner)",
-      "(hint)_____recommended level: 30",
-      "activate the (img:craft), relog to areaid1_4_town (img:town) ;; highgate"
+        "(hint)_____recommended level: 30",
+        "activate the (img:craft), relog to areaid1_4_town (img:town) ;; highgate"
       ]
     },
     {
@@ -673,8 +673,8 @@
       ],
       "lines": [
         "find and kill voll for (quest:deshret's_banner)",
-      "(hint)_____recommended level: 30",
-      "relog to areaid1_4_town (img:town) ;; highgate"
+        "(hint)_____recommended level: 30",
+        "relog to areaid1_4_town (img:town) ;; highgate"
       ]
     },
     [
@@ -710,7 +710,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-      "(img:waypoint) to areaid1_4_town (img:town) ;; highgate"
+        "(img:waypoint) to areaid1_4_town (img:town) ;; highgate"
       ]
     },
     {
@@ -758,8 +758,8 @@
       ],
       "lines": [
         "activate the (img:craft), enter (img:arena) caldera_of_the_king",
-      "kill king_kaom for (quest:the_eye_of_fury)",
-      "(img:portal) to areaid1_4_town ;; highgate"
+        "kill king_kaom for (quest:the_eye_of_fury)",
+        "(img:portal) to areaid1_4_town ;; highgate"
       ]
     },
     {
@@ -769,8 +769,8 @@
       ],
       "lines": [
         "enter (img:arena) caldera_of_the_king",
-      "kill king_kaom for (quest:the_eye_of_fury)",
-      "(img:portal) to areaid1_4_town ;; highgate"
+        "kill king_kaom for (quest:the_eye_of_fury)",
+        "(img:portal) to areaid1_4_town ;; highgate"
       ]
     },
     [
@@ -798,8 +798,8 @@
       ],
       "lines": [
         "enter (img:arena) the_bowels_of_the_beast, kill piety",
-      "talk to piety",
-      "activate the (img:craft), enter areaid1_4_6_3 ;; the harvest"
+        "talk to piety",
+        "activate the (img:craft), enter areaid1_4_6_3 ;; the harvest"
       ]
     },
     {
@@ -809,7 +809,7 @@
       ],
       "lines": [
         "enter (img:arena) the_bowels_of_the_beast, kill piety",
-      "talk to piety, enter areaid1_4_6_3 ;; the harvest"
+        "talk to piety, enter areaid1_4_6_3 ;; the harvest"
       ]
     },
     [
@@ -829,8 +829,8 @@
       ],
       "lines": [
         "activate the (img:craft)",
-      "activate (quest:the_resonator), use (quest:oriath_portal)",
-      "enter areaid1_5_1 ;; the slave pens"
+        "activate (quest:the_resonator), use (quest:oriath_portal)",
+        "enter areaid1_5_1 ;; the slave pens"
       ]
     },
     {
@@ -840,7 +840,7 @@
       ],
       "lines": [
         "activate (quest:the_resonator), use (quest:oriath_portal)",
-      "enter areaid1_5_1 ;; the slave pens"
+        "enter areaid1_5_1 ;; the slave pens"
       ]
     }
   ],
@@ -874,8 +874,8 @@
       ],
       "lines": [
         "loop around counter-clockwise, activate the (img:craft)",
-      "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
-      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
+        "relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     {
@@ -885,8 +885,8 @@
       ],
       "lines": [
         "loop around counter-clockwise",
-      "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
-      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
+        "relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     [
@@ -911,8 +911,8 @@
       ],
       "lines": [
         "find and take (quest:sign_of_purity)",
-      "activate the (img:craft)",
-      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "activate the (img:craft)",
+        "relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     {
@@ -922,7 +922,7 @@
       ],
       "lines": [
         "find and take (quest:sign_of_purity)",
-      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     [
@@ -939,7 +939,7 @@
       ],
       "lines": [
         "find 3x (quest:kitava's_torment) near the corners",
-      "activate the (img:craft), relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "activate the (img:craft), relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     {
@@ -949,7 +949,7 @@
       ],
       "lines": [
         "find 3x (quest:kitava's_torment) near the corners",
-      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+        "relog to areaid1_5_town (img:town) ;; overseer's tower"
       ]
     },
     [
@@ -992,8 +992,8 @@
       ],
       "lines": [
         "enter (img:arena) tukohama's_keep, kill tukohama",
-      "activate the (img:craft)",
-      "go (img:0), enter areaid2_6_6 ;; the ridge"
+        "activate the (img:craft)",
+        "go (img:0), enter areaid2_6_6 ;; the ridge"
       ]
     },
     {
@@ -1003,7 +1003,7 @@
       ],
       "lines": [
         "enter (img:arena) tukohama's_keep, kill tukohama",
-      "go (img:0), enter areaid2_6_6 ;; the ridge"
+        "go (img:0), enter areaid2_6_6 ;; the ridge"
       ]
     },
     [
@@ -1162,8 +1162,8 @@
       ],
       "lines": [
         "activate the (img:craft) and (img:waypoint)",
-      "activate the (quest:map_device) with (quest:maligaro's_map)",
-      "enter areaid2_7_5_map ;; maligaro's sanctum"
+        "activate the (quest:map_device) with (quest:maligaro's_map)",
+        "enter areaid2_7_5_map ;; maligaro's sanctum"
       ]
     },
     {
@@ -1173,8 +1173,8 @@
       ],
       "lines": [
         "activate the (img:waypoint)",
-      "activate the (quest:map_device) with (quest:maligaro's_map)",
-      "enter areaid2_7_5_map ;; maligaro's sanctum"
+        "activate the (quest:map_device) with (quest:maligaro's_map)",
+        "enter areaid2_7_5_map ;; maligaro's sanctum"
       ]
     },
     [
@@ -1343,8 +1343,8 @@
       ],
       "lines": [
         "enter (img:arena) the_cauldron, kill doedre_the_vile",
-      "enter (img:arena) sewer_outlet, activate the (img:craft)",
-      "go (img:1), enter areaid2_8_8 ;; the quay"
+        "enter (img:arena) sewer_outlet, activate the (img:craft)",
+        "go (img:1), enter areaid2_8_8 ;; the quay"
       ]
     },
     {
@@ -1354,8 +1354,8 @@
       ],
       "lines": [
         "enter (img:arena) the_cauldron, kill doedre_the_vile",
-      "enter (img:arena) sewer_outlet",
-      "go (img:1), enter areaid2_8_8 ;; the quay"
+        "enter (img:arena) sewer_outlet",
+        "go (img:1), enter areaid2_8_8 ;; the quay"
       ]
     },
     [
@@ -1384,8 +1384,8 @@
       ],
       "lines": [
         "find and kill dawn for (quest:sun_orb)",
-      "activate the (img:craft)",
-      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+        "activate the (img:craft)",
+        "relog to areaid2_8_town (img:town) ;; the sarn encampment"
       ]
     },
     {
@@ -1395,7 +1395,7 @@
       ],
       "lines": [
         "find and kill dawn for (quest:sun_orb)",
-      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+        "relog to areaid2_8_town (img:town) ;; the sarn encampment"
       ]
     },
     [
@@ -1427,8 +1427,8 @@
       ],
       "lines": [
         "find and kill dusk for (quest:moon_orb)",
-      "activate the (img:craft)",
-      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+        "activate the (img:craft)",
+        "relog to areaid2_8_town (img:town) ;; the sarn encampment"
       ]
     },
     {
@@ -1438,7 +1438,7 @@
       ],
       "lines": [
         "find and kill dusk for (quest:moon_orb)",
-      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+        "relog to areaid2_8_town (img:town) ;; the sarn encampment"
       ]
     },
     [
@@ -1503,8 +1503,8 @@
       ],
       "lines": [
         "go (img:2), activate the (img:waypoint)",
-      "activate the (img:craft), find (quest:the_storm_blade)",
-      "go (img:7), enter areaid2_9_5 ;; the foothills"
+        "activate the (img:craft), find (quest:the_storm_blade)",
+        "go (img:7), enter areaid2_9_5 ;; the foothills"
       ]
     },
     {
@@ -1514,8 +1514,8 @@
       ],
       "lines": [
         "go (img:2), activate the (img:waypoint)",
-      "find (quest:the_storm_blade)",
-      "go (img:7), enter areaid2_9_5 ;; the foothills"
+        "find (quest:the_storm_blade)",
+        "go (img:7), enter areaid2_9_5 ;; the foothills"
       ]
     },
     [
@@ -1530,8 +1530,8 @@
       ],
       "lines": [
         "go (img:1) to kill the_basilisk for (quest:basilisk_acid)",
-      "activate the (img:craft)",
-      "relog to areaid2_9_town (img:town) ;; highgate"
+        "activate the (img:craft)",
+        "relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     {
@@ -1541,7 +1541,7 @@
       ],
       "lines": [
         "go (img:1) to kill the_basilisk for (quest:basilisk_acid)",
-      "relog to areaid2_9_town (img:town) ;; highgate"
+        "relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     [
@@ -1591,9 +1591,9 @@
       ],
       "lines": [
         "go (img:7), activate the (img:waypoint) and (img:craft)",
-      "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
-      "(hint)_____either (img:5) or (img:1) in the zone",
-      "relog to areaid2_9_town (img:town) ;; highgate"
+        "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
+        "(hint)_____either (img:5) or (img:1) in the zone",
+        "relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     {
@@ -1603,9 +1603,9 @@
       ],
       "lines": [
         "go (img:7), activate the (img:waypoint)",
-      "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
-      "(hint)_____either (img:5) or (img:1) in the zone",
-      "relog to areaid2_9_town (img:town) ;; highgate"
+        "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
+        "(hint)_____either (img:5) or (img:1) in the zone",
+        "relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     [
@@ -1690,8 +1690,8 @@
       ],
       "lines": [
         "activate the (img:craft)",
-      "complete the (img:lab) trial",
-      "relog to areaid2_10_town (img:town) ;; oriath docks"
+        "complete the (img:lab) trial",
+        "relog to areaid2_10_town (img:town) ;; oriath docks"
       ]
     },
     {
@@ -1710,7 +1710,7 @@
       ],
       "lines": [
         "go (img:1), activate the (img:waypoint)",
-      "(img:waypoint) to areaidlabyrinth_airlock ;; aspirants' plaza"
+        "(img:waypoint) to areaidlabyrinth_airlock ;; aspirants' plaza"
       ]
     },
     [
@@ -1738,8 +1738,8 @@
       ],
       "lines": [
         "loop around counter-clockwise, activate the (img:craft)",
-      "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
-      "relog to areaid2_10_town (img:town) ;; oriath docks"
+        "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
+        "relog to areaid2_10_town (img:town) ;; oriath docks"
       ]
     },
     {
@@ -1748,9 +1748,9 @@
         "no"
       ],
       "lines": [
-      "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
-      "(hint)_____loop around counter-clockwise",
-      "relog to areaid2_10_town (img:town) ;; oriath docks"
+        "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
+        "(hint)_____loop around counter-clockwise",
+        "relog to areaid2_10_town (img:town) ;; oriath docks"
       ]
     },
     [
@@ -1772,8 +1772,8 @@
       ],
       "lines": [
         "activate the (img:craft), talk to (img:quest) sin",
-      "enter (img:arena) altar_of_hunger, kill kitava",
-      "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
+        "enter (img:arena) altar_of_hunger, kill kitava",
+        "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
       ]
     },
     {
@@ -1783,8 +1783,8 @@
       ],
       "lines": [
         "talk to (img:quest) sin",
-      "enter (img:arena) altar_of_hunger, kill kitava",
-      "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
+        "enter (img:arena) altar_of_hunger, kill kitava",
+        "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
       ]
     },
     [

@@ -362,6 +362,7 @@
 		lvltracker_treenone		=	"imported pob doesn't;have usable trees"
 		lvltracker_treeascendancy	=	"slot empty"
 		lvltracker_exp			=	"lvl-diff:"					;## stands for level-difference, i.e. character-level - area-level = X
+		lvltracker_recommended		=	"recommended level:"				;## PoE1 only, used to filter out lvl-recommendations in the guide
 
 
 		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use this and the next two in combination with "areaidXYZ" to place a page divider
@@ -849,7 +850,7 @@
 		m_lvltracker_fade		=	"fade in on mouse-hover"
 		m_lvltracker_gear		=	"gear tracker"
 		m_lvltracker_zones		=	"zone-layouts"
-		m_lvltracker_hints		=	"hints"
+		m_lvltracker_recommend		=	"lvl recommendation"
 		m_lvltracker_hotkeys		=	"enable page-switching via hotkeys"
 		m_lvltracker_skilltree		=	"skill-tree overlay settings:"
 		m_lvltracker_pobmanual	=	"use screen-caps instead of schematics"

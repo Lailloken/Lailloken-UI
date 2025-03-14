@@ -1592,13 +1592,14 @@ Settings_leveltracker()
 		vars.hwnd.settings.fade_hover := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade mouse"] := hwnd
 	}
 
+	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.recommend, % Lang_Trans("m_lvltracker_recommend")
+	vars.hwnd.settings.recommend := vars.hwnd.help_tooltips["settings_leveltracker recommendation"] := hwnd
+
 	If !vars.client.stream && !vars.poe_version
 	{
-		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.hints, % Lang_Trans("m_lvltracker_hints")
-		vars.hwnd.settings.hints := vars.hwnd.help_tooltips["settings_leveltracker hints"] := hwnd
 		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.geartracker, % Lang_Trans("m_lvltracker_gear")
 		vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
-		Gui, %GUI%: Add, Checkbox, % "ys gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % Lang_Trans("m_lvltracker_zones")
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % Lang_Trans("m_lvltracker_zones")
 		vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
 	}
 
@@ -1797,10 +1798,9 @@ Settings_leveltracker2(cHWND := "")
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress()
 	}
-	Else If (check = "hints")
+	Else If (check = "recommend")
 	{
-		settings.leveltracker.hints := LLK_ControlGet(cHWND)
-		IniWrite, % settings.leveltracker.hints, % "ini" vars.poe_version "\leveling tracker.ini", settings, enable additional hints
+		IniWrite, % (settings.leveltracker.recommend := LLK_ControlGet(cHWND)), % "ini" vars.poe_version "\leveling tracker.ini", settings, enable level recommendations
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
 	}

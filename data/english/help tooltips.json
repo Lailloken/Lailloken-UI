@@ -311,6 +311,9 @@
       "overlay will be shown while hovering the cursor over its previous area",
       "has no effect while the move key is pressed (customizable in the hotkeys section)"
     ],
+    "leveltracker recommendation": [
+      "includes level recommendations for some areas or boss fights"
+    ],
     "leveltracker geartracker": [
       "notifies you when new gear can be equipped (the guide button will show a green number)",
       "accessed by right-clicking the guide button in the toolbar",
