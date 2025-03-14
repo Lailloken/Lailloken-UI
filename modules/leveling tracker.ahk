@@ -913,7 +913,7 @@ Leveltracker_GuideEditor(cHWND)
 		For index, line in (array.HasKey("condition") ? array.lines : array)
 			panel .= (!panel ? "" : "`n") line, areaID := InStr(line, "areaid") && !InStr(line, "(hint)__") ? 1 : areaID
 		style := (page1 < 1 || page1 > vars.leveltracker_editor.guide[act].Count() ? " Hidden" : "")
-		color := !areaID && !(act = guide.Count() && page1 = guide[act].Count()) ? "Red" : (json.dump(array) != json.dump(guide_last[act][page1]) ? "Blue" : "Black")
+		color := !areaID && !InStr(panel, "act-tracker") && !(act = guide.Count() && page1 = guide[act].Count()) ? "Red" : (json.dump(array) != json.dump(guide_last[act][page1]) ? "Blue" : "Black")
 		Gui, %GUI_name%: Add, Edit, % "Section xs" (i = 1 ? " x" margin : "") " -Wrap c" color " HWNDhwnd Lowercase gLeveltracker_GuideEditor w" wEdit " h" (yLast + hLast - yEdit)//4 . style, % panel
 		vars.hwnd.leveltracker_editor["textfield_" page1] := hwnd
 

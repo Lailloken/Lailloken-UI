@@ -5,7 +5,7 @@
       "enter areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) tarkleigh: <enemy_at_the_gate>",
+      "tarkleigh: <enemy_at_the_gate>",
       "enter areaid1_1_2 ;; the coast"
     ],
     [
@@ -14,8 +14,7 @@
     ],
     [
       "find 3x (quest:glyph)",
-      "(hint)_______little streams connect the 3 rhoa nests",
-      "(hint)_______usually form a triangle, but will rarely form a line",
+      "(hint)_____connected by streams, usually form a triangle or line",
       "enter areaid1_1_4_1 ;; the submerged passage"
     ],
     [
@@ -26,18 +25,17 @@
     ],
     [
       "find and kill hailrake, take (quest:medicine_chest)",
-      "(hint)_______go (img:6)",
-      "(hint)_______if you find a ledge, turn around and go (img:2)",
-      "(hint)_______recommended level: 4",
+      "(hint)_____go (img:6). if there's a ledge, go (img:2) instead",
+      "(hint)_____recommended level: 4",
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) tarkleigh: <breaking_some_eggs>",
-      "(img:quest) nessa: <mercy_mission>",
+      "tarkleigh: <breaking_some_eggs>",
+      "nessa: <mercy_mission>",
       "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
     ],
     [
-      "find bridge, place (img:portal)",
+      "find the bridge, place (img:portal)",
       "enter areaid1_1_5 ;; the ledge"
     ],
     [
@@ -54,43 +52,59 @@
     ],
     [
       "enter areaid1_1_4_0 ;; the flooded depths",
-      "(hint)_______go right of the bridge"
+      "(hint)_____usually (img:2) from the bridge"
     ],
     [
       "find and kill the_dweller_of_the_deep",
-      "(hint)_______search opposite the entrance",
-      "(hint)_______look for the large empty room",
+      "(hint)_____search for a large empty room opposite the entrance",
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) tarkleigh: <the_dweller_of_the_deep>",
-      "(img:quest) tarkleigh: <the_caged_brute>",
+      "tarkleigh: <the_dweller_of_the_deep>",
+      "tarkleigh: <the_caged_brute>",
       "(img:waypoint) to areaid1_1_7_1 ;; the lower prison"
     ],
     [
       "complete the (img:lab) trial",
-      "(hint)_______usually (img:1)",
+      "(hint)_____usually (img:1) in the zone",
       "enter areaid1_1_7_2 ;; the upper prison"
     ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "optional: find chemist's strongbox (flasks)",
+        "(hint)_____look for map icon, access with nearby switch",
+        "(hint)_____high chance for quicksilver flask (qsf)",
+        "(hint)_____vendor: qsf + aug + boots // qsf + aug + ms boots",
+        "enter (img:arena) the_warden's_quarters, kill brutus",
+        "(hint)_____recommended level: 8-10",
+        "relog to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) the_warden's_quarters, kill brutus",
+        "(hint)_____recommended level: 8-10",
+        "relog to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
     [
-      "optional: find chemist's strongbox",
-      "(hint)_______look for map icon, access with nearby switch",
-      "(hint)_______high chance for quicksilver flask (qsf)",
-      "(hint)_______vendor: qsf + aug + boots // qsf + aug + ms boots",
-      "enter (img:arena) the_warden's_quarters, kill brutus",
-      "(hint)_______recommended level: 8-10",
-      "relog to areaid1_1_town (img:town) ;; lioneye's watch"
-    ],
-    [
-      "(img:quest) tarkleigh: <the_caged_brute>",
+      "tarkleigh: <the_caged_brute>",
       "(img:waypoint) to areaid1_1_8 ;; prisoner's gate"
     ],
     [
       "enter areaid1_1_9 ;; the ship graveyard",
-      "(hint)_______go down the ledge next to the road"
+      "(hint)_____go down the ledge next to the road"
     ],
     [
-      "find areaid1_1_9a, place (img:portal) ;; the ship graveyard cave",
+      "find (img:arena) areaid1_1_9a, place (img:portal) ;; the ship graveyard cave",
       "enter areaid1_1_11_1 ;; the cavern of wrath"
     ],
     [
@@ -104,23 +118,23 @@
     ],
     [
       "find (quest:slave_girl), take (quest:allflame)",
-      "(hint)_______search opposite the entrance",
+      "(hint)_____search opposite the entrance",
       "enter areaid1_1_9, kill captain_fairgraves ;; the ship graveyard",
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) bestel: <the_marooned_mariner>",
-      "(img:quest) nessa: <the_siren's_cadence>",
+      "bestel: <the_marooned_mariner>",
+      "nessa: <the_siren's_cadence>",
       "(img:waypoint) to areaid1_1_11_1 ;; the cavern of wrath"
     ],
     [
       "enter areaid1_1_11_2 ;; the cavern of anger",
-      "(hint)_______follow the water"
+      "(hint)_____follow the water"
     ],
     [
       "enter (img:arena) merveil's_lair, kill merveil",
-      "(hint)_______follow the water",
-      "(hint)_______recommended level: 11-13",
+      "(hint)_____follow the water",
+      "(hint)_____recommended level: 11-13",
       "enter areaid1_2_1 ;; the southern forest"
     ]
   ],
@@ -129,7 +143,7 @@
       "enter areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
-      "go (img:1) , enter areaid1_2_2 ;; the old fields"
+      "go (img:1), enter areaid1_2_2 ;; the old fields"
     ],
     [
       "find (img:arena) areaid1_2_2a, place (img:portal) ;; the den",
@@ -149,16 +163,15 @@
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
-      "(img:quest) yeena: <the_great_white_beast>",
+      "yeena: <the_great_white_beast>",
       "(img:waypoint) to areaid1_2_3 ;; the crossroads"
     ],
     [
-      "go (img:7) , enter areaid1_2_6_1 ;; the chamber of sins level 1"
+      "go (img:7), enter areaid1_2_6_1 ;; the chamber of sins level 1"
     ],
     [
       "enter areaid1_2_6_2 ;; the chamber of sins level 2",
-      "(hint)_______find the large room near the center",
-      "(hint)_______the (img:waypoint) in the room points to the exit"
+      "(hint)_____the (img:waypoint) in the central room points to the exit"
     ],
     {
       "condition": [
@@ -168,8 +181,8 @@
       "lines": [
         "complete the (img:lab) trial",
         "kill fidelitas, take (quest:baleful_gem)",
-        "(hint)_______look for the long hallway",
-        "(hint)_______recommended level: 14-15",
+        "(hint)_____look for the long hallway",
+        "(hint)_____recommended level: 14-15",
         "relog to areaid1_2_town (img:town) ;; the forest encampment"
       ]
     },
@@ -180,17 +193,17 @@
       ],
       "lines": [
         "kill fidelitas, take (quest:baleful_gem)",
-        "(hint)_______look for the long hallway",
-        "(hint)_______recommended level: 14-15",
+        "(hint)_____look for the long hallway",
+        "(hint)_____recommended level: 14-15",
         "relog to areaid1_2_town (img:town) ;; the forest encampment"
       ]
     },
     [
-      "(img:quest) greust: <intruders_in_black>",
+      "greust: <intruders_in_black>",
       "(img:waypoint) to areaid1_2_3 ;; the crossroads"
     ],
     [
-      "go (img:3) , enter areaid1_2_15 ;; the fellshrine ruins"
+      "go (img:3), enter areaid1_2_15 ;; the fellshrine ruins"
     ],
     [
       "follow the road, enter areaid1_2_5_1 ;; the crypt level 1"
@@ -219,8 +232,8 @@
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
-      "(img:quest) yeena: <through_sacred_ground>",
-      "go (img:5) , enter areaid1_2_7 ;; the riverways"
+      "yeena: <through_sacred_ground>",
+      "go (img:5), enter areaid1_2_7 ;; the riverways"
     ],
     [
       "follow the road, activate the (img:waypoint)",
@@ -229,20 +242,20 @@
     [
       "follow the road, activate the (img:waypoint)",
       "enter areaid1_2_10 ;; the weaver's chambers",
-      "(hint)_______search the side of road opposite the (img:waypoint)"
+      "(hint)_____search the side of road opposite the (img:waypoint)"
     ],
     [
       "find and kill the_weaver for (quest:maligaro's_spike)",
-      "(hint)_______go (img:6) . if it's blocked, go (img:1)",
-      "(hint)_______recommended level: 16",
+      "(hint)_____go (img:6) from the entrance. if it's blocked, go (img:1)",
+      "(hint)_____recommended level: 16",
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
-      "(img:quest) silk: <sharp_and_cruel>",
+      "silk: <sharp_and_cruel>",
       "(img:waypoint) to areaid1_2_3 ;; the crossroads"
     ],
     [
-      "go (img:1) , enter areaid1_2_4 ;; the broken bridge"
+      "go (img:1), enter areaid1_2_4 ;; the broken bridge"
     ],
     [
       "follow the road, kill kraityn for (quest:kraityn's_amulet)",
@@ -253,28 +266,26 @@
     ],
     [
       "enter areaid1_2_12 ;; the wetlands",
-      "(hint)_______look for 2 pillars near the (img:waypoint) , follow the trail"
+      "(hint)_____a side trail forks off between 2 pillars nearby"
     ],
     [
       "find and kill oak for (quest:oak's_amulet)",
       "(img:waypoint) to areaid1_2_9 ;; the western forest",
-      "(hint)_______search opposite direction of the encampment entrance"
+      "(hint)_____search opposite direction of the encampment entrance"
     ],
     [
-      "kill alira, take (quest:alira's_amulet)",
-      "(hint)_______go (img:4) , look for the torch touching the road",
-      "(hint)_______follow the trail in the direction of the torch",
-      "kill captain_arteri",
-      "(hint)_______follow the road (img:5)",
-      "take (quest:thaumetic_emblem), activate (quest:thaumetic_seal)",
-      "relog to areaid1_2_town (img:town) ;; the forest encampment"
+      "kill alira for (quest:alira's_amulet)",
+      "(hint)_____follow the main road (img:4) and look for a torch on the edge",
+      "(hint)_____follow the trail that forks off at the torch",
+      "kill captain_arteri for (quest:thaumetic_emblem) at the end of the main road",
+      "activate (quest:thaumetic_seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
-      "(img:quest) eramir: <deal_with_the_bandits>, take (quest:the_apex)",
+      "eramir: <deal_with_the_bandits>, take (quest:the_apex)",
       "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) bestel: <the_way_forward>",
+      "bestel: <the_way_forward>",
       "(img:waypoint) to areaid1_2_12 ;; the wetlands"
     ],
     [
@@ -282,7 +293,7 @@
     ],
     [
       "find and enter areaid1_2_8 ;; the northern forest",
-      "(hint)_______zone is usually s- or l-shaped"
+      "(hint)_____zone is usually s- or l-shaped"
     ],
     [
       "enter areaid1_2_14_2 ;; the caverns"
@@ -308,9 +319,8 @@
     },
     [
       "find and enter (img:arena) pyramid_apex, kill vaal_oversoul",
-      "(hint)_______first floor exit will be in one of the 3 corners",
-      "(hint)_______remaining floors will have the exit diagonally across from the entrance",
-      "(hint)_______recommended level: 20-22",
+      "(hint)_____1st floor: exit in random corner, rest: diagonally across",
+      "(hint)_____recommended level: 20-22",
       "activate the (img:craft), enter areaid1_3_1 ;; the city of sarn"
     ]
   ],
@@ -340,8 +350,8 @@
       "enter areaid1_3_2 ;; the slums"
     ],
     [
-      "find and enter enter areaid1_3_3_1 ;; the crematorium",
-      "(hint)_______follow the stairs"
+      "find and enter areaid1_3_3_1 ;; the crematorium",
+      "(hint)_____follow the stairs"
     ],
     {
       "condition": [
@@ -351,8 +361,7 @@
       "lines": [
         "complete the (img:lab) trial",
         "find and kill piety, take (quest:tolman's_bracelet)",
-        "activate the (img:craft)",
-        "relog to areaid1_3_town (img:town) ;; the sarn encampment"
+        "activate the (img:craft), relog to areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
     {
@@ -367,7 +376,7 @@
     },
     [
       "talk to clarissa, take (quest:sewer_keys)",
-      "(img:quest) maramoa: <lost_in_love>",
+      "maramoa: <lost_in_love>",
       "enter areaid1_3_2 ;; the slums"
     ],
     [
@@ -406,7 +415,7 @@
         "yes"
       ],
       "lines": [
-        "(img:quest) hargan: <victario's_secrets>",
+        "hargan: <victario's_secrets>",
         "(img:waypoint) to areaid1_3_5 ;; the marketplace"
       ]
     },
@@ -416,7 +425,7 @@
         "yes"
       ],
       "lines": [
-        "go (img:0) , enter areaid1_3_7 ;; the battlefront"
+        "go (img:0), enter areaid1_3_7 ;; the battlefront"
       ]
     },
     {
@@ -426,13 +435,13 @@
       ],
       "lines": [
         "activate the (img:waypoint)",
-        "go (img:0) , enter areaid1_3_7 ;; the battlefront"
+        "go (img:0), enter areaid1_3_7 ;; the battlefront"
       ]
     },
     [
-      "go (img:7) , activate the (img:waypoint)",
-      "go go (img:5) , find and take (quest:ribbon_spool)",
-      "go (img:1) , enter areaid1_3_8_1 ;; the solaris temple level 1"
+      "go (img:7), activate the (img:waypoint)",
+      "go (img:5), find and take (quest:ribbon_spool)",
+      "go (img:1), enter areaid1_3_8_1 ;; the solaris temple level 1"
     ],
     [
       "enter areaid1_3_8_2 ;; the solaris temple level 2"
@@ -443,7 +452,7 @@
         "yes"
       ],
       "lines": [
-        "enter (img:arena) eternal_laboratory, activate the (img:craft)",
+        "enter (img:arena) (color:ffffff)eternal_laboratory, activate the (img:craft)",
         "(img:waypoint) to areaid1_3_7 ;; the battlefront"
       ]
     },
@@ -457,8 +466,8 @@
       ]
     },
     [
-      "go (img:7) , enter areaid1_3_9 ;; the docks",
-      "(hint)_______recommended level: 24"
+      "go (img:7), enter areaid1_3_9 ;; the docks",
+      "(hint)_____recommended level: 24"
     ],
     [
       "find and take (quest:thaumetic_sulphite)",
@@ -479,13 +488,13 @@
         "no"
       ],
       "lines": [
-        "(img:quest) hargan: <victario's_secrets>",
+        "hargan: <victario's_secrets>",
         "(img:waypoint) to areaid1_3_8_2 ;; the solaris temple level 2"
       ]
     },
     [
-      "(img:quest) dialla: <the_ribbon_spool>",
-      "(img:quest) dialla: <fiery_dust>, take (quest:infernal_talc)",
+      "dialla: <the_ribbon_spool>",
+      "dialla: <fiery_dust>, take (quest:infernal_talc)",
       "(img:waypoint) to areaid1_3_10_1 ;; the sewers"
     ],
     {
@@ -494,7 +503,7 @@
         "yes"
       ],
       "lines": [
-        "burn the (quest:undying_blockage) , activate the (img:craft)",
+        "burn the (quest:undying_blockage), activate the (img:craft)",
         "enter areaid1_3_13 ;; the ebony barracks"
       ]
     },
@@ -510,26 +519,43 @@
     },
     [
       "activate the (img:waypoint)",
-      "go (img:7) , kill general_gravicius",
+      "go (img:7), kill general_gravicius",
       "enter areaid1_3_14_1 ;; the lunaris temple level 1"
     ],
     [
       "enter areaid1_3_14_2 ;; the lunaris temple level 2"
     ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill piety for (quest:tower_key)",
+        "(hint)_____follow: stairs that go up, single wagon at the fork",
+        "(hint)_____recommended level: 27",
+        "activate the (img:craft), relog to areaid1_3_town (img:town) ;; the sarn encampment"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and kill piety for (quest:tower_key)",
+        "(hint)_____follow: stairs that go up, single wagon at the fork",
+        "(hint)_____recommended level: 27",
+        "relog to areaid1_3_town (img:town) ;; the sarn encampment"
+      ]
+    },
     [
-      "find and kill piety for (quest:tower_key)",
-      "(hint)_______follow stairs that are going up",
-      "(hint)_______at the fork, follow the single wagon",
-      "(hint)_______recommended level: 27",
-      "activate the (img:craft) , relog to areaid1_3_town (img:town) ;; the sarn encampment"
-    ],
-    [
-      "(img:quest) grigor: <piety's_pets>",
-      "(img:quest) maramoa: <sever_the_right_hand>",
+      "grigor: <piety's_pets>",
+      "maramoa: <sever_the_right_hand>",
       "(img:waypoint) to areaid1_3_13 ;; the ebony barracks"
     ],
     [
-      "go (img:1) , enter areaid1_3_15 ;; the imperial gardens"
+      "go (img:1), enter areaid1_3_15 ;; the imperial gardens"
     ],
     {
       "condition": [
@@ -538,7 +564,7 @@
       ],
       "lines": [
         "follow the road, activate the (img:waypoint)",
-        "go (img:0) , complete the (img:lab) trial, activate the (img:craft)",
+        "go (img:0), complete the (img:lab) trial, activate the (img:craft)",
         "relog to areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
@@ -549,23 +575,19 @@
       ],
       "lines": [
         "(img:waypoint) to areaid1_3_15 ;; the imperial gardens",
-        "go (img:7) , enter areaid1_3_17_1 ;; the library"
+        "go (img:7), enter areaid1_3_17_1 ;; the library"
       ]
     },
     {
       "condition": [
         "league-start",
-        "no"
+        "yes"
       ],
       "lines": [
-        "follow the road, activate the (img:waypoint)",
-        "go (img:7) , enter areaid1_3_17_1 ;; the library"
+        "activate the (img:waypoint)",
+        "find loose candle, enter areaid1_3_17_2 ;; the archives"
       ]
     },
-    [
-      "activate the (img:waypoint)",
-      "find loose candle, enter areaid1_3_17_2 ;; the archives"
-    ],
     {
       "condition": [
         "league-start",
@@ -580,31 +602,49 @@
     {
       "condition": [
         "league-start",
+        "yes"
+      ],
+      "lines": [
+        "get some currency, (img:waypoint) to areaid1_3_17_1 ;; the library"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+         "siosa: <a_fixture_of_fate>",
+      "(img:waypoint) to areaid1_3_15 ;; the imperial gardens"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and enter areaid1_3_18_1 ;; the sceptre of god"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
         "no"
       ],
       "lines": [
-        "find 4x (quest:golden_page)",
-        "relog to areaid1_3_town (img:town) ;; the sarn encampment"
+        "follow the road, activate the (img:waypoint)",
+        "find and enter areaid1_3_18_1 ;; the sceptre of god"
       ]
     },
     [
-      "get some currency, (img:waypoint) to areaid1_3_17_1 ;; the library"
-    ],
-    [
-      "(img:quest) siosa: <a_fixture_of_fate>",
-      "(img:waypoint) to areaid1_3_15 ;; the imperial gardens"
-    ],
-    [
-      "enter areaid1_3_18_1 ;; the sceptre of god"
-    ],
-    [
       "enter areaid1_3_18_2 ;; the upper sceptre of god",
-      "(hint)_______exits are usually on (diagonally) opposite ends of each floor"
+      "(hint)_____floors are circles, stairs can spawn every 90 degrees"
     ],
     [
       "enter (img:arena) tower_rooftop, kill dominus",
-      "(hint)_______exits are usually on (diagonally) opposite ends of each floor",
-      "(hint)_______recommended level: 28",
+      "(hint)_____same floor and stair layout, go (img:1) after scion cage",
+      "(hint)_____recommended level: 28",
       "enter areaid1_4_1 ;; the aqueduct"
     ]
   ],
@@ -615,11 +655,28 @@
     [
       "enter areaid1_4_2 ;; the dried lake"
     ],
-    [
-      "find and kill voll for (quest:deshret's_banner)",
-      "(hint)_______recommended level: 30",
-      "activate the (img:craft) , relog to areaid1_4_town (img:town) ;; highgate"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill voll for (quest:deshret's_banner)",
+      "(hint)_____recommended level: 30",
+      "activate the (img:craft), relog to areaid1_4_town (img:town) ;; highgate"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and kill voll for (quest:deshret's_banner)",
+      "(hint)_____recommended level: 30",
+      "relog to areaid1_4_town (img:town) ;; highgate"
+      ]
+    },
     [
       "enter areaid1_4_3_1 ;; the mines level 1"
     ],
@@ -646,27 +703,14 @@
       "free (quest:deshret)",
       "enter areaid1_4_3_3 ;; the crystal veins"
     ],
-    [
-      "activate the (img:craft)",
-      "(img:waypoint) to areaid1_4_town (img:town) ;; highgate"
-    ],
-    [
-      "(img:quest) tasuni: <an_indomitable_spirit>",
-      "(img:quest) oyun: <breaking_the_seal>",
-      "(img:waypoint) to areaid1_3_town (img:town) ;; the sarn encampment"
-    ],
-    [
-      "enter areaidlabyrinth_airlock ;; aspirants' plaza"
-    ],
     {
       "condition": [
         "league-start",
         "yes"
       ],
       "lines": [
-        "complete the (img:lab) normal_lab",
         "activate the (img:craft)",
-        "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
+      "(img:waypoint) to areaid1_4_town (img:town) ;; highgate"
       ]
     },
     {
@@ -675,10 +719,21 @@
         "no"
       ],
       "lines": [
-        "complete the (img:lab) normal_lab",
-        "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
+        "(img:waypoint) to areaid1_4_town (img:town) ;; highgate"
       ]
     },
+    [
+      "tasuni: <an_indomitable_spirit>",
+      "oyun: <breaking_the_seal>",
+      "(img:waypoint) to areaid1_3_town (img:town) ;; the sarn encampment"
+    ],
+    [
+      "enter areaidlabyrinth_airlock ;; aspirants' plaza"
+    ],
+    [
+      "complete the (img:lab) normal_lab",
+      "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
+    ],
     [
       "enter areaid1_4_5_1 ;; daresso's dream"
     ],
@@ -694,20 +749,37 @@
     ],
     [
       "enter areaid1_4_4_3 ;; kaom's stronghold",
-      "(hint)_______bridges throughout the area lead to the exit"
+      "(hint)_____go (img:1), then follow the bridges throughout the area"
     ],
-    [
-      "activate the (img:craft) , enter (img:arena) caldera_of_the_king",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "activate the (img:craft), enter (img:arena) caldera_of_the_king",
       "kill king_kaom for (quest:the_eye_of_fury)",
       "(img:portal) to areaid1_4_town ;; highgate"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) caldera_of_the_king",
+      "kill king_kaom for (quest:the_eye_of_fury)",
+      "(img:portal) to areaid1_4_town ;; highgate"
+      ]
+    },
     [
       "(img:waypoint) to areaid1_4_5_2 ;; the grand arena"
     ],
     [
       "find and enter (img:arena) the_ring_of_blades",
-      "(hint)_______follow the path, go (img:7) as much as possible",
-      "kill daresso for (quest:eye_of_desire) , relog to areaid1_4_town (img:town) ;; highgate"
+      "(hint)_____follow the path and go (img:7) as much as possible",
+      "kill daresso for (quest:eye_of_desire), relog to areaid1_4_town (img:town) ;; highgate"
     ],
     [
       "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
@@ -719,60 +791,107 @@
     [
       "enter areaid1_4_6_2 ;; the belly of the beast level 2"
     ],
-    [
-      "enter (img:arena) the_bowels_of_the_beast, kill piety",
-      "talk to piety, activate the (img:craft)",
-      "enter areaid1_4_6_3 ;; the harvest"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter (img:arena) the_bowels_of_the_beast, kill piety",
+      "talk to piety",
+      "activate the (img:craft), enter areaid1_4_6_3 ;; the harvest"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) the_bowels_of_the_beast, kill piety",
+      "talk to piety, enter areaid1_4_6_3 ;; the harvest"
+      ]
+    },
     [
       "find and kill doedre, (color:ff8111)maligaro, (color:ff8111)shavronne",
-      "talk to piety, enter (img:arena) the_black_core, kill malachai",
-      "(hint)_______recommended level: 34-35",
+      "talk to (img:quest) piety, enter (img:arena) the_black_core, kill malachai",
+      "(hint)_____recommended level: 34-35",
       "relog to areaid1_4_town (img:town) ;; highgate"
     ],
     [
-      "(img:quest) dialla: <the_eternal_nightmare>",
+      "dialla: <the_eternal_nightmare>",
       "enter areaid1_4_7 ;; the ascent"
     ],
-    [
-      "activate the (img:craft)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "activate the (img:craft)",
       "activate (quest:the_resonator), use (quest:oriath_portal)",
       "enter areaid1_5_1 ;; the slave pens"
-    ]
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "activate (quest:the_resonator), use (quest:oriath_portal)",
+      "enter areaid1_5_1 ;; the slave pens"
+      ]
+    }
   ],
   [
     [
       "find and kill overseer_krow",
-      "(hint)_______go (img:4) until you find a linear corridor",
+      "(hint)_____go (img:4) until you find a linear corridor",
       "enter areaid1_5_town (img:town) ;; overseer's tower"
     ],
     [
-      "(img:quest) lani: <return_to_oriath>",
+      "lani: <return_to_oriath>",
       "enter areaid1_5_2 ;; the control blocks"
     ],
     [
-      "go (img:6) , find and take (quest:miasmeter)",
-      "(hint)_______ as much as possible",
-      "proceed (img:1) and kill justicar_casticus for (quest:eyes_of_zeal)",
+      "go (img:6) until you find the (quest:miasmeter)",
+      "go (img:1) and kill justicar_casticus for (quest:eyes_of_zeal)",
       "enter areaid1_5_3 ;; oriath square"
     ],
     [
-      "go (img:1) , enter areaid1_5_4 ;; the templar courts"
+      "go (img:1), enter areaid1_5_4 ;; the templar courts"
     ],
     [
       "loop around clockwise, enter areaid1_5_5 ;; the chamber of innocence",
-      "(hint)_______recommended level: 37+",
-      "(hint)_______farm level: 40-42"
+      "(hint)_____recommended level: 37+",
+      "(hint)_____farm level: 40-42"
     ],
-    [
-      "loop around counter-clockwise, along the wall",
-      "activate the (img:craft)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "loop around counter-clockwise, activate the (img:craft)",
       "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
-      "relog, enter areaid1_5_town (img:town) ;; overseer's tower"
-    ],
+      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "loop around counter-clockwise",
+      "enter (img:arena) sanctum_of_innocence, kill high_templar_avarius",
+      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+      ]
+    },
     [
-      "(img:quest) lani: <the_key_to_freedom> & <death_to_purity>",
-      "(img:quest) vilenta: <in_service_to_science>",
+      "lani: <the_key_to_freedom> & <death_to_purity>",
+      "vilenta: <in_service_to_science>",
       "(img:waypoint) to areaid1_5_5 ;; the chamber of innocence"
     ],
     [
@@ -782,36 +901,67 @@
       "loop around counter-clockwise, enter areaid1_5_3b ;; the ruined square"
     ],
     [
-      "go (img:7) , activate the (img:waypoint)",
+      "go (img:7), activate the (img:waypoint)",
       "enter areaid1_5_6 ;; the ossuary"
     ],
-    [
-      "find and take (quest:sign_of_purity)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and take (quest:sign_of_purity)",
       "activate the (img:craft)",
       "relog to areaid1_5_town (img:town) ;; overseer's tower"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and take (quest:sign_of_purity)",
+      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+      ]
+    },
     [
       "(img:waypoint) to areaid1_5_3b ;; the ruined square"
     ],
     [
       "enter areaid1_5_7 ;; the reliquary",
-      "(hint)_______go (img:5) to the plaza, then (img:4)"
+      "(hint)_____go (img:5) to the plaza, then (img:4)"
     ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find 3x (quest:kitava's_torment) near the corners",
+      "activate the (img:craft), relog to areaid1_5_town (img:town) ;; overseer's tower"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find 3x (quest:kitava's_torment) near the corners",
+      "relog to areaid1_5_town (img:town) ;; overseer's tower"
+      ]
+    },
     [
-      "find 3x (quest:kitava's_torment) near the corners",
-      "activate the (img:craft)",
-      "relog, enter areaid1_5_town (img:town) ;; overseer's tower"
-    ],
-    [
-      "(img:quest) lani: <kitava's_torments>",
+      "lani: <kitava's_torments>",
       "(img:waypoint) to areaid1_5_3b ;; the ruined square"
     ],
     [
-      "go (img:5) , enter areaid1_5_8 ;; the cathedral rooftop"
+      "go (img:5), enter areaid1_5_8 ;; the cathedral rooftop"
     ],
     [
       "enter (img:arena) cathedral_apex, kill kitava",
-      "talk to lilly roth, sail to wraeclast",
+      "talk to (img:quest) lilly roth, sail to wraeclast",
       "enter areaid2_6_town (img:town) ;; lioneye's watch"
     ]
   ],
@@ -821,25 +971,41 @@
     ],
     [
       "kill everything",
-      "relog, enter areaid2_6_town (img:town) ;; lioneye's watch"
+      "relog to areaid2_6_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) lilly: <fallen_from_grace>",
+      "lilly: <fallen_from_grace>",
       "enter areaid2_6_2 ;; the coast"
     ],
     [
       "enter areaid2_6_4 ;; the mud flats"
     ],
     [
-      "find and kill the_dishonoured_queen for (quest:eye_of_conquest)",
-      "(hint)_______usually (img:1) corner of area, near a house",
+      "kill dishonoured_queen for (quest:eye_of_conquest)",
+      "(hint)_____usually (img:1) in the zone, near a house",
       "enter areaid2_6_5 ;; the karui fortress"
     ],
-    [
-      "enter (img:arena) tukohama's_keep, kill tukohama",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter (img:arena) tukohama's_keep, kill tukohama",
       "activate the (img:craft)",
-      "go (img:0) , enter areaid2_6_6 ;; the ridge"
-    ],
+      "go (img:0), enter areaid2_6_6 ;; the ridge"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) tukohama's_keep, kill tukohama",
+      "go (img:0), enter areaid2_6_6 ;; the ridge"
+      ]
+    },
     [
       "enter areaid2_6_7_1 ;; the lower prison"
     ],
@@ -877,7 +1043,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-        "(hint)_______a side trail forks off near a torch along the road",
+        "(hint)_____a side trail forks off at a torch along the road",
         "follow the main road, enter areaid2_6_10 ;; the riverways"
       ]
     },
@@ -892,15 +1058,15 @@
     },
     [
       "follow the road, activate the (img:waypoint)",
-      "look for 2 pillars nearby, follow the trail leading through",
-      "enter areaid2_6_11 ;; the wetlands"
+      "enter areaid2_6_11 ;; the wetlands",
+      "(hint)_____a side trail forks off between 2 pillars nearby"
     ],
     [
       "go (img:7) to find (img:arena) the_spawning_ground, kill ryslatha",
       "relog to areaid2_6_town (img:town) ;; lioneye's watch"
     ],
     [
-      "(img:quest) tarkleigh: <the_father_of_war> , <essence_of_umbra>",
+      "tarkleigh: <the_father_of_war>, <essence_of_umbra> ,",
       "<the_puppet_mistress>",
       "(img:waypoint) to areaid2_6_10 ;; the riverways"
     ],
@@ -922,7 +1088,7 @@
       ],
       "lines": [
         "follow the shore, activate the (img:craft)",
-        "complete (quest:pillar_push) , light the (quest:beacon), burn (quest:the_black_flag)",
+        "complete (quest:pillar_push), light the (quest:beacon), burn (quest:the_black_flag)",
         "talk to weylam roth, sail to areaid2_6_15 ;; the brine king's reef"
       ]
     },
@@ -933,7 +1099,7 @@
       ],
       "lines": [
         "follow the shore",
-        "complete (quest:pillar_push) , light the (quest:beacon), burn (quest:the_black_flag)",
+        "complete (quest:pillar_push), light the (quest:beacon), burn (quest:the_black_flag)",
         "talk to weylam roth, sail to areaid2_6_15 ;; the brine king's reef"
       ]
     },
@@ -951,7 +1117,7 @@
       "enter areaid2_7_1 ;; the broken bridge"
     ],
     [
-      "follow the road until the broken (img:waypoint)",
+      "follow the road up to the broken (img:waypoint)",
       "enter the nearby ruins, take (quest:silver_locket)",
       "follow the road, enter areaid2_7_2 ;; the crossroads"
     ],
@@ -970,7 +1136,7 @@
       "lines": [
         "complete the (img:lab) trial, activate the (img:craft)",
         "find sarcophagus to next floor, find (quest:maligaro's_map)",
-        "relog, enter areaid2_7_town (img:town) ;; the bridge encampment"
+        "relog to areaid2_7_town (img:town) ;; the bridge encampment"
       ]
     },
     {
@@ -980,7 +1146,7 @@
       ],
       "lines": [
         "find sarcophagus to next floor, find (quest:maligaro's_map)",
-        "relog, enter areaid2_7_town (img:town) ;; the bridge encampment"
+        "relog to areaid2_7_town (img:town) ;; the bridge encampment"
       ]
     },
     [
@@ -989,34 +1155,15 @@
     [
       "follow the (img:7) road, enter areaid2_7_5_1 ;; the chamber of sins level 1"
     ],
-    [
-      "activate the (img:craft), activate the (img:waypoint)",
-      "activate (quest:map_device) with (quest:maligaro's_map)",
-      "enter areaid2_7_5_map ;; maligaro's sanctum"
-    ],
-    [
-      "move along the edges and bridges of the zone",
-      "(hint)_______bridges are often in diagonally opposite corners",
-      "find (img:arena) maligaro's workshop, kill maligaro for (quest:black_venom)",
-      "relog, enter areaid2_7_town (img:town) ;; the bridge encampment"
-    ],
-    [
-      "(img:quest) weylam: <the_silver_locket>",
-      "(img:quest) helena: <essence_of_the_artist>",
-      "(img:waypoint) to areaid2_7_5_1 ;; the chamber of sins level 1"
-    ],
-    [
-      "(img:quest) silk: <web_of_secrets>, take (quest:obsidian_key)",
-      "follow the corridor the (img:waypoint) is pointing towards, enter areaid2_7_5_2 ;; the chamber of sins level 2"
-    ],
     {
       "condition": [
         "league-start",
         "yes"
       ],
       "lines": [
-        "complete the (img:lab) trial, activate the (img:craft)",
-        "open secret passage, enter areaid2_7_6 ;; the den"
+        "activate the (img:craft) and (img:waypoint)",
+      "activate the (quest:map_device) with (quest:maligaro's_map)",
+      "enter areaid2_7_5_map ;; maligaro's sanctum"
       ]
     },
     {
@@ -1025,30 +1172,66 @@
         "no"
       ],
       "lines": [
-        "open secret passage, enter areaid2_7_6 ;; the den"
+        "activate the (img:waypoint)",
+      "activate the (quest:map_device) with (quest:maligaro's_map)",
+      "enter areaid2_7_5_map ;; maligaro's sanctum"
+      ]
+    },
+    [
+      "find (img:arena) maligaro's workshop, kill maligaro for (quest:black_venom)",
+      "(hint)_____follow the edges and bridges (often diagonal to each other)",
+      "relog to areaid2_7_town (img:town) ;; the bridge encampment"
+    ],
+    [
+      "weylam: <the_silver_locket>",
+      "helena: <essence_of_the_artist>",
+      "(img:waypoint) to areaid2_7_5_1 ;; the chamber of sins level 1"
+    ],
+    [
+      "silk: <web_of_secrets>, take (quest:obsidian_key)",
+      "enter areaid2_7_5_2 ;; the chamber of sins level 2",
+      "(hint)_____the (img:waypoint) points to the exit"
+    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "complete the (img:lab) trial, activate the (img:craft)",
+        "open the secret passage, enter areaid2_7_6 ;; the den"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "open the secret passage, enter areaid2_7_6 ;; the den"
       ]
     },
     [
       "enter areaid2_7_7 ;; the ashen fields"
     ],
     [
-      "go (img:5) , enter (img:arena) the_forest_encampment, kill greust",
+      "go (img:5), enter (img:arena) the_forest_encampment, kill greust",
       "enter areaid2_7_8 ;; the northern forest"
     ],
     [
       "(img:waypoint) to areaid2_7_town (img:town) ;; the bridge encampment"
     ],
     [
-      "(img:quest) eramir: <the_master_of_a_million_faces>",
+      "eramir: <the_master_of_a_million_faces>",
       "(img:waypoint) to areaid2_6_8 ;; prisoner's gate"
     ],
     [
-      "go down the ledge next to the road, follow the path",
       "enter (img:arena) valley_of_the_fire_drinker, kill abberath",
+      "(hint)_____go down the ledge next to the road",
       "(img:portal) to areaid2_6_town ;; lioneye's watch"
     ],
     [
-      "(img:quest) bestel: <the_cloven_one>",
+      "bestel: <the_cloven_one>",
       "(img:waypoint) to areaid2_7_8 ;; the northern forest"
     ],
     [
@@ -1105,31 +1288,14 @@
       ]
     },
     [
-      "(img:quest) weylam: <kishara's_star>",
-      "(img:quest) eramir: <queen_of_despair>",
+      "weylam: <kishara's_star>",
+      "eramir: <queen_of_despair>",
       "(img:waypoint) to areaidlabyrinth_airlock ;; aspirants' plaza"
     ],
-    {
-      "condition": [
-        "league-start",
-        "yes"
-      ],
-      "lines": [
-        "complete the (img:lab) cruel_lab",
-        "activate the (img:craft)",
-        "(img:waypoint) to areaid2_7_11 ;; the vaal city"
-      ]
-    },
-    {
-      "condition": [
-        "league-start",
-        "no"
-      ],
-      "lines": [
-        "complete the (img:lab) cruel_lab",
-        "(img:waypoint) to areaid2_7_11 ;; the vaal city"
-      ]
-    },
+    [
+      "complete the (img:lab) cruel_lab",
+      "(img:waypoint) to areaid2_7_11 ;; the vaal city"
+    ],
     [
       "yeena: <lighting_the_way>",
       "enter areaid2_7_12_1 ;; the temple of decay level 1"
@@ -1164,86 +1330,137 @@
       "enter areaid2_8_town (img:town) ;; the sarn encampment"
     ],
     [
-      "go (img:6) , enter areaid2_8_2_1 ;; the toxic conduits"
+      "go (img:6), enter areaid2_8_2_1 ;; the toxic conduits"
     ],
     [
       "enter areaid2_8_2_2 ;; doedre's cesspool",
-      "(hint)_______follow black splashes on the ground"
+      "(hint)_____follow black splashes on the ground"
     ],
-    [
-      "enter (img:arena) the_cauldron, kill doedre_the_vile",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter (img:arena) the_cauldron, kill doedre_the_vile",
       "enter (img:arena) sewer_outlet, activate the (img:craft)",
-      "go (img:1) , enter areaid2_8_8 ;; the quay"
-    ],
+      "go (img:1), enter areaid2_8_8 ;; the quay"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) the_cauldron, kill doedre_the_vile",
+      "enter (img:arena) sewer_outlet",
+      "go (img:1), enter areaid2_8_8 ;; the quay"
+      ]
+    },
     [
-      "move along (img:6) wall, find (quest:ankh_of_eternity)",
-      "proceed (img:3) , enter (img:arena) resurrection site",
-      "talk to clarissa, kill tolman",
+      "move along the (img:6) edge, find (quest:ankh_of_eternity)",
+      "go (img:3), enter (img:arena) resurrection site to kill tolman",
       "enter areaid2_8_9 ;; the grain gate"
     ],
     [
       "doors with dead guards mark the correct path",
       "find and kill gemling_legionnaires",
-      "(hint)_______look around for (img:help) (lore)",
+      "(hint)_____look around for (img:help) (lore)",
       "enter areaid2_8_10 ;; the imperial fields"
     ],
     [
-      "follow the road until the (img:waypoint) , then go (img:7)",
+      "follow the road up to the (img:waypoint), then go (img:7)",
       "enter areaid2_8_12_1 ;; the solaris temple level 1"
     ],
     [
       "activate the (img:waypoint)",
       "enter areaid2_8_12_2 ;; the solaris temple level 2"
     ],
-    [
-      "find and kill dawn for (quest:sun_orb)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill dawn for (quest:sun_orb)",
       "activate the (img:craft)",
-      "relog, enter areaid2_8_town (img:town) ;; the sarn encampment"
-    ],
+      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and kill dawn for (quest:sun_orb)",
+      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+      ]
+    },
     [
-      "(img:quest) hargan: <essence_of_the_hag>",
-      "(img:quest) maramoa: <the_gemling_legion>",
-      "(img:quest) clarissa: <love_is_dead>",
+      "hargan: <essence_of_the_hag>",
+      "maramoa: <the_gemling_legion>",
+      "clarissa: <love_is_dead>",
       "(img:waypoint) to areaid2_8_12_1 ;; the solaris temple level 1"
     ],
     [
       "enter areaid2_8_11 ;; the solaris concourse"
     ],
     [
+      "go (img:5), enter areaid2_8_13 ;; the harbour bridge"
+    ],
+    [
       "enter areaid2_8_6 ;; the lunaris concourse"
     ],
     [
-      "go (img:7) , activate the (img:waypoint)",
-      "(hint)_______go ",
-      "enter areaid2_8_7_1_ ;; the lunaris temple level 1"
+      "go (img:7), activate the (img:waypoint)",
+      "go (img:7), enter areaid2_8_7_1_ ;; the lunaris temple level 1"
     ],
     [
-      "enter areaid2_8_7_2 ;; the lunaris temple level 2",
-      "find and kill dusk for (quest:moon_orb)",
-      "activate the (img:craft)",
-      "relog, enter areaid2_8_town (img:town) ;; the sarn encampment"
+      "enter areaid2_8_7_2 ;; the lunaris temple level 2"
     ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill dusk for (quest:moon_orb)",
+      "activate the (img:craft)",
+      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and kill dusk for (quest:moon_orb)",
+      "relog to areaid2_8_town (img:town) ;; the sarn encampment"
+      ]
+    },
     [
       "(img:waypoint) to areaid2_8_6 ;; the lunaris concourse"
     ],
     [
-      "go (img:3) , enter areaid2_8_13 ;; the harbour bridge"
+      "go (img:3), enter areaid2_8_13 ;; the harbour bridge"
     ],
     [
-      "enter (img:arena) the_sky_shrine, activate the statue",
-      "kill lunaris_&_solaris",
-      "enter areaid2_9_1 ;; the blood aqueduct",
-      "(hint)_______recommended level: 54+",
-      "(hint)_______farm level: 58-62"
+      "enter (img:arena) the_sky_shrine, kill lunaris_&_solaris",
+      "(hint)_____recommended level: 54+",
+      "enter areaid2_9_1 ;; the blood aqueduct"
     ]
   ],
   [
     [
       "optional: farm until lvl 58-62",
-      "enter areaid2_9_town (img:town) , (img:waypoint) to areaid2_8_6 ;; highgate & the lunaris concourse"
+      "enter areaid2_9_town (img:town) ;; highgate",
+      "(img:waypoint) to areaid2_8_6 ;; the lunaris concourse"
     ],
     [
-      "go (img:4) , enter areaid2_8_5 ;; the bath house"
+      "go (img:4), enter areaid2_8_5 ;; the bath house"
     ],
     {
       "condition": [
@@ -1252,8 +1469,8 @@
       ],
       "lines": [
         "follow (img:0) edge, complete the (img:lab) trial, activate the (img:craft)",
-        "(hint)_______look around for (img:help) (lore)",
-        "keep following (img:0) edge , enter areaid2_8_4 ;; the high gardens"
+        "(hint)_____look for a (img:help) -icon on the map",
+        "keep following the (img:0) edge, enter areaid2_8_4 ;; the high gardens"
       ]
     },
     {
@@ -1262,7 +1479,7 @@
         "no"
       ],
       "lines": [
-        "follow (img:0) edge, enter areaid2_8_4 ;; the high gardens"
+        "follow the (img:0) edge, enter areaid2_8_4 ;; the high gardens"
       ]
     },
     [
@@ -1270,7 +1487,7 @@
       "(img:portal) to areaid2_8_town ;; the sarn encampment"
     ],
     [
-      "(img:quest) hargan: <reflection_of_terror>",
+      "hargan: <reflection_of_terror>",
       "(img:waypoint) to areaid2_9_town (img:town) ;; highgate"
     ],
     [
@@ -1279,40 +1496,73 @@
     [
       "enter areaid2_9_3 ;; the vastiri desert"
     ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "go (img:2), activate the (img:waypoint)",
+      "activate the (img:craft), find (quest:the_storm_blade)",
+      "go (img:7), enter areaid2_9_5 ;; the foothills"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "go (img:2), activate the (img:waypoint)",
+      "find (quest:the_storm_blade)",
+      "go (img:7), enter areaid2_9_5 ;; the foothills"
+      ]
+    },
     [
-      "go (img:2) , activate the (img:waypoint)",
-      "activate the (img:craft) , find (quest:the_storm_blade)",
-      "proceed (img:7) , enter areaid2_9_5 ;; the foothills"
-    ],
-    [
-      "go (img:1) , then follow the (img:0) edge",
       "activate the (img:waypoint)",
+      "(hint)_____go (img:1), then follow the edge",
       "enter areaid2_9_6 ;; the boiling lake"
     ],
-    [
-      "go (img:1) to kill the_basilisk for (quest:basilisk_acid)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "go (img:1) to kill the_basilisk for (quest:basilisk_acid)",
       "activate the (img:craft)",
-      "relog, enter areaid2_9_town (img:town) ;; highgate"
-    ],
+      "relog to areaid2_9_town (img:town) ;; highgate"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "go (img:1) to kill the_basilisk for (quest:basilisk_acid)",
+      "relog to areaid2_9_town (img:town) ;; highgate"
+      ]
+    },
     [
       "talk to sin",
-      "(img:quest) petarus: <the_storm_blade>, take (quest:bottled_storm)",
-      "(img:quest) irasha: <queen_of_the_sands>",
+      "petarus and vanja: <the_storm_blade>",
+      "petarus and vanja: <the_queen_of_sands>, take (quest:bottled_storm)",
       "(img:waypoint) to areaid2_9_3 ;; the vastiri desert"
     ],
     [
-      "go (img:1) , enter areaid2_9_4 ;; the oasis"
+      "go (img:1), enter areaid2_9_4 ;; the oasis"
     ],
     [
       "enter (img:arena) the_sand_pit, kill shakari",
-      "relog, enter areaid2_9_town (img:town) ;; highgate"
+      "relog to areaid2_9_town (img:town) ;; highgate"
     ],
     [
-      "(img:quest) irasha: <queen_of_the_sands>",
+      "irasha: <queen_of_the_sands>",
       "(img:waypoint) to areaid2_9_5 ;; the foothills"
     ],
     [
-      "go (img:7) , enter areaid2_9_7 ;; the tunnel"
+      "go (img:7), enter areaid2_9_7 ;; the tunnel"
     ],
     {
       "condition": [
@@ -1321,7 +1571,7 @@
       ],
       "lines": [
         "complete the (img:lab) trial, activate the (img:craft)",
-        "(hint)_______in a side corridor before the (img:waypoint)",
+        "(hint)_____in a side corridor before the (img:waypoint)",
         "enter areaid2_9_8 ;; the quarry"
       ]
     },
@@ -1334,19 +1584,37 @@
         "enter areaid2_9_8 ;; the quarry"
       ]
     },
-    [
-      "go (img:7) , activate the (img:waypoint) & (img:craft)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "go (img:7), activate the (img:waypoint) and (img:craft)",
       "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
-      "(hint)_______either (img:1) or (img:5) in the zone",
-      "relog, enter areaid2_9_town (img:town) ;; highgate"
-    ],
+      "(hint)_____either (img:5) or (img:1) in the zone",
+      "relog to areaid2_9_town (img:town) ;; highgate"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "go (img:7), activate the (img:waypoint)",
+      "enter (img:arena) shrine_of_the_winds, kill garukhan for (quest:sekhema_feather)",
+      "(hint)_____either (img:5) or (img:1) in the zone",
+      "relog to areaid2_9_town (img:town) ;; highgate"
+      ]
+    },
     [
-      "(img:quest) irasha: <the_ruler_of_highgate>",
+      "irasha: <the_ruler_of_highgate>",
       "(img:waypoint) to areaid2_9_8 ;; the quarry"
     ],
     [
       "enter areaid2_9_9 ;; the refinery",
-      "(hint)_______either (img:7) or (img:1) in the zone"
+      "(hint)_____either (img:7) or (img:1) in the zone"
     ],
     {
       "condition": [
@@ -1356,8 +1624,8 @@
       "lines": [
         "follow the cart tracks through the zone",
         "activate the (img:craft)",
-        "(hint)_______at one point, tracks will fork off and end in a grate",
-        "kill general_adus for (quest:trarthan_powder) , relog to areaid2_9_town (img:town) ;; highgate"
+        "(hint)_____at one point, tracks will fork off and end in a grate",
+        "kill general_adus for (quest:trarthan_powder), relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     {
@@ -1367,7 +1635,7 @@
       ],
       "lines": [
         "follow the cart tracks through the zone",
-        "kill general_adus for (quest:trarthan_powder) , relog to areaid2_9_town (img:town) ;; highgate"
+        "kill general_adus for (quest:trarthan_powder), relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },
     [
@@ -1381,13 +1649,9 @@
       "enter areaid2_9_10_2 ;; the rotting core"
     ],
     [
-      "enter (img:arena) the_black_core, talk to sin",
-      "kill doedre, (color:ff8111)maligaro, (color:ff8111)shavronne",
+      "enter (img:arena) the_black_core, talk to (img:quest) sin, clear the 3 sub-areas",
       "enter (img:arena) the_black_heart, kill the_depraved_trinity",
-      "(img:portal) to areaid2_9_town ;; highgate"
-    ],
-    [
-      "(img:waypoint) to areaid2_10_town (img:town) ;; oriath docks"
+      "talk to (img:quest) lilly to sail to areaid2_10_town (img:town) ;; oriath docks"
     ]
   ],
   [
@@ -1395,79 +1659,137 @@
       "enter areaid2_10_1 ;; the cathedral rooftop"
     ],
     [
-      "go (img:0) , enter (img:arena) cathedral_apex, kill plaguewing",
-      "proceed to areaid2_10_2 ;; the ravaged square"
+      "go (img:0), enter (img:arena) cathedral_apex, kill plaguewing",
+      "go (img:3), enter areaid2_10_2 ;; the ravaged square"
     ],
     [
-      "place (img:portal) in the plaza",
-      "go (img:4) , enter areaid2_10_7 ;; the control blocks"
+      "go down the stairs, place a (img:portal)",
+      "follow the (img:5) edge, enter areaid2_10_7 ;; the control blocks"
     ],
     [
       "(img:waypoint) to areaid2_10_town (img:town) ;; oriath docks"
     ],
     [
-      "(img:quest) lani: <safe_passage>",
+      "lani: <safe_passage>",
       "take (img:portal) to areaid2_10_2 ;; the ravaged square"
     ],
-    [
-      "go (img:1) , activate the (img:waypoint)",
-      "enter areaid2_10_9 ;; the ossuary"
-    ],
-    [
-      "activate the (img:craft)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "go (img:1), activate the (img:waypoint)",
+        "enter areaid2_10_9 ;; the ossuary"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "activate the (img:craft)",
       "complete the (img:lab) trial",
-      "relog, enter areaid2_10_town (img:town) ;; oriath docks"
-    ],
-    [
+      "relog to areaid2_10_town (img:town) ;; oriath docks"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "(img:waypoint) to areaidlabyrinth_airlock ;; aspirants' plaza"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "go (img:1), activate the (img:waypoint)",
       "(img:waypoint) to areaidlabyrinth_airlock ;; aspirants' plaza"
-    ],
+      ]
+    },
     [
       "complete the (img:lab) merciless_lab",
-      "activate the (img:craft)",
       "(img:waypoint) to areaid2_10_7 ;; the control blocks"
     ],
     [
       "follow (img:7) edge, kill vilenta",
-      "relog, enter areaid2_10_town (img:town) ;; oriath docks"
+      "relog to areaid2_10_town (img:town) ;; oriath docks"
     ],
     [
-      "(img:quest) lani: <vilenta's_vengeance>",
+      "lani: <vilenta's_vengeance>",
       "(img:waypoint) to areaid2_10_2 ;; the ravaged square"
     ],
     [
-      "go (img:3) , enter areaid2_10_3 ;; the torched courts"
+      "go (img:3), enter areaid2_10_3 ;; the torched courts"
     ],
     [
       "loop around clockwise, enter areaid2_10_4 ;; the desecrated chambers"
     ],
-    [
-      "loop around counter-clockwise, along the wall",
-      "activate the (img:craft)",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "loop around counter-clockwise, activate the (img:craft)",
       "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
-      "relog, enter areaid2_10_town (img:town) ;; oriath docks"
-    ],
+      "relog to areaid2_10_town (img:town) ;; oriath docks"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+      "enter (img:arena) sanctum_of_innocence, kill avarius for (quest:the_staff_of_purity)",
+      "(hint)_____loop around counter-clockwise",
+      "relog to areaid2_10_town (img:town) ;; oriath docks"
+      ]
+    },
     [
       "talk to bannon",
-      "(img:quest) lani: <death_and_rebirth>",
+      "lani: <death_and_rebirth>",
       "(img:waypoint) to areaid2_10_2 ;; the ravaged square"
     ],
     [
-      "go (img:1) , talk to innocence",
-      "(hint)_______",
+      "go (img:1), talk to innocence",
       "enter areaid2_10_5 ;; the canals"
     ],
     [
       "enter areaid2_10_6 ;; the feeding trough"
     ],
-    [
-      "activate the (img:craft), talk to sin",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "activate the (img:craft), talk to (img:quest) sin",
       "enter (img:arena) altar_of_hunger, kill kitava",
-      "talk to sin, enter areaid2_10_town (img:town) ;; oriath docks"
-    ],
+      "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "talk to (img:quest) sin",
+      "enter (img:arena) altar_of_hunger, kill kitava",
+      "talk to (img:quest) sin, enter areaid2_10_town (img:town) ;; oriath docks"
+      ]
+    },
     [
-      "(img:quest) lani: <an_end_to_hunger>",
-      "talk to (img:quest) lilly roth, set sail from oriath",
-      "enter areaid2_11_endgame_town (img:town) ;; karui shores"
+      "lani: <an_end_to_hunger>",
+      "talk to (img:quest) lilly roth, set sail to areaid2_11_endgame_town (img:town) ;; karui shores"
     ],
     {
       "condition": [
