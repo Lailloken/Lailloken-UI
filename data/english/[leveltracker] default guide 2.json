@@ -13,9 +13,9 @@
       "find and enter areaidg1_4 ;; the grelwood"
     ],
     [
-      "find 3: (img:waypoint) and una, (img:arena) areaidg1_6 , (img:checkpoint) areaidg1_5 ;; the grim tangle & the red vale",
+      "find 3: (img:waypoint) and una, (img:arena) areaidg1_6, (img:checkpoint) areaidg1_5 ;; the grim tangle & the red vale",
       "(hint)_______activate the (img:waypoint) and talk to (img:quest_2) una",
-      "(hint)_______enter (img:arena) areaidg1_6 for the (img:waypoint) , then leave again ;; the grim tangle",
+      "(hint)_______enter (img:arena) areaidg1_6 for the (img:waypoint), then leave again ;; the grim tangle",
       "enter areaidg1_5 ;; the red vale"
     ],
     [
@@ -39,14 +39,14 @@
       "find and enter areaidg1_7 ;; cemetery of the eternals"
     ],
     [
-      "find 2: (img:arena) areaidg1_8 , (img:arena) areaidg1_9 ;; mausoleum of the praetor & tomb of the consort",
+      "find 2: (img:arena) areaidg1_8, (img:arena) areaidg1_9 ;; mausoleum of the praetor & tomb of the consort",
       "(hint)_______both have a boss: after killing the 2nd boss, ignore the portal and",
       "(hint)_______ (img:checkpoint) -travel to the start of the zone, then (img:waypoint) -travel back to the cemetery",
-      "talk to and kill lachlan , enter areaidg1_11 ;; hunting grounds"
+      "talk to and kill lachlan, enter areaidg1_11 ;; hunting grounds"
     ],
     [
-      "3 tasks: kill the_crowbell , (img:checkpoint) areaidg1_12 , (img:checkpoint) areaidg1_13_1 ;; freythorn & ogham farmlands",
-      "(hint)_______then: enter areaidg1_13_1 for the (img:waypoint) , and leave again ;; ogham farmlands",
+      "3 tasks: kill the_crowbell, (img:checkpoint) areaidg1_12, (img:checkpoint) areaidg1_13_1 ;; freythorn & ogham farmlands",
+      "(hint)_______then: enter areaidg1_13_1 for the (img:waypoint), and leave again ;; ogham farmlands",
       "enter areaidg1_12 ;; freythorn"
     ],
     [
@@ -94,9 +94,9 @@
       "(hint)_______correct path usually leads (img:0) after (img:waypoint)"
     ],
     [
-      "2 tasks: kill candlemass , find (img:arena) stairs",
+      "2 tasks: kill candlemass, find (img:arena) stairs",
       "(hint)_______arena:candlemass is usually (img:3) before or (img:0) after the count's voiceline. if you",
-      "(hint)_______find (img:arena) stairs first: enter, get (img:checkpoint) , go back for the kill, (img:checkpoint) -travel to (img:arena) stairs",
+      "(hint)_______find (img:arena) stairs first: enter, get (img:checkpoint), go back for the kill, (img:checkpoint) -travel to (img:arena) stairs",
       "kill count_geonor, enter areaidg1_town (img:town) ;; clearfell encampment"
     ],
     {
@@ -129,7 +129,7 @@
       "use the desert map, enter areaidg2_10_1 ;; mawdun quarry"
     ],
     [
-      "follow the (img:checkpoint) (img:checkpoint) , enter areaidg2_10_2 ;; mawdun mine"
+      "follow the (img:checkpoint) (img:checkpoint), enter areaidg2_10_2 ;; mawdun mine"
     ],
     [
       "find and kill rudja,_the_dread_engineer",
@@ -149,8 +149,8 @@
       "enter areaidg2_2 ;; traitor's passage"
     ],
     [
-      "2 tasks: kill balbala for (quest:djinn_barya) , enter areaidg2_3 ;; the halani gates",
-      "(hint)_______to find arena:balbala , look for (img:help) (lore) and follow the notes along the wall.",
+      "2 tasks: kill balbala for (quest:djinn_barya), enter areaidg2_3 ;; the halani gates",
+      "(hint)_______to find arena:balbala, look for (img:help) (lore) and follow the notes along the wall.",
       "(hint)_______if you find the (img:arena) exit first, activate the (img:checkpoint) and go back for the kill."
     ],
     [
@@ -171,7 +171,7 @@
       "use the desert map, enter areaidg2_4_1 ;; keth"
     ],
     [
-      "2 tasks: slay snake mobs for (quest:kabala_clan_relic) , kill kabala",
+      "2 tasks: slay snake mobs for (quest:kabala_clan_relic), kill kabala",
       "(hint)_______arena:kabala is often around the center of the zone",
       "find and enter areaidg2_4_2 ;; the lost city",
       "(hint)_______usually (img:3) in the zone, after a big bridge"
@@ -180,7 +180,7 @@
       "find and enter areaidg2_4_3 ;; buried shrines"
     ],
     [
-      "enter (img:arena) arena:the_heart_of_keth , kill azarian,_the_forsaken_son",
+      "enter (img:arena) arena:the_heart_of_keth, kill azarian,_the_forsaken_son",
       "talk to (img:quest_2) the goddess, take (quest:everburning_cinders)",
       "ignite the goddess, take (quest:the_essence_of_water)",
       "(img:portal) to areaidg2_town (img:town) ;; the ardura caravan"
@@ -193,7 +193,7 @@
       "find and enter areaidg2_5_2 ;; the bone pits"
     ],
     [
-      "2 tasks: slay hyena mobs for (quest:sun_clan_relic) , kill ekbab for (quest:mastodon_tusks)",
+      "2 tasks: slay hyena mobs for (quest:sun_clan_relic), kill ekbab for (quest:mastodon_tusks)",
       "(img:portal) to areaidg2_town (img:town) ;; the ardura caravan"
     ],
     [
@@ -218,7 +218,7 @@
     ],
     [
       "talk to the abandoned rhoa",
-      "find (quest:fallen_dekhara) next to a tower , take (quest:final_letter)",
+      "find (quest:fallen_dekhara) next to a tower, take (quest:final_letter)",
       "find and enter areaidg2_9_1 ;; path of mourning"
     ],
     [
@@ -241,7 +241,7 @@
       "(img:portal) to areaidg2_town (img:town) ;; the ardura caravan"
     ],
     [
-      "go (img:7) , talk to (img:quest_2) the hooded one",
+      "go (img:7), talk to (img:quest_2) the hooded one",
       "go back to the caravan, talk to (img:quest_2) asala to enter areaidg3_1 ;; sandswept marsh"
     ]
   ],
@@ -256,20 +256,20 @@
       "enter areaidg3_3 ;; jungle ruins"
     ],
     [
-      "3 tasks: kill silverfist , find (img:waypoint) near (img:arena) areaidg3_4 , (img:checkpoint) areaidg3_2_1 ;; the venom crypts & infested barrens",
+      "3 tasks: kill silverfist, find (img:waypoint) near (img:arena) areaidg3_4, (img:checkpoint) areaidg3_2_1 ;; the venom crypts & infested barrens",
       "enter areaidg3_2_1 ;; infested barrens"
     ],
     [
-      "find 3: (img:checkpoint) areaidg3_5 , (img:checkpoint) areaidg3_7 , (img:waypoint) and nearby (img:checkpoint) ;; chimeral wetlands & the azak bog",
+      "find 3: (img:checkpoint) areaidg3_5, (img:checkpoint) areaidg3_7, (img:waypoint) and nearby (img:checkpoint) ;; chimeral wetlands & the azak bog",
       "(hint)_______activate all 3 (img:checkpoint) to jump between them in the next steps",
-      "enter areaidg3_5 for the (img:waypoint) , then leave again ;; chimeral wetlands",
-      "enter areaidg3_7 , (img:waypoint) to areaidg3_3 ;; the azak bog ;; jungle ruins"
+      "enter areaidg3_5 for the (img:waypoint), then leave again ;; chimeral wetlands",
+      "enter areaidg3_7, (img:waypoint) to areaidg3_3 ;; the azak bog ;; jungle ruins"
     ],
     [
       "enter areaidg3_4 ;; the venom crypts"
     ],
     [
-      "find the (quest:corpse) , take (quest:corpse-snake_venom)",
+      "find the (quest:corpse), take (quest:corpse-snake_venom)",
       "(img:portal) to areaidg3_town (img:town) ;; ziggurat encampment"
     ],
     [
@@ -298,17 +298,17 @@
       "(img:waypoint) to areaidg3_5 ;; chimeral wetlands"
     ],
     [
-      "find and kill the_chimera , enter areaidg3_6_1 ;; jiquani's machinarium",
+      "find and kill the_chimera, enter areaidg3_6_1 ;; jiquani's machinarium",
       "(hint)_______either by (img:checkpoint) -traveling or following the other edge"
     ],
     [
-      "talk to (img:quest_2) alva, find (quest:small_soul_core) , activate the altar",
-      "3 tasks: follow red trace, find 2 (quest:small_soul_cores) , kill blackjaw",
+      "talk to (img:quest_2) alva, find (quest:small_soul_core), activate the altar",
+      "3 tasks: follow red trace, find 2 (quest:small_soul_cores), kill blackjaw",
       "(hint)_______(quest:cores) are scattered, arena:blackjaw in altar-locked room without gold",
       "follow the red trace to the exit, enter areaidg3_6_2 ;; jiquani's sanctum"
     ],
     [
-      "talk to (img:quest_2) alva, find 2 (quest:medium_soul_cores) , activate 2 (quest:generators)",
+      "talk to (img:quest_2) alva, find 2 (quest:medium_soul_cores), activate 2 (quest:generators)",
       "(hint)_______(quest:soul_cores) are scattered, (quest:generators) and alva form a triangle",
       "return to alva, kill zicoatl for (quest:large_soul_core)",
       "(img:waypoint) to areaidg3_2_1 ;; infested barrens"
@@ -377,7 +377,7 @@
       ],
       "lines": [
         "(img:quest) oswald: <treasures_of_utzaal>",
-        "follow the stairs (img:3) , enter areaidg3_12 ;; temple of kopec"
+        "follow the stairs (img:3), enter areaidg3_12 ;; temple of kopec"
       ]
     },
     {
@@ -386,7 +386,7 @@
         "no"
       ],
       "lines": [
-        "follow the stairs (img:3) , enter areaidg3_12 ;; temple of kopec"
+        "follow the stairs (img:3), enter areaidg3_12 ;; temple of kopec"
       ]
     },
     [
@@ -406,7 +406,7 @@
       "(hint)_______usually (img:2) or (img:1) in the remaining zone"
     ],
     [
-      "find the plaza and the (img:checkpoint) , farm for (quest:heart) if needed",
+      "find the plaza and the (img:checkpoint), farm for (quest:heart) if needed",
       "find the (quest:dagger) and table, then place the heart and stab it",
       "(hint)_______usually (img:1) after the plaza, has (img:checkpoint) for later if (quest:heart) is missing",
       "find and enter areaidg3_17 ;; the black chambers",
@@ -435,9 +435,9 @@
       "find and enter areaidc_g1_4 ;; the grelwood"
     ],
     [
-      "find 3: (img:waypoint) and una, (img:arena) areaidc_g1_6 , (img:checkpoint) areaidc_g1_5 ;; the grim tangle & the red vale",
+      "find 3: (img:waypoint) and una, (img:arena) areaidc_g1_6, (img:checkpoint) areaidc_g1_5 ;; the grim tangle & the red vale",
       "(hint)_______activate the (img:waypoint) and talk to (img:quest_2) una",
-      "(hint)_______enter (img:arena) areaidc_g1_6 for the (img:waypoint) , then leave again ;; the grim tangle",
+      "(hint)_______enter (img:arena) areaidc_g1_6 for the (img:waypoint), then leave again ;; the grim tangle",
       "enter areaidc_g1_5 ;; the red vale"
     ],
     [
@@ -461,13 +461,13 @@
       "find and enter areaidc_g1_7 ;; cemetery of the eternals"
     ],
     [
-      "find 2: (img:arena) areaidc_g1_8 , (img:arena) areaidc_g1_9 ;; mausoleum of the praetor & tomb of the consort",
+      "find 2: (img:arena) areaidc_g1_8, (img:arena) areaidc_g1_9 ;; mausoleum of the praetor & tomb of the consort",
       "(hint)_______both have a boss: after killing the 2nd boss, ignore the portal and",
       "(hint)_______ (img:checkpoint) -travel to the start of the zone, then (img:waypoint) -travel back to the cemetery",
-      "talk to and kill lachlan , enter areaidc_g1_11 ;; hunting grounds"
+      "talk to and kill lachlan, enter areaidc_g1_11 ;; hunting grounds"
     ],
     [
-      "2 tasks: kill the_crowbell , (img:checkpoint) areaidc_g1_13_1 ;; ogham farmlands",
+      "2 tasks: kill the_crowbell, (img:checkpoint) areaidc_g1_13_1 ;; ogham farmlands",
       "enter areaidc_g1_13_1 ;; ogham farmlands"
     ],
     [
@@ -491,9 +491,9 @@
       "(hint)_______correct path usually leads (img:0) after (img:waypoint)"
     ],
     [
-      "2 tasks: kill candlemass , find (img:arena) stairs",
+      "2 tasks: kill candlemass, find (img:arena) stairs",
       "(hint)_______arena:candlemass is usually (img:3) before or (img:0) after the count's voiceline. if you",
-      "(hint)_______find (img:arena) stairs first: enter, get (img:checkpoint) , go back for the kill, (img:checkpoint) -travel to (img:arena) stairs",
+      "(hint)_______find (img:arena) stairs first: enter, get (img:checkpoint), go back for the kill, (img:checkpoint) -travel to (img:arena) stairs",
       "kill count_geonor, enter areaidc_g1_town (img:town) ;; clearfell encampment"
     ],
     [
@@ -510,7 +510,7 @@
       "use the desert map, enter areaidc_g2_10_1 ;; mawdun quarry"
     ],
     [
-      "follow the (img:checkpoint) (img:checkpoint) , enter areaidc_g2_10_2 ;; mawdun mine"
+      "follow the (img:checkpoint) (img:checkpoint), enter areaidc_g2_10_2 ;; mawdun mine"
     ],
     [
       "find and kill rudja,_the_dread_engineer",
@@ -543,7 +543,7 @@
       "use the desert map, enter areaidc_g2_4_1 ;; keth"
     ],
     [
-      "2 tasks: slay snake mobs for (quest:kabala_clan_relic) , kill kabala",
+      "2 tasks: slay snake mobs for (quest:kabala_clan_relic), kill kabala",
       "(hint)_______arena:kabala is often around the center of the zone",
       "find and enter areaidc_g2_4_2 ;; the lost city",
       "(hint)_______usually (img:3) in the zone, after a big bridge"
@@ -552,7 +552,7 @@
       "find and enter areaidc_g2_4_3 ;; buried shrines"
     ],
     [
-      "enter (img:arena) arena:the_heart_of_keth , kill azarian,_the_forsaken_son",
+      "enter (img:arena) arena:the_heart_of_keth, kill azarian,_the_forsaken_son",
       "talk to (img:quest_2) the goddess, take (quest:everburning_cinders)",
       "ignite the goddess, take (quest:the_essence_of_water)",
       "(img:portal) to areaidc_g2_town (img:town) ;; the ardura caravan"
@@ -565,7 +565,7 @@
       "find and enter areaidc_g2_5_2 ;; the bone pits"
     ],
     [
-      "2 tasks: slay hyena mobs for (quest:sun_clan_relic) , kill ekbab for (quest:mastodon_tusks)",
+      "2 tasks: slay hyena mobs for (quest:sun_clan_relic), kill ekbab for (quest:mastodon_tusks)",
       "(img:portal) to areaidc_g2_town (img:town) ;; the ardura caravan"
     ],
     [
@@ -590,7 +590,7 @@
     ],
     [
       "talk to the abandoned rhoa",
-      "find (quest:fallen_dekhara) next to a tower , take (quest:final_letter)",
+      "find (quest:fallen_dekhara) next to a tower, take (quest:final_letter)",
       "find and enter areaidc_g2_9_1 ;; path of mourning"
     ],
     [
@@ -613,7 +613,7 @@
       "(img:portal) to areaidc_g2_town (img:town) ;; the ardura caravan"
     ],
     [
-      "go (img:7) , talk to (img:quest_2) the hooded one",
+      "go (img:7), talk to (img:quest_2) the hooded one",
       "go back to the caravan, talk to (img:quest_2) asala to enter areaidc_g3_1 ;; sandswept marsh"
     ]
   ],
@@ -626,20 +626,20 @@
       "enter areaidc_g3_3 ;; jungle ruins"
     ],
     [
-      "3 tasks: kill mighty_silverfist , find (img:waypoint) near (img:arena) areaidc_g3_4 , (img:checkpoint) areaidc_g3_2_1 ;; the venom crypts & infested barrens",
+      "3 tasks: kill mighty_silverfist, find (img:waypoint) near (img:arena) areaidc_g3_4, (img:checkpoint) areaidc_g3_2_1 ;; the venom crypts & infested barrens",
       "enter areaidc_g3_2_1 ;; infested barrens"
     ],
     [
-      "find 3: (img:checkpoint) areaidc_g3_5 , (img:checkpoint) areaidc_g3_7 , (img:waypoint) and nearby (img:checkpoint) ;; chimeral wetlands & the azak bog",
+      "find 3: (img:checkpoint) areaidc_g3_5, (img:checkpoint) areaidc_g3_7, (img:waypoint) and nearby (img:checkpoint) ;; chimeral wetlands & the azak bog",
       "(hint)_______activate all 3 (img:checkpoint) to jump between them in the next steps",
-      "enter areaidc_g3_5 for the (img:waypoint) , then leave again ;; chimeral wetlands",
-      "enter areaidc_g3_7 , (img:waypoint) to areaidc_g3_3 ;; the azak bog ;; jungle ruins"
+      "enter areaidc_g3_5 for the (img:waypoint), then leave again ;; chimeral wetlands",
+      "enter areaidc_g3_7, (img:waypoint) to areaidc_g3_3 ;; the azak bog ;; jungle ruins"
     ],
     [
       "enter areaidc_g3_4 ;; the venom crypts"
     ],
     [
-      "find the (quest:corpse) , take (quest:corpse-snake_venom)",
+      "find the (quest:corpse), take (quest:corpse-snake_venom)",
       "(img:portal) to areaidc_g3_town (img:town) ;; ziggurat encampment"
     ],
     [
@@ -664,13 +664,13 @@
       "enter areaidc_g3_6_1 ;; jiquani's machinarium"
     ],
     [
-      "talk to (img:quest_2) alva, find (quest:small_soul_core) , activate the altar",
-      "3 tasks: follow red trace, find 2 (quest:small_soul_cores) , kill blackjaw",
+      "talk to (img:quest_2) alva, find (quest:small_soul_core), activate the altar",
+      "3 tasks: follow red trace, find 2 (quest:small_soul_cores), kill blackjaw",
       "(hint)_______(quest:cores) are scattered, arena:blackjaw in altar-locked room without gold",
       "follow the red trace to the exit, enter areaidc_g3_6_2 ;; jiquani's sanctum"
     ],
     [
-      "talk to (img:quest_2) alva, find 2 (quest:medium_soul_cores) , activate 2 (quest:generators)",
+      "talk to (img:quest_2) alva, find 2 (quest:medium_soul_cores), activate 2 (quest:generators)",
       "(hint)_______(quest:soul_cores) are scattered, (quest:generators) and alva form a triangle",
       "return to alva, kill zicoatl for (quest:large_soul_core)",
       "(img:waypoint) to areaidc_g3_2_1 ;; infested barrens"
@@ -696,7 +696,7 @@
       "(img:portal) to areaidc_g3_town (img:town) ;; ziggurat encampment"
     ],
     [
-      "follow the stairs (img:3) , enter areaidc_g3_12 ;; temple of kopec"
+      "follow the stairs (img:3), enter areaidc_g3_12 ;; temple of kopec"
     ],
     [
       "find the (img:arena) stairs in the corners of the areas",
@@ -715,7 +715,7 @@
       "(hint)_______usually (img:2) or (img:1) in the remaining zone"
     ],
     [
-      "find the plaza and the (img:checkpoint) , farm for (quest:heart) if needed",
+      "find the plaza and the (img:checkpoint), farm for (quest:heart) if needed",
       "find the (quest:dagger) and table, then place the heart and stab it",
       "(hint)_______usually (img:1) after the plaza, has (img:checkpoint) for later if (quest:heart) is missing",
       "find and enter areaidc_g3_17 ;; the black chambers",
