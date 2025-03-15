@@ -234,7 +234,7 @@ Gui_ToolbarButtons(cHWND, hotkey)
 		}
 		vars.toolbar.drag := 0
 
-		If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main) || WinExist("ahk_id " vars.hwnd.searchstrings_menu.main) || WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main)
+		If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main) || WinExist("ahk_id " vars.hwnd.searchstrings_menu.main) || WinExist("ahk_id "vars.hwnd.leveltracker_screencap.main) || WinExist("ahk_id " vars.hwnd.leveltracker_editor.main)
 			LLK_ToolTip(Lang_Trans("global_configwindow"), 2,,,, "yellow")
 		Else If (hotkey = 2)
 		{

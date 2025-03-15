@@ -4,10 +4,7 @@
 	global vars, settings, db, Json
 
 	If !FileExist("ini" vars.poe_version "\leveling tracker.ini")
-	{
 		IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", settings
-		IniWrite, % "", % "ini" vars.poe_version "\leveling tracker.ini", UI
-	}
 
 	If !IsObject(vars.hwnd.leveltracker)
 		vars.hwnd.leveltracker := {}
@@ -551,12 +548,6 @@ Leveltracker_GuideEditor(cHWND)
 	If !IsObject(db.leveltracker)
 		DB_Load("leveltracker")
 
-	If (cHWND = "clear")
-	{
-		profile := 0
-		Return
-	}
-
 	act := vars.leveltracker_editor.act, page := vars.leveltracker_editor.page, guide := vars.leveltracker_editor.guide, guide_last := vars.leveltracker_editor.guide_last
 	check := LLK_HasVal(vars.hwnd.leveltracker_editor, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If InStr(cHWND, "profile#")
@@ -574,9 +565,7 @@ Leveltracker_GuideEditor(cHWND)
 	Else If InStr(cHWND, "default#") || (check = "reset")
 	{
 		If (check = "reset") && LLK_Progress(vars.hwnd.leveltracker_editor.reset_bar, "LButton")
-		{
 			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Progress
-		}
 		Else If (check = "reset")
 			Return
 		vars.leveltracker_editor.guide := json.Load(vars.leveltracker_editor.default_guide), vars.leveltracker_editor.guide_last := json.Load(vars.leveltracker_editor.default_guide)
@@ -781,7 +770,7 @@ Leveltracker_GuideEditor(cHWND)
 				Return
 			}
 			If (control = "hint")
-				Clipboard := "(hint)_______" . Clipboard
+				Clipboard := "(hint)_____" . Clipboard
 			Else Clipboard := (control = "quest-name" ? "<" : "(quest:") . StrReplace(clipboard, " ", "_") . (control = "quest-name" ? ">" : ")")
 			SendInput, ^{v}
 			Return
@@ -1691,7 +1680,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 		guide.gems := [], guide.items := []
 		For index_raw, step in guide.group1
 		{
-			If InStr(step, Lang_Trans("lvltracker_recommended")) && !settings.leveltracker.recommend
+			If LLK_PatternMatch(step, "", [Lang_Trans("lvltracker_recommended"), Lang_Trans("lvltracker_recommended", 2)]) && !settings.leveltracker.recommend
 				Continue
 
 			style := "Section xs", line := step, step := StrReplace(StrReplace(step, ". ", " . "), ", ", " , "), kill := 0, text_parts := []
@@ -1756,7 +1745,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 					Gui, %name_main%: Font, % "s"settings.leveltracker.fSize
 					kill := (part = Lang_Trans("lvltracker_format_kill")) ? 1 : 0
 				}
-				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/4 : "ys x+0", spacing_check := 0
+				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/3 : "ys x+0", spacing_check := 0
 			}
 			If !preview && InStr(step, "(hint)")
 				Loop, Files, % "img\GUI\leveling tracker\hints\" (vars.poe_version ? "PoE 2\" : "") "*.jpg"

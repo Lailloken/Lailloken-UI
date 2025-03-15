@@ -1592,8 +1592,11 @@ Settings_leveltracker()
 		vars.hwnd.settings.fade_hover := hwnd, vars.hwnd.help_tooltips["settings_leveltracker fade mouse"] := hwnd
 	}
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.recommend, % Lang_Trans("m_lvltracker_recommend")
-	vars.hwnd.settings.recommend := vars.hwnd.help_tooltips["settings_leveltracker recommendation"] := hwnd
+	If !vars.poe_version
+	{
+		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.recommend, % Lang_Trans("m_lvltracker_recommend")
+		vars.hwnd.settings.recommend := vars.hwnd.help_tooltips["settings_leveltracker recommendation"] := hwnd
+	}
 
 	If !vars.client.stream && !vars.poe_version
 	{
@@ -1631,7 +1634,7 @@ Settings_leveltracker()
 	{
 		file := !FileExist("ini" vars.poe_version "\leveling guide" val ".ini") ? " cGray" : ""
 		files.Push(file)
-		Gui, %GUI%: Add, Text, % "xs x" x_anchor " Section Border Center 0x200 h" vars.settings.line1 + 2*settings.general.fHeight . (!file ? " gSettings_leveltracker2" : " cGray") " HWNDhwnd0 w" settings.general.fWidth * 2 . (settings.leveltracker.profile = val ? " cFuchsia" : ""), % index
+		Gui, %GUI%: Add, Text, % "xs x" x_anchor " Section Border Center 0x200 h" settings.general.fWidth/4 + 2*settings.general.fHeight . (!file ? " gSettings_leveltracker2" : " cGray") " HWNDhwnd0 w" settings.general.fWidth * 2 . (settings.leveltracker.profile = val ? " cFuchsia" : ""), % index
 
 		If !file
 		{
@@ -1663,26 +1666,20 @@ Settings_leveltracker()
 				vars.hwnd.settings["mule" val] := vars.hwnd.help_tooltips["settings_leveltracker mule" handle] := hwnd6
 			}
 
-			Gui, %GUI%: Add, Text, % "Section xs Border gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray"), % " " Lang_Trans("m_lvltracker_leaguestart") " "
+			Gui, %GUI%: Add, Text, % "Section xs y+" settings.general.fWidth/4 " Border gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray"), % " " Lang_Trans("m_lvltracker_leaguestart") " "
 			vars.hwnd.settings["leaguestart_" val] := vars.hwnd.help_tooltips["settings_leveltracker leaguestart" handle] := hwnd
 		}
 		Else
 		{
 			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center 0x200 hp Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_load", % " " Lang_Trans("lvltracker_editor_load") " "
 			vars.hwnd.settings["loaddefault_" val] := vars.hwnd.help_tooltips["settings_leveltracker default" handle] := hwnd_load
+			Break
 		}
 		handle .= "|"
 	}
 
 	Gui, %GUI%: Add, Text, % "Section xs x" x_anchor " Center BackgroundTrans", % Lang_Trans("global_credits") ":"
-	If !vars.poe_version
-	{
-		Gui, %GUI%: Add, Link, % "ys hp x+" settings.general.fWidth/2, <a href="https://github.com/HeartofPhos/exile-leveling">exile-leveling</a>
-		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % " ("
-		Gui, %GUI%: Add, Link, % "ys hp x+0", <a href="https://github.com/HeartofPhos">HeartofPhos</a>
-		Gui, %GUI%: Add, Text, % "ys Center BackgroundTrans x+0", % ")"
-	}
-	Else Gui, %GUI%: Add, Text, % "ys hp cYellow x+" settings.general.fWidth/2, % "default guide originally derived`nfrom " (vars.poe_version ? "u/xebtria's guide" : "exile-leveling by heartofphos")
+	Gui, %GUI%: Add, Text, % "ys hp cYellow x+" settings.general.fWidth/2, % "default guide originally derived`nfrom " (vars.poe_version ? "u/xebtria's guide" : "exile-leveling by heartofphos")
 
 	Gui, %GUI%: Font, bold underline
 	Gui, %GUI%: Add, Text, % "xs Section y+"vars.settings.spacing, % Lang_Trans("m_lvltracker_skilltree")
@@ -3988,7 +3985,7 @@ Settings_updater2(cHWND := "")
 		Run, % "https://github.com/Lailloken/Lailloken-UI/releases/tag/v" control
 	Else If (check = "restart_install")
 	{
-		If LLK_Progress(vars.hwnd.settings.restart_bar, "LButton")
+		If !settings.general.dev || LLK_Progress(vars.hwnd.settings.restart_bar, "LButton")
 		{
 			KeyWait, LButton
 			IniWrite, % vars.updater.selected, ini\config.ini, versions, apply update

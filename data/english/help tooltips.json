@@ -294,9 +294,9 @@
     ],
     "leveltracker timer": [
       "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
-      "it consists of total time (left), act # (middle), current act time (right)",
-      "click < act # > to pause/resume the timer, hold <right-click> to reset it for a new run",
-      "how to reset: create a new character, enter twilight strand, hold <right-click> on <act#>, then click it to start the new run"
+      "timer structure:\ntotal time | act # | current act time",
+      "click <act #> to pause/resume the timer, long-right-click it to reset for a new run",
+      "how to reset: create a new character, enter the first zone, long-right-click on <act #>, then click it to start the new run"
     ],
     "leveltracker timer-pause": [
       "automatically pauses the timer in hideouts, and resumes it when you leave"
@@ -368,7 +368,7 @@
       "opens the guide editor to load the default guide, edit the current one, or write a new one"
     ],
     "leveltracker guide info": [
-      "there are three individual guide slots you can use and switch between",
+      "there are up to three individual guide slots you can use and switch between",
       "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
     "leveltracker leaguestart": [
@@ -757,8 +757,7 @@
       "opens the github page with the detailed changelog of the selected version"
     ],
     "update restart": [
-      "long-click to update and restart",
-      "active overlays and unsaved data will be lost"
+      "click to update and restart\nNOTE: active overlays and unsaved data will be lost"
     ],
     "update manual": [
       "downloads a zip-file with the complete release, then opens it and the script-folder",

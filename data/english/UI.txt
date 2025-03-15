@@ -363,6 +363,7 @@
 		lvltracker_treeascendancy	=	"slot empty"
 		lvltracker_exp			=	"lvl-diff:"					;## stands for level-difference, i.e. character-level - area-level = X
 		lvltracker_recommended		=	"recommended level:"				;## PoE1 only, used to filter out lvl-recommendations in the guide
+		lvltracker_recommended		=	"farm level:"					;## PoE1 only, used to filter out lvl-recommendations in the guide
 
 
 		lvltracker_format_enter		=	"enter"						;## PoE2 only (whole block), use this and the next two in combination with "areaidXYZ" to place a page divider
