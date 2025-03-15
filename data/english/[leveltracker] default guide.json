@@ -35,7 +35,7 @@
       "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
     ],
     [
-      "find the bridge, place (img:portal)",
+      "find the bridge or (img:arena), place (img:portal)",
       "enter areaid1_1_5 ;; the ledge"
     ],
     [
@@ -52,7 +52,7 @@
     ],
     [
       "enter areaid1_1_4_0 ;; the flooded depths",
-      "(hint)_____usually (img:2) from the bridge"
+      "(hint)_____usually (img:6) or (img:3) before the bridge"
     ],
     [
       "find and kill the_dweller_of_the_deep",
@@ -275,10 +275,9 @@
     ],
     [
       "kill alira for (quest:alira's_amulet)",
-      "(hint)_____follow the main road (img:4) and look for a torch on the edge",
-      "(hint)_____follow the trail that forks off at the torch",
-      "kill captain_arteri for (quest:thaumetic_emblem) at the end of the main road",
-      "activate (quest:thaumetic_seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
+"(hint)_____a side trail forks off at a torch on the main road",
+"kill arteri for (quest:emblem) at the end of the main road",
+"activate the (quest:seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
     [
       "eramir: <deal_with_the_bandits>, take (quest:the_apex)",
@@ -317,12 +316,30 @@
         "enter areaid1_2_14_3 ;; the ancient pyramid"
       ]
     },
-    [
-      "find and enter (img:arena) pyramid_apex, kill vaal_oversoul",
-      "(hint)_____1st floor: exit in random corner, rest: diagonally across",
-      "(hint)_____recommended level: 20-22",
-      "activate the (img:craft), enter areaid1_3_1 ;; the city of sarn"
-    ]
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and enter (img:arena) pyramid_apex, kill vaal_oversoul",
+        "(hint)_____1st exit in random corner, then diagonal to each other",
+        "(hint)_____recommended level: 20-22",
+        "activate the (img:craft), enter areaid1_3_1 ;; the city of sarn"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and enter (img:arena) pyramid_apex, kill vaal_oversoul",
+        "(hint)_____1st exit in random corner, then diagonal to each other",
+        "(hint)_____recommended level: 20-22",
+        "enter areaid1_3_1 ;; the city of sarn"
+      ]
+    }
   ],
   [
     {
@@ -332,7 +349,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-        "help and talk to clarissa",
+        "help and talk to (img:quest) clarissa",
         "enter areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
@@ -342,7 +359,7 @@
         "no"
       ],
       "lines": [
-        "help and talk to clarissa",
+        "help and talk to (img:quest) clarissa",
         "enter areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
@@ -350,8 +367,7 @@
       "enter areaid1_3_2 ;; the slums"
     ],
     [
-      "find and enter areaid1_3_3_1 ;; the crematorium",
-      "(hint)_____follow the stairs"
+      "find and enter areaid1_3_3_1 ;; the crematorium"
     ],
     {
       "condition": [
@@ -375,7 +391,7 @@
       ]
     },
     [
-      "talk to clarissa, take (quest:sewer_keys)",
+      "talk to (img:quest) clarissa, take (quest:sewer_keys)",
       "maramoa: <lost_in_love>",
       "enter areaid1_3_2 ;; the slums"
     ],
@@ -520,7 +536,7 @@
     [
       "activate the (img:waypoint)",
       "go (img:7), kill general_gravicius",
-      "enter areaid1_3_14_1 ;; the lunaris temple level 1"
+      "go (img:7), enter areaid1_3_14_1 ;; the lunaris temple level 1"
     ],
     [
       "enter areaid1_3_14_2 ;; the lunaris temple level 2"
@@ -740,16 +756,31 @@
     [
       "enter areaid1_4_5_2 ;; the grand arena"
     ],
-    [
-      "activate the (img:craft)",
-      "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "activate the (img:craft)",
+        "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_4_3_3 ;; the crystal veins"
+      ]
+    },
     [
       "enter areaid1_4_4_1 ;; kaom's dream"
     ],
     [
       "enter areaid1_4_4_3 ;; kaom's stronghold",
-      "(hint)_____go (img:1), then follow the bridges throughout the area"
+      "(hint)_____go (img:1), then follow the bridges in the area"
     ],
     {
       "condition": [
@@ -798,7 +829,7 @@
       ],
       "lines": [
         "enter (img:arena) the_bowels_of_the_beast, kill piety",
-        "talk to piety",
+        "talk to (img:quest) piety",
         "activate the (img:craft), enter areaid1_4_6_3 ;; the harvest"
       ]
     },
@@ -809,7 +840,7 @@
       ],
       "lines": [
         "enter (img:arena) the_bowels_of_the_beast, kill piety",
-        "talk to piety, enter areaid1_4_6_3 ;; the harvest"
+        "talk to (img:quest) piety, enter areaid1_4_6_3 ;; the harvest"
       ]
     },
     [
@@ -961,8 +992,7 @@
     ],
     [
       "enter (img:arena) cathedral_apex, kill kitava",
-      "talk to (img:quest) lilly roth, sail to wraeclast",
-      "enter areaid2_6_town (img:town) ;; lioneye's watch"
+      "talk to (img:quest) lilly, sail to areaid2_6_town (img:town) ;; lioneye's watch"
     ]
   ],
   [
@@ -1028,11 +1058,28 @@
         "enter areaid2_6_7_2 ;; shavronne's tower"
       ]
     },
-    [
-      "enter (img:arena) prison_rooftop, kill shavronne_&_brutus",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter (img:arena) prison_rooftop, kill shavronne_&_brutus",
       "enter (img:arena) the_warden's_chambers",
       "activate the (img:craft), enter areaid2_6_8 ;; prisoner's gate"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter (img:arena) prison_rooftop, kill shavronne_&_brutus",
+        "enter (img:arena) the_warden's_chambers",
+        "enter areaid2_6_8 ;; prisoner's gate"
+      ]
+    },
     [
       "follow the road, enter areaid2_6_9 ;; the western forest"
     ],
@@ -1043,7 +1090,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-        "(hint)_____a side trail forks off at a torch along the road",
+        "(hint)_____a side trail forks off at a torch on the main road",
         "follow the main road, enter areaid2_6_10 ;; the riverways"
       ]
     },
@@ -1089,7 +1136,7 @@
       "lines": [
         "follow the shore, activate the (img:craft)",
         "complete (quest:pillar_push), light the (quest:beacon), burn (quest:the_black_flag)",
-        "talk to weylam roth, sail to areaid2_6_15 ;; the brine king's reef"
+        "talk to (img:quest) weylam, sail to areaid2_6_15 ;; the brine king's reef"
       ]
     },
     {
@@ -1100,16 +1147,13 @@
       "lines": [
         "follow the shore",
         "complete (quest:pillar_push), light the (quest:beacon), burn (quest:the_black_flag)",
-        "talk to weylam roth, sail to areaid2_6_15 ;; the brine king's reef"
+        "talk to (img:quest) weylam, sail to areaid2_6_15 ;; the brine king's reef"
       ]
     },
     [
       "enter (img:arena) the_bring_king's_throne, kill tsoagoth",
-      "relog to areaid2_6_town (img:town) ;; lioneye's watch"
-    ],
-    [
-      "select pantheons",
-      "(img:waypoint) to areaid2_7_town (img:town) ;; the bridge encampment"
+      "talk to (img:quest) sin, select pantheons",
+      "talk to (img:quest) weylam, sail to areaid2_7_town (img:town) ;; the bridge encampment"
     ]
   ],
   [
@@ -1366,7 +1410,7 @@
     [
       "doors with dead guards mark the correct path",
       "find and kill gemling_legionnaires",
-      "(hint)_____look around for (img:help) (lore)",
+      "(hint)_____look for a (img:help) -icon on the map",
       "enter areaid2_8_10 ;; the imperial fields"
     ],
     [
@@ -1399,8 +1443,8 @@
       ]
     },
     [
-      "hargan: <essence_of_the_hag>",
       "maramoa: <the_gemling_legion>",
+      "hargan: <essence_of_the_hag>",
       "clarissa: <love_is_dead>",
       "(img:waypoint) to areaid2_8_12_1 ;; the solaris temple level 1"
     ],
@@ -1455,7 +1499,7 @@
   ],
   [
     [
-      "optional: farm until lvl 58-62",
+      "farm level: 58-62",
       "enter areaid2_9_town (img:town) ;; highgate",
       "(img:waypoint) to areaid2_8_6 ;; the lunaris concourse"
     ],
@@ -1545,7 +1589,7 @@
       ]
     },
     [
-      "talk to sin",
+      "talk to (img:quest) sin",
       "petarus and vanja: <the_storm_blade>",
       "petarus and vanja: <the_queen_of_sands>, take (quest:bottled_storm)",
       "(img:waypoint) to areaid2_9_3 ;; the vastiri desert"
@@ -1642,7 +1686,7 @@
       "(img:waypoint) to areaid2_9_8 ;; the quarry"
     ],
     [
-      "talk to sin",
+      "talk to (img:quest) sin",
       "enter areaid2_9_10_1 ;; the belly of the beast"
     ],
     [
@@ -1754,12 +1798,12 @@
       ]
     },
     [
-      "talk to bannon",
+      "talk to (img:quest) bannon",
       "lani: <death_and_rebirth>",
       "(img:waypoint) to areaid2_10_2 ;; the ravaged square"
     ],
     [
-      "go (img:1), talk to innocence",
+      "go (img:1), talk to (img:quest) innocence",
       "enter areaid2_10_5 ;; the canals"
     ],
     [
@@ -1789,7 +1833,7 @@
     },
     [
       "lani: <an_end_to_hunger>",
-      "talk to (img:quest) lilly roth, set sail to areaid2_11_endgame_town (img:town) ;; karui shores"
+      "talk to (img:quest) lilly, set sail to areaid2_11_endgame_town (img:town) ;; karui shores"
     ],
     {
       "condition": [
