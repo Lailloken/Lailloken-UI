@@ -346,15 +346,13 @@ Init_general()
 	local
 	global vars, settings
 
-	ini := IniBatchRead("ini" vars.poe_version "\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15407
+	ini := IniBatchRead("ini" vars.poe_version "\config.ini"), legacy_version := ini.versions["ini-version"], new_version := 15703
 	If IsNumber(legacy_version) && (legacy_version < 15000) || FileExist("modules\alarm-timer.ahk") ;|| FileExist("modules\delve-helper.ahk")
 	{
 		MsgBox,, Script updated incorrectly, Updating from legacy to v1.50+ requires a clean installation.`nThe script will now exit.
 		ExitApp
 	}
 	ini_version := LLK_IniRead("ini\config.ini", "versions", "ini", 0) ;ini-version is stored here regardless of which PoE-version is being played
-	If !ini_version
-		IniWrite, % new_version, ini\config.ini, versions, ini
 
 	If (ini_version < 15303)
 	{
@@ -363,13 +361,27 @@ Init_general()
 			MsgBox, % "The betrayal image-check was changed in v1.53.3 and needs to be recalibrated."
 	}
 	If (ini_version < 15304)
-	{
 		FileDelete, data\global\[stash-ninja] prices.ini
+
+	If (ini_version < 15703)
+	{
+		For index, poe_version in ["", " 2"]
+		{
+			If FileExist("ini" poe_version "\leveling tracker.ini")
+			{
+				IniRead, backup, % "ini" poe_version "\leveling tracker.ini", Settings
+				FileDelete, % "ini" poe_version "\leveling tracker.ini"
+				IniWrite, % backup, % "ini" poe_version "\leveling tracker.ini", Settings
+				IniWrite, % "", % "ini" poe_version "\leveling tracker.ini", Settings, profile
+				For index, val in [2, 3]
+					IniWrite, 0, % "ini" poe_version "\leveling tracker.ini", Settings, % "profile " val " mule"
+			}
+
+			For index, val in ["", 2, 3]
+				FileDelete, % "ini" poe_version "\leveling guide" val ".ini"
+		}
 		IniWrite, % new_version, ini\config.ini, versions, ini
 	}
-	settings.general.version := new_version
-	settings.general.trans := 230
-	settings.general.blocked_hotkeys := {"!": 1, "^": 1, "+": 1}
 	settings.general.character := ini.settings["active character"]
 	settings.general.build := !Blank(settings.general.character) ? ini.settings["active build"] : ""
 	settings.general.dev := !Blank(check := ini.settings["dev"]) ? check : 0
