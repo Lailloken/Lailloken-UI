@@ -64,11 +64,26 @@
       "tarkleigh: <the_caged_brute>",
       "(img:waypoint) to areaid1_1_7_1 ;; the lower prison"
     ],
-    [
-      "complete the (img:lab) trial",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "complete the (img:lab) trial",
       "(hint)_____usually (img:1) in the zone",
       "enter areaid1_1_7_2 ;; the upper prison"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "enter areaid1_1_7_2 ;; the upper prison"
+      ]
+    },
     {
       "condition": [
         "league-start",

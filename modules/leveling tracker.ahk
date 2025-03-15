@@ -48,6 +48,7 @@
 		If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
 			settings.leveltracker["guide" profile] := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini", "Info")
 		,	settings.leveltracker["guide" profile].info.leaguestart := Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : settings.leveltracker["guide" profile].info.leaguestart
+		,	settings.leveltracker["guide" profile].info.bandit := Blank(settings.leveltracker["guide" profile].info.bandit) ? "no" : settings.leveltracker["guide" profile].info.bandit
 	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
@@ -280,9 +281,10 @@ Leveltracker(cHWND := "", hotkey := "")
 
 	If (cHWND = "condition")
 	{
-		If (condition := vars.leveltracker.guide.import[hotkey].condition)
-		&& ((condition.1 = "league-start") && (LLK_HasVal(yesno, condition.2) != settings.leveltracker["guide" settings.leveltracker.profile].info.leaguestart)
-			|| (condition.1 = "bandit") && (LLK_HasVal(bandits, condition.2) != settings.leveltracker["guide" settings.leveltracker.profile].info.bandit))
+		bandit := settings.leveltracker["guide" settings.leveltracker.profile].info.bandit
+		If !(condition := vars.leveltracker.guide.import[hotkey].condition) || condition
+		&& ((condition.1 = "league-start") && (LLK_HasVal(yesno, condition.2) = settings.leveltracker["guide" settings.leveltracker.profile].info.leaguestart)
+			|| (condition.1 = "bandit") && (condition.2 = bandit || InStr(condition.2, "!") && !InStr(condition.2, bandit)))
 			Return 1
 		Else Return 0
 	}
@@ -331,7 +333,7 @@ Leveltracker(cHWND := "", hotkey := "")
 				area_check := 0
 				For index, val in vars.leveltracker.guide.import
 				{
-					If (index <= vars.leveltracker.guide.progress) || val.condition && Leveltracker("condition", index)
+					If (index <= vars.leveltracker.guide.progress) || val.condition && !Leveltracker("condition", index)
 						Continue
 					For index, line in (val.condition ? val.lines : val)
 						Loop, Parse, line, %A_Space%
@@ -359,7 +361,7 @@ Leveltracker(cHWND := "", hotkey := "")
 			Loop, % loop
 			{
 				guide.progress += 1
-				While Leveltracker("condition", guide.progress + 1)
+				While !Leveltracker("condition", guide.progress + 1)
 					guide.progress += 1
 
 				Leveltracker_Progress(1)
@@ -393,11 +395,11 @@ Leveltracker(cHWND := "", hotkey := "")
 				Return
 			}
 
-			While Leveltracker("condition", guide.progress) && guide.progress
+			While !Leveltracker("condition", guide.progress) && guide.progress
 				guide.progress -= 1
 
 			IniWrite, % (vars.leveltracker.guide.progress := Max(vars.leveltracker.guide.progress - 1, 0)), % "ini" vars.poe_version "\leveling guide" settings.leveltracker.profile ".ini", progress, pages
-			If !guide.progress && Leveltracker("condition", 1)
+			If !guide.progress && !Leveltracker("condition", 1)
 				LLK_ToolTip(Lang_Trans("lvltracker_endreached"),, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, "yellow",,,, 1)
 			Else Leveltracker_Progress()
 			vars.leveltracker.last_manual := A_TickCount
@@ -715,8 +717,9 @@ Leveltracker_GuideEditor(cHWND)
 			type := LLK_ControlGet(vars.hwnd.leveltracker_editor["conditiontype_" control])
 			inputs := ["", ["yes", "no"], ["no", "alira", "kraityn", "oak"]]
 			vars.leveltracker_editor.guide[act][control].condition.2 := inputs[type][LLK_ControlGet(cHWND)]
-			Return
 		}
+		Else If InStr(check, "conditionflag_")
+			vars.leveltracker_editor.guide[act][control].condition.2 := (LLK_ControlGet(cHWND) = 1 ? "" : "!") . StrReplace(vars.leveltracker_editor.guide[act][control].condition.2, "!")
 		Else If InStr(check, "preview_")
 		{
 			page_content := Trim(LLK_ControlGet(vars.hwnd.leveltracker_editor["textfield_" control]), " `r`n"), page_content := StrSplit(page_content, "`n", " ")
@@ -915,14 +918,20 @@ Leveltracker_GuideEditor(cHWND)
 		Gui, %GUI_name%: Add, Text, % "ys hp x+" margin . style, % " " Lang_Trans("global_condition")
 		Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor - 4
 		Gui, %GUI_name%: Add, DDL, % "ys x+" margin " hp r" (vars.poe_version ? 2 : 3) . style . " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" (option := !array.condition.1 ? 1 : LLK_HasVal(types, array.condition.1))
-		, % Lang_Trans("global_none") "|" Lang_Trans("m_lvltracker_leaguestart") . (!vars.poe_version ? "|" Lang_Trans("m_lvltracker_bandit") : "")
+		. " w" settings.leveltracker.fWidth_editor * 11, % Lang_Trans("global_none") "|" Lang_Trans("m_lvltracker_leaguestart") . (!vars.poe_version ? "|" Lang_Trans("m_lvltracker_bandit") : "")
 		vars.hwnd.leveltracker_editor["conditiontype_" page1] := vars.hwnd.help_tooltips["leveltrackereditor_conditions" handle] := hwnd
 
 		If (option > 1)
 		{
-			Gui, %GUI_name%: Add, DDL, % "ys hp r" (option = 2 ? 2 : 4) . style . " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" LLK_HasVal(options[option], array.condition.2)
-			, % (option = 2) ? Lang_Trans("global_yes") "|" Lang_Trans("global_no") : Lang_Trans("global_no") "|" Lang_Trans("m_lvltracker_bandit") "|" Lang_Trans("m_lvltracker_bandit", 2) "|" Lang_Trans("m_lvltracker_bandit", 3)
+			Gui, %GUI_name%: Add, DDL, % "ys hp r" (option = 2 ? 2 : 4) . style . " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" LLK_HasVal(options[option], StrReplace(array.condition.2, "!")) " w" settings.leveltracker.fWidth_editor*8
+			, % (option = 2) ? Lang_Trans("global_yes") "|" Lang_Trans("global_no") : Lang_Trans("global_no") "|" Lang_Trans("m_lvltracker_bandits") "|" Lang_Trans("m_lvltracker_bandits", 2) "|" Lang_Trans("m_lvltracker_bandits", 3)
 			vars.hwnd.leveltracker_editor["conditionoption_" page1] := hwnd
+			If (option = 3)
+			{
+				Gui, %GUI_name%: Add, DDL, % "ys hp r2" style " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" (InStr(array.condition.2, "!") ? 2 : 1) " w" settings.leveltracker.fWidth_editor * 4
+				, % Lang_Trans("global_yes") "|" Lang_Trans("global_no")
+				vars.hwnd.leveltracker_editor["conditionflag_" page1] := hwnd
+			}
 		}
 
 		Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor
@@ -2445,7 +2454,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	If (mode = "init")
 		GuiControl,, % vars.hwnd.LLK_panel.leveltracker, img\GUI\leveltracker.png
 
-	While Leveltracker("condition", guide.progress + 1)
+	While !Leveltracker("condition", guide.progress + 1)
 		guide.progress += 1
 
 	guide.group1 := import[guide.progress + 1].Clone()
