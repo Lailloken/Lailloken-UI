@@ -1659,12 +1659,6 @@ Settings_leveltracker()
 				vars.hwnd.settings["pobpreview" val] := hwnd5, vars.hwnd.help_tooltips["settings_leveltracker pob preview" handle] := hwnd7
 				vars.hwnd.settings["pobpreview" val "_bar"] := hwnd7
 			}
-			If !vars.poe_version && (index > 1) && !files.1 && vars.leveltracker["PoB" index].gems.Count()
-			{
-				checked := settings.leveltracker["mule" index]
-				Gui, %GUI%: Add, Checkbox, % "ys hp gSettings_leveltracker2 HWNDhwnd6 Checked" checked . (checked ? " cLime" : ""), % "mule"
-				vars.hwnd.settings["mule" val] := vars.hwnd.help_tooltips["settings_leveltracker mule" handle] := hwnd6
-			}
 
 			Gui, %GUI%: Add, Text, % "Section xs y+" settings.general.fWidth/4 " Border gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray"), % " " Lang_Trans("m_lvltracker_leaguestart") " "
 			vars.hwnd.settings["leaguestart_" val] := vars.hwnd.help_tooltips["settings_leveltracker leaguestart" handle] := hwnd
@@ -1947,7 +1941,7 @@ Settings_leveltracker2(cHWND := "")
 		{
 			If vars.leveltracker.skilltree_schematics.GUI
 				Leveltracker_PobSkilltree("close")
-			IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile
+			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB
 			Init_leveltracker()
 			Settings_menu("leveling tracker")
 			Return
@@ -1958,26 +1952,6 @@ Settings_leveltracker2(cHWND := "")
 		LLK_ToolTip(text, 0,,, "pobtooltip")
 		KeyWait, LButton
 		vars.tooltip[vars.hwnd["tooltippobtooltip"]] := A_TickCount
-	}
-	Else If InStr(check, "mule")
-	{
-		input := LLK_ControlGet(cHWND), profile := SubStr(check, 0)
-		Leveltracker_ProgressReset(profile)
-		If input
-			Leveltracker_Load(profile)
-		Else
-		{
-			vars.leveltracker.guide["muled" profile] := ""
-			IniDelete, % "ini" vars.poe_version "\leveling guide.ini", info, % "muled " profile
-		}
-		IniWrite, % (settings.leveltracker["mule" profile] := input), % "ini" vars.poe_version "\leveling tracker.ini", settings, % "profile " profile " mule"
-		GuiControl, % "+c" (input ? "Lime" : "White"), % cHWND
-		GuiControl, % "movedraw", % cHWND
-
-		If (profile = settings.leveltracker.profile)
-			Leveltracker_Load()
-		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-			Leveltracker_Progress(1)
 	}
 	Else If InStr(check, "leaguestart_")
 	{

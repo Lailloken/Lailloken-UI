@@ -373,8 +373,6 @@ Init_general()
 				FileDelete, % "ini" poe_version "\leveling tracker.ini"
 				IniWrite, % backup, % "ini" poe_version "\leveling tracker.ini", Settings
 				IniWrite, % "", % "ini" poe_version "\leveling tracker.ini", Settings, profile
-				For index, val in [2, 3]
-					IniWrite, 0, % "ini" poe_version "\leveling tracker.ini", Settings, % "profile " val " mule"
 			}
 
 			For index, val in ["", 2, 3]

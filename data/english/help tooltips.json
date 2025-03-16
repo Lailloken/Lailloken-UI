@@ -375,11 +375,6 @@
       "choose whether quests/objectives that only need to be done once per league should be shown or not",
       "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
-    "leveltracker mule": [
-      "the guide in this slot will be treated as a mule for slot 1",
-      "the guide will end with the final gem step and automatically switch to slot 1 (or next mule) after relogging",
-      "note: toggling this box will reset this slot's guide progress"
-    ],
     "leveltracker reset": [
       "long-click to reset the progress in this guide slot and start over"
     ],

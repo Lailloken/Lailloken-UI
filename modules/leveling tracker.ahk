@@ -26,29 +26,22 @@
 
 	For index0, profile in ["", 2, 3]
 	{
+		If !FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
+			Continue
+		ini2 := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini")
 		vars.leveltracker["PoB" profile] := {}
 		For index, category in ["class", "ascendancies", "gems", "trees", "active tree"]
 		{
-			string := ini["PoB" profile][category]
+			string := ini2.PoB[category]
 			If StrLen(string)
 				vars.leveltracker["pob" profile][category] := InStr("{}[]", SubStr(string, 1, 1) . SubStr(string, 0)) ? json.Load(string) : string
 			Else If (category = "active tree") && vars.leveltracker["pob" profile].Count() && !StrLen(string)
 				vars.leveltracker["pob" profile][category] := 1
 		}
-		If (index0 > 1)
-			settings.leveltracker["mule" profile] := ini.settings["profile " profile " mule"] ? 1 : 0
-		Else
-			For index, inner in [2, 3]
-			{
-				ini_mule := LLK_IniRead("ini" vars.poe_version "\leveling guide.ini", "info", "muled " inner)
-				If (SubStr(ini_mule, 1, 1) . SubStr(ini_mule, 0) = "{}")
-					vars.leveltracker.guide["muled" inner] := Json.Load(ini_mule)
-			}
 		
-		If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
-			settings.leveltracker["guide" profile] := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini", "Info")
-		,	settings.leveltracker["guide" profile].info.leaguestart := Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : settings.leveltracker["guide" profile].info.leaguestart
-		,	settings.leveltracker["guide" profile].info.bandit := Blank(settings.leveltracker["guide" profile].info.bandit) ? "none" : settings.leveltracker["guide" profile].info.bandit
+		settings.leveltracker["guide" profile] := ini2.info.Clone()
+		settings.leveltracker["guide" profile].info.leaguestart .= Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : ""
+		settings.leveltracker["guide" profile].info.bandit .= Blank(settings.leveltracker["guide" profile].info.bandit) ? "none" : ""
 	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
@@ -298,17 +291,6 @@ Leveltracker(cHWND := "", hotkey := "")
 	check := LLK_HasVal(vars.hwnd.leveltracker, cHWND), profile := settings.leveltracker.profile
 	If InStr(check, "dummy")
 		Return
-
-	If (cHWND = "mule")
-	{
-		IniWrite, % (settings.leveltracker.profile := settings.leveltracker["mule" profile + 1] ? profile + 1 : ""), % "ini" vars.poe_version "\leveling tracker.ini", settings, profile
-		Leveltracker_Load(), Init_leveltracker()
-		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-			Leveltracker_Progress(1)
-		If (vars.settings.active = "leveling tracker")
-			Settings_menu("leveling tracker")
-		Return
-	}
 
 	If InStr("+-", cHWND) || check || InStr(A_Gui, "settings_menu")
 	{
@@ -1050,51 +1032,48 @@ Leveltracker_Import(profile := "")
 	If !IsObject(db.leveltracker)
 		DB_Load("leveltracker")
 
-	If vars.poe_version
+	If !InStr(Clipboard, " areaid")
 	{
-		If !InStr(Clipboard, " areaid")
-		{
-			Try PoB := Leveltracker_PobImport(Clipboard, profile)
-			If !IsObject(PoB)
-			{
-				LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
-				Return
-			}
-			Else
-			{
-				Init_leveltracker(), Settings_menu("leveling tracker")
-				Clipboard := ""
-				Return 1
-			}
-		}
-		Else Try object := json.load(Clipboard)
-
-		If !IsObject(object)
+		Try PoB := Leveltracker_PobImport(Clipboard, profile)
+		If !IsObject(PoB)
 		{
 			LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
 			Return
 		}
 		Else
-			Loop, % vars.poe_version ? 6 : 10
-				dump .= (!dump ? "" : "`n") "act" A_Index "=""" json.dump(object[A_Index]) """"
-
-		If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
 		{
-			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
-			IniWrite, 0, % "ini" vars.poe_version "\leveling guide" profile ".ini", Progress, pages
+			Init_leveltracker(), Settings_menu("leveling tracker")
+			Clipboard := ""
+			Return 1
 		}
-		IniWrite, % (settings.leveltracker["guide" profile].info.custom := 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, custom
-		IniWrite, % dump, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
-		Init_leveltracker(), Settings_menu("leveling tracker")
-		If (profile = settings.leveltracker.profile)
-		{
-			Leveltracker_Load()
-			If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
-				Leveltracker_Progress(1)
-		}
-		Clipboard := ""
-		Return 1
 	}
+	Else Try object := json.load(Clipboard)
+
+	If !IsObject(object)
+	{
+		LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
+		Return
+	}
+	Else
+		Loop, % vars.poe_version ? 6 : 10
+			dump .= (!dump ? "" : "`n") "act" A_Index "=""" json.dump(object[A_Index]) """"
+
+	If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
+	{
+		IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
+		IniWrite, 0, % "ini" vars.poe_version "\leveling guide" profile ".ini", Progress, pages
+	}
+	IniWrite, % (settings.leveltracker["guide" profile].info.custom := 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, custom
+	IniWrite, % dump, % "ini" vars.poe_version "\leveling guide" profile ".ini", Guide
+	Init_leveltracker(), Settings_menu("leveling tracker")
+	If (profile = settings.leveltracker.profile)
+	{
+		Leveltracker_Load()
+		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+			Leveltracker_Progress(1)
+	}
+	Clipboard := ""
+	Return 1
 
 	If (SubStr(Clipboard, 1, 2) != "[{") || !InStr(Clipboard, """enter""")
 	{
@@ -1349,19 +1328,6 @@ Leveltracker_Import(profile := "")
 	}
 	IniWrite, % guide_text, % "ini" vars.poe_version "\leveling guide" profile ".ini", Steps
 
-	If !profile
-	{
-		IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", settings, profile 2 mule
-		IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", settings, profile 3 mule
-		vars.leveltracker.guide["muled2"] := vars.leveltracker.guide["muled3"] := ""
-	}
-	Else
-	{
-		vars.leveltracker.guide["muled" profile] := ""
-		IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", settings, profile %profile% mule
-		IniDelete, % "ini" vars.poe_version "\leveling guide.ini", info, muled %profile%
-	}
-
 	Init_leveltracker()
 	Settings_menu("leveling tracker")
 	If settings.leveltracker.geartracker
@@ -1389,48 +1355,7 @@ Leveltracker_Load(profile := 0)
 		For iPage, oPage in json.load(ini.guide["act" A_Index])
 			import.Push(oPage)
 
-	/*
-	Loop, Parse, % LLK_IniRead("ini" vars.poe_version "\leveling guide" (profile ? profile : settings.leveltracker.profile) ".ini", "steps" (!profile && settings.leveltracker["mule" current_profile] ? " mule" : "")), `n, `r
-	{
-		loopfield := InStr(A_LoopField, "`;") ? SubStr(A_LoopField, 1, InStr(A_LoopField, " `;") - 1) : A_LoopField, import.Push(loopfield)
-		If profile && (InStr(loopfield, "buy gem: ") || InStr(loopfield, "take reward: "))
-			gem := StrReplace(SubStr(loopfield, InStr(loopfield, ")",, 0) + 1), "_", " "), gems[gem] := 1
-	}
-	*/
-
-	If profile
-	{
-		vars.leveltracker.guide["muled" profile] := gems.Clone()
-		IniWrite, % """" Json.Dump(gems) """", % "ini" vars.poe_version "\leveling guide.ini", info, % "muled " profile
-		Loop, % (count := import.Count())
-		{
-			index := count - (A_Index - 1)
-			If !(LLK_HasVal(import[index], "buy gem: ", 1) || LLK_HasVal(import[index], "take reward: ", 1))
-				import.RemoveAt(index)
-			Else
-			{
-				Loop, % (count1 := import[index].Count())
-				{
-					index1 := count1 - (A_Index - 1)
-					If !(InStr(import[index][index1], "buy gem: ") || InStr(import[index[index1]], "take reward: "))
-						import[index].RemoveAt(index1)
-					Else 
-					{
-						import[index].Push("relog, switch characters")
-						Break 2
-					}
-				}
-			}
-		}
-		/*
-		For index, step in import
-			import_dump .= (!import_dump ? "" : "`n") step
-
-		IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", steps mule
-		IniWrite, % import_dump, % "ini" vars.poe_version "\leveling guide" profile ".ini", steps mule
-		*/
-	}
-	Else vars.leveltracker.guide.import := LLK_CloneObject(import)
+	vars.leveltracker.guide.import := LLK_CloneObject(import)
 }
 
 Leveltracker_ScreencapMenu()
@@ -1714,8 +1639,6 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 			If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gems.Count() && !guide.items.Count()
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				If !settings.leveltracker.profile && (vars.leveltracker.guide.muled2[add] || vars.leveltracker.guide.muled3[add])
-					Continue
 				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
 				buy_prompt := 1
 				Continue
@@ -1723,8 +1646,6 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gems.Count() || guide.items.Count())
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				If !settings.leveltracker.profile && (vars.leveltracker.guide.muled2[add] || vars.leveltracker.guide.muled3[add])
-					Continue
 				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
 				Continue
 			}
@@ -1796,7 +1717,7 @@ Leveltracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", reg
 	If !IsObject(db.leveltracker)
 		DB_Load("leveltracker")
 
-	profile := settings.leveltracker.profile, profile := settings.leveltracker["mule" profile] ? "" : profile
+	profile := settings.leveltracker.profile
 	pob := vars.leveltracker["pob" profile], item := vars.omnikey.item, wHover := settings.leveltracker.fWidth * 15
 	If !IsObject(vars.leveltracker.gemlinks)
 		vars.leveltracker.gemlinks := {}
@@ -1944,7 +1865,10 @@ Leveltracker_PobImport(b64, profile)
 
 		class := SubStr(xml, InStr(xml, " classname=""") + 12), class := SubStr(class, 1, InStr(class, """") - 1)
 		tree := SubStr(xml, InStr(xml, "<tree ")), tree := SubStr(tree, 1, InStr(tree, "</tree>") - 2)
+		build := SubStr(xml, InStr(xml, "<build ")), build := SubStr(build, 1, InStr(build, "`n"))
 		ascendancies := [], trees0 := [], trees := [], treeDB := db.leveltracker.trees, failed_versions := {}
+		bandit := SubStr(build, InStr(build, "bandit=""") + 8), bandit := SubStr(bandit, 1, InStr(bandit, """") - 1)
+
 		Loop, Parse, tree, `n, `r
 			If InStr(A_LoopField, "<spec")
 			{
@@ -2025,8 +1949,8 @@ Leveltracker_PobImport(b64, profile)
 
 		object := {"class": class, "ascendancies": ascendancies, "gems": skillsets_final, "trees": trees, "active tree": 1}
 		For key, val in object
-			IniWrite, % """" (IsObject(val) ? json.dump(val) : val) """", % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile, % key
-		IniWrite, % """" pobString """", % "ini" vars.poe_version "\leveling guide" profile ".ini", pob, code
+			IniWrite, % """" (IsObject(val) ? json.dump(val) : val) """", % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, % key
+		;IniWrite, % """" pobString """", % "ini" vars.poe_version "\leveling guide" profile ".ini", pob, code
 		Return object
 	}
 }
@@ -2115,7 +2039,7 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 	wait := 1
 	profile := settings.leveltracker.profile, active := vars.leveltracker["PoB" profile]["active tree"]
 	If (active > vars.leveltracker["PoB" profile].trees.Count())
-		IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] := 1), % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile, active tree
+		IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] := 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, active tree
 	version := vars.leveltracker["PoB" profile].trees[active].version
 	scale := "0." (StrLen(vars.client.h) < 4 ? "0" : "") vars.client.h
 
@@ -2130,9 +2054,9 @@ Leveltracker_PobSkilltree(mode := "", ByRef failed_versions := "")
 	Else If mode && InStr("prev, next", mode)
 	{
 		If (mode = "prev") && (active > 1)
-			IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] -= 1), % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile, active tree
+			IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] -= 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, active tree
 		Else If (mode = "next") && (vars.leveltracker["PoB" profile].trees.Count() > active)
-			IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] += 1), % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile, active tree
+			IniWrite, % (active := vars.leveltracker["PoB" profile]["active tree"] += 1), % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, active tree
 		Else LLK_ToolTip(Lang_Trans("lvltracker_endreached"), 1,,,, "Yellow")
 		reset_pos := 1
 	}
@@ -2480,9 +2404,6 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 			Loop, Parse, val, %A_Space%
 				If InStr(A_LoopField, "areaid")
 					guide.target_area := StrReplace(A_LoopField, "areaid")
-
-	If LLK_HasVal(guide.group1, "relog, switch characters")
-		guide.target_area := "login"
 
 	If vars.leveltracker.fast ;skip redrawing the GUIs during fast-forwarding
 	{

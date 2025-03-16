@@ -351,7 +351,7 @@ Log_Loop(mode := 0)
 		vars.lab.rooms[vars.lab.room.1].seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
-		vars.leveltracker.guide.target_area := "", Leveltracker(vars.log.areaID = "login" ? "mule" : "+")
+		vars.leveltracker.guide.target_area := "", Leveltracker("+")
 
 	If !vars.poe_version && settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
