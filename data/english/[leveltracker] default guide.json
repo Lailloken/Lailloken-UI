@@ -265,46 +265,225 @@
       "(hint)_____recommended level: 16",
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
     ],
-    [
-      "silk: <sharp_and_cruel>",
-      "(img:waypoint) to areaid1_2_3 ;; the crossroads"
-    ],
-    [
-      "go (img:1), enter areaid1_2_4 ;; the broken bridge"
-    ],
-    [
-      "follow the road, kill kraityn for (quest:kraityn's_amulet)",
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira", "oak"]
+      ],
+      "lines": [
+        "silk: <sharp_and_cruel>",
+        "(img:waypoint) to areaid1_2_3 ;; the crossroads"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira", "oak"]
+      ],
+      "lines": [
+        "go (img:1), enter areaid1_2_4 ;; the broken bridge"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira", "oak"]
+      ],
+      "lines": [
+        "follow the road, kill kraityn for (quest:kraityn's_amulet)",
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
-    ],
-    [
-      "(img:waypoint) to areaid1_2_7 ;; the riverways"
-    ],
-    [
-      "enter areaid1_2_12 ;; the wetlands",
-      "(hint)_____a side trail forks off between 2 pillars nearby"
-    ],
-    [
-      "find and kill oak for (quest:oak's_amulet)",
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "silk: <sharp_and_cruel>",
+        "(img:waypoint) to areaid1_2_7 ;; the riverways"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "enter areaid1_2_12 ;; the wetlands",
+        "(hint)_____a side trail forks off between 2 pillars nearby"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira"]
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_2_7 ;; the riverways"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira"]
+      ],
+      "lines": [
+        "enter areaid1_2_12 ;; the wetlands",
+        "(hint)_____a side trail forks off between 2 pillars nearby"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira", "kraityn"]
+      ],
+      "lines": [
+        "find and kill oak for (quest:oak's_amulet)",
       "(img:waypoint) to areaid1_2_9 ;; the western forest",
-      "(hint)_____search opposite direction of the encampment entrance"
-    ],
-    [
-      "kill alira for (quest:alira's_amulet)",
-"(hint)_____a side trail forks off at a torch on the main road",
-"kill arteri for (quest:emblem) at the end of the main road",
-"activate the (quest:seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
-    ],
-    [
-      "eramir: <deal_with_the_bandits>, take (quest:the_apex)",
-      "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
-    ],
-    [
-      "bestel: <the_way_forward>",
-      "(img:waypoint) to areaid1_2_12 ;; the wetlands"
-    ],
-    [
-      "poison the (quest:tree_roots), enter areaid1_2_11 ;; the vaal ruins"
-    ],
+      "(hint)_____usually (img:7) or (img:1) from oak's camp, rarely (img:5)"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["oak"]
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_2_9 ;; the western forest"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "kraityn", "oak"]
+      ],
+      "lines": [
+        "find and kill alira for (quest:alira's_amulet)",
+        "(hint)_____go (img:4), find a torch on the road. follow the path that forks off",
+        "follow the main road, kill arteri for (quest:thaumetic_emblem)",
+        "activate the (quest:seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["alira"]
+      ],
+      "lines": [
+        "help (color:ff8111)alira, take (quest:the_apex)",
+        "(hint)_____go (img:4), find a torch on the road. follow the path that forks off",
+        "follow the main road, kill arteri for (quest:thaumetic_emblem)",
+        "activate the (quest:seal), relog to areaid1_2_town (img:town) ;; the forest encampment"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none"]
+      ],
+      "lines": [
+        "eramir: <deal_with_the_bandits>, take (quest:the_apex)",
+        "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["alira", "kraityn", "oak"]
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "bestel: <the_way_forward>",
+        "(img:waypoint) to areaid1_2_3 ;; the crossroads"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "go (img:1), enter areaid1_2_4 ;; the broken bridge"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "follow the road, help (color:ff8111)kraityn, take (quest:the_apex)",
+      "relog to areaid1_2_town (img:town) ;; the forest encampment"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["oak"]
+      ],
+      "lines": [
+        "bestel: <the_way_forward>",
+        "(img:waypoint) to areaid1_2_7 ;; the riverways"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["oak"]
+      ],
+      "lines": [
+        "enter areaid1_2_12 ;; the wetlands",
+        "(hint)_____a side trail forks off between 2 pillars nearby"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["oak"]
+      ],
+      "lines": [
+        "find and help (color:ff8111)oak, take (quest:the_apex)",
+        "poison the (quest:tree_roots), enter areaid1_2_11 ;; the vaal ruins",
+        "(hint)_____usually (img:7) or (img:1) from oak's camp, rarely (img:5)"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira"]
+      ],
+      "lines": [
+        "bestel: <the_way_forward>",
+        "(img:waypoint) to areaid1_2_12 ;; the wetlands"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["kraityn"]
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_2_12 ;; the wetlands"
+      ]
+    },
+    {
+      "condition": [
+        "bandit",
+        ["none", "alira", "kraityn"]
+      ],
+      "lines": [
+        "poison the (quest:tree_roots), enter areaid1_2_11 ;; the vaal ruins"
+      ]
+    },
     [
       "find and enter areaid1_2_8 ;; the northern forest",
       "(hint)_____zone is usually s- or l-shaped"
@@ -1105,7 +1284,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-        "(hint)_____a side trail forks off at a torch on the main road",
+        "(hint)_____find a torch on the road, follow the path that forks off",
         "follow the main road, enter areaid2_6_10 ;; the riverways"
       ]
     },

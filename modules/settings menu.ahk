@@ -1629,7 +1629,7 @@ Settings_leveltracker()
 	Gui, %GUI%: Add, Pic, % "ys hp w-1 HWNDhwnd", % "HBitmap:*" vars.pics.global.help
 	vars.hwnd.help_tooltips["settings_leveltracker guide info"] := hwnd
 
-	handle := "", files := [], bandits := ["no", "alira", "kraityn", "oak"]
+	handle := "", files := [], bandits := ["none", "alira", "kraityn", "oak"]
 	For index, val in ["", 2, 3]
 	{
 		file := !FileExist("ini" vars.poe_version "\leveling guide" val ".ini") ? " cGray" : ""
@@ -1674,7 +1674,7 @@ Settings_leveltracker()
 				Gui, %Gui%: Add, Text, % "ys hp", % Lang_Trans("m_lvltracker_bandit") ": "
 				Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 				Gui, %GUI%: Add, DDL, % "ys x+0 r4 AltSubmit gSettings_leveltracker2 HWNDhwnd Choose" LLK_HasVal(bandits, settings.leveltracker["guide" val].info.bandit) " w" settings.general.fWidth * 8
-				, % Lang_Trans("global_no") "|" Lang_Trans("m_lvltracker_bandits") "|" Lang_Trans("m_lvltracker_bandits", 2) "|" Lang_Trans("m_lvltracker_bandits", 3)
+				, % Lang_Trans("global_none") "|" Lang_Trans("m_lvltracker_bandits") "|" Lang_Trans("m_lvltracker_bandits", 2) "|" Lang_Trans("m_lvltracker_bandits", 3)
 				vars.hwnd.settings["bandit_" val] := vars.hwnd.help_tooltips["settings_leveltracker bandit" handle] := hwnd
 				Gui, %GUI%: Font, % "s" settings.general.fSize
 			}
@@ -1994,7 +1994,7 @@ Settings_leveltracker2(cHWND := "")
 	}
 	Else If InStr(check, "bandit_")
 	{
-		bandits := ["no", "alira", "kraityn", "oak"]
+		bandits := ["none", "alira", "kraityn", "oak"]
 		IniWrite, % (settings.leveltracker["guide" control].info.bandit := bandits[LLK_ControlGet(cHWND)]), % "ini" vars.poe_version "\leveling guide" control ".ini", Info, bandit
 		IniWrite, 0, % "ini" vars.poe_version "\leveling guide" control ".ini", Progress, pages
 		If (control = settings.leveltracker.profile)

@@ -895,8 +895,7 @@
     ]
   },
   "leveltrackereditor": {
-    "conditions":
-    [
+    "conditions": [
       "you can choose to only show/include certain guide-pages under specific conditions"
     ],
     "discard": [

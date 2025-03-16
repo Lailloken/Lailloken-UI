@@ -503,7 +503,10 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	update.1 := FileExist("update\update.*") ? -1 : update.1 ;error code -1 = delete-permission
 	Loop, Files, update\lailloken-ui-*, D
 		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
+	Loop, Files, update\exile-ui-*, D
+		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
 	update.1 := FileExist("update\lailloken-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
+	update.1 := FileExist("update\exile-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
 	FileAppend, 1, update\update.test
 	update.1 := !FileExist("update\update.test") ? -2 : update.1 ;error code -2 = write-permission
 	FileDelete, update\update.test
@@ -583,13 +586,13 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		If (vars.update.1 >= 0)
 		{
 			FileCopyDir, % "update\update_" vars.updater.target_version.2 ".zip", update, 1
-			If ErrorLevel || !FileExist("update\lailloken-ui-*")
+			If ErrorLevel || !(FileExist("update\lailloken-ui-*") || FileExist("update\exile-ui-*"))
 				vars.update := [-6, vars.updater.target_version.1] ;error-code -6 = zip-file couldn't be extracted
 		}
 		If (vars.update.1 >= 0)
 		{
 			SplitPath, A_ScriptFullPath,, path
-			Loop, Files, update\Lailloken-ui-*, D
+			Loop, Files, % FileExist("update\exile-ui-*") ? "update\exile-ui-*" : "update\Lailloken-ui-*", D
 				Loop, Files, % A_LoopFilePath "\*", FD
 				{
 					If InStr(FileExist(A_LoopFileLongPath), "D")

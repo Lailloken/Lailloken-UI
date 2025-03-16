@@ -48,7 +48,7 @@
 		If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
 			settings.leveltracker["guide" profile] := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini", "Info")
 		,	settings.leveltracker["guide" profile].info.leaguestart := Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : settings.leveltracker["guide" profile].info.leaguestart
-		,	settings.leveltracker["guide" profile].info.bandit := Blank(settings.leveltracker["guide" profile].info.bandit) ? "no" : settings.leveltracker["guide" profile].info.bandit
+		,	settings.leveltracker["guide" profile].info.bandit := Blank(settings.leveltracker["guide" profile].info.bandit) ? "none" : settings.leveltracker["guide" profile].info.bandit
 	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
@@ -277,14 +277,14 @@ Leveltracker(cHWND := "", hotkey := "")
 {
 	local
 	global vars, settings, Json, db
-	static yesno := {"0": "no", "1": "yes"}, bandits := ["no", "alira", "kraityn", "oak"]
+	static yesno := {"0": "no", "1": "yes"}, bandits := ["none", "alira", "kraityn", "oak"]
 
 	If (cHWND = "condition")
 	{
 		bandit := settings.leveltracker["guide" settings.leveltracker.profile].info.bandit
 		If !(condition := vars.leveltracker.guide.import[hotkey].condition) || condition
 		&& ((condition.1 = "league-start") && (LLK_HasVal(yesno, condition.2) = settings.leveltracker["guide" settings.leveltracker.profile].info.leaguestart)
-			|| (condition.1 = "bandit") && (condition.2 = bandit || InStr(condition.2, "!") && !InStr(condition.2, bandit)))
+			|| (condition.1 = "bandit") && LLK_HasVal(condition.2, bandit))
 			Return 1
 		Else Return 0
 	}
@@ -401,7 +401,7 @@ Leveltracker(cHWND := "", hotkey := "")
 			IniWrite, % (vars.leveltracker.guide.progress := Max(vars.leveltracker.guide.progress - 1, 0)), % "ini" vars.poe_version "\leveling guide" settings.leveltracker.profile ".ini", progress, pages
 			If !guide.progress && !Leveltracker("condition", 1)
 				LLK_ToolTip(Lang_Trans("lvltracker_endreached"),, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, "yellow",,,, 1)
-			Else Leveltracker_Progress()
+			Else Leveltracker_Progress(1)
 			vars.leveltracker.last_manual := A_TickCount
 			KeyWait, LButton
 			Return
@@ -535,7 +535,7 @@ Leveltracker_GuideEditor(cHWND)
 {
 	local
 	global vars, settings, db, json
-	static wait, toggle := 0, profile := 0, icons
+	static wait, toggle := 0, profile := 0, icons, bandits := ["none", "alira", "kraityn", "oak"]
 
 	If wait
 		Return
@@ -578,7 +578,9 @@ Leveltracker_GuideEditor(cHWND)
 
 		If InStr(cHWND, "default")
 		{
-			profile := 0, Settings_menu("leveling tracker")
+			profile := 0
+			If (vars.settings.active = "leveling tracker")
+				Settings_menu("leveling tracker")
 			Return
 		}
 		Else If (targetProfile = settings.leveltracker.profile)
@@ -708,18 +710,22 @@ Leveltracker_GuideEditor(cHWND)
 		}
 		Else If InStr(check, "conditiontype_")
 		{
-			types := ["", "league-start", "bandit"], options := ["", ["yes", "no"], ["no", "alira", "kraityn", "oak"]], type := LLK_ControlGet(cHWND)
-			vars.leveltracker_editor.guide[act][control] := {"condition": [types[type], options[type].1]}
+			types := ["", "league-start", "bandit"], options := ["", ["yes", "no"], bandits], type := LLK_ControlGet(cHWND)
+			vars.leveltracker_editor.guide[act][control] := {"condition": [types[type], (type = 3) ? [options[type].1] : options[type].1]}
 			Leveltracker_GuideEditor("textfield_" control)
 		}
-		Else If InStr(check, "conditionoption_")
+		Else If InStr(check, "leaguestart_")
+			vars.leveltracker_editor.guide[act][control].condition.2 := (LLK_ControlGet(cHWND) = 1 ? "yes" : "no")
+		Else If InStr(check, "bandit")
 		{
-			type := LLK_ControlGet(vars.hwnd.leveltracker_editor["conditiontype_" control])
-			inputs := ["", ["yes", "no"], ["no", "alira", "kraityn", "oak"]]
-			vars.leveltracker_editor.guide[act][control].condition.2 := inputs[type][LLK_ControlGet(cHWND)]
+			input := SubStr(check, InStr(check, "_") - 1, 1)
+			If (check := LLK_HasVal(vars.leveltracker_editor.guide[act][control].condition.2, bandits[input]))
+				vars.leveltracker_editor.guide[act][control].condition.2.RemoveAt(check)
+			Else vars.leveltracker_editor.guide[act][control].condition.2.Push(bandits[input])
+
+			If InStr("40", vars.leveltracker_editor.guide[act][control].condition.2.Count())
+				vars.leveltracker_editor.guide[act][control] := vars.leveltracker_editor.guide[act][control].lines.Clone()
 		}
-		Else If InStr(check, "conditionflag_")
-			vars.leveltracker_editor.guide[act][control].condition.2 := (LLK_ControlGet(cHWND) = 1 ? "" : "!") . StrReplace(vars.leveltracker_editor.guide[act][control].condition.2, "!")
 		Else If InStr(check, "preview_")
 		{
 			page_content := Trim(LLK_ControlGet(vars.hwnd.leveltracker_editor["textfield_" control]), " `r`n"), page_content := StrSplit(page_content, "`n", " ")
@@ -888,15 +894,15 @@ Leveltracker_GuideEditor(cHWND)
 
 	Loop, % Max(vars.leveltracker_editor.guide[act].Count(), 1)
 	{
-		Gui, %GUI_name%: Add, Text, % (xPage + wPage >= wEdit - wPage ? "xs Section" : "ys") . (A_Index = 1 ? " Section x+" margin : "")
-		. " Border HWNDhwnd BackgroundTrans gLeveltracker_GuideEditor Center w" settings.leveltracker.fWidth_editor*2.5, % A_Index
+		Gui, %GUI_name%: Add, Text, % (xPage + wPage >= wEdit - wPage ? "xs Section" : "ys") . (A_Index = 1 ? " Section x+" margin : "") " Border HWNDhwnd BackgroundTrans gLeveltracker_GuideEditor Center"
+		. " w" settings.leveltracker.fWidth_editor*2.5 . (!vars.poe_version && vars.leveltracker_editor.guide[act][A_Index].condition.1 = "bandit" ? " cYellow" : ""), % A_Index
 		If (A_Index = page[act] || LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1))
 			Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (A_Index = page[act] ? "505050" : LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1) ? "303030" : "Black"), 100
 		vars.hwnd.leveltracker_editor["page_" A_Index] := hwnd
 		ControlGetPos, xPage, yPage, wPage, hPage,, ahk_id %hwnd%
 	}
 
-	types := ["none", "league-start", "bandit"], options := ["none", ["yes", "no"], ["no", "alira", "kraityn", "oak"]], handle := ""
+	types := ["none", "league-start", "bandit"], options := ["none", ["yes", "no"]], handle := ""
 	LLK_PanelDimensions([Lang_Trans("lvltracker_editor_add")], settings.leveltracker.fSize_editor, wAdd, hAdd), LLK_PanelDimensions([Lang_Trans("global_preview")], settings.leveltracker.fSize_editor, wPreview, hPreview)
 	For i, offset in [-1, 0, 1]
 	{
@@ -921,16 +927,19 @@ Leveltracker_GuideEditor(cHWND)
 		. " w" settings.leveltracker.fWidth_editor * 11, % Lang_Trans("global_none") "|" Lang_Trans("m_lvltracker_leaguestart") . (!vars.poe_version ? "|" Lang_Trans("m_lvltracker_bandit") : "")
 		vars.hwnd.leveltracker_editor["conditiontype_" page1] := vars.hwnd.help_tooltips["leveltrackereditor_conditions" handle] := hwnd
 
-		If (option > 1)
+		If (option = 2)
 		{
-			Gui, %GUI_name%: Add, DDL, % "ys hp r" (option = 2 ? 2 : 4) . style . " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" LLK_HasVal(options[option], StrReplace(array.condition.2, "!")) " w" settings.leveltracker.fWidth_editor*8
-			, % (option = 2) ? Lang_Trans("global_yes") "|" Lang_Trans("global_no") : Lang_Trans("global_no") "|" Lang_Trans("m_lvltracker_bandits") "|" Lang_Trans("m_lvltracker_bandits", 2) "|" Lang_Trans("m_lvltracker_bandits", 3)
-			vars.hwnd.leveltracker_editor["conditionoption_" page1] := hwnd
-			If (option = 3)
+			Gui, %GUI_name%: Add, DDL, % "ys hp r2" style " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" LLK_HasVal(options[option], array.condition.2) " w" settings.leveltracker.fWidth_editor*8
+			, % Lang_Trans("global_yes") "|" Lang_Trans("global_no")
+			vars.hwnd.leveltracker_editor["leaguestart_" page1] := hwnd
+		}
+		Else If (option = 3)
+		{
+			Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor
+			For index, val in ["none", "alira", "kraityn", "oak"]
 			{
-				Gui, %GUI_name%: Add, DDL, % "ys hp r2" style " gLeveltracker_GuideEditor AltSubmit HWNDhwnd Choose" (InStr(array.condition.2, "!") ? 2 : 1) " w" settings.leveltracker.fWidth_editor * 4
-				, % Lang_Trans("global_yes") "|" Lang_Trans("global_no")
-				vars.hwnd.leveltracker_editor["conditionflag_" page1] := hwnd
+				Gui, %GUI_name%: Add, Checkbox, % "ys x+" margin " HWNDhwnd gLeveltracker_GuideEditor Checked" (LLK_HasVal(array.condition.2, val) ? 1 : 0), % Lang_Trans((index = 1) ? "global_none" : "m_lvltracker_bandits", (index = 1) ? 1 : index - 1)
+				vars.hwnd.leveltracker_editor["bandit" index "_" page1] := hwnd
 			}
 		}
 
@@ -1692,7 +1701,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 			If LLK_PatternMatch(step, "", [Lang_Trans("lvltracker_recommended"), Lang_Trans("lvltracker_recommended", 2)]) && !settings.leveltracker.recommend
 				Continue
 
-			style := "Section xs", line := step, step := StrReplace(StrReplace(step, ". ", " . "), ", ", " , "), kill := 0, text_parts := []
+			style := "Section xs", line := step, step := StrReplace(StrReplace(StrReplace(step, "): ", ") : "), ". ", " . "), ", ", " , "), kill := 0, text_parts := []
 			If (check := InStr(step, " `;"))
 				step := SubStr(step, 1, check - 1)
 			Loop, Parse, step, %A_Space%
@@ -1728,7 +1737,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 
 			For index, part in text_parts
 			{
-				spacing_check := !Blank(SubStr(text_parts[index + 1], 1, 1)) && InStr(",.", SubStr(text_parts[index + 1], 1, 1)) ? 1 : 0
+				spacing_check := !Blank(SubStr(text_parts[index + 1], 1, 1)) && InStr(",.:", SubStr(text_parts[index + 1], 1, 1)) ? 1 : 0
 				If InStr(part, "(img:")
 				{
 					img := SubStr(part, InStr(part, "(img:") + 5), img := SubStr(img, 1, InStr(img, ")") - 1), img := StrReplace(img, " ", "_")
@@ -2474,8 +2483,6 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 
 	If LLK_HasVal(guide.group1, "relog, switch characters")
 		guide.target_area := "login"
-
-	guide.group0 := import[guide.progress].Clone()
 
 	If vars.leveltracker.fast ;skip redrawing the GUIs during fast-forwarding
 	{
