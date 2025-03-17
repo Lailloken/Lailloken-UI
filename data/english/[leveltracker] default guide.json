@@ -35,8 +35,8 @@
       "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
     ],
     [
-      "find the bridge or (img:arena), place (img:portal)",
-      "enter areaid1_1_5 ;; the ledge"
+      "find the bridge or (img:arena) areaid1_1_4_1, place (img:portal) ;; the submerged passage",
+      "cross the bridge, find and enter areaid1_1_5 ;; the ledge"
     ],
     [
       "enter areaid1_1_6 ;; the climb"
@@ -91,12 +91,10 @@
       ],
       "lines": [
         "optional: find chemist's strongbox (flasks)",
-        "(hint)_____look for map icon, access with nearby switch",
         "(hint)_____high chance for quicksilver flask (qsf)",
         "(hint)_____vendor: qsf + aug + boots // qsf + aug + ms boots",
-        "enter (img:arena) the_warden's_quarters, kill brutus",
-        "(hint)_____recommended level: 8-10",
-        "relog to areaid1_1_town (img:town) ;; lioneye's watch"
+        "kill brutus, relog to areaid1_1_town (img:town) ;; lioneye's watch",
+        "(hint)_____recommended level: 8-10"
       ]
     },
     {
@@ -105,9 +103,8 @@
         "no"
       ],
       "lines": [
-        "enter (img:arena) the_warden's_quarters, kill brutus",
-        "(hint)_____recommended level: 8-10",
-        "relog to areaid1_1_town (img:town) ;; lioneye's watch"
+        "kill brutus, relog to areaid1_1_town (img:town) ;; lioneye's watch",
+        "(hint)_____recommended level: 8-10"
       ]
     },
     [
@@ -120,7 +117,7 @@
     ],
     [
       "find (img:arena) areaid1_1_9a, place (img:portal) ;; the ship graveyard cave",
-      "enter areaid1_1_11_1 ;; the cavern of wrath"
+      "find and enter areaid1_1_11_1 ;; the cavern of wrath"
     ],
     [
       "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
@@ -134,7 +131,7 @@
     [
       "find (quest:slave_girl), take (quest:allflame)",
       "(hint)_____search opposite the entrance",
-      "enter areaid1_1_9, kill captain_fairgraves ;; the ship graveyard",
+      "enter (img:arena) areaid1_1_9, kill fairgraves ;; the ship graveyard",
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
@@ -662,7 +659,7 @@
         "yes"
       ],
       "lines": [
-        "enter (img:arena) (color:ffffff)eternal_laboratory, activate the (img:craft)",
+        "enter (img:arena) eternal_laboratory, activate the (img:craft)",
         "(img:waypoint) to areaid1_3_7 ;; the battlefront"
       ]
     },
@@ -805,6 +802,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
+        "(hint)_____find a candle in a narrow corridor",
         "find 4x (quest:golden_page)",
         "relog to areaid1_3_town (img:town) ;; the sarn encampment"
       ]
@@ -1416,7 +1414,7 @@
       ]
     },
     [
-      "find (img:arena) maligaro's workshop, kill maligaro for (quest:black_venom)",
+      "find (img:arena) maligaro's_workshop, kill maligaro for (quest:black_venom)",
       "(hint)_____follow the edges and bridges (often diagonal to each other)",
       "relog to areaid2_7_town (img:town) ;; the bridge encampment"
     ],
@@ -1548,7 +1546,7 @@
       ],
       "lines": [
         "activate the (img:craft)",
-        "enter (img:arena) arena:arakaali's_web, kill arakaali",
+        "enter (img:arena) arakaali's_web, kill arakaali",
         "enter areaid2_8_1 ;; the sarn ramparts"
       ]
     },
@@ -1598,7 +1596,7 @@
     },
     [
       "move along the (img:6) edge, find (quest:ankh_of_eternity)",
-      "go (img:3), enter (img:arena) resurrection site to kill tolman",
+      "go (img:3), enter (img:arena) resurrection_site to kill tolman",
       "enter areaid2_8_9 ;; the grain gate"
     ],
     [
@@ -1862,7 +1860,7 @@
       "lines": [
         "follow the cart tracks through the zone",
         "activate the (img:craft)",
-        "(hint)_____at one point, tracks will fork off and end in a grate",
+        "(hint)_____at one point, the tracks will fork off and end in a grate",
         "kill general_adus for (quest:trarthan_powder), relog to areaid2_9_town (img:town) ;; highgate"
       ]
     },

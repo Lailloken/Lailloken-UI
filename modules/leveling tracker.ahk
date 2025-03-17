@@ -23,6 +23,12 @@
 
 	If vars.poe_version
 		vars.leveltracker.acts := ["1", "2", "3", "1c", "2c", "3c"]
+	If !vars.leveltracker.hints
+	{
+		vars.leveltracker.hints := {}
+		Loop, Files, % "img\GUI\leveling tracker\hints" vars.poe_version "\*.jpg"
+			vars.leveltracker.hints[StrReplace(StrReplace(A_LoopFileName, "_", " "), ".jpg")] := 1
+	}
 
 	For index0, profile in ["", 2, 3]
 	{
@@ -39,7 +45,7 @@
 				vars.leveltracker["pob" profile][category] := 1
 		}
 		
-		settings.leveltracker["guide" profile] := ini2.info.Clone()
+		settings.leveltracker["guide" profile] := {"info": ini2.info.Clone()}
 		settings.leveltracker["guide" profile].info.leaguestart .= Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : ""
 		settings.leveltracker["guide" profile].info.bandit .= Blank(settings.leveltracker["guide" profile].info.bandit) ? "none" : ""
 	}
@@ -523,7 +529,9 @@ Leveltracker_GuideEditor(cHWND)
 		Return
 
 	If !icons
-		icons := ["checkpoint", "waypoint", "portal", "arena", "quest" . (vars.poe_version ? "_2" : ""), "help", 0, 1, 2, 3, 4, 5, 6, 7]
+		If vars.poe_version
+			icons := ["checkpoint", "waypoint", "portal", "arena", "quest_2", "help", 0, 1, 2, 3, 4, 5, 6, 7]
+		Else icons := ["waypoint", "portal", "arena", "quest", "help", "craft", "lab", 0, 1, 2, 3, 4, 5, 6, 7]
 
 	If !vars.leveltracker_editor.act
 		vars.leveltracker_editor := {"act": 1, "default_guide": json.load(Trim(LLK_FileRead("data\" settings.general.lang "\[leveltracker] default guide" vars.poe_version ".json"), "`r`n ")), "page": [1]}
@@ -739,7 +747,10 @@ Leveltracker_GuideEditor(cHWND)
 		Else If InStr(check, "pastearea_") || InStr(check, "pasteicon_")
 		{
 			KeyWait, LButton
-			ControlFocus,, % "ahk_id " vars.hwnd.leveltracker_editor.text_field
+			ControlGetFocus, hwnd, % "ahk_id " vars.hwnd.leveltracker_editor.main
+			ControlGet, hwnd, HWND,, % hwnd
+			If !(focus := LLK_HasVal(vars.hwnd.leveltracker_editor, hwnd)) || !InStr(focus, "textfield_")
+				Return
 			Sleep 50
 			If InStr(check, "pastearea_")
 				Clipboard := "areaid" control (InStr(control, "_town") ? " (img:town)" : "") " `;`; " db.leveltracker.areaIDs[control].name . (InStr(control, "g2_3a") ? " (blocked)" : "")
@@ -857,7 +868,7 @@ Leveltracker_GuideEditor(cHWND)
 	{
 		If (icon != "help") && !vars.pics.leveltracker[icon]
 			vars.pics.leveltracker[icon] := LLK_ImageCache("img\GUI\leveling tracker\" icon ".png")
-		Gui, %GUI_name%: Add, Pic, % (index = 1 || (icons[index - 1] = "help") ? "Section xs y+" (index = 4 ? -1 : margin) : "ys") " Border hp" (index = 1 ? "" : "-2") " w-1 gLeveltracker_GuideEditor HWNDhwnd", % "HBitmap:*" (icon = "help" ? vars.pics.global.help : vars.pics.leveltracker[icon])
+		Gui, %GUI_name%: Add, Pic, % (index = 1 || !icon ? "Section xs y+" (index = 4 ? -1 : margin) : "ys") " Border hp" (index = 1 ? "" : "-2") " w-1 gLeveltracker_GuideEditor HWNDhwnd", % "HBitmap:*" (icon = "help" ? vars.pics.global.help : vars.pics.leveltracker[icon])
 		vars.hwnd.leveltracker_editor["pasteicon_" icon] := hwnd
 	}
 
@@ -967,34 +978,41 @@ Leveltracker_GuideEditor(cHWND)
 Leveltracker_Hints()
 {
 	local
-	global vars, settings
+	global vars, settings, db
 
-	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
-		If !Blank(LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1))
-			valid := 1
+	For key in vars.leveltracker.hints
+		If LLK_HasVal(vars.leveltracker.guide.group1, key, 1)
+		{
+			pic := StrReplace(key, " ", "_")
+			Break
+		}
 
-	If !valid
+	If LLK_HasVal(vars.leveltracker.guide.group1, "(img:craft)", 1,,, 1) && db.leveltracker.areaIDs[vars.log.areaID].craft
+		craft := db.leveltracker.areaIDs[vars.log.areaID].craft
+
+	If !pic && !craft
 		Return
-	Gui, leveltracker_hints: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x20 +E0x02000000 +E0x00080000 HWNDleveltracker_hints
+	Gui, leveltracker_hints: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +E0x20 +E0x02000000 +E0x00080000 HWNDleveltracker_hints
 	Gui, leveltracker_hints: Color, Black
 	Gui, leveltracker_hints: Margin, 0, 0
 	Gui, leveltracker_hints: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 
-	Loop, Files, img\GUI\leveling tracker\hints\*.jpg
-		If !Blank(LLK_HasVal(vars.leveltracker.guide.group1, StrReplace(A_LoopFileName, ".jpg"), 1))
-		{
-			Gui, leveltracker_hints: Add, Pic, % "w"vars.leveltracker.coords.w " h-1", % A_LoopFileLongPath
-			added := 1
-			Break
-		}
-
-	If added
+	If pic
+		Gui, leveltracker_hints: Add, Pic, % "Section w" vars.leveltracker.coords.w " h-1 Border", % "img\GUI\leveling tracker\hints" vars.poe_version "\" pic ".jpg"
+	If craft
 	{
-		Gui, leveltracker_hints: Show, NA x10000 y10000
-		WinGetPos,,, w, h, ahk_id %leveltracker_hints%
-		yPos := (Blank(settings.leveltracker.yCoord) || settings.leveltracker.yCoord >= vars.monitor.h / 2) ? vars.leveltracker.coords.y1 - h + 1 : vars.leveltracker.coords.y2 - 1
-		Gui, leveltracker_hints: Show, % "NA x" vars.monitor.x + vars.leveltracker.coords.x1 " y" yPos
+		If !vars.pics.leveltracker.craft
+			vars.pics.leveltracker.craft := LLK_ImageCache("img\GUI\leveling tracker\craft.png")
+		Gui, leveltracker_hints: Add, Pic, % (pic ? "Section xs y+-1 " : "") "Border h" settings.general.fHeight " w-1", % "HBitmap:*" vars.pics.leveltracker.craft
+		Gui, leveltracker_hints: Add, Text, % "ys x+-1 hp Center Border 0x200 w" vars.leveltracker.coords.w - settings.general.fHeight*2, % craft
+		Gui, leveltracker_hints: Add, Pic, % "ys x+-1 Border h" settings.general.fHeight " w-1", % "HBitmap:*" vars.pics.leveltracker.craft
 	}
+
+	Gui, leveltracker_hints: Show, NA x10000 y10000
+	WinGetPos,,, w, h, ahk_id %leveltracker_hints%
+	yPos := (Blank(settings.leveltracker.yCoord) || settings.leveltracker.yCoord >= vars.monitor.h / 2) ? vars.leveltracker.coords.y1 - h + 1 : vars.leveltracker.coords.y2 - 1
+	Gui, leveltracker_hints: Show, % "NA x" vars.monitor.x + vars.leveltracker.coords.x1 " y" yPos
+
 	KeyWait, % vars.hotkeys.tab
 	Gui, leveltracker_hints: Destroy
 }
@@ -1629,6 +1647,11 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 			style := "Section xs", line := step, step := StrReplace(StrReplace(StrReplace(step, "): ", ") : "), ". ", " . "), ", ", " , "), kill := 0, text_parts := []
 			If (check := InStr(step, " `;"))
 				step := SubStr(step, 1, check - 1)
+
+			For key in vars.leveltracker.hints
+				If InStr(step, key)
+					step := StrReplace(step, key, StrReplace(key, " ", "_"))
+
 			Loop, Parse, step, %A_Space%
 			{
 				If !A_LoopField || (A_Index = 1 && A_LoopField = ",")
@@ -1671,28 +1694,28 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 					text := LLK_StringRemove(StrReplace(StrReplace(part, "&&", "&"), "&", "&&"), "<,>,arena:,(hint)"), area := StrReplace(text, "areaid")
 					act := LLK_HasVal(areas, area,,,, 1), act := (vars.poe_version && act > 3 && act != 7 ? act - 3 : act) . (vars.poe_version && InStr(part, "areaidc_") ? Lang_Trans("lvltracker_format_act", 2) : "")
 					If InStr(text, "areaid") ;translate ID to location-name (and add potential act-clarification)
-						text := (!preview && ((act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout")) ? (act = 11 || vars.poe_version && act = 7 ? Lang_Trans("lvltracker_format_epilogue") : Lang_Trans("lvltracker_format_act", 1) . act) " | " : "") . areaIDs[(area := StrReplace(text, "areaid"))][InStr(line, "to areaid") && areaIDs[area].map_name ? "map_name" : "name"]
+						text := (!preview && ((act != vars.log.act) && !InStr(text, "labyrinth") || InStr(vars.log.areaID, "hideout")) ? (act = 11 || vars.poe_version && act = 7 ? Lang_Trans("lvltracker_format_epilogue") : Lang_Trans("lvltracker_format_act", 1) . act) " | " : "") . areaIDs[(area := StrReplace(text, "areaid"))][InStr(line, "img:waypoint") && areaIDs[area].mapname ? "mapname" : "name"]
 					text := StrReplace(text, "_", " "), text := StrReplace(text, "(a11)", "(epilogue)")
 					If InStr(part, "(quest:")
 						replace := SubStr(text, InStr(text, "(quest:")), replace := SubStr(replace, 1, InStr(replace, ")")), item := StrReplace(SubStr(replace, InStr(replace, ":") + 1), ")"), text := StrReplace(text, replace, item)
-					color := InStr(part, "areaid") ? "FEC076" : kill && (part != "everything") || InStr(part, "arena:") ? "FF8111" : InStr(part, "<") ? "FFDB1F" : InStr(part, "(quest:") ? "Lime" : InStr(part, "trial") || InStr(part, "_lab") ? "569777" : "White"
+					If (text_parts[index - 1] = "(img:arena)")
+					{
+						color := "White"
+						Gui, %name_main%: Font, % "underline"
+					}
+					Else color := InStr(part, "areaid") ? "FEC076" : kill && (part != "everything") || InStr(part, "arena:") ? "FF8111" : InStr(part, "<") ? "FFDB1F" : InStr(part, "(quest:") ? "Lime" : InStr(part, "trial") || InStr(part, "_lab") ? "569777" : "White"
 					If InStr(part, "(color:")
 						color := SubStr(part, InStr(part, "(color:") + 7), color := SubStr(color, 1, InStr(color, ")") - 1), text := StrReplace(text, "(color:"color ")")
 					If InStr(step, "(hint)")
 						Gui, %name_main%: Font, % "s"settings.leveltracker.fSize - 2
+					If vars.leveltracker.hints[StrReplace(part, "_", " ")]
+						color := "Aqua"
 					Gui, %name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
-					Gui, %name_main%: Font, % "s"settings.leveltracker.fSize
+					Gui, %name_main%: Font, % "norm s"settings.leveltracker.fSize
 					kill := (part = Lang_Trans("lvltracker_format_kill")) ? 1 : 0
 				}
 				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/3 : "ys x+0", spacing_check := 0
 			}
-			If !preview && InStr(step, "(hint)")
-				Loop, Files, % "img\GUI\leveling tracker\hints\" (vars.poe_version ? "PoE 2\" : "") "*.jpg"
-					If InStr(step, StrReplace(A_LoopFileName, ".jpg"))
-					{
-						Gui, %name_main%: Add, Picture, % "ys hp w-1 x+" settings.leveltracker.fWidth, % "HBitmap:*" vars.pics.global.help
-						Break
-					}
 		}
 		If !preview && (outer = 2) && (guide.gems.Count() || guide.items.Count())
 			Leveltracker_Strings()
