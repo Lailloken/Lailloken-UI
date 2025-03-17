@@ -149,19 +149,19 @@
     {
       "id": "1_2_14_2",
       "name": "The Caverns",
-      "crafting_recipe": "Vaal Skill Damage - Rank 1"
+      "crafting_recipe": "Vaal Skill Damage I"
     },
     {
       "id": "1_2_14_3",
       "name": "The Ancient Pyramid",
-      "crafting_recipe": "Spell Damage - Rank 1"
+      "crafting_recipe": "Spell Damage I"
     }
   ],
   [
     {
       "id": "1_3_1",
       "name": "The City of Sarn",
-      "crafting_recipe": "Movement Speed - Rank 1"
+      "crafting_recipe": "Movement Speed I"
     },
     {
       "id": "1_3_town",
@@ -174,12 +174,12 @@
     {
       "id": "1_3_3_1",
       "name": "The Crematorium",
-      "crafting_recipe": "Defences - Rank 1"
+      "crafting_recipe": "Defences I"
     },
     {
       "id": "1_3_10_1",
       "name": "The Sewers",
-      "crafting_recipe": "Physical Damage - Rank 1"
+      "crafting_recipe": "Physical Damage I"
     },
     {
       "id": "1_3_5",
@@ -188,7 +188,7 @@
     {
       "id": "1_3_6",
       "name": "The Catacombs",
-      "crafting_recipe": "Elemental Damage with Attacks - Rank 1"
+      "crafting_recipe": "Elemental Damage with Attacks I"
     },
     {
       "id": "1_3_7",
@@ -201,7 +201,7 @@
     {
       "id": "1_3_8_2",
       "name": "The Solaris Temple Level 2",
-      "crafting_recipe": "Fire Damage - Rank 1"
+      "crafting_recipe": "Fire Damage I"
     },
     {
       "id": "1_3_9",
@@ -219,12 +219,12 @@
     {
       "id": "1_3_14_2",
       "name": "The Lunaris Temple Level 2",
-      "crafting_recipe": "Lightning Damage - Rank 1"
+      "crafting_recipe": "Lightning Damage I"
     },
     {
       "id": "1_3_15",
       "name": "The Imperial Gardens",
-      "crafting_recipe": "All Attributes - Rank 1"
+      "crafting_recipe": "All Attributes I"
     },
     {
       "id": "1_3_17_1",
@@ -233,7 +233,7 @@
     {
       "id": "1_3_17_2",
       "name": "The Archives",
-      "crafting_recipe": "Life and Mana Regeneration - Rank 1"
+      "crafting_recipe": "Life and Mana Regeneration I"
     },
     {
       "id": "1_3_18_1",
@@ -260,7 +260,7 @@
     {
       "id": "1_4_2",
       "name": "The Dried Lake",
-      "crafting_recipe": "Attack, Cast and Warcry Speed - Rank 1"
+      "crafting_recipe": "Attack, Cast and Warcry Speed I"
     },
     {
       "id": "1_4_3_1",
@@ -274,7 +274,7 @@
     {
       "id": "1_4_3_3",
       "name": "The Crystal Veins",
-      "crafting_recipe": "Cold Damage - Rank 1"
+      "crafting_recipe": "Cold Damage I"
     },
     {
       "id": "1_4_4_1",
@@ -301,7 +301,7 @@
     {
       "id": "1_4_6_2",
       "name": "The Belly of the Beast Level 2",
-      "crafting_recipe": "Elemental Resistances - Rank 2"
+      "crafting_recipe": "Elemental Resistances II"
     },
     {
       "id": "1_4_6_3",
@@ -310,7 +310,7 @@
     {
       "id": "1_4_7",
       "name": "The Ascent",
-      "crafting_recipe": "Ailment, Stun and Curse Mitigation - Rank 1"
+      "crafting_recipe": "Ailment, Stun and Curse Mitigation I"
     },
     {
       "id": "Labyrinth_Airlock",
@@ -341,7 +341,7 @@
     {
       "id": "1_5_5",
       "name": "The Chamber of Innocence",
-      "crafting_recipe": "Movement Speed and Exerted Attacks - Rank 2"
+      "crafting_recipe": "Movement Speed and Exerted Attacks II"
     },
     {
       "id": "1_5_4b",
@@ -354,12 +354,12 @@
     {
       "id": "1_5_6",
       "name": "The Ossuary",
-      "crafting_recipe": "Physical Damage - Rank 2"
+      "crafting_recipe": "Physical Damage II"
     },
     {
       "id": "1_5_7",
       "name": "The Reliquary",
-      "crafting_recipe": "Accuracy - Rank 1"
+      "crafting_recipe": "Accuracy I"
     },
     {
       "id": "1_5_8",
@@ -390,7 +390,7 @@
     {
       "id": "2_6_5",
       "name": "The Karui Fortress",
-      "crafting_recipe": "Defences - Rank 2"
+      "crafting_recipe": "Defences II"
     },
     {
       "id": "2_6_6",
@@ -400,12 +400,12 @@
       "id": "2_6_7_1",
       "name": "The Lower Prison",
       "map_name": "The Prison",
-      "crafting_recipe": "Double Resistances - Rank 1"
+      "crafting_recipe": "Double Resistances I"
     },
     {
       "id": "2_6_7_2",
       "name": "Shavronne's Tower",
-      "crafting_recipe": "Spell Damage - Rank 2"
+      "crafting_recipe": "Spell Damage II"
     },
     {
       "id": "2_6_8",
@@ -414,7 +414,7 @@
     {
       "id": "2_6_9",
       "name": "The Western Forest",
-      "crafting_recipe": "Attributes - Rank 2"
+      "crafting_recipe": "Attributes II"
     },
     {
       "id": "2_6_10",
@@ -435,7 +435,7 @@
     {
       "id": "2_6_14",
       "name": "The Beacon",
-      "crafting_recipe": "Life and Mana - Rank 2"
+      "crafting_recipe": "Life and Mana II"
     },
     {
       "id": "2_6_15",
@@ -462,18 +462,18 @@
     {
       "id": "2_7_4",
       "name": "The Crypt",
-      "crafting_recipe": "Damage over Time - Rank 1"
+      "crafting_recipe": "Damage over Time I"
     },
     {
       "id": "2_7_5_1",
       "name": "The Chamber of Sins Level 1",
       "map_name": "The Chamber of Sins",
-      "crafting_recipe": "Lightning Damage - Rank 2"
+      "crafting_recipe": "Lightning Damage II"
     },
     {
       "id": "2_7_5_2",
       "name": "The Chamber of Sins Level 2",
-      "crafting_recipe": "Mana Regen - Rank 1"
+      "crafting_recipe": "Mana Regen I"
     },
     {
       "id": "2_7_5_map",
@@ -494,12 +494,12 @@
     {
       "id": "2_7_9",
       "name": "The Dread Thicket",
-      "crafting_recipe": "Fire Damage - Rank 2"
+      "crafting_recipe": "Fire Damage II"
     },
     {
       "id": "2_7_10",
       "name": "The Causeway",
-      "crafting_recipe": "Cold Damage - Rank 2"
+      "crafting_recipe": "Cold Damage II"
     },
     {
       "id": "2_7_11",
@@ -512,7 +512,7 @@
     {
       "id": "2_7_12_2",
       "name": "The Temple of Decay Level 2",
-      "crafting_recipe": "Chaos Damage - Rank 1"
+      "crafting_recipe": "Chaos Damage I"
     },
     {
       "id": "Labyrinth_Airlock",
@@ -536,7 +536,7 @@
       "id": "2_8_2_2",
       "name": "Doedre's Cesspool",
       "map_name": "The Toxic Conduits",
-      "crafting_recipe": "Elemental Resistances - Rank 3"
+      "crafting_recipe": "Elemental Resistances III"
     },
     {
       "id": "2_8_3",
@@ -545,7 +545,7 @@
     {
       "id": "2_8_5",
       "name": "The Bath House",
-      "crafting_recipe": "Flask Duration - Rank 1"
+      "crafting_recipe": "Flask Duration I"
     },
     {
       "id": "2_8_4",
@@ -562,7 +562,7 @@
     {
       "id": "2_8_7_2",
       "name": "The Lunaris Temple Level 2",
-      "crafting_recipe": "Minions - Rank 1"
+      "crafting_recipe": "Minions I"
     },
     {
       "id": "2_8_8",
@@ -587,7 +587,7 @@
     {
       "id": "2_8_12_2",
       "name": "The Solaris Temple Level 2",
-      "crafting_recipe": "Traps and Mines - Rank 1"
+      "crafting_recipe": "Traps and Mines I"
     },
     {
       "id": "2_8_13",
@@ -614,7 +614,7 @@
     {
       "id": "2_9_3",
       "name": "The Vastiri Desert",
-      "crafting_recipe": "Attack and Cast Speed - Rank 2"
+      "crafting_recipe": "Attack and Cast Speed II"
     },
     {
       "id": "2_9_4",
@@ -627,17 +627,17 @@
     {
       "id": "2_9_6",
       "name": "The Boiling Lake",
-      "crafting_recipe": "Spell Damage - Rank 3"
+      "crafting_recipe": "Spell Damage III"
     },
     {
       "id": "2_9_7",
       "name": "The Tunnel",
-      "crafting_recipe": "All Attributes - Rank 2"
+      "crafting_recipe": "All Attributes II"
     },
     {
       "id": "2_9_8",
       "name": "The Quarry",
-      "crafting_recipe": "Physical Damage - Rank 3"
+      "crafting_recipe": "Physical Damage III"
     },
     {
       "id": "2_9_9",
@@ -677,7 +677,7 @@
     {
       "id": "2_10_9",
       "name": "The Ossuary",
-      "crafting_recipe": "Chaos Damage - Rank 2"
+      "crafting_recipe": "Chaos Damage II"
     },
     {
       "id": "2_10_3",
@@ -686,7 +686,7 @@
     {
       "id": "2_10_4",
       "name": "The Desecrated Chambers",
-      "crafting_recipe": "Accuracy - Rank 2"
+      "crafting_recipe": "Accuracy II"
     },
     {
       "id": "2_10_5",
@@ -695,7 +695,7 @@
     {
       "id": "2_10_6",
       "name": "The Feeding Trough",
-      "crafting_recipe": "Life and Mana - Rank 3"
+      "crafting_recipe": "Life and Mana III"
     },
     {
       "id": "Labyrinth_Airlock",
@@ -706,7 +706,7 @@
     {
       "id": "2_11_endgame_town",
       "name": "Karui Shores",
-      "crafting_recipe": "Movement Speed and Flask Enchantments - Rank 3"
+      "crafting_recipe": "Movement Speed and Flask Enchantments III"
     }
   ]
 ]

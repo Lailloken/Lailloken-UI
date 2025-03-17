@@ -41,7 +41,9 @@ DB_Load(database)
 
 		For iAct, aAct in db.leveltracker.areas
 			For iArea, oArea in aAct
-				db.leveltracker.areaIDs[oArea.id] := oArea.mapname ? {"name": oArea.name, "mapname": oArea.mapname} : {"name": oArea.name}
+				If oArea.crafting_recipe
+					db.leveltracker.areaIDs[oArea.id] := oArea.map_name ? {"name": oArea.name, "mapname": oArea.map_name, "craft": oArea.crafting_recipe} : {"name": oArea.name, "craft": oArea.crafting_recipe}
+				Else db.leveltracker.areaIDs[oArea.id] := oArea.map_name ? {"name": oArea.name, "mapname": oArea.map_name} : {"name": oArea.name}
 	}
 	Else If (database = "item_mods")
 		db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
