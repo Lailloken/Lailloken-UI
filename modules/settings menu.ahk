@@ -1948,7 +1948,7 @@ Settings_leveltracker2(cHWND := "")
 		}
 		For index, val in info.ascendancies
 			ascendancy .= (!ascendancy ? "" : ", ") val
-		text := "class: " info.class "`nascendancy: " ascendancy "`nskill-sets: " info.gems.Count() "`nskill-trees: " info.trees.Count()
+		text := "class: " info.class "`nascendancy: " ascendancy (!vars.poe_version ? "`nbandit: " info.bandit : "") "`nskill-sets: " info.gems.Count() "`nskill-trees: " info.trees.Count()
 		LLK_ToolTip(text, 0,,, "pobtooltip")
 		KeyWait, LButton
 		vars.tooltip[vars.hwnd["tooltippobtooltip"]] := A_TickCount

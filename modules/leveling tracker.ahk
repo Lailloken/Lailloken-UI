@@ -36,8 +36,10 @@
 			Continue
 		ini2 := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini")
 		vars.leveltracker["PoB" profile] := {}
-		For index, category in ["class", "ascendancies", "gems", "trees", "active tree"]
+		For index, category in ["class", "ascendancies", (!vars.poe_version ? "bandit" : ""), "gems", "trees", "active tree"]
 		{
+			If !category
+				Continue
 			string := ini2.PoB[category]
 			If StrLen(string)
 				vars.leveltracker["pob" profile][category] := InStr("{}[]", SubStr(string, 1, 1) . SubStr(string, 0)) ? json.Load(string) : string
@@ -1970,9 +1972,10 @@ Leveltracker_PobImport(b64, profile)
 			title := ""
 		}
 
-		object := {"class": class, "ascendancies": ascendancies, "gems": skillsets_final, "trees": trees, "active tree": 1}
+		object := {"class": class, "ascendancies": ascendancies, "bandit": bandit, "gems": skillsets_final, "trees": trees, "active tree": 1}
 		For key, val in object
 			IniWrite, % """" (IsObject(val) ? json.dump(val) : val) """", % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, % key
+		IniWrite, % (settings.leveltracker["guide" profile].info.bandit := bandit), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, bandit
 		;IniWrite, % """" pobString """", % "ini" vars.poe_version "\leveling guide" profile ".ini", pob, code
 		Return object
 	}
