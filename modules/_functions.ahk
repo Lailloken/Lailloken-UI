@@ -610,6 +610,18 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 			FileDelete, data\version_check.json
 			IniDelete, % "ini\config.ini", versions, apply update
 			LLK_Log("finished update to " vars.updater.target_version.1)
+			If (vars.updater.target_version.2 <= 15703) && !InStr(A_ScriptName, "lailloken")
+			{
+				FileDelete, Exile UI.ahk
+				Run, Lailloken UI.ahk
+				ExitApp
+			}
+			Else If (vars.updater.target_version.2 >= 15704) && InStr(A_ScriptName, "lailloken")
+			{
+				FileDelete, Lailloken UI.ahk
+				Run, Exile UI.ahk
+				ExitApp
+			}
 			Reload
 			ExitApp
 		}
