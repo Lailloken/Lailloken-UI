@@ -49,7 +49,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "ranger",
           "shadow",
@@ -74,7 +74,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "templar",
           "marauder",
@@ -102,7 +102,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch",
           "templar",
@@ -133,7 +133,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -291,7 +291,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "vendor": [
           "scion",
           "shadow",
@@ -496,7 +496,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "ranger"
         ],
@@ -624,7 +624,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "ranger",
@@ -727,7 +727,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "ranger",
           "shadow",
@@ -973,7 +973,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "ranger",
           "scion",
@@ -1042,7 +1042,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -1063,7 +1063,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "duelist",
           "ranger",
@@ -1090,7 +1090,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "duelist"
         ],
@@ -1181,7 +1181,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch"
         ],
@@ -1508,7 +1508,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -1613,7 +1613,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch",
           "templar",
@@ -1786,7 +1786,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch",
           "templar"
@@ -1880,7 +1880,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch",
           "shadow"
@@ -1945,7 +1945,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "vendor": [
           "ranger",
           "scion",
@@ -2133,7 +2133,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "marauder",
           "duelist"
@@ -2249,7 +2249,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs2": {
         "quest": [
           "duelist",
           "ranger",
@@ -2313,7 +2313,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "marauder",
           "duelist",
@@ -2449,7 +2449,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch",
           "shadow"
@@ -2487,7 +2487,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch"
         ],
@@ -2507,7 +2507,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -2757,7 +2757,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch"
         ],
@@ -2959,7 +2959,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "marauder",
           "duelist"
@@ -3293,7 +3293,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "marauder",
           "duelist",
@@ -3481,7 +3481,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch",
           "templar",
@@ -3544,7 +3544,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch",
           "templar"
@@ -3619,7 +3619,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "marauder"
         ],
@@ -3712,7 +3712,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "vendor": [
           "duelist",
           "marauder",
@@ -3912,7 +3912,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch",
           "templar",
@@ -3960,7 +3960,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "vendor": [
           "duelist",
           "templar",
@@ -4006,7 +4006,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs2": {
         "quest": [
           "witch",
           "templar",
@@ -4567,7 +4567,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "templar"
         ],
@@ -4934,7 +4934,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "ranger",
           "scion",
@@ -5001,7 +5001,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch"
         ],
@@ -5092,7 +5092,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "marauder",
           "duelist"
@@ -5235,7 +5235,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -5302,7 +5302,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "templar",
           "marauder",
@@ -5341,7 +5341,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "duelist",
           "ranger",
@@ -5368,7 +5368,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -5406,7 +5406,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "templar",
           "marauder",
@@ -5588,7 +5588,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch"
         ],
@@ -5611,7 +5611,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "ranger",
           "witch",
@@ -5631,7 +5631,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "duelist"
         ],
@@ -5715,7 +5715,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "ranger"
         ],
@@ -5791,7 +5791,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "templar",
           "marauder",
@@ -5832,7 +5832,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch"
         ],
@@ -5921,7 +5921,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "ranger"
         ]
@@ -6048,7 +6048,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "shadow"
         ],
@@ -6108,7 +6108,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch",
           "shadow"
@@ -6475,7 +6475,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "duelist",
           "ranger",
@@ -6589,7 +6589,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "duelist",
           "ranger"
@@ -6951,7 +6951,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -7295,14 +7295,16 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
+        "vendor": []
+      },
+      "breaking some eggs2": {
         "quest": [
           "templar",
           "marauder",
           "duelist",
           "scion"
-        ],
-        "vendor": []
+        ]
       },
       "fallen from grace": {
         "vendor": []
@@ -7408,7 +7410,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "ranger"
         ],
@@ -7479,7 +7481,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "shadow"
         ],
@@ -7535,7 +7537,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "ranger",
           "shadow"
@@ -7577,7 +7579,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "duelist",
           "ranger"
@@ -7787,7 +7789,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "marauder",
           "scion",
@@ -7944,10 +7946,12 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "marauder"
-        ],
+        ]
+      },
+      "breaking some eggs2": {
         "vendor": [
           "templar",
           "marauder",
@@ -8109,7 +8113,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "marauder",
@@ -8190,7 +8194,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "templar"
         ],
@@ -8277,7 +8281,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "witch"
         ],
@@ -8324,7 +8328,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch"
         ],
@@ -8692,7 +8696,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "vendor": [
           "duelist",
           "ranger",
@@ -8761,7 +8765,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch",
           "scion"
@@ -8785,7 +8789,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "shadow"
         ],
@@ -8934,7 +8938,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "templar",
           "marauder",
@@ -9003,7 +9007,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "templar",
           "marauder",
@@ -9024,7 +9028,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute1": {
         "quest": [
           "witch",
           "ranger",
@@ -9229,7 +9233,7 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "breaking some eggs": {
+      "breaking some eggs1": {
         "quest": [
           "duelist"
         ],
@@ -9303,7 +9307,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "duelist",
           "ranger",
@@ -9397,7 +9401,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "witch"
         ],
@@ -9420,7 +9424,7 @@
       "fallen from grace": {
         "vendor": []
       },
-      "the caged brute": {
+      "the caged brute2": {
         "quest": [
           "shadow",
           "scion"
