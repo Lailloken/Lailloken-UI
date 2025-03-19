@@ -104,8 +104,8 @@
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
-      "nessa: <the_caged_brute1>",
       "tarkleigh: <the_dweller_of_the_deep>",
+      "nessa: <the_caged_brute1>",
       "(img:waypoint) to areaid1_1_7_1 ;; the lower prison"
     ],
     {
@@ -1185,7 +1185,7 @@
       "enter areaid1_5_2 ;; the control blocks"
     ],
     [
-      "go (img:6) until you find the (quest:miasmeter)",
+      "go (img:7) until you find the (quest:miasmeter)",
       "go (img:1) and kill justicar_casticus for (quest:eyes_of_zeal)",
       "enter areaid1_5_3 ;; oriath square"
     ],
@@ -1412,8 +1412,7 @@
       "relog to areaid2_6_town (img:town) ;; lioneye's watch"
     ],
     [
-      "tarkleigh: <the_father_of_war>, <essence_of_umbra>",
-      "<the_puppet_mistress>",
+      "tarkleigh: <the_father_of_war>, <essence_of_umbra>, <the_puppet_mistress>",
       "(img:waypoint) to areaid2_6_10 ;; the riverways"
     ],
     [
