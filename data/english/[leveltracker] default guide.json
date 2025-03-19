@@ -96,7 +96,7 @@
     ],
     [
       "enter areaid1_1_4_0 ;; the flooded depths",
-      "(hint)_____usually (img:6) or (img:3) before crossing the bridge"
+      "(hint)_____usually (img:6) or (img:1) before crossing the bridge"
     ],
     [
       "find and kill the_dweller_of_the_deep",
@@ -1176,7 +1176,8 @@
   [
     [
       "find and kill overseer_krow",
-      "(hint)_____go (img:4) until you find a linear corridor",
+      "(hint)_____follow (img:5) edge to the corridor with hung karui",
+      "(hint)_____exit is always (img:5) of the corridor, clockwise loop to reach it",
       "enter areaid1_5_town (img:town) ;; overseer's tower"
     ],
     [
