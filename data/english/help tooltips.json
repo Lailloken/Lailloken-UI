@@ -336,7 +336,7 @@
       "deleting them is only required if the schematics are outdated or otherwise incorrect"
     ],
     "leveltracker pob manual": [
-      "the overlay will use manual screen-caps instead of schematics generated via pob's data"
+      "the overlay will use manual screen-caps instead of schematics rendered from pob's data"
     ],
     "leveltracker pob": [
       "m-mouse in pob will open the screen-cap menu",
@@ -354,12 +354,8 @@
       "click to activate this guide slot"
     ],
     "leveltracker import": [
-      "imports guide data from clipboard into this guide slot",
-      "(/underline)note: importing will reset the <mule> checkbox"
-    ],
-    "leveltracker import 2": [
       "imports pob data or custom guides from clipboard into this guide slot",
-      "importing a guide will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
+      "importing will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
     "leveltracker default": [
       "click to load the default guide and enable this slot"
@@ -373,6 +369,7 @@
     ],
     "leveltracker leaguestart": [
       "choose whether quests/objectives that only need to be done once per league should be shown or not",
+      "if a pob import with gems is present and league-start is disabled, some gem quests may be replaced with hideout lilly instead",
       "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
     "leveltracker reset": [
@@ -848,8 +845,8 @@
   "geartracker": {
     "about": [
       "click items on the list to highlight them in in-game searches",
-      "hold <right-click> to remove an item from the list",
-      "hold the <clear> button to remove every highlighted item"
+      "long-right-click an item to remove it from the list",
+      "long-click the <clear> button to remove every highlighted item"
     ]
   },
   "lab": {
