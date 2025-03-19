@@ -309,7 +309,11 @@ Leveltracker(cHWND := "", hotkey := "")
 		guide := vars.leveltracker.guide
 		If (hotkey = 1 && check = "+") || (cHWND = "+") ;clicking the forward button
 		{
-			If (guide.group1[guide.group1.Count()] = guide.import[guide.import.Count()][guide.import[guide.import.Count()].Count()]) ;end-of-guide reached, can't go further
+			progress_check := guide.progress + 1
+			While !Leveltracker("condition", progress_check + 1)
+				progress_check += 1
+
+			If (progress_check = guide.import.Count()) || (guide.group1[guide.group1.Count()] = guide.import[guide.import.Count()][guide.import[guide.import.Count()].Count()]) ;end-of-guide reached, can't go further
 			{
 				;Gui, % Gui_Name(vars.hwnd.leveltracker.controls2) ": Show", NA ;bring the dummy-panel back to the top
 				LLK_ToolTip(Lang_Trans("lvltracker_endreached"),, vars.leveltracker.coords.x1 + vars.leveltracker.coords.w / 2, yTooltip,, "yellow",,,, 1)
@@ -354,7 +358,7 @@ Leveltracker(cHWND := "", hotkey := "")
 			Loop, % loop
 			{
 				guide.progress += 1
-				While !Leveltracker("condition", guide.progress + 1)
+				While !Leveltracker("condition", guide.progress + 1) && (guide.progress + 1 != guide.import.Count())
 					guide.progress += 1
 
 				Leveltracker_Progress(1)
