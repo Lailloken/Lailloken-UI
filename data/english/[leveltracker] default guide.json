@@ -17,23 +17,67 @@
       "(hint)_____connected by streams, usually form a triangle or line",
       "enter areaid1_1_4_1 ;; the submerged passage"
     ],
-    [
-      "(img:waypoint) to areaid1_1_2 ;; the coast"
-    ],
-    [
-      "enter areaid1_1_2a ;; the tidal island"
-    ],
-    [
-      "find and kill hailrake, take (quest:medicine_chest)",
-      "(hint)_____go (img:6). if there's a ledge, go (img:2) instead",
-      "(hint)_____recommended level: 4",
-      "relog to areaid1_1_town (img:town) ;; lioneye's watch"
-    ],
-    [
-      "tarkleigh: <breaking_some_eggs>",
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "(img:waypoint) to areaid1_1_2 ;; the coast"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter areaid1_1_2a ;; the tidal island"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill hailrake for (quest:medicine_chest)",
+        "(hint)_____go (img:6). if there's a ledge, go (img:2) instead",
+        "(hint)_____recommended level: 4",
+        "relog to areaid1_1_town (img:town) ;; lioneye's watch"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "tarkleigh: <breaking_some_eggs1>, <breaking_some_eggs2>",
       "nessa: <mercy_mission>",
       "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "tarkleigh: <breaking_some_eggs1>, <breaking_some_eggs2>",
+      "(img:waypoint) to (color:FEC076)your_hideout, lilly: <mercy_mission> ;; this line only shows with imported PoB",
+      "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
+      ]
+    },
     [
       "find the bridge or (img:arena) areaid1_1_4_1, place (img:portal) ;; the submerged passage",
       "cross the bridge, find and enter areaid1_1_5 ;; the ledge"
@@ -52,7 +96,7 @@
     ],
     [
       "enter areaid1_1_4_0 ;; the flooded depths",
-      "(hint)_____usually (img:6) or (img:3) before the bridge"
+      "(hint)_____usually (img:6) or (img:3) before crossing the bridge"
     ],
     [
       "find and kill the_dweller_of_the_deep",
@@ -60,8 +104,8 @@
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
+      "nessa: <the_caged_brute1>",
       "tarkleigh: <the_dweller_of_the_deep>",
-      "tarkleigh: <the_caged_brute>",
       "(img:waypoint) to areaid1_1_7_1 ;; the lower prison"
     ],
     {
@@ -108,7 +152,7 @@
       ]
     },
     [
-      "tarkleigh: <the_caged_brute>",
+      "tarkleigh: <the_caged_brute2>",
       "(img:waypoint) to areaid1_1_8 ;; prisoner's gate"
     ],
     [
@@ -157,30 +201,91 @@
     [
       "go (img:1), enter areaid1_2_2 ;; the old fields"
     ],
-    [
-      "find (img:arena) areaid1_2_2a, place (img:portal) ;; the den",
-      "follow the road, enter areaid1_2_3 ;; the crossroads"
-    ],
-    [
-      "follow the road, (img:waypoint) to areaid1_2_town (img:town) ;; the forest encampment"
-    ],
-    [
-      "take (img:portal) to areaid1_2_2 ;; the old fields"
-    ],
-    [
-      "enter areaid1_2_2a ;; the den"
-    ],
-    [
-      "find and kill the_great_white_beast",
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find (img:arena) areaid1_2_2a, place (img:portal) ;; the den",
+        "follow the road, enter areaid1_2_3 ;; the crossroads"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "follow the road, (img:waypoint) to areaid1_2_town (img:town) ;; the forest encampment"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "take (img:portal) to areaid1_2_2 ;; the old fields"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "enter areaid1_2_2a ;; the den"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill the_great_white_beast",
       "relog to areaid1_2_town (img:town) ;; the forest encampment"
-    ],
-    [
-      "yeena: <the_great_white_beast>",
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "yeena: <the_great_white_beast>",
       "(img:waypoint) to areaid1_2_3 ;; the crossroads"
-    ],
-    [
-      "go (img:7), enter areaid1_2_6_1 ;; the chamber of sins level 1"
-    ],
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "go (img:7), enter areaid1_2_6_1 ;; the chamber of sins level 1"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "follow the road, enter areaid1_2_3 ;; the crossroads"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "follow the road, activate the (img:waypoint)",
+        "go (img:7), enter areaid1_2_6_1 ;; the chamber of sins level 1"
+      ]
+    },
     [
       "enter areaid1_2_6_2 ;; the chamber of sins level 2",
       "(hint)_____the (img:waypoint) in the central room points to the exit"
@@ -192,7 +297,7 @@
       ],
       "lines": [
         "complete the (img:lab) trial",
-        "kill fidelitas, take (quest:baleful_gem)",
+        "kill fidelitas for (quest:baleful_gem)",
         "(hint)_____look for the long hallway",
         "(hint)_____recommended level: 14-15",
         "relog to areaid1_2_town (img:town) ;; the forest encampment"
@@ -204,7 +309,7 @@
         "no"
       ],
       "lines": [
-        "kill fidelitas, take (quest:baleful_gem)",
+        "kill fidelitas for (quest:baleful_gem)",
         "(hint)_____look for the long hallway",
         "(hint)_____recommended level: 14-15",
         "relog to areaid1_2_town (img:town) ;; the forest encampment"
@@ -567,7 +672,7 @@
       ],
       "lines": [
         "complete the (img:lab) trial",
-        "find and kill piety, take (quest:tolman's_bracelet)",
+        "find and kill piety for (quest:tolman's_bracelet)",
         "activate the (img:craft), relog to areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
@@ -577,7 +682,7 @@
         "no"
       ],
       "lines": [
-        "find and kill piety, take (quest:tolman's_bracelet)",
+        "find and kill piety for (quest:tolman's_bracelet)",
         "relog to areaid1_3_town (img:town) ;; the sarn encampment"
       ]
     },
@@ -792,7 +897,7 @@
       ],
       "lines": [
         "activate the (img:waypoint)",
-        "find loose candle, enter areaid1_3_17_2 ;; the archives"
+        "find the loose candle, enter areaid1_3_17_2 ;; the archives"
       ]
     },
     {
@@ -842,6 +947,7 @@
       ],
       "lines": [
         "follow the road, activate the (img:waypoint)",
+        "(img:waypoint) to (color:FEC076)your_hideout, lilly: <a_fixture_of_fate>  ;; this line only shows with imported PoB",
         "find and enter areaid1_3_18_1 ;; the sceptre of god"
       ]
     },
@@ -1305,7 +1411,7 @@
       "relog to areaid2_6_town (img:town) ;; lioneye's watch"
     ],
     [
-      "tarkleigh: <the_father_of_war>, <essence_of_umbra> ,",
+      "tarkleigh: <the_father_of_war>, <essence_of_umbra>",
       "<the_puppet_mistress>",
       "(img:waypoint) to areaid2_6_10 ;; the riverways"
     ],
@@ -1352,11 +1458,26 @@
     [
       "enter areaid2_7_1 ;; the broken bridge"
     ],
-    [
-      "follow the road up to the broken (img:waypoint)",
-      "enter the nearby ruins, take (quest:silver_locket)",
-      "follow the road, enter areaid2_7_2 ;; the crossroads"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "follow the road up to the broken (img:waypoint)",
+        "enter the nearby ruins, take (quest:silver_locket)",
+        "follow the road, enter areaid2_7_2 ;; the crossroads"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "follow the road, enter areaid2_7_2 ;; the crossroads"
+      ]
+    },
     [
       "follow the road, activate the (img:waypoint)",
       "follow the (img:3) road, enter areaid2_7_3 ;; the fellshrine ruins"
@@ -1418,11 +1539,27 @@
       "(hint)_____follow the edges and bridges (often diagonal to each other)",
       "relog to areaid2_7_town (img:town) ;; the bridge encampment"
     ],
-    [
-      "weylam: <the_silver_locket>",
-      "helena: <essence_of_the_artist>",
-      "(img:waypoint) to areaid2_7_5_1 ;; the chamber of sins level 1"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "helena: <essence_of_the_artist>",
+        "weylam: <the_silver_locket>",
+        "(img:waypoint) to areaid2_7_5_1 ;; the chamber of sins level 1"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "helena: <essence_of_the_artist>",
+        "(img:waypoint) to areaid2_7_5_1 ;; the chamber of sins level 1"
+      ]
+    },
     [
       "silk: <web_of_secrets>, take (quest:obsidian_key)",
       "enter areaid2_7_5_2 ;; the chamber of sins level 2",
