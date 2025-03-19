@@ -8,6 +8,9 @@
 
 	If !IsObject(vars.hwnd.leveltracker)
 		vars.hwnd.leveltracker := {}
+	If !IsObject(vars.leveltracker)
+		vars.leveltracker := {"starter_gems": {"witch": ["fireball", "arcane surge"], "shadow": ["viper strike", "chance to poison"], "ranger": ["burning arrow", "momentum"], "duelist": ["double strike", "chance to bleed"]
+		, "marauder": ["heavy strike", "ruthless"], "templar": ["glacial hammer", "elemental proliferation"], "scion": ["spectral throw", "prismatic burst"]}}
 
 	settings.features.leveltracker := LLK_IniRead("ini" vars.poe_version "\config.ini", "Features", "enable leveling guide", 0)
 	settings.leveltracker := {}, ini := IniBatchRead("ini" vars.poe_version "\leveling tracker.ini")
@@ -50,6 +53,17 @@
 		settings.leveltracker["guide" profile] := {"info": ini2.info.Clone()}
 		settings.leveltracker["guide" profile].info.leaguestart .= Blank(settings.leveltracker["guide" profile].info.leaguestart) ? 1 : ""
 		settings.leveltracker["guide" profile].info.bandit .= Blank(settings.leveltracker["guide" profile].info.bandit) ? "none" : ""
+
+		If (profile = settings.leveltracker.profile)
+		{
+			vars.leveltracker.gearfilter := 1, vars.leveltracker.gear := []
+			For key in ini2["Tracker - Gear"]
+				vars.leveltracker.gear.Push(key)
+			For key in ini2["Tracker - Gems"]
+				vars.leveltracker.gear.Push(key)
+			vars.leveltracker.gear := LLK_ArraySort(vars.leveltracker.gear)
+		}
+		
 	}
 
 	If !FileExist("img\GUI\skill-tree" settings.leveltracker.profile)
@@ -92,19 +106,6 @@
 		Hotkey, % Hotkeys_Convert(settings.leveltracker.hotkey_2), Leveltracker_Hotkeys, On
 	}
 
-	vars.leveltracker.gearfilter := 1, vars.leveltracker.gear := []
-	For key in ini["gear" settings.leveltracker.profile]
-		parse .= (Blank(parse) ? "" : "`n") key
-	For key in ini["gems" settings.leveltracker.profile]
-		parse .= (Blank(parse) ? "" : "`n") key
-	StringLower, parse, parse
-	Sort, parse, D`n N P2
-	Loop, Parse, parse, `n
-	{
-		If Blank(A_LoopField) || LLK_HasVal(vars.leveltracker.gear, A_LoopField)
-			Continue
-		vars.leveltracker.gear.Push(A_LoopField)
-	}
 	If settings.leveltracker.geartracker
 		Geartracker_GUI("refresh")
 
@@ -139,7 +140,7 @@ Geartracker(mode := "")
 		WinActivate, ahk_group poe_window
 		Return
 	}
-	check := LLK_HasVal(vars.hwnd.geartracker, mode), control := SubStr(check, InStr(check, "_") + 1)
+	check := LLK_HasVal(vars.hwnd.geartracker, mode), control := SubStr(check, InStr(check, "_") + 1), profile := settings.leveltracker.profile
 
 	If (check = "filter")
 		vars.leveltracker.gearfilter := LLK_ControlGet(mode)
@@ -149,8 +150,8 @@ Geartracker(mode := "")
 		{
 			Loop, % vars.leveltracker.gear_ready
 			{
-				IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "gear" settings.leveltracker.profile, % vars.leveltracker.gear[A_Index]
-				IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "gems" settings.leveltracker.profile, % vars.leveltracker.gear[A_Index]
+				IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", % "Tracker - Gear", % vars.leveltracker.gear[A_Index]
+				IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", % "Tracker - Gems", % vars.leveltracker.gear[A_Index]
 				vars.leveltracker.gear.Delete(A_Index)
 			}
 		}
@@ -171,8 +172,8 @@ Geartracker(mode := "")
 		}
 		Else If (vars.system.click = 2) && LLK_Progress(vars.hwnd.geartracker["delbar_"control], "RButton")
 		{
-			IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "gear" settings.leveltracker.profile, % control
-			IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "gems" settings.leveltracker.profile, % control
+			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", % "Tracker - Gear", % control
+			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", % "Tracker - Gems", % control
 			vars.leveltracker.gear.RemoveAt(LLK_HasVal(vars.leveltracker.gear, control))
 		}
 		Else Return
@@ -186,7 +187,7 @@ Geartracker_Add()
 	local
 	global vars, settings
 
-	item := vars.omnikey.item
+	item := vars.omnikey.item, profile := settings.leveltracker.profile
 	If (item.rarity != Lang_Trans("items_unique")) && !InStr(item.name, "Flask", 1)
 		class := SubStr(vars.omnikey.item.class_copy, InStr(vars.omnikey.item.class_copy, " ",,, LLK_InStrCount(vars.omnikey.item.class_copy, " ")) + 1), class := (settings.general.lang_client = "english") ? (InStr("boots,gloves", class) ? class : SubStr(class, 1, -1)) : class, class := LLK_StringCase(class)
 
@@ -205,7 +206,7 @@ Geartracker_Add()
 	Else LLK_ToolTip(Lang_Trans("lvltracker_gearadd"), 1,,,, "lime")
 	vars.leveltracker.gear.Push(LLK_StringCase("("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name_copy))
 	vars.leveltracker.gear := LLK_ArraySort(vars.leveltracker.gear)
-	IniWrite, 1, % "ini" vars.poe_version "\leveling tracker.ini", % "gear" settings.leveltracker.profile, % "("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name_copy
+	IniWrite, 1, % "ini" vars.poe_version "\leveling guide" profile ".ini", % "Tracker - Gear", % LLK_StringCase("("vars.omnikey.item.lvl_req ") "(class ? class ": " : "") vars.omnikey.item.name_copy)
 	Geartracker_GUI()
 }
 
@@ -252,7 +253,7 @@ Geartracker_GUI(mode := "")
 				}
 				Gui, %GUI_name%: Add, Text, % "xs BackgroundTrans gGeartracker HWNDhwnd Section"(A_Index = 1 ? " y+"settings.leveltracker.fHeight*0.25 : "") color, % (StrLen(item) > 35) ? SubStr(item, 1, 35) : item
 				vars.hwnd.geartracker["select_"item] := hwnd
-				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack cRed Disabled HWNDhwnd range0-500", 0
+				Gui, %GUI_name%: Add, Progress, % "xp yp wp hp BackgroundBlack cRed Disabled HWNDhwnd Vertical range0-500", 0
 				vars.hwnd.geartracker["delbar_"item] := hwnd
 				If (StrLen(item) > 35)
 					Gui, %GUI_name%: Add, Text, % "ys BackgroundTrans" color, % "[...]"
@@ -1062,7 +1063,9 @@ Leveltracker_Import(profile := "")
 		}
 		Else
 		{
-			Init_leveltracker(), Settings_menu("leveling tracker")
+			Init_leveltracker(), Leveltracker_ProgressReset(profile)
+			If (vars.settings.last_refresh <= A_TickCount - 1000)
+				Settings_menu("leveling tracker")
 			Clipboard := ""
 			Return 1
 		}
@@ -1094,279 +1097,18 @@ Leveltracker_Import(profile := "")
 	}
 	Clipboard := ""
 	Return 1
-
-	If (SubStr(Clipboard, 1, 2) != "[{") || !InStr(Clipboard, """enter""")
-	{
-		If (SubStr(Clipboard, 1, 2) = "[{") && !InStr(Clipboard, """enter""")
-			LLK_ToolTip(Lang_Trans("lvltracker_importerror"), 2,,,, "red")
-		Else LLK_ToolTip(Lang_Trans("lvltracker_importerror", 2), 1.5,,,, "red")
-		Return
-	}
-
-	import := Json.Load(Clipboard), areas := db.leveltracker.areas, gems := db.leveltracker.gems, quests := db.leveltracker.quests
-	vars.leveltracker["pob" profile] := ""
-	IniDelete, % "ini" vars.poe_version "\leveling tracker.ini", % "PoB" profile
-
-	For act_index, act in import ;parse all acts
-	{
-		For step_index, step in act.steps ;parse steps in nth act
-		{
-			step_text := ""
-			If (step.type = "fragment_step")
-			{
-				For part_index, part in step.parts ;parse the parts of the step
-				{
-					If !IsObject(part)
-					{
-						If (SubStr(part, -3) = "get ")
-							text := StrReplace(part, "get ", "activate the ")
-						;Else If InStr(part, "take") && InStr(step_text, "kill") ;omit quest-items related to killing bosses
-						;	text := ""
-						Else text := InStr(part, " ➞ ") ? StrReplace(part, " ➞", ", enter") : StrReplace(part, "➞", "enter")
-						step_text .= text
-					}
-					Else
-					{
-						value := part.value, quest := part.questID
-						Switch part.type
-						{
-							Case "enter":
-								step_text .= "areaID" part.areaId . (InStr(part.AreaId, "_town") ? " (img:town) " : " ")
-							Case "kill":
-								value := InStr(value, ",") ? SubStr(part.value, 1, InStr(part.value, ",") - 1) : StrReplace(value, "alira darktongue", "alira") ;trim boss names
-								step_text .= StrReplace(value, " ", "_") " "
-							Case "quest":
-								npc := quests[quest]["reward_offers"][quest]["quest_npc"]
-								npc := (npc = "lady dialla") ? "dialla" : (npc = "captain fairgraves") ? "fairgraves" : (npc = "commander kirac") ? "kirac" : InStr(npc, " ") ? SubStr(npc, 1, InStr(npc, " ") - 1) : npc
-								step_text := npc ? "(img:quest) " StrReplace(step_text, "hand in ", npc ": ") "<" StrReplace(quests[quest].name, " ", "_") "> " : step_text "<" StrReplace(quests[quest].name, " ", "_") "> "
-							Case "quest_text":
-								value := " (quest:" StrReplace(value, " ", "_") ") "
-								step_text .= value ;!InStr(step_text, "kill") ? value : "" ;omit quest-items related to killing bosses
-							Case "waypoint_get":
-								step_text .= "(img:waypoint) "
-							Case "waypoint_use":
-								step_text .= "(img:waypoint) to areaID" part.dstAreaId . (InStr(part.dstAreaId, "_town") ? " (img:town) " : "")
-							Case "waypoint":
-								step_text .= InStr(step_text, "broken ") ? "(img:waypoint) " : "the (img:waypoint) " . (InStr(step_text, "2 pillars") ? "`n" : "")
-							Case "logout":
-								step_text .= "relog, enter areaID" part.areaId . (InStr(part.AreaId, "_town") ? " (img:town) " : "")
-							Case "portal_use":
-								step_text .= "(img:portal) to areaID" part.dstAreaId
-							Case "portal_set":
-								step_text .= "(img:portal) "
-							Case "trial":
-								step_text .= "the (img:lab) trial"
-							Case "arena":
-								step_text .= "(img:arena) arena:"StrReplace(value, " ", "_") " " ;StrReplace(value, " ", "_") " "
-							Case "area":
-								step_text .= "areaID" part.areaId " "
-							Case "dir":
-								step_text .= "(img:"part.dirIndex ") " (!InStr(step_text, "follow") && !InStr(step_text, "search") ? "," : "")
-								;step_text .= !InStr(step_text, "follow") && !InStr(step_text, "search") ? "(img:"part.dirIndex ") ," : "(img:"part.dirIndex ") "
-							Case "crafting":
-								step_text .= "(img:craft) "
-							Case "generic":
-								step_text .= value
-							Case "ascend":
-								step_text .= "complete the (img:lab) " part.version "_lab"
-							Case "reward_vendor":
-								step_text .= "buy item: " StrReplace(part.item, " ", "_")
-							Case "reward_quest":
-								step_text .= "take reward: " StrReplace(part.item, " ", "_")
-							Default:
-								If settings.general.dev
-									MsgBox, % "unknown type: " part.type
-								Continue 2
-						}
-					}
-				}
-			}
-			If (step.type = "gem_step")
-			{
-				gemID := step.requiredGem.id
-				If !gems[gemID].name
-					continue
-
-				attr := (gems[gemID].primary_attribute = "none") ? "none" : SubStr(gems[gemID].primary_attribute, 1, 3), type := InStr(gems[gemID].name, "support") || InStr(gems[gemID].name, "arcanist brand") ? "supp" : "skill"
-				If (attr = "none") || (gems[gemID].name = "convocation")
-					build_gems_none .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
-				Else build_gems_%type%_%attr% .= (gems[gemID].required_level < 10) ? "(0" gems[gemID].required_level ")" gems[gemID].name "," : "(" gems[gemID].required_level ")" gems[gemID].name ","
-
-				color := (attr = "str") ? "D81C1C" : (attr = "dex") ? "00BF40" : (attr = "int") ? "0077FF" : "White"
-				step_text .= (step.rewardType = "vendor" ? "buy gem: " : "take reward: ") . (color ? "(color:"color ")" : "") StrReplace(gems[gemID].name, " ", "_")
-
-				;If step.requiredGem.note
-				;	gem_notes .= gems[gemID].name "=" step.requiredGem.note "`n"
-			}
-			If (SubStr(step_text, 0) = ",")
-				step_text := SubStr(step_text, 1, -1)
-			If (step_text = "talk to lady dialla") && (act_index = 3)
-				Continue
-			guide_text .= StrReplace(step_text, ",,", ",") "`n"
-
-			For ss_index, ss_array in step.subSteps
-			{
-				ss_text := "(hint)_______"
-				For ss_part_index, ss_parts in ss_array.parts
-				{
-					If !IsObject(ss_parts)
-					{
-						text := !ss_array.parts[ss_part_index + 1].value ? Trim(ss_parts, " ") : (SubStr(ss_parts, 1, 1) = " ") ? SubStr(ss_parts, 2) : ss_parts
-						ss_text .= ((ss_text != "(hint)") ? "" : "_______") StrReplace(text, " ", "_")
-					}
-					Else
-					{
-						Switch ss_parts.type
-						{
-							Case "dir":
-								ss_text .= " (img:"ss_parts.dirIndex ") "
-							Case "waypoint":
-								ss_text .= (InStr(ss_text, "broken") ? "" : "_the") " (img:waypoint) "
-							Case "quest_text":
-								ss_text .= " (quest:" StrReplace(ss_parts.value, " ", "_") ") "
-							Case "generic":
-								ss_text .= (ss_parts.value = "/passives" ? """" ss_parts.value """" : ss_parts.value) " "
-							Case "arena":
-								ss_text .= " (img:arena) arena:" StrReplace(ss_parts.value, " ", "_") " "
-							Default:
-								If settings.general.dev
-									MsgBox, % "unknown type: " ss_parts.type
-						}
-					}
-				}
-				If (SubStr(ss_text, 0) = ",")
-					ss_text := SubStr(ss_text, 1, -1)
-				guide_text .= StrReplace(ss_text, ",,", ",") "`n"
-			}
-		}
-		If InStr(act, "pob-code:") && !InStr(act, "pob-code:none")
-			Try vars.leveltracker["pob" profile] := Leveltracker_PobImport(StrReplace(act, "pob-code:"), profile)
-	}
-
-	guide_text .= "<you_can_now_disable_the_act-tracker_in_the_settings>`n"
-	build_gems_all := build_gems_skill_str build_gems_supp_str build_gems_skill_dex build_gems_supp_dex build_gems_skill_int build_gems_supp_int build_gems_none ;create single gem-string for gear tracker feature
-
-	If !vars.poe_version
-	{
-		IniDelete, ini\leveling tracker.ini, Gems%profile%
-		IniDelete, ini\search-strings.ini, 00-exile leveling gems%profile%
-		IniDelete, ini\search-strings.ini, searches, hideout lilly
-		vars.searchstrings["hideout lilly"].enable := 0
-
-		If build_gems_all
-		{
-			Sort, build_gems_all, D`, P2 N
-			Sort, build_gems_skill_str, D`, P2 N
-			Sort, build_gems_supp_str, D`, P2 N
-			Sort, build_gems_skill_dex, D`, P2 N
-			Sort, build_gems_supp_dex, D`, P2 N
-			Sort, build_gems_skill_int, D`, P2 N
-			Sort, build_gems_supp_int, D`, P2 N
-			Sort, build_gems_none, D`, P2 N
-	
-			build_gems_all := StrReplace(build_gems_all, ")", ") gem: "), build_gems_all := StrReplace(build_gems_all, " support", ""), build_gems_all := StrReplace(build_gems_all, ",", "=1`n")
-			IniWrite, % SubStr(build_gems_all, 1, -1), ini\leveling tracker.ini, Gems%profile% ;save gems for gear tracker feature
-		}
-
-		parse := "skill_str,supp_str,skill_dex,supp_dex,skill_int,supp_int,none"
-		search_string_skill_str := ""
-		search_string_supp_str := ""
-		search_string_skill_dex := ""
-		search_string_supp_dex := ""
-		search_string_skill_int := ""
-		search_string_supp_int := ""
-		search_string_none := ""
-		search_string_all := ""
-
-		Loop, Parse, parse, `,, `, ;create advanced search-string
-		{
-			loop := A_Loopfield
-			parse_string := ""
-			If (build_gems_%A_Loopfield% = "")
-				continue
-			Loop, Parse, build_gems_%A_Loopfield%, `,, `,
-			{
-				If (A_Loopfield = "")
-					break
-				parse_gem := SubStr(A_Loopfield, 5), gem_regex := db.leveltracker.regex[parse_gem].1
-				If !gem_regex
-					gem_regex := parse_gem
-				gem_regex := StrReplace(gem_regex, " ", ".")
-
-				If (StrLen(parse_string . gem_regex) <= 46)
-					parse_string .= gem_regex "|"
-				Else
-				{
-					search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ")$;"
-					parse_string := gem_regex "|"
-				}
-			}
-			search_string_%loop% .= "^(" SubStr(parse_string, 1, -1) ")$"
-		}
-
-		Loop, Parse, parse, `,, `,
-		{
-			If (search_string_%A_Loopfield% != "")
-				search_string_all .= search_string_%A_Loopfield% ";"
-		}
-
-		If search_string_all
-		{
-			search_string_all := SubStr(search_string_all, 1, -1)
-			IniWrite, 1, ini\search-strings.ini, searches, hideout lilly
-			IniWrite, % """" StrReplace(search_string_all, ";", " " ";`;`;" " ") """", ini\search-strings.ini, hideout lilly, 00-exile leveling gems%profile% ;escaped semi-colons to prevent VScode from list this line as a module
-		}
-		Init_searchstrings()
-	}
-
-	guide_text := StrReplace(guide_text, "&", "&&"), guide_text := StrReplace(guide_text, "`nenter areaid1_3_1 `n", ", enter areaid1_3_1 `n")
-	guide_text := StrReplace(guide_text, "remaining floors will have the exit diagonally across from the entrance", "remaining exits are diagonally opposite to the entrances")
-	guide_text := StrReplace(guide_text, "follow the trail in the direction of the torch", "follow the path under the torch")
-	guide_text := StrReplace(guide_text, "find and kill doedre_darktongue , take  (quest:malachai's_lungs) `nfind and kill maligaro , take  (quest:malachai's_heart) `nfind and kill shavronne_of_umbra , take  (quest:malachai's_entrails) "
-	, "find and kill doedre , (color:FF8111)maligaro , (color:FF8111)shavronne")
-	guide_text := StrReplace(guide_text, " , search in the corners of the map", " near the map-corners"), guide_text := StrReplace(guide_text, "kill shavronne_the_returned  && reassembled_brutus", " kill shavronne_&&_brutus")
-	guide_text := StrReplace(guide_text, "`nenter (img:arena) arena:caldera_of_the_king , ", ", enter (img:arena) arena:caldera_of_the_king`n")
-	guide_text := StrReplace(guide_text, "`nenter areaid1_4_6_3 ", ", enter areaid1_4_6_3 "), guide_text := StrReplace(guide_text, "`nenter areaid2_6_8 ", ", enter areaid2_6_8 ")
-	guide_text := StrReplace(guide_text, "trial`nactivate ", "trial , activate "), guide_text := StrReplace(guide_text, "activate the (img:craft) `nactivate the (img:waypoint)", "activate the (img:craft) , activate the (img:waypoint)")
-	guide_text := StrReplace(guide_text, "sewer_outlet `n", "sewer_outlet , "), guide_text := StrReplace(guide_text, "kill lunaris  && solaris ", "kill lunaris_&&_solaris")
-	guide_text := StrReplace(guide_text, "statue of the sisters", "the statue"), guide_text := StrReplace(guide_text, "farm till lvl ~62", "farm until around lvl 62") ;tilde looks crap in Fontin SmallCaps
-	guide_text := StrReplace(guide_text, "head (img:7) , activate the (img:waypoint) `nactivate the (img:craft) ", "head (img:7) , activate the (img:waypoint) , activate the (img:craft) ")
-	guide_text := StrReplace(guide_text, "the_black_core `ntalk to sin", "the_black_core , talk to sin")
-	guide_text := StrReplace(guide_text, "enter (img:arena) arena:doedre's_despair , kill doedre `n"), guide_text := StrReplace(guide_text, "enter (img:arena) arena:maligaro's_misery , kill maligaro `n")
-	guide_text := StrReplace(guide_text, "enter (img:arena) arena:shavronne's_sorrow , kill shavronne `n", "kill doedre , (color:FF8111)maligaro , (color:FF8111)shavronne`n")
-	guide_text := StrReplace(guide_text, "talk to sin, enter (img:arena)", "enter (img:arena)"), guide_text := StrReplace(guide_text, "activate the (img:craft) `ntalk", "activate the (img:craft) , talk")
-	guide_text := StrReplace(guide_text, "for_quicksilver flask", "for_quicksilver flask (qsf)")
-	guide_text := StrReplace(guide_text, "Vendor_Quicksilver Flask +_Orb of Augmentation +_Normal_Boots", "vendor:_qsf +_aug +_boots //_qsf +_aug +_ms_boots")
-	guide_text := StrReplace(guide_text, "(hint)_______Vendor_Quicksilver Flask +_Orb of Augmentation +_Movement_Speed_Boots `n")
-	guide_text := StrReplace(guide_text, "at_the_fork_in_the_road_with_wagons,_go_the_route_with_1_wagon,_not_2", "at_the_fork,_follow_the_single_wagon")
-	StringLower, guide_text, guide_text
-
-	If FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
-	{
-		IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Steps
-		IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Info
-	}
-	IniWrite, % guide_text, % "ini" vars.poe_version "\leveling guide" profile ".ini", Steps
-
-	Init_leveltracker()
-	Settings_menu("leveling tracker")
-	If settings.leveltracker.geartracker
-		Geartracker_GUI("refresh")
-	Leveltracker_Load()
-	Clipboard := ""
-	Return 1
 }
 
-Leveltracker_Load(profile := 0)
+Leveltracker_Load(profile := "")
 {
 	local
-	global vars, settings, JSON
+	global vars, settings, JSON, db
 
 	If !IsObject(vars.leveltracker.guide)
 		vars.leveltracker.guide := {}
 
-	current_profile := settings.leveltracker.profile
-	import := [], gems := {}, ini := IniBatchRead("ini" vars.poe_version "\leveling guide" (profile ? profile : current_profile) ".ini")
+	current_profile := settings.leveltracker.profile, gems := db.leveltracker.gems, class := vars.leveltracker["PoB" current_profile].class
+	import := [], ini := IniBatchRead("ini" vars.poe_version "\leveling guide" (profile ? profile : current_profile) ".ini")
 
 	If !profile
 		vars.leveltracker.guide.progress := !Blank(check := ini.progress.pages) ? check : 0
@@ -1374,8 +1116,72 @@ Leveltracker_Load(profile := 0)
 	Loop, % vars.poe_version ? 6 : 10
 		For iPage, oPage in json.load(ini.guide["act" A_Index])
 			import.Push(oPage)
-
 	vars.leveltracker.guide.import := LLK_CloneObject(import)
+
+	vars.leveltracker.guide.gems := []
+	For iSkillset, oSkillset in vars.leveltracker["PoB" current_profile].gems
+		For iGroup, oGroup in oSkillset.groups
+			For iGem, vGem in oGroup.gems
+				If !LLK_PatternMatch(vGem, "", ["empower", "enhance", "enlighten"],,, 0) && !LLK_HasVal(vars.leveltracker.starter_gems[class], StrReplace(vGem, " |–"))
+					If !LLK_HasVal(vars.leveltracker.guide.gems, InStr(vGem, " |–") ? StrReplace(StrReplace(StrReplace(vGem, "vaal "), "awakened "), " |–") " support" : vGem)
+						vars.leveltracker.guide.gems.Push(InStr(vGem, " |–") ? StrReplace(vGem, " |–") " support" : vGem)
+
+	stat_colors := ["D81C1C", "00BF40", "0077FF"]
+	For iPage, aPage in vars.leveltracker.guide.import
+	{
+		If !Leveltracker("condition", iPage) || !LLK_HasVal(aPage, ": <", 1,,, 1)
+			Continue
+
+		new_group := [], quests_page := [], delete := [], reward_available := 0
+		For index, line in (aPage.condition ? aPage.lines : aPage)
+		{
+			If !InStr(line, "<")
+			{
+				new_group.Push(line)
+				Continue
+			}
+			quests_line := [], loop := 1
+			While InStr(line, "<",,, loop)
+				quest := SubStr(line, InStr(line, "<",,, loop) + 1), quest := SubStr(quest, 1, InStr(quest, ">") - 1), quests_line.Push(StrReplace(quest, "_", " "))
+				, quests_page.Push(StrReplace(quest, "_", " ")), loop += 1
+
+			new_group.Push(line)
+			If !InStr(line, "lilly: <a_fixture_of_fate>")
+				For index, quest in quests_line
+					For index, gem in vars.leveltracker.guide.gems
+						If gems[gem].quests[quest] && gems[gem].quests[quest].quest && (!gems[gem].quests[quest].quest.Count() || LLK_HasVal(gems[gem].quests[quest].quest, class))
+						{
+							new_group.Push("(hint)_____take: " ((check := gems[gem].attribute) ? "(color:" stat_colors[check] ")" : "") StrReplace(StrReplace(gem, " support"), " ", "_"))
+							vars.leveltracker.guide.gems.RemoveAt(index)
+							Continue 2
+						}
+		}
+
+		For index, gem in vars.leveltracker.guide.gems
+			For kQuest, oQuest in db.leveltracker.gems[gem].quests
+				If LLK_HasVal(quests_page, "fallen from grace") || LLK_HasVal(quests_page, kQuest) && (IsObject(oQuest.vendor) && !oQuest.vendor.Count() || LLK_HasVal(oQuest.vendor, class,,,, 1))
+				{
+					vars.leveltracker.guide.gems[index] := "", reward_available := 1
+					new_group.InsertAt(new_group.MaxIndex(), "buy gem: " gem)
+					Continue 2
+				}
+
+		Loop, % (count := vars.leveltracker.guide.gems.Count())
+			If !vars.leveltracker.guide.gems[count - (A_Index - 1)]
+				vars.leveltracker.guide.gems.RemoveAt(count - (A_Index - 1))
+
+		If !reward_available
+			For index, line in new_group
+				If RegExMatch(line, "i)lilly.*(mercy.mission|a.fixture.of.fate)")
+				{
+					new_group.RemoveAt(index)
+					Break
+				}
+
+		If aPage.condition
+			vars.leveltracker.guide.import[iPage].lines := new_group.Clone()
+		Else vars.leveltracker.guide.import[iPage] := new_group.Clone()
+	}
 }
 
 Leveltracker_ScreencapMenu()
@@ -1623,7 +1429,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 	local
 	global vars, settings, db
 
-	guide := preview ? vars.leveltracker_editor.dummy_guide : vars.leveltracker.guide, areas := db.leveltracker.areas, areaIDs := db.leveltracker.areaIDs
+	guide := preview ? vars.leveltracker_editor.dummy_guide : vars.leveltracker.guide, areas := db.leveltracker.areas, areaIDs := db.leveltracker.areaIDs, gems := db.leveltracker.gems
 	Loop 2 ;create guide panel twice to check its width and correct it if necessary
 	{
 		outer := A_Index, width_comp := Floor(width / settings.leveltracker.fWidth)
@@ -1640,12 +1446,13 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 		If (outer = 2) && !preview
 			hwnd_old := [vars.hwnd.leveltracker.main, vars.hwnd.leveltracker.background, vars.hwnd.leveltracker.controls2, vars.hwnd.leveltracker.controls1], vars.hwnd.leveltracker := {"background": leveltracker_back}, vars.hwnd.leveltracker.main := leveltracker_main
 
-		guide.gems := [], guide.items := []
+		guide.gemList := [], guide.itemList := []
 		For index_raw, step in guide.group1
 		{
 			If LLK_PatternMatch(step, "", [Lang_Trans("lvltracker_recommended"), Lang_Trans("lvltracker_recommended", 2)]) && !settings.leveltracker.recommend
 				Continue
 
+			step := StrReplace(step, ", <breaking_some_eggs2>")
 			style := "Section xs", line := step, step := StrReplace(StrReplace(StrReplace(step, "): ", ") : "), ". ", " . "), ", ", " , "), kill := 0, text_parts := []
 			If (check := InStr(step, " `;"))
 				step := SubStr(step, 1, check - 1)
@@ -1661,17 +1468,17 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 				text_parts.Push(A_LoopField) ;push parts into an array so the next and previous parts can be checked/predicted
 			}
 
-			If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gems.Count() && !guide.items.Count()
+			If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gemList.Count() && !guide.itemList.Count()
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
+				guide[InStr(step, "buy item:") ? "itemList" : "gemList"].Push(add)
 				buy_prompt := 1
 				Continue
 			}
-			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gems.Count() || guide.items.Count())
+			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gemList.Count() || guide.itemList.Count())
 			{
 				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				guide[InStr(step, "buy item:") ? "items" : "gems"].Push(add)
+				guide[InStr(step, "buy item:") ? "itemList" : "gemList"].Push(add)
 				Continue
 			}
 
@@ -1712,6 +1519,8 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 						Gui, %name_main%: Font, % "s"settings.leveltracker.fSize - 2
 					If vars.leveltracker.hints[StrReplace(part, "_", " ")]
 						color := "Aqua"
+					If InStr(part, "<" StrReplace(text, " ", "_") ">") && IsNumber(SubStr(text, 0))
+						text := SubStr(text, 1, -1)
 					Gui, %name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
 					Gui, %name_main%: Font, % "norm s"settings.leveltracker.fSize
 					kill := (part = Lang_Trans("lvltracker_format_kill")) ? 1 : 0
@@ -1719,7 +1528,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 				style := InStr(part, "(img:") && !spacing_check ? "ys x+"settings.leveltracker.fWidth/3 : "ys x+0", spacing_check := 0
 			}
 		}
-		If !preview && (outer = 2) && (guide.gems.Count() || guide.items.Count())
+		If !preview && (outer = 2) && (guide.gemList.Count() || guide.itemList.Count())
 			Leveltracker_Strings()
 
 		If !preview
@@ -1771,7 +1580,7 @@ Leveltracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", reg
 			For index, skillset in pob.gems
 				For index2, group in skillset.groups
 					For index3, gem in group.gems
-						If db.leveltracker.regex[type][StrReplace(gem, " |–")]
+						If db.leveltracker.gems[type][StrReplace(gem, " |–")]
 						{
 							If regex
 								regex_string[StrReplace(gem, " |–")] := 1
@@ -1822,7 +1631,7 @@ Leveltracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", reg
 		{
 			dimensions := []
 			For iGem, vGem in pob.gems[hover].groups[val].gems
-				For gem_type, oGems in db.leveltracker.regex
+				For gem_type, oGems in db.leveltracker.gems
 					If oGems[StrReplace(vGem, " |–")] && !LLK_HasVal(dimensions, vGem, 1)
 						dimensions.Push(vGem " (" oGems[StrReplace(vGem, " |–")] ")")
 			LLK_PanelDimensions(dimensions, settings.leveltracker.fSize, wLinks, hLinks)
@@ -1832,9 +1641,9 @@ Leveltracker_PobGemLinks(gem_name := "", hover := 1, xPos := "", yPos := "", reg
 		{
 			gem_lookup := InStr(gem, "|") ? StrReplace(gem, " |–") . (vars.poe_version ? "" : " support") : gem, gem_lookup := StrReplace(StrReplace(gem_lookup, "vaal "), "awakened ")
 			style := (index = 1 && link = 1) ? (orientation = "left" || check.Count() = 1 ? "x0" : "x" wHover - 1) " y1" : (link = 1 ? "ys x+-1 y1" : "xs y+-1")
-			Gui, %GUI_name%: Add, Text, % style " Section BackgroundTrans HWNDhwnd w" wLinks " h" hLinks - 2 . (!vars.poe_version ? " c" stat_colors[db.leveltracker.regex[gem_lookup].2] : ""), % " " gem
+			Gui, %GUI_name%: Add, Text, % style " Section BackgroundTrans HWNDhwnd w" wLinks " h" hLinks - 2 . (!vars.poe_version ? " c" stat_colors[db.leveltracker.gems[gem_lookup].attribute] : ""), % " " gem
 			gem := InStr(gem, "(") ? SubStr(gem, 1, InStr(gem, "(") - 2) : gem, gem := StrReplace(gem, " |–")
-			Gui, %GUI_name%: Add, Progress, % "xp+1 yp wp-2 hp Disabled Background" (InStr(gem_name, gem) || type && db.leveltracker.regex[type][gem] ? "303030" : "Black"), 0
+			Gui, %GUI_name%: Add, Progress, % "xp+1 yp wp-2 hp Disabled Background" (InStr(gem_name, gem) || type && db.leveltracker.gems[type][gem] ? "303030" : "Black"), 0
 			ControlGetPos, xLast, yLast, wLast, hLast,, ahk_id %hwnd%
 		}
 		If !Blank(pob.gems[hover].groups[val].label)
@@ -1891,8 +1700,10 @@ Leveltracker_PobImport(b64, profile)
 		class := SubStr(xml, InStr(xml, " classname=""") + 12), class := SubStr(class, 1, InStr(class, """") - 1)
 		tree := SubStr(xml, InStr(xml, "<tree ")), tree := SubStr(tree, 1, InStr(tree, "</tree>") - 2)
 		build := SubStr(xml, InStr(xml, "<build ")), build := SubStr(build, 1, InStr(build, "`n"))
-		ascendancies := [], trees0 := [], trees := [], treeDB := db.leveltracker.trees, failed_versions := {}
+		ascendancies := [], trees0 := [], trees := [], failed_versions := {}
+		treeDB := db.leveltracker.trees, gems := db.leveltracker.gems
 		bandit := SubStr(build, InStr(build, "bandit=""") + 8), bandit := SubStr(bandit, 1, InStr(bandit, """") - 1)
+		geartracker_gems := {}, searchstrings_gems := [[{}, {}], [{}, {}], [{}, {}], [{}, {}]]
 
 		Loop, Parse, tree, `n, `r
 			If InStr(A_LoopField, "<spec")
@@ -1960,23 +1771,72 @@ Leveltracker_PobImport(b64, profile)
 					group.label := SubStr(A_LoopField, InStr(A_LoopField, "label=""") + 7), group.label := Leveltracker_PobRemoveTags(SubStr(group.label, 1, InStr(group.label, """") - 1))
 				If InStr(A_LoopField, "<Gem ")
 				{
-					name := SubStr(A_LoopField, InStr(A_LoopField, "namespec=""") + 10), name := SubStr(name, 1, InStr(name, """") - 1)
-					If !Blank(name)
-						group.gems.Push((InStr(A_LoopField, "/supportgem") ? " |–" : "") . name)
+					support := InStr(A_LoopField, "/supportgem")
+					name := SubStr(A_LoopField, InStr(A_LoopField, "namespec=""") + 10), name := SubStr(name, 1, InStr(name, """") - 1), name := StrReplace(StrReplace(name, "vaal "), "awakened ")
+					If !Blank(name) && (!vars.poe_version && gems[name . (support ? " support" : "")] || vars.poe_version && LLK_HasKey(gems, name,,,, 1))
+					{
+						group.gems.Push((support ? " |–" : "") . name)
+						If !LLK_PatternMatch(name, "", ["enlighten", "empower", "enhance"],,, 0) && !LLK_HasVal(vars.leveltracker.starter_gems[class], name)
+						{
+							geartracker_gems["(" ((level := gems[name (support ? " support" : "")].level) < 10 ? "0" : "") . level ") gem: " name] := 1
+							name0 := name . (support ? " support" : ""), attribute := gems[name0].attribute ? gems[name0].attribute : 4
+							searchstrings_gems[attribute][support ? 2 : 1][name0] := 1
+						}
+					}
 				}
 				If InStr(A_LoopField, "</skill>")
-					groups.Push(group), group := ""
+				{
+					If group.gems.Count()
+						groups.Push(group)
+					group := ""
+				}
 			}
 			If groups.Count()
 				skillsets_final.Push({"title": title, "groups": groups})
 			title := ""
 		}
 
-		object := {"class": class, "ascendancies": ascendancies, "bandit": bandit, "gems": skillsets_final, "trees": trees, "active tree": 1}
+		If !vars.poe_version
+		{
+			object := {"class": class, "ascendancies": ascendancies, "bandit": bandit, "gems": skillsets_final, "trees": trees, "active tree": 1}
+			IniWrite, % (settings.leveltracker["guide" profile].info.bandit := bandit), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, bandit
+
+			For key in geartracker_gems
+				gem_dump .= (!gem_dump ? "" : "`n") key "=1"
+			If gem_dump
+				IniWrite, % gem_dump, % "ini" vars.poe_version "\leveling guide" profile ".ini", Tracker - Gems
+			Else IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", Tracker - Gems
+
+			For index, array in searchstrings_gems
+				For index, oGems in array
+				{
+					For gem in oGems
+					{
+						If (StrLen(regex "|" gem) > 46)
+							regex_dump .= (!regex_dump ? "" : " `;`;`; ") "^(" regex ")$", regex := ""
+						regex .= (!regex ? "" : "|") StrReplace(gem, " ", ".")
+					}
+					If regex
+						regex_dump .= (!regex_dump ? "" : " `;`;`; ") "^(" regex ")$", regex := ""
+				}
+			If regex_dump
+			{
+				IniWrite, % """" regex_dump """", % "ini\search-strings.ini", % "hideout lilly", % "00-exile leveling gems" profile
+				If !vars.searchstrings.list["hideout lilly"]
+				{
+					IniWrite, 0, % "ini\search-strings.ini", % "Searches", % "hideout lilly"
+					vars.searchstrings.list["hideout lilly"] := {}
+				}
+			}
+			Else IniDelete, % "ini\search-strings.ini", % "hideout lilly", % "00-exile leveling gems" profile
+
+			If vars.searchstrings.list["hideout lilly"]
+				Init_searchstrings()
+		}
+		Else object := {"class": class, "ascendancies": ascendancies, "gems": skillsets_final, "trees": trees, "active tree": 1}
+
 		For key, val in object
 			IniWrite, % """" (IsObject(val) ? json.dump(val) : val) """", % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB, % key
-		IniWrite, % (settings.leveltracker["guide" profile].info.bandit := bandit), % "ini" vars.poe_version "\leveling guide" profile ".ini", Info, bandit
-		;IniWrite, % """" pobString """", % "ini" vars.poe_version "\leveling guide" profile ".ini", pob, code
 		Return object
 	}
 }
@@ -2544,9 +2404,7 @@ Leveltracker_ProgressReset(profile := "")
 
 	If (settings.leveltracker.profile = profile)
 	{
-		If !custom
-			Leveltracker_Load()
-		vars.leveltracker.guide.progress := 0
+		Leveltracker_Load()
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
 	}
@@ -2771,7 +2629,7 @@ Leveltracker_Strings()
 	global vars, settings, db
 
 	strings := [], string := "", attr_check := ["str", "dex", "int"], attr_check.0 := "none"
-	For key, val in vars.leveltracker.guide.items
+	For key, val in vars.leveltracker.guide.itemList
 	{
 		If (StrLen(string "|" StrReplace(val, " ", "\s")) > 47)
 			strings.Push(string), string := StrReplace(val, " ", "\s")
@@ -2786,12 +2644,12 @@ Leveltracker_Strings()
 	If !IsObject(db.leveltracker)
 		DB_Load("leveltracker")
 
-	For key, val in vars.leveltracker.guide.gems
+	For key, val in vars.leveltracker.guide.gemList
 	{
-		regex := StrReplace(db.leveltracker.regex[val].1, " ", "."), regex := !regex ? StrReplace(val, " ", ".") : regex
+		regex := StrReplace(db.leveltracker.gems[val].regex, " ", "."), regex := !regex ? StrReplace(val, " ", ".") : regex
 		If !Blank(LLK_HasVal(vars.leveltracker.guide.group1, "fixture_of_fate", 1))
 		{
-			attr := attr_check[db.leveltracker.regex[val].2], type := InStr(val, " support") ? "_supp" : ""
+			attr := attr_check[db.leveltracker.gems[val].attribute], type := InStr(val, " support") ? "_supp" : ""
 			If (StrLen(string_%attr%%type% "|" regex) > 46)
 				strings_%attr%%type%.Push(string_%attr%%type%), string_%attr%%type% := regex
 			Else string_%attr%%type% .= (Blank(string_%attr%%type%) ? "" : "|") regex
