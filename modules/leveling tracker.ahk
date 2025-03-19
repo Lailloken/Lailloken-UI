@@ -35,6 +35,8 @@
 
 	For index0, profile in ["", 2, 3]
 	{
+		If !IsObject(settings.leveltracker["guide" profile])
+			settings.leveltracker["guide" profile] := {"info": {}}
 		If !FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
 			Continue
 		ini2 := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini")
@@ -572,6 +574,8 @@ Leveltracker_GuideEditor(cHWND)
 		If InStr(cHWND, "default")
 		{
 			profile := 0
+			If !vars.poe_version && !settings.leveltracker["guide" targetProfile].info.bandit
+				settings.leveltracker["guide" targetProfile].info.bandit := "none"
 			If (vars.settings.active = "leveling tracker")
 				Settings_menu("leveling tracker")
 			Return
