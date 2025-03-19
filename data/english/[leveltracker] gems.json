@@ -6,9 +6,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the root of the problem": {
         "quest": [
           "templar"
@@ -33,9 +30,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -44,9 +38,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -69,9 +60,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -97,9 +85,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -130,9 +115,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "duelist",
@@ -150,9 +132,6 @@
     "level": 31,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -187,9 +166,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -198,9 +174,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -227,9 +200,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "marauder",
@@ -249,9 +219,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -276,9 +243,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "vendor": []
       }
@@ -297,9 +261,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -308,9 +269,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -330,9 +288,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -385,9 +340,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar"
@@ -412,9 +364,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -423,9 +372,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -453,9 +399,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "templar"
@@ -480,9 +423,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -491,9 +431,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -514,9 +451,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -540,9 +474,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "shadow"
@@ -563,9 +494,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "vendor": [
           "duelist",
@@ -583,9 +511,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "vendor": []
       }
@@ -596,9 +521,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -621,9 +543,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "duelist",
@@ -639,9 +558,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -666,9 +582,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "vendor": [
           "duelist",
@@ -683,9 +596,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "duelist",
@@ -702,9 +612,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -739,9 +646,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -749,9 +653,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "marauder",
@@ -780,9 +681,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -791,9 +689,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -815,9 +710,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -842,9 +734,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "vendor": [
           "ranger",
@@ -859,9 +748,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -885,9 +771,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "shadow",
@@ -907,9 +790,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -934,9 +814,6 @@
           "templar"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -945,9 +822,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -970,9 +844,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "ranger",
@@ -989,9 +860,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -1026,9 +894,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1037,9 +902,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -1058,9 +920,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -1100,9 +959,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1111,9 +967,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -1139,9 +992,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "duelist",
@@ -1165,9 +1015,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1176,9 +1023,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -1202,9 +1046,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "vendor": [
           "scion",
@@ -1218,9 +1059,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -1242,9 +1080,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "vendor": [
           "duelist",
@@ -1260,9 +1095,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -1282,9 +1114,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "marauder"
@@ -1311,9 +1140,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1327,9 +1153,6 @@
           "templar"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1337,9 +1160,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1349,9 +1169,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1361,9 +1178,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1373,9 +1187,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1385,9 +1196,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1397,9 +1205,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -1422,9 +1227,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1433,9 +1235,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -1454,9 +1253,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -1505,9 +1301,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "duelist",
@@ -1552,9 +1345,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "duelist",
@@ -1582,9 +1372,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1597,9 +1384,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1608,9 +1392,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -1641,9 +1422,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1675,9 +1453,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "shadow"
@@ -1707,9 +1482,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1725,9 +1497,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1736,9 +1505,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -1763,9 +1529,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "scion",
@@ -1781,9 +1544,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -1805,9 +1565,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -1832,9 +1589,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "witch",
@@ -1856,9 +1610,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -1891,9 +1642,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1905,9 +1653,6 @@
         "quest": [
           "marauder"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -1952,9 +1697,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1963,9 +1705,6 @@
     "level": 31,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -1980,9 +1719,6 @@
           "duelist"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -1991,9 +1727,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -2018,9 +1751,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "witch"
@@ -2041,9 +1771,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "witch"
@@ -2062,9 +1789,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2092,9 +1816,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2103,9 +1824,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -2144,9 +1862,6 @@
           "templar",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2155,9 +1870,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -2171,9 +1883,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2182,9 +1891,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2210,9 +1916,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "duelist",
@@ -2228,9 +1931,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2256,9 +1956,6 @@
           "shadow",
           "scion"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -2290,9 +1987,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -2326,9 +2020,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2337,9 +2028,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -2362,9 +2050,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "witch"
@@ -2384,9 +2069,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -2414,9 +2096,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2425,9 +2104,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -2459,9 +2135,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2471,9 +2144,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2482,9 +2152,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -2516,9 +2183,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2527,9 +2191,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2542,9 +2203,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -2572,9 +2230,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "templar",
@@ -2596,9 +2251,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "templar"
@@ -2616,9 +2268,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2649,9 +2298,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2660,9 +2306,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -2694,9 +2337,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -2705,9 +2345,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -2730,9 +2367,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "marauder",
@@ -2752,9 +2386,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -2780,9 +2411,6 @@
     "level": 31,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -2826,9 +2454,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "quest": [
           "witch",
@@ -2849,9 +2474,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -2905,9 +2527,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "witch",
@@ -2936,9 +2555,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "duelist",
@@ -2954,9 +2570,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -2978,9 +2591,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -3005,9 +2615,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3016,9 +2623,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -3053,9 +2657,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "ranger"
@@ -3076,9 +2677,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "witch",
@@ -3097,9 +2695,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "marauder"
@@ -3129,9 +2724,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3140,9 +2732,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -3168,9 +2757,6 @@
           "duelist"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3179,9 +2765,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -3198,9 +2781,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -3233,9 +2813,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3244,9 +2821,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -3268,9 +2842,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -3343,9 +2914,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3357,9 +2925,6 @@
         "quest": [
           "witch"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -3375,9 +2940,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3386,9 +2948,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -3419,9 +2978,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3430,9 +2986,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -3453,9 +3006,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar",
@@ -3476,9 +3026,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -3511,9 +3058,6 @@
           "templar",
           "duelist"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3522,9 +3066,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -3555,9 +3096,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3566,9 +3104,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -3594,9 +3129,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "shadow"
@@ -3616,9 +3148,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "quest": [
           "marauder"
@@ -3636,9 +3165,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -3665,9 +3191,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "duelist"
@@ -3687,9 +3210,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "witch"
@@ -3707,9 +3227,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -3732,9 +3249,6 @@
           "ranger"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3743,9 +3257,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -3766,9 +3277,6 @@
           "ranger"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3784,9 +3292,6 @@
           "ranger",
           "scion"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -3808,9 +3313,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3819,9 +3321,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -3847,9 +3346,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "quest": [
           "witch"
@@ -3866,9 +3362,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar",
@@ -3899,9 +3392,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3924,9 +3414,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3947,9 +3434,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3966,9 +3450,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -3977,9 +3458,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -4014,9 +3492,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4037,9 +3512,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4057,9 +3529,6 @@
           "templar",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4080,9 +3549,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4109,9 +3575,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "marauder"
@@ -4131,9 +3594,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4142,9 +3602,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -4173,9 +3630,6 @@
           "marauder",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4184,9 +3638,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -4209,9 +3660,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "duelist",
@@ -4229,9 +3677,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -4250,9 +3695,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "duelist",
@@ -4280,9 +3722,6 @@
           "marauder",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4295,9 +3734,6 @@
           "templar"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4306,9 +3742,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -4326,9 +3759,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -4363,9 +3793,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4374,9 +3801,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -4400,9 +3824,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "witch",
@@ -4422,9 +3843,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -4448,9 +3866,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "templar"
@@ -4472,9 +3887,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "witch",
@@ -4493,9 +3905,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch"
@@ -4513,9 +3922,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -4537,9 +3943,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -4553,9 +3956,6 @@
         "quest": [
           "shadow"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -4576,9 +3976,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4597,9 +3994,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4612,9 +4006,6 @@
           "duelist",
           "ranger"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -4630,9 +4021,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4641,9 +4029,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -4668,9 +4053,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -4704,9 +4086,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4715,9 +4094,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -4737,9 +4113,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "vendor": [
           "scion",
@@ -4754,9 +4127,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -4776,9 +4146,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar"
@@ -4795,9 +4162,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -4823,9 +4187,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4839,9 +4200,6 @@
           "duelist",
           "ranger"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -4857,9 +4215,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -4868,9 +4223,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -4887,9 +4239,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -4911,9 +4260,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "ranger",
@@ -4931,9 +4277,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "ranger",
@@ -4949,9 +4292,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -4975,9 +4315,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "marauder"
@@ -4998,9 +4335,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "quest": [
           "witch"
@@ -5017,9 +4351,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -5047,9 +4378,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5058,9 +4386,6 @@
     "level": 31,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -5076,9 +4401,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5087,9 +4409,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -5120,9 +4439,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5131,9 +4447,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -5154,9 +4467,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "duelist",
@@ -5173,9 +4483,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5184,9 +4491,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -5219,9 +4523,6 @@
           "shadow",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5230,9 +4531,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -5250,9 +4548,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -5277,9 +4572,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "duelist"
@@ -5297,9 +4589,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -5325,9 +4614,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5336,9 +4622,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -5365,9 +4648,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "duelist",
@@ -5390,9 +4670,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5401,9 +4678,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -5433,9 +4707,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -5478,9 +4749,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5489,9 +4757,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -5511,9 +4776,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -5549,9 +4811,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5560,9 +4819,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -5585,9 +4841,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute2": {
         "quest": [
           "witch"
@@ -5608,9 +4861,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "ranger",
@@ -5626,9 +4876,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -5649,9 +4896,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -5675,9 +4919,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5686,9 +4927,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -5712,9 +4950,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "quest": [
           "ranger"
@@ -5731,9 +4966,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "vendor": []
       }
@@ -5748,9 +4980,6 @@
           "witch"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -5759,9 +4988,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -5788,9 +5014,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "quest": [
           "templar",
@@ -5807,9 +5030,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "shadow"
@@ -5827,9 +5047,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -5854,9 +5071,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -5894,9 +5108,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "mercy mission": {
         "quest": [
           "duelist",
@@ -5918,9 +5129,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute2": {
         "quest": [
           "ranger"
@@ -5933,9 +5141,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -5971,9 +5176,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6016,9 +5218,6 @@
           "marauder"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6026,9 +5225,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar",
@@ -6043,9 +5239,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -6065,9 +5258,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -6119,9 +5309,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6146,9 +5333,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "marauder"
@@ -6167,9 +5351,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -6201,9 +5382,6 @@
           "ranger",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6212,9 +5390,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -6234,9 +5409,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -6265,9 +5437,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6276,9 +5445,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -6298,9 +5464,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -6328,9 +5491,6 @@
           "witch",
           "shadow"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -6361,9 +5521,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "duelist",
@@ -6385,9 +5542,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "duelist",
@@ -6403,9 +5557,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -6433,9 +5584,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "vendor": [
           "ranger",
@@ -6453,9 +5601,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "vendor": [
           "scion",
@@ -6470,9 +5615,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -6512,9 +5654,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "marauder",
@@ -6536,9 +5675,6 @@
           "scion"
         ]
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "mercy mission": {
         "vendor": [
           "templar",
@@ -6559,9 +5695,6 @@
           "marauder",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6575,9 +5708,6 @@
           "marauder",
           "duelist"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -6599,9 +5729,6 @@
           "ranger",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6610,9 +5737,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -6647,9 +5771,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6658,9 +5779,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -6676,9 +5794,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -6698,9 +5813,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "vendor": [
           "duelist",
@@ -6718,9 +5830,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "vendor": [
           "scion",
@@ -6736,9 +5845,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -6789,9 +5895,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "marauder"
@@ -6810,9 +5913,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -6835,9 +5935,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -6868,9 +5965,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6879,9 +5973,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -6904,9 +5995,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "scion"
@@ -6926,9 +6014,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -6958,9 +6043,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -6973,9 +6055,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "ranger",
@@ -6991,9 +6070,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -7024,9 +6100,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7034,9 +6107,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "ranger"
@@ -7084,9 +6154,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "quest": [
           "witch"
@@ -7109,9 +6176,6 @@
           "witch"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7120,9 +6184,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -7139,9 +6200,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7166,9 +6224,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "ranger"
@@ -7187,9 +6242,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7214,9 +6266,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7225,9 +6274,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -7251,9 +6297,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "shadow"
@@ -7271,9 +6314,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7305,9 +6345,6 @@
           "duelist",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7328,9 +6365,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7339,9 +6373,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -7364,9 +6395,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sharp and cruel": {
         "quest": [
           "templar",
@@ -7386,9 +6414,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -7421,9 +6446,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7432,9 +6454,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7465,9 +6484,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7476,9 +6492,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -7499,9 +6512,6 @@
     "quests": {
       "a fixture of fate": {
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7521,9 +6531,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7532,9 +6539,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -7566,9 +6570,6 @@
           "scion",
           "ranger"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7590,9 +6591,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7610,9 +6608,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7621,9 +6616,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -7655,9 +6647,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7666,9 +6655,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7691,9 +6677,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -7726,9 +6709,6 @@
           "shadow",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7737,9 +6717,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -7762,9 +6739,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -7786,9 +6760,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "marauder",
@@ -7803,9 +6774,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "templar"
@@ -7826,9 +6794,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "lost in love": {
         "quest": [
           "witch"
@@ -7847,9 +6812,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7879,9 +6841,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7902,9 +6861,6 @@
           "scion",
           "ranger"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7913,9 +6869,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the root of the problem": {
@@ -7958,9 +6911,6 @@
           "duelist",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -7969,9 +6919,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -7991,9 +6938,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -8017,9 +6961,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "templar"
@@ -8040,9 +6981,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "ranger"
@@ -8061,9 +6999,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -8097,9 +7032,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8108,9 +7040,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -8139,9 +7068,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8159,9 +7085,6 @@
           "shadow",
           "scion"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -8181,9 +7104,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8202,9 +7122,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8222,9 +7139,6 @@
           "shadow",
           "scion"
         ],
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       }
     }
@@ -8244,9 +7158,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8255,9 +7166,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -8290,9 +7198,6 @@
           "templar",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8301,9 +7206,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -8325,9 +7227,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute2": {
         "quest": [
           "witch"
@@ -8345,9 +7244,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -8378,9 +7274,6 @@
           "scion"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8389,9 +7282,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -8412,9 +7302,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -8440,9 +7327,6 @@
           "shadow"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8451,9 +7335,6 @@
     "level": 4,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "mercy mission": {
@@ -8479,9 +7360,6 @@
           "templar"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8490,9 +7368,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -8512,9 +7387,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -8538,9 +7410,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "vendor": [
           "duelist",
@@ -8558,9 +7427,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -8592,9 +7458,6 @@
           "ranger",
           "witch"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8612,9 +7475,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8623,9 +7483,6 @@
     "level": 28,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sever the right hand": {
@@ -8647,9 +7504,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -8693,9 +7547,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "vendor": [
           "duelist",
@@ -8711,9 +7562,6 @@
     "attribute": 1,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "marauder",
@@ -8733,9 +7581,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -8762,9 +7607,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute1": {
         "quest": [
           "witch",
@@ -8786,9 +7628,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute2": {
         "quest": [
           "shadow"
@@ -8807,9 +7646,6 @@
     "attribute": 3,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "witch",
@@ -8836,9 +7672,6 @@
           "duelist"
         ],
         "vendor": []
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8852,9 +7685,6 @@
           "duelist",
           "ranger"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8863,9 +7693,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -8887,9 +7714,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "shadow"
@@ -8907,9 +7731,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -8952,9 +7773,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -8962,9 +7780,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "shadow"
@@ -8991,9 +7806,6 @@
           "scion",
           "shadow"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -9002,9 +7814,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -9023,9 +7832,6 @@
     "level": 8,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute1": {
@@ -9061,9 +7867,6 @@
           "shadow",
           "scion"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -9072,9 +7875,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the siren's cadence": {
@@ -9097,9 +7897,6 @@
     "level": 18,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "sharp and cruel": {
@@ -9138,9 +7935,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "mercy mission": {
         "quest": [
           "duelist",
@@ -9166,9 +7960,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the siren's cadence": {
         "quest": [
           "shadow"
@@ -9188,9 +7979,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "vendor": [
           "scion",
@@ -9206,9 +7994,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -9244,9 +8029,6 @@
           "scion",
           "templar"
         ]
-      },
-      "fallen from grace": {
-        "vendor": []
       }
     }
   },
@@ -9255,9 +8037,6 @@
     "level": 16,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "intruders in black": {
@@ -9281,9 +8060,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "intruders in black": {
         "quest": [
           "templar"
@@ -9302,9 +8078,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -9328,9 +8101,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "quest": [
           "ranger"
@@ -9350,9 +8120,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "sever the right hand": {
         "vendor": [
           "scion",
@@ -9368,9 +8135,6 @@
     "level": 12,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the root of the problem": {
@@ -9398,9 +8162,6 @@
       "a fixture of fate": {
         "vendor": []
       },
-      "fallen from grace": {
-        "vendor": []
-      },
       "the caged brute2": {
         "quest": [
           "witch"
@@ -9419,9 +8180,6 @@
     "level": 10,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "the caged brute2": {
@@ -9443,9 +8201,6 @@
     "attribute": 2,
     "level": 38,
     "quests": {
-      "fallen from grace": {
-        "vendor": []
-      },
       "the eternal nightmare": {
         "quest": [
           "ranger",
@@ -9465,9 +8220,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
@@ -9490,9 +8242,6 @@
     "level": 24,
     "quests": {
       "a fixture of fate": {
-        "vendor": []
-      },
-      "fallen from grace": {
         "vendor": []
       },
       "lost in love": {
