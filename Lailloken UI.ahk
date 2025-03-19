@@ -424,7 +424,6 @@ Init_vars()
 	, "Amulets": 1, "Rings": 1, "Belts": 1, "Gloves": 2, "Boots": 2, "Body Armours": 2, "Helmets": 2
 	, "Quivers": 1, "Foci": 1, "Shields": 2, "Jewels": 1, "Life Flasks": 1, "Mana Flasks": 1, "Charms": 1}
 
-	vars.leveltracker := {}
 	vars.lang := {}, vars.lang2 := {}
 	vars.log := {} ;store data related to the game's log here
 	vars.mapinfo := {}
@@ -487,7 +486,7 @@ IniIntegrityCheck()
 LLK_FileCheck() ;delete old files (or ones that have been moved elsewhere)
 {
 	For index, val in ["Atlas.ini", "Betrayal.json", "essences.json", "help tooltips.json", "lang_english.txt", "Map mods.ini", "Betrayal.ini", "timeless jewels\", "item info\", "leveling tracker\"
-		, "english\eldritch altars.json", "english\[leveltracker] default guide 2.txt"]
+		, "english\eldritch altars.json", "english\[leveltracker] default guide 2.txt", "english\[leveltracker] quests.json", "english\[leveltracker] gem regex 2.json", "global\[leveltracker] gem regex.json"]
 		If FileExist("data\" val)
 		{
 			FileDelete, data\%val%

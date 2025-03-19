@@ -32,12 +32,10 @@ DB_Load(database)
 		If !vars.poe_version
 			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
 			, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] gems.json") ? lang : "english") "\[leveltracker] gems.json"))
-			, "quests": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] quests.json") ? lang : "english") "\[leveltracker] quests.json"))
-			, "regex": Json.Load(LLK_FileRead("data\global\[leveltracker] gem regex.json"))
 			, "trees": {"supported": ["3_25", "3_25_alternate"]}}
 		Else
 			db.leveltracker := {"areaIDs": {}, "areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
-			, "trees": {"supported": ["0_1"]}, "regex": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gem regex 2.json") ? lang2 : "english") "\[leveltracker] gem regex 2.json"))}
+			, "trees": {"supported": ["0_1"]}, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gems 2.json") ? lang2 : "english") "\[leveltracker] gems 2.json"))}
 
 		For iAct, aAct in db.leveltracker.areas
 			For iArea, oArea in aAct

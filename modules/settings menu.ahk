@@ -1604,9 +1604,11 @@ Settings_leveltracker()
 		vars.hwnd.settings.geartracker := hwnd, vars.hwnd.help_tooltips["settings_leveltracker geartracker"] := hwnd
 		Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked"settings.leveltracker.layouts, % Lang_Trans("m_lvltracker_zones")
 		vars.hwnd.settings.layouts := hwnd, vars.hwnd.help_tooltips["settings_leveltracker layouts"] := hwnd
+		style := "ys"
 	}
+	Else style := "xs"
 
-	Gui, %GUI%: Add, Checkbox, % "xs Section gSettings_leveltracker2 HWNDhwnd Checked" settings.leveltracker.hotkeys, % Lang_Trans("m_lvltracker_hotkeys")
+	Gui, %GUI%: Add, Checkbox, % "Section " style " gSettings_leveltracker2 HWNDhwnd Checked" settings.leveltracker.hotkeys, % Lang_Trans("m_lvltracker_hotkeys")
 	vars.hwnd.settings.hotkeys_enable := vars.hwnd.help_tooltips["settings_leveltracker hotkeys enable"] := hwnd
 	If settings.leveltracker.hotkeys
 	{
@@ -1630,6 +1632,13 @@ Settings_leveltracker()
 	vars.hwnd.help_tooltips["settings_leveltracker guide info"] := hwnd
 
 	handle := "", files := [], bandits := ["none", "alira", "kraityn", "oak"]
+	LLK_PanelDimensions([Lang_Trans("global_import")], settings.general.fSize, wImport, hImport)
+	LLK_PanelDimensions([Lang_Trans("global_edit")], settings.general.fSize, wEdit, hEdit)
+	LLK_PanelDimensions([Lang_Trans("m_lvltracker_leaguestart")], settings.general.fSize, wLeague, hLeague)
+	If (wLeague > wEdit + wImport + settings.general.fWidth/4)
+		wEdit := wLeague - wImport - settings.general.fWidth/4
+	Else wLeague := wEdit + wImport + settings.general.fWidth/4
+
 	For index, val in ["", 2, 3]
 	{
 		file := !FileExist("ini" vars.poe_version "\leveling guide" val ".ini") ? " cGray" : ""
@@ -1638,12 +1647,12 @@ Settings_leveltracker()
 
 		If !file
 		{
-			Gui, %GUI%: Add, Text, % "ys Section x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1", % " " Lang_Trans("global_import") " "
+			Gui, %GUI%: Add, Text, % "ys Section x+"settings.general.fWidth/4 " Center Border gSettings_leveltracker2 HWNDhwnd1 w" wImport, % Lang_Trans("global_import")
 			vars.hwnd.settings["profile" val] := vars.hwnd.help_tooltips["settings_leveltracker profile select" handle] := hwnd0
-			vars.hwnd.settings["import" val] := vars.hwnd.help_tooltips["settings_leveltracker import" . vars.poe_version . handle] := hwnd1
-			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_edit", % " " Lang_Trans("global_edit") " "
+			vars.hwnd.settings["import" val] := vars.hwnd.help_tooltips["settings_leveltracker import" handle] := hwnd1
+			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd_edit w" wEdit, % Lang_Trans("global_edit")
 			vars.hwnd.settings["editprofile" val] := vars.hwnd.help_tooltips["settings_leveltracker editor" handle] := hwnd_edit
-			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans " (!file ? "gSettings_leveltracker2" : "cGray") " HWNDhwnd2", % " " Lang_Trans("m_lvltracker_reset") " "
+			Gui, %GUI%: Add, Text, % "ys x+"settings.general.fWidth/4 " Center Border BackgroundTrans gSettings_leveltracker2 HWNDhwnd2", % " " Lang_Trans("m_lvltracker_reset") " "
 			Gui, %GUI%: Add, Progress, % "xp yp wp hp Border Disabled BackgroundBlack cRed HWNDhwnd3 Vertical Range0-500", 0
 			Gui, %GUI%: Font, % "s" settings.general.fSize - 4
 			Gui, %GUI%: Add, Edit, % "ys x+" settings.general.fWidth/4 " cBlack HWNDhwnd4 Limit r1 w" settings.general.fWidth*12 . (!file ? " gSettings_leveltracker2" : " Disabled")
@@ -1660,7 +1669,8 @@ Settings_leveltracker()
 				vars.hwnd.settings["pobpreview" val "_bar"] := hwnd7
 			}
 
-			Gui, %GUI%: Add, Text, % "Section xs y+" settings.general.fWidth/4 " Border gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray"), % " " Lang_Trans("m_lvltracker_leaguestart") " "
+			Gui, %GUI%: Add, Text, % "Section xs y+" settings.general.fWidth/4 " Border Center gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray") " w" wLeague
+			, % Lang_Trans("m_lvltracker_leaguestart")
 			vars.hwnd.settings["leaguestart_" val] := vars.hwnd.help_tooltips["settings_leveltracker leaguestart" handle] := hwnd
 
 			If !vars.poe_version
@@ -1747,7 +1757,7 @@ Settings_leveltracker2(cHWND := "")
 			IniWrite, % (timer.current_split0 := timer.current_split), % "ini" vars.poe_version "\leveling tracker.ini", % "current run" settings.leveltracker.profile, time
 		IniWrite, % settings.features.leveltracker, % "ini" vars.poe_version "\config.ini", features, enable leveling guide
 		Leveltracker_Toggle("destroy"), LLK_Overlay(vars.hwnd.geartracker.main, "destroy")
-		vars.leveltracker := {}, vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
+		vars.leveltracker := "", vars.hwnd.Delete("leveltracker"), vars.hwnd.Delete("geartracker")
 		If settings.features.leveltracker
 			Init_leveltracker()
 		Settings_menu("leveling tracker"), Init_GUI()
@@ -1905,7 +1915,7 @@ Settings_leveltracker2(cHWND := "")
 		GuiControl, movedraw, % vars.hwnd.settings["profile" settings.leveltracker.profile]
 		If vars.leveltracker.skilltree_schematics.GUI
 			Leveltracker_PobSkilltree("close")
-		Leveltracker_Load(), Init_leveltracker()
+		Init_leveltracker(), Leveltracker_Load()
 		If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
 			Leveltracker_Progress(1)
 	}
@@ -1943,6 +1953,12 @@ Settings_leveltracker2(cHWND := "")
 				Leveltracker_PobSkilltree("close")
 			IniDelete, % "ini" vars.poe_version "\leveling guide" profile ".ini", PoB
 			Init_leveltracker()
+			If (profile = settings.leveltracker.profile)
+			{
+				Leveltracker_Load()
+				If LLK_Overlay(vars.hwnd.leveltracker.main, "check")
+					Leveltracker_Progress(1)
+			}
 			Settings_menu("leveling tracker")
 			Return
 		}
@@ -2573,7 +2589,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 		Init_hotkeys()
 
 	vars.settings.xMargin := settings.general.fWidth*0.75, vars.settings.yMargin := settings.general.fHeight*0.15, vars.settings.line1 := settings.general.fHeight/4
-	vars.settings.spacing := settings.general.fHeight*0.8, vars.settings.wait := 1
+	vars.settings.spacing := settings.general.fHeight*0.8, vars.settings.wait := 1, vars.settings.last_refresh := A_TickCount
 
 	If !IsNumber(mode)
 		mode := 0
