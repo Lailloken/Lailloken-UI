@@ -372,6 +372,10 @@
       "if a pob import with gems is present and league-start is disabled, some gem quests may be replaced with hideout lilly instead",
       "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
+    "leveltracker leaguestart 2": [
+      "choose whether quests/objectives that only need to be done once per league should be shown or not",
+      "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
+    ],
     "leveltracker reset": [
       "long-click to reset the progress in this guide slot and start over"
     ],

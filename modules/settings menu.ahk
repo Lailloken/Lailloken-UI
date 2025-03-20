@@ -1671,7 +1671,7 @@ Settings_leveltracker()
 
 			Gui, %GUI%: Add, Text, % "Section xs y+" settings.general.fWidth/4 " Border Center gSettings_leveltracker2 HWNDhwnd c" (settings.leveltracker["guide" val].info.leaguestart ? "Lime" : "Gray") " w" wLeague
 			, % Lang_Trans("m_lvltracker_leaguestart")
-			vars.hwnd.settings["leaguestart_" val] := vars.hwnd.help_tooltips["settings_leveltracker leaguestart" handle] := hwnd
+			vars.hwnd.settings["leaguestart_" val] := vars.hwnd.help_tooltips["settings_leveltracker leaguestart" vars.poe_version handle] := hwnd
 
 			If !vars.poe_version
 			{
