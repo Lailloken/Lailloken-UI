@@ -63,8 +63,8 @@
       ],
       "lines": [
         "tarkleigh: <breaking_some_eggs1>, <breaking_some_eggs2>",
-      "nessa: <mercy_mission>",
-      "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
+        "nessa: <mercy_mission>",
+        "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
       ]
     },
     {
@@ -74,8 +74,8 @@
       ],
       "lines": [
         "tarkleigh: <breaking_some_eggs1>, <breaking_some_eggs2>",
-      "(img:waypoint) to (color:FEC076)your_hideout, lilly: <mercy_mission> ;; this line only shows with imported PoB",
-      "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
+        "(img:waypoint) to (color:FEC076)your_hideout, lilly: <mercy_mission> ;; this line only shows with imported PoB",
+        "(img:waypoint) to areaid1_1_4_1 ;; the submerged passage"
       ]
     },
     [
@@ -115,8 +115,8 @@
       ],
       "lines": [
         "complete the (img:lab) trial",
-      "(hint)_____usually (img:1) in the zone",
-      "enter areaid1_1_7_2 ;; the upper prison"
+        "(hint)_____usually (img:1) in the zone",
+        "enter areaid1_1_7_2 ;; the upper prison"
       ]
     },
     {
@@ -175,7 +175,7 @@
     [
       "find (quest:slave_girl), take (quest:allflame)",
       "(hint)_____search opposite the entrance",
-      "enter (img:arena) areaid1_1_9, kill fairgraves ;; the ship graveyard",
+      "enter areaid1_1_9, kill fairgraves ;; the ship graveyard",
       "relog to areaid1_1_town (img:town) ;; lioneye's watch"
     ],
     [
@@ -245,7 +245,7 @@
       ],
       "lines": [
         "find and kill the_great_white_beast",
-      "relog to areaid1_2_town (img:town) ;; the forest encampment"
+        "relog to areaid1_2_town (img:town) ;; the forest encampment"
       ]
     },
     {
@@ -255,7 +255,7 @@
       ],
       "lines": [
         "yeena: <the_great_white_beast>",
-      "(img:waypoint) to areaid1_2_3 ;; the crossroads"
+        "(img:waypoint) to areaid1_2_3 ;; the crossroads"
       ]
     },
     {
@@ -370,7 +370,11 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira", "oak"]
+        [
+          "none",
+          "alira",
+          "oak"
+        ]
       ],
       "lines": [
         "silk: <sharp_and_cruel>",
@@ -380,7 +384,11 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira", "oak"]
+        [
+          "none",
+          "alira",
+          "oak"
+        ]
       ],
       "lines": [
         "go (img:1), enter areaid1_2_4 ;; the broken bridge"
@@ -389,17 +397,23 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira", "oak"]
+        [
+          "none",
+          "alira",
+          "oak"
+        ]
       ],
       "lines": [
         "follow the road, kill kraityn for (quest:kraityn's_amulet)",
-      "relog to areaid1_2_town (img:town) ;; the forest encampment"
+        "relog to areaid1_2_town (img:town) ;; the forest encampment"
       ]
     },
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "silk: <sharp_and_cruel>",
@@ -409,7 +423,9 @@
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "enter areaid1_2_12 ;; the wetlands",
@@ -419,7 +435,10 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira"]
+        [
+          "none",
+          "alira"
+        ]
       ],
       "lines": [
         "(img:waypoint) to areaid1_2_7 ;; the riverways"
@@ -428,7 +447,10 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira"]
+        [
+          "none",
+          "alira"
+        ]
       ],
       "lines": [
         "enter areaid1_2_12 ;; the wetlands",
@@ -438,18 +460,24 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira", "kraityn"]
+        [
+          "none",
+          "alira",
+          "kraityn"
+        ]
       ],
       "lines": [
         "find and kill oak for (quest:oak's_amulet)",
-      "(img:waypoint) to areaid1_2_9 ;; the western forest",
-      "(hint)_____usually (img:7) or (img:1) from oak's camp, rarely (img:5)"
+        "(img:waypoint) to areaid1_2_9 ;; the western forest",
+        "(hint)_____usually (img:7) or (img:1) from oak's camp, rarely (img:5)"
       ]
     },
     {
       "condition": [
         "bandit",
-        ["oak"]
+        [
+          "oak"
+        ]
       ],
       "lines": [
         "(img:waypoint) to areaid1_2_9 ;; the western forest"
@@ -458,7 +486,11 @@
     {
       "condition": [
         "bandit",
-        ["none", "kraityn", "oak"]
+        [
+          "none",
+          "kraityn",
+          "oak"
+        ]
       ],
       "lines": [
         "find and kill alira for (quest:alira's_amulet)",
@@ -470,7 +502,9 @@
     {
       "condition": [
         "bandit",
-        ["alira"]
+        [
+          "alira"
+        ]
       ],
       "lines": [
         "help (color:ff8111)alira, take (quest:the_apex)",
@@ -482,7 +516,9 @@
     {
       "condition": [
         "bandit",
-        ["none"]
+        [
+          "none"
+        ]
       ],
       "lines": [
         "eramir: <deal_with_the_bandits>, take (quest:the_apex)",
@@ -492,7 +528,11 @@
     {
       "condition": [
         "bandit",
-        ["alira", "kraityn", "oak"]
+        [
+          "alira",
+          "kraityn",
+          "oak"
+        ]
       ],
       "lines": [
         "(img:waypoint) to areaid1_1_town (img:town) ;; lioneye's watch"
@@ -501,7 +541,9 @@
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "bestel: <the_way_forward>",
@@ -511,7 +553,9 @@
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "go (img:1), enter areaid1_2_4 ;; the broken bridge"
@@ -520,17 +564,21 @@
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "follow the road, help (color:ff8111)kraityn, take (quest:the_apex)",
-      "relog to areaid1_2_town (img:town) ;; the forest encampment"
+        "relog to areaid1_2_town (img:town) ;; the forest encampment"
       ]
     },
     {
       "condition": [
         "bandit",
-        ["oak"]
+        [
+          "oak"
+        ]
       ],
       "lines": [
         "bestel: <the_way_forward>",
@@ -540,7 +588,9 @@
     {
       "condition": [
         "bandit",
-        ["oak"]
+        [
+          "oak"
+        ]
       ],
       "lines": [
         "enter areaid1_2_12 ;; the wetlands",
@@ -550,7 +600,9 @@
     {
       "condition": [
         "bandit",
-        ["oak"]
+        [
+          "oak"
+        ]
       ],
       "lines": [
         "find and help (color:ff8111)oak, take (quest:the_apex)",
@@ -561,7 +613,10 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira"]
+        [
+          "none",
+          "alira"
+        ]
       ],
       "lines": [
         "bestel: <the_way_forward>",
@@ -571,7 +626,9 @@
     {
       "condition": [
         "bandit",
-        ["kraityn"]
+        [
+          "kraityn"
+        ]
       ],
       "lines": [
         "(img:waypoint) to areaid1_2_12 ;; the wetlands"
@@ -580,7 +637,11 @@
     {
       "condition": [
         "bandit",
-        ["none", "alira", "kraityn"]
+        [
+          "none",
+          "alira",
+          "kraityn"
+        ]
       ],
       "lines": [
         "poison the (quest:tree_roots), enter areaid1_2_11 ;; the vaal ruins"
@@ -1364,8 +1425,8 @@
       ],
       "lines": [
         "enter (img:arena) prison_rooftop, kill shavronne_&_brutus",
-      "enter (img:arena) the_warden's_chambers",
-      "activate the (img:craft), enter areaid2_6_8 ;; prisoner's gate"
+        "enter (img:arena) the_warden's_chambers",
+        "activate the (img:craft), enter areaid2_6_8 ;; prisoner's gate"
       ]
     },
     {
