@@ -36,7 +36,7 @@
 	For index0, profile in ["", 2, 3]
 	{
 		If !IsObject(settings.leveltracker["guide" profile])
-			settings.leveltracker["guide" profile] := {"info": {}}
+			settings.leveltracker["guide" profile] := {"info": {"leaguestart": 1}}
 		If !FileExist("ini" vars.poe_version "\leveling guide" profile ".ini")
 			Continue
 		ini2 := IniBatchRead("ini" vars.poe_version "\leveling guide" profile ".ini")
@@ -832,7 +832,7 @@ Leveltracker_GuideEditor(cHWND)
 	For index, vAct in (vars.poe_version ? [1, 2, 3, 1, 2, 3] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 	{
 		Gui, %GUI_name%: Add, Text, % "ys Border Center BackgroundTrans gLeveltracker_GuideEditor HWNDhwnd" (index = 1 ? " x+0" : "") " w" settings.leveltracker.fWidth_editor * 2.5 (vars.poe_version && A_Index > 3 ? " cFF8000" : ""), % vAct
-		Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (vars.leveltracker_editor.act = index ? "404040" : "Black"), 100
+		Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (vars.leveltracker_editor.act = index ? "202060" : "Black"), 100
 		vars.hwnd.leveltracker_editor["act_" index] := hwnd
 	}
 
@@ -901,7 +901,7 @@ Leveltracker_GuideEditor(cHWND)
 		Gui, %GUI_name%: Add, Text, % (xPage + wPage >= wEdit - wPage ? "xs Section" : "ys") . (A_Index = 1 ? " Section x+" margin : "") " Border HWNDhwnd BackgroundTrans gLeveltracker_GuideEditor Center"
 		. " w" settings.leveltracker.fWidth_editor*2.5 . (!vars.poe_version && vars.leveltracker_editor.guide[act][A_Index].condition.1 = "bandit" ? " cYellow" : ""), % A_Index
 		If (A_Index = page[act] || LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1))
-			Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (A_Index = page[act] ? "505050" : LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1) ? "303030" : "Black"), 100
+			Gui, %GUI_name%: Add, Progress, % "Disabled xp yp wp hp Border BackgroundBlack c" (A_Index = page[act] ? "202060" : LLK_IsBetween(A_Index, page[act] - 1, page[act] + 1) ? "505090" : "Black"), 100
 		vars.hwnd.leveltracker_editor["page_" A_Index] := hwnd
 		ControlGetPos, xPage, yPage, wPage, hPage,, ahk_id %hwnd%
 	}
@@ -1009,7 +1009,12 @@ Leveltracker_Hints()
 	Gui, leveltracker_hints: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
 
 	If pic
-		Gui, leveltracker_hints: Add, Pic, % "Section w" vars.leveltracker.coords.w " h-1 Border", % "img\GUI\leveling tracker\hints" vars.poe_version "\" pic ".jpg"
+	{
+		pBitmap := Gdip_CreateBitmapFromFile("img\GUI\leveling tracker\hints" vars.poe_version "\" pic ".jpg")
+		pBitmap_resize := Gdip_ResizeBitmap(pBitmap, vars.leveltracker.coords.w, 10000, 1,, 1), Gdip_DisposeBitmap(pBitmap)
+		hbmBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap_resize, 0), Gdip_DisposeBitmap(pBitmap_resize)
+		Gui, leveltracker_hints: Add, Pic, % "Section Border", % "HBitmap:" hbmBitmap
+	}
 	If craft
 	{
 		If !vars.pics.leveltracker.craft
@@ -1457,7 +1462,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 		guide.gemList := [], guide.itemList := []
 		For index_raw, step in guide.group1
 		{
-			If LLK_PatternMatch(step, "", [Lang_Trans("lvltracker_recommended"), Lang_Trans("lvltracker_recommended", 2)]) && !settings.leveltracker.recommend
+			If !vars.poe_version && LLK_PatternMatch(step, "", [Lang_Trans("lvltracker_recommended"), Lang_Trans("lvltracker_recommended", 2)]) && !settings.leveltracker.recommend
 				Continue
 
 			step := StrReplace(step, ", <breaking_some_eggs2>")
@@ -1516,17 +1521,15 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 					If InStr(part, "(quest:")
 						replace := SubStr(text, InStr(text, "(quest:")), replace := SubStr(replace, 1, InStr(replace, ")")), item := StrReplace(SubStr(replace, InStr(replace, ":") + 1), ")"), text := StrReplace(text, replace, item)
 					If (text_parts[index - 1] = "(img:arena)")
-					{
-						color := "White"
-						Gui, %name_main%: Font, % "underline"
-					}
+						color := "AAAAAA"
 					Else color := InStr(part, "areaid") ? "FEC076" : kill && (part != "everything") || InStr(part, "arena:") ? "FF8111" : InStr(part, "<") ? "FFDB1F" : InStr(part, "(quest:") ? "Lime" : InStr(part, "trial") || InStr(part, "_lab") ? "569777" : "White"
 					If InStr(part, "(color:")
 						color := SubStr(part, InStr(part, "(color:") + 7), color := SubStr(color, 1, InStr(color, ")") - 1), text := StrReplace(text, "(color:"color ")")
 					If InStr(step, "(hint)")
 						Gui, %name_main%: Font, % "s"settings.leveltracker.fSize - 2
-					If vars.leveltracker.hints[StrReplace(part, "_", " ")]
-						color := "Aqua"
+					For key in vars.leveltracker.hints
+						If InStr(StrReplace(part, "_", " "), key)
+							color := "Aqua"
 					If InStr(part, "<" StrReplace(text, " ", "_") ">") && IsNumber(SubStr(text, 0))
 						text := SubStr(text, 1, -1)
 					Gui, %name_main%: Add, Text, % style " c"color, % (index = text_parts.MaxIndex()) || spacing_check || InStr(text_parts[index + 1], "(img:") ? text : text " "
