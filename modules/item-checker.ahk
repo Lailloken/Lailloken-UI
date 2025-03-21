@@ -8,11 +8,6 @@
 	If !FileExist("ini" vars.poe_version "\item-checker gear.ini")
 		IniWrite, % "", % "ini" vars.poe_version "\item-checker gear.ini", amulet
 
-	lang := settings.general.lang_client
-	If !vars.poe_version && !IsObject(db.anoints)
-		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\anoints.json") ? lang : "english") "\anoints.json",, "65001"))
-	,	db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\essences.json") ? lang : "english") "\essences.json",, "65001"))
-
 	settings.iteminfo := {}, ini := IniBatchRead("ini" vars.poe_version "\item-checker.ini")
 	settings.iteminfo.profile := !Blank(check := ini.settings["current profile"]) ? check : 1
 	settings.iteminfo.modrolls := !Blank(check := ini.settings["hide roll-ranges"]) ? check : (vars.poe_version ? 0 : 1)
@@ -140,6 +135,9 @@ Iteminfo(refresh := 0) ; refresh: 1 to refresh it normally, 2 for clipboard pars
 	}
 	UI.segments := 10 ;number of segments the tooltip is made of, i.e. the tooltip is 10 standardized widths wide
 	UI.hDivider := UI.hSegment//9 ;thickness of the dividing lines between implicits, prefixes, suffixes, etc.
+
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	If (refresh = 1) ;refresh tooltip after changing settings in the menu, i.e. use the previously omni-clicked item's info and redraw the tooltip with new settings
 	{
@@ -308,6 +306,8 @@ Iteminfo_Stats()
 	Else item.type := ""
 
 	item.ilvl_max := "86", item.stats := {} ;list of stats that will later be listed in the optional base-info area of the tooltip
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	For class, class_val in db.item_bases ;parse through the item-databases to get relevant information
 	{
@@ -620,6 +620,9 @@ Iteminfo_Mods()
 	If item.itembase && InStr("crimson jewel, viridian jewel, cobalt jewel", item.itembase)
 		item.class := "base jewels"
 
+	If !IsObject(db.anoints)
+		DB_Load("anoints")
+
 	Loop, Parse, clip2, | ;remove unnecessary item-info: implicits, crafted mods, etc.
 	{
 		If (A_Index = 1)
@@ -845,6 +848,9 @@ Iteminfo_GUI()
 	Gui, %GUI_name%: Font, % "cWhite s"settings.iteminfo.fSize, % vars.system.font
 	hwnd_old := vars.hwnd.iteminfo.main, vars.hwnd.iteminfo := {"main": iteminfo, "inverted_mods": {}}
 
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
+
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;////////////////////////////////////////// DPS area
@@ -1033,6 +1039,8 @@ Iteminfo_GUI()
 				}
 				Else If (item.anoint != "") ;for anointed items
 				{
+					If !IsObject(db.anoints)
+						DB_Load("anoints")
 					width := UI.wSegment * 0.5, loop_count += 1
 					filler_width := (item.rarity != Lang_Trans("items_unique")) ? (UI.segments - loop_count*1.25 + 1) * UI.wSegment : (UI.segments - loop_count*1.25 + 2.5) * UI.wSegment
 				}
@@ -1302,6 +1310,9 @@ Iteminfo_GUI()
 		If settings.iteminfo.ilvl && (item.class != "base jewels") ;if item-levels are enabled, look them up in the databases
 		{
 			ilvl := "??" ;set placeholder ilvl
+			If !IsObject(db.item_mods)
+				DB_Load("item_mods")
+
 			For key, val in db.item_mods[db.item_mods.HasKey(search_class) ? search_class : "universal"]
 			{
 				If (val.affix = name) && (val.type = affix_type)
@@ -1327,6 +1338,9 @@ Iteminfo_GUI()
 
 		If (settings.general.lang_client = "english") && (item.class = "base jewels") ;for base/generic jewels, look up mod-weights
 		{
+			If !IsObject(db.item_mods)
+				DB_Load("item_mods")
+
 			For key, val in db.item_mods["base jewels"]
 			{
 				If (val.affix = name) ;affix names match
@@ -1480,6 +1494,9 @@ Iteminfo_GUI()
 
 	If unique
 	{
+		If !IsObject(db.item_drops)
+			DB_Load("item_drops")
+		
 		If roll_stats.Count()
 			Gui, %GUI_name%: Add, Progress, % "xs w" UI.wSegment*UI.segments " Disabled h" UI.hDivider " BackgroundWhite",
 		If db.item_drops[item.name]

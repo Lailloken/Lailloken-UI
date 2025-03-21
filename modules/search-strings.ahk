@@ -107,7 +107,6 @@ String_ContextMenu(name := "")
 	Gui, searchstrings_context: New, -Caption +LastFound +AlwaysOnTop +ToolWindow +Border HWNDhwnd
 	Gui, searchstrings_context: Margin, % settings.general.fWidth, % settings.general.fHeight/3
 	Gui, searchstrings_context: Color, Black
-	WinSet, Transparent, % settings.general.trans
 	Gui, searchstrings_context: Font, % "s"settings.general.fSize " cWhite", % vars.system.font
 	vars.hwnd.searchstrings_context := hwnd, vars.searchstrings.active := [name]
 

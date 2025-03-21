@@ -48,48 +48,6 @@
 	settings.mapinfo.roll_colors := [!Blank(check := ini.UI["map rolls text color"]) ? check : "00FF00", !Blank(check1 := ini.UI["map rolls back color"]) ? check1 : "000000"]
 	Loop 6
 		settings.mapinfo.roll_requirements[Lang_Trans("maps_stats_full", A_Index + 1)] := !Blank(check := ini.UI[Lang_Trans("maps_stats_full", A_Index + 1) " requirement"]) ? check : ""
-
-	lang := settings.general.lang_client, db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
-	Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" lang "\map-info" vars.poe_version ".txt") ? lang : "english") "\map-info" vars.poe_version ".txt", 1), "`t"), `n, `r
-	{
-		section := (SubStr(A_LoopField, 1, 1) = "[") ? LLK_StringRemove(SubStr(A_LoopField, 2, InStr(A_LoopField, "]") - 2), "# , #") : section
-		If !A_LoopField || (SubStr(A_LoopField, 1, 1) = ";") || (SubStr(A_LoopField, 1, 1) = "[")
-		{
-			line := ""
-			Continue
-		}
-		line := InStr(A_LoopField, ";##") ? SubStr(A_LoopField, 1, InStr(A_LoopField, ";##") - 1) : A_LoopField
-		key := InStr(line, "=") ? SubStr(line, 1, InStr(line, "=") - 1) : "", val := InStr(line, "=") ? SubStr(line, InStr(line, "=") + 1) : ""
-
-		If (section = "Map Names") && InStr(line, "=")
-			db.mapinfo.localization[key] := val
-		Else If LLK_PatternMatch(section, "", ["mod types", "expedition areas"])
-			db.mapinfo[section].Push(line)
-		Else If (section = "expedition groups")
-			db.mapinfo[section][key] := val
-		Else If LLK_PatternMatch(key, "", ["type", "text", "ID"])
-		{
-			If !IsObject(db.mapinfo.mods[section])
-				db.mapinfo.mods[section] := {}
-			If settings.general.dev && (key = "ID") && db.mapinfo.mods[section].ID
-				MsgBox, % "duplicate: " section
-			db.mapinfo.mods[section][key] := StrReplace(val, "&", "&&")
-			If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
-				MsgBox, % "invalid mod-type for:`n" section
-		}
-	}
-
-	Loop, Parse, % StrReplace(LLK_FileRead("data\global\Atlas.txt", 1), "`t"), `n, `r
-	{
-		val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
-		maps .= StrReplace(val, ",", " (" A_Index "),") ;create a list of all maps
-		Sort, val, D`,
-		db.mapinfo.maps[A_Index] := StrReplace(SubStr(val, 1, -1), ",", "`n") ;store tier X maps here
-	}
-	Sort, maps, D`,
-	Loop, Parse, % LLK_StringCase(maps), `,
-		If A_LoopField
-			db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] .= !db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] ? A_LoopField : "`n" A_LoopField ;store maps starting with a-z here
 }
 
 Mapinfo_GUI(mode := 1)
@@ -369,6 +327,9 @@ Mapinfo_Parse(mode := 1, poe_version := "")
 		Return 0
 	}
 
+	If !IsObject(db.mapinfo)
+		DB_Load("mapinfo")
+
 	expedition_groups := db.mapinfo["expedition groups"].Clone(), vars.mapinfo.expedition_areas := db.mapinfo["expedition areas"].Clone(), vars.mapinfo.categories := db.mapinfo["mod types"].Clone(), vars.mapinfo.active_map := {}
 	For index, category in vars.mapinfo.categories
 		vars.mapinfo.active_map[category] := []
@@ -554,6 +515,9 @@ Mapinfo_Parse2(mode)
 		LLK_ToolTip(error.1, error.2,,,, error.3), LLK_Overlay(vars.hwnd.mapinfo.main, "destroy"), vars.mapinfo.active_map := ""
 		Return 0
 	}
+
+	If !IsObject(db.mapinfo)
+		DB_Load("mapinfo")
 
 	vars.mapinfo.categories := db.mapinfo["mod types"].Clone(), vars.mapinfo.active_map := {}
 	For index, category in vars.mapinfo.categories

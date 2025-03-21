@@ -1,230 +1,456 @@
-{
-  "g1_1": {
-    "name": "the riverbank",
-    "act": "1"
-  },
-  "g1_town": {
-    "name": "clearfell encampment",
-    "act": "1"
-  },
-  "g1_2": {
-    "name": "clearfell",
-    "act": "1"
-  },
-  "g1_3": {
-    "name": "mud burrow",
-    "act": "1"
-  },
-  "g1_4": {
-    "name": "the grelwood",
-    "act": "1"
-  },
-  "g1_5": {
-    "name": "the red vale",
-    "act": "1"
-  },
-  "g1_6": {
-    "name": "the grim tangle",
-    "act": "1"
-  },
-  "g1_7": {
-    "name": "cemetery of the eternals",
-    "act": "1"
-  },
-  "g1_8": {
-    "name": "mausoleum of the praetor",
-    "act": "1"
-  },
-  "g1_9": {
-    "name": "tomb of the consort",
-    "act": "1"
-  },
-  "g1_10": {
-    "name": "root hollow",
-    "act": "1"
-  },
-  "g1_11": {
-    "name": "hunting grounds",
-    "act": "1"
-  },
-  "g1_12": {
-    "name": "freythorn",
-    "act": "1"
-  },
-  "g1_13_1": {
-    "name": "ogham farmlands",
-    "act": "1"
-  },
-  "g1_13_2": {
-    "name": "ogham village",
-    "act": "1"
-  },
-  "g1_14": {
-    "name": "the manor ramparts",
-    "act": "1"
-  },
-  "g1_15": {
-    "name": "ogham manor",
-    "act": "1"
-  },
-  "g2_1": {
-    "name": "vastiri outskirts",
-    "act": "2"
-  },
-  "g2_town": {
-    "name": "the ardura caravan",
-    "act": "2"
-  },
-  "g2_2": {
-    "name": "traitor's passage",
-    "act": "2"
-  },
-  "g2_3": {
-    "name": "the halani gates",
-    "act": "2"
-  },
-  "g2_3a": {
-    "name": "the halani gates",
-    "act": "2"
-  },
-  "g2_4_1": {
-    "name": "keth",
-    "act": "2"
-  },
-  "g2_4_2": {
-    "name": "the lost city",
-    "act": "2"
-  },
-  "g2_4_3": {
-    "name": "buried shrines",
-    "act": "2"
-  },
-  "g2_5_1": {
-    "name": "mastodon badlands",
-    "act": "2"
-  },
-  "g2_5_2": {
-    "name": "the bone pits",
-    "act": "2"
-  },
-  "g2_6": {
-    "name": "valley of the titans",
-    "act": "2"
-  },
-  "g2_7": {
-    "name": "the titan grotto",
-    "act": "2"
-  },
-  "g2_8": {
-    "name": "deshar",
-    "act": "2"
-  },
-  "g2_9_1": {
-    "name": "path of mourning",
-    "act": "2"
-  },
-  "g2_9_2": {
-    "name": "the spires of deshar",
-    "act": "2"
-  },
-  "g2_10_1": {
-    "name": "mawdun quarry",
-    "act": "2"
-  },
-  "g2_10_2": {
-    "name": "mawdun mine",
-    "act": "2"
-  },
-  "g2_12_1": {
-    "name": "the dreadnought",
-    "act": "2"
-  },
-  "g2_12_2": {
-    "name": "dreadnought vanguard",
-    "act": "2"
-  },
-  "g2_13": {
-    "name": "trial of the sekhemas",
-    "act": "2"
-  },
-  "g3_1": {
-    "name": "sandswept marsh",
-    "act": "3"
-  },
-  "g3_town": {
-    "name": "ziggurat encampment",
-    "act": "3"
-  },
-  "g3_2_1": {
-    "name": "infested barrens",
-    "act": "3"
-  },
-  "g3_2_2": {
-    "name": "the matlan waterways",
-    "act": "3"
-  },
-  "g3_3": {
-    "name": "jungle ruins",
-    "act": "3"
-  },
-  "g3_4": {
-    "name": "the venom crypts",
-    "act": "3"
-  },
-  "g3_5": {
-    "name": "chimeral wetlands",
-    "act": "3"
-  },
-  "g3_6_1": {
-    "name": "jiquani's machinarium",
-    "act": "3"
-  },
-  "g3_6_2": {
-    "name": "jiquani's sanctum",
-    "act": "3"
-  },
-  "g3_7": {
-    "name": "the azak bog",
-    "act": "3"
-  },
-  "g3_8": {
-    "name": "the drowned city",
-    "act": "3"
-  },
-  "g3_9": {
-    "name": "the molten vault",
-    "act": "3"
-  },
-  "g3_10": {
-    "name": "the trial of chaos",
-    "act": "3"
-  },
-  "g3_10_airlock": {
-    "name": "the temple of chaos",
-    "act": "3"
-  },
-  "g3_11": {
-    "name": "apex of filth",
-    "act": "3"
-  },
-  "g3_12": {
-    "name": "temple of kopec",
-    "act": "3"
-  },
-  "g3_14": {
-    "name": "utzaal",
-    "act": "3"
-  },
-  "g3_16": {
-    "name": "aggorat",
-    "act": "3"
-  },
-  "g3_17": {
-    "name": "the black chambers",
-    "act": "3"
-  },
-  "g_endgame_town": {
-    "name": "the ziggurat refuge",
-    "act": "11"
-  }
-}
+[
+  [
+    {
+      "id": "g1_1",
+      "name": "the riverbank"
+    },
+    {
+      "id": "g1_town",
+      "name": "clearfell encampment"
+    },
+    {
+      "id": "g1_2",
+      "name": "clearfell"
+    },
+    {
+      "id": "g1_3",
+      "name": "mud burrow"
+    },
+    {
+      "id": "g1_4",
+      "name": "the grelwood"
+    },
+    {
+      "id": "g1_5",
+      "name": "the red vale"
+    },
+    {
+      "id": "g1_6",
+      "name": "the grim tangle"
+    },
+    {
+      "id": "g1_7",
+      "name": "cemetery of the eternals"
+    },
+    {
+      "id": "g1_8",
+      "name": "mausoleum of the praetor"
+    },
+    {
+      "id": "g1_9",
+      "name": "tomb of the consort"
+    },
+    {
+      "id": "g1_10",
+      "name": "root hollow"
+    },
+    {
+      "id": "g1_11",
+      "name": "hunting grounds"
+    },
+    {
+      "id": "g1_12",
+      "name": "freythorn"
+    },
+    {
+      "id": "g1_13_1",
+      "name": "ogham farmlands"
+    },
+    {
+      "id": "g1_13_2",
+      "name": "ogham village"
+    },
+    {
+      "id": "g1_14",
+      "name": "the manor ramparts"
+    },
+    {
+      "id": "g1_15",
+      "name": "ogham manor"
+    }
+  ],
+  [
+    {
+      "id": "g2_1",
+      "name": "vastiri outskirts"
+    },
+    {
+      "id": "g2_town",
+      "name": "the ardura caravan"
+    },
+    {
+      "id": "g2_2",
+      "name": "traitor's passage"
+    },
+    {
+      "id": "g2_3a",
+      "name": "the halani gates"
+    },
+    {
+      "id": "g2_3",
+      "name": "the halani gates"
+    },
+    {
+      "id": "g2_4_1",
+      "name": "keth"
+    },
+    {
+      "id": "g2_4_2",
+      "name": "the lost city"
+    },
+    {
+      "id": "g2_4_3",
+      "name": "buried shrines"
+    },
+    {
+      "id": "g2_5_1",
+      "name": "mastodon badlands"
+    },
+    {
+      "id": "g2_5_2",
+      "name": "the bone pits"
+    },
+    {
+      "id": "g2_6",
+      "name": "valley of the titans"
+    },
+    {
+      "id": "g2_7",
+      "name": "the titan grotto"
+    },
+    {
+      "id": "g2_8",
+      "name": "deshar"
+    },
+    {
+      "id": "g2_9_1",
+      "name": "path of mourning"
+    },
+    {
+      "id": "g2_9_2",
+      "name": "the spires of deshar"
+    },
+    {
+      "id": "g2_10_1",
+      "name": "mawdun quarry"
+    },
+    {
+      "id": "g2_10_2",
+      "name": "mawdun mine"
+    },
+    {
+      "id": "g2_12_1",
+      "name": "the dreadnought"
+    },
+    {
+      "id": "g2_12_2",
+      "name": "dreadnought vanguard"
+    },
+    {
+      "id": "g2_13",
+      "name": "trial of the sekhemas"
+    }
+  ],
+  [
+    {
+      "id": "g3_1",
+      "name": "sandswept marsh"
+    },
+    {
+      "id": "g3_town",
+      "name": "ziggurat encampment"
+    },
+    {
+      "id": "g3_2_1",
+      "name": "infested barrens"
+    },
+    {
+      "id": "g3_2_2",
+      "name": "the matlan waterways"
+    },
+    {
+      "id": "g3_4",
+      "name": "the venom crypts"
+    },
+    {
+      "id": "g3_3",
+      "name": "jungle ruins"
+    },
+    {
+      "id": "g3_5",
+      "name": "chimeral wetlands"
+    },
+    {
+      "id": "g3_6_1",
+      "name": "jiquani's machinarium"
+    },
+    {
+      "id": "g3_6_2",
+      "name": "jiquani's sanctum"
+    },
+    {
+      "id": "g3_7",
+      "name": "the azak bog"
+    },
+    {
+      "id": "g3_8",
+      "name": "the drowned city"
+    },
+    {
+      "id": "g3_9",
+      "name": "the molten vault"
+    },
+    {
+      "id": "g3_10_airlock",
+      "name": "the temple of chaos"
+    },
+    {
+      "id": "g3_11",
+      "name": "apex of filth"
+    },
+    {
+      "id": "g3_12",
+      "name": "temple of kopec"
+    },
+    {
+      "id": "g3_14",
+      "name": "utzaal"
+    },
+    {
+      "id": "g3_16",
+      "name": "aggorat"
+    },
+    {
+      "id": "g3_17",
+      "name": "the black chambers"
+    }
+  ],
+  [
+    {
+      "id": "c_g1_1",
+      "name": "the riverbank"
+    },
+    {
+      "id": "c_g1_town",
+      "name": "clearfell encampment"
+    },
+    {
+      "id": "c_g1_2",
+      "name": "clearfell"
+    },
+    {
+      "id": "c_g1_3",
+      "name": "mud burrow"
+    },
+    {
+      "id": "c_g1_4",
+      "name": "the grelwood"
+    },
+    {
+      "id": "c_g1_5",
+      "name": "the red vale"
+    },
+    {
+      "id": "c_g1_6",
+      "name": "the grim tangle"
+    },
+    {
+      "id": "c_g1_7",
+      "name": "cemetery of the eternals"
+    },
+    {
+      "id": "c_g1_8",
+      "name": "mausoleum of the praetor"
+    },
+    {
+      "id": "c_g1_9",
+      "name": "tomb of the consort"
+    },
+    {
+      "id": "c_g1_10",
+      "name": "root hollow"
+    },
+    {
+      "id": "c_g1_11",
+      "name": "hunting grounds"
+    },
+    {
+      "id": "c_g1_12",
+      "name": "freythorn"
+    },
+    {
+      "id": "c_g1_13_1",
+      "name": "ogham farmlands"
+    },
+    {
+      "id": "c_g1_13_2",
+      "name": "ogham village"
+    },
+    {
+      "id": "c_g1_14",
+      "name": "the manor ramparts"
+    },
+    {
+      "id": "c_g1_15",
+      "name": "ogham manor"
+    }
+  ],
+  [
+    {
+      "id": "c_g2_1",
+      "name": "vastiri outskirts"
+    },
+    {
+      "id": "c_g2_town",
+      "name": "the ardura caravan"
+    },
+    {
+      "id": "c_g2_2",
+      "name": "traitor's passage"
+    },
+    {
+      "id": "c_g2_3a",
+      "name": "the halani gates"
+    },
+    {
+      "id": "c_g2_3",
+      "name": "the halani gates"
+    },
+    {
+      "id": "c_g2_4_1",
+      "name": "keth"
+    },
+    {
+      "id": "c_g2_4_2",
+      "name": "the lost city"
+    },
+    {
+      "id": "c_g2_4_3",
+      "name": "buried shrines"
+    },
+    {
+      "id": "c_g2_5_1",
+      "name": "mastodon badlands"
+    },
+    {
+      "id": "c_g2_5_2",
+      "name": "the bone pits"
+    },
+    {
+      "id": "c_g2_6",
+      "name": "valley of the titans"
+    },
+    {
+      "id": "c_g2_7",
+      "name": "the titan grotto"
+    },
+    {
+      "id": "c_g2_8",
+      "name": "deshar"
+    },
+    {
+      "id": "c_g2_9_1",
+      "name": "path of mourning"
+    },
+    {
+      "id": "c_g2_9_2",
+      "name": "the spires of deshar"
+    },
+    {
+      "id": "c_g2_10_1",
+      "name": "mawdun quarry"
+    },
+    {
+      "id": "c_g2_10_2",
+      "name": "mawdun mine"
+    },
+    {
+      "id": "c_g2_12_1",
+      "name": "the dreadnought"
+    },
+    {
+      "id": "c_g2_12_2",
+      "name": "dreadnought vanguard"
+    }
+  ],
+  [
+    {
+      "id": "c_g3_1",
+      "name": "sandswept marsh"
+    },
+    {
+      "id": "c_g3_town",
+      "name": "ziggurat encampment"
+    },
+    {
+      "id": "c_g3_2_1",
+      "name": "infested barrens"
+    },
+    {
+      "id": "c_g3_2_2",
+      "name": "the matlan waterways"
+    },
+    {
+      "id": "c_g3_4",
+      "name": "the venom crypts"
+    },
+    {
+      "id": "c_g3_3",
+      "name": "jungle ruins"
+    },
+    {
+      "id": "c_g3_5",
+      "name": "chimeral wetlands"
+    },
+    {
+      "id": "c_g3_6_1",
+      "name": "jiquani's machinarium"
+    },
+    {
+      "id": "c_g3_6_2",
+      "name": "jiquani's sanctum"
+    },
+    {
+      "id": "c_g3_7",
+      "name": "the azak bog"
+    },
+    {
+      "id": "c_g3_8",
+      "name": "the drowned city"
+    },
+    {
+      "id": "c_g3_9",
+      "name": "the molten vault"
+    },
+    {
+      "id": "c_g3_10_airlock",
+      "name": "the temple of chaos"
+    },
+    {
+      "id": "c_g3_11",
+      "name": "apex of filth"
+    },
+    {
+      "id": "c_g3_12",
+      "name": "temple of kopec"
+    },
+    {
+      "id": "c_g3_14",
+      "name": "utzaal"
+    },
+    {
+      "id": "c_g3_16",
+      "name": "aggorat"
+    },
+    {
+      "id": "c_g3_17",
+      "name": "the black chambers"
+    }
+  ],
+  [
+    {
+      "id": "g_endgame_town",
+      "name": "the ziggurat refuge"
+    }
+  ]
+]

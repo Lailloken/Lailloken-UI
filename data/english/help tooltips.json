@@ -294,9 +294,9 @@
     ],
     "leveltracker timer": [
       "adds a timer between guide text and navigation buttons that records your act times and stores them in csv-files",
-      "it consists of total time (left), act # (middle), current act time (right)",
-      "click < act # > to pause/resume the timer, hold <right-click> to reset it for a new run",
-      "how to reset: create a new character, enter twilight strand, hold <right-click> on <act#>, then click it to start the new run"
+      "timer structure:\ntotal time | act # | current act time",
+      "click <act #> to pause/resume the timer, long-right-click it to reset for a new run",
+      "how to reset: create a new character, enter the first zone, long-right-click on <act #>, then click it to start the new run"
     ],
     "leveltracker timer-pause": [
       "automatically pauses the timer in hideouts, and resumes it when you leave"
@@ -310,6 +310,9 @@
     "leveltracker fade mouse": [
       "overlay will be shown while hovering the cursor over its previous area",
       "has no effect while the move key is pressed (customizable in the hotkeys section)"
+    ],
+    "leveltracker recommendation": [
+      "includes level recommendations for some areas or boss fights"
     ],
     "leveltracker geartracker": [
       "notifies you when new gear can be equipped (the guide button will show a green number)",
@@ -333,7 +336,7 @@
       "deleting them is only required if the schematics are outdated or otherwise incorrect"
     ],
     "leveltracker pob manual": [
-      "the overlay will use manual screen-caps instead of schematics generated via pob's data"
+      "the overlay will use manual screen-caps instead of schematics rendered from pob's data"
     ],
     "leveltracker pob": [
       "m-mouse in pob will open the screen-cap menu",
@@ -347,34 +350,37 @@
       "opens the folder with overlay images",
       "if you want to edit the images yourself, you can move them to this folder manually"
     ],
-    "leveltracker generate": [
-      "exile-leveling is used to generate and export the guide data"
-    ],
     "leveltracker profile select": [
-      "click to activate this guide slot",
-      "each slot has its own data for: guide & progress, gear, skill-tree, timer"
+      "click to activate this guide slot"
     ],
     "leveltracker import": [
-      "imports guide data from clipboard into this guide slot",
-      "(/underline)note: importing will reset the <mule> checkbox"
+      "imports pob data or custom guides from clipboard into this guide slot",
+      "importing will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
-    "leveltracker import 2": [
-      "imports guide or pob data from clipboard into this guide slot",
-      "importing a guide will reset your progress:\nyou can long-click the \">\" button in the guide-overlay to re-sync the guide to the zone you're currently in"
+    "leveltracker default": [
+      "click to load the default guide and enable this slot"
     ],
     "leveltracker editor": [
       "opens the guide editor to load the default guide, edit the current one, or write a new one"
     ],
-    "leveltracker mule": [
-      "the guide in this slot will be treated as a mule for slot 1",
-      "the guide will end with the final gem step and automatically switch to slot 1 (or next mule) after relogging",
-      "note: toggling this box will reset this slot's guide progress"
+    "leveltracker guide info": [
+      "there are up to three individual guide slots you can use and switch between",
+      "each slot has its own data for: guide & progress, gear, skill-tree, timer"
+    ],
+    "leveltracker leaguestart": [
+      "choose whether quests/objectives that only need to be done once per league should be shown or not",
+      "if a pob import with gems is present and league-start is disabled, some gem quests may be replaced with hideout lilly instead",
+      "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
+    ],
+    "leveltracker leaguestart 2": [
+      "choose whether quests/objectives that only need to be done once per league should be shown or not",
+      "toggling this setting will reset your progress:\nyou can long-click the > button in the guide-overlay to re-sync the guide to the zone you're currently in"
     ],
     "leveltracker reset": [
       "long-click to reset the progress in this guide slot and start over"
     ],
     "leveltracker profile name": [
-      "optional: type in a description/name for the guide in this slot"
+      "optional: type in a description/name for the guide in this slot and press <enter>"
     ],
     "leveltracker pob preview": [
       "long-click to check available pob data, long-right-click to delete pob data"
@@ -383,11 +389,6 @@
       "hold <tab> to overlay images with possible zone-layouts (guide-panel shows # zl)",
       "while active, hold <middle-mouse> to view an info-panel with explanations",
       "click the overlay to toggle layout orientation, drag to move it, right-click to reset position, or scroll to resize it"
-    ],
-    "leveltracker hints": [
-      "inserts additional hints underneath specific guide-steps",
-      "these are displayed in indented lines with smaller text",
-      "if a hint is marked with a book icon, you can hold <tab> to see an illustration"
     ],
     "leveltracker hotkeys enable": [
       "allows you to switch guide-pages via customizable hotkeys"
@@ -752,8 +753,7 @@
       "opens the github page with the detailed changelog of the selected version"
     ],
     "update restart": [
-      "long-click to update and restart",
-      "active overlays and unsaved data will be lost"
+      "click to update and restart\nNOTE: active overlays and unsaved data will be lost"
     ],
     "update manual": [
       "downloads a zip-file with the complete release, then opens it and the script-folder",
@@ -849,8 +849,8 @@
   "geartracker": {
     "about": [
       "click items on the list to highlight them in in-game searches",
-      "hold <right-click> to remove an item from the list",
-      "hold the <clear> button to remove every highlighted item"
+      "long-right-click an item to remove it from the list",
+      "long-click the <clear> button to remove every highlighted item"
     ]
   },
   "lab": {
@@ -891,12 +891,28 @@
     ]
   },
   "leveltrackereditor": {
+    "conditions": [
+      "you can choose to only show/include certain guide-pages under specific conditions"
+    ],
+    "discard": [
+      "long-click to discard unsaved changes"
+    ],
+    "export": [
+      "copy the guide data into the clipboard"
+    ],
     "guide reset": [
       "long-click to load the default guide",
       "(/underline)note: your progress and custom edits will be deleted"
     ],
-    "export": [
-      "copy the guide data into the clipboard"
+    "preview": [
+      "long-click to see a preview of this guide page"
+    ],
+    "remove panel": [
+      "long-click to remove this page from the guide"
+    ],
+    "save": [
+      "long-click to save the changes to this guide slot",
+      "note: your current guide progress will be reset(/underline)"
     ]
   },
   "leveltrackerschematics": {

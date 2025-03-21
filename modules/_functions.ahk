@@ -21,6 +21,119 @@ CheckClient()
 		Return " 2"
 }
 
+DB_Load(database)
+{
+	local
+	global vars, settings, db, json
+
+	If (database = "leveltracker")
+	{
+		lang := settings.general.lang, lang2 := settings.general.lang_client
+		If !vars.poe_version
+			db.leveltracker := {"areas": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas.json") ? lang : "english") "\[leveltracker] areas.json"))
+			, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] gems.json") ? lang : "english") "\[leveltracker] gems.json"))
+			, "trees": {"supported": ["3_25", "3_25_alternate"]}}
+		Else
+			db.leveltracker := {"areaIDs": {}, "areas": json.load(LLK_FileRead("data\" (FileExist("data\" lang "\[leveltracker] areas 2.json") ? lang : "english") "\[leveltracker] areas 2.json"))
+			, "trees": {"supported": ["0_1"]}, "gems": Json.Load(LLK_FileRead("data\" (FileExist("data\" lang2 "\[leveltracker] gems 2.json") ? lang2 : "english") "\[leveltracker] gems 2.json"))}
+
+		For iAct, aAct in db.leveltracker.areas
+			For iArea, oArea in aAct
+				If oArea.crafting_recipe
+					db.leveltracker.areaIDs[oArea.id] := oArea.map_name ? {"name": oArea.name, "mapname": oArea.map_name, "craft": oArea.crafting_recipe} : {"name": oArea.name, "craft": oArea.crafting_recipe}
+				Else db.leveltracker.areaIDs[oArea.id] := oArea.map_name ? {"name": oArea.name, "mapname": oArea.map_name} : {"name": oArea.name}
+	}
+	Else If (database = "item_mods")
+		db.item_mods := Json.Load(LLK_FileRead("data\global\item mods" vars.poe_version ".json"))
+	Else If (database = "item_bases")
+		db.item_bases := Json.Load(LLK_FileRead("data\global\item bases" vars.poe_version ".json", 1))
+	Else If (database = "item_drops")
+		db.item_drops := Json.Load(LLK_FileRead("data\global\item drop-tiers" vars.poe_version ".json"))
+	Else If (database = "anoints")
+		db.anoints := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\anoints.json") ? settings.general.lang_client : "english") "\anoints.json",, "65001"))
+	Else If (database = "essences")
+		db.essences := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\essences.json") ? settings.general.lang_client : "english") "\essences.json",, "65001"))
+	Else If (database = "mapinfo")
+	{
+		db.mapinfo := {"localization": {}, "maps": {}, "mods": {}, "mod types": [], "expedition areas": [], "expedition groups": {}}
+		Loop, Parse, % StrReplace(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\map-info" vars.poe_version ".txt") ? settings.general.lang_client : "english") "\map-info" vars.poe_version ".txt", 1), "`t"), `n, `r
+		{
+			section := (SubStr(A_LoopField, 1, 1) = "[") ? LLK_StringRemove(SubStr(A_LoopField, 2, InStr(A_LoopField, "]") - 2), "# , #") : section
+			If !A_LoopField || (SubStr(A_LoopField, 1, 1) = ";") || (SubStr(A_LoopField, 1, 1) = "[")
+			{
+				line := ""
+				Continue
+			}
+			line := InStr(A_LoopField, ";##") ? SubStr(A_LoopField, 1, InStr(A_LoopField, ";##") - 1) : A_LoopField
+			key := InStr(line, "=") ? SubStr(line, 1, InStr(line, "=") - 1) : "", val := InStr(line, "=") ? SubStr(line, InStr(line, "=") + 1) : ""
+
+			If (section = "Map Names") && InStr(line, "=")
+				db.mapinfo.localization[key] := val
+			Else If LLK_PatternMatch(section, "", ["mod types", "expedition areas"])
+				db.mapinfo[section].Push(line)
+			Else If (section = "expedition groups")
+				db.mapinfo[section][key] := val
+			Else If LLK_PatternMatch(key, "", ["type", "text", "ID"])
+			{
+				If !IsObject(db.mapinfo.mods[section])
+					db.mapinfo.mods[section] := {}
+				If settings.general.dev && (key = "ID") && db.mapinfo.mods[section].ID
+					MsgBox, % "duplicate: " section
+				db.mapinfo.mods[section][key] := StrReplace(val, "&", "&&")
+				If settings.general.dev && (key = "type") && (val != "expedition") && !LLK_HasVal(db.mapinfo["mod types"], val)
+					MsgBox, % "invalid mod-type for:`n" section
+			}
+		}
+
+		Loop, Parse, % StrReplace(LLK_FileRead("data\global\Atlas.txt", 1), "`t"), `n, `r
+		{
+			val := SubStr(A_LoopField, InStr(A_LoopField, "=") + 1)
+			maps .= StrReplace(val, ",", " (" A_Index "),") ;create a list of all maps
+			Sort, val, D`,
+			db.mapinfo.maps[A_Index] := StrReplace(SubStr(val, 1, -1), ",", "`n") ;store tier X maps here
+		}
+		Sort, maps, D`,
+		Loop, Parse, % LLK_StringCase(maps), `,
+			If A_LoopField
+				db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] .= !db.mapinfo.maps[SubStr(A_LoopField, 1, 1)] ? A_LoopField : "`n" A_LoopField ;store maps starting with a-z here
+	}
+	Else If (database = "OCR")
+	{
+		tldr := Json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
+		db.altars := tldr["eldritch altars"].Clone()
+		db.altar_dictionary := []
+		For outer in ["", ""]
+			For index1, key in ["boss", "minions", "player"]
+			{
+				If (outer = 1)
+				{
+					If !IsObject(db.altars[key "_check"])
+						db.altars[key "_check"] := []
+					For index, array in db.altars[key]
+						Loop, Parse, % array.1, `n, `r
+							If !LLK_HasVal(db.altars[key "_check"], A_LoopField)
+								db.altars[key "_check"].Push(A_LoopField)
+				}
+				Else
+				{
+					For iDB, kDB in db.altars[key "_check"]
+						Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
+							If !LLK_HasVal(db.altar_dictionary, A_LoopField)
+								db.altar_dictionary.Push(A_LoopField)
+				}
+			}
+
+		db.vaalareas := tldr["vaal side areas"].Clone()
+		db.vaalareas_dictionary := []
+		For key in db.vaalareas
+			Loop, Parse, key, % A_Space
+				If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
+					db.vaalareas_dictionary.Push(A_LoopField)
+	}
+	Else If (database = "legion")
+		db.legion := Json.Load(LLK_FileRead("data\" (FileExist("data\" settings.general.lang_client "\timeless jewels.json") ? settings.general.lang_client : "english") "\timeless jewels.json"))
+}
+
 FormatSeconds(seconds, leading_zeroes := 1)  ; Convert the specified number of seconds to hh:mm:ss format.
 {
 	local
@@ -390,7 +503,10 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 	update.1 := FileExist("update\update.*") ? -1 : update.1 ;error code -1 = delete-permission
 	Loop, Files, update\lailloken-ui-*, D
 		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
+	Loop, Files, update\exile-ui-*, D
+		FileRemoveDir, % A_LoopFileLongPath, 1 ;delete any leftover folders
 	update.1 := FileExist("update\lailloken-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
+	update.1 := FileExist("update\exile-ui-*") ? -1 : update.1 ;error code -1 = delete-permission
 	FileAppend, 1, update\update.test
 	update.1 := !FileExist("update\update.test") ? -2 : update.1 ;error code -2 = write-permission
 	FileDelete, update\update.test
@@ -470,13 +586,13 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 		If (vars.update.1 >= 0)
 		{
 			FileCopyDir, % "update\update_" vars.updater.target_version.2 ".zip", update, 1
-			If ErrorLevel || !FileExist("update\lailloken-ui-*")
+			If ErrorLevel || !(FileExist("update\lailloken-ui-*") || FileExist("update\exile-ui-*"))
 				vars.update := [-6, vars.updater.target_version.1] ;error-code -6 = zip-file couldn't be extracted
 		}
 		If (vars.update.1 >= 0)
 		{
 			SplitPath, A_ScriptFullPath,, path
-			Loop, Files, update\Lailloken-ui-*, D
+			Loop, Files, % FileExist("update\exile-ui-*") ? "update\exile-ui-*" : "update\Lailloken-ui-*", D
 				Loop, Files, % A_LoopFilePath "\*", FD
 				{
 					If InStr(FileExist(A_LoopFileLongPath), "D")
@@ -492,6 +608,18 @@ UpdateCheck(timer := 0) ;checks for updates: timer param refers to whether this 
 			FileDelete, data\version_check.json
 			IniDelete, % "ini\config.ini", versions, apply update
 			LLK_Log("finished update to " vars.updater.target_version.1)
+			If (vars.updater.target_version.2 <= 15703) && !InStr(A_ScriptName, "lailloken")
+			{
+				FileDelete, Exile UI.ahk
+				Run, Lailloken UI.ahk
+				ExitApp
+			}
+			Else If (vars.updater.target_version.2 >= 15704) && InStr(A_ScriptName, "lailloken")
+			{
+				FileDelete, Lailloken UI.ahk
+				Run, Exile UI.ahk
+				ExitApp
+			}
 			Reload
 			ExitApp
 		}

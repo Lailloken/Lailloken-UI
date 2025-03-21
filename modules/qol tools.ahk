@@ -351,6 +351,9 @@ EssenceTooltip(cHWND)
 		Return
 	control := check
 
+	If !IsObject(db.essences)
+		DB_Load("essences")
+
 	name := vars.omnikey.item.name, tier := SubStr(name, 1, InStr(name, " ") - 1), tier := LLK_HasVal(db.essences._tiers, tier), left_column := [], right_column := [], columns := {}
 	For type0 in db.essences
 		If InStr(vars.omnikey.item.name, type0)
@@ -417,6 +420,9 @@ HorizonsTooltip(mode := "")
 		Loop, Parse, A_ThisHotkey
 			If LLK_IsType(A_LoopField, "alpha")
 				mode .= A_LoopField
+
+	If !IsObject(db.mapinfo)
+		DB_Load("mapinfo")
 
 	If (StrLen(mode) = 1) && LLK_IsType(mode, "alpha") && !db.mapinfo.maps[mode]
 	{

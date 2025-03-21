@@ -40,40 +40,6 @@
 		Hotkey, IfWinActive, ahk_group poe_ahk_window
 		Hotkey, % "*" (settings.OCR.hotkey_block ? "" : "~") . Hotkeys_Convert(settings.OCR.hotkey), OCR
 	}
-
-	If IsObject(db.altars)
-		Return
-
-	tldr := Json.Load(LLK_FileRead("data\english\TLDR-tooltips.json"))
-	db.altars := tldr["eldritch altars"].Clone()
-	db.altar_dictionary := []
-	For outer in ["", ""]
-		For index1, key in ["boss", "minions", "player"]
-		{
-			If (outer = 1)
-			{
-				If !IsObject(db.altars[key "_check"])
-					db.altars[key "_check"] := []
-				For index, array in db.altars[key]
-					Loop, Parse, % array.1, `n, `r
-						If !LLK_HasVal(db.altars[key "_check"], A_LoopField)
-							db.altars[key "_check"].Push(A_LoopField)
-			}
-			Else
-			{
-				For iDB, kDB in db.altars[key "_check"]
-					Loop, Parse, % StrReplace(kDB, "`n", " "), % A_Space
-						If !LLK_HasVal(db.altar_dictionary, A_LoopField)
-							db.altar_dictionary.Push(A_LoopField)
-			}
-		}
-
-	db.vaalareas := tldr["vaal side areas"].Clone()
-	db.vaalareas_dictionary := []
-	For key in db.vaalareas
-		Loop, Parse, key, % A_Space
-			If !LLK_HasVal(db.vaalareas_dictionary, A_LoopField)
-				db.vaalareas_dictionary.Push(A_LoopField)
 }
 
 OCR(mode := "GUI")
@@ -264,6 +230,9 @@ OCR_Altars()
 	hwnd_old := vars.hwnd.ocr_tooltip.main, vars.hwnd.ocr_tooltip := {"main": hwnd_altars, "type": "altars"}, panels := [[], []], header := 0, parsed_text := [[], []], header_check := ["boss", "minions", "player"]
 	header_dictionary := ["map", "boss", "gains", "eldritch", "minions", "gain", "player"], header_lookup := ["map boss gains:", "eldritch minions gain:", "player gains:"]
 	text := vars.OCR.text, square1 := vars.client.h / 20
+
+	If !IsObject(db.altars)
+		DB_Load("OCR")
 
 	Loop, Parse, text, `n, % "`r`t" A_Space
 	{
@@ -574,6 +543,9 @@ OCR_VaalAreas()
 	hwnd_old := vars.hwnd.ocr_tooltip.main, vars.hwnd.ocr_tooltip := {"main": hwnd_vaalareas, "type": "vaal areas"}
 	square1 := vars.client.h / 20, lines := {"player": [], "monsters": [], "boss": [], "area": [], "vessel": [], "z_unclear": []}
 	text := SubStr(vars.OCR.text, InStr(vars.OCR.text, ":",, 0) + 1), text := SubStr(text, InStr(text, "`n") + 1)
+
+	If !IsObject(db.vaalareas)
+		DB_Load("OCR")
 
 	Loop, Parse, text, `n, % " `r`t"
 	{

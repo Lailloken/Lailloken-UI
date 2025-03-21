@@ -1,5 +1,13 @@
 [
   [
+	["1.57.3", 15703, 1],
+	"fix: outdated tldr-tooltips mods",
+	"fix: poe2 skilltree schematics",
+	"act-tracker: poe1 version no longer requires exile-leveling imports(/highlight)",
+	"act-tracker: this update will delete previous guides and progress(/highlight)",
+	"act-tracker: revised guides, format, editor"
+  ],
+  [
 	["1.57.2", 15702],
 	"fix: item-info implicits",
 	"fix: stash-ninja bookmarking",

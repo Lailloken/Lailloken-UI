@@ -74,11 +74,11 @@
 				}
 			Case "gemnotes":
 				MouseGetPos, xMouse, yMouse
-				LevelTracker_PobGemLinks(vars.omnikey.item.name,, xMouse, yMouse + 10)
+				Leveltracker_PobGemLinks(vars.omnikey.item.name,, xMouse, yMouse + 10)
 				Omni_Release()
 				LLK_Overlay(vars.hwnd.leveltracker_gemlinks.main, "destroy"), vars.hwnd.leveltracker_gemlinks.main := ""
 			Case "gemregex":
-				LevelTracker_PobGemLinks(vars.omnikey.item.name,,,, 1)
+				Leveltracker_PobGemLinks(vars.omnikey.item.name,,,, 1)
 			Case "geartracker":
 				Geartracker_Add()
 			Case "legion":
@@ -174,7 +174,7 @@ Omnikey2()
 			Return
 		}
 
-		If (InStr(vars.log.areaID, "_town") || (vars.log.areaID = "1_3_17_1") || vars.client.stream) && vars.leveltracker.toggle && (guide.gems.Count() || guide.items.Count())
+		If (InStr(vars.log.areaID, "_town") || LLK_StringCompare(vars.log.areaID, ["hideout"]) || (vars.log.areaID = "1_3_17_1") || vars.client.stream) && vars.leveltracker.toggle && (guide.gemList.Count() || guide.itemList.Count())
 		{
 			start := A_TickCount
 			While GetKeyState(vars.omnikey.hotkey, "P") || !Blank(vars.omnikey.hotkey2) && GetKeyState(vars.omnikey.hotkey2, "P")
@@ -302,6 +302,9 @@ Omni_ContextMenu()
 {
 	local
 	global vars, settings, db
+
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	Loop 2
 	{
@@ -496,6 +499,8 @@ Omni_ItemInfo()
 
 	Iteminfo(2)
 	item := vars.omnikey.item, clip := vars.omnikey.clipboard ;short-cut variables
+	If !IsObject(db.item_bases)
+		DB_Load("item_bases")
 
 	If !vars.poe_version && item.itembase
 	{

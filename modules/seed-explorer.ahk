@@ -11,10 +11,6 @@
 
 	If !mode
 	{
-		If !FileExist("data\" settings.general.lang_client "\timeless jewels.json")
-			db.legion := Json.Load(LLK_FileRead("data\english\timeless jewels.json"))
-		Else db.legion := Json.Load(LLK_FileRead("data\" settings.general.lang_client "\timeless jewels.json"))
-
 		ini := IniBatchRead("ini" vars.poe_version "\seed-explorer.ini")
 		settings.legion := {"fSize": !Blank(check := ini.settings["font-size"]) ? check : settings.general.fSize, "profile": !Blank(check1 := ini.settings["profile"]) ? check1 : 1}
 		settings.legion.version := !Blank(check := ini.settings.version) ? check : 0
@@ -30,6 +26,9 @@ Legion(cHWND := "")
 {
 	local
 	global vars, settings, db
+
+	If !IsObject(db.legion)
+		DB_Load("legion")
 
 	check := LLK_HasVal(InStr(A_Gui, "tree") ? vars.hwnd.legion_tree : vars.hwnd.legion, cHWND), control := SubStr(check, InStr(check, "_") + 1)
 	If InStr(check, "profile_")
@@ -156,6 +155,9 @@ Legion_GUI()
 	static toggle := 0
 
 	vars.legion.width := settings.legion.fWidth*29, LLK_Overlay(vars.hwnd.legion.tooltip, "destroy"), vars.legion.tooltip := "", vars.legion.wait := 1
+	If !IsObject(db.legion)
+		DB_Load("legion")
+
 	If !IsObject(vars.legion.nodes)
 		Loop, Parse, % vars.legion.nodes, `,
 		{
@@ -288,6 +290,10 @@ Legion_Hover()
 
 	If vars.legion.wait
 		Return
+
+	If !IsObject(db.legion)
+		DB_Load("legion")
+
 	ControlGetPos,, y,, h,, % "ahk_id "vars.general.cMouse
 	check := LLK_HasVal(vars.hwnd.legion.tooltips, vars.general.cMouse), check2 := !check ? StrReplace(LLK_HasVal(vars.hwnd.legion.tooltips2, vars.general.cMouse), "_") : "0"
 	If (vars.general.cMouse = vars.hwnd.legion.treemap) && !WinExist("ahk_id "vars.hwnd.legion_tree.main)
@@ -336,6 +342,9 @@ Legion_Parse()
 		Return 0
 	}
 
+	If !IsObject(db.legion)
+		DB_Load("legion")
+
 	Loop, Parse, Clipboard, `n, `r
 	{
 		If !InStr(A_LoopField, vars.legion.leader)
@@ -382,6 +391,9 @@ Legion_Tree()
 	vars.legion.wait := 1
 	If !vars.legion.fSize_tree
 		vars.legion.fSize_tree := LLK_FontSizeGet(vars.legion.width/20, width), LLK_FontDimensions(vars.legion.fSize_tree, fHeight, fWidth), vars.legion.fWidth_tree := fWidth, vars.legion.fHeight_tree := fHeight
+
+	If !IsObject(db.legion)
+		DB_Load("legion")
 
 	toggle := !toggle, GUI_name := "tree" toggle
 	Gui, %GUI_name%: New, % "-DPIScale -Caption +LastFound +AlwaysOnTop +ToolWindow +E0x02000000 +E0x00080000 HWNDtree +Owner" Gui_Name(vars.hwnd.legion.main)

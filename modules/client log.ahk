@@ -351,7 +351,7 @@ Log_Loop(mode := 0)
 		vars.lab.rooms[vars.lab.room.1].seed := vars.log.areaseed, vars.lab.room.3 := vars.log.areaseed
 
 	If settings.features.leveltracker && (A_TickCount > vars.leveltracker.last_manual + 2000) && vars.hwnd.leveltracker.main && (vars.log.areaID = vars.leveltracker.guide.target_area) && !vars.leveltracker.fast ;advance the guide when entering target-location
-		vars.leveltracker.guide.target_area := "", Leveltracker(vars.log.areaID = "login" ? "mule" : "+")
+		vars.leveltracker.guide.target_area := "", Leveltracker("+")
 
 	If !vars.poe_version && settings.features.mapinfo && vars.mapinfo.expedition_areas && vars.log.areaname && !Blank(LLK_HasVal(vars.mapinfo.expedition_areas, vars.log.areaname)) && !vars.mapinfo.active_map.expedition_filter
 	{
@@ -394,7 +394,7 @@ Log_Parse(content, ByRef areaID, ByRef areaname, ByRef areaseed, ByRef arealevel
 			If (areaID = "c_g2_9_2_" || areaID = "c_g3_16_") ;bugged PoE2 areaIDs
 				areaID := SubStr(areaID, 1, -1)
 			date_time := SubStr(loopfield, 1, InStr(loopfield, " ",,, 2) - 1)
-			act := db.leveltracker.areas[StrReplace(areaID, vars.poe_version ? "c_" : "")].act . (vars.poe_version && InStr(areaID, "C_") ? "c" : "") ;store current act
+			act := LLK_HasVal(db.leveltracker.areas, areaID,,,, 1), act := (vars.poe_version && act > 3 ? act - 3 : act) . (vars.poe_version && InStr(areaID, "C_") ? "c" : "") ;store current act
 			arealevel := parse := SubStr(loopfield, InStr(loopfield, "level ") + 6, InStr(loopfield, " area """) - InStr(loopfield, "level ") - 6)
 			If !vars.poe_version && (parse - 67 > 0)
 				areatier := (parse - 67 < 10 ? "0" : "") parse - 67

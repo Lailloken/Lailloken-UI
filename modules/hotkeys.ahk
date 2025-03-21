@@ -359,6 +359,10 @@ Hotkeys_Tab()
 #If WinActive("ahk_group poe_ahk_window") && vars.hwnd.leveltracker.main ;pre-defined context for hotkey command
 #If (vars.log.areaID = vars.maptracker.map.id) && settings.features.maptracker && settings.maptracker.mechanics && settings.maptracker.portal_reminder && vars.maptracker.map.content.Count() && WinActive("ahk_id " vars.hwnd.poe_client) ;pre-defined context for hotkey command
 
+#If vars.hwnd.leveltracker_editor.main && (vars.general.wMouse = vars.hwnd.leveltracker_editor.main)
+WheelUp::
+WheelDown::Leveltracker_GuideEditor(A_ThisHotkey)
+
 #If vars.hwnd.stash.main && WinExist("ahk_id " vars.hwnd.stash.main) && InStr(vars.stash.hover, "tab_")
 *~LButton::Stash(StrReplace(vars.stash.hover, "tab_"))
 
