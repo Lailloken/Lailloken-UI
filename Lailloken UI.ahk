@@ -43,8 +43,8 @@ If (WinExist("ahk_class POEWindowClass") || WinExist("ahk_exe GeForceNOW.exe")) 
 LLK_Log("found game-client")
 vars.poe_version := CheckClient(), LLK_Log("--- tool launched" (vars.poe_version ? " (PoE 2)" : "") " ---")
 
-If !vars.poe_version && FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
-	IniIntegrityCheck()
+;If !vars.poe_version && FileExist("ini\") && !FileExist("ini\file check.ini") ;check ini-files for incorrect file-encoding
+;	IniIntegrityCheck()
 If LLK_IniRead("ini\config.ini", "versions", "apply update")
 {
 	UpdateCheck(2)
