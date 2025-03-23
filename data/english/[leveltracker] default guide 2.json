@@ -14,7 +14,7 @@
       ],
       "lines": [
         "find and kill beira_of_the_rotten_pack",
-        "(hint)_____follow the voice, usually (img:0) or (img:1) from the (img:waypoint)",
+        "(hint)_____follow the voice, usually (img:0) or (img:1) of the (img:waypoint)",
         "optional: kill devourer for (img:skill) in areaidg1_3 ;; mud burrow",
         "find and enter (img:checkpoint) areaidg1_4 ;; the grelwood"
       ]
@@ -26,7 +26,7 @@
       ],
       "lines": [
         "find and kill beira_of_the_rotten_pack",
-        "(hint)_____follow the voice, usually (img:0) or (img:1) from the (img:waypoint)",
+        "(hint)_____follow the voice, usually (img:0) or (img:1) of the (img:waypoint)",
         "find and enter (img:checkpoint) areaidg1_4 ;; the grelwood"
       ]
     },
@@ -200,7 +200,7 @@
     ],
     [
       "kill balbala for (quest:djinn_barya)",
-      "(hint)_____look for (img:help) and follow the wall with notes",
+      "(hint)_____find and follow the wall with paper talismans",
       "enter areaidg2_3 ;; the halani gates"
     ],
     [
@@ -458,7 +458,7 @@
       "find the (quest:dagger) and table, then place the heart and stab it",
       "(hint)_____usually (img:1) after the plaza, has (img:checkpoint) for later if (quest:heart) is missing",
       "find and enter areaidg3_17 ;; the black chambers",
-      "(hint)_____usually (img:7) from the table, has (img:checkpoint) which is often easier to find"
+      "(hint)_____usually (img:7) of the table, has (img:checkpoint) which is often easier to find"
     ],
     [
       "find and kill doryiani,_royal_thaumaturge",
@@ -484,7 +484,7 @@
       ],
       "lines": [
         "find and kill beira_of_the_rotten_pack",
-        "(hint)_____follow the voice, usually (img:0) or (img:1) from the (img:waypoint)",
+        "(hint)_____follow the voice, usually (img:0) or (img:1) of the (img:waypoint)",
         "optional: kill devourer for (img:skill) in areaidc_g1_3 ;; mud burrow",
         "find and enter (img:checkpoint) areaidc_g1_4 ;; the grelwood"
       ]
@@ -496,7 +496,7 @@
       ],
       "lines": [
         "find and kill beira_of_the_rotten_pack",
-        "(hint)_____follow the voice, usually (img:0) or (img:1) from the (img:waypoint)",
+        "(hint)_____follow the voice, usually (img:0) or (img:1) of the (img:waypoint)",
         "find and enter (img:checkpoint) areaidc_g1_4 ;; the grelwood"
       ]
     },
@@ -830,7 +830,7 @@
       "find the (quest:dagger) and table, then place the heart and stab it",
       "(hint)_____usually (img:1) after the plaza, has (img:checkpoint) for later if (quest:heart) is missing",
       "find and enter areaidc_g3_17 ;; the black chambers",
-      "(hint)_____usually (img:7) from the table, has (img:checkpoint) which is often easier to find"
+      "(hint)_____usually (img:7) of the table, has (img:checkpoint) which is often easier to find"
     ],
     [
       "find and kill doryiani,_royal_thaumaturge",
