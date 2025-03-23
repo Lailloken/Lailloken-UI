@@ -1,5 +1,9 @@
 [
   [
+	["1.57.4", 15704, 1],
+	"tool and project rebranded to exile ui (/highlight)"
+  ],
+  [
 	["1.57.3", 15703, 1],
 	"fix: outdated tldr-tooltips mods",
 	"fix: poe2 skilltree schematics",
