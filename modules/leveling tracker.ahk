@@ -539,8 +539,8 @@ Leveltracker_GuideEditor(cHWND)
 
 	If !icons
 		If vars.poe_version
-			icons := ["checkpoint", "waypoint", "portal", "arena", "quest_2", "help", 0, 1, 2, 3, 4, 5, 6, 7]
-		Else icons := ["waypoint", "portal", "arena", "quest", "help", "craft", "lab", 0, 1, 2, 3, 4, 5, 6, 7]
+			icons := ["checkpoint", "waypoint", "portal", "arena", "quest_2", "help", "in-out", "skill", "spirit", "support", 0, 1, 2, 3, 4, 5, 6, 7]
+		Else icons := ["waypoint", "portal", "arena", "quest", "help", "craft", "lab", "in-out", 0, 1, 2, 3, 4, 5, 6, 7]
 
 	If !vars.leveltracker_editor.act
 		vars.leveltracker_editor := {"act": 1, "default_guide": json.load(Trim(LLK_FileRead("data\" settings.general.lang "\[leveltracker] default guide" vars.poe_version ".json"), "`r`n ")), "page": [1]}
@@ -1466,7 +1466,7 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 				Continue
 
 			step := StrReplace(step, ", <breaking_some_eggs2>")
-			style := "Section xs", line := step, step := StrReplace(StrReplace(StrReplace(step, "): ", ") : "), ". ", " . "), ", ", " , "), kill := 0, text_parts := []
+			style := "Section xs", line := step, step := StrReplace(StrReplace(StrReplace(step, ": ", " : "), ". ", " . "), ", ", " , "), kill := 0, text_parts := []
 			If (check := InStr(step, " `;"))
 				step := SubStr(step, 1, check - 1)
 
@@ -1481,17 +1481,17 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 				text_parts.Push(A_LoopField) ;push parts into an array so the next and previous parts can be checked/predicted
 			}
 
-			If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && !guide.gemList.Count() && !guide.itemList.Count()
+			If (InStr(line, "buy gem:") || InStr(line, "buy item:")) && !guide.gemList.Count() && !guide.itemList.Count()
 			{
-				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				guide[InStr(step, "buy item:") ? "itemList" : "gemList"].Push(add)
+				add := SubStr(line, InStr(line, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
+				guide[InStr(line, "buy item:") ? "itemList" : "gemList"].Push(add)
 				buy_prompt := 1
 				Continue
 			}
-			Else If (InStr(step, "buy gem:") || InStr(step, "buy item:")) && (guide.gemList.Count() || guide.itemList.Count())
+			Else If (InStr(line, "buy gem:") || InStr(line, "buy item:")) && (guide.gemList.Count() || guide.itemList.Count())
 			{
-				add := SubStr(step, InStr(step, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
-				guide[InStr(step, "buy item:") ? "itemList" : "gemList"].Push(add)
+				add := SubStr(line, InStr(line, ":") + 2), add := InStr(add, "(") ? SubStr(add, InStr(add, ")") + 1) : add, add := StrReplace(add, "_", " ")
+				guide[InStr(line, "buy item:") ? "itemList" : "gemList"].Push(add)
 				Continue
 			}
 
