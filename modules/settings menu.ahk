@@ -2609,7 +2609,7 @@ Settings_menu(section, mode := 0, NA := 1) ;mode parameter is used when manually
 	hwnd_old := vars.hwnd.settings.main ;backup of the old GUI's HWND with which to destroy it after drawing the new one
 	vars.hwnd.settings := {"main": settings_menu, "GUI_name": GUI_name} ;settings-menu HWNDs are stored here
 
-	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Border Center BackgroundTrans gSettings_general2 HWNDhwnd", % "lailloken ui: " Lang_Trans("global_window")
+	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Border Center BackgroundTrans gSettings_general2 HWNDhwnd", % "exile ui: " Lang_Trans("global_window")
 	vars.hwnd.settings.winbar := hwnd
 	ControlGetPos,,,, hWinbar,, ahk_id %hwnd%
 	Gui, %GUI_name%: Add, Text, % "ys w"settings.general.fWidth*2 " Border Center gSettings_menuClose HWNDhwnd", % "x"

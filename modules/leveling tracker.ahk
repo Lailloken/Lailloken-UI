@@ -812,7 +812,7 @@ Leveltracker_GuideEditor(cHWND)
 	Gui, %GUI_name%: Font, % "s" settings.leveltracker.fSize_editor " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.leveltracker_editor.main, vars.hwnd.leveltracker_editor := {"main": hwnd_editor}
 
-	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Center Border gLeveltracker_GuideEditor HWNDhwnd_winbar", % " lailloken ui: " Lang_Trans("lvltracker_editor") " (" Lang_Trans("lvltracker_editor_slot") " " (!profile ? 1 : profile) ") "
+	Gui, %GUI_name%: Add, Text, % "Section x-1 y-1 Center Border gLeveltracker_GuideEditor HWNDhwnd_winbar", % " exile ui: " Lang_Trans("lvltracker_editor") " (" Lang_Trans("lvltracker_editor_slot") " " (!profile ? 1 : profile) ") "
 	Gui, %GUI_name%: Add, Text, % "ys Center Border gLeveltracker_GuideEditor HWNDhwnd_xbutton w" settings.leveltracker.fWidth_editor * 2, % "x"
 	vars.hwnd.leveltracker_editor.xbutton := hwnd_xbutton, vars.hwnd.leveltracker_editor.winbar := hwnd_winbar
 

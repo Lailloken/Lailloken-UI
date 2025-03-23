@@ -323,7 +323,7 @@ SnippingTool(mode := 0)
 	KeyWait, LButton
 	If mode && !WinExist("ahk_id " vars.hwnd.snip.main)
 	{
-		Gui, snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd, Lailloken UI: snipping widget
+		Gui, snip: New, -DPIScale +LastFound +ToolWindow +AlwaysOnTop +Resize HWNDhwnd, Exile UI: snipping widget
 		Gui, snip: Color, Aqua
 		WinSet, trans, 100
 		vars.hwnd.snip := {"main": hwnd}
