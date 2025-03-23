@@ -55,7 +55,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile 1 and 2, em
 \* = based on a user-request
 <br>
 
-### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization, functionally similar to 'Weakauras'  
+### [Clone-frames](https://github.com/Lailloken/Lailloken-UI/wiki/Clone-frames): pseudo interface-customization  
 **`Path of Exile 2 compatible`**  
 | example: rage meter | example: cooldowns / charges | example: flask status |
 |---|---|---|
@@ -71,7 +71,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile 1 and 2, em
 
 ### [Act-Tracker](https://github.com/Lailloken/Lailloken-UI/wiki/Act%E2%80%90Tracker): campaign-related QoL features
 **`Path of Exile 2 compatible`**  
-| \*automatic [exile-leveling](https://heartofphos.github.io/exile-leveling/) overlay | quick-access PoB skill-tree schematics | quick-access PoB gem setups |
+| \*automated campaign-guide overlay | quick-access PoB skilltree overlays | quick-access PoB gem setups |
 |---|---|---|
 | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_001.png) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_002.jpg) | ![image](https://raw.githubusercontent.com/Lailloken/Lailloken-UI/main/img/readme/leveltracker_003.jpg) |
 <br>
@@ -170,7 +170,7 @@ A light-weight AHK script with UI and QoL features for Path of Exile 1 and 2, em
 
 - several features use data provided by poedb
 
-- `leveling tracker` uses leveling guides generated via [exile-leveling](https://github.com/HeartofPhos/exile-leveling) and was implemented with the help of its maintainer
+- `act-tracker` has a default guide and PoB-import features that were originally derived from [exile-leveling](https://github.com/HeartofPhos/exile-leveling)
 
 - `stash-ninja` uses price-data provided by [poe.ninja](https://poe.ninja/), and bulk-exchange support was implemented with [BocikPG](https://github.com/BocikPG)'s help
 
