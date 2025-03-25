@@ -783,7 +783,7 @@ Leveltracker_GuideEditor(cHWND)
 				Return
 			}
 			If (control = "hint")
-				Clipboard := "(hint)_____" . Clipboard
+				Clipboard := "(hint)____ " . Clipboard
 			Else Clipboard := (control = "quest-name" ? "<" : "(quest:") . StrReplace(clipboard, " ", "_") . (control = "quest-name" ? ">" : ")")
 			SendInput, ^{v}
 			Return
@@ -1164,7 +1164,7 @@ Leveltracker_Load(profile := "")
 					For index, gem in vars.leveltracker.guide.gems
 						If gems[gem].quests[quest] && gems[gem].quests[quest].quest && (!gems[gem].quests[quest].quest.Count() || LLK_HasVal(gems[gem].quests[quest].quest, class))
 						{
-							new_group.Push("(hint)_____take: " ((check := gems[gem].attribute) ? "(color:" stat_colors[check] ")" : "") StrReplace(StrReplace(gem, " support"), " ", "_"))
+							new_group.Push("(hint)____ take: " ((check := gems[gem].attribute) ? "(color:" stat_colors[check] ")" : "") StrReplace(StrReplace(gem, " support"), " ", "_"))
 							vars.leveltracker.guide.gems.RemoveAt(index)
 							Continue 2
 						}
