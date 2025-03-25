@@ -128,7 +128,7 @@ String_Menu(name)
 		vars.searchstrings.menu := {}
 	vars.searchstrings.menu.active := [name, vars.searchstrings.menu.active.2], active := vars.searchstrings.menu.active
 	toggle := !toggle, GUI_name := "searchstrings_menu" toggle
-	Gui, %GUI_name%: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsearchstrings_menu, Lailloken UI: search-string configuration
+	Gui, %GUI_name%: New, -DPIScale +LastFound +AlwaysOnTop -Caption +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDsearchstrings_menu, exile UI: search-string configuration
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/4
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
