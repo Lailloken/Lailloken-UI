@@ -307,7 +307,18 @@ Leveltracker(cHWND := "", hotkey := "")
 	{
 		yTooltip := vars.leveltracker.coords.y1 - settings.general.fHeight + 1, yTooltip := (yTooltip < vars.monitor.y) ? vars.leveltracker.coords.y2 - 1 : yTooltip
 		guide := vars.leveltracker.guide
-		If (hotkey = 1 && check = "+") || (cHWND = "+") ;clicking the forward button
+		If (check = "?")
+		{
+			Leveltracker_PageDraw("guidepreview_main", "guidepreview_back", 2, wPreview, hPreview, hwnd_oldPreview), xPos := vars.general.xMouse - wPreview, yPos := vars.general.yMouse - hPreview
+			Gui_CheckBounds(xPos, yPos, wPreview, hPreview)
+			Gui, guidepreview_back: Show, % "NA x" xPos " y" yPos " w" wPreview " h" hPreview
+			Gui, guidepreview_main: Show, % "NA x" xPos " y" yPos " w" wPreview " h" hPreview
+			KeyWait, LButton
+			Gui, guidepreview_back: destroy
+			Gui, guidepreview_main: destroy
+			Return
+		}
+		Else If (hotkey = 1 && check = "+") || (cHWND = "+") ;clicking the forward button
 		{
 			progress_check := guide.progress + 1
 			While !Leveltracker("condition", progress_check + 1)
@@ -1441,19 +1452,28 @@ Leveltracker_PageDraw(name_main, name_back, preview, ByRef width, ByRef height, 
 {
 	local
 	global vars, settings, db
+	static dimensions
 
-	guide := preview ? vars.leveltracker_editor.dummy_guide : vars.leveltracker.guide, areas := db.leveltracker.areas, areaIDs := db.leveltracker.areaIDs, gems := db.leveltracker.gems
+	guide := preview ? (preview = 1 ? vars.leveltracker_editor.dummy_guide : {"group1": vars.help.settings["leveltracker guide format info"].Clone()}) : vars.leveltracker.guide
+	areas := db.leveltracker.areas, areaIDs := db.leveltracker.areaIDs, gems := db.leveltracker.gems
+	If (dimensions.1 != settings.leveltracker.fSize)
+		LLK_PanelDimensions([vars.poe_version ? Lang_Trans("lvltracker_exp") " +99" : Leveltracker_Experience()], settings.leveltracker.fSize, wExp, hExp), dimensions := [settings.leveltracker.fSize, wExp]
+	wButtons := Round(settings.leveltracker.fWidth*2)
+	While Mod(wButtons, 2)
+		wButtons += 1
+	wMin := Ceil((dimensions.2 * 2 + wButtons * 3) / settings.leveltracker.fWidth), wMin := Max(24, wMin)
+
 	Loop 2 ;create guide panel twice to check its width and correct it if necessary
 	{
 		outer := A_Index, width_comp := Floor(width / settings.leveltracker.fWidth)
 		Gui, %name_back%: New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_back"
 		Gui, %name_back%: Color, Black
 		;Gui, %name_back%: Margin, % settings.general.fWidth * (outer = 2 && width <= settings.leveltracker.fWidth * 20 ? (19 - width_comp) / 2 : 1), 0
-		WinSet, Transparent, % 100 + settings.leveltracker.trans * 30
+		WinSet, Transparent, % (preview ? 255 : 100 + settings.leveltracker.trans * 30)
 
 		Gui, %name_main%: New, % "-DPIScale +E0x20 +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDleveltracker_main +Owner" name_back
 		Gui, %name_main%: Color, Black
-		Gui, %name_main%: Margin, % settings.general.fWidth  * (outer = 2 && width <= settings.leveltracker.fWidth * 24 ? Max((24 - width_comp) / 2, 1) : 1), 0
+		Gui, %name_main%: Margin, % settings.leveltracker.fWidth  * (outer = 2 && width <= settings.leveltracker.fWidth * wMin ? Max((wMin - width_comp) / 2, 1) : 1), 0
 		WinSet, TransColor, Black
 		Gui, %name_main%: Font, % "s"settings.leveltracker.fSize " cWhite", % vars.system.font
 		If (outer = 2) && !preview
@@ -2316,7 +2336,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	wButtons := Round(settings.leveltracker.fWidth*2)
 	While Mod(wButtons, 2)
 		wButtons += 1
-	wPanels := (width - wButtons*2)/2
+	wPanels := (width - wButtons*3)/2
 
 	Gui, %GUI_name_back%: Show, % "NA w"width - 2 " h"height
 	Gui, %GUI_name_main%: Show, % "NA w"width - 2 " h"height
@@ -2333,7 +2353,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	{
 		Gui, %GUI_name_controls1%: Add, Text, % "Section 0x200 Border HWNDhwnd Center w"wPanels, % ""
 		vars.hwnd.leveltracker.dummy01 := hwnd
-		Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 BackgroundTrans Border HWNDhwnd Center w"wButtons * 2, % ""
+		Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 BackgroundTrans Border HWNDhwnd Center w"wButtons * 3, % ""
 		Gui, %GUI_name_controls1%: Add, Progress, % "xp yp hp wp Disabled HWNDhwnd BackgroundBlack cRed range0-500", 0
 		vars.hwnd.leveltracker.reset_bar := hwnd
 		Gui, %GUI_name_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"wPanels, % ""
@@ -2344,6 +2364,8 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	vars.hwnd.leveltracker.drag := hwnd0, vars.hwnd.leveltracker.dummy1 := hwnd
 	Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
 	vars.hwnd.leveltracker["-"] := hwnd
+	Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
+	vars.hwnd.leveltracker["?"] := hwnd
 	Gui, %GUI_name_controls1%: Add, Text, % "ys hp 0x200 Border HWNDhwnd Center w"wButtons, % ""
 	vars.hwnd.leveltracker["+"] := hwnd, check := 0
 	Gui, %GUI_name_controls1%: Add, Text, % "ys wp hp 0x200 Border HWNDhwnd Center w"wPanels, % ""
@@ -2363,7 +2385,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 	{
 		Gui, %GUI_name_controls2%: Add, Text, % "Section Border 0x200 BackgroundTrans HWNDhwnd Center w" wPanels (timer.current_act = 11 ? " cLime" : (timer.pause = -1) ? " cGray" : ""), % FormatSeconds(timer.total_time + (timer.current_act = 11 ? 0 : timer.current_split), 0)
 		vars.hwnd.leveltracker.timer_total := hwnd, act := (timer.current_act = 11 ? (vars.poe_version ? 6 : 10) : timer.current_act), act := vars.poe_version ? vars.leveltracker.acts[act] : act
-		Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w" wButtons * 2, % "a" act
+		Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w" wButtons * 3, % "a" act
 		vars.hwnd.leveltracker.timer_button := hwnd
 		Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w" wPanels (timer.current_act = 11 ? " cLime" : (timer.pause = -1) ? " cGray" : ""), % FormatSeconds(timer.current_split, 0)
 		vars.hwnd.leveltracker.timer_act := hwnd
@@ -2375,6 +2397,7 @@ Leveltracker_Progress(mode := 0) ;advances the guide and redraws the overlay
 		exp_info := vars.poe_version ? RegExMatch(vars.log.areaID, "i)^hideout|_town$") ? "" : Lang_Trans("lvltracker_exp") " " (level_diff > 0 ? "+" : "") level_diff : Leveltracker_Experience("", 1)
 	color := !vars.poe_version ? (!InStr(exp_info, "100%") ? "Red" : "Lime") : (Abs(level_diff) > 3 ? "Red" : Abs(level_diff) > 2 ? "FF8000" : "Lime")
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % "<"
+	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % "?"
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans Center w" wButtons, % ">"
 	Gui, %GUI_name_controls2%: Add, Text, % "ys hp Border 0x200 BackgroundTrans HWNDhwnd Center w"wPanels " c" color, % StrReplace(exp_info, (exp_info = "100%") ? "" : "100%")
 	vars.hwnd.leveltracker.experience := hwnd

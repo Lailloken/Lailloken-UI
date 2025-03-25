@@ -367,6 +367,25 @@
       "there are up to three individual guide slots you can use and switch between",
       "each slot has its own data for: guide & progress, gear, skill-tree, timer"
     ],
+    "leveltracker guide format": [
+      "long-click to view an explanation of the guide format"
+    ],
+    "leveltracker guide format info": [
+      "each line is a step you need to complete",
+      "(hint)____ indented lines provide more info for the step above",
+      "(hint)____",
+      "(color:FF00FF)x_tasks: some steps have x sub-tasks to complete",
+      "(hint)____ sub-tasks can be completed in random order or",
+      "(hint)____ at the same time, depending on the zone",
+      "(hint)____",
+      "if text is (color:00FFFF)highlighted_like_this, hold tab to see an image",
+      "(hint)____",
+      "(img:in-out) (color:FEC076)zone-name for x = \"enter zone to get x, then leave again\"",
+      "(hint)____",
+      "(img:0), (img:2): these show cardinal directions, i.e. north, east, etc.",
+      "(hint)____ direct pathing might sometimes be blocked, so you'll have to",
+      "(hint)____ walk around obstacles and find another way into that direction"
+    ],
     "leveltracker leaguestart": [
       "choose whether quests/objectives that only need to be done once per league should be shown or not",
       "if a pob import with gems is present and league-start is disabled, some gem quests may be replaced with hideout lilly instead",
