@@ -53,10 +53,25 @@
       "talk to (img:quest_2) una",
       "(img:waypoint) to areaidg1_6 ;; the grim tangle"
     ],
-    [
-      "optional: kill the_rotten_druid for (img:support)",
-      "find and enter (img:checkpoint) areaidg1_7 ;; cemetery of the eternals"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "optional: kill the_rotten_druid for (img:support)",
+        "find and enter (img:checkpoint) areaidg1_7 ;; cemetery of the eternals"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and enter (img:checkpoint) areaidg1_7 ;; cemetery of the eternals"
+      ]
+    },
     [
       "kill 2_bosses in areaidg1_8 & areaidg1_9 ;; mausoleum of the praetor & tomb of the consort",
       "(hint)____ after the arena:2nd_boss: (img:portal) to town, then (img:waypoint) to areaidg1_7 ;; cemetery of the eternals",
@@ -144,11 +159,28 @@
         "(hint)____ usually (img:0) of the (img:waypoint), but you have to loop around"
       ]
     },
-    [
-      "find and kill candlemass on the 1st floor",
-      "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
-      "kill count_geonor, enter areaidg1_town (img:town) ;; clearfell encampment"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "find and kill candlemass on the 1st floor",
+        "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
+        "kill count_geonor, enter areaidg1_town (img:town) ;; clearfell encampment"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and kill candlemass on the 1st floor",
+        "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
+        "kill count_geonor, (img:portal) to areaidg1_town (img:town) ;; clearfell encampment"
+      ]
+    },
     {
       "condition": [
         "league-start",
@@ -166,6 +198,7 @@
         "no"
       ],
       "lines": [
+        "leitis: <the_trail_of_corruption>",
         "talk to (img:quest_2) the hooded one to enter areaidg2_1 ;; vastiri outskirts"
       ]
     }
@@ -261,9 +294,9 @@
       "(img:portal) to areaidg2_town (img:town) ;; the ardura caravan"
     ],
     [
-      "talk to (img:quest_2) zarka, then (img:quest_2) asala",
+      "talk to (img:quest_2) zarka, take (quest:the_horn). talk to (img:quest_2) asala",
       "use the desert map, select areaidg2_3 ;; the halani gates",
-      "go to the front of the caravan and sound the horn",
+      "go to the front of the caravan and sound (quest:the_horn)",
       "use the desert map, enter areaidg2_8 ;; deshar"
     ],
     [
@@ -303,8 +336,8 @@
         "yes"
       ],
       "lines": [
-        "optional: find and clear orok camp for jeweller's orb",
-        "(hint)____ usually found in the jungle area at the end, has a (img:checkpoint) nearby",
+        "optional: clear orok camp for lesser jeweller's orb",
+        "(hint)____ usually in the jungle area at the end, has a (img:checkpoint)",
         "find and enter (img:checkpoint) areaidg3_town (img:town) ;; ziggurat encampment"
       ]
     },
@@ -318,7 +351,6 @@
       ]
     },
     [
-      "talk to (img:quest_2) characters",
       "enter areaidg3_3 ;; jungle ruins"
     ],
     [
@@ -420,7 +452,8 @@
         "no"
       ],
       "lines": [
-        "find and enter (img:checkpoint) areaidg3_11 ;; apex of filth"
+        "find and enter (img:checkpoint) areaidg3_11 ;; apex of filth",
+        "(hint)____ you can skip (img:arena) areaidg3_9 if you find it ;; the molten vault"
       ]
     },
     [
@@ -467,7 +500,7 @@
       ]
     },
     [
-      "find the (img:arena) stairs in the corners of the areas",
+      "find the (img:arena) stairs in the corners of the areas (triangles)",
       "kill ketzuli,_high_priest_of_the_sun",
       "talk to (img:quest_2) alva, enter areaidg3_town (img:town) ;; ziggurat encampment"
     ],
@@ -551,10 +584,25 @@
       "talk to (img:quest_2) una",
       "(img:waypoint) to areaidc_g1_6 ;; the grim tangle"
     ],
-    [
-      "optional: kill the_rotten_druid for (img:support)",
-      "find and enter (img:checkpoint) areaidc_g1_7 ;; cemetery of the eternals"
-    ],
+    {
+      "condition": [
+        "league-start",
+        "yes"
+      ],
+      "lines": [
+        "optional: kill the_rotten_druid for (img:support)",
+        "find and enter (img:checkpoint) areaidc_g1_7 ;; cemetery of the eternals"
+      ]
+    },
+    {
+      "condition": [
+        "league-start",
+        "no"
+      ],
+      "lines": [
+        "find and enter (img:checkpoint) areaidc_g1_7 ;; cemetery of the eternals"
+      ]
+    },
     [
       "kill 2_bosses in areaidc_g1_8 & areaidc_g1_9 ;; mausoleum of the praetor & tomb of the consort",
       "(hint)____ after the arena:2nd_boss: (img:portal) to town, then (img:waypoint) to areaidc_g1_7 ;; cemetery of the eternals",
@@ -617,19 +665,15 @@
         "(hint)____ usually (img:0) of the (img:waypoint), but you have to loop around"
       ]
     },
-    [
-      "find and kill candlemass on the 1st floor",
-      "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
-      "kill count_geonor, enter areaidc_g1_town (img:town) ;; clearfell encampment"
-    ],
     {
       "condition": [
         "league-start",
         "yes"
       ],
       "lines": [
-        "leitis: <the_trail_of_corruption>",
-        "talk to (img:quest_2) the hooded one to enter areaidc_g2_1 ;; vastiri outskirts"
+        "find and kill candlemass on the 1st floor",
+        "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
+        "kill count_geonor, enter areaidc_g1_town (img:town) ;; clearfell encampment"
       ]
     },
     {
@@ -638,9 +682,15 @@
         "no"
       ],
       "lines": [
-        "talk to (img:quest_2) the hooded one to enter areaidc_g2_1 ;; vastiri outskirts"
+        "find and kill candlemass on the 1st floor",
+        "(hint)____ go (img:2) to the hole, check the surroundings for the arena's (img:checkpoint)",
+        "kill count_geonor, (img:portal) to areaidc_g1_town (img:town) ;; clearfell encampment"
       ]
-    }
+    },
+    [
+        "leitis: <the_trail_of_corruption>",
+        "talk to (img:quest_2) the hooded one to enter areaidc_g2_1 ;; vastiri outskirts"
+    ]
   ],
   [
     [
@@ -723,9 +773,9 @@
       "(img:portal) to areaidc_g2_town (img:town) ;; the ardura caravan"
     ],
     [
-      "talk to (img:quest_2) zarka, then (img:quest_2) asala",
+      "talk to (img:quest_2) zarka, take (quest:the_horn). talk to (img:quest_2) asala",
       "use the desert map, select areaidc_g2_3 ;; the halani gates",
-      "go to the front of the caravan and sound the horn",
+      "go to the front of the caravan and sound (quest:the_horn)",
       "use the desert map, enter areaidc_g2_8 ;; deshar"
     ],
     [
@@ -763,7 +813,6 @@
       "find and enter (img:checkpoint) areaidc_g3_town (img:town) ;; ziggurat encampment"
     ],
     [
-      "talk to (img:quest_2) characters",
       "enter areaidc_g3_3 ;; jungle ruins"
     ],
     [
@@ -854,7 +903,7 @@
       "follow the stairs (img:3), enter areaidc_g3_12 ;; temple of kopec"
     ],
     [
-      "find the (img:arena) stairs in the corners of the areas",
+      "find the (img:arena) stairs in the corners of the areas (triangles)",
       "kill ketzuli,_high_priest_of_the_sun",
       "talk to (img:quest_2) alva, enter areaidc_g3_town (img:town) ;; ziggurat encampment"
     ],
