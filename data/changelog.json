@@ -1,0 +1,240 @@
+[
+  [
+	["1.57.4", 15704, 1],
+	"requires manual install, check full release notes(/highlight)",
+	"tool and project rebranded to exile ui(/highlight)",
+	"fix: stash-ninja bulk-selling interfered with ctrl-right-clicking",
+	"act-tracker: added help button with format-info to guide overlay",
+	"act-tracker: various poe2 tweaks, new hint images"
+  ],
+  [
+	["1.57.3", 15703, 1],
+	"fix: outdated tldr-tooltips mods",
+	"fix: poe2 skilltree schematics",
+	"act-tracker: poe1 version no longer requires exile-leveling imports(/highlight)",
+	"act-tracker: this update will delete previous guides and progress(/highlight)",
+	"act-tracker: revised guides, format, editor"
+  ],
+  [
+	["1.57.2", 15702],
+	"fix: item-info implicits",
+	"fix: stash-ninja bookmarking",
+	"renamed the <gamescreen> screen-check to be more descriptive",
+	"expanded clone-frames toggling customization"
+  ],
+  [
+	["1.57.1", 15701],
+	"hotfix 1: added item-info support for idols",
+	"initial legacy of phrecia support: stash-ninja, act-tracker (pob trees)"
+  ],
+  [
+	["1.57.0", 15700, 1],
+	"added experimental multi-threading support(/highlight)",
+	"clone-frames: added auto-toggle option when inventory is open",
+	"clone-frames: added performance/fps settings (5-30 fps)"
+  ],
+  [
+	["1.56.7", 15607],
+	"act-tracker: enabled timer for poe2",
+	"added basic controller support: context-menu and item-info"
+  ],
+  [
+	["1.56.6", 15606],
+	"act-tracker: tweaks for poe2 default guide",
+	"act-tracker: added pob2 integrations",
+	"map-info: fixed delirious waystones",
+	"item-info: added poeladder.com unique drop-tiers"
+  ],
+  [
+	["1.56.5", 15605],
+	"act-tracker: tweaks for poe2 default guide",
+	"map-info: added poe2-themed icon for player mods",
+	"filterspoon (experimental): filterblade compatibility update"
+  ],
+  [
+	["1.56.4", 15604],
+	"hotfix 1: added support for new tower maps (map-tracker)",
+	"minor poe1 and poe2 fixes",
+	"map-tracker: poe1 and poe2 boss-fight improvements",
+	"act-tracker: poe2 compatibility, poe2 guide editor"
+  ],
+  [
+	["1.56.3", 15603],
+	"still beta, poe 1 and 2 changes",
+	"map-tracker: streamlined kill-tracking, improved poe2 support",
+	"item-info: re-enabled for uniques in poe2 to check dps"
+  ],
+  [
+	["1.56.2", 15602],
+	"still beta, mainly poe2 changes",
+	"item-info: now poe2 compatible (but limited)",
+	"map-tracker: now poe2 compatible",
+	"omni-key context menu: added poe2db links"
+  ],
+  [
+	["1.56.1", 15601],
+	"still beta, mainly poe2 changes",
+	"color palette is now more flexible (rgb sliders)",
+	"filterspoon: now poe2 compatible (still highly experimental)",
+	"map-info: now poe2 compatible"
+  ],
+  [
+	["1.56.0", 15600],
+	"initial poe2 compatibility update: will be beta for the time being",
+	"clean install in separate folder recommended"
+  ],
+  [
+	["1.55.8", 15508],
+	"poe2 plans: see full changelogs for details",
+	"new experimental feature for lootfilters: filterspoon"
+  ],
+  [
+	["1.55.7", 15507],
+	"hotkeys: expanded support for non-standard layouts",
+	"client.txt parsing: increased efficiency, added backup and cleaning",
+	"omni-key context menu: added poe.wiki link for valdo maps"
+  ],
+  [
+	["1.55.6", 15506],
+	"hotfix 1: added necro settlers leagues (stash-ninja)",
+	"act-tracker: added support for mule characters"
+  ],
+  [
+	["1.55.5", 15505],
+	"basic preparations for poe 2 support",
+	"act-tracker: pob skill-tree and gem-link integrations"
+  ],
+  [
+	["1.55.4", 15504],
+	"betrayal-info: geforce now screen-cap fix",
+	"act-tracker: improved import for custom guides",
+	"alarm-timer: streamlining and improvements"
+  ],
+  [
+	["1.55.3", 15503],
+	"stash-ninja: added bookmarking to permanently highlight specific items"
+  ],
+  [
+	["1.55.2", 15502],
+	"recombination: added item-slot locking, improved mod detection, updated fractured behavior",
+	"act-tracker: fixed a hint in act 9",
+	"item-info: updated unique drop-tiers"
+  ],
+  [
+	["1.55.1", 15501],
+	"hotfix 1: loot-tracking in the map-tracker couldn't be set up while stash-ninja was disabled",
+	"hotfix 1: potential fix for error-messages during loot-tracking",
+	"recombination simulator updated for 3.25 (needs feedback)"
+  ],
+  [
+	["1.55.0", 15500],
+	"hotfix 1: support for latest exile-leveling guides",
+	"new beta feature: sanctum planner",
+	"map-info: added support for new t17 leech mod",
+	"item-info: updated unique drop-tiers"
+  ],
+  [
+	["1.54.7", 15407],
+	"hotfix 2: omni-key compatibility fix, item-info base-percentile fix for new hybrid gloves",
+	"hotfix 1: highlighting thresholds for rarity and pack-size were swapped around (map-info)",
+	"added support for non-standard keyboard/number layouts (e.g. azerty)",
+	"minor fixes and improvements"
+  ],
+  [
+	["1.54.6", 15406, 1],
+	"omni-key consistency improvements (inventory pixel-check is now mandatory)(/highlight)",
+	"fixes: cheat-sheets, item-info class-specific highlighting, map-info magic monsters",
+	"item-info: improved ilvl detection for mods, changed highlighting"
+  ],
+  [
+	["1.54.5", 15405],
+	"item-info: added support for new item bases, recalibrated base-info percentages",
+	"item-info: updated item-mod data to 3.25 (ilvl and gem weights)",
+	"seed-explorer: updated for 3.25"
+  ],
+  [
+	["1.54.4", 15404],
+	"some league-launch announcements: read full changelog",
+	"hotfix 1: updated & re-enabled stash-ninja, updated essence tooltips, added new t17 fracture map-mod",
+	"hotfix 2: lab-trials were treated as maps and bricked the current log"
+  ],
+  [
+	["1.54.3", 15403],
+	"early 3.25 release: stuff needs testing, please provide feedback",
+	"fix: act-tracker font-size and panel position",
+	"re-introduced recombination simulator",
+	"alarm/countdown timer: support for multiple timers",
+	"necropolis lantern feature removed"
+  ],
+  [
+	["1.54.2", 15402],
+	"fix: adjusting certain stash-ninja settings led to exchange prices being reset",
+	"fix: notes weren't included and searches weren't applied in map-tracker exports",
+	"map-tracker: added <character/build info> as new log data",
+	"map-tracker: improved how items are added to notes"
+  ],
+  [
+	["1.54.1", 15401],
+	"fix: autohotkey bug caused ini-files to be misconfigured (you may have to update manually, check the full changelog)",
+	"fix: pinned mods in the map-info settings didn't work correctly",
+	"settings: restructured tabs and <general> a bit",
+	"clone-frames: restructured settings, streamlined setup"
+  ],
+  [
+	["1.54.0", 15400],
+	"hotfix 1: map-tracker's <stash> image-check failed when it was the only active check",
+	"stash-ninja: added support for official bulk-exchange prices",
+	"stash-ninja: streamlined bulk-sale management"
+  ],
+  [
+	["1.53.6", 15306],
+	"renamed features: leveling tracker -> act-tracker, mapping tracker -> map-tracker",
+	"item-info: inverted mod-rolls are now highlighted to avoid confusion",
+	"map-tracker: partially restructured the log-viewer, improved search",
+	"map-tracker: added conquerors and elder guardians to trackable content"
+  ],
+  [
+	["1.53.5", 15305],
+	"hotfix 1: stash-ninja was activated by rare items that had the same name as tab-specific items",
+	"restored geforce now compatibility",
+	"added optional hotkeys to switch between leveling tracker guide-pages",
+	"stash-ninja: price history fix, custom stock for unstackable items"
+  ],
+  [
+	["1.53.4", 15304],
+	"hotfix 1: help tooltips were displayed incorrectly if settings menu was in center position",
+	"stash-ninja: bulk-sale improvements, added support for tabs within folders",
+	"stash-ninja: now supports every type of stash tab"
+  ],
+  [
+	["1.53.3", 15303],
+	"image-checks: most checks don't require screen-clipping anymore",
+	"map-info: added pinned map mods to settings for easier switching between builds",
+	"stash-ninja: streamlined setup and customization of individual tabs",
+	"stash-ninja: added support for fragment and breach tabs",
+	"stash-ninja: added optional auto-profiles setting to find worthwhile sales more easily"
+  ],
+  [
+	["1.53.2", 15302],
+	"hotfix 1: omni-key activated the stash-ninja feature when pressed on items with <scarab> in their names",
+	"stash-ninja: added optional price history/trend",
+	"stash-ninja: added optional bulk-sale suggestions",
+	"some minor fixes and additions"
+  ],
+  [
+	["1.53.1", 15301],
+	"stash-ninja: new feature that overlays poe.ninja prices onto stash tabs",
+	"item-info: fix for doryani's invitation",
+	"tldr-tooltips: improved altar scanning and recognition"
+  ],
+  [
+	["1.53.0", 15300],
+	"hotfix 1: t17 drop-multipliers showed blank instead of 0 when shift-clicking currency",
+	"hotfix 2: fixed doubled text in segmented notepad widgets",
+	"item-info: updated unique drop-tier data (poeladder.com)",
+	"map-info: partially redesigned",
+	"map-info: added support for t17 drop-multipliers",
+	"map-info: mod highlighting now customizable in settings menu",
+	"map-info: re-worded/consolidated certain map mods"
+  ]
+]
