@@ -863,7 +863,7 @@ Notepad(cHWND := "", hotkey := "", color := 0)
 	Gui, %GUI_name%: Font, % "s" settings.general.fSize - 2 " cWhite", % vars.system.font
 	hwnd_old := vars.hwnd.notepad.main, vars.hwnd.notepad := {"main": notepad}
 
-	Gui, %GUI_name%: Add, Text, % "x-1 y-1 Section HWNDhwnd Center Border gNotepad", lailloken ui: notepad
+	Gui, %GUI_name%: Add, Text, % "x-1 y-1 Section HWNDhwnd Center Border gNotepad", exile ui: notepad
 	vars.hwnd.notepad.winbar := hwnd
 	Gui, %GUI_name%: Add, Text, % "ys x+-1 HWNDhwnd Center Border gNotepad w"settings.general.fWidth*2, x
 	vars.hwnd.notepad.winx := hwnd

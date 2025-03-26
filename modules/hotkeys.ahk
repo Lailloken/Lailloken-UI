@@ -407,7 +407,7 @@ MButton::Stash_PricePicker("reset")
 SC039::
 SC038::
 ~+LButton::
-~*RButton::Stash_Hotkeys()
+~RButton::Stash_Hotkeys()
 
 #If WinActive("ahk_id " vars.hwnd.poe_client) && vars.stash.enter
 ~*SC01C::vars.stash.enter := 0, Stash_PricePicker("destroy")

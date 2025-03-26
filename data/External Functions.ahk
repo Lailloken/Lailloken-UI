@@ -10114,7 +10114,7 @@ Gdip_LockedBitsSearch(hStride,hScan,hWidth,hHeight,nStride,nScan,nWidth,nHeight,
 
 ;##########################################################################################################################################################################
 ;#### "Optical character recognition (OCR) with UWP API" by AHK-forum users 'malcev' and 'teadrinker' (forum-post: https://www.autohotkey.com/boards/viewtopic.php?t=72674)
-;#### contains minor modifications for Lailloken UI
+;#### contains minor modifications for Exile UI
 ;##########################################################################################################################################################################
 
 HBitmapToRandomAccessStream(hBitmap)

@@ -742,7 +742,7 @@ Cheatsheet_Menu(name, refresh := 0) ;refresh = 0 will flush data stored in vars.
 	If WinExist("ahk_id " vars.hwnd.cheatsheet_menu.main)
 		WinGetPos, xPos, yPos,,, % "ahk_id " vars.hwnd.cheatsheet_menu.main
 	toggle := !toggle, GUI_name := "cheatsheet_menu" toggle
-	Gui, %GUI_name%: New, -DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDcheatsheet_menu, Lailloken UI: cheat-sheet
+	Gui, %GUI_name%: New, -DPIScale +LastFound -Caption +AlwaysOnTop +ToolWindow +Border +E0x02000000 +E0x00080000 HWNDcheatsheet_menu, Exile UI: cheat-sheet
 	Gui, %GUI_name%: Color, Black
 	Gui, %GUI_name%: Margin, % settings.general.fWidth/2, % settings.general.fHeight/8
 	Gui, %GUI_name%: Font, % "s"settings.general.fSize - 2 " cWhite", % vars.system.font
