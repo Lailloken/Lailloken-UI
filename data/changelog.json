@@ -1,7 +1,7 @@
 [
   [
 	["1.57.4", 15704, 1],
-	"requires manual install, check full release notes(/highlight)",
+	"requires manual install if you don't have 1.57.3, check full release notes(/highlight)",
 	"tool and project rebranded to exile ui(/highlight)",
 	"fix: stash-ninja bulk-selling interfered with ctrl-right-clicking",
 	"act-tracker: added help button with format-info to guide overlay",
